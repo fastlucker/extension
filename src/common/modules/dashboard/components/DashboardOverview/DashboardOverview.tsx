@@ -15,7 +15,6 @@ import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
 import Routes from '@common/modules/dashboard/components/Routes'
-import useBanners from '@common/modules/dashboard/hooks/useBanners'
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -54,7 +53,6 @@ const DashboardOverview: FC<Props> = ({
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { selectedAccount } = useAccountsControllerState()
-  const banners = useBanners()
   const { accountPortfolio, startedLoadingAtTimestamp, state, resetAccountPortfolioLocalState } =
     usePortfolioControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
@@ -89,15 +87,34 @@ const DashboardOverview: FC<Props> = ({
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
-  const isBalanceInaccurate = useMemo(() => {
-    const portfolioRelatedBanners = banners.filter(
-      (banner) =>
-        banner.id === `${selectedAccount}-portfolio-prices-error` ||
-        banner.id === `${selectedAccount}-portfolio-critical-error`
+  const networksWithCriticalErrors: string[] = useMemo(() => {
+    if (
+      !selectedAccount ||
+      !state.latest[selectedAccount] ||
+      state.latest[selectedAccount]?.isLoading
     )
+      return []
 
-    return !!portfolioRelatedBanners.length
-  }, [banners, selectedAccount])
+    const networkNames: string[] = []
+
+    Object.keys(state.latest[selectedAccount]).forEach((networkId) => {
+      const networkState = state.latest[selectedAccount][networkId]
+
+      if (networkState?.criticalError) {
+        let networkName
+
+        if (networkId === 'gasTank') networkName = 'Gas Tank'
+        else if (networkId === 'rewards') networkName = 'Rewards'
+        else networkName = networks.find((n) => n.id === networkId)?.name
+
+        if (!networkName) return
+
+        networkNames.push(networkName)
+      }
+    })
+
+    return networkNames
+  }, [selectedAccount, state.latest, networks])
 
   // Compare the current timestamp with the timestamp when the loading started
   // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
@@ -226,14 +243,17 @@ const DashboardOverview: FC<Props> = ({
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}
                         </Text>
                       </Text>
-                      {isBalanceInaccurate && (
+                      {!!networksWithCriticalErrors.length && (
                         <>
                           <WarningIcon
                             color={theme.warningDecorative}
                             style={spacings.mlMi}
                             data-tooltip-id="total-balance-warning"
                             data-tooltip-content={t(
-                              'Total balance may be inaccurate due to missing data.'
+                              'Total balance may be inaccurate due to network issues on {{networks}}',
+                              {
+                                networks: networksWithCriticalErrors.join(', ')
+                              }
                             )}
                           />
                           <Tooltip id="total-balance-warning" />
