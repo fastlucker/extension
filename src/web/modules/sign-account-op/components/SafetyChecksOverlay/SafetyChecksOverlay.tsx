@@ -1,5 +1,6 @@
 import { BlurView } from 'expo-blur'
 import React, { FC, useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import SecurityIcon from '@common/assets/svg/SecurityIcon'
@@ -18,6 +19,7 @@ const MAX_DISPLAY_TIME = 3000
 const MIN_DISPLAY_TIME = 500
 
 const SafetyChecksOverlay: FC<Props> = ({ shouldBeVisible }) => {
+  const { t } = useTranslation()
   const [isOverlayActuallyVisible, setIsOverlayActuallyVisible] = useState(shouldBeVisible)
   const [startedLoadingTimestamp, setStartedLoadingTimestamp] = useState<number | null>(null)
 
@@ -53,7 +55,7 @@ const SafetyChecksOverlay: FC<Props> = ({ shouldBeVisible }) => {
   return (
     <BlurView intensity={24} tint="light" style={styles.container}>
       <Text weight="semiBold" fontSize={20} style={spacings.mbLg}>
-        Safety Checks
+        {t('Safety Checks')}
       </Text>
       <View style={flexbox.center}>
         <Spinner style={styles.spinner} />
