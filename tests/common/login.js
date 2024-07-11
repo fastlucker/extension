@@ -30,11 +30,17 @@ export async function createAccountWithPhrase(page, extensionURL, phrase) {
   await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
   // Verify that selected accounts exist on the page
-  const selectedBasicAccount = await page.$$eval('[data-testid="account"]', (el) => el[0].innerText)
-  expect(selectedBasicAccount).toContain(firstSelectedBasicAccount)
-
-  const selectedSmartAccount = await page.$$eval('[data-testid="account"]', (el) => el[1].innerText)
-  expect(selectedSmartAccount).toContain(firstSelectedSmartAccount)
+  await page.waitForFunction(
+    (testId, requiredCount) => {
+      return document.querySelectorAll(`[data-testid="${testId}"]`).length >= requiredCount
+    },
+    {},
+    'address',
+    2
+  )
+  const addresses = await page.$$eval('[data-testid="address"]', (el) => el.map((e) => e.innerText))
+  expect(addresses).toContain(firstSelectedBasicAccount)
+  expect(addresses).toContain(firstSelectedSmartAccount)
 }
 
 //--------------------------------------------------------------------------------------------------------------

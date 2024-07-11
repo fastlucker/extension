@@ -111,7 +111,7 @@ const Account = ({
   }, [addToast, closeDialog, mainCtrlState.statuses.removeAccount, t])
 
   return (
-    <Pressable onPress={selectAccount} {...bindAnim} testID="account">
+    <Pressable onPress={selectAccount} {...bindAnim}>
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
           <Avatar ens={ens} ud={ud} pfp={account.preferences.pfp} />
