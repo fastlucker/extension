@@ -19,8 +19,8 @@ import DeadlineItem from './DeadlineItem'
 
 interface Props {
   data: IrCall['fullVisualization']
-  sizeMultiplierSize: number
-  textSize: number
+  sizeMultiplierSize?: number
+  textSize?: number
   networkId: NetworkId
   isHistory?: boolean
   testID?: string
@@ -29,8 +29,8 @@ interface Props {
 
 const HumanizedVisualization: FC<Props> = ({
   data = [],
-  sizeMultiplierSize,
-  textSize,
+  sizeMultiplierSize = 1,
+  textSize = 16,
   networkId,
   isHistory,
   testID,

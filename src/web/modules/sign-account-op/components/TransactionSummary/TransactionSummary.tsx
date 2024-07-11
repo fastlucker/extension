@@ -14,8 +14,8 @@ import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
+import HumanizedVisualization from '../../../../../common/components/HumanizedVisualization'
 import FallbackVisualization from './FallbackVisualization'
-import HumanizedVisualization from './HumanizedVisualization'
 import getStyles from './styles'
 
 interface Props {
