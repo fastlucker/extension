@@ -4,10 +4,10 @@ import { ScrollView } from 'react-native'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import ExpandableCard from '@common/components/ExpandableCard'
+import HumanizedVisualization from '@common/components/HumanizedVisualization'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 
-import HumanizedVisualization from '../../../../../common/components/HumanizedVisualization'
 import getStyles from './styles'
 
 interface Props {
