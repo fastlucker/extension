@@ -20,7 +20,7 @@ const simplifyTypedMessage = (value: any, n = 0): TypedMessageVisualization[] =>
     })
     return res
   }
-  if (typeof value === 'object') {
+  if (value && typeof value === 'object') {
     Object.keys(value).forEach((k) => {
       res.push({ type: 'key', value: k, n })
       res.push(...simplifyTypedMessage(value[k], n + 1))
