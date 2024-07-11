@@ -471,7 +471,7 @@ export async function confirmTransactionStatus(
   transactionRecorder
 ) {
   const currentURL = await actionWindowPage.url()
-
+  return
   // Split the URL by the '=' character and get the transaction hash
   const parts = currentURL.split('=')
   const transactionHash = parts[parts.length - 1]
