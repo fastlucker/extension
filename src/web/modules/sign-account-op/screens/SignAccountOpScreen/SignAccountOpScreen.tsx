@@ -1,12 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import { Call } from '@ambire-common/libs/accountOp/types'
-import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import usePrevious from '@common/hooks/usePrevious'
@@ -41,16 +38,17 @@ const SignAccountOpScreen = () => {
   const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
+  const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
   )
+  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
   useEffect(() => {
     // Ensures user can re-open the modal, if previously being closed, e.g.
@@ -68,15 +66,6 @@ const SignAccountOpScreen = () => {
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
     signAccountOpState?.status?.type === SigningStatus.Done ||
     mainState.broadcastStatus === 'LOADING'
-
-  useEffect(() => {
-    if (signAccountOpState?.accountOp.signingKeyType !== 'internal' && isSignLoading) {
-      openHwModal()
-      return
-    }
-
-    closeHwModal()
-  }, [closeHwModal, isSignLoading, openHwModal, signAccountOpState?.accountOp.signingKeyType])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -108,6 +97,27 @@ const SignAccountOpScreen = () => {
       })
     }
   }, [accountOpAction?.id, dispatch])
+
+  // trace the call once gas price and estimation is up
+  // we do this only 1 time when there's no estimation error
+  useEffect(() => {
+    if (
+      accountOpAction?.id &&
+      signAccountOpState &&
+      signAccountOpState.estimation &&
+      hasEstimation && // this includes gas prices as well, we need it
+      !estimationFailed &&
+      !didTraceCall
+    ) {
+      setDidTraceCall(true)
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRACE_CALL',
+        params: {
+          estimation: signAccountOpState.estimation
+        }
+      })
+    }
+  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, estimationFailed, dispatch])
 
   useEffect(() => {
     if (!accountOpAction) return
@@ -144,23 +154,6 @@ const SignAccountOpScreen = () => {
   const handleAddToCart = useCallback(() => {
     window.close()
   }, [])
-
-  const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
-    if (!signAccountOpState?.accountOp) return []
-
-    if (signAccountOpState.accountOp?.calls?.length) {
-      return signAccountOpState.accountOp.calls
-        .map((opCall) => {
-          const found: IrCall[] = (signAccountOpState.humanReadable || []).filter(
-            (irCall) => irCall.fromUserRequestId === opCall.fromUserRequestId
-          )
-          return found.length ? found : [opCall]
-        })
-        .flat()
-    }
-
-    return []
-  }, [signAccountOpState?.accountOp, signAccountOpState?.humanReadable])
 
   useEffect(() => {
     const destroy = () => {
@@ -243,14 +236,19 @@ const SignAccountOpScreen = () => {
           isSigning={isSignLoading || !signAccountOpState.readyToSign}
           handleClose={() => setIsChooseSignerShown(false)}
           selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
-          handleChangeSigningKey={handleChangeSigningKey}
+          handleChooseSigningKey={handleChangeSigningKey}
         />
       ) : null}
       <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
             <Simulation network={network} hasEstimation={!!hasEstimation && !!network} />
-            <PendingTransactions callsToVisualize={callsToVisualize} network={network} />
+            <PendingTransactions
+              callsToVisualize={
+                signAccountOpState?.humanReadable || signAccountOpState?.accountOp?.calls || []
+              }
+              network={network}
+            />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <Estimation
@@ -261,12 +259,13 @@ const SignAccountOpScreen = () => {
             isViewOnly={isViewOnly}
           />
 
-          {signAccountOpState && (
-            <HardwareWalletSigningModal
-              modalRef={hwModalRef}
-              keyType={signAccountOpState.accountOp.signingKeyType || ''}
-            />
-          )}
+          {signAccountOpState?.accountOp.signingKeyType &&
+            signAccountOpState?.accountOp.signingKeyType !== 'internal' && (
+              <HardwareWalletSigningModal
+                isVisible={isSignLoading}
+                keyType={signAccountOpState.accountOp.signingKeyType}
+              />
+            )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

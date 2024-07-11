@@ -1,9 +1,10 @@
+import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { typeText, clickOnElement, confirmTransaction, selectMaticToken } from '../functions'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 //--------------------------------------------------------------------------------------------------------------
-export async function makeValidTransaction(page, extensionRootUrl, browser) {
+export async function makeValidTransaction(page, extensionURL, browser) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   // Click on "Send" button
   await clickOnElement(page, '[data-testid="dashboard-button-send"]')
@@ -30,7 +31,7 @@ export async function makeValidTransaction(page, extensionRootUrl, browser) {
   // Confirm Transaction
   await confirmTransaction(
     page,
-    extensionRootUrl,
+    extensionURL,
     browser,
     '[data-testid="transfer-button-send"]',
     // '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x6b175474e89094c44da98b954eedeac495271d0fdaigastank"]'
@@ -39,8 +40,8 @@ export async function makeValidTransaction(page, extensionRootUrl, browser) {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function makeSwap(page, extensionRootUrl, browser) {
-  await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
+export async function makeSwap(page, extensionURL, browser) {
+  await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
   // Click on 'connect' button
   await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
@@ -50,13 +51,27 @@ export async function makeSwap(page, extensionRootUrl, browser) {
 
   // Wait for the new page to be created and click on 'Connect' button
   const newTarget = await browser.waitForTarget(
-    (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
+    (target) => target.url() === `${extensionURL}/action-window.html#/dapp-connect-request`
   )
   const actionWindowPage = await newTarget.page()
+
+  const actionWindowDapReqRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
+    followNewTab: true
+  })
+  await actionWindowDapReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
   actionWindowPage.setDefaultTimeout(120000)
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
   await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
+
+  await actionWindowDapReqRecorder.stop()
+
+  // Change the network to Polygon
+  await clickOnElement(page, '[data-testid="chain-selector-logo"]')
+  await clickOnElement(page, '[data-testid="Polygon-selector"]')
+
+  // If this web3 status indicator is not disabled, it means that the connection was successful.
+  await page.waitForSelector('[data-testid="web3-status-connected"]:not([disabled])')
 
   // Select USDT and USDC tokens for swap
   await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
@@ -81,7 +96,7 @@ export async function makeSwap(page, extensionRootUrl, browser) {
   // Click on 'Confirm Swap' button and confirm transaction
   await confirmTransaction(
     page,
-    extensionRootUrl,
+    extensionURL,
     browser,
     '[data-testid="confirm-swap-button"]:not([disabled]',
     '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
@@ -89,8 +104,8 @@ export async function makeSwap(page, extensionRootUrl, browser) {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function sendFundsGreaterThanBalance(page, extensionRootUrl) {
-  await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+export async function sendFundsGreaterThanBalance(page, extensionURL) {
+  await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
   await page.waitForSelector('[data-testid="max-available-amount"]')
 
@@ -120,8 +135,8 @@ export async function sendFundsGreaterThanBalance(page, extensionRootUrl) {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function sendFundsToSmartContract(page, extensionRootUrl) {
-  await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+export async function sendFundsToSmartContract(page, extensionURL) {
+  await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
   await page.waitForSelector('[data-testid="max-available-amount"]')
 
@@ -147,7 +162,7 @@ export async function sendFundsToSmartContract(page, extensionRootUrl) {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function signMessage(page, extensionRootUrl, browser, signerAddress) {
+export async function signMessage(page, extensionURL, browser, signerAddress) {
   /* Allow permissions for read and write in clipboard */
   const context = browser.defaultBrowserContext()
   await context.overridePermissions('https://sigtool.ambire.com', [
@@ -163,10 +178,17 @@ export async function signMessage(page, extensionRootUrl, browser, signerAddress
 
   // Wait for the new page to be created and click on 'Connect' button
   const newTarget = await browser.waitForTarget(
-    (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
+    (target) => target.url() === `${extensionURL}/action-window.html#/dapp-connect-request`
   )
   const newPage = await newTarget.page()
+  const actionWindowDappReqRecorder = new PuppeteerScreenRecorder(newPage, {
+    followNewTab: true
+  })
+  await actionWindowDappReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
+
   await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
+
+  await actionWindowDappReqRecorder.stop()
 
   // Type message in the 'Message' field
   const textMessage = 'text message'
@@ -177,15 +199,23 @@ export async function signMessage(page, extensionRootUrl, browser, signerAddress
 
   // Wait for the new window to be created and switch to it
   const actionWindowTarget = await browser.waitForTarget(
-    (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-message`
+    (target) => target.url() === `${extensionURL}/action-window.html#/sign-message`
   )
   const actionWindowPage = await actionWindowTarget.page()
+
+  const actionWindowSignMsgRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
+    followNewTab: true
+  })
+  await actionWindowSignMsgRecorder.start(`./recorder/action_window_sign_msg_${Date.now()}.mp4`)
+
   actionWindowPage.setDefaultTimeout(120000)
 
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
   // Click on "Sign" button
   await clickOnElement(actionWindowPage, '[data-testid="button-sign"]')
+
+  await actionWindowSignMsgRecorder.stop()
 
   await page.waitForSelector('.signatureResult-signature')
   // Get the Message signature text
