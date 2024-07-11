@@ -1,9 +1,12 @@
 import { FC, memo, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NativeScrollEvent, ScrollView, View } from 'react-native'
+import { NativeScrollEvent, Pressable, ScrollView, View } from 'react-native'
 
+import { networks } from '@ambire-common/consts/networks'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
+import Address from '@common/components/Address'
+import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -24,7 +27,7 @@ const FallbackVisualization: FC<{
   const { styles } = useTheme(getStyles)
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
-
+  const [showRawTypedMessage, setShowRawTypedMessage] = useState(false)
   useEffect(() => {
     const isScrollNotVisible = contentHeight < containerHeight
 
@@ -37,12 +40,12 @@ const FallbackVisualization: FC<{
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <ErrorOutlineIcon width={24} height={24} />
+        <ErrorOutlineIcon width={36} height={36} />
         <Text style={styles.headerText}>
-          <Text fontSize={16} appearance="warningText" weight="semiBold">
+          <Text appearance="warningText" weight="semiBold">
             {t('Warning:')}{' '}
           </Text>
-          <Text fontSize={16} appearance="warningText">
+          <Text appearance="warningText">
             {t('We are not able to decode this message for your convenience.')}
           </Text>
         </Text>
@@ -59,30 +62,26 @@ const FallbackVisualization: FC<{
         }}
         scrollEventThrottle={400}
       >
-        <Text weight="regular" fontSize={14} appearance="secondaryText" style={spacings.mb}>
+        <Text weight="regular" appearance="secondaryText" style={spacings.mb}>
           {t('The entries in the message:')}
         </Text>
-        <Text
-          selectable
-          weight="regular"
-          fontSize={14}
-          appearance="secondaryText"
-          style={spacings.mb}
-        >
-          {content.kind === 'typedMessage'
-            ? simplifyTypedMessage(content.message).map((i) => (
-                <>
-                  <br />
-                  <Text
-                    key={JSON.stringify(i)}
-                    style={i.type === 'key' ? { fontWeight: 'bold' } : {}}
-                  >
-                    {' '.repeat(i.n)}
-                    {i.value}
-                  </Text>
-                </>
-              ))
-            : getMessageAsText(content.message) || t('(Empty message)')}
+        <Text selectable weight="regular" appearance="secondaryText" style={spacings.mb}>
+          {content.kind === 'typedMessage' ? (
+            <Pressable onPress={() => setShowRawTypedMessage(!showRawTypedMessage)}>
+              {showRawTypedMessage
+                ? JSON.stringify(content.message, null, 4)
+                : simplifyTypedMessage(content.message).map((i) => (
+                    <div key={JSON.stringify(i)}>
+                      <Text style={i.type === 'key' ? { fontWeight: 'bold' } : {}}>
+                        {' '.repeat(i.n)}
+                        {i.value}
+                      </Text>
+                    </div>
+                  ))}
+            </Pressable>
+          ) : (
+            getMessageAsText(content.message) || t('(Empty message)')
+          )}
         </Text>
       </ScrollView>
     </View>
