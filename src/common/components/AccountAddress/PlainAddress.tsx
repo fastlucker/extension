@@ -2,6 +2,7 @@ import * as Clipboard from 'expo-clipboard'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -9,7 +10,6 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import shortenAddress from '@web/utils/shortenAddress'
 
 interface Props {
   maxLength: number
