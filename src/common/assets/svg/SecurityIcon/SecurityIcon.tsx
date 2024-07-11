@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, memo } from 'react'
 import { G, Path, Svg, SvgProps } from 'react-native-svg'
 
 const SecurityIcon: FC<SvgProps> = ({ width, height }) => {
@@ -22,4 +22,4 @@ const SecurityIcon: FC<SvgProps> = ({ width, height }) => {
   )
 }
 
-export default SecurityIcon
+export default memo(SecurityIcon)
