@@ -29,6 +29,9 @@ export async function createAccountWithPhrase(page, extensionURL, phrase) {
   await page.waitForFunction(() => window.location.href.includes('/onboarding-completed'))
   await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
+  await page.waitForXPath(`//*[contains(text(), "${firstSelectedBasicAccount}")]`)
+  await page.waitForXPath(`//*[contains(text(), "${firstSelectedSmartAccount}")]`)
+
   // Verify that selected accounts exist on the page
   const selectedBasicAccount = await page.$$eval('[data-testid="account"]', (el) => el[0].innerText)
   expect(selectedBasicAccount).toContain(firstSelectedBasicAccount)
