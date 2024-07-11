@@ -31,7 +31,6 @@ export async function createAccountWithPhrase(page, extensionURL, phrase) {
 
   // Verify that selected accounts exist on the page
   await page.waitForFunction(
-<<<<<<< HEAD
     (testId, requiredCount) => {
       return document.querySelectorAll(`[data-testid="${testId}"]`).length >= requiredCount
     },
@@ -42,19 +41,6 @@ export async function createAccountWithPhrase(page, extensionURL, phrase) {
   const addresses = await page.$$eval('[data-testid="address"]', (el) => el.map((e) => e.innerText))
   expect(addresses).toContain(firstSelectedBasicAccount)
   expect(addresses).toContain(firstSelectedSmartAccount)
-=======
-    (basicAccAddr, smartAccAddr) => {
-      const accounts = document.querySelectorAll('[data-testid="account"]')
-
-      return (
-        accounts[0].innerText.includes(basicAccAddr) && accounts[1].innerText.includes(smartAccAddr)
-      )
-    },
-    {},
-    firstSelectedBasicAccount,
-    firstSelectedSmartAccount
-  )
->>>>>>> v2
 }
 
 //--------------------------------------------------------------------------------------------------------------
