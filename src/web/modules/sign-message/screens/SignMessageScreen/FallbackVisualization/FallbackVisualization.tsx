@@ -2,14 +2,13 @@ import { FC, memo, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, Pressable, ScrollView, View } from 'react-native'
 
-import { networks } from '@ambire-common/consts/networks'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import Address from '@common/components/Address'
-import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { getMessageAsText, simplifyTypedMessage } from '@web/modules/sign-message/utils'
 
 import getStyles from './styles'
@@ -50,6 +49,16 @@ const FallbackVisualization: FC<{
           </Text>
         </Text>
       </View>
+      {messageToSign?.content?.kind === 'typedMessage' &&
+        messageToSign?.content?.domain?.verifyingContract && (
+          <View style={flexbox.directionRow}>
+            <Text style={spacings.mrTy}>To be verified by</Text>
+            <Address
+              address={messageToSign.content.domain.verifyingContract}
+              explorerNetworkId={messageToSign.networkId}
+            />
+          </View>
+        )}
       <ScrollView
         onScroll={(e) => {
           if (isCloseToBottom(e.nativeEvent)) setHasReachedBottom(true)
