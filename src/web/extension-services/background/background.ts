@@ -620,7 +620,7 @@ let mainCtrl: MainController
                 })
               }
               case 'MAIN_CONTROLLER_TRACE_CALL': {
-                return await mainCtrl.traceCall(params.actionId, params.estimation)
+                return await mainCtrl.traceCall(params.estimation)
               }
               case 'MAIN_CONTROLLER_ADD_NETWORK': {
                 return await mainCtrl.addNetwork(params)

@@ -65,39 +65,32 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     [hasEstimation, initialSimulationLoaded]
   )
 
-  const hasSimulationError = useMemo(() => {
-    return (
-      (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
-      (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
-        !!portfolioStatePending?.criticalError?.simulationErrorMsg)
-    )
+  const simulationErrorMsg = useMemo(() => {
+    if (portfolioStatePending?.isLoading || !initialSimulationLoaded) return ''
+
+    if (portfolioStatePending?.criticalError) {
+      if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
+        return `Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
+      }
+
+      return portfolioStatePending?.criticalError.simulationErrorMsg
+    }
+
+    const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
+    if (simulationError) {
+      if (isHexString(simulationError)) {
+        return `Please report this error to our team: ${simulationError.simulationErrorMsg}`
+      }
+      return simulationError.simulationErrorMsg
+    }
+
+    return ''
   }, [
     initialSimulationLoaded,
-    portfolioStatePending?.criticalError?.simulationErrorMsg,
+    portfolioStatePending?.criticalError,
     portfolioStatePending?.errors,
     portfolioStatePending?.isLoading
   ])
-
-  const simulationErrorMsg = useMemo(() => {
-    let errorMsg = 'We were unable to simulate the transaction'
-    if (portfolioStatePending?.criticalError) {
-      if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
-        errorMsg = `${errorMsg}. Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
-      } else {
-        errorMsg = `${errorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
-      }
-    } else {
-      const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
-      if (simulationError) {
-        if (isHexString(simulationError)) {
-          errorMsg = `${errorMsg}. Please report this error to our team: ${simulationError.simulationErrorMsg}`
-        } else {
-          errorMsg = `${errorMsg}: ${simulationError.simulationErrorMsg}`
-        }
-      }
-    }
-    return errorMsg
-  }, [portfolioStatePending?.criticalError, portfolioStatePending?.errors])
 
   const shouldShowLoader = useMemo(
     () =>
@@ -112,12 +105,14 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     ]
   )
 
-  const simulationView: 'no-changes' | 'changes' | null = useMemo(() => {
-    if (shouldShowLoader || !signAccountOpState?.isInitialized || hasSimulationError) return null
+  const simulationView: 'no-changes' | 'changes' | 'error' | null = useMemo(() => {
+    if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
+
+    if (simulationErrorMsg) return 'error'
 
     return pendingTokens.length ? 'changes' : 'no-changes'
   }, [
-    hasSimulationError,
+    simulationErrorMsg,
     pendingTokens.length,
     shouldShowLoader,
     signAccountOpState?.isInitialized
@@ -186,9 +181,12 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
           )}
         </View>
       )}
-      {!!hasSimulationError && (
+      {simulationView === 'error' && (
         <View>
-          <Alert type="error" title={simulationErrorMsg} />
+          <Alert
+            type="error"
+            title={`We were unable to simulate the transaction: ${simulationErrorMsg}`}
+          />
         </View>
       )}
       {simulationView === 'no-changes' && (
