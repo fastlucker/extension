@@ -120,6 +120,10 @@ describe('sa_transactions', () => {
 })
 
 describe.skip('sa_transactions_with_new_storage', () => {
+  let browser
+  let page
+  let extensionURL
+  let recorder
   beforeEach(async () => {
     const newValues = {
       parsedKeystoreSecrets: JSON.parse(process.env.A2_SECRETS),
