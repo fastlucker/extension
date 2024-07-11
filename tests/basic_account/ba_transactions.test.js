@@ -9,7 +9,10 @@ import {
 } from '../common/transactions.js'
 
 describe('ba_transactions', () => {
-  let browser, page, extensionURL, recorder
+  let browser
+  let page
+  let extensionURL
+  let recorder
 
   beforeEach(async () => {
     ;({ browser, page, recorder, extensionURL } = await bootstrapWithStorage(
@@ -27,8 +30,7 @@ describe('ba_transactions', () => {
     await makeValidTransaction(page, extensionURL, browser)
   })
 
-  // skip the test because Uniswap is temp broken on Polygon
-  it.skip('Makes a valid swap', async () => {
+  it('Makes a valid swap', async () => {
     await makeSwap(page, extensionURL, browser)
   })
 

@@ -618,7 +618,7 @@ function stateDebug(event: string, stateToLog: object) {
                 })
               }
               case 'MAIN_CONTROLLER_TRACE_CALL': {
-                return mainCtrl.traceCall(params.actionId, params.estimation)
+                return mainCtrl.traceCall(params.estimation)
               }
               case 'MAIN_CONTROLLER_ADD_NETWORK': {
                 return await mainCtrl.addNetwork(params)
