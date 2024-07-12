@@ -410,7 +410,7 @@ export async function selectFeeToken(actionWindowPage, feeToken) {
     // Click on the tokens select
     await clickOnElement(actionWindowPage, '[data-testid="tokens-select"]')
 
-    // Click on the Gas Tank option
+    // Select fee token
     await clickOnElement(actionWindowPage, feeToken)
   }
 }
