@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -10,7 +10,7 @@ interface Props {
   signingKeyType?: AccountOp['signingKeyType']
   feePayerKeyType?: Key['type']
   broadcastSignedAccountOpStatus: MainController['statuses']['broadcastSignedAccountOp']
-  signAccountOpStatusType: SigningStatus
+  signAccountOpStatusType?: SigningStatus
 }
 
 const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
@@ -55,4 +55,4 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   )
 }
 
-export default SignAccountOpHardwareWalletSigningModal
+export default React.memo(SignAccountOpHardwareWalletSigningModal)
