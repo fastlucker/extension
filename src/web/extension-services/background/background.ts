@@ -122,7 +122,7 @@ function stateDebug(event: string, stateToLog: object) {
     hasSignAccountOpCtrlInitialized: boolean
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
-    activityIntervalId?: ReturnType<typeof setInterval>
+    accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateInterval?: ReturnType<typeof setTimeout>
@@ -231,12 +231,18 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
   }
 
-  function setActivityInterval(timeout: number) {
-    !!backgroundState.activityIntervalId && clearInterval(backgroundState.activityIntervalId)
-    backgroundState.activityIntervalId = setInterval(
-      () => mainCtrl.updateAccountsOpsStatuses(),
-      timeout
-    )
+  function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
+    if (backgroundState.accountsOpsStatusesInterval)
+      clearTimeout(backgroundState.accountsOpsStatusesInterval)
+
+    async function updateStatuses() {
+      await mainCtrl.updateAccountsOpsStatuses()
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+    }
+
+    backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
   async function initAccountStateContinuousUpdate(intervalLength: number) {
@@ -401,13 +407,13 @@ function stateDebug(event: string, stateToLog: object) {
               // Start the interval for updating the accounts ops statuses, only if there are broadcasted but not confirmed accounts ops
               if (controller?.broadcastedButNotConfirmed.length) {
                 // If the interval is already set, then do nothing.
-                if (!backgroundState.activityIntervalId) {
-                  setActivityInterval(5000)
+                if (!backgroundState.accountsOpsStatusesInterval) {
+                  initAccountsOpsStatusesContinuousUpdate(5000)
                 }
               } else {
-                !!backgroundState.activityIntervalId &&
-                  clearInterval(backgroundState.activityIntervalId)
-                delete backgroundState.activityIntervalId
+                !!backgroundState.accountsOpsStatusesInterval &&
+                  clearTimeout(backgroundState.accountsOpsStatusesInterval)
+                delete backgroundState.accountsOpsStatusesInterval
               }
             }
             if (ctrlName === 'accounts') {
