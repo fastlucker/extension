@@ -230,17 +230,17 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, intervalLength)
   }
 
-  function initAccountOpStatusesContinuousUpdate(intervalLength: number) {
+  function initAccountOpStatusesContinuousUpdate(updateInterval: number) {
     if (backgroundState.activityInterval) clearTimeout(backgroundState.activityInterval)
 
     async function updateAccountOpsStatuses() {
       await mainCtrl.updateAccountsOpsStatuses()
 
       // Schedule the next update only when the previous one completes
-      backgroundState.activityInterval = setTimeout(updateAccountOpsStatuses, intervalLength)
+      backgroundState.activityInterval = setTimeout(updateAccountOpsStatuses, updateInterval)
     }
 
-    backgroundState.activityInterval = setTimeout(updateAccountOpsStatuses, intervalLength)
+    backgroundState.activityInterval = setTimeout(updateAccountOpsStatuses, updateInterval)
   }
 
   async function initAccountStateContinuousUpdate(intervalLength: number) {
