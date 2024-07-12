@@ -14,6 +14,7 @@ import {
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
+import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
@@ -22,14 +23,15 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
 
 import SectionHeading from '../SectionHeading'
+import Warnings from '../Warnings'
 import AmountInfo from './components/AmountInfo'
 import EstimationSkeleton from './components/EstimationSkeleton'
-import Warnings from './components/Warnings'
 import getStyles from './styles'
 
 type Props = {
@@ -64,6 +66,7 @@ const Estimation = ({
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { minWidthSize } = useWindowSize()
+  const { accountStates } = useAccountsControllerState()
 
   const payOptions = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation || estimationFailed)
@@ -168,6 +171,23 @@ const Estimation = ({
     [dispatch, signAccountOpState?.selectedFeeSpeed]
   )
 
+  const isSmartAccountAndNotDeployed = useMemo(() => {
+    if (!isSmartAccount(signAccountOpState?.account) || !signAccountOpState?.accountOp?.accountAddr)
+      return false
+
+    const accountState =
+      accountStates[signAccountOpState?.accountOp.accountAddr][
+        signAccountOpState?.accountOp.networkId
+      ]
+
+    return !accountState?.isDeployed
+  }, [
+    accountStates,
+    signAccountOpState?.account,
+    signAccountOpState?.accountOp.accountAddr,
+    signAccountOpState?.accountOp.networkId
+  ])
+
   useEffect(() => {
     if (!initialSetupDone && payOptions.length > 0) {
       setPayValue(payOptions[0])
@@ -229,6 +249,7 @@ const Estimation = ({
           estimationFailed={estimationFailed}
           slowRequest={slowRequest}
           isViewOnly={isViewOnly}
+          rbfDetected={false}
         />
       </EstimationWrapper>
     )
@@ -315,6 +336,13 @@ const Estimation = ({
         isViewOnly={isViewOnly}
         rbfDetected={!!signAccountOpState?.rbfAccountOps[payValue.paidBy]}
       />
+      {isSmartAccountAndNotDeployed ? (
+        <Alert
+          type="info"
+          title="Note"
+          text="Because this is your first Ambire transaction, the fee is 32% higher than usual because we have to deploy your smart wallet. Subsequent transactions will be cheaper."
+        />
+      ) : null}
     </EstimationWrapper>
   )
 }
