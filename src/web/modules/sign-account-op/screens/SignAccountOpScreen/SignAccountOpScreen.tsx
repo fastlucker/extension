@@ -5,7 +5,6 @@ import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
-import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -26,6 +25,7 @@ import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
+import SafetyChecksOverlay from '@web/modules/sign-account-op/components/SafetyChecksOverlay'
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
@@ -227,64 +227,64 @@ const SignAccountOpScreen = () => {
     signAccountOpState?.status?.type === SigningStatus.InProgress ? signingKeyType : feePayerKeyType
 
   return (
-    <TabLayoutContainer
-      width="full"
-      header={
-        <HeaderAccountAndNetworkInfo
-          networkName={network?.name}
-          networkId={network?.id as NetworkIconIdType}
-        />
-      }
-      footer={
-        <Footer
-          onReject={handleRejectAccountOp}
-          onAddToCart={handleAddToCart}
-          isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
-          isSignLoading={isSignLoading}
-          readyToSign={!!signAccountOpState && signAccountOpState.readyToSign}
-          isViewOnly={isViewOnly}
-          onSign={onSignButtonClick}
-        />
-      }
-    >
-      {signAccountOpState ? (
-        <SigningKeySelect
-          isVisible={isChooseSignerShown}
-          isSigning={isSignLoading || !signAccountOpState.readyToSign}
-          handleClose={() => setIsChooseSignerShown(false)}
-          selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
-          handleChooseSigningKey={handleChangeSigningKey}
-        />
-      ) : null}
-      <TabLayoutWrapperMainContent scrollEnabled={false}>
-        <View style={styles.container}>
-          <View style={styles.leftSideContainer}>
-            <Simulation network={network} hasEstimation={!!hasEstimation && !!network} />
-            <PendingTransactions
-              callsToVisualize={
-                signAccountOpState?.humanReadable || signAccountOpState?.accountOp?.calls || []
-              }
-              network={network}
-            />
-          </View>
-          <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
-          <Estimation
-            signAccountOpState={signAccountOpState}
-            disabled={isSignLoading}
-            hasEstimation={!!hasEstimation && !!signAccountOpState}
-            slowRequest={slowRequest}
+    <>
+      <SafetyChecksOverlay
+        shouldBeVisible={!signAccountOpState?.estimation || !signAccountOpState?.isInitialized}
+      />
+      <TabLayoutContainer
+        width="full"
+        header={<HeaderAccountAndNetworkInfo />}
+        footer={
+          <Footer
+            onReject={handleRejectAccountOp}
+            onAddToCart={handleAddToCart}
+            isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
+            isSignLoading={isSignLoading}
+            readyToSign={!!signAccountOpState && signAccountOpState.readyToSign}
             isViewOnly={isViewOnly}
+            onSign={onSignButtonClick}
           />
-
-          {shouldRenderHardwareWalletSigningModal && keyTypeHardwareWalletSigningModal && (
-            <HardwareWalletSigningModal
-              isVisible={shouldHardwareWalletSigningModalBeVisible}
-              keyType={keyTypeHardwareWalletSigningModal}
+        }
+      >
+        {signAccountOpState ? (
+          <SigningKeySelect
+            isVisible={isChooseSignerShown}
+            isSigning={isSignLoading || !signAccountOpState.readyToSign}
+            handleClose={() => setIsChooseSignerShown(false)}
+            selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
+            handleChooseSigningKey={handleChangeSigningKey}
+          />
+        ) : null}
+        <TabLayoutWrapperMainContent scrollEnabled={false}>
+          <View style={styles.container}>
+            <View style={styles.leftSideContainer}>
+              <Simulation network={network} hasEstimation={!!hasEstimation && !!network} />
+              <PendingTransactions
+                callsToVisualize={
+                  signAccountOpState?.humanReadable || signAccountOpState?.accountOp?.calls || []
+                }
+                network={network}
+              />
+            </View>
+            <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
+            <Estimation
+              signAccountOpState={signAccountOpState}
+              disabled={isSignLoading}
+              hasEstimation={!!hasEstimation && !!signAccountOpState}
+              slowRequest={slowRequest}
+              isViewOnly={isViewOnly}
             />
-          )}
-        </View>
-      </TabLayoutWrapperMainContent>
-    </TabLayoutContainer>
+
+            {shouldRenderHardwareWalletSigningModal && keyTypeHardwareWalletSigningModal && (
+              <HardwareWalletSigningModal
+                isVisible={shouldHardwareWalletSigningModalBeVisible}
+                keyType={keyTypeHardwareWalletSigningModal}
+              />
+            )}
+          </View>
+        </TabLayoutWrapperMainContent>
+      </TabLayoutContainer>
+    </>
   )
 }
 

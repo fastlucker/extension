@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import Alert from '@common/components/Alert'
+import NetworkBadge from '@common/components/NetworkBadge'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
@@ -126,7 +127,17 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
 
   return (
     <View style={styles.simulationSection}>
-      <SectionHeading>{t('Simulation results')}</SectionHeading>
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.justifySpaceBetween,
+          spacings.mbLg
+        ]}
+      >
+        <SectionHeading withMb={false}>{t('Simulation results')}</SectionHeading>
+        <NetworkBadge networkId={network?.id} withOnPrefix />
+      </View>
       {simulationView === 'changes' && (
         <View style={[flexbox.directionRow, flexbox.flex1]}>
           {!!pendingSendTokens.length && (
