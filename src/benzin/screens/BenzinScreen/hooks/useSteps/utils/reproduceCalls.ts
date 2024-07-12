@@ -233,8 +233,11 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
   return [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
 }
 
-export const getSender = (txn: TransactionResponse, receipt: TransactionReceipt) => {
+export const getSender = (receipt: TransactionReceipt, txn?: TransactionResponse | null) => {
+  if (!txn) return null
+
   const sigHash = txn.data.slice(0, 10)
+
   if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
     const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
     const sigHashValues = Object.values(userOpSigHashes)
@@ -243,6 +246,17 @@ export const getSender = (txn: TransactionResponse, receipt: TransactionReceipt)
       return userOps[0][0]
     }
   }
+
+  if (sigHash === handleOps070.getFunction('handleOps')!.selector) {
+    const handleOpsData = handleOps070.decodeFunctionData('handleOps', txn.data)
+    const sigHashValues = Object.values(userOpSigHashes)
+    const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
+    if (userOps.length) {
+      return userOps[0][0]
+    }
+  }
+
+  if (Object.values(userOpSigHashes).includes(sigHash)) return receipt.to
 
   return receipt.from
 }
