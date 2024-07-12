@@ -21,7 +21,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
-import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
@@ -29,6 +28,7 @@ import SafetyChecksOverlay from '@web/modules/sign-account-op/components/SafetyC
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
+import SignAccountOpHardwareWalletSigningModal from '../../components/SignAccountOpHardwareWalletSigningModal'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
@@ -201,40 +201,6 @@ const SignAccountOpScreen = () => {
     [signAccountOpState?.accountKeyStoreKeys]
   )
 
-  const {
-    shouldRenderHardwareWalletSigningModal,
-    shouldHardwareWalletSigningModalBeVisible,
-    keyTypeHardwareWalletSigningModal
-  } = useMemo(() => {
-    const signingKeyType = signAccountOpState?.accountOp.signingKeyType
-    const feePayerKeyType = mainState.feePayerKey?.type
-
-    const isAtLeastOneOfTheKeysInvolvedExternal =
-      (!!signingKeyType && signingKeyType !== 'internal') ||
-      (!!feePayerKeyType && feePayerKeyType !== 'internal')
-    return {
-      shouldRenderHardwareWalletSigningModal: isAtLeastOneOfTheKeysInvolvedExternal,
-      // Should be visible only during each individual (sign or broadcast) loading
-      // and only if the involved (involved for the individual loading) key is external
-      shouldHardwareWalletSigningModalBeVisible:
-        (mainState.statuses.broadcastSignedAccountOp === 'LOADING' &&
-          !!feePayerKeyType &&
-          feePayerKeyType !== 'internal') ||
-        (signAccountOpState?.status?.type === SigningStatus.InProgress &&
-          !!signingKeyType &&
-          signingKeyType !== 'internal'),
-      keyTypeHardwareWalletSigningModal:
-        signAccountOpState?.status?.type === SigningStatus.InProgress
-          ? signingKeyType
-          : feePayerKeyType
-    }
-  }, [
-    mainState.feePayerKey?.type,
-    mainState.statuses.broadcastSignedAccountOp,
-    signAccountOpState?.accountOp.signingKeyType,
-    signAccountOpState?.status?.type
-  ])
-
   if (mainState.signAccOpInitError) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -292,12 +258,12 @@ const SignAccountOpScreen = () => {
               isViewOnly={isViewOnly}
             />
 
-            {shouldRenderHardwareWalletSigningModal && keyTypeHardwareWalletSigningModal && (
-              <HardwareWalletSigningModal
-                isVisible={shouldHardwareWalletSigningModalBeVisible}
-                keyType={keyTypeHardwareWalletSigningModal}
-              />
-            )}
+            <SignAccountOpHardwareWalletSigningModal
+              signingKeyType={signAccountOpState?.accountOp.signingKeyType}
+              feePayerKeyType={mainState.feePayerKey?.type}
+              broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
+              signAccountOpStatusType={signAccountOpState?.status?.type}
+            />
           </View>
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>
