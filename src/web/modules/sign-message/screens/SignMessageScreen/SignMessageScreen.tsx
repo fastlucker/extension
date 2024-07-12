@@ -5,15 +5,14 @@ import { StyleSheet, View } from 'react-native'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { Network } from '@ambire-common/interfaces/network'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
-import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
@@ -60,9 +59,6 @@ const SignMessageScreen = () => {
 
     return signMessageAction.userRequest
   }, [signMessageAction])
-
-  const networkData: Network | null =
-    networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
   const selectedAccountFull = useMemo(
     () => accounts.find((acc) => acc.addr === selectedAccount),
@@ -201,12 +197,7 @@ const SignMessageScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={
-        <HeaderAccountAndNetworkInfo
-          networkName={networkData?.name}
-          networkId={networkData?.id as NetworkIconIdType}
-        />
-      }
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <ActionFooter
           onReject={handleReject}
@@ -226,7 +217,7 @@ const SignMessageScreen = () => {
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
         <View style={flexbox.flex1}>
-          <Text weight="medium" fontSize={20} style={spacings.mbLg}>
+          <Text weight="medium" fontSize={20} style={[spacings.mbLg, textStyles.center]}>
             {t('Sign message')}
           </Text>
           <Info

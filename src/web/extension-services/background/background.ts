@@ -125,7 +125,7 @@ function stateDebug(event: string, stateToLog: object) {
     activityIntervalId?: ReturnType<typeof setInterval>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
-    accountStateInterval?: ReturnType<typeof setInterval>
+    accountStateInterval?: ReturnType<typeof setTimeout>
     selectedAccountStateInterval?: number
   } = {
     /**
@@ -192,7 +192,7 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onSignSuccess: (type) => {
+    onSignSuccess: async (type) => {
       const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
         message: 'Message was successfully signed',
         'typed-data': 'TypedData was successfully signed',
@@ -202,7 +202,7 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendBrowserNotification(messages[type])
 
-      setAccountStateInterval(backgroundState.accountStateIntervals.pending)
+      await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
   })
   const walletStateCtrl = new WalletStateController()
@@ -233,40 +233,45 @@ function stateDebug(event: string, stateToLog: object) {
     )
   }
 
-  function setAccountStateInterval(intervalLength: number) {
-    !!backgroundState.accountStateInterval && clearInterval(backgroundState.accountStateInterval)
+  async function initAccountStateContinuousUpdate(intervalLength: number) {
+    if (backgroundState.accountStateInterval) clearTimeout(backgroundState.accountStateInterval)
     backgroundState.selectedAccountStateInterval = intervalLength
 
-    // if setAccountStateInterval is called with a pending request (this happens after broadcast),
-    // update the account state with the pending block without waiting
+    // If called with a pending request (this happens after broadcast),
+    // update state with the pending block immediately
     if (
       backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
-    ) {
-      mainCtrl.accounts.updateAccountStates('pending')
-    }
+    )
+      await mainCtrl.accounts.updateAccountStates('pending')
 
-    backgroundState.accountStateInterval = setInterval(async () => {
-      // update the account state with the latest block in normal circumstances
-      // and with the pending block when there are pending account ops
+    const updateAccountState = async () => {
+      // Determine which block to use based on the current interval state:
+      // 1) The latest block in normal circumstances or
+      // 2) The pending block when there are pending account ops
       const blockTag =
         backgroundState.selectedAccountStateInterval ===
         backgroundState.accountStateIntervals.standBy
           ? 'latest'
           : 'pending'
-      mainCtrl.accounts.updateAccountStates(blockTag)
+      await mainCtrl.accounts.updateAccountStates(blockTag)
 
-      // if we're in a pending update interval but there are no broadcastedButNotConfirmed account Ops, set the interval to standBy
+      // If we're in a pending update but there are no broadcastedButNotConfirmed
+      // account ops, set the interval to standBy
       if (
         backgroundState.selectedAccountStateInterval ===
           backgroundState.accountStateIntervals.pending &&
         !mainCtrl.activity.broadcastedButNotConfirmed.length
       ) {
-        setAccountStateInterval(backgroundState.accountStateIntervals.standBy)
+        await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+      } else {
+        // Schedule the next update
+        backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
       }
-    }, intervalLength)
-  }
+    }
 
-  setAccountStateInterval(backgroundState.accountStateIntervals.standBy) // Call it once to initialize the interval
+    // Start the first update
+    backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
+  }
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
     const currentNetwork = mainCtrl.networks.networks.filter((n) => n.id === accountOp.networkId)[0]
@@ -618,7 +623,7 @@ function stateDebug(event: string, stateToLog: object) {
                 })
               }
               case 'MAIN_CONTROLLER_TRACE_CALL': {
-                return mainCtrl.traceCall(params.estimation)
+                return await mainCtrl.traceCall(params.estimation)
               }
               case 'MAIN_CONTROLLER_ADD_NETWORK': {
                 return await mainCtrl.addNetwork(params)
@@ -793,7 +798,7 @@ function stateDebug(event: string, stateToLog: object) {
                 )
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
-                return mainCtrl.removeAccount(params.accountAddr)
+                return await mainCtrl.removeAccount(params.accountAddr)
               }
               case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
                 return await mainCtrl.buildTransferUserRequest(
@@ -820,7 +825,7 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.signMessage.reset()
               case 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE': {
                 mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
-                return mainCtrl.handleSignMessage()
+                return await mainCtrl.handleSignMessage()
               }
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init(params?.filters)
@@ -1151,6 +1156,8 @@ function stateDebug(event: string, stateToLog: object) {
   } catch (error) {
     console.error('Failed to register browser.tabs.onRemoved.addListener', error)
   }
+
+  await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.

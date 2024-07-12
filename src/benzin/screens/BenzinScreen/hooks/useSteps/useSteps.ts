@@ -60,6 +60,7 @@ export interface StepsData {
   userOpStatusData: { status: null | string; txnId: null | string }
   txnId: string | null
   from: string | null
+  originatedFrom: string | null
 }
 
 // if the transaction hash is found, we make the top url the real txn id
@@ -99,8 +100,9 @@ const useSteps = ({
   const [txnReceipt, setTxnReceipt] = useState<{
     actualGasCost: null | BigInt
     from: null | string
+    originatedFrom: null | string
     blockNumber: null | BigInt
-  }>({ actualGasCost: null, from: null, blockNumber: null })
+  }>({ actualGasCost: null, from: null, originatedFrom: null, blockNumber: null })
   const [blockData, setBlockData] = useState<null | Block>(null)
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
@@ -154,7 +156,7 @@ const useSteps = ({
           const userOps = data.userOps
           if (!userOps.length) {
             // if we can't find it in the next 2 minutes, we drop it
-            if (refetchUserOpStatusCounter > 10) {
+            if (refetchUserOpStatusCounter > 10 && !userOpStatusData.txnId) {
               setFinalizedStatus({ status: 'dropped' })
               setActiveStep('finalized')
               setUserOpStatusData({ status: 'not_found', txnId: null })
@@ -172,7 +174,7 @@ const useSteps = ({
           if (userOpStatusData.txnId) return
 
           const foundUserOp = userOps[0]
-          if (foundUserOp.transactionHash) {
+          if (foundUserOp.transactionHash && !userOpStatusData.txnId) {
             setUserOpStatusData({
               status: 'submitted',
               txnId: foundUserOp.transactionHash
@@ -246,7 +248,8 @@ const useSteps = ({
         }
 
         setTxnReceipt({
-          from: txn ? getSender(txn, receipt) : receipt.from,
+          from: getSender(receipt, txn),
+          originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
         })
@@ -530,7 +533,8 @@ const useSteps = ({
     pendingTime,
     userOpStatusData,
     txnId: userOpStatusData.txnId ?? txnId,
-    from: userOp?.sender || txn?.from || txnReceipt.from
+    from: txnReceipt.from,
+    originatedFrom: txnReceipt.originatedFrom
   }
 }
 

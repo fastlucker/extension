@@ -21,7 +21,7 @@ interface Props {
 }
 
 const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, summary }) => {
-  const { nativePrice, blockData, finalizedStatus, cost, calls, from } = stepsState
+  const { nativePrice, blockData, finalizedStatus, cost, calls, from, originatedFrom } = stepsState
 
   const stepRows: any = [
     {
@@ -36,8 +36,15 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
 
   if (from) {
     stepRows.push({
-      label: 'From',
+      label: 'Sender',
       value: from
+    })
+  }
+
+  if (from && originatedFrom && originatedFrom.toLowerCase() !== from.toLowerCase()) {
+    stepRows.push({
+      label: 'Originated from',
+      value: originatedFrom
     })
   }
 
