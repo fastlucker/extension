@@ -210,24 +210,25 @@ function stateDebug(event: string, stateToLog: object) {
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
 
+  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
+  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
   function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
 
-    // Determine the interval length based on the extension's activity.
-    // In the case we have an active extension (opened tab, popup, action-window),
-    // we want to run the interval frequently (1 minute).
-    // Otherwise, when inactive we want to run it once in a while (10 minutes).
-    const intervalLength = pm.ports.length ? 60000 : 600000
+    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
+    const updateInterval = isExtensionActive
+      ? ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
+      : INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
 
     async function updatePortfolio() {
       await mainCtrl.updateSelectedAccountPortfolio()
 
       // Schedule the next update only when the previous one completes
-      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, intervalLength)
+      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
     }
 
-    backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, intervalLength)
+    backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
   }
 
   function setActivityInterval(timeout: number) {
