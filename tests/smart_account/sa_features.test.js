@@ -118,7 +118,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Pay transaction fee with basic account', async () => {
+  it('Pay transaction fee with basic account. Send 0.0001 MATIC on Polygon', async () => {
     await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector(amountField)
@@ -287,7 +287,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('4337 transaction', async () => {
+  it('Sent 0.000001 ETH on Optimism to smart account', async () => {
     // Click on Matic (not Gas Tank token)
     await clickOnElement(
       page,
