@@ -223,7 +223,7 @@ function stateDebug(event: string, stateToLog: object) {
     async function updatePortfolio() {
       await mainCtrl.updateSelectedAccountPortfolio()
 
-      // Schedule the next fetch
+      // Schedule the next update only when the previous one completes
       backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, intervalLength)
     }
 
