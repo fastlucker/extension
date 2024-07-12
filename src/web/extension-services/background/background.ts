@@ -273,8 +273,6 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
   }
 
-  await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
-
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
     const currentNetwork = mainCtrl.networks.networks.filter((n) => n.id === accountOp.networkId)[0]
     // 12 seconds is the time needed for a new ethereum block
@@ -1158,6 +1156,8 @@ function stateDebug(event: string, stateToLog: object) {
   } catch (error) {
     console.error('Failed to register browser.tabs.onRemoved.addListener', error)
   }
+
+  await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.
