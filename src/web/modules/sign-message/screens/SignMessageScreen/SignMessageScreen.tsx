@@ -231,8 +231,8 @@ const SignMessageScreen = () => {
             <MessageSummary
               message={signMessageState.humanReadable}
               networkId={network?.id}
-              explorerUrl={network?.explorerUrl}
               kind={signMessageState.messageToSign?.content.kind}
+              networks={networks}
             />
           ) : shouldShowFallback ? (
             <FallbackVisualization
