@@ -120,7 +120,7 @@ function stateDebug(event: string, stateToLog: object) {
       fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
     hasSignAccountOpCtrlInitialized: boolean
-    fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
+    updatePortfolioInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     activityIntervalId?: ReturnType<typeof setInterval>
     gasPriceTimeout?: { start: any; stop: any }
@@ -210,20 +210,25 @@ function stateDebug(event: string, stateToLog: object) {
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
 
-  function setPortfolioFetchInterval() {
-    !!backgroundState.fetchPortfolioIntervalId &&
-      clearInterval(backgroundState.fetchPortfolioIntervalId)
+  function initPortfolioContinuousUpdate() {
+    if (backgroundState.updatePortfolioInterval)
+      clearTimeout(backgroundState.updatePortfolioInterval)
 
-    // mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
-    backgroundState.fetchPortfolioIntervalId = setInterval(
-      () => mainCtrl.updateSelectedAccountPortfolio(),
-      // In the case we have an active extension (opened tab, popup, action-window), we want to run the interval frequently (1 minute).
-      // Otherwise, when inactive we want to run it once in a while (10 minutes).
-      pm.ports.length ? 60000 : 600000
-    )
+    // Determine the interval length based on the extension's activity.
+    // In the case we have an active extension (opened tab, popup, action-window),
+    // we want to run the interval frequently (1 minute).
+    // Otherwise, when inactive we want to run it once in a while (10 minutes).
+    const intervalLength = pm.ports.length ? 60000 : 600000
+
+    async function updatePortfolio() {
+      await mainCtrl.updateSelectedAccountPortfolio()
+
+      // Schedule the next fetch
+      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, intervalLength)
+    }
+
+    backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, intervalLength)
   }
-
-  setPortfolioFetchInterval() // Call it once to initialize the interval
 
   function setActivityInterval(timeout: number) {
     !!backgroundState.activityIntervalId && clearInterval(backgroundState.activityIntervalId)
@@ -512,7 +517,7 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
-      setPortfolioFetchInterval()
+      initPortfolioContinuousUpdate()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, { type, params }) => {
@@ -1094,7 +1099,7 @@ function stateDebug(event: string, stateToLog: object) {
       port.onDisconnect.addListener(() => {
         pm.dispose(port.id)
         pm.removePort(port.id)
-        setPortfolioFetchInterval()
+        initPortfolioContinuousUpdate()
 
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -1157,6 +1162,7 @@ function stateDebug(event: string, stateToLog: object) {
     console.error('Failed to register browser.tabs.onRemoved.addListener', error)
   }
 
+  initPortfolioContinuousUpdate()
   await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
