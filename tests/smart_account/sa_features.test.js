@@ -7,7 +7,8 @@ import {
   triggerTransaction,
   signTransaction,
   confirmTransactionStatus,
-  selectFeeToken
+  selectFeeToken,
+  checkBalanceOfToken
 } from '../functions'
 
 const recipientField = '[data-testid="address-ens-field"]'
@@ -31,7 +32,7 @@ describe('sa_features', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
   //--------------------------------------------------------------------------------------------------------------
   it.skip('Top up gas tank', async () => {
@@ -287,7 +288,12 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('4337 transaction', async () => {
+  it.only('Send 0.0000001 ETH on Optimism.Pay with ETH', async () => {
+    await checkBalanceOfToken(
+      page,
+      '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
+      0.0007
+    )
     // Click on Matic (not Gas Tank token)
     await clickOnElement(
       page,
@@ -319,8 +325,7 @@ describe('sa_features', () => {
     )
 
     await page.waitForSelector('[data-testid="amount-field"]')
-    // await selectMaticToken(page)
-    await typeText(page, '[data-testid="amount-field"]', '0.000001') // Type the amount
+    await typeText(page, '[data-testid="amount-field"]', '0.0000001') // Type the amount
 
     // Type the address of the recipient
     await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')

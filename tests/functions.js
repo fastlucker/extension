@@ -494,3 +494,16 @@ export async function confirmTransactionStatus(
   // Assertion to fail the test if transaction failed
   expect(receipt.status).toBe(1)
 }
+export async function checkBalanceOfToken(page, tokenSelector, tokenMinimumBalance) {
+  const tokenText = await page.$eval(tokenSelector, (element) => element.textContent)
+
+  // Extract token balance and network
+  const tokenBalance = tokenText.match(/^\d*\.?\d+/)
+  const tokenMatches = tokenText.match(/\s(.*?)\$/)
+
+  const tokenAndNetwork = tokenMatches[1].trim()
+
+  if (tokenBalance < tokenMinimumBalance) {
+    console.log(`There is NOT enough funds, Balance: ${tokenBalance} ${tokenAndNetwork}`)
+  }
+}

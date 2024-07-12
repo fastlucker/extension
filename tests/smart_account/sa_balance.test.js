@@ -2,14 +2,16 @@ import { bootstrapWithStorage, saParams } from '../functions.js'
 import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../common/balance.js'
 
 describe('sa_balance', () => {
-  let browser, page, recorder
+  let browser
+  let page
+  let recorder
   beforeEach(async () => {
     ;({ browser, page, recorder } = await bootstrapWithStorage('sa_balance', saParams))
   })
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
 
   it('check the balance in account ', async () => {
