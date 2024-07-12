@@ -25,10 +25,10 @@ import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
 import SafetyChecksOverlay from '@web/modules/sign-account-op/components/SafetyChecksOverlay'
+import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-op/components/SignAccountOpHardwareWalletSigningModal'
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
-import SignAccountOpHardwareWalletSigningModal from '../../components/SignAccountOpHardwareWalletSigningModal'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
