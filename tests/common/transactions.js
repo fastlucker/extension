@@ -1,4 +1,7 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
+
+import { ethers } from 'ethers'
+import { verifyMessage } from '@ambire/signature-validator'
 import {
   typeText,
   clickOnElement,
@@ -276,4 +279,21 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
     {},
     'Signature is Valid'
   )
+
+  // this is sign message validation  with @ambire/signature-validator
+  const provider = new ethers.JsonRpcProvider('https://invictus.ambire.com/polygon')
+
+  async function run() {
+    const isValidSig = await verifyMessage({
+      signer: signerAddress,
+      message: textMessage,
+      signature: messageSignature,
+      provider
+    })
+    console.log('is the sig valid: ', isValidSig)
+    return isValidSig
+  }
+
+  const isValid = await run()
+  expect(isValid).toBe(true)
 }
