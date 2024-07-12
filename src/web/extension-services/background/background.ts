@@ -230,17 +230,17 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, intervalLength)
   }
 
-  function initAccountOpStatusesContinuousUpdate(updateInterval: number) {
+  function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
     if (backgroundState.activityInterval) clearTimeout(backgroundState.activityInterval)
 
-    async function updateAccountOpsStatuses() {
+    async function updateAccountsOpsStatuses() {
       await mainCtrl.updateAccountsOpsStatuses()
 
       // Schedule the next update only when the previous one completes
-      backgroundState.activityInterval = setTimeout(updateAccountOpsStatuses, updateInterval)
+      backgroundState.activityInterval = setTimeout(updateAccountsOpsStatuses, updateInterval)
     }
 
-    backgroundState.activityInterval = setTimeout(updateAccountOpsStatuses, updateInterval)
+    backgroundState.activityInterval = setTimeout(updateAccountsOpsStatuses, updateInterval)
   }
 
   async function initAccountStateContinuousUpdate(intervalLength: number) {
@@ -406,7 +406,7 @@ function stateDebug(event: string, stateToLog: object) {
               if (controller?.broadcastedButNotConfirmed.length) {
                 // If the interval is already set, then do nothing.
                 if (!backgroundState.activityInterval) {
-                  initAccountOpStatusesContinuousUpdate(5000)
+                  initAccountsOpsStatusesContinuousUpdate(5000)
                 }
               } else {
                 !!backgroundState.activityInterval && clearTimeout(backgroundState.activityInterval)
