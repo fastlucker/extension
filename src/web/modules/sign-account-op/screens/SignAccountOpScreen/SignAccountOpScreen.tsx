@@ -201,6 +201,40 @@ const SignAccountOpScreen = () => {
     [signAccountOpState?.accountKeyStoreKeys]
   )
 
+  const {
+    shouldRenderHardwareWalletSigningModal,
+    shouldHardwareWalletSigningModalBeVisible,
+    keyTypeHardwareWalletSigningModal
+  } = useMemo(() => {
+    const signingKeyType = signAccountOpState?.accountOp.signingKeyType
+    const feePayerKeyType = mainState.feePayerKey?.type
+
+    const isAtLeastOneOfTheKeysInvolvedExternal =
+      (!!signingKeyType && signingKeyType !== 'internal') ||
+      (!!feePayerKeyType && feePayerKeyType !== 'internal')
+    return {
+      shouldRenderHardwareWalletSigningModal: isAtLeastOneOfTheKeysInvolvedExternal,
+      // Should be visible only during each individual (sign or broadcast) loading
+      // and only if the involved (involved for the individual loading) key is external
+      shouldHardwareWalletSigningModalBeVisible:
+        (mainState.statuses.broadcastSignedAccountOp === 'LOADING' &&
+          !!feePayerKeyType &&
+          feePayerKeyType !== 'internal') ||
+        (signAccountOpState?.status?.type === SigningStatus.InProgress &&
+          !!signingKeyType &&
+          signingKeyType !== 'internal'),
+      keyTypeHardwareWalletSigningModal:
+        signAccountOpState?.status?.type === SigningStatus.InProgress
+          ? signingKeyType
+          : feePayerKeyType
+    }
+  }, [
+    mainState.feePayerKey?.type,
+    mainState.statuses.broadcastSignedAccountOp,
+    signAccountOpState?.accountOp.signingKeyType,
+    signAccountOpState?.status?.type
+  ])
+
   if (mainState.signAccOpInitError) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -208,23 +242,6 @@ const SignAccountOpScreen = () => {
       </View>
     )
   }
-
-  const signingKeyType = signAccountOpState?.accountOp.signingKeyType
-  const feePayerKeyType = mainState.feePayerKey?.type
-  // Component needed only if at least one of the keys involved is external
-  const shouldRenderHardwareWalletSigningModal =
-    (signingKeyType && signingKeyType !== 'internal') ||
-    (feePayerKeyType && feePayerKeyType !== 'internal')
-  // Should be visible only during loading and only if the involved key is external
-  const shouldHardwareWalletSigningModalBeVisible =
-    (mainState.statuses.broadcastSignedAccountOp === 'LOADING' &&
-      !!feePayerKeyType &&
-      feePayerKeyType !== 'internal') ||
-    (signAccountOpState?.status?.type === SigningStatus.InProgress &&
-      !!signingKeyType &&
-      signingKeyType !== 'internal')
-  const keyTypeHardwareWalletSigningModal =
-    signAccountOpState?.status?.type === SigningStatus.InProgress ? signingKeyType : feePayerKeyType
 
   return (
     <>
