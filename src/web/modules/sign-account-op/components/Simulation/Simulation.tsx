@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import Alert from '@common/components/Alert'
+import Collectible from '@common/components/Collectible'
 import NetworkBadge from '@common/components/NetworkBadge'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
@@ -11,6 +12,7 @@ import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
@@ -30,6 +32,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   const signAccountOpState = useSignAccountOpControllerState()
   const portfolioState = usePortfolioControllerState()
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
+  const { networks } = useNetworksControllerState()
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
@@ -55,6 +58,21 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     () => pendingTokens.filter((token) => token.simulationAmount! < 0),
     [pendingTokens]
   )
+  const pendingSendCollection = useMemo(() => {
+    if (!signAccountOpState?.accountOp || !network?.id) return null
+
+    return portfolioState.state.pending[signAccountOpState?.accountOp?.accountAddr][
+      network?.id
+    ]?.result?.collections?.filter((i) => i.postSimulation?.sending?.length)
+  }, [network, signAccountOpState?.accountOp.accountAddr, portfolioState])
+
+  const pendingReceiveCollection = useMemo(() => {
+    if (!signAccountOpState?.accountOp || !network?.id) return null
+
+    return portfolioState.state.pending[signAccountOpState?.accountOp?.accountAddr][
+      network?.id
+    ]?.result?.collections?.filter((i) => i.postSimulation?.receiving?.length)
+  }, [network, signAccountOpState?.accountOp.accountAddr, portfolioState])
 
   const pendingReceiveTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! > 0),
@@ -110,8 +128,9 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
     if (simulationErrorMsg) return 'error'
-
-    return pendingTokens.length ? 'changes' : 'no-changes'
+    return pendingSendCollection?.length || pendingReceiveCollection?.length || pendingTokens.length
+      ? 'changes'
+      : 'no-changes'
   }, [
     simulationErrorMsg,
     pendingTokens.length,
@@ -166,6 +185,67 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
               </ScrollableWrapper>
             </View>
           )}
+
+          {!!pendingSendCollection?.length && (
+            <View
+              style={[styles.simulationContainer, !!pendingReceiveTokens.length && spacings.mrTy]}
+            >
+              <View style={styles.simulationContainerHeader}>
+                <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
+                  {t('Tokens out')}
+                </Text>
+              </View>
+              <ScrollableWrapper
+                style={styles.simulationScrollView}
+                contentContainerStyle={{ flexGrow: 1 }}
+              >
+                {pendingSendCollection
+                  .map(({ name, postSimulation, address, priceIn }) =>
+                    postSimulation?.sending?.map((itemId: bigint) => (
+                      <Text key={address + itemId}>
+                        Send
+                        {address}
+                        {name}
+                        {itemId}
+                        {priceIn}
+                      </Text>
+                    ))
+                  )
+                  .flat()}
+              </ScrollableWrapper>
+            </View>
+          )}
+
+          {!!pendingReceiveCollection?.length && (
+            <View
+              style={[styles.simulationContainer, !!pendingReceiveTokens.length && spacings.mrTy]}
+            >
+              <View style={styles.simulationContainerHeader}>
+                <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
+                  {t('Tokens out')}
+                </Text>
+              </View>
+              <ScrollableWrapper
+                style={styles.simulationScrollView}
+                contentContainerStyle={{ flexGrow: 1 }}
+              >
+                {pendingReceiveCollection
+                  .map(({ name, postSimulation, address, priceIn }) =>
+                    postSimulation?.receiving?.map((itemId: bigint) => (
+                      <Text key={address + itemId}>
+                        Rec
+                        {address}
+                        {name}
+                        {itemId}
+                        {priceIn}
+                      </Text>
+                    ))
+                  )
+                  .flat()}
+              </ScrollableWrapper>
+            </View>
+          )}
+
           {!!pendingReceiveTokens.length && (
             <View style={styles.simulationContainer}>
               <View style={styles.simulationContainerHeader}>
@@ -192,6 +272,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
           )}
         </View>
       )}
+
       {simulationView === 'error' && (
         <View>
           <Alert
