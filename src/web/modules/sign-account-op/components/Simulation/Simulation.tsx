@@ -3,6 +3,7 @@ import React, { FC, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
+import Address from '@common/components/Address'
 import Alert from '@common/components/Alert'
 import Collectible from '@common/components/Collectible'
 import NetworkBadge from '@common/components/NetworkBadge'
@@ -159,20 +160,20 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
       </View>
       {simulationView === 'changes' && (
         <View style={[flexbox.directionRow, flexbox.flex1]}>
-          {!!pendingSendTokens.length && (
+          {(!!pendingSendTokens.length || !!pendingSendCollection?.length) && (
             <View
               style={[styles.simulationContainer, !!pendingReceiveTokens.length && spacings.mrTy]}
             >
               <View style={styles.simulationContainerHeader}>
                 <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                  {t('Tokens out')}
+                  {t('Assets out')}
                 </Text>
               </View>
               <ScrollableWrapper
                 style={styles.simulationScrollView}
                 contentContainerStyle={{ flexGrow: 1 }}
               >
-                {pendingSendTokens.map((token, i) => {
+                {pendingSendTokens?.map((token, i) => {
                   return (
                     <PendingTokenSummary
                       key={token.address}
@@ -182,82 +183,45 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                     />
                   )
                 })}
-              </ScrollableWrapper>
-            </View>
-          )}
-
-          {!!pendingSendCollection?.length && (
-            <View
-              style={[styles.simulationContainer, !!pendingReceiveTokens.length && spacings.mrTy]}
-            >
-              <View style={styles.simulationContainerHeader}>
-                <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                  {t('Tokens out')}
-                </Text>
-              </View>
-              <ScrollableWrapper
-                style={styles.simulationScrollView}
-                contentContainerStyle={{ flexGrow: 1 }}
-              >
                 {pendingSendCollection
-                  .map(({ name, postSimulation, address, priceIn }) =>
+                  ?.map(({ name, postSimulation, address }) =>
                     postSimulation?.sending?.map((itemId: bigint) => (
-                      <Text key={address + itemId}>
-                        Send
-                        {address}
-                        {name}
-                        {itemId}
-                        {priceIn}
-                      </Text>
+                      <View key={address + itemId} style={[flexbox.directionRow, flexbox.wrap]}>
+                        <Collectible
+                          style={spacings.mhTy}
+                          size={36}
+                          id={itemId}
+                          collectionData={{
+                            address,
+                            networkId: network?.id || 'ethereum'
+                          }}
+                          networks={networks}
+                        />
+                        <Address
+                          // fontSize={textSize}
+                          address={address}
+                          highestPriorityAlias={`${name} #${itemId}`}
+                          explorerNetworkId={network?.id}
+                        />
+                      </View>
                     ))
                   )
                   .flat()}
               </ScrollableWrapper>
             </View>
           )}
-
-          {!!pendingReceiveCollection?.length && (
-            <View
-              style={[styles.simulationContainer, !!pendingReceiveTokens.length && spacings.mrTy]}
-            >
-              <View style={styles.simulationContainerHeader}>
-                <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                  {t('Tokens out')}
-                </Text>
-              </View>
-              <ScrollableWrapper
-                style={styles.simulationScrollView}
-                contentContainerStyle={{ flexGrow: 1 }}
-              >
-                {pendingReceiveCollection
-                  .map(({ name, postSimulation, address, priceIn }) =>
-                    postSimulation?.receiving?.map((itemId: bigint) => (
-                      <Text key={address + itemId}>
-                        Rec
-                        {address}
-                        {name}
-                        {itemId}
-                        {priceIn}
-                      </Text>
-                    ))
-                  )
-                  .flat()}
-              </ScrollableWrapper>
-            </View>
-          )}
-
-          {!!pendingReceiveTokens.length && (
+          {(!!pendingReceiveTokens.length || !!pendingReceiveCollection?.length) && (
             <View style={styles.simulationContainer}>
               <View style={styles.simulationContainerHeader}>
                 <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                  {t('Tokens in')}
+                  {t('Assets in')}
                 </Text>
               </View>
               <ScrollableWrapper
                 style={styles.simulationScrollView}
                 contentContainerStyle={{ flexGrow: 1 }}
               >
-                {pendingReceiveTokens.map((token, i) => {
+                {pendingReceiveTokens?.map((token, i) => {
                   return (
                     <PendingTokenSummary
                       key={token.address}
@@ -267,6 +231,30 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                     />
                   )
                 })}
+                {pendingReceiveCollection
+                  ?.map(({ name, postSimulation, address }) =>
+                    postSimulation?.receiving?.map((itemId: bigint) => (
+                      <View key={address + itemId} style={[flexbox.directionRow, flexbox.wrap]}>
+                        <Collectible
+                          style={spacings.mhTy}
+                          size={36}
+                          id={itemId}
+                          collectionData={{
+                            address,
+                            networkId: network?.id || 'ethereum'
+                          }}
+                          networks={networks}
+                        />
+                        <Address
+                          // fontSize={textSize}
+                          address={address}
+                          highestPriorityAlias={`${name} #${itemId}`}
+                          explorerNetworkId={network?.id}
+                        />
+                      </View>
+                    ))
+                  )
+                  .flat()}
               </ScrollableWrapper>
             </View>
           )}
