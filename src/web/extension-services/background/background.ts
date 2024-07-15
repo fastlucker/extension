@@ -120,12 +120,12 @@ function stateDebug(event: string, stateToLog: object) {
       fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
     hasSignAccountOpCtrlInitialized: boolean
-    fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
+    updatePortfolioInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
-    activityIntervalId?: ReturnType<typeof setInterval>
+    accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
-    accountStateInterval?: ReturnType<typeof setInterval>
+    accountStateInterval?: ReturnType<typeof setTimeout>
     selectedAccountStateInterval?: number
   } = {
     /**
@@ -192,7 +192,7 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onSignSuccess: (type) => {
+    onSignSuccess: async (type) => {
       const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
         message: 'Message was successfully signed',
         'typed-data': 'TypedData was successfully signed',
@@ -202,7 +202,7 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendBrowserNotification(messages[type])
 
-      setAccountStateInterval(backgroundState.accountStateIntervals.pending)
+      await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
   })
   const walletStateCtrl = new WalletStateController()
@@ -210,63 +210,80 @@ function stateDebug(event: string, stateToLog: object) {
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
 
-  function setPortfolioFetchInterval() {
-    !!backgroundState.fetchPortfolioIntervalId &&
-      clearInterval(backgroundState.fetchPortfolioIntervalId)
+  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
+  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
+  function initPortfolioContinuousUpdate() {
+    if (backgroundState.updatePortfolioInterval)
+      clearTimeout(backgroundState.updatePortfolioInterval)
 
-    // mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
-    backgroundState.fetchPortfolioIntervalId = setInterval(
-      () => mainCtrl.updateSelectedAccountPortfolio(),
-      // In the case we have an active extension (opened tab, popup, action-window), we want to run the interval frequently (1 minute).
-      // Otherwise, when inactive we want to run it once in a while (10 minutes).
-      pm.ports.length ? 60000 : 600000
-    )
-  }
+    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
+    const updateInterval = isExtensionActive
+      ? ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
+      : INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
 
-  setPortfolioFetchInterval() // Call it once to initialize the interval
+    async function updatePortfolio() {
+      await mainCtrl.updateSelectedAccountPortfolio()
 
-  function setActivityInterval(timeout: number) {
-    !!backgroundState.activityIntervalId && clearInterval(backgroundState.activityIntervalId)
-    backgroundState.activityIntervalId = setInterval(
-      () => mainCtrl.updateAccountsOpsStatuses(),
-      timeout
-    )
-  }
-
-  function setAccountStateInterval(intervalLength: number) {
-    !!backgroundState.accountStateInterval && clearInterval(backgroundState.accountStateInterval)
-    backgroundState.selectedAccountStateInterval = intervalLength
-
-    // if setAccountStateInterval is called with a pending request (this happens after broadcast),
-    // update the account state with the pending block without waiting
-    if (
-      backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
-    ) {
-      mainCtrl.accounts.updateAccountStates('pending')
+      // Schedule the next update only when the previous one completes
+      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
     }
 
-    backgroundState.accountStateInterval = setInterval(async () => {
-      // update the account state with the latest block in normal circumstances
-      // and with the pending block when there are pending account ops
+    backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+  }
+
+  function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
+    if (backgroundState.accountsOpsStatusesInterval)
+      clearTimeout(backgroundState.accountsOpsStatusesInterval)
+
+    async function updateStatuses() {
+      await mainCtrl.updateAccountsOpsStatuses()
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+    }
+
+    backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+  }
+
+  async function initAccountStateContinuousUpdate(intervalLength: number) {
+    if (backgroundState.accountStateInterval) clearTimeout(backgroundState.accountStateInterval)
+    backgroundState.selectedAccountStateInterval = intervalLength
+
+    // If called with a pending request (this happens after broadcast),
+    // update state with the pending block immediately
+    if (
+      backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
+    )
+      await mainCtrl.accounts.updateAccountStates('pending')
+
+    const updateAccountState = async () => {
+      // Determine which block to use based on the current interval state:
+      // 1) The latest block in normal circumstances or
+      // 2) The pending block when there are pending account ops
       const blockTag =
         backgroundState.selectedAccountStateInterval ===
         backgroundState.accountStateIntervals.standBy
           ? 'latest'
           : 'pending'
-      mainCtrl.accounts.updateAccountStates(blockTag)
+      await mainCtrl.accounts.updateAccountStates(blockTag)
 
-      // if we're in a pending update interval but there are no broadcastedButNotConfirmed account Ops, set the interval to standBy
+      // If we're in a pending update but there are no broadcastedButNotConfirmed
+      // account ops, set the interval to standBy
       if (
         backgroundState.selectedAccountStateInterval ===
           backgroundState.accountStateIntervals.pending &&
         !mainCtrl.activity.broadcastedButNotConfirmed.length
       ) {
-        setAccountStateInterval(backgroundState.accountStateIntervals.standBy)
+        await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+      } else {
+        // Schedule the next update
+        backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
       }
-    }, intervalLength)
-  }
+    }
 
-  setAccountStateInterval(backgroundState.accountStateIntervals.standBy) // Call it once to initialize the interval
+    // Start the first update
+    backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
+  }
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
     const currentNetwork = mainCtrl.networks.networks.filter((n) => n.id === accountOp.networkId)[0]
@@ -390,13 +407,13 @@ function stateDebug(event: string, stateToLog: object) {
               // Start the interval for updating the accounts ops statuses, only if there are broadcasted but not confirmed accounts ops
               if (controller?.broadcastedButNotConfirmed.length) {
                 // If the interval is already set, then do nothing.
-                if (!backgroundState.activityIntervalId) {
-                  setActivityInterval(5000)
+                if (!backgroundState.accountsOpsStatusesInterval) {
+                  initAccountsOpsStatusesContinuousUpdate(5000)
                 }
               } else {
-                !!backgroundState.activityIntervalId &&
-                  clearInterval(backgroundState.activityIntervalId)
-                delete backgroundState.activityIntervalId
+                !!backgroundState.accountsOpsStatusesInterval &&
+                  clearTimeout(backgroundState.accountsOpsStatusesInterval)
+                delete backgroundState.accountsOpsStatusesInterval
               }
             }
             if (ctrlName === 'accounts') {
@@ -507,7 +524,7 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
-      setPortfolioFetchInterval()
+      initPortfolioContinuousUpdate()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, { type, params }) => {
@@ -618,7 +635,7 @@ function stateDebug(event: string, stateToLog: object) {
                 })
               }
               case 'MAIN_CONTROLLER_TRACE_CALL': {
-                return mainCtrl.traceCall(params.estimation)
+                return await mainCtrl.traceCall(params.estimation)
               }
               case 'MAIN_CONTROLLER_ADD_NETWORK': {
                 return await mainCtrl.addNetwork(params)
@@ -793,7 +810,7 @@ function stateDebug(event: string, stateToLog: object) {
                 )
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
-                return mainCtrl.removeAccount(params.accountAddr)
+                return await mainCtrl.removeAccount(params.accountAddr)
               }
               case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
                 return await mainCtrl.buildTransferUserRequest(
@@ -820,7 +837,7 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.signMessage.reset()
               case 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE': {
                 mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
-                return mainCtrl.handleSignMessage()
+                return await mainCtrl.handleSignMessage()
               }
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init(params?.filters)
@@ -1089,7 +1106,7 @@ function stateDebug(event: string, stateToLog: object) {
       port.onDisconnect.addListener(() => {
         pm.dispose(port.id)
         pm.removePort(port.id)
-        setPortfolioFetchInterval()
+        initPortfolioContinuousUpdate()
 
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -1151,6 +1168,9 @@ function stateDebug(event: string, stateToLog: object) {
   } catch (error) {
     console.error('Failed to register browser.tabs.onRemoved.addListener', error)
   }
+
+  initPortfolioContinuousUpdate()
+  await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.
