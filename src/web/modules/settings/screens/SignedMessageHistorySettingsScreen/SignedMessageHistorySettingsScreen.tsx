@@ -4,12 +4,12 @@ import { StyleSheet, View } from 'react-native'
 
 import { SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Account } from '@ambire-common/interfaces/account'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
-import shortenAddress from '@web/utils/shortenAddress'
 
 import HistorySettingsPage from '../../components/TransactionHistory/HistorySettingsPage'
 import SignedMessageSummary from '../../components/TransactionHistory/SignedMessageSummary'
