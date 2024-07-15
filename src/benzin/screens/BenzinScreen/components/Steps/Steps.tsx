@@ -72,6 +72,7 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
         activeStep={activeStep}
         finalizedStatus={finalizedStatus}
         rows={stepRows}
+        testID="signed-step"
       />
       {shouldShowTxnProgress(finalizedStatus) && (
         <Step
@@ -81,6 +82,7 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
           stepName="in-progress"
           activeStep={activeStep}
           finalizedStatus={finalizedStatus}
+          testID="txn-progress-step"
         >
           {!!summary && summary}
           {!!calls && !calls.length && stepsState.finalizedStatus?.status !== 'fetching' && (
@@ -101,6 +103,7 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
       />
       {activeStep === 'finalized' ? (
         <Step
+          testID="finalized-rows"
           style={{
             ...spacings[IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'pt' : 'ptSm'],
             borderWidth: 0

@@ -26,6 +26,7 @@ interface StepProps {
   style?: ViewStyle
   titleStyle?: TextStyle
   children?: React.ReactNode | React.ReactNode[]
+  testID?: string
 }
 
 const Step: FC<StepProps> = ({
@@ -36,7 +37,8 @@ const Step: FC<StepProps> = ({
   finalizedStatus,
   style,
   titleStyle,
-  children
+  children,
+  testID
 }) => {
   const { theme, styles } = useTheme(getStyles)
 
@@ -44,7 +46,10 @@ const Step: FC<StepProps> = ({
     if (!rows) return null
 
     return (
-      <View style={[styles.step, spacings.plMd, { flexDirection: 'column' }, style]}>
+      <View
+        style={[styles.step, spacings.plMd, { flexDirection: 'column' }, style]}
+        testID={testID}
+      >
         {rows.map((row) => (
           <StepRow {...row} key={row.label} />
         ))}
@@ -86,7 +91,7 @@ const Step: FC<StepProps> = ({
   }
 
   return (
-    <View style={[styles.step, style]}>
+    <View style={[styles.step, style]} testID={testID}>
       <View>
         {isCompleted && !hasFailed && (
           <ConfirmedIcon color={theme.successDecorative} style={styles.icon} />
