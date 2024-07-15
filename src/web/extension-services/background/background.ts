@@ -13,7 +13,7 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { Network } from '@ambire-common/interfaces/network'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import {
   isDerivedForSmartAccountKeyOnly,
   isSmartAccount
@@ -192,7 +192,7 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onSignSuccess: async (type) => {
+    onSignSuccess: async (type, meta?: { networkIds?: NetworkId[] }) => {
       const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
         message: 'Message was successfully signed',
         'typed-data': 'TypedData was successfully signed',
@@ -202,7 +202,10 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendBrowserNotification(messages[type])
 
-      await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
+      await initAccountStateContinuousUpdate(
+        backgroundState.accountStateIntervals.pending,
+        meta?.networkIds ?? []
+      )
     }
   })
   const walletStateCtrl = new WalletStateController()
@@ -245,7 +248,10 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
-  async function initAccountStateContinuousUpdate(intervalLength: number) {
+  async function initAccountStateContinuousUpdate(
+    intervalLength: number,
+    networkIds: NetworkId[] = []
+  ) {
     if (backgroundState.accountStateInterval) clearTimeout(backgroundState.accountStateInterval)
     backgroundState.selectedAccountStateInterval = intervalLength
 
@@ -254,7 +260,7 @@ function stateDebug(event: string, stateToLog: object) {
     if (
       backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
     )
-      await mainCtrl.accounts.updateAccountStates('pending')
+      await mainCtrl.accounts.updateAccountStates('pending', networkIds)
 
     const updateAccountState = async () => {
       // Determine which block to use based on the current interval state:
@@ -265,10 +271,11 @@ function stateDebug(event: string, stateToLog: object) {
         backgroundState.accountStateIntervals.standBy
           ? 'latest'
           : 'pending'
-      await mainCtrl.accounts.updateAccountStates(blockTag)
+      await mainCtrl.accounts.updateAccountStates(blockTag, networkIds)
 
       // If we're in a pending update but there are no broadcastedButNotConfirmed
-      // account ops, set the interval to standBy
+      // account ops, set the interval to standBy.
+      // when in standBy, update the state for all networks
       if (
         backgroundState.selectedAccountStateInterval ===
           backgroundState.accountStateIntervals.pending &&
