@@ -4,11 +4,11 @@ import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import LedgerController, {
   ledgerService
 } from '@web/modules/hardware-wallet/controllers/LedgerController'
-import shortenAddress from '@web/utils/shortenAddress'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
