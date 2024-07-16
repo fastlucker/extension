@@ -230,7 +230,7 @@ const SignMessageScreen = () => {
           signMessageState.messageToSign?.content.kind ? (
             <MessageSummary
               message={signMessageState.humanReadable}
-              networkId={network?.id}
+              network={network}
               kind={signMessageState.messageToSign?.content.kind}
               networks={networks}
             />

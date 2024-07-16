@@ -1,7 +1,7 @@
 import React from 'react'
 import { ScrollView } from 'react-native'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { Network } from '@ambire-common/interfaces/network'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
@@ -12,12 +12,12 @@ import getStyles from './styles'
 
 interface Props {
   message: IrMessage
-  networkId?: NetworkId
+  network?: Network
   kind: IrMessage['content']['kind']
   networks: Network[]
 }
 
-const MessageSummary = ({ message, networkId, kind, networks }: Props) => {
+const MessageSummary = ({ message, network, kind, networks }: Props) => {
   const { styles } = useTheme(getStyles)
   const isTypedMessage = kind === 'typedMessage'
 
@@ -28,7 +28,7 @@ const MessageSummary = ({ message, networkId, kind, networks }: Props) => {
       content={
         <HumanizedVisualization
           data={message.fullVisualization}
-          networkId={networkId || 'ethereum'}
+          network={network || networks[0]}
           networks={networks}
         />
       }
