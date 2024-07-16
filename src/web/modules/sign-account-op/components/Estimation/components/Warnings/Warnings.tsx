@@ -59,7 +59,7 @@ const Warnings: FC<Props> = ({
         <View style={spacings.ptTy}>
           <Alert
             type="warning"
-            title="Smart account fee options are currently unavailable but you can pay by using a Basic account"
+            title="Smart account fee options are temporarily unavailable. You can pay fee with a Basic account or try again later"
           />
         </View>
       )}
