@@ -15,7 +15,6 @@ const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 
 let browser
-
 let page
 let extensionURL
 let recorder
@@ -23,7 +22,6 @@ let recorder
 describe('sa_features', () => {
   beforeEach(async () => {
     const context = await bootstrapWithStorage('sa_features', saParams)
-
     browser = context.browser
     page = context.page
     recorder = context.recorder
@@ -32,10 +30,17 @@ describe('sa_features', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
   //--------------------------------------------------------------------------------------------------------------
   it.skip('Top up gas tank', async () => {
+    // Check if MATIC on Gas Tank are under 0.01
+    await checkBalanceOfToken(
+      page,
+      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
+      0.01
+    )
+
     // Click on Matic (not Gas Tank token)
     await clickOnElement(
       page,
@@ -76,7 +81,12 @@ describe('sa_features', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('Pay transaction fee with gas tank', async () => {
-    // Click on "Send" button
+    // Check if MATIC on Gas Tank are under 0.007
+    await checkBalanceOfToken(
+      page,
+      '[data-testid="token-0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270-polygon-gastank"]',
+      0.01
+    )
     await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 
     await page.waitForSelector(amountField)
@@ -120,6 +130,13 @@ describe('sa_features', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('Pay transaction fee with basic account', async () => {
+    // Check if MATIC on Polygon are under 0.0001
+    await checkBalanceOfToken(
+      page,
+      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
+      0.0001
+    )
+
     await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector(amountField)
@@ -163,11 +180,15 @@ describe('sa_features', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('Make batched transaction', async () => {
-    // Click on "Send" button
+    // Check if MATIC on Polygon are under 0.0015
+    await checkBalanceOfToken(
+      page,
+      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
+      0.02
+    )
+
     await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
-
     await page.waitForSelector(amountField)
-
     await selectMaticToken(page)
 
     // Type the amount
@@ -288,12 +309,14 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('Send 0.0000001 ETH on Optimism.Pay with ETH', async () => {
+  it('Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
+    // Check if ETH in optimism are under 0.00000001
     await checkBalanceOfToken(
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
-      0.0007
+      0.00000001
     )
+
     // Click on Matic (not Gas Tank token)
     await clickOnElement(
       page,
@@ -325,7 +348,7 @@ describe('sa_features', () => {
     )
 
     await page.waitForSelector('[data-testid="amount-field"]')
-    await typeText(page, '[data-testid="amount-field"]', '0.0000001') // Type the amount
+    await typeText(page, '[data-testid="amount-field"]', '0.00000001')
 
     // Type the address of the recipient
     await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
@@ -360,5 +383,27 @@ describe('sa_features', () => {
     // Sign and confirm the transaction
     await signTransaction(newPage, transactionRecorder)
     await confirmTransactionStatus(newPage, 'optimism', 10, transactionRecorder)
+  })
+
+  //--------------------------------------------------------------------------------------------------------------
+  it.skip('Check token balance needed for e2e tests', async () => {
+    // Check if ETH in optimism are under  0.0000001
+    await checkBalanceOfToken(
+      page,
+      '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
+      0.0000001
+    )
+    // Check if MATIC on Polygon are under 0.0015
+    await checkBalanceOfToken(
+      page,
+      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
+      0.02
+    )
+    // Check if MATIC on Gas Tank are under 0.007
+    await checkBalanceOfToken(
+      page,
+      '[data-testid="token-0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270-polygon-gastank"]',
+      0.01
+    )
   })
 })

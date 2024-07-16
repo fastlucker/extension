@@ -10,7 +10,8 @@ import {
   checkForSignMessageWindow,
   selectFeeToken,
   signTransaction,
-  confirmTransactionStatus
+  confirmTransactionStatus,
+  checkBalanceOfToken
 } from '../functions.js'
 
 const recipientField = '[data-testid="address-ens-field"]'
@@ -18,6 +19,13 @@ const amountField = '[data-testid="amount-field"]'
 //--------------------------------------------------------------------------------------------------------------
 export async function makeValidTransaction(page, extensionURL, browser) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
+  // Check if MATIC on Gas Tank are under 0.01
+  await checkBalanceOfToken(
+    page,
+    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
+    0.01
+  )
   // Click on "Send" button
   await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 
@@ -58,6 +66,13 @@ export async function makeValidTransaction(page, extensionURL, browser) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function makeSwap(page, extensionURL, browser) {
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+  // Check if MATIC on Polygon are under 0.01
+  await checkBalanceOfToken(
+    page,
+    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
+    0.01
+  )
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
   // Click on 'connect' button
@@ -164,10 +179,15 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function sendFundsToSmartContract(page, extensionURL) {
+  // Check if MATIC on Polygon are under 0.0015
+  await checkBalanceOfToken(
+    page,
+    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
+    0.0002
+  )
+
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
-
   await page.waitForSelector('[data-testid="max-available-amount"]')
-
   await selectMaticToken(page)
 
   // Type the amount
@@ -290,7 +310,6 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
       signature: messageSignature,
       provider
     })
-    console.log('is the sig valid: ', isValidSig)
     return isValidSig
   }
 

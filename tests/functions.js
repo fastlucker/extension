@@ -1,4 +1,5 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
+
 import { ethers, Network } from 'ethers'
 
 const puppeteer = require('puppeteer')
@@ -11,10 +12,10 @@ const puppeteerArgs = [
   '--disable-features=DialMediaRouteProvider',
 
   // '--disable-features=ClipboardContentSetting',
+
   '--clipboard-write: granted',
   '--clipboard-read: prompt',
-
-  // '--detectOpenHandles',
+  '--detectOpenHandles',
   '--start-maximized',
 
   // We need this for running Puppeteer in Github Actions
@@ -61,6 +62,7 @@ export async function bootstrap(namespace) {
   const browser = await puppeteer.launch({
     // devtools: true,
     slowMo: 10,
+
     headless: false,
     args: puppeteerArgs,
     defaultViewport: null,
@@ -418,12 +420,12 @@ export async function selectFeeToken(actionWindowPage, feeToken) {
 //----------------------------------------------------------------------------------------------
 export async function signTransaction(actionWindowPage, transactionRecorder) {
   actionWindowPage.setDefaultTimeout(120000)
+
   // Click on "Ape" button
   await clickOnElement(actionWindowPage, '[data-testid="fee-ape:"]')
 
   // Click on "Sign" button
   await clickOnElement(actionWindowPage, '[data-testid="transaction-button-sign"]')
-
   // Important note:
   // We found that when we run the transaction tests in parallel,
   // the transactions are dropping/failing because there is a chance two or more transactions will use the same nonce.
@@ -437,6 +439,7 @@ export async function signTransaction(actionWindowPage, transactionRecorder) {
   // We will research how we can rely again on the transaction receipt as a final step of confirming and testing a txn.
   await actionWindowPage.waitForFunction("window.location.hash.includes('benzin')")
   await transactionRecorder.stop()
+
   return
 
   // Wait for the 'Timestamp' text to appear twice on the page
@@ -498,12 +501,12 @@ export async function checkBalanceOfToken(page, tokenSelector, tokenMinimumBalan
   const tokenText = await page.$eval(tokenSelector, (element) => element.textContent)
 
   // Extract token balance and network
-  const tokenBalance = tokenText.match(/^\d*\.?\d+/)
+  const tokenBalance = parseFloat(tokenText.match(/^\d*\.?\d+/)[0])
   const tokenMatches = tokenText.match(/\s(.*?)\$/)
 
   const tokenAndNetwork = tokenMatches[1].trim()
 
   if (tokenBalance < tokenMinimumBalance) {
-    console.log(`There is NOT enough funds, Balance: ${tokenBalance} ${tokenAndNetwork}`)
+    throw new Error(`There is NOT enough funds, Balance: ${tokenBalance} ${tokenAndNetwork}`)
   }
 }

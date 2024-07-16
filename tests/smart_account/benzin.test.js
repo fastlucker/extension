@@ -33,7 +33,7 @@ describe('Standalone Benzin tests', () => {
       'Jun 18, 2024, 1:15 PM',
       'Transaction fee',
       '0.000731601664408992 MATIC ($0.00)',
-      'From',
+      'Sender',
       '0x339d346173Af02df312ab0a6fD6520DE0E101Ac0',
       'Transaction ID',
       transactionID
