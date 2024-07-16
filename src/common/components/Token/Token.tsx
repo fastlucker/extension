@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
-import { getTokenInfo } from '@ambire-common/libs/humanizer/utils'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import getTokenInfo from '@common/utils/tokenInfo'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 interface Props {
@@ -30,37 +30,27 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
   }, [amount])
 
   const { t } = useTranslation()
-  const [fetchedFromCena, setFetchedFromCena] = useState(null)
   const { accountPortfolio } = usePortfolioControllerState()
-  const infoFromCurrentBalances = useMemo(
-    () =>
-      accountPortfolio?.tokens?.find(
-        (token) => token.address.toLowerCase() === address.toLowerCase()
-      ),
-    [accountPortfolio, address]
-  )
-  const nativeTokenInfo = useMemo(
-    () =>
-      address === ZeroAddress && {
-        symbol: network.nativeAssetSymbol,
-        decimals: 18
-      },
-    [address, network]
-  )
-  useEffect(() => {
-    if (!infoFromCurrentBalances && !nativeTokenInfo)
-      getTokenInfo({ networkId: network.id, accountAddr: ZeroAddress }, address, {
-        fetch,
-        network
-      })
-        .then((r) => setFetchedFromCena(r?.value))
-        .catch((e) => console.error(e))
-  }, [nativeTokenInfo, infoFromCurrentBalances, address, network])
 
-  const tokenInfo: { decimals?: number; symbol?: string } = useMemo(
-    () => infoFromCurrentBalances || nativeTokenInfo || fetchedFromCena || {},
-    [infoFromCurrentBalances, nativeTokenInfo, fetchedFromCena]
-  )
+  const [tokenInfo, setTokenInfo] = useState<
+    null | undefined | { decimals: number; symbol: string }
+  >(null)
+
+  useEffect(() => {
+    const infoFromBalance = accountPortfolio?.tokens?.find(
+      (token) => token.address.toLowerCase() === address.toLowerCase()
+    )
+    const infoNative = address === ZeroAddress && {
+      symbol: network.nativeAssetSymbol,
+      decimals: 18
+    }
+    if (infoNative) setTokenInfo(infoNative)
+    else if (infoFromBalance) setTokenInfo(infoFromBalance)
+    else
+      getTokenInfo(address, network.id, fetch)
+        .then((r) => setTokenInfo(r))
+        .catch(console.error)
+  }, [network, accountPortfolio?.tokens, address])
 
   const openExplorer = useMemo(
     () => () => Linking.openURL(`${network.explorerUrl}/address/${address}`),
