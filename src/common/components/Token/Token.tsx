@@ -11,7 +11,11 @@ import spacings, { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import getTokenInfo from '@common/utils/tokenInfo'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+
+import Address from '../Address'
+import Collectible from '../Collectible'
 
 interface Props {
   address: string
@@ -28,7 +32,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
     const isMaxUint256 = amount === MaxUint256
     return isUnlimitedByPermit2 || isMaxUint256
   }, [amount])
-
+  const { networks } = useNetworksControllerState()
   const { t } = useTranslation()
   const { accountPortfolio } = usePortfolioControllerState()
 
@@ -52,6 +56,12 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
         .catch(console.error)
   }, [network, accountPortfolio?.tokens, address])
 
+  const nftInfo = useMemo(() => {
+    return accountPortfolio?.collections?.find(
+      (i) => address.toLowerCase() === i.address.toLowerCase()
+    )
+  }, [accountPortfolio?.collections, address])
+
   const openExplorer = useMemo(
     () => () => Linking.openURL(`${network.explorerUrl}/address/${address}`),
     [address, network.explorerUrl]
@@ -59,49 +69,72 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
 
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
-      {BigInt(amount) > BigInt(0) ? (
-        <Text
+      (nftInfo ?
+      <>
+        <Address
           fontSize={textSize}
-          weight="medium"
-          appearance="primaryText"
-          style={{ maxWidth: '100%' }}
-        >
-          {shouldDisplayUnlimitedAmount ? (
-            <Text appearance="warningText">{t('unlimited')}</Text>
-          ) : (
-            <>
-              {formatDecimals(Number(formatUnits(amount, tokenInfo?.decimals || 1)))}{' '}
-              {!tokenInfo?.decimals && (
-                <Text
-                  fontSize={textSize}
-                  weight="medium"
-                  appearance="primaryText"
-                  style={{ maxWidth: '100%' }}
-                >
-                  {t('units of')}
-                </Text>
-              )}
-            </>
-          )}
-        </Text>
-      ) : null}
-      <Pressable
-        style={{ ...spacings.mlMi, ...flexbox.directionRow, ...flexbox.alignCenter }}
-        onPress={openExplorer}
-      >
-        <TokenIcon
-          width={24 * sizeMultiplierSize}
-          height={24 * sizeMultiplierSize}
-          networkId={network.id}
           address={address}
-          withNetworkIcon={false}
-          containerStyle={{ marginRight: marginRight / 2 }}
+          highestPriorityAlias={nftInfo?.name || `NFT #${amount}`}
+          explorerNetworkId={network.id}
         />
-        <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mrMi}>
-          {tokenInfo?.symbol || t('unknown token')}
-        </Text>
-        <OpenIcon width={14} height={14} />
-      </Pressable>
+        <Collectible
+          style={spacings.mhTy}
+          size={36}
+          id={amount}
+          collectionData={{
+            address,
+            networkId: network.id
+          }}
+          networks={networks}
+        />
+      </>
+      :
+      <>
+        {BigInt(amount) > BigInt(0) ? (
+          <Text
+            fontSize={textSize}
+            weight="medium"
+            appearance="primaryText"
+            style={{ maxWidth: '100%' }}
+          >
+            {shouldDisplayUnlimitedAmount ? (
+              <Text appearance="warningText">{t('unlimited')}</Text>
+            ) : (
+              <>
+                {formatDecimals(Number(formatUnits(amount, tokenInfo?.decimals || 1)))}{' '}
+                {!tokenInfo?.decimals && (
+                  <Text
+                    fontSize={textSize}
+                    weight="medium"
+                    appearance="primaryText"
+                    style={{ maxWidth: '100%' }}
+                  >
+                    {t('units of')}
+                  </Text>
+                )}
+              </>
+            )}
+          </Text>
+        ) : null}
+        <Pressable
+          style={{ ...spacings.mlMi, ...flexbox.directionRow, ...flexbox.alignCenter }}
+          onPress={openExplorer}
+        >
+          <TokenIcon
+            width={24 * sizeMultiplierSize}
+            height={24 * sizeMultiplierSize}
+            networkId={network.id}
+            address={address}
+            withNetworkIcon={false}
+            containerStyle={{ marginRight: marginRight / 2 }}
+          />
+          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mrMi}>
+            {tokenInfo?.symbol || t('unknown token')}
+          </Text>
+          <OpenIcon width={14} height={14} />
+        </Pressable>
+      </>
+      )
     </View>
   )
 }
