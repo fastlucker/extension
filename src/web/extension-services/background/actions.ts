@@ -38,7 +38,7 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: { privKeyOrSeed: string }
+  params: { privKeyOrSeed: string; shouldPersist?: boolean }
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -284,6 +284,10 @@ type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
   params: { secret: string; newSecret: string }
 }
+type KeystoreControllerAddSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_ADD_SEED'
+  params: { seed: string }
+}
 type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
   params: { newSecret: string }
@@ -487,6 +491,7 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
+  | KeystoreControllerAddSeedAction
   | KeystoreControllerChangePasswordFromRecoveryAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction

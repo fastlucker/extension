@@ -48,4 +48,4 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
   )
 }
 
-export default HotWalletCreateCards
+export default React.memo(HotWalletCreateCards)

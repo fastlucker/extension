@@ -53,4 +53,4 @@ const ModalHeader: FC<Props> = ({
   )
 }
 
-export default ModalHeader
+export default React.memo(ModalHeader)

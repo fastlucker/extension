@@ -66,9 +66,7 @@ const CreateSeedPhrasePrepareScreen = () => {
       return
     }
     navigate(WEB_ROUTES.createSeedPhraseWrite, {
-      state: {
-        seed: seed.split(' ')
-      }
+      state: { seed: seed.split(' ') }
     })
   }
 

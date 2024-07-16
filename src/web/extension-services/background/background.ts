@@ -622,6 +622,10 @@ function stateDebug(event: string, stateToLog: object) {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
                 const keyIterator = new KeyIterator(params.privKeyOrSeed)
+                if (keyIterator.subType === 'seed' && params.shouldPersist) {
+                  await mainCtrl.keystore.addSeed(params.privKeyOrSeed)
+                }
+
                 mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
@@ -980,6 +984,8 @@ function stateDebug(event: string, stateToLog: object) {
                   params.newSecret,
                   params.secret
                 )
+              case 'KEYSTORE_CONTROLLER_ADD_SEED':
+                return await mainCtrl.keystore.addSeed(params.seed)
               case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
                 // In the case we change the user's device password through the recovery process,
                 // we don't know the old password, which is why we send only the new password.

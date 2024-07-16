@@ -81,11 +81,7 @@ const CreateSeedPhraseWriteScreen = () => {
         <>
           <BackButton
             onPress={() => {
-              navigate(WEB_ROUTES.createSeedPhrasePrepare, {
-                state: {
-                  seed
-                }
-              })
+              navigate(WEB_ROUTES.createSeedPhrasePrepare, { state: { seed } })
             }}
           />
           <Button
