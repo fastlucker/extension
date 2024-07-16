@@ -126,7 +126,7 @@ function stateDebug(event: string, stateToLog: object) {
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
-    accountStatePendingInterval?: ReturnType<typeof setTimeout>
+    accountStatePendingInterval?: { [key: Network['id']]: ReturnType<typeof setTimeout> }
     selectedAccountStateInterval?: number
   } = {
     /**
@@ -193,7 +193,7 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onSignSuccess: async (type, meta?: { networkIds?: NetworkId[] }) => {
+    onSignSuccess: async (type, meta?: { networkId?: NetworkId }) => {
       const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
         message: 'Message was successfully signed',
         'typed-data': 'TypedData was successfully signed',
@@ -203,10 +203,10 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendBrowserNotification(messages[type])
 
-      if (type === 'account-op') {
+      if (type === 'account-op' && meta?.networkId) {
         await initAccountStatePendingUpdate(
           backgroundState.accountStateIntervals.pending,
-          meta?.networkIds ?? []
+          meta.networkId
         )
       }
     }
@@ -264,34 +264,49 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
   }
 
-  async function initAccountStatePendingUpdate(
-    intervalLength: number,
-    networkIds: NetworkId[] = []
-  ) {
-    if (backgroundState.accountStatePendingInterval)
-      clearTimeout(backgroundState.accountStatePendingInterval)
+  async function initAccountStatePendingUpdate(intervalLength: number, networkId: NetworkId) {
+    console.log('started')
+    if (
+      backgroundState.accountStatePendingInterval &&
+      backgroundState.accountStatePendingInterval[networkId]
+    )
+      clearTimeout(backgroundState.accountStatePendingInterval[networkId])
 
-    await mainCtrl.accounts.updateAccountStates('pending', networkIds)
+    await mainCtrl.accounts.updateAccountStates('pending', [networkId])
 
     const updateAccountState = async () => {
-      await mainCtrl.accounts.updateAccountStates('pending', networkIds)
+      console.log('updating')
+      await mainCtrl.accounts.updateAccountStates('pending', [networkId])
 
       // if there are no more broadcastedButNotConfirmed ops for the network,
       // remove the timeout
       if (
-        !mainCtrl.activity.broadcastedButNotConfirmed.filter((op) =>
-          networkIds.includes(op.networkId)
-        ).length
+        backgroundState.accountStatePendingInterval &&
+        backgroundState.accountStatePendingInterval[networkId] &&
+        !mainCtrl.activity.broadcastedButNotConfirmed.filter((op) => op.networkId === networkId)
+          .length
       ) {
-        clearTimeout(backgroundState.accountStatePendingInterval)
+        console.log('cleared')
+        clearTimeout(backgroundState.accountStatePendingInterval[networkId])
       } else {
         // Schedule the next update
-        backgroundState.accountStatePendingInterval = setTimeout(updateAccountState, intervalLength)
+        if (!backgroundState.accountStatePendingInterval)
+          backgroundState.accountStatePendingInterval = {}
+
+        backgroundState.accountStatePendingInterval[networkId] = setTimeout(
+          updateAccountState,
+          intervalLength
+        )
       }
     }
 
     // Start the first update
-    backgroundState.accountStatePendingInterval = setTimeout(updateAccountState, intervalLength / 2)
+    if (!backgroundState.accountStatePendingInterval)
+      backgroundState.accountStatePendingInterval = {}
+    backgroundState.accountStatePendingInterval[networkId] = setTimeout(
+      updateAccountState,
+      intervalLength / 2
+    )
   }
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
