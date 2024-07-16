@@ -125,7 +125,8 @@ function stateDebug(event: string, stateToLog: object) {
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
-    accountStateInterval?: ReturnType<typeof setTimeout>
+    accountStateLatestInterval?: ReturnType<typeof setTimeout>
+    accountStatePendingInterval?: ReturnType<typeof setTimeout>
     selectedAccountStateInterval?: number
   } = {
     /**
@@ -135,7 +136,7 @@ function stateDebug(event: string, stateToLog: object) {
     isUnlocked: false,
     ctrlOnUpdateIsDirtyFlags: {},
     accountStateIntervals: {
-      pending: 3000,
+      pending: 8000,
       standBy: 300000,
       retriedFastAccountStateReFetchForNetworks: []
     },
@@ -202,10 +203,12 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendBrowserNotification(messages[type])
 
-      await initAccountStateContinuousUpdate(
-        backgroundState.accountStateIntervals.pending,
-        meta?.networkIds ?? []
-      )
+      if (type === 'account-op') {
+        await initAccountStatePendingUpdate(
+          backgroundState.accountStateIntervals.pending,
+          meta?.networkIds ?? []
+        )
+      }
     }
   })
   const walletStateCtrl = new WalletStateController()
@@ -248,48 +251,52 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
-  async function initAccountStateContinuousUpdate(
+  async function initAccountStateLatestUpdate(intervalLength: number) {
+    console.log('latest initialized')
+    if (backgroundState.accountStateLatestInterval)
+      clearTimeout(backgroundState.accountStateLatestInterval)
+
+    const updateAccountState = async () => {
+      await mainCtrl.accounts.updateAccountStates('latest')
+      backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
+    }
+
+    // Start the first update
+    backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
+  }
+
+  async function initAccountStatePendingUpdate(
     intervalLength: number,
     networkIds: NetworkId[] = []
   ) {
-    if (backgroundState.accountStateInterval) clearTimeout(backgroundState.accountStateInterval)
-    backgroundState.selectedAccountStateInterval = intervalLength
+    console.log('pending initialized')
+    if (backgroundState.accountStatePendingInterval)
+      clearTimeout(backgroundState.accountStatePendingInterval)
 
-    // If called with a pending request (this happens after broadcast),
-    // update state with the pending block immediately
-    if (
-      backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
-    )
-      await mainCtrl.accounts.updateAccountStates('pending', networkIds)
+    await mainCtrl.accounts.updateAccountStates('pending', networkIds)
 
     const updateAccountState = async () => {
-      // Determine which block to use based on the current interval state:
-      // 1) The latest block in normal circumstances or
-      // 2) The pending block when there are pending account ops
-      const blockTag =
-        backgroundState.selectedAccountStateInterval ===
-        backgroundState.accountStateIntervals.standBy
-          ? 'latest'
-          : 'pending'
-      await mainCtrl.accounts.updateAccountStates(blockTag, networkIds)
+      console.log('updating')
+      await mainCtrl.accounts.updateAccountStates('pending', networkIds)
 
-      // If we're in a pending update but there are no broadcastedButNotConfirmed
-      // account ops, set the interval to standBy.
-      // when in standBy, update the state for all networks
+      // if there are no more broadcastedButNotConfirmed ops for the network,
+      // remove the timeout
       if (
-        backgroundState.selectedAccountStateInterval ===
-          backgroundState.accountStateIntervals.pending &&
-        !mainCtrl.activity.broadcastedButNotConfirmed.length
+        !mainCtrl.activity.broadcastedButNotConfirmed.filter((op) =>
+          networkIds.includes(op.networkId)
+        ).length
       ) {
-        await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+        console.log('timeout cleared')
+        clearTimeout(backgroundState.accountStatePendingInterval)
       } else {
         // Schedule the next update
-        backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
+        console.log('timeout continues')
+        backgroundState.accountStatePendingInterval = setTimeout(updateAccountState, intervalLength)
       }
     }
 
     // Start the first update
-    backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
+    backgroundState.accountStatePendingInterval = setTimeout(updateAccountState, intervalLength / 2)
   }
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
@@ -1177,7 +1184,7 @@ function stateDebug(event: string, stateToLog: object) {
   }
 
   initPortfolioContinuousUpdate()
-  await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+  await initAccountStateLatestUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.
