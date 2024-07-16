@@ -1,8 +1,8 @@
 import { FC } from 'react'
 
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
-import shortenAddress from '@web/utils/shortenAddress'
 
 interface Props {
   maxLength: number
