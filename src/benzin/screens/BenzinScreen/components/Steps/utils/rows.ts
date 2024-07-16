@@ -2,6 +2,7 @@ import { Block } from 'ethers'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
+import formatDecimals from '@common/utils/formatDecimals'
 
 const doNotShow = ['dropped', 'rejected']
 
@@ -72,7 +73,9 @@ const getFee = (
   finalizedStatus: FinalizedStatusType
 ) => {
   if (cost) {
-    return `${cost} ${network.nativeAssetSymbol} ($${(Number(cost) * nativePrice).toFixed(2)})`
+    return `${formatDecimals(Number(cost), 'amount')} ${
+      network.nativeAssetSymbol
+    } (${formatDecimals(Number(cost) * nativePrice, 'price')})`
   }
 
   return finalizedStatus && doNotShow.indexOf(finalizedStatus.status) !== -1 ? '-' : 'loading'

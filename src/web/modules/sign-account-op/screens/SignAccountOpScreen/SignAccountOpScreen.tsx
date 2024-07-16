@@ -21,11 +21,11 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
-import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
 import SafetyChecksOverlay from '@web/modules/sign-account-op/components/SafetyChecksOverlay'
+import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-op/components/SignAccountOpHardwareWalletSigningModal'
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
@@ -65,7 +65,7 @@ const SignAccountOpScreen = () => {
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
     signAccountOpState?.status?.type === SigningStatus.Done ||
-    mainState.broadcastStatus === 'LOADING'
+    mainState.statuses.broadcastSignedAccountOp === 'LOADING'
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -258,13 +258,12 @@ const SignAccountOpScreen = () => {
               isViewOnly={isViewOnly}
             />
 
-            {signAccountOpState?.accountOp.signingKeyType &&
-              signAccountOpState?.accountOp.signingKeyType !== 'internal' && (
-                <HardwareWalletSigningModal
-                  isVisible={isSignLoading}
-                  keyType={signAccountOpState.accountOp.signingKeyType}
-                />
-              )}
+            <SignAccountOpHardwareWalletSigningModal
+              signingKeyType={signAccountOpState?.accountOp.signingKeyType}
+              feePayerKeyType={mainState.feePayerKey?.type}
+              broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
+              signAccountOpStatusType={signAccountOpState?.status?.type}
+            />
           </View>
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>

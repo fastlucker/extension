@@ -74,7 +74,8 @@ const TokenDetails = ({
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}`),
         isDisabled: isGasTankOrRewardsToken || isAmountZero,
-        strokeWidth: 1.5
+        strokeWidth: 1.5,
+        testID: 'token-send'
       },
       {
         id: 'swap',
