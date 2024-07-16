@@ -252,7 +252,6 @@ function stateDebug(event: string, stateToLog: object) {
   }
 
   async function initAccountStateLatestUpdate(intervalLength: number) {
-    console.log('latest initialized')
     if (backgroundState.accountStateLatestInterval)
       clearTimeout(backgroundState.accountStateLatestInterval)
 
@@ -269,14 +268,12 @@ function stateDebug(event: string, stateToLog: object) {
     intervalLength: number,
     networkIds: NetworkId[] = []
   ) {
-    console.log('pending initialized')
     if (backgroundState.accountStatePendingInterval)
       clearTimeout(backgroundState.accountStatePendingInterval)
 
     await mainCtrl.accounts.updateAccountStates('pending', networkIds)
 
     const updateAccountState = async () => {
-      console.log('updating')
       await mainCtrl.accounts.updateAccountStates('pending', networkIds)
 
       // if there are no more broadcastedButNotConfirmed ops for the network,
@@ -286,11 +283,9 @@ function stateDebug(event: string, stateToLog: object) {
           networkIds.includes(op.networkId)
         ).length
       ) {
-        console.log('timeout cleared')
         clearTimeout(backgroundState.accountStatePendingInterval)
       } else {
         // Schedule the next update
-        console.log('timeout continues')
         backgroundState.accountStatePendingInterval = setTimeout(updateAccountState, intervalLength)
       }
     }
