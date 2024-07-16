@@ -93,7 +93,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('Pay transaction fee with basic account. Send 0.0001 MATIC on Polygon', async () => {
+  it('Pay transaction fee with basic account. Send 0.0001 MATIC on Polygon', async () => {
     await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
     await prepareTransaction(page, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C', '0.0001')
     await handleTransaction(
