@@ -857,7 +857,7 @@ let mainCtrl: MainController
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
-                return mainCtrl.signMessage.init(params)
+                return await mainCtrl.signMessage.init(params)
               }
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
                 return mainCtrl.signMessage.reset()
