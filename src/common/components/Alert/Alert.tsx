@@ -95,7 +95,7 @@ const Alert: FC<Props> = ({
               selectable
               appearance={`${type}Text`}
               fontSize={fontSize}
-              weight={titleWeight || 'regular'}
+              weight={titleWeight || 'semiBold'}
             >
               {title}
             </Text>
