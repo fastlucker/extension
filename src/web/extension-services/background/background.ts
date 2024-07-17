@@ -121,6 +121,7 @@ function stateDebug(event: string, stateToLog: object) {
     }
     hasSignAccountOpCtrlInitialized: boolean
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
+    portfolioLastUpdatedByIntervalAt?: number
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
@@ -218,7 +219,7 @@ function stateDebug(event: string, stateToLog: object) {
 
   const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
   const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
-  function initPortfolioContinuousUpdate() {
+  async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
 
@@ -230,11 +231,27 @@ function stateDebug(event: string, stateToLog: object) {
     async function updatePortfolio() {
       await mainCtrl.updateSelectedAccountPortfolio()
 
+      backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
       // Schedule the next update only when the previous one completes
       backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
     }
 
-    backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+    let isAtLeastOnePortfolioUpdateMissed = false
+
+    if (backgroundState.portfolioLastUpdatedByIntervalAt) {
+      isAtLeastOnePortfolioUpdateMissed =
+        Date.now() - backgroundState.portfolioLastUpdatedByIntervalAt >
+        INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
+    }
+
+    // If the extension is inactive and the last update was missed, update the portfolio immediately
+    if (isAtLeastOnePortfolioUpdateMissed) {
+      clearTimeout(backgroundState.updatePortfolioInterval)
+      await updatePortfolio()
+    } else {
+      // Start the first update
+      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+    }
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
@@ -855,7 +872,7 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
-                return mainCtrl.signMessage.init(params)
+                return await mainCtrl.signMessage.init(params)
               }
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
                 return mainCtrl.signMessage.reset()
