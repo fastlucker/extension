@@ -738,16 +738,28 @@ let mainCtrl: MainController
 
                 const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
                   ({ account, accountKeys }) =>
-                    accountKeys.map(({ addr }, i: number) => ({
-                      addr,
-                      type: mainCtrl.accountAdder.type as Key['type'],
-                      label: getDefaultKeyLabel(
-                        mainCtrl.keystore.keys.filter((key) =>
-                          account.associatedKeys.includes(key.addr)
-                        ),
-                        i
-                      )
-                    }))
+                    accountKeys
+                      .filter(({ addr }) => {
+                        const hasPreferences = mainCtrl.settings.keyPreferences.some(
+                          (pref) =>
+                            pref.addr === addr &&
+                            pref.type === (mainCtrl.accountAdder.type as Key['type'])
+                        )
+
+                        // Skip keys that already have preferences. Otherwise,
+                        // the preferences would get reset to default.
+                        return !hasPreferences
+                      })
+                      .map(({ addr }, i: number) => ({
+                        addr,
+                        type: mainCtrl.accountAdder.type as Key['type'],
+                        label: getDefaultKeyLabel(
+                          mainCtrl.keystore.keys.filter((key) =>
+                            account.associatedKeys.includes(key.addr)
+                          ),
+                          i
+                        )
+                      }))
                 )
 
                 return await mainCtrl.accountAdder.addAccounts(
