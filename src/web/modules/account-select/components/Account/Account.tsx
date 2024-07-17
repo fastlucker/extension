@@ -148,7 +148,7 @@ const Account = ({
               ud={ud}
               address={addr}
               plainAddressMaxLength={maxAccountAddrLength}
-              skeletonAppearance={isHovered ? 'tertiaryBackground' : 'secondaryBackground'}
+              skeletonAppearance={isHovered ? 'primaryBackground' : 'secondaryBackground'}
             />
           </View>
         </View>
