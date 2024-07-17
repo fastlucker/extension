@@ -14,13 +14,20 @@ import TokenIcon from '@common/components/TokenIcon'
 import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import { getMessageAsText } from '@common/utils/messageToString'
 
 import DeadlineItem from './DeadlineItem'
 
+const visualizeContent = (kind: string, content?: string | Uint8Array) => {
+  if ((kind === 'message' && !content) || content === '0x') {
+    return 'Empty message '
+  }
+  return `${getMessageAsText(content).replace('\n', '')} `
+}
 interface Props {
   data: IrCall['fullVisualization']
-  sizeMultiplierSize: number
-  textSize: number
+  sizeMultiplierSize?: number
+  textSize?: number
   networkId: NetworkId
   isHistory?: boolean
   testID?: string
@@ -29,8 +36,8 @@ interface Props {
 
 const HumanizedVisualization: FC<Props> = ({
   data = [],
-  sizeMultiplierSize,
-  textSize,
+  sizeMultiplierSize = 1,
+  textSize = 16,
   networkId,
   isHistory,
   testID,
@@ -191,6 +198,14 @@ const HumanizedVisualization: FC<Props> = ({
                 <InfoIcon width={14} height={14} />
               </Pressable>
             </View>
+          )
+        }
+
+        if (item.type === 'message' && item.messageContent) {
+          return (
+            <Text key={key} fontSize={16} weight="medium" appearance="primaryText">
+              {visualizeContent('message', item.messageContent)}
+            </Text>
           )
         }
         if (item.content) {
