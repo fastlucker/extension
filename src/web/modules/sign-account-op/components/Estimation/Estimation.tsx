@@ -345,8 +345,10 @@ const Estimation = ({
       {isSmartAccountAndNotDeployed ? (
         <Alert
           type="info"
-          title="Note"
-          text="Because this is your first Ambire transaction, the fee is 32% higher than usual because we have to deploy your smart wallet. Subsequent transactions will be cheaper."
+          title={t('Note')}
+          text={t(
+            'Because this is your first Ambire transaction, the fee is 32% higher than usual because we have to deploy your smart wallet. Subsequent transactions will be cheaper.'
+          )}
         />
       ) : null}
     </EstimationWrapper>
