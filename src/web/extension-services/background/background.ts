@@ -204,7 +204,7 @@ function stateDebug(event: string, stateToLog: object) {
       sendBrowserNotification(messages[type])
 
       if (type === 'account-op' && meta?.networkId) {
-        await initAccountStatePendingUpdate(
+        await initPendingAccountStateContinuousUpdate(
           backgroundState.accountStateIntervals.pending,
           meta.networkId
         )
@@ -251,7 +251,7 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
-  async function initAccountStateLatestUpdate(intervalLength: number) {
+  async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
     if (backgroundState.accountStateLatestInterval)
       clearTimeout(backgroundState.accountStateLatestInterval)
 
@@ -264,8 +264,10 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
   }
 
-  async function initAccountStatePendingUpdate(intervalLength: number, networkId: NetworkId) {
-    console.log('started')
+  async function initPendingAccountStateContinuousUpdate(
+    intervalLength: number,
+    networkId: NetworkId
+  ) {
     if (
       backgroundState.accountStatePendingInterval &&
       backgroundState.accountStatePendingInterval[networkId]
@@ -275,7 +277,6 @@ function stateDebug(event: string, stateToLog: object) {
     await mainCtrl.accounts.updateAccountStates('pending', [networkId])
 
     const updateAccountState = async () => {
-      console.log('updating')
       await mainCtrl.accounts.updateAccountStates('pending', [networkId])
 
       // if there are no more broadcastedButNotConfirmed ops for the network,
@@ -286,7 +287,6 @@ function stateDebug(event: string, stateToLog: object) {
         !mainCtrl.activity.broadcastedButNotConfirmed.filter((op) => op.networkId === networkId)
           .length
       ) {
-        console.log('cleared')
         clearTimeout(backgroundState.accountStatePendingInterval[networkId])
       } else {
         // Schedule the next update
@@ -1194,7 +1194,7 @@ function stateDebug(event: string, stateToLog: object) {
   }
 
   initPortfolioContinuousUpdate()
-  await initAccountStateLatestUpdate(backgroundState.accountStateIntervals.standBy)
+  await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.
