@@ -6,7 +6,6 @@ import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
-import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 
 class LedgerController implements ExternalSignerController {
@@ -18,7 +17,7 @@ class LedgerController implements ExternalSignerController {
 
   isWebHID: boolean
 
-  transport: Transport | null
+  transport: TransportWebHID | null
 
   walletSDK: null | Eth
 
