@@ -19,6 +19,7 @@ interface Props {
   slowRequest: boolean
   isViewOnly: boolean
   rbfDetected: boolean
+  bundlerFailure: boolean
 }
 
 const Warnings: FC<Props> = ({
@@ -26,7 +27,8 @@ const Warnings: FC<Props> = ({
   estimationFailed,
   slowRequest,
   isViewOnly,
-  rbfDetected
+  rbfDetected,
+  bundlerFailure
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
@@ -49,6 +51,17 @@ const Warnings: FC<Props> = ({
           <Alert
             type="warning"
             title="RBF (replace by fee) detected. You are trying to replace the current transaction in the mempool with a new one. To do so, standard gas prices have been increased by 12.5%"
+          />
+        </View>
+      )}
+
+      {!!hasEstimation && !estimationFailed && bundlerFailure && (
+        <View style={spacings.ptTy}>
+          <Alert
+            type="warning"
+            title={t(
+              'Smart account fee options are temporarily unavailable. You can pay fee with a Basic account or try again later'
+            )}
           />
         </View>
       )}

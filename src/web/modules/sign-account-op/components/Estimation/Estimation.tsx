@@ -229,6 +229,8 @@ const Estimation = ({
           estimationFailed={estimationFailed}
           slowRequest={slowRequest}
           isViewOnly={isViewOnly}
+          rbfDetected={false}
+          bundlerFailure={false}
         />
       </EstimationWrapper>
     )
@@ -313,7 +315,12 @@ const Estimation = ({
         estimationFailed={estimationFailed}
         slowRequest={slowRequest}
         isViewOnly={isViewOnly}
-        rbfDetected={!!signAccountOpState?.rbfAccountOps[payValue.paidBy]}
+        rbfDetected={!!signAccountOpState.rbfAccountOps[payValue.paidBy]}
+        bundlerFailure={
+          !!signAccountOpState.estimation?.nonFatalErrors?.find(
+            (err) => err.cause === '4337_ESTIMATION'
+          )
+        }
       />
     </EstimationWrapper>
   )
