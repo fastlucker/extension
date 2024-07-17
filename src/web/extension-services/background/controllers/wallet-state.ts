@@ -26,10 +26,10 @@ export class WalletStateController extends EventEmitter {
 
     if (newValue) {
       this.#registerInPageContentScript()
-      this.#reloadPageOnFocus()
+      this.#reloadPageOnSwitchDefaultWallet()
     } else {
       this.#unregisterInPageContentScript()
-      this.#reloadPageOnFocus()
+      this.#reloadPageOnSwitchDefaultWallet()
     }
     this.emitUpdate()
   }
@@ -72,7 +72,7 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
-  async #reloadPageOnFocus() {
+  async #reloadPageOnSwitchDefaultWallet() {
     if (!isManifestV3) return
     try {
       const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
