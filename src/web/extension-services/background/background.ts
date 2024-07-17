@@ -128,7 +128,7 @@ let mainCtrl: MainController
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
-    accountStatePendingInterval?: { [key: Network['id']]: ReturnType<typeof setTimeout> }
+    accountStatePendingInterval?: ReturnType<typeof setTimeout>
     selectedAccountStateInterval?: number
   } = {
     /**
@@ -195,7 +195,7 @@ let mainCtrl: MainController
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onSignSuccess: async (type, meta?: { networkId?: NetworkId }) => {
+    onSignSuccess: async (type) => {
       const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
         message: 'Message was successfully signed',
         'typed-data': 'TypedData was successfully signed',
@@ -205,12 +205,8 @@ let mainCtrl: MainController
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendBrowserNotification(messages[type])
 
-      if (type === 'account-op' && meta?.networkId) {
-        await initPendingAccountStateContinuousUpdate(
-          backgroundState.accountStateIntervals.pending,
-          meta.networkId
-        )
-      }
+      if (type === 'account-op')
+        await initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
   })
   const walletStateCtrl = new WalletStateController()
@@ -266,47 +262,37 @@ let mainCtrl: MainController
     backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
   }
 
-  async function initPendingAccountStateContinuousUpdate(
-    intervalLength: number,
-    networkId: NetworkId
-  ) {
-    if (
-      backgroundState.accountStatePendingInterval &&
-      backgroundState.accountStatePendingInterval[networkId]
-    )
-      clearTimeout(backgroundState.accountStatePendingInterval[networkId])
+  async function initPendingAccountStateContinuousUpdate(intervalLength: number) {
+    if (backgroundState.accountStatePendingInterval)
+      clearTimeout(backgroundState.accountStatePendingInterval)
 
-    await mainCtrl.accounts.updateAccountStates('pending', [networkId])
+    const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
+      .map((op) => op.networkId)
+      .filter((networkId, index, self) => self.indexOf(networkId) === index)
+    await mainCtrl.accounts.updateAccountStates('pending', networksToUpdate)
 
-    const updateAccountState = async () => {
-      await mainCtrl.accounts.updateAccountStates('pending', [networkId])
+    const updateAccountState = async (networkIds: NetworkId[]) => {
+      await mainCtrl.accounts.updateAccountStates('pending', networkIds)
 
       // if there are no more broadcastedButNotConfirmed ops for the network,
       // remove the timeout
-      if (
-        backgroundState.accountStatePendingInterval &&
-        backgroundState.accountStatePendingInterval[networkId] &&
-        !mainCtrl.activity.broadcastedButNotConfirmed.filter((op) => op.networkId === networkId)
-          .length
-      ) {
-        clearTimeout(backgroundState.accountStatePendingInterval[networkId])
+      const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
+        .map((op) => op.networkId)
+        .filter((networkId, index, self) => self.indexOf(networkId) === index)
+      if (!networksToUpdate.length) {
+        clearTimeout(backgroundState.accountStatePendingInterval)
       } else {
         // Schedule the next update
-        if (!backgroundState.accountStatePendingInterval)
-          backgroundState.accountStatePendingInterval = {}
-
-        backgroundState.accountStatePendingInterval[networkId] = setTimeout(
-          updateAccountState,
+        backgroundState.accountStatePendingInterval = setTimeout(
+          () => updateAccountState(networksToUpdate),
           intervalLength
         )
       }
     }
 
     // Start the first update
-    if (!backgroundState.accountStatePendingInterval)
-      backgroundState.accountStatePendingInterval = {}
-    backgroundState.accountStatePendingInterval[networkId] = setTimeout(
-      updateAccountState,
+    backgroundState.accountStatePendingInterval = setTimeout(
+      () => updateAccountState(networksToUpdate),
       intervalLength / 2
     )
   }
