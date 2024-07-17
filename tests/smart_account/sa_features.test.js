@@ -88,7 +88,7 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
+      '[data-testid="[option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270wmaticgastank"]'
     )
   })
 
@@ -100,7 +100,7 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000matic"]'
+      '[data-testid="[option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270wmaticgastank"]'
     )
   })
 
