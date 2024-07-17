@@ -46,7 +46,7 @@ export async function makeValidTransaction(page, extensionURL, browser) {
   // Check if select fee token is visible and select the token
   await selectFeeToken(
     newPage,
-    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
+    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
   )
   // Sign and confirm the transaction
   await signTransaction(newPage, transactionRecorder)
