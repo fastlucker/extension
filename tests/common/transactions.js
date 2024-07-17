@@ -1,5 +1,14 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
-import { typeText, clickOnElement, confirmTransaction, selectMaticToken } from '../functions'
+import {
+  typeText,
+  clickOnElement,
+  selectMaticToken,
+  triggerTransaction,
+  checkForSignMessageWindow,
+  selectFeeToken,
+  signTransaction,
+  confirmTransactionStatus
+} from '../functions.js'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
@@ -28,15 +37,20 @@ export async function makeValidTransaction(page, extensionURL, browser) {
   )
   if (checkboxExists) await clickOnElement(page, '[data-testid="checkbox"]')
 
-  // Confirm Transaction
-  await confirmTransaction(
+  const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="transfer-button-send"]',
-    // '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x6b175474e89094c44da98b954eedeac495271d0fdaigastank"]'
-    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
+    '[data-testid="transfer-button-send"]'
   )
+  // Check if select fee token is visible and select the token
+  await selectFeeToken(
+    newPage,
+    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
+  )
+  // Sign and confirm the transaction
+  await signTransaction(newPage, transactionRecorder)
+  await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -61,7 +75,6 @@ export async function makeSwap(page, extensionURL, browser) {
   await actionWindowDapReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
   actionWindowPage.setDefaultTimeout(120000)
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
-
   await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
 
   await actionWindowDapReqRecorder.stop()
@@ -91,16 +104,28 @@ export async function makeSwap(page, extensionURL, browser) {
     hidden: true
   })
   await typeText(page, '#swap-currency-output', '0.0001')
-  await clickOnElement(page, '[data-testid="swap-button"]')
+  await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
 
-  // Click on 'Confirm Swap' button and confirm transaction
-  await confirmTransaction(
+  const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="confirm-swap-button"]:not([disabled]',
-    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
+    '[data-testid="confirm-swap-button"]:not([disabled])'
   )
+
+  // Check for sign message window
+  const result = await checkForSignMessageWindow(newPage, extensionURL, browser)
+  const updatedPage = result.actionWindowPage
+
+  // Check if select fee token is visible and select the token
+  await selectFeeToken(
+    updatedPage,
+    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
+  )
+
+  // Sign and confirm the transaction
+  await signTransaction(updatedPage, transactionRecorder)
+  await confirmTransactionStatus(updatedPage, 'polygon', 137, transactionRecorder)
 }
 
 //--------------------------------------------------------------------------------------------------------------

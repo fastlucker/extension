@@ -14,17 +14,10 @@ const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
 module.exports = async function (env, argv) {
+  // manifest v3 for chromium and v2 for the rest of the browsers
+  const manifestVersion = process.env.WEB_ENGINE === 'webkit' ? 3 : 2
   function processManifest(content) {
     const manifest = JSON.parse(content.toString())
-    // TODO: Manifest V3 support for Chromium browsers has also been implemented.
-    // However, there is one remaining unresolved issue: @trezor/connect-web is not intended to work in a service worker.
-    // Trezor is currently developing a new package, but it is still a work in progress.
-    // There is a workaround that enables the use of @trezor/connect-web with Manifest V3, but
-    // some of the logic needs to be moved from the service worker to the frontend (FE), which is not an optimal solution at the moment.
-    // https://github.com/trezor/trezor-suite/issues/6458
-    // https://github.com/trezor/trezor-suite/pull/9525
-    const manifestVersion = 2
-
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
 
@@ -61,12 +54,12 @@ module.exports = async function (env, argv) {
           js: ['browser-polyfill.min.js', 'content-script.js']
         }
       ]
+      manifest.permissions = [...manifest.permissions, 'scripting', 'system.display', 'alarms']
       // This value can be used to control the unique ID of an extension,
       // when it is loaded during development. In prod, the ID is generated
       // in Chrome Web Store and can't be changed.
       // {@link https://developer.chrome.com/extensions/manifest/key}
       // TODO: Figure out if this works for gecko
-      manifest.permissions = [...manifest.permissions, 'scripting', 'system.display']
       manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
     }
 
@@ -134,8 +127,10 @@ module.exports = async function (env, argv) {
 
   const config = await createExpoWebpackConfigAsync(env, argv)
 
-  // config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
+  if (manifestVersion === 3) {
+    config.resolve.alias['@trezor/connect-web'] = '@trezor/connect-webextension'
+  }
   config.resolve.alias.dns = 'dns-js'
 
   config.entry = {
@@ -185,64 +180,79 @@ module.exports = async function (env, argv) {
     }
     defaultExpoConfigPlugins.push(new MiniCssExtractPlugin()) // default filename: [name].css
   }
+
+  const extensionCopyPatterns = [
+    {
+      from: './src/web/assets',
+      to: 'assets'
+    },
+    {
+      from: './src/web/public/style.css',
+      to: 'style.css',
+      transform(content) {
+        if (process.env.WEB_ENGINE === 'gecko') {
+          return processStyleGecko(content)
+        }
+
+        return content
+      }
+    },
+    {
+      from: './src/web/public/manifest.json',
+      to: 'manifest.json',
+      transform: processManifest
+    },
+    {
+      from: './src/web/public/index.html',
+      to: 'index.html'
+    },
+    {
+      from: './src/web/public/action-window.html',
+      to: 'action-window.html'
+    },
+    {
+      from: './src/web/public/tab.html',
+      to: 'tab.html'
+    },
+    {
+      from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
+      to: 'browser-polyfill.min.js'
+    },
+    manifestVersion === 3
+      ? {
+          from: require.resolve('@trezor/connect-webextension/build/content-script.js'),
+          to: 'vendor/trezor/trezor-content-script.js'
+        }
+      : {
+          from: require.resolve('@trezor/connect-web/lib/webextension/trezor-content-script.js'),
+          to: 'vendor/trezor/trezor-content-script.js'
+        },
+    manifestVersion === 3
+      ? {
+          from: require.resolve(
+            '@trezor/connect-webextension/build/trezor-connect-webextension.js'
+          ),
+          to: 'vendor/trezor/trezor-connect-webextension.js'
+        }
+      : {
+          from: require.resolve('@trezor/connect-web/lib/webextension/trezor-usb-permissions.js'),
+          to: 'vendor/trezor/trezor-usb-permissions.js'
+        }
+  ]
+
+  if (manifestVersion === 2) {
+    extensionCopyPatterns.push({
+      from: './src/web/public/trezor-usb-permissions.html',
+      to: 'trezor-usb-permissions.html'
+    })
+  }
+
   config.plugins = [
     ...defaultExpoConfigPlugins,
     new NodePolyfillPlugin(),
-    new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer'],
-      process: 'process'
-    }),
-    new AssetReplacePlugin({
-      '#PAGEPROVIDER#': 'inpage'
-    }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: './src/web/assets',
-          to: 'assets'
-        },
-        {
-          from: './src/web/vendor',
-          to: 'vendor'
-        },
-        {
-          from: './src/web/public/style.css',
-          to: 'style.css',
-          transform(content) {
-            if (process.env.WEB_ENGINE === 'gecko') {
-              return processStyleGecko(content)
-            }
-
-            return content
-          }
-        },
-        {
-          from: './src/web/public/manifest.json',
-          to: 'manifest.json',
-          transform: processManifest
-        },
-        {
-          from: './src/web/public/index.html',
-          to: 'index.html'
-        },
-        {
-          from: './src/web/public/action-window.html',
-          to: 'action-window.html'
-        },
-        {
-          from: './src/web/public/tab.html',
-          to: 'tab.html'
-        },
-        {
-          from: './src/web/public/trezor-usb-permissions.html',
-          to: 'trezor-usb-permissions.html'
-        },
-        {
-          from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
-          to: 'browser-polyfill.min.js'
-        }
-      ]
-    })
+    new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'], process: 'process' }),
+    new AssetReplacePlugin({ '#PAGEPROVIDER#': 'inpage' }),
+    new CopyPlugin({ patterns: extensionCopyPatterns })
   ]
 
   if (config.mode === 'production') {

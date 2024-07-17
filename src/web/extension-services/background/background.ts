@@ -13,7 +13,7 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { Network } from '@ambire-common/interfaces/network'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import {
   isDerivedForSmartAccountKeyOnly,
   isSmartAccount
@@ -79,7 +79,9 @@ function stateDebug(event: string, stateToLog: object) {
   logInfoWithPrefix(event, parse(stringify(stateToLog)))
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
+let mainCtrl: MainController
+
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
@@ -125,7 +127,8 @@ function stateDebug(event: string, stateToLog: object) {
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
-    accountStateInterval?: ReturnType<typeof setTimeout>
+    accountStateLatestInterval?: ReturnType<typeof setTimeout>
+    accountStatePendingInterval?: { [key: Network['id']]: ReturnType<typeof setTimeout> }
     selectedAccountStateInterval?: number
   } = {
     /**
@@ -135,7 +138,7 @@ function stateDebug(event: string, stateToLog: object) {
     isUnlocked: false,
     ctrlOnUpdateIsDirtyFlags: {},
     accountStateIntervals: {
-      pending: 3000,
+      pending: 8000,
       standBy: 300000,
       retriedFastAccountStateReFetchForNetworks: []
     },
@@ -169,7 +172,7 @@ function stateDebug(event: string, stateToLog: object) {
     return fetchFn(url, initWithCustomHeaders)
   }
 
-  const mainCtrl = new MainController({
+  mainCtrl = new MainController({
     storage,
     fetch: fetchWithCustomHeaders,
     relayerUrl: RELAYER_URL,
@@ -192,7 +195,7 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onSignSuccess: async (type) => {
+    onSignSuccess: async (type, meta?: { networkId?: NetworkId }) => {
       const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
         message: 'Message was successfully signed',
         'typed-data': 'TypedData was successfully signed',
@@ -202,7 +205,12 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendBrowserNotification(messages[type])
 
-      await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
+      if (type === 'account-op' && meta?.networkId) {
+        await initPendingAccountStateContinuousUpdate(
+          backgroundState.accountStateIntervals.pending,
+          meta.networkId
+        )
+      }
     }
   })
   const walletStateCtrl = new WalletStateController()
@@ -245,44 +253,62 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
-  async function initAccountStateContinuousUpdate(intervalLength: number) {
-    if (backgroundState.accountStateInterval) clearTimeout(backgroundState.accountStateInterval)
-    backgroundState.selectedAccountStateInterval = intervalLength
-
-    // If called with a pending request (this happens after broadcast),
-    // update state with the pending block immediately
-    if (
-      backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
-    )
-      await mainCtrl.accounts.updateAccountStates('pending')
+  async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
+    if (backgroundState.accountStateLatestInterval)
+      clearTimeout(backgroundState.accountStateLatestInterval)
 
     const updateAccountState = async () => {
-      // Determine which block to use based on the current interval state:
-      // 1) The latest block in normal circumstances or
-      // 2) The pending block when there are pending account ops
-      const blockTag =
-        backgroundState.selectedAccountStateInterval ===
-        backgroundState.accountStateIntervals.standBy
-          ? 'latest'
-          : 'pending'
-      await mainCtrl.accounts.updateAccountStates(blockTag)
+      await mainCtrl.accounts.updateAccountStates('latest')
+      backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
+    }
 
-      // If we're in a pending update but there are no broadcastedButNotConfirmed
-      // account ops, set the interval to standBy
+    // Start the first update
+    backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
+  }
+
+  async function initPendingAccountStateContinuousUpdate(
+    intervalLength: number,
+    networkId: NetworkId
+  ) {
+    if (
+      backgroundState.accountStatePendingInterval &&
+      backgroundState.accountStatePendingInterval[networkId]
+    )
+      clearTimeout(backgroundState.accountStatePendingInterval[networkId])
+
+    await mainCtrl.accounts.updateAccountStates('pending', [networkId])
+
+    const updateAccountState = async () => {
+      await mainCtrl.accounts.updateAccountStates('pending', [networkId])
+
+      // if there are no more broadcastedButNotConfirmed ops for the network,
+      // remove the timeout
       if (
-        backgroundState.selectedAccountStateInterval ===
-          backgroundState.accountStateIntervals.pending &&
-        !mainCtrl.activity.broadcastedButNotConfirmed.length
+        backgroundState.accountStatePendingInterval &&
+        backgroundState.accountStatePendingInterval[networkId] &&
+        !mainCtrl.activity.broadcastedButNotConfirmed.filter((op) => op.networkId === networkId)
+          .length
       ) {
-        await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+        clearTimeout(backgroundState.accountStatePendingInterval[networkId])
       } else {
         // Schedule the next update
-        backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
+        if (!backgroundState.accountStatePendingInterval)
+          backgroundState.accountStatePendingInterval = {}
+
+        backgroundState.accountStatePendingInterval[networkId] = setTimeout(
+          updateAccountState,
+          intervalLength
+        )
       }
     }
 
     // Start the first update
-    backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
+    if (!backgroundState.accountStatePendingInterval)
+      backgroundState.accountStatePendingInterval = {}
+    backgroundState.accountStatePendingInterval[networkId] = setTimeout(
+      updateAccountState,
+      intervalLength / 2
+    )
   }
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
@@ -1092,6 +1118,7 @@ function stateDebug(event: string, stateToLog: object) {
             }
           }
         } catch (err: any) {
+          console.error(err)
           pm.send('> ui-error', {
             method: type,
             params: {
@@ -1123,61 +1150,71 @@ function stateDebug(event: string, stateToLog: object) {
     }
   })
 
-  const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  providerRequestTransport.reply(async ({ method, id, params }, meta) => {
-    const sessionId = meta.sender?.tab?.id
-    if (sessionId === undefined || !meta.sender?.url) {
-      return
-    }
+  initPortfolioContinuousUpdate()
+  await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+})()
 
-    const origin = getOriginFromUrl(meta.sender.url)
-    const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
-    session.setMessenger(bridgeMessenger)
-
-    // Temporarily resolves the subscription methods as successful
-    // but the rpc block subscription is actually not implemented because it causes app crashes
-    if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
-      return true
-    }
-
-    try {
-      const res = await handleProviderRequests(
-        {
-          method,
-          params,
-          session,
-          origin
-        },
-        mainCtrl
-      )
-      return { id, result: res }
-    } catch (error: any) {
-      let errorRes
-      try {
-        errorRes = error.serialize()
-      } catch (e) {
-        errorRes = error
-      }
-      return { id, error: errorRes }
-    }
-  })
-
-  try {
-    browser.tabs.onRemoved.addListener((tabId: number) => {
-      const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
-      // eslint-disable-next-line no-restricted-syntax
-      for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
-        mainCtrl.dapps.deleteDappSession(key)
-      }
-    })
-  } catch (error) {
-    console.error('Failed to register browser.tabs.onRemoved.addListener', error)
+const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+  // wait for mainCtrl to be initialized before handling dapp requests
+  while (!mainCtrl) {
+    // eslint-disable-next-line no-await-in-loop
+    await wait(200)
+  }
+  const sessionId = meta.sender?.tab?.id
+  if (sessionId === undefined || !meta.sender?.url) {
+    return
   }
 
-  initPortfolioContinuousUpdate()
-  await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
-})()
+  const origin = getOriginFromUrl(meta.sender.url)
+  const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
+  session.setMessenger(bridgeMessenger)
+
+  // Temporarily resolves the subscription methods as successful
+  // but the rpc block subscription is actually not implemented because it causes app crashes
+  if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
+    return true
+  }
+
+  try {
+    const res = await handleProviderRequests(
+      {
+        method,
+        params,
+        session,
+        origin
+      },
+      mainCtrl
+    )
+    return { id, result: res }
+  } catch (error: any) {
+    let errorRes
+    try {
+      errorRes = error.serialize()
+    } catch (e) {
+      errorRes = error
+    }
+    return { id, error: errorRes }
+  }
+})
+
+try {
+  browser.tabs.onRemoved.addListener(async (tabId: number) => {
+    // wait for mainCtrl to be initialized before handling dapp requests
+    while (!mainCtrl) {
+      // eslint-disable-next-line no-await-in-loop
+      await wait(200)
+    }
+    const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
+      mainCtrl.dapps.deleteDappSession(key)
+    }
+  })
+} catch (error) {
+  console.error('Failed to register browser.tabs.onRemoved.addListener', error)
+}
 
 // Open the get-started screen in a new tab right after the extension is installed.
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
