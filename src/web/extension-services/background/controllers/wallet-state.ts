@@ -25,9 +25,11 @@ export class WalletStateController extends EventEmitter {
     storage.set('isDefaultWallet', newValue)
 
     if (newValue) {
+      // if Ambire is the default wallet inject and reload the current tab
       this.#registerInPageContentScript()
       this.#reloadPageOnSwitchDefaultWallet()
     } else {
+      // if Ambire is NOT the default wallet remove injection and reload the current tab
       this.#unregisterInPageContentScript()
       this.#reloadPageOnSwitchDefaultWallet()
     }
@@ -62,6 +64,8 @@ export class WalletStateController extends EventEmitter {
       this.#_isDefaultWallet = isDefault
 
       if (!isDefault) {
+        // injecting is registered first thing in the background
+        // but if Ambire is not the default wallet the injection should be removed
         this.#unregisterInPageContentScript()
       }
     }
