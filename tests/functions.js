@@ -74,15 +74,15 @@ export async function bootstrap(namespace) {
     ignoreHTTPSErrors: true
   })
 
-  // Extract the extension ID from the browser targets
-  const targets = await browser.targets()
-  const backgroundTarget = targets.find((target) => target.type() === 'background_page')
-  const extensionTarget = targets.find((target) => target.url().includes('chrome-extension'))
-  const partialExtensionUrl = extensionTarget.url() || ''
+  const backgroundTarget = await browser.waitForTarget(
+    (target) => target.type() === 'service_worker' && target.url().endsWith('background.js')
+  )
+
+  const partialExtensionUrl = backgroundTarget.url() || ''
   const [, , extensionId] = partialExtensionUrl.split('/')
   const extensionURL = `chrome-extension://${extensionId}`
 
-  const backgroundPage = await backgroundTarget.page()
+  const backgroundPage = await backgroundTarget.worker()
   // If env.E2E_DEBUG is set to 'true', we log all controllers' state updates from the background page
   logger(backgroundPage)
 
@@ -101,7 +101,6 @@ export async function bootstrap(namespace) {
     page,
     recorder,
     extensionURL,
-    extensionTarget,
     backgroundPage
   }
 }

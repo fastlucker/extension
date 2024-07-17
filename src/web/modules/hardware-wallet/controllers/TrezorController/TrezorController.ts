@@ -5,6 +5,9 @@ import {
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+// TODO: find a better solution
+// In mv3, @trezor/connect-web is replaced with @trezor/connect-webextension using an alias in webpack
+// meaning that wherever you see @trezor/connect-web it is actually a @trezor/connect-webextension import
 import trezorConnect, { TrezorConnect } from '@trezor/connect-web'
 
 export type { TrezorConnect } from '@trezor/connect-web'
