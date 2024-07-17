@@ -45,7 +45,7 @@ const Account = ({
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const mainCtrlState = useMainControllerState()
-  const { selectedAccount } = useAccountsControllerState()
+  const { selectedAccount, statuses: accountsStatuses } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
   const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
   const { ens, ud, isLoading } = useReverseLookup({ address: addr })
@@ -111,7 +111,12 @@ const Account = ({
   }, [addToast, closeDialog, mainCtrlState.statuses.removeAccount, t])
 
   return (
-    <Pressable onPress={selectAccount} {...bindAnim} testID="account">
+    <Pressable
+      disabled={accountsStatuses.selectAccount !== 'INITIAL'}
+      onPress={selectAccount}
+      {...bindAnim}
+      testID="account"
+    >
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
           <Avatar ens={ens} ud={ud} pfp={account.preferences.pfp} />
