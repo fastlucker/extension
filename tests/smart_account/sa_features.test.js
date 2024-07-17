@@ -62,7 +62,7 @@ describe('sa_features', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   // This test is skipped because Top up Gas Tank option is temporarily disabled.
-  it.skip('Top up gas tank', async () => {
+  it.skip('Top up gas tank with 0.0001 MATIC', async () => {
     // Check if MATIC on Gas Tank are under 0.01
     await checkBalanceOfToken(
       page,
@@ -95,6 +95,7 @@ describe('sa_features', () => {
       '[data-testid="token-0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270-polygon-gastank"]',
       0.01
     )
+
     await clickOnElement(page, '[data-testid="dashboard-button-send"]')
     await prepareTransaction(page, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C', '0.0001')
     await handleTransaction(
