@@ -120,8 +120,8 @@ function stateDebug(event: string, stateToLog: object) {
       fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
     hasSignAccountOpCtrlInitialized: boolean
+    portfolioLastUpdatedByIntervalAt: number
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
-    portfolioLastUpdatedByIntervalAt?: number
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
@@ -141,7 +141,8 @@ function stateDebug(event: string, stateToLog: object) {
       standBy: 300000,
       retriedFastAccountStateReFetchForNetworks: []
     },
-    hasSignAccountOpCtrlInitialized: false
+    hasSignAccountOpCtrlInitialized: false,
+    portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
   }
 
   const pm = new PortMessenger()
@@ -236,13 +237,9 @@ function stateDebug(event: string, stateToLog: object) {
       backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
     }
 
-    let isAtLeastOnePortfolioUpdateMissed = false
-
-    if (backgroundState.portfolioLastUpdatedByIntervalAt) {
-      isAtLeastOnePortfolioUpdateMissed =
-        Date.now() - backgroundState.portfolioLastUpdatedByIntervalAt >
-        INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
-    }
+    const isAtLeastOnePortfolioUpdateMissed =
+      Date.now() - backgroundState.portfolioLastUpdatedByIntervalAt >
+      INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
 
     // If the extension is inactive and the last update was missed, update the portfolio immediately
     if (isAtLeastOnePortfolioUpdateMissed) {
