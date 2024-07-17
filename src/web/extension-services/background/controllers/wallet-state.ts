@@ -1,10 +1,15 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { isManifestV3 } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 export class WalletStateController extends EventEmitter {
   isReady: boolean = false
 
   #_isDefaultWallet: boolean = true
+
+  #registerInPageContentScript
+
+  #unregisterInPageContentScript
 
   #_onboardingState?: {
     version: string
@@ -18,6 +23,14 @@ export class WalletStateController extends EventEmitter {
   set isDefaultWallet(newValue: boolean) {
     this.#_isDefaultWallet = newValue
     storage.set('isDefaultWallet', newValue)
+
+    if (newValue) {
+      this.#registerInPageContentScript()
+      this.#reloadPageOnFocus()
+    } else {
+      this.#unregisterInPageContentScript()
+      this.#reloadPageOnFocus()
+    }
     this.emitUpdate()
   }
 
@@ -31,8 +44,11 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
-  constructor() {
+  constructor(registerInPageContentScript: Function, unregisterInPageContentScript: Function) {
     super()
+
+    this.#registerInPageContentScript = registerInPageContentScript
+    this.#unregisterInPageContentScript = unregisterInPageContentScript
     this.#init()
   }
 
@@ -44,12 +60,32 @@ export class WalletStateController extends EventEmitter {
       await storage.set('isDefaultWallet', true)
     } else {
       this.#_isDefaultWallet = isDefault
+
+      if (!isDefault) {
+        this.#unregisterInPageContentScript()
+      }
     }
 
     this.#_onboardingState = await storage.get('onboardingState', undefined)
 
     this.isReady = true
     this.emitUpdate()
+  }
+
+  async #reloadPageOnFocus() {
+    if (!isManifestV3) return
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
+      if (!tab || !tab?.id) return
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => {
+          window.location.reload()
+        }
+      })
+    } catch (error) {
+      // Silent fail
+    }
   }
 
   toJSON() {

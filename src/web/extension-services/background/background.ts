@@ -81,7 +81,42 @@ function stateDebug(event: string, stateToLog: object) {
 
 let mainCtrl: MainController
 
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+/*
+ * This content script is injected programmatically because
+ * MAIN world injection does not work properly via manifest
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
+ */
+const registerInPageContentScript = async () => {
+  // For mv2 the injection is located in the content-script
+  if (!isManifestV3) return
+  try {
+    await browser.scripting.registerContentScripts([
+      {
+        id: 'inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      }
+    ])
+  } catch (err) {
+    console.warn(`Failed to inject EthereumProvider: ${err}`)
+  }
+}
+
+const unregisterInPageContentScript = async () => {
+  if (!isManifestV3) return
+  try {
+    await browser.scripting.unregisterContentScripts({ ids: ['inpage'] })
+  } catch (err) {
+    console.warn(`Failed to inject EthereumProvider: ${err}`)
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+registerInPageContentScript()
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
@@ -209,7 +244,10 @@ let mainCtrl: MainController
         await initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
   })
-  const walletStateCtrl = new WalletStateController()
+  const walletStateCtrl = new WalletStateController(
+    registerInPageContentScript,
+    unregisterInPageContentScript
+  )
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
@@ -843,7 +881,7 @@ let mainCtrl: MainController
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
-                return await mainCtrl.signMessage.init(params)
+                return mainCtrl.signMessage.init(params)
               }
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
                 return mainCtrl.signMessage.reset()
@@ -1209,29 +1247,3 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
     }, 500)
   }
 })
-
-/*
- * This content script is injected programmatically because
- * MAIN world injection does not work properly via manifest
- * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
- */
-const registerInPageContentScript = async () => {
-  try {
-    await browser.scripting.registerContentScripts([
-      {
-        id: 'inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['inpage.js'],
-        runAt: 'document_start',
-        world: 'MAIN'
-      }
-    ])
-  } catch (err) {
-    console.warn(`Failed to inject EthereumProvider: ${err}`)
-  }
-}
-
-// For mv2 the injection is located in the content-script
-if (isManifestV3) {
-  registerInPageContentScript()
-}

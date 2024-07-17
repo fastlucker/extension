@@ -22,6 +22,7 @@ import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
 declare let defaultWallet: DefaultWallet
+// On mv3 the defaultWallet here will always be AMBIRE because the logic is handled via the scripting mechanism in the background
 let _defaultWallet: DefaultWallet = 'AMBIRE'
 
 const ambireId = nanoid()
