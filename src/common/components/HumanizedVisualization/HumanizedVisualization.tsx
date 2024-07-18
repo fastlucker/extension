@@ -33,9 +33,9 @@ interface Props {
 
 const HumanizedVisualization: FC<Props> = ({
   data = [],
-  networkId,
   sizeMultiplierSize = 1,
   textSize = 16,
+  networkId,
   isHistory,
   testID,
   networks

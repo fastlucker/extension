@@ -161,7 +161,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           key={call.fromUserRequestId}
           style={styles.summaryItem}
           call={call}
-          network={network}
+          networkId={submittedAccountOp.networkId}
           rightIcon={
             index === 0 &&
             (!submittedAccountOp.status ||
