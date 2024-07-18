@@ -12,19 +12,20 @@ import { setupBridgeMessengerRelay } from '../messengers/internal/bridge'
 const injectProviderScript = () => {
   // the script element with src won't execute immediately use inline script element instead!
   const container = document.head || document.documentElement
-  const ele = document.createElement('script')
-  const ele2 = document.createElement('script')
-  // The string is then replaced by AssetReplacePlugin in webpack.
-  // The idea is to inject inpage.js into the page context.
-  ele.textContent = '#AMBIREINPAGE#'
+  const ambireInpageScript = document.createElement('script')
+  const ethereumInpageScript = document.createElement('script')
   // Otherwise the script will mess with the global scope of the page
-  ele.type = 'module'
-  container.insertBefore(ele, container.children[0])
-  ele2.textContent = '#ETHEREUMINPAGE#'
-  ele2.type = 'module'
-  container.insertBefore(ele2, container.children[1])
-  container.removeChild(ele)
-  container.removeChild(ele2)
+  ambireInpageScript.type = 'module'
+  ethereumInpageScript.type = 'module'
+
+  // '#AMBIREINPAGE#' and '#ETHEREUMINPAGE#' are strings replaced by webpack
+  // via the AssetReplacePlugin with the real content of each file
+  ambireInpageScript.textContent = '#AMBIREINPAGE#'
+  container.insertBefore(ambireInpageScript, container.children[0])
+  ethereumInpageScript.textContent = '#ETHEREUMINPAGE#'
+  container.insertBefore(ethereumInpageScript, container.children[1])
+  container.removeChild(ambireInpageScript)
+  container.removeChild(ethereumInpageScript)
 }
 
 injectProviderScript()
