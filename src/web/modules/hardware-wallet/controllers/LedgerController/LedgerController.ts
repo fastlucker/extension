@@ -64,7 +64,8 @@ class LedgerController implements ExternalSignerController {
   static isSupported = TransportWebHID.isSupported
 
   /**
-   * Checks if at least one Ledger device is connected to the computer.
+   * Checks if at least one Ledger device is connected.
+   * TODO: Figure out if we can get the device ID via HID and then - check for this device specifically.
    */
   static isConnected = async () => {
     const devices = await navigator.hid.getDevices()
