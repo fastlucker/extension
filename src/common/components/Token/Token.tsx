@@ -3,6 +3,7 @@ import React, { FC, memo, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
+import { extraNetworks, networks as hardcodedNetwork } from '@ambire-common/consts/networks'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
@@ -36,7 +37,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
     const isMaxUint256 = amount === MaxUint256
     return isUnlimitedByPermit2 || isMaxUint256
   }, [amount])
-  const { networks } = useNetworksControllerState()
+  const { networks: stateNetworks} = useNetworksControllerState()
   const { t } = useTranslation()
   const { accountPortfolio } = usePortfolioControllerState()
 
@@ -49,12 +50,12 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
     decimals: number
     symbol: string
   } | null>()
-
+  const networks = useMemo(()=> stateNetworks || [...hardcodedNetwork,...extraNetworks], [stateNetworks])
   const network = useMemo(
     // TODO: this compromise should be discussed and fix in future PR
     // are we gonna show warning/to what website/explorer are we going to redirect on click
     // how are going to get the decimals and symbol
-    () => networks.find((n) => n.id === networkId) || networks[0],
+    () => networks.find((n) => n.id === networkId) || net[0],
     [networks, networkId]
   )
 
