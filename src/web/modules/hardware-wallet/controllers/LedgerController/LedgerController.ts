@@ -87,7 +87,8 @@ class LedgerController implements ExternalSignerController {
       this.transport = await TransportWebHID.create()
       if (!this.transport) throw new Error('Transport failed to get initialized')
 
-      this.transport.on('disconnect', this.cleanUp)
+      // this.transport.on('disconnect', this.cleanUp)
+      // TODO: Migrate to navigator.hid.addEventListener('disconnect', this.cleanUp)
 
       this.walletSDK = new Eth(this.transport)
 
@@ -143,7 +144,8 @@ class LedgerController implements ExternalSignerController {
 
     try {
       if (this.transport) {
-        this.transport.off('disconnect', this.cleanUp)
+        // TODO: Migrate to navigator.hid.removeEventListener('disconnect', this.cleanUp)
+        // this.transport.off('disconnect', this.cleanUp)
 
         await this.transport.close()
         this.transport = null
