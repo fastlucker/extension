@@ -46,7 +46,7 @@ export async function makeValidTransaction(page, extensionURL, browser) {
   // Check if select fee token is visible and select the token
   await selectFeeToken(
     newPage,
-    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
+    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
   )
   // Sign and confirm the transaction
   await signTransaction(newPage, transactionRecorder)
@@ -56,6 +56,20 @@ export async function makeValidTransaction(page, extensionURL, browser) {
 //--------------------------------------------------------------------------------------------------------------
 export async function makeSwap(page, extensionURL, browser) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
+
+  // Wait until modal with text "Introducing the Uniswap Extension." appears
+  await page.waitForXPath('//div[contains(text(), "Introducing the Uniswap Extension.")]')
+
+  // Click somewhere just to hide the modal
+  await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
+
+  // Wait until modal disapears
+  await page.waitForSelector(
+    'xpath///div[contains(text(), "Introducing the Uniswap Extension.")]',
+    {
+      hidden: true
+    }
+  )
 
   // Click on 'connect' button
   await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
@@ -120,7 +134,7 @@ export async function makeSwap(page, extensionURL, browser) {
   // Check if select fee token is visible and select the token
   await selectFeeToken(
     updatedPage,
-    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
+    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
   )
 
   // Sign and confirm the transaction

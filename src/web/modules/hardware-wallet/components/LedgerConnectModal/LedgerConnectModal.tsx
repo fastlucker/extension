@@ -9,6 +9,7 @@ import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useToast from '@common/hooks/useToast'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -22,6 +23,7 @@ type Props = {
 }
 
 const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
+  const { addToast } = useToast()
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -34,11 +36,20 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
   const onPressNext = async () => {
     setIsConnectingToDevice(true)
 
-    // The WebHID API requires a user gesture to open the device selection prompt
-    // where users grant permission to the extension to access an HID device.
-    // Therefore, force unlocking the Ledger device here.
     try {
-      const ledgerCtrl = await new LedgerController()
+      const ledgerCtrl = new LedgerController()
+
+      const isSupported = await ledgerCtrl.isSupported()
+      if (!isSupported) {
+        setIsConnectingToDevice(false)
+        const message =
+          "Your browser doesn't support WebHID, which is required for the Ledger device. Please try using a different browser."
+        return addToast(message, { type: 'error' })
+      }
+
+      // The WebHID API requires a user gesture to open the device selection prompt
+      // where users grant permission to the extension to access an HID device.
+      // Therefore, force unlocking the Ledger device here.
       await ledgerCtrl.unlock()
       await ledgerCtrl.cleanUp()
     } catch (error: any) {
