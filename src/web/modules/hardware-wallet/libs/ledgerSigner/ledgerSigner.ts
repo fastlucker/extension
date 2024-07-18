@@ -6,9 +6,7 @@ import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, {
-  ledgerService
-} from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, { ledgerService } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -65,8 +63,9 @@ class LedgerSigner implements KeystoreSigner {
    */
   async #withDisconnectProtection<T>(operation: () => Promise<T>): Promise<T> {
     let transportCbRef: (...args: Array<any>) => any = () => {}
-    const disconnectHandler = (reject: (reason?: any) => void) => () => {
-      reject(new Error('Ledger device got disconnected.'))
+    const disconnectHandler = (reject: (reason?: any) => void) => async () => {
+      const isConnected = await LedgerController.isConnected()
+      if (!isConnected) reject(new Error('Ledger device got disconnected.'))
     }
 
     try {
@@ -79,7 +78,7 @@ class LedgerSigner implements KeystoreSigner {
         operation(),
         new Promise((_, reject) => {
           transportCbRef = disconnectHandler(reject)
-          this.controller!.transport?.on('disconnect', transportCbRef)
+          navigator.hid.addEventListener('disconnect', transportCbRef)
         })
       ])
 
@@ -87,7 +86,7 @@ class LedgerSigner implements KeystoreSigner {
     } finally {
       // In either case, the 'disconnect' event listener should be removed
       // after the operation to clean up resources.
-      if (transportCbRef) this.controller!.transport?.off('disconnect', transportCbRef)
+      if (transportCbRef) navigator.hid.removeEventListener('disconnect', transportCbRef)
     }
   }
 
