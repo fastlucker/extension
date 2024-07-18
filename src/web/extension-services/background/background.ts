@@ -1235,3 +1235,9 @@ const registerInPageContentScript = async () => {
 if (isManifestV3) {
   registerInPageContentScript()
 }
+
+// FIXME: Figure out why without this, the listener in ledgerSigner.ts fails to work
+console.log('Setting up HID disconnect event listener.')
+navigator.hid.addEventListener('disconnect', (event) => {
+  console.log('HID device disconnected:', event.device)
+})
