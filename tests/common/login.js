@@ -31,17 +31,16 @@ export async function createAccountWithPhrase(page, extensionURL, phrase) {
 
   // Verify that selected accounts exist on the page
   await page.waitForFunction(
-    (basicAccAddr, smartAccAddr) => {
-      const accounts = document.querySelectorAll('[data-testid="account"]')
-
-      return (
-        accounts[0].innerText.includes(basicAccAddr) && accounts[1].innerText.includes(smartAccAddr)
-      )
+    (testId, requiredCount) => {
+      return document.querySelectorAll(`[data-testid="${testId}"]`).length >= requiredCount
     },
     {},
-    firstSelectedBasicAccount,
-    firstSelectedSmartAccount
+    'address',
+    2
   )
+  const addresses = await page.$$eval('[data-testid="address"]', (el) => el.map((e) => e.innerText))
+  expect(addresses).toContain(firstSelectedBasicAccount)
+  expect(addresses).toContain(firstSelectedSmartAccount)
 }
 
 //--------------------------------------------------------------------------------------------------------------
