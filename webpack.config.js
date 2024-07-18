@@ -137,7 +137,8 @@ module.exports = async function (env, argv) {
     main: config.entry[0], // the app entry
     background: './src/web/extension-services/background/background.ts', // custom entry needed for the extension
     'content-script': './src/web/extension-services/content-script/content-script.ts', // custom entry needed for the extension
-    inpage: './src/web/extension-services/inpage/inpage.ts' // custom entry needed for the extension
+    'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts', // custom entry needed for the extension
+    'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts' // custom entry needed for the extension
   }
 
   // The files in the /web directory should be transpiled not just copied
@@ -251,7 +252,10 @@ module.exports = async function (env, argv) {
     ...defaultExpoConfigPlugins,
     new NodePolyfillPlugin(),
     new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'], process: 'process' }),
-    new AssetReplacePlugin({ '#PAGEPROVIDER#': 'inpage' }),
+    new AssetReplacePlugin({
+      '#AMBIREINPAGE#': 'ambire-inpage',
+      '#ETHEREUMINPAGE#': 'ethereum-inpage'
+    }),
     new CopyPlugin({ patterns: extensionCopyPatterns })
   ]
 

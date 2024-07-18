@@ -86,15 +86,22 @@ let mainCtrl: MainController
  * MAIN world injection does not work properly via manifest
  * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
  */
-const registerInPageContentScript = async () => {
+const registerAllInpageScripts = async () => {
   // For mv2 the injection is located in the content-script
   if (!isManifestV3) return
   try {
     await browser.scripting.registerContentScripts([
       {
-        id: 'inpage',
+        id: 'ambire-inpage',
         matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['inpage.js'],
+        js: ['ambire-inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      },
+      {
+        id: 'ethereum-inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['ethereum-inpage.js'],
         runAt: 'document_start',
         world: 'MAIN'
       }
@@ -104,17 +111,26 @@ const registerInPageContentScript = async () => {
   }
 }
 
-const unregisterInPageContentScript = async () => {
+const unregisterAmbireInpageContentScript = async () => {
   if (!isManifestV3) return
   try {
-    await browser.scripting.unregisterContentScripts({ ids: ['inpage'] })
+    await browser.scripting.unregisterContentScripts({ ids: ['ambire-inpage'] })
   } catch (err) {
-    console.warn(`Failed to inject EthereumProvider: ${err}`)
+    console.warn(`Failed to unregister ambire-inpage: ${err}`)
+  }
+}
+
+const unregisterEthereumInpageContentScript = async () => {
+  if (!isManifestV3) return
+  try {
+    await browser.scripting.unregisterContentScripts({ ids: ['ethereum-inpage'] })
+  } catch (err) {
+    console.warn(`Failed to inject ethereum-inpage: ${err}`)
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-registerInPageContentScript()
+registerAllInpageScripts()
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
@@ -245,8 +261,9 @@ registerInPageContentScript()
     }
   })
   const walletStateCtrl = new WalletStateController(
-    registerInPageContentScript,
-    unregisterInPageContentScript
+    registerAllInpageScripts,
+    unregisterAmbireInpageContentScript,
+    unregisterEthereumInpageContentScript
   )
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
@@ -881,7 +898,7 @@ registerInPageContentScript()
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
-                return mainCtrl.signMessage.init(params)
+                return await mainCtrl.signMessage.init(params)
               }
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
                 return mainCtrl.signMessage.reset()

@@ -10,7 +10,9 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import { initializeMessenger } from '../messengers'
 import { setupBridgeMessengerRelay } from '../messengers/internal/bridge'
 
-setupBridgeMessengerRelay()
+if (isManifestV3) {
+  setupBridgeMessengerRelay()
+}
 
 // the injection for manifest v3 is located in background.js
 if (!isManifestV3) {
@@ -18,14 +20,23 @@ if (!isManifestV3) {
     // the script element with src won't execute immediately use inline script element instead!
     const container = document.head || document.documentElement
     const ele = document.createElement('script')
+    const ele2 = document.createElement('script')
     // The string is then replaced by AssetReplacePlugin in webpack.
     // The idea is to inject inpage.js into the page context.
-    ele.textContent = '#PAGEPROVIDER#'
+    ele.textContent = '#AMBIREINPAGE#'
     // Otherwise the script will mess with the global scope of the page
     ele.type = 'module'
     container.insertBefore(ele, container.children[0])
+    ele2.textContent = '#ETHEREUMINPAGE#'
+    ele2.type = 'module'
+    container.insertBefore(ele2, container.children[1])
     container.removeChild(ele)
+    container.removeChild(ele2)
   }
+
+  injectProviderScript()
+
+  setupBridgeMessengerRelay()
 
   const inpageMessenger = initializeMessenger({ connect: 'inpage' })
   browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
@@ -56,6 +67,4 @@ if (!isManifestV3) {
   setTimeout(() => {
     initIsDefaultWallet()
   }, 1)
-
-  injectProviderScript()
 }
