@@ -816,7 +816,7 @@ let mainCtrl: MainController
                     }))
                 )
 
-                return await mainCtrl.accountAdder.addAccounts(
+                await mainCtrl.accountAdder.addAccounts(
                   mainCtrl.accountAdder.selectedAccounts,
                   {
                     internal: readyToAddKeys,
@@ -824,6 +824,11 @@ let mainCtrl: MainController
                   },
                   readyToAddKeyPreferences
                 )
+
+                if (!mainCtrl.keystore.hasKeystoreMainSeed) {
+                  await mainCtrl.keystore.addSeed(params.seed)
+                }
+                break
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
                 return await mainCtrl.removeAccount(params.accountAddr)
