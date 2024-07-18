@@ -7,6 +7,7 @@ import { Network } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
@@ -43,6 +44,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
   const [tokenInfo, setTokenInfo] = useState<
     null | undefined | { decimals: number; symbol: string }
   >(null)
+  const { addToast } = useToast()
   const [fetchedFromCena, setFetchedFromCena] = useState<{
     decimals: number
     symbol: string
@@ -53,7 +55,11 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
       if (!tokenInfo)
         getTokenInfo(address, network.platformId, fetch)
           .then((r) => setFetchedFromCena(r))
-          .catch(console.error)
+          .catch((e) =>
+            addToast(t(`${e.message}`), {
+              type: 'error'
+            })
+          )
     }, SECONDS_BEFORE_FETCH * 1000)
     const loadingLimitTimeout = setTimeout(() => {
       setShowLoading(false)
@@ -63,7 +69,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
       clearTimeout(loadingLimitTimeout)
       clearTimeout(fetchTriggerTimeout)
     }
-  }, [tokenInfo, address, network.id])
+  }, [tokenInfo, address, network.platformId])
 
   useEffect(() => {
     const infoFromBalance = accountPortfolio?.tokens?.find(
