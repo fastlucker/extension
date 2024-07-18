@@ -3,7 +3,7 @@ import React, { FC, memo, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -24,12 +24,12 @@ interface Props {
   amount: bigint
   sizeMultiplierSize: number
   textSize: number
-  network: Network
+  networkId?: NetworkId
 }
 const SECONDS_BEFORE_FETCH = 2
 const SECONDS_FOR_LOADING = 4
 
-const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, network }) => {
+const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, networkId }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const shouldDisplayUnlimitedAmount = useMemo(() => {
     const isUnlimitedByPermit2 = amount.toString(16).toLowerCase() === 'f'.repeat(40)
@@ -50,6 +50,14 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
     symbol: string
   } | null>()
 
+  const network = useMemo(
+    // TODO: this compromise should be discussed and fix in future PR
+    // are we gonna show warning/to what website/explorer are we going to redirect on click
+    // how are going to get the decimals and symbol
+    () => networks.find((n) => n.id === networkId) || networks[0],
+    [networks, networkId]
+  )
+
   useEffect(() => {
     const fetchTriggerTimeout = setTimeout(() => {
       if (!tokenInfo)
@@ -69,7 +77,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
       clearTimeout(loadingLimitTimeout)
       clearTimeout(fetchTriggerTimeout)
     }
-  }, [tokenInfo, address, network.platformId, addToast])
+  }, [tokenInfo, address, network.platformId, addToast, networkId])
 
   useEffect(() => {
     const infoFromBalance = accountPortfolio?.tokens?.find(
@@ -116,7 +124,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
         </>
       ) : // ) : true ? (
       showLoading && !tokenInfo ? (
-        <SkeletonLoader width={100} height={24} appearance="primaryBackground" />
+        <SkeletonLoader width={100} height={24} appearance="tertiaryBackground" />
       ) : (
         <>
           {BigInt(amount) > BigInt(0) ? (

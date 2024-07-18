@@ -1,7 +1,7 @@
 import React, { FC, memo } from 'react'
 import { Linking, Pressable, View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
@@ -25,7 +25,7 @@ interface Props {
   data: IrCall['fullVisualization']
   sizeMultiplierSize?: number
   textSize?: number
-  network: Network
+  networkId: NetworkId
   isHistory?: boolean
   testID?: string
   networks: Network[]
@@ -33,7 +33,7 @@ interface Props {
 
 const HumanizedVisualization: FC<Props> = ({
   data = [],
-  network,
+  networkId,
   sizeMultiplierSize = 1,
   textSize = 16,
   isHistory,
@@ -66,7 +66,7 @@ const HumanizedVisualization: FC<Props> = ({
               amount={item.amount!}
               address={item.address!}
               textSize={textSize}
-              network={network}
+              networkId={networkId}
             />
           )
         }
@@ -78,7 +78,7 @@ const HumanizedVisualization: FC<Props> = ({
                 fontSize={textSize}
                 address={item.address}
                 highestPriorityAlias={item?.humanizerMeta?.name}
-                explorerNetworkId={network.id}
+                explorerNetworkId={networkId}
               />
             </View>
           )
@@ -91,7 +91,7 @@ const HumanizedVisualization: FC<Props> = ({
                 fontSize={textSize}
                 address={item.address}
                 highestPriorityAlias={`NFT #${item.nftId}`}
-                explorerNetworkId={network.id}
+                explorerNetworkId={networkId}
               />
               <Collectible
                 style={spacings.mhTy}
@@ -99,7 +99,7 @@ const HumanizedVisualization: FC<Props> = ({
                 id={item.nftId}
                 collectionData={{
                   address: item.address,
-                  networkId: network.id
+                  networkId
                 }}
                 networks={networks}
               />

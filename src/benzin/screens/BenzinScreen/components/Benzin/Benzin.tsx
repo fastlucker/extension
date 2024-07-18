@@ -70,7 +70,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
         key={call.data + randomBytes(6)}
         style={i !== calls.length! - 1 ? spacings.mbSm : {}}
         call={call}
-        network={network}
+        networkId={network!.id}
         rightIcon={
           <OpenIcon
             width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
