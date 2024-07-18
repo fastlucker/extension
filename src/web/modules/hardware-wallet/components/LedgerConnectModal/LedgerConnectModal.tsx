@@ -37,9 +37,7 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
     setIsConnectingToDevice(true)
 
     try {
-      const ledgerCtrl = new LedgerController()
-
-      const isSupported = await ledgerCtrl.isSupported()
+      const isSupported = await LedgerController.isSupported()
       if (!isSupported) {
         setIsConnectingToDevice(false)
         const message =
@@ -50,6 +48,7 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
       // The WebHID API requires a user gesture to open the device selection prompt
       // where users grant permission to the extension to access an HID device.
       // Therefore, force unlocking the Ledger device here.
+      const ledgerCtrl = new LedgerController()
       await ledgerCtrl.unlock()
       await ledgerCtrl.cleanUp()
     } catch (error: any) {

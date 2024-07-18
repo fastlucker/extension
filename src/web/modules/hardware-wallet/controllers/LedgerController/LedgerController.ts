@@ -61,7 +61,7 @@ class LedgerController implements ExternalSignerController {
    * Checks if WebUSB transport is supported by the browser. Does not work in the
    * service worker (background) in manifest v3, because it needs a `window` ref.
    */
-  isSupported = TransportWebHID.isSupported
+  static isSupported = TransportWebHID.isSupported
 
   /**
    * Checks if at least one Ledger device is connected to the computer.
