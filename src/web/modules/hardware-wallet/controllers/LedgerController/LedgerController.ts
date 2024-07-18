@@ -77,8 +77,8 @@ class LedgerController implements ExternalSignerController {
    * is an existing SDK instance and creates a new one if needed.
    */
   async #initSDKSessionIfNeeded() {
-    if (await !LedgerController.isConnected())
-      throw new Error("Ledger is not connected. Please make sure it's plugged in.")
+    const isConnected = await LedgerController.isConnected()
+    if (!isConnected) throw new Error("Ledger is not connected. Please make sure it's plugged in.")
 
     if (this.walletSDK) return
 
