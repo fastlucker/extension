@@ -136,7 +136,9 @@ module.exports = async function (env, argv) {
   config.entry = {
     main: config.entry[0], // the app entry
     background: './src/web/extension-services/background/background.ts', // custom entry needed for the extension
-    'content-script': './src/web/extension-services/content-script/content-script.ts', // custom entry needed for the extension
+    'content-script': `./src/web/extension-services/content-script/${
+      manifestVersion === 3 ? 'content-script-mv3.ts' : 'content-script-mv2.ts'
+    }`, // custom entry needed for the extension
     'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts', // custom entry needed for the extension
     'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts' // custom entry needed for the extension
   }
