@@ -55,7 +55,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
     // TODO: this compromise should be discussed and fix in future PR
     // are we gonna show warning/to what website/explorer are we going to redirect on click
     // how are going to get the decimals and symbol
-    () => networks.find((n) => n.id === networkId) || net[0],
+    () => networks.find((n) => n.id === networkId) || networks[0],
     [networks, networkId]
   )
 
