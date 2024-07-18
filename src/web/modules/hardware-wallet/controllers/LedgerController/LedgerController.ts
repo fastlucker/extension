@@ -5,6 +5,7 @@ import {
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { ledgerUSBVendorId } from '@ledgerhq/devices'
 import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 
@@ -63,11 +64,22 @@ class LedgerController implements ExternalSignerController {
   isSupported = TransportWebHID.isSupported
 
   /**
+   * Checks if at least one Ledger device is connected to the computer.
+   */
+  static isConnected = async () => {
+    const devices = await navigator.hid.getDevices()
+    return devices.filter((device) => device.vendorId === ledgerUSBVendorId).length > 0
+  }
+
+  /**
    * The Ledger device requires a new SDK instance (session) every time the
    * device is connected (after being disconnected). This method checks if there
    * is an existing SDK instance and creates a new one if needed.
    */
   async #initSDKSessionIfNeeded() {
+    if (await !LedgerController.isConnected())
+      throw new Error("Ledger is not connected. Please make sure it's plugged in.")
+
     if (this.walletSDK) return
 
     try {
