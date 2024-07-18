@@ -56,7 +56,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
         getTokenInfo(address, network.platformId, fetch)
           .then((r) => setFetchedFromCena(r))
           .catch((e) =>
-            addToast(t(`${e.message}`), {
+            addToast(e.message, {
               type: 'error'
             })
           )
@@ -69,7 +69,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
       clearTimeout(loadingLimitTimeout)
       clearTimeout(fetchTriggerTimeout)
     }
-  }, [tokenInfo, address, network.platformId])
+  }, [tokenInfo, address, network.platformId, addToast])
 
   useEffect(() => {
     const infoFromBalance = accountPortfolio?.tokens?.find(
