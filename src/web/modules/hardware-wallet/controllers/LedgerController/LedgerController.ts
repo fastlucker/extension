@@ -6,7 +6,6 @@ import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
-import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 
 class LedgerController implements ExternalSignerController {
@@ -18,7 +17,7 @@ class LedgerController implements ExternalSignerController {
 
   isWebHID: boolean
 
-  transport: Transport | null
+  transport: TransportWebHID | null
 
   walletSDK: null | Eth
 
@@ -58,19 +57,18 @@ class LedgerController implements ExternalSignerController {
   }
 
   /**
+   * Checks if WebUSB transport is supported by the browser. Does not work in the
+   * service worker (background) in manifest v3, because it needs a `window` ref.
+   */
+  isSupported = TransportWebHID.isSupported
+
+  /**
    * The Ledger device requires a new SDK instance (session) every time the
    * device is connected (after being disconnected). This method checks if there
    * is an existing SDK instance and creates a new one if needed.
    */
   async #initSDKSessionIfNeeded() {
     if (this.walletSDK) return
-
-    const isSupported = await TransportWebHID.isSupported()
-    if (!isSupported) {
-      throw new Error(
-        'Can not establish connection with your Ledger device. Your browser does not support WebHID. Please use a different browser.'
-      )
-    }
 
     try {
       // @ts-ignore types mismatch, not sure why
