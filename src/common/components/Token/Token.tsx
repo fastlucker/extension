@@ -16,6 +16,7 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 
 import Address from '../Address'
 import Collectible from '../Collectible'
+import SkeletonLoader from '../SkeletonLoader'
 
 interface Props {
   address: string
@@ -24,6 +25,8 @@ interface Props {
   textSize: number
   network: Network
 }
+const SECONDS_BEFORE_FETCH = 2
+const SECONDS_FOR_LOADING = 4
 
 const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, network }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
@@ -36,9 +39,31 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
   const { t } = useTranslation()
   const { accountPortfolio } = usePortfolioControllerState()
 
+  const [showLoading, setShowLoading] = useState(true)
   const [tokenInfo, setTokenInfo] = useState<
     null | undefined | { decimals: number; symbol: string }
   >(null)
+  const [fetchedFromCena, setFetchedFromCena] = useState<{
+    decimals: number
+    symbol: string
+  } | null>()
+
+  useEffect(() => {
+    const fetchTriggerTimeout = setTimeout(() => {
+      if (!tokenInfo)
+        getTokenInfo(address, network.platformId, fetch)
+          .then((r) => setFetchedFromCena(r))
+          .catch(console.error)
+    }, SECONDS_BEFORE_FETCH * 1000)
+    const loadingLimitTimeout = setTimeout(() => {
+      setShowLoading(false)
+    }, SECONDS_FOR_LOADING * 5000)
+
+    return () => {
+      clearTimeout(loadingLimitTimeout)
+      clearTimeout(fetchTriggerTimeout)
+    }
+  }, [tokenInfo, address, network.id])
 
   useEffect(() => {
     const infoFromBalance = accountPortfolio?.tokens?.find(
@@ -48,13 +73,8 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
       symbol: network.nativeAssetSymbol,
       decimals: 18
     }
-    if (infoNative) setTokenInfo(infoNative)
-    else if (infoFromBalance) setTokenInfo(infoFromBalance)
-    else
-      getTokenInfo(address, network.id, fetch)
-        .then((r) => setTokenInfo(r))
-        .catch(console.error)
-  }, [network, accountPortfolio?.tokens, address])
+    setTokenInfo(infoNative || infoFromBalance || fetchedFromCena)
+  }, [network, accountPortfolio?.tokens, address, fetchedFromCena])
 
   const nftInfo = useMemo(() => {
     return accountPortfolio?.collections?.find(
@@ -69,72 +89,80 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
 
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
-      (nftInfo ?
-      <>
-        <Address
-          fontSize={textSize}
-          address={address}
-          highestPriorityAlias={nftInfo?.name || `NFT #${amount}`}
-          explorerNetworkId={network.id}
-        />
-        <Collectible
-          style={spacings.mhTy}
-          size={36}
-          id={amount}
-          collectionData={{
-            address,
-            networkId: network.id
-          }}
-          networks={networks}
-        />
-      </>
-      :
-      <>
-        {BigInt(amount) > BigInt(0) ? (
-          <Text
+      {nftInfo ? (
+        <>
+          <Address
             fontSize={textSize}
-            weight="medium"
-            appearance="primaryText"
-            style={{ maxWidth: '100%' }}
-          >
-            {shouldDisplayUnlimitedAmount ? (
-              <Text appearance="warningText">{t('unlimited')}</Text>
-            ) : (
-              <>
-                {formatDecimals(Number(formatUnits(amount, tokenInfo?.decimals || 1)))}{' '}
-                {!tokenInfo?.decimals && (
-                  <Text
-                    fontSize={textSize}
-                    weight="medium"
-                    appearance="primaryText"
-                    style={{ maxWidth: '100%' }}
-                  >
-                    {t('units of')}
-                  </Text>
-                )}
-              </>
-            )}
-          </Text>
-        ) : null}
-        <Pressable
-          style={{ ...spacings.mlMi, ...flexbox.directionRow, ...flexbox.alignCenter }}
-          onPress={openExplorer}
-        >
-          <TokenIcon
-            width={24 * sizeMultiplierSize}
-            height={24 * sizeMultiplierSize}
-            networkId={network.id}
             address={address}
-            withNetworkIcon={false}
-            containerStyle={{ marginRight: marginRight / 2 }}
+            highestPriorityAlias={nftInfo?.name || `NFT #${amount}`}
+            explorerNetworkId={network.id}
           />
-          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mrMi}>
-            {tokenInfo?.symbol || t('unknown token')}
-          </Text>
-          <OpenIcon width={14} height={14} />
-        </Pressable>
-      </>
-      )
+          <Collectible
+            style={spacings.mhTy}
+            size={36}
+            id={amount}
+            collectionData={{
+              address,
+              networkId: network.id
+            }}
+            networks={networks}
+          />
+        </>
+      ) : // ) : true ? (
+      showLoading && !tokenInfo ? (
+        <SkeletonLoader width={100} height={24} appearance="primaryBackground" />
+      ) : (
+        <>
+          {BigInt(amount) > BigInt(0) ? (
+            <Text
+              fontSize={textSize}
+              weight="medium"
+              appearance="primaryText"
+              style={{ maxWidth: '100%' }}
+            >
+              {shouldDisplayUnlimitedAmount ? (
+                <Text appearance="warningText">{t('unlimited')}</Text>
+              ) : (
+                <>
+                  {formatDecimals(Number(formatUnits(amount, tokenInfo?.decimals || 1)))}{' '}
+                  {!tokenInfo?.decimals && (
+                    <Text
+                      fontSize={textSize}
+                      weight="medium"
+                      appearance="primaryText"
+                      style={{ maxWidth: '100%' }}
+                    >
+                      {t('units of')}
+                    </Text>
+                  )}
+                </>
+              )}
+            </Text>
+          ) : null}
+          <Pressable
+            style={{ ...spacings.mlMi, ...flexbox.directionRow, ...flexbox.alignCenter }}
+            onPress={openExplorer}
+          >
+            <TokenIcon
+              width={24 * sizeMultiplierSize}
+              height={24 * sizeMultiplierSize}
+              networkId={network.id}
+              address={address}
+              withNetworkIcon={false}
+              containerStyle={{ marginRight: marginRight / 2 }}
+            />
+            <Text
+              fontSize={textSize}
+              weight="medium"
+              appearance="primaryText"
+              style={spacings.mrMi}
+            >
+              {tokenInfo?.symbol || t('unknown token')}
+            </Text>
+            <OpenIcon width={14} height={14} />
+          </Pressable>
+        </>
+      )}
     </View>
   )
 }
