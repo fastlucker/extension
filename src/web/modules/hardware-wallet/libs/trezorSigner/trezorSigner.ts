@@ -54,17 +54,16 @@ class TrezorSigner implements KeystoreSigner {
   }
 
   #prepareForSigning = async () => {
-    await this.controller?.initialLoadPromise
-
-    if (!this.controller?.isInitiated) {
+    if (!this.controller) {
       throw new Error(
-        'Something went wrong when preparing Trezor to sign. Please try restarting your browser or contact support if the problem persists.'
+        'Something went wrong when preparing Trezor to sign. Please try again or contact support if the problem persists.'
       )
     }
 
-    if (!this.controller || !this.controller.walletSDK) {
+    await this.controller.initialLoadPromise
+    if (!this.controller.isInitiated || !this.controller.walletSDK) {
       throw new Error(
-        'Something went wrong when preparing Trezor to sign. Please try again or contact support if the problem persists.'
+        'Something went wrong when preparing Trezor to sign. Please try restarting your browser or contact support if the problem persists.'
       )
     }
 
