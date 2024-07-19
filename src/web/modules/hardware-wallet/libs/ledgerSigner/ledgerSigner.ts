@@ -63,10 +63,12 @@ class LedgerSigner implements KeystoreSigner {
    */
   async #withDisconnectProtection<T>(operation: () => Promise<T>): Promise<T> {
     let transportCbRef: (...args: Array<any>) => any = () => {}
-    const disconnectHandler = (reject: (reason?: any) => void) => async () => {
-      const isConnected = await LedgerController.isConnected()
-      if (!isConnected) reject(new Error('Ledger device got disconnected.'))
-    }
+    const disconnectHandler =
+      (reject: (reason?: any) => void) =>
+      ({ device }: { device: HIDDevice }) => {
+        if (LedgerController.vendorId === device.vendorId)
+          reject(new Error('Ledger device got disconnected.'))
+      }
 
     try {
       // Race the operation against a new Promise that rejects if a 'disconnect'

@@ -28,6 +28,8 @@ class LedgerController implements ExternalSignerController {
 
   deviceId = ''
 
+  static vendorId = ledgerUSBVendorId
+
   constructor() {
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
@@ -66,7 +68,7 @@ class LedgerController implements ExternalSignerController {
    */
   static isConnected = async () => {
     const devices = await navigator.hid.getDevices()
-    return devices.filter((device) => device.vendorId === ledgerUSBVendorId).length > 0
+    return devices.filter((device) => device.vendorId === LedgerController.vendorId).length > 0
   }
 
   /**
@@ -129,7 +131,7 @@ class LedgerController implements ExternalSignerController {
   }
 
   async cleanUpListener({ device }: { device: HIDDevice }) {
-    if (device.vendorId === ledgerUSBVendorId) await this.cleanUp()
+    if (device.vendorId === LedgerController.vendorId) await this.cleanUp()
   }
 
   cleanUp = async () => {
