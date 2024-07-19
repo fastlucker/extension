@@ -62,7 +62,7 @@ class LedgerSigner implements KeystoreSigner {
    * associated with the operation never resolves or rejects.
    */
   async #withDisconnectProtection<T>(operation: () => Promise<T>): Promise<T> {
-    let transportCbRef: (...args: Array<any>) => any = () => {}
+    let listenerCbRef: (...args: Array<any>) => any = () => {}
     const disconnectHandler =
       (reject: (reason?: any) => void) =>
       ({ device }: { device: HIDDevice }) => {
@@ -79,8 +79,8 @@ class LedgerSigner implements KeystoreSigner {
       const result = await Promise.race<T>([
         operation(),
         new Promise((_, reject) => {
-          transportCbRef = disconnectHandler(reject)
-          navigator.hid.addEventListener('disconnect', transportCbRef)
+          listenerCbRef = disconnectHandler(reject)
+          navigator.hid.addEventListener('disconnect', listenerCbRef)
         })
       ])
 
@@ -88,7 +88,7 @@ class LedgerSigner implements KeystoreSigner {
     } finally {
       // In either case, the 'disconnect' event listener should be removed
       // after the operation to clean up resources.
-      if (transportCbRef) navigator.hid.removeEventListener('disconnect', transportCbRef)
+      if (listenerCbRef) navigator.hid.removeEventListener('disconnect', listenerCbRef)
     }
   }
 
