@@ -130,10 +130,6 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
-  async cleanUpListener({ device }: { device: HIDDevice }) {
-    if (device.vendorId === LedgerController.vendorId) await this.cleanUp()
-  }
-
   cleanUp = async () => {
     if (!this.walletSDK) return
 
@@ -149,6 +145,10 @@ class LedgerController implements ExternalSignerController {
     } finally {
       this.transport = null
     }
+  }
+
+  async cleanUpListener({ device }: { device: HIDDevice }) {
+    if (device.vendorId === LedgerController.vendorId) await this.cleanUp()
   }
 }
 
