@@ -1,67 +1,61 @@
-import { formatUnits, MaxUint256, ZeroAddress } from 'ethers'
-import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Linking, Pressable, View } from 'react-native'
+import { ZeroAddress } from 'ethers'
+import React, { FC, memo, useEffect, useMemo, useState } from 'react'
+import { View } from 'react-native'
 
 import { extraNetworks, networks as hardcodedNetwork } from '@ambire-common/consts/networks'
-import { NetworkId } from '@ambire-common/interfaces/network'
-import OpenIcon from '@common/assets/svg/OpenIcon'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import Address from '@common/components/Address'
-import Collectible from '@common/components/Collectible'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
-import TokenIcon from '@common/components/TokenIcon'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import getTokenInfo from '@common/utils/tokenInfo'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
+import InnerToken from './components/InnerToken'
+import Nft from './components/Nft'
+
 interface Props {
   address: string
   amount: bigint
-  sizeMultiplierSize: number
-  textSize: number
+  sizeMultiplierSize?: number
+  textSize?: number
   networkId?: NetworkId
 }
 const MAX_PORTFOLIO_WAIT_TIME = 2
 const MAX_TOTAL_LOADING_TIME = 4
 
-const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, networkId }) => {
+const Token: FC<Props> = ({
+  amount,
+  address,
+  textSize = 16,
+  networkId,
+  sizeMultiplierSize = 1
+}) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
-  const shouldDisplayUnlimitedAmount = useMemo(() => {
-    const isUnlimitedByPermit2 = amount.toString(16).toLowerCase() === 'f'.repeat(40)
-    const isMaxUint256 = amount === MaxUint256
-    return isUnlimitedByPermit2 || isMaxUint256
-  }, [amount])
+
   const { networks: stateNetworks } = useNetworksControllerState()
-  const { t } = useTranslation()
   const { accountPortfolio } = usePortfolioControllerState()
 
   const [showLoading, setShowLoading] = useState(true)
-  // const [tokenInfo, setTokenInfo] = useState<
-  // null | undefined | { decimals: number; symbol: string }
-  // >(null)
+
   const { addToast } = useToast()
-  const [fetchedFromCena, setFetchedFromCena] = useState<{
-    decimals: number
-    symbol: string
-  } | null>()
-  const networks = useMemo(
-    () => stateNetworks || [...hardcodedNetwork, ...extraNetworks],
+  const [fetchedFromCena, setFetchedFromCena] = useState<
+    | {
+        decimals: number
+        symbol: string
+      }
+    | undefined
+  >()
+  const networks: Network[] = useMemo(
+    () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
     [stateNetworks]
   )
-  const network = useMemo(
-    // TODO: this compromise should be discussed and fix in future PR
-    // are we gonna show warning/to what website/explorer are we going to redirect on click
-    // how are going to get the decimals and symbol
-    () => networks.find((n) => n.id === networkId) || networks[0],
-    [networks, networkId]
-  )
-
+  const network = useMemo(() => networks.find((n) => n.id === networkId), [networks, networkId])
   const tokenInfo = useMemo(() => {
+    if (!network) return
     if (address === ZeroAddress)
       return {
         symbol: network.nativeAssetSymbol,
@@ -69,15 +63,15 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
       }
 
     const infoFromBalance = accountPortfolio?.tokens?.find(
-      (token) => token.address.toLowerCase() === address.toLowerCase()
+      (token) =>
+        token.networkId === networkId && token.address.toLowerCase() === address.toLowerCase()
     )
-
     return infoFromBalance || fetchedFromCena
-  }, [network, accountPortfolio?.tokens, address, fetchedFromCena])
+  }, [network, accountPortfolio?.tokens, address, fetchedFromCena, networkId])
 
   useEffect(() => {
     const fetchTriggerTimeout = setTimeout(() => {
-      if (!tokenInfo)
+      if (!tokenInfo && network)
         getTokenInfo(address, network.platformId, fetch)
           .then((r) => setFetchedFromCena(r))
           .catch((e) =>
@@ -94,93 +88,41 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
       clearTimeout(loadingLimitTimeout)
       clearTimeout(fetchTriggerTimeout)
     }
-  }, [tokenInfo, address, network.platformId, addToast, networkId])
+  }, [tokenInfo, address, network, addToast, networkId])
 
   const nftInfo = useMemo(() => {
+    if (!network) return
     return accountPortfolio?.collections?.find(
-      (i) => address.toLowerCase() === i.address.toLowerCase()
+      (i) => i.networkId === networkId && address.toLowerCase() === i.address.toLowerCase()
     )
-  }, [accountPortfolio?.collections, address])
-
-  const openExplorer = useCallback(
-    () => Linking.openURL(`${network.explorerUrl}/address/${address}`),
-    [address, network.explorerUrl]
-  )
+  }, [network, accountPortfolio?.collections, address, networkId])
 
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
-      {nftInfo ? (
-        <>
-          <Collectible
-            style={spacings.mhTy}
-            size={36}
-            id={amount}
-            collectionData={{
-              address,
-              networkId: network.id
-            }}
-            networks={networks}
-          />
-          <Address
-            fontSize={textSize}
+      {network ? (
+        nftInfo ? (
+          <Nft
             address={address}
-            highestPriorityAlias={nftInfo?.name || `NFT #${amount}`}
-            explorerNetworkId={network.id}
+            network={network}
+            networks={networks}
+            tokenId={amount}
+            nftInfo={nftInfo}
           />
-        </>
-      ) : // ) : true ? (
-      showLoading && !tokenInfo ? (
-        <SkeletonLoader width={100} height={24} appearance="tertiaryBackground" />
+        ) : tokenInfo || !showLoading ? (
+          <InnerToken
+            textSize={textSize}
+            network={network}
+            address={address}
+            amount={amount}
+            tokenInfo={tokenInfo}
+          />
+        ) : (
+          <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
+        )
       ) : (
         <>
-          {BigInt(amount) > BigInt(0) ? (
-            <Text
-              fontSize={textSize}
-              weight="medium"
-              appearance="primaryText"
-              style={{ maxWidth: '100%' }}
-            >
-              {shouldDisplayUnlimitedAmount ? (
-                <Text appearance="warningText">{t('unlimited')}</Text>
-              ) : (
-                <>
-                  {formatDecimals(Number(formatUnits(amount, tokenInfo?.decimals || 1)))}{' '}
-                  {!tokenInfo?.decimals && (
-                    <Text
-                      fontSize={textSize}
-                      weight="medium"
-                      appearance="primaryText"
-                      style={{ maxWidth: '100%' }}
-                    >
-                      {t('units of')}
-                    </Text>
-                  )}
-                </>
-              )}
-            </Text>
-          ) : null}
-          <Pressable
-            style={{ ...spacings.mlMi, ...flexbox.directionRow, ...flexbox.alignCenter }}
-            onPress={openExplorer}
-          >
-            <TokenIcon
-              width={24 * sizeMultiplierSize}
-              height={24 * sizeMultiplierSize}
-              networkId={network.id}
-              address={address}
-              withNetworkIcon={false}
-              containerStyle={{ marginRight: marginRight / 2 }}
-            />
-            <Text
-              fontSize={textSize}
-              weight="medium"
-              appearance="primaryText"
-              style={spacings.mrMi}
-            >
-              {tokenInfo?.symbol || t('unknown token')}
-            </Text>
-            <OpenIcon width={14} height={14} />
-          </Pressable>
+          <Address address={address} />
+          <Text style={spacings.mlTy}>on {networkId}</Text>
         </>
       )}
     </View>
