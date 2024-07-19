@@ -31,7 +31,7 @@ const Nft: FC<Props> = ({ address, tokenId, textSize = 16, network, networks, nf
       <Address
         fontSize={textSize}
         address={address}
-        highestPriorityAlias={nftInfo?.name || `NFT #${tokenId}`}
+        highestPriorityAlias={`${nftInfo?.name || 'NFT'} #${tokenId}`}
         explorerNetworkId={network.id}
       />
     </>
