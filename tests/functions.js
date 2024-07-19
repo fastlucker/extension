@@ -81,6 +81,23 @@ export async function bootstrap(namespace) {
   const extensionURL = `chrome-extension://${extensionId}`
 
   const backgroundPage = await backgroundTarget.worker()
+
+  // Wait for the service worker to be activated.
+  // Otherwise, the tests fail randomly, and we can't set the storage in `bootstrapWithStorage`,
+  // as the storage in `backgroundPage.evaluate(() => chrome.storage)` hasn't initialized yet.
+  // Before migrating to Manifest v3, it worked because the background page was always active (in contrast to service_worker).
+  await backgroundPage.evaluate(() => {
+    return new Promise((resolve) => {
+      // eslint-disable-next-line no-restricted-globals
+      if (self.registration.active) {
+        resolve()
+      } else {
+        // eslint-disable-next-line no-restricted-globals
+        self.addEventListener('activate', resolve)
+      }
+    })
+  })
+
   // If env.E2E_DEBUG is set to 'true', we log all controllers' state updates from the background page
   logger(backgroundPage)
 
