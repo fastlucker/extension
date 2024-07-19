@@ -5,7 +5,10 @@ import {
   ExternalSignerController,
   KeystoreSigner
 } from '@ambire-common/interfaces/keystore'
-import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
+import {
+  getMessageFromTrezorErrorCode,
+  normalizeTrezorMessage
+} from '@ambire-common/libs/trezor/trezor'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
@@ -108,6 +111,14 @@ class TrezorSigner implements KeystoreSigner {
     }
   }
 
+  async #withNormalizedError<T>(operation: () => Promise<T>): Promise<T> {
+    try {
+      return await operation()
+    } catch (error: any) {
+      throw new Error(normalizeTrezorMessage(error?.message))
+    }
+  }
+
   signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     if (typeof txnRequest.value === 'undefined') {
       throw new Error('trezorSigner: missing value in transaction request')
@@ -146,10 +157,12 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    const res = await this.controller!.walletSDK.ethereumSignTransaction({
-      path,
-      transaction: unsignedTxn
-    })
+    const res = await this.#withNormalizedError(() =>
+      this.controller!.walletSDK.ethereumSignTransaction({
+        path,
+        transaction: unsignedTxn
+      })
+    )
 
     if (!res.success)
       throw new Error(getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error))
@@ -196,19 +209,21 @@ class TrezorSigner implements KeystoreSigner {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { domain_separator_hash, message_hash } = dataWithHashes
 
-    const res = await this.controller!.walletSDK.ethereumSignTypedData({
-      path,
-      data: {
-        types,
-        message,
-        domain,
-        primaryType
-      },
-      metamask_v4_compat: true,
-      // Trezor 1 only supports blindly signing hashes
-      domain_separator_hash,
-      message_hash
-    } as any)
+    const res = await this.#withNormalizedError(() =>
+      this.controller!.walletSDK.ethereumSignTypedData({
+        path,
+        data: {
+          types,
+          message,
+          domain,
+          primaryType
+        },
+        metamask_v4_compat: true,
+        // Trezor 1 only supports blindly signing hashes
+        domain_separator_hash,
+        message_hash
+      } as any)
+    )
 
     if (!res.success)
       throw new Error(getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error))
@@ -222,11 +237,13 @@ class TrezorSigner implements KeystoreSigner {
     await this.#prepareForSigning()
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    const res = await this.controller!.walletSDK.ethereumSignMessage({
-      path,
-      message: stripHexPrefix(hex),
-      hex: true
-    })
+    const res = await this.#withNormalizedError(() =>
+      this.controller!.walletSDK.ethereumSignMessage({
+        path,
+        message: stripHexPrefix(hex),
+        hex: true
+      })
+    )
 
     if (!res.success)
       throw new Error(getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error))
