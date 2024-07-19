@@ -14,8 +14,8 @@ import getTokenInfo from '@common/utils/tokenInfo'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
-import InnerToken from './components/InnerToken'
 import Nft from './components/Nft'
+import Token from './components/Token'
 
 interface Props {
   address: string
@@ -27,7 +27,7 @@ interface Props {
 const MAX_PORTFOLIO_WAIT_TIME = 2
 const MAX_TOTAL_LOADING_TIME = 4
 
-const Token: FC<Props> = ({
+const TokenOrNft: FC<Props> = ({
   amount,
   address,
   textSize = 16,
@@ -109,7 +109,7 @@ const Token: FC<Props> = ({
             nftInfo={nftInfo}
           />
         ) : tokenInfo || !showLoading ? (
-          <InnerToken
+          <Token
             textSize={textSize}
             network={network}
             address={address}
@@ -129,4 +129,4 @@ const Token: FC<Props> = ({
   )
 }
 
-export default memo(Token)
+export default memo(TokenOrNft)
