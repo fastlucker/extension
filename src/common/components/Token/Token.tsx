@@ -1,11 +1,14 @@
 import { formatUnits, MaxUint256, ZeroAddress } from 'ethers'
-import React, { FC, memo, useEffect, useMemo, useState } from 'react'
+import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
 import { extraNetworks, networks as hardcodedNetwork } from '@ambire-common/consts/networks'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import Address from '@common/components/Address'
+import Collectible from '@common/components/Collectible'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useToast from '@common/hooks/useToast'
@@ -16,10 +19,6 @@ import getTokenInfo from '@common/utils/tokenInfo'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
-import Address from '../Address'
-import Collectible from '../Collectible'
-import SkeletonLoader from '../SkeletonLoader'
-
 interface Props {
   address: string
   amount: bigint
@@ -27,8 +26,8 @@ interface Props {
   textSize: number
   networkId?: NetworkId
 }
-const SECONDS_BEFORE_FETCH = 2
-const SECONDS_FOR_LOADING = 4
+const MAX_PORTFOLIO_WAIT_TIME = 2
+const MAX_TOTAL_LOADING_TIME = 4
 
 const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, networkId }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
@@ -37,20 +36,23 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
     const isMaxUint256 = amount === MaxUint256
     return isUnlimitedByPermit2 || isMaxUint256
   }, [amount])
-  const { networks: stateNetworks} = useNetworksControllerState()
+  const { networks: stateNetworks } = useNetworksControllerState()
   const { t } = useTranslation()
   const { accountPortfolio } = usePortfolioControllerState()
 
   const [showLoading, setShowLoading] = useState(true)
-  const [tokenInfo, setTokenInfo] = useState<
-    null | undefined | { decimals: number; symbol: string }
-  >(null)
+  // const [tokenInfo, setTokenInfo] = useState<
+  // null | undefined | { decimals: number; symbol: string }
+  // >(null)
   const { addToast } = useToast()
   const [fetchedFromCena, setFetchedFromCena] = useState<{
     decimals: number
     symbol: string
   } | null>()
-  const networks = useMemo(()=> stateNetworks || [...hardcodedNetwork,...extraNetworks], [stateNetworks])
+  const networks = useMemo(
+    () => stateNetworks || [...hardcodedNetwork, ...extraNetworks],
+    [stateNetworks]
+  )
   const network = useMemo(
     // TODO: this compromise should be discussed and fix in future PR
     // are we gonna show warning/to what website/explorer are we going to redirect on click
@@ -58,6 +60,20 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
     () => networks.find((n) => n.id === networkId) || networks[0],
     [networks, networkId]
   )
+
+  const tokenInfo = useMemo(() => {
+    if (address === ZeroAddress)
+      return {
+        symbol: network.nativeAssetSymbol,
+        decimals: 18
+      }
+
+    const infoFromBalance = accountPortfolio?.tokens?.find(
+      (token) => token.address.toLowerCase() === address.toLowerCase()
+    )
+
+    return infoFromBalance || fetchedFromCena
+  }, [network, accountPortfolio?.tokens, address, fetchedFromCena])
 
   useEffect(() => {
     const fetchTriggerTimeout = setTimeout(() => {
@@ -69,10 +85,10 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
               type: 'error'
             })
           )
-    }, SECONDS_BEFORE_FETCH * 1000)
+    }, MAX_PORTFOLIO_WAIT_TIME * 1000)
     const loadingLimitTimeout = setTimeout(() => {
       setShowLoading(false)
-    }, SECONDS_FOR_LOADING * 5000)
+    }, MAX_TOTAL_LOADING_TIME * 1000)
 
     return () => {
       clearTimeout(loadingLimitTimeout)
@@ -80,25 +96,14 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
     }
   }, [tokenInfo, address, network.platformId, addToast, networkId])
 
-  useEffect(() => {
-    const infoFromBalance = accountPortfolio?.tokens?.find(
-      (token) => token.address.toLowerCase() === address.toLowerCase()
-    )
-    const infoNative = address === ZeroAddress && {
-      symbol: network.nativeAssetSymbol,
-      decimals: 18
-    }
-    setTokenInfo(infoNative || infoFromBalance || fetchedFromCena)
-  }, [network, accountPortfolio?.tokens, address, fetchedFromCena])
-
   const nftInfo = useMemo(() => {
     return accountPortfolio?.collections?.find(
       (i) => address.toLowerCase() === i.address.toLowerCase()
     )
   }, [accountPortfolio?.collections, address])
 
-  const openExplorer = useMemo(
-    () => () => Linking.openURL(`${network.explorerUrl}/address/${address}`),
+  const openExplorer = useCallback(
+    () => Linking.openURL(`${network.explorerUrl}/address/${address}`),
     [address, network.explorerUrl]
   )
 
@@ -106,12 +111,6 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {nftInfo ? (
         <>
-          <Address
-            fontSize={textSize}
-            address={address}
-            highestPriorityAlias={nftInfo?.name || `NFT #${amount}`}
-            explorerNetworkId={network.id}
-          />
           <Collectible
             style={spacings.mhTy}
             size={36}
@@ -121,6 +120,12 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
               networkId: network.id
             }}
             networks={networks}
+          />
+          <Address
+            fontSize={textSize}
+            address={address}
+            highestPriorityAlias={nftInfo?.name || `NFT #${amount}`}
+            explorerNetworkId={network.id}
           />
         </>
       ) : // ) : true ? (
