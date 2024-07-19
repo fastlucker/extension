@@ -49,7 +49,8 @@ class TrezorSigner implements KeystoreSigner {
       throw new Error('trezorSigner: externalDeviceController not initialized')
     }
 
-    this.controller = externalDeviceController
+    // TODO: Figure out a better approach than to cast the controller type
+    this.controller = externalDeviceController as TrezorController
   }
 
   #prepareForSigning = async () => {
