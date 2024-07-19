@@ -36,13 +36,10 @@ class LedgerController implements ExternalSignerController {
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
 
-    // When the `cleanUp` method gets passed to the `this.transport.on` and
-    // "this.transport.off" methods, the `this` context gets lost, so we need
-    // to bind it here. The `this` context in the `cleanUp` method should be
-    // the `LedgerController` instance. Not sure why this happens, since the
-    // `cleanUp` method is an arrow function and should have the `this` context
-    // of the `LedgerController` instance by default.
-    this.cleanUp = this.cleanUp.bind(this)
+    // When the `cleanUpListener` method gets passed to the navigator.hid listeners
+    // the `this` context gets lost, so we need to bind it here. The `this` context
+    // in the `cleanUp` method should be the `LedgerController` instance.
+    this.cleanUpListener = this.cleanUpListener.bind(this)
   }
 
   isUnlocked(path?: string, expectedKeyOnThisPath?: string) {
@@ -87,20 +84,13 @@ class LedgerController implements ExternalSignerController {
       // @ts-ignore types mismatch, not sure why
       this.transport = await TransportWebHID.create()
       if (!this.transport) throw new Error('Transport failed to get initialized')
-
-      // TODO: Check if the disconnected device is a Ledger
-      navigator.hid.addEventListener('disconnect', this.cleanUp)
+      navigator.hid.addEventListener('disconnect', this.cleanUpListener)
 
       this.walletSDK = new Eth(this.transport)
 
-      if (this.transport.deviceModel?.id) {
-        this.deviceModel = this.transport.deviceModel.id
-      }
-      // @ts-ignore missing or bad type, but the `device` is in there
-      if (this.transport?.device?.productId) {
-        // @ts-ignore missing or bad type, but the `device` is in there
-        this.deviceId = this.transport.device.productId.toString()
-      }
+      // Transport is glitchy and its types mismatch, so overprotect by optional chaining
+      this.deviceModel = this.transport.deviceModel?.id || 'unknown'
+      this.deviceId = this.transport.device?.productId?.toString() || ''
     } catch (e: any) {
       throw new Error(normalizeLedgerMessage(e?.message))
     }
@@ -138,19 +128,24 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
+  async cleanUpListener({ device }: { device: HIDDevice }) {
+    if (device.vendorId === ledgerUSBVendorId) await this.cleanUp()
+  }
+
   cleanUp = async () => {
+    if (!this.walletSDK) return
+
     this.walletSDK = null
     this.unlockedPath = ''
     this.unlockedPathKeyAddr = ''
 
-    navigator.hid.removeEventListener('disconnect', this.cleanUp)
+    navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
 
     try {
-      if (this.transport) await this.transport.close()
-
+      // Might fail if the transport was already closed, which is fine.
+      await this.transport?.close()
+    } finally {
       this.transport = null
-    } catch {
-      // Fail silently
     }
   }
 }
