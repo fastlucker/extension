@@ -7,6 +7,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import SkeletonLoader from '../SkeletonLoader'
+import { SkeletonLoaderProps } from '../SkeletonLoader/types'
 import PlainAddress from './PlainAddress'
 import PlainAddressWithCopy from './PlainAddressWithCopy'
 
@@ -14,6 +15,7 @@ interface Props extends ReturnType<typeof useReverseLookup> {
   address: string
   plainAddressMaxLength?: number
   withCopy?: boolean
+  skeletonAppearance?: SkeletonLoaderProps['appearance']
 }
 
 const AccountAddress: FC<Props> = ({
@@ -22,10 +24,11 @@ const AccountAddress: FC<Props> = ({
   ud,
   address,
   plainAddressMaxLength = 42,
-  withCopy = true
+  withCopy = true,
+  skeletonAppearance
 }) => {
   if (isLoading) {
-    return <SkeletonLoader width={200} height={20} />
+    return <SkeletonLoader width={200} height={20} appearance={skeletonAppearance} />
   }
 
   return (
