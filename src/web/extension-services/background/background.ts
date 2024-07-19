@@ -1236,8 +1236,6 @@ if (isManifestV3) {
   registerInPageContentScript()
 }
 
-// FIXME: Figure out why without this, the listener in ledgerSigner.ts fails to work
-console.log('Setting up HID disconnect event listener.')
-navigator.hid.addEventListener('disconnect', (event) => {
-  console.log('HID device disconnected:', event.device)
-})
+// FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
+// listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
+if (isManifestV3) navigator.hid.addEventListener('disconnect', () => {})
