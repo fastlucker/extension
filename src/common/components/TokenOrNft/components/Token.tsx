@@ -48,7 +48,9 @@ const InnerToken: FC<Props> = ({
       {BigInt(amount) > BigInt(0) ? (
         <Text fontSize={textSize} weight="medium" appearance="primaryText">
           {shouldDisplayUnlimitedAmount ? (
-            <Text appearance="warningText">{t('unlimited')}</Text>
+            <Text style={spacings.mrTy} appearance="warningText">
+              {t('unlimited')}
+            </Text>
           ) : (
             <>
               {formatDecimals(Number(formatUnits(amount, tokenInfo?.decimals || 1)))}{' '}
