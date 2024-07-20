@@ -19,7 +19,7 @@ import Token from './components/Token'
 
 interface Props {
   address: string
-  amount: bigint
+  value: bigint
   sizeMultiplierSize?: number
   textSize?: number
   networkId?: NetworkId
@@ -28,7 +28,7 @@ const MAX_PORTFOLIO_WAIT_TIME = 2
 const MAX_TOTAL_LOADING_TIME = 4
 
 const TokenOrNft: FC<Props> = ({
-  amount,
+  value,
   address,
   textSize = 16,
   networkId,
@@ -69,9 +69,16 @@ const TokenOrNft: FC<Props> = ({
     return infoFromBalance || fetchedFromCena
   }, [network, accountPortfolio?.tokens, address, fetchedFromCena, networkId])
 
+  const nftInfo = useMemo(() => {
+    if (!network) return
+    return accountPortfolio?.collections?.find(
+      (i) => i.networkId === networkId && address.toLowerCase() === i.address.toLowerCase()
+    )
+  }, [network, accountPortfolio?.collections, address, networkId])
+
   useEffect(() => {
     const fetchTriggerTimeout = setTimeout(() => {
-      if (!tokenInfo && network)
+      if (!tokenInfo && !nftInfo && network)
         getTokenInfo(address, network.platformId, fetch)
           .then((r) => setFetchedFromCena(r))
           .catch((e) =>
@@ -90,13 +97,6 @@ const TokenOrNft: FC<Props> = ({
     }
   }, [tokenInfo, address, network, addToast, networkId])
 
-  const nftInfo = useMemo(() => {
-    if (!network) return
-    return accountPortfolio?.collections?.find(
-      (i) => i.networkId === networkId && address.toLowerCase() === i.address.toLowerCase()
-    )
-  }, [network, accountPortfolio?.collections, address, networkId])
-
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {!network ? (
@@ -109,7 +109,7 @@ const TokenOrNft: FC<Props> = ({
           address={address}
           network={network}
           networks={networks}
-          tokenId={amount}
+          tokenId={value}
           nftInfo={nftInfo}
         />
       ) : tokenInfo || !showLoading ? (
@@ -117,7 +117,7 @@ const TokenOrNft: FC<Props> = ({
           textSize={textSize}
           network={network}
           address={address}
-          amount={amount}
+          amount={value}
           tokenInfo={tokenInfo}
         />
       ) : (
