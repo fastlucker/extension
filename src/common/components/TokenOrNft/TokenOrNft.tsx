@@ -99,17 +99,12 @@ const TokenOrNft: FC<Props> = ({
 
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
-      {!tokenInfo && !nftInfo && showLoading && (
-        <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
-      )}
-      {!network && !showLoading && !tokenInfo && !nftInfo && (
+      {!network ? (
         <>
           <Address address={address} />
           <Text style={spacings.mlTy}>on {networkId}</Text>
         </>
-      )}
-
-      {nftInfo && network && (
+      ) : nftInfo ? (
         <Nft
           address={address}
           network={network}
@@ -117,9 +112,7 @@ const TokenOrNft: FC<Props> = ({
           tokenId={amount}
           nftInfo={nftInfo}
         />
-      )}
-
-      {(tokenInfo || !showLoading) && network && (
+      ) : tokenInfo || !showLoading ? (
         <Token
           textSize={textSize}
           network={network}
@@ -127,6 +120,8 @@ const TokenOrNft: FC<Props> = ({
           amount={amount}
           tokenInfo={tokenInfo}
         />
+      ) : (
+        <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
       )}
     </View>
   )
