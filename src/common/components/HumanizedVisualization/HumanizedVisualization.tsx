@@ -5,7 +5,6 @@ import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
-import Collectible from '@common/components/Collectible'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import TokenOrNft from '@common/components/TokenOrNft'
@@ -58,12 +57,12 @@ const HumanizedVisualization: FC<Props> = ({
       {data.map((item) => {
         if (!item || item.isHidden) return null
         const key = item.id
-        if (item.type === 'token') {
+        if (item.type === 'token' && item.value) {
           return (
             <TokenOrNft
               key={key}
               sizeMultiplierSize={sizeMultiplierSize}
-              amount={item.amount!}
+              value={item.value}
               address={item.address!}
               textSize={textSize}
               networkId={networkId}
@@ -84,34 +83,11 @@ const HumanizedVisualization: FC<Props> = ({
           )
         }
 
-        if (item.type === 'nft' && item.address && item.nftId) {
-          return (
-            <View style={[flexbox.directionRow, flexbox.wrap]}>
-              <Address
-                fontSize={textSize}
-                address={item.address}
-                highestPriorityAlias={`NFT #${item.nftId}`}
-                explorerNetworkId={networkId}
-              />
-              <Collectible
-                style={spacings.mhTy}
-                size={36}
-                id={item.nftId}
-                collectionData={{
-                  address: item.address,
-                  networkId
-                }}
-                networks={networks}
-              />
-            </View>
-          )
-        }
-
-        if (item.type === 'deadline' && !isHistory)
+        if (item.type === 'deadline' && item.value && !isHistory)
           return (
             <DeadlineItem
               key={key}
-              deadline={item.amount!}
+              deadline={item.value}
               textSize={textSize}
               marginRight={marginRight}
             />
