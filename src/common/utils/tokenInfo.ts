@@ -16,7 +16,7 @@ export default async function getTokenInfo(address: string, platformId: string, 
       tokenInfoCache[`${platformId}:${address}`] = res
       return res
     }
-    throw new Error('we failed find the token')
+    throw new Error('we failed to find the token')
   } catch (e: any) {
     throw new Error(`Could not fetch token info: ${e.message}`)
   }
