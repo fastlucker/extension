@@ -49,7 +49,7 @@ const Account = ({
   const { dispatch } = useBackgroundService()
   const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
   const { ens, ud, isLoading } = useReverseLookup({ address: addr })
-  const [bindAnim, animStyle] = useCustomHover({
+  const [bindAnim, animStyle, isHovered] = useCustomHover({
     property: 'backgroundColor',
     values: {
       from: theme.primaryBackground,
@@ -148,6 +148,7 @@ const Account = ({
               ud={ud}
               address={addr}
               plainAddressMaxLength={maxAccountAddrLength}
+              skeletonAppearance={isHovered ? 'primaryBackground' : 'secondaryBackground'}
             />
           </View>
         </View>
