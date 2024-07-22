@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ViewStyle } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import useTheme from '@common/hooks/useTheme'
@@ -36,19 +36,17 @@ const PlainAddressWithCopy: FC<Props> = ({ maxLength, address, style, hideParent
   }
 
   return (
-    <AnimatedPressable
-      onPress={handleCopy}
-      style={[flexbox.directionRow, flexbox.alignCenter, animStyle]}
-      {...bindAnim}
-    >
+    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
       <PlainAddress
         maxLength={maxLength}
         address={address}
         hideParentheses={hideParentheses}
         style={style}
       />
-      <CopyIcon width={14} height={14} color={theme.secondaryText} />
-    </AnimatedPressable>
+      <AnimatedPressable onPress={handleCopy} style={animStyle} {...bindAnim}>
+        <CopyIcon width={14} height={14} color={theme.secondaryText} />
+      </AnimatedPressable>
+    </View>
   )
 }
 

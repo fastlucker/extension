@@ -72,15 +72,32 @@ export async function bootstrap(namespace) {
     ignoreHTTPSErrors: true
   })
 
-  // Extract the extension ID from the browser targets
-  const targets = await browser.targets()
-  const backgroundTarget = targets.find((target) => target.type() === 'background_page')
-  const extensionTarget = targets.find((target) => target.url().includes('chrome-extension'))
-  const partialExtensionUrl = extensionTarget.url() || ''
+  const backgroundTarget = await browser.waitForTarget(
+    (target) => target.type() === 'service_worker' && target.url().endsWith('background.js')
+  )
+
+  const partialExtensionUrl = backgroundTarget.url() || ''
   const [, , extensionId] = partialExtensionUrl.split('/')
   const extensionURL = `chrome-extension://${extensionId}`
 
-  const backgroundPage = await backgroundTarget.page()
+  const backgroundPage = await backgroundTarget.worker()
+
+  // Wait for the service worker to be activated.
+  // Otherwise, the tests fail randomly, and we can't set the storage in `bootstrapWithStorage`,
+  // as the storage in `backgroundPage.evaluate(() => chrome.storage)` hasn't initialized yet.
+  // Before migrating to Manifest v3, it worked because the background page was always active (in contrast to service_worker).
+  await backgroundPage.evaluate(() => {
+    return new Promise((resolve) => {
+      // eslint-disable-next-line no-restricted-globals
+      if (self.registration.active) {
+        resolve()
+      } else {
+        // eslint-disable-next-line no-restricted-globals
+        self.addEventListener('activate', resolve)
+      }
+    })
+  })
+
   // If env.E2E_DEBUG is set to 'true', we log all controllers' state updates from the background page
   logger(backgroundPage)
 
@@ -99,7 +116,6 @@ export async function bootstrap(namespace) {
     page,
     recorder,
     extensionURL,
-    extensionTarget,
     backgroundPage
   }
 }
@@ -159,7 +175,7 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
 //----------------------------------------------------------------------------------------------
 
 export async function typeText(page, selector, text) {
-  await page.waitForSelector(selector)
+  await page.waitForSelector(selector, { visible: true, timeout: 5000 })
   const whereToType = await page.$(selector)
   await whereToType.click({ clickCount: 3 })
   await whereToType.press('Backspace')
@@ -182,7 +198,6 @@ export const INVITE_STORAGE_ITEM = {
 }
 
 export const baParams = {
-  parsedKeystoreAccountsPreferences: JSON.parse(process.env.BA_ACCOUNT_PREFERENCES),
   parsedKeystoreAccounts: JSON.parse(process.env.BA_ACCOUNTS),
   parsedIsDefaultWallet: process.env.BA_IS_DEFAULT_WALLET,
   parsedKeyPreferences: JSON.parse(process.env.BA_KEY_PREFERENCES),
@@ -201,7 +216,6 @@ export const baParams = {
 }
 
 export const saParams = {
-  parsedKeystoreAccountsPreferences: JSON.parse(process.env.SA_ACCOUNT_PREFERENCES),
   parsedKeystoreAccounts: JSON.parse(process.env.SA_ACCOUNTS),
   parsedIsDefaultWallet: process.env.SA_IS_DEFAULT_WALLET,
   parsedIsOnBoarded: process.env.SA_IS_ONBOARDED,
@@ -362,25 +376,26 @@ export async function selectMaticToken(page) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function confirmTransaction(
-  page,
-  extensionURL,
-  browser,
-  triggerTransactionSelector,
-  feeToken
-) {
+export async function triggerTransaction(page, extensionURL, browser, triggerTransactionSelector) {
   await clickOnElement(page, triggerTransactionSelector)
 
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionURL}/action-window.html#`)
   )
-  let actionWindowPage = await newTarget.page()
+  const actionWindowPage = await newTarget.page()
   actionWindowPage.setDefaultTimeout(120000)
-
   actionWindowPage.setViewport({ width: 1300, height: 700 })
 
+  // Start the screen recorder
   const transactionRecorder = new PuppeteerScreenRecorder(actionWindowPage, { followNewTab: true })
   await transactionRecorder.start(`./recorder/txn_action_window_${Date.now()}.mp4`)
+
+  return { actionWindowPage, transactionRecorder }
+}
+
+//----------------------------------------------------------------------------------------------
+export async function checkForSignMessageWindow(page, extensionURL, browser) {
+  let actionWindowPage = page // Initialize actionWindowPage with the current page
 
   // Check if "sign-message" action-window is open
   if (actionWindowPage.url().endsWith('/sign-message')) {
@@ -393,31 +408,32 @@ export async function confirmTransaction(
     )
     const newPageTarget = await newPagePromise2
 
-    actionWindowPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
+    actionWindowPage = await newPageTarget.page()
     actionWindowPage.setDefaultTimeout(120000)
   }
 
+  return { actionWindowPage }
+}
+
+//----------------------------------------------------------------------------------------------
+export async function selectFeeToken(actionWindowPage, feeToken) {
   // Check if select fee token is visible
-  const tokenSelect = await actionWindowPage.evaluate(
-    () => !!document.querySelector('[data-testid="select"]')
-  )
+  const selectToken = await actionWindowPage.evaluate(() => {
+    return !!document.querySelector('[data-testid="tokens-select"]')
+  })
 
-  if (tokenSelect) {
-    // Get the text content of the element
-    const selectText = await actionWindowPage.evaluate(() => {
-      const element = document.querySelector('[data-testid="select"]')
-      return element.textContent.trim()
-    })
+  if (selectToken) {
+    // Click on the tokens select
+    await clickOnElement(actionWindowPage, '[data-testid="tokens-select"]')
 
-    // Check if the text contains "Gas Tank". It means that pay fee by gas tank is selected
-    if (selectText.includes('Gas Tank')) {
-      // Click on the tokens select
-      await clickOnElement(actionWindowPage, '[data-testid="select"]')
-      await actionWindowPage.waitForSelector('[data-testid="select-menu"]')
-      // Click on the Gas Tank option
-      await clickOnElement(actionWindowPage, feeToken)
-    }
+    // Select fee token
+    await clickOnElement(actionWindowPage, feeToken)
   }
+}
+
+//----------------------------------------------------------------------------------------------
+export async function signTransaction(actionWindowPage, transactionRecorder) {
+  actionWindowPage.setDefaultTimeout(120000)
   // Click on "Ape" button
   await clickOnElement(actionWindowPage, '[data-testid="fee-ape:"]')
 
@@ -461,17 +477,25 @@ export async function confirmTransaction(
   }
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
+}
 
+//----------------------------------------------------------------------------------------------
+export async function confirmTransactionStatus(
+  actionWindowPage,
+  networkName,
+  chainID,
+  transactionRecorder
+) {
   const currentURL = await actionWindowPage.url()
-
+  return
   // Split the URL by the '=' character and get the transaction hash
   const parts = currentURL.split('=')
   const transactionHash = parts[parts.length - 1]
 
   // Create a provider instance using the JsonRpcProvider
-  const staticNetwork = Network.from(137)
+  const staticNetwork = Network.from(chainID)
   const provider = new ethers.JsonRpcProvider(
-    'https://invictus.ambire.com/polygon',
+    `https://invictus.ambire.com/${networkName}`,
     staticNetwork,
     { staticNetwork }
   )

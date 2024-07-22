@@ -233,9 +233,7 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
   return [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
 }
 
-export const getSender = (receipt: TransactionReceipt, txn?: TransactionResponse | null) => {
-  if (!txn) return null
-
+export const getSender = (receipt: TransactionReceipt, txn: TransactionResponse) => {
   const sigHash = txn.data.slice(0, 10)
 
   if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
