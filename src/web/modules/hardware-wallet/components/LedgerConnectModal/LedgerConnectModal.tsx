@@ -36,33 +36,35 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
   const onPressNext = async () => {
     setIsConnectingToDevice(true)
 
+    // The WebHID API requires a user gesture to open the device selection prompt
+    // where users grant permission to the extension to access an HID device.
+    // Therefore, force unlocking the Ledger device on the foreground.
+    let ledgerCtrlInstanceOnTheForeground
     try {
       const isSupported = await LedgerController.isSupported()
       if (!isSupported) {
-        setIsConnectingToDevice(false)
         const message =
           "Your browser doesn't support WebHID, which is required for the Ledger device. Please try using a different browser."
         return addToast(message, { type: 'error' })
       }
 
-      // The WebHID API requires a user gesture to open the device selection prompt
-      // where users grant permission to the extension to access an HID device.
-      // Therefore, force unlocking the Ledger device here.
-      const ledgerCtrl = new LedgerController()
-      await ledgerCtrl.unlock()
-      await ledgerCtrl.cleanUp()
+      ledgerCtrlInstanceOnTheForeground = new LedgerController()
+      await ledgerCtrlInstanceOnTheForeground.unlock()
+
+      // Upon success, initiates the controller in the background service worker.
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
     } catch (error: any) {
+      addToast(error.message, { type: 'error' })
+    } finally {
       // Clear the flag to allow the user to try again. For all other cases,
       // the state gets reset automatically, because the on connect success
       // the flow redirects the user to another route (and this component unmounts).
       setIsConnectingToDevice(false)
 
-      // Fail silently. The error handling feedback for the user comes from the
-      // controller instance in the background process.
-      console.error(error)
+      // Always clean up the controller instance, to prevent multiple communication channels
+      // towards the Ledger device that brick the device.
+      await ledgerCtrlInstanceOnTheForeground?.cleanUp()
     }
-
-    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
   }
 
   return (
