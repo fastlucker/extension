@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { AccountId } from '@ambire-common/interfaces/account'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
 import useConnectivity from '@common/hooks/useConnectivity'
+import useDebounce from '@common/hooks/useDebounce'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
@@ -30,6 +31,7 @@ export default function useBanners(): BannerInterface[] {
   const state = useMainControllerState()
   const { selectedAccount } = useAccountsControllerState()
   const { isOffline } = useConnectivity()
+  const debouncedIsOffline = useDebounce({ value: isOffline, delay: 2000 })
   const {
     state: { banners: portfolioBanners = [] }
   } = usePortfolioControllerState()
@@ -71,7 +73,10 @@ export default function useBanners(): BannerInterface[] {
       ...state.banners,
       ...actionBanners,
       // Don't display portfolio banners when offline
-      ...getCurrentAccountBanners(isOffline ? [OFFLINE_BANNER] : portfolioBanners, selectedAccount),
+      ...getCurrentAccountBanners(
+        debouncedIsOffline ? [OFFLINE_BANNER] : portfolioBanners,
+        selectedAccount
+      ),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, selectedAccount)
     ]
@@ -79,7 +84,7 @@ export default function useBanners(): BannerInterface[] {
     innerBanners,
     state.banners,
     actionBanners,
-    isOffline,
+    debouncedIsOffline,
     portfolioBanners,
     selectedAccount,
     activityBanners,
