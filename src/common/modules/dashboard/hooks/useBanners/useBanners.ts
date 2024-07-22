@@ -22,7 +22,7 @@ const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount: A
 const OFFLINE_BANNER: BannerInterface = {
   id: 'offline-banner',
   type: 'error',
-  title: 'You are offline',
+  title: "You're offline",
   text: 'Please check your internet connection',
   actions: []
 }
@@ -31,7 +31,8 @@ export default function useBanners(): BannerInterface[] {
   const state = useMainControllerState()
   const { selectedAccount } = useAccountsControllerState()
   const { isOffline } = useConnectivity()
-  const debouncedIsOffline = useDebounce({ value: isOffline, delay: 2000 })
+  // Debounce offline status to prevent banner flickering
+  const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
   const {
     state: { banners: portfolioBanners = [] }
   } = usePortfolioControllerState()
