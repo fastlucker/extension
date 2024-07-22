@@ -9,40 +9,45 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
 
 interface Props {
-  handleImportSeed: () => void
-  handleImportAccounts: () => void
+  handleImportFromMainSeed: () => void
+  handleImportFromExternalSeed: () => void
 }
 
-const ImportSeedPhraseCards: FC<Props> = ({ handleImportSeed, handleImportAccounts }) => {
+const SelectSeedPhraseToImportCards: FC<Props> = ({
+  handleImportFromMainSeed,
+  handleImportFromExternalSeed
+}) => {
   const { t } = useTranslation()
   const keystoreState = useKeystoreControllerState()
 
   return (
     <View style={[flexbox.directionRow]}>
       <Card
-        title={t('Import Seed Phrase')}
+        title={t('Import Accounts from Main Seed Phrase')}
         text={t(
-          'This seed phrase will become the main seed phrase for the Ambire Extension, and all future hot accounts will be generated from it.'
+          'Import accounts from you main seed phrase that is safely stored in the Ambire Extension.'
         )}
         style={{ width: 296 }}
+        isSecondary
         // TODO: fix icon
         icon={SeedPhraseRecoveryIcon}
         buttonText={keystoreState.statuses.addSeed !== 'INITIAL' ? t('Loading...') : t('Select')}
-        onPress={handleImportSeed}
+        onPress={handleImportFromMainSeed}
       />
       <Card
-        title={t('Import Accounts from Seed Phrase')}
+        title={t('Import Accounts from External Seed Phrase')}
         style={{ ...spacings.ml, width: 296 }}
         text={t(
-          'This seed phrase will NOT be imported into the Ambire Extension. Only the accounts you choose at the moment will be imported'
+          'Import accounts using any seed phrase. Please note that ONLY the accounts will be imported, NOT the seed phrase itself.'
         )}
+        isSecondary
         // TODO: fix icon
         icon={SeedPhraseRecoveryIcon}
         buttonText={t('Select')}
-        onPress={handleImportAccounts}
+        onPress={handleImportFromExternalSeed}
       />
     </View>
   )
 }
 
-export default React.memo(ImportSeedPhraseCards)
+export default React.memo(SelectSeedPhraseToImportCards)

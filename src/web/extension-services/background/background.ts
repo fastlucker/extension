@@ -664,6 +664,24 @@ let mainCtrl: MainController
                   providers: mainCtrl.providers.providers
                 })
               }
+              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_MAIN_SEED_PHRASE': {
+                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+                const seed = await mainCtrl.keystore.getSeed()
+
+                if (!seed) return
+                const keyIterator = new KeyIterator(seed)
+                mainCtrl.accountAdder.init({
+                  keyIterator,
+                  pageSize: 5,
+                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                })
+
+                return await mainCtrl.accountAdder.setPage({
+                  page: 1,
+                  networks: mainCtrl.networks.networks,
+                  providers: mainCtrl.providers.providers
+                })
+              }
               case 'MAIN_CONTROLLER_TRACE_CALL': {
                 return await mainCtrl.traceCall(params.estimation)
               }

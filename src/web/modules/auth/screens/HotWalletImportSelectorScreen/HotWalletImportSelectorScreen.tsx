@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import BackButton from '@common/components/BackButton'
+import BottomSheet from '@common/components/BottomSheet'
+import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Panel from '@common/components/Panel'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -14,16 +17,45 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-
-import Card from '../../components/Card'
-import options from './options'
+import Card from '@web/modules/auth/components/Card'
+import SelectSeedPhraseToImportCards from '@web/modules/auth/components/SelectSeedPhraseToImportCards'
+import options from '@web/modules/auth/screens/HotWalletImportSelectorScreen/options'
 
 const HotWalletImportSelectorScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { isReadyToStoreKeys } = useKeystoreControllerState()
+  const { isReadyToStoreKeys, hasKeystoreMainSeed } = useKeystoreControllerState()
+  const { dispatch } = useBackgroundService()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const accountAdderCtrlState = useAccountAdderControllerState()
+  useEffect(() => {
+    if (
+      accountAdderCtrlState.isInitialized &&
+      // The AccountAdder could have been already initialized with the same or a
+      // different type. Navigate immediately only if the types match.
+      accountAdderCtrlState.type === 'internal' &&
+      accountAdderCtrlState.subType === 'seed'
+    ) {
+      navigate(WEB_ROUTES.accountAdder)
+    }
+  }, [
+    accountAdderCtrlState.isInitialized,
+    accountAdderCtrlState.subType,
+    accountAdderCtrlState.type,
+    navigate
+  ])
+
+  const handleImportFromMainSeed = useCallback(() => {
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_MAIN_SEED_PHRASE' })
+  }, [dispatch])
+
+  const handleImportFromExternalSeed = useCallback(() => {
+    navigate(WEB_ROUTES.importSeedPhrase)
+  }, [navigate])
 
   const onOptionPress = async (flow: string) => {
     if (!isReadyToStoreKeys) {
@@ -35,7 +67,11 @@ const HotWalletImportSelectorScreen = () => {
       return
     }
     if (flow === 'seed') {
-      navigate(WEB_ROUTES.importSeedPhrase)
+      if (hasKeystoreMainSeed) {
+        openBottomSheet()
+      } else {
+        navigate(WEB_ROUTES.importSeedPhrase)
+      }
     }
     // @TODO: Implement email vault
   }
@@ -66,8 +102,23 @@ const HotWalletImportSelectorScreen = () => {
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
+      {!!hasKeystoreMainSeed && (
+        <BottomSheet
+          id="import-seed-phrase"
+          sheetRef={sheetRef}
+          closeBottomSheet={closeBottomSheet}
+          backgroundColor="primaryBackground"
+          autoWidth
+        >
+          <ModalHeader hideLeftSideContainer title={t('Select import accounts option')} />
+          <SelectSeedPhraseToImportCards
+            handleImportFromMainSeed={handleImportFromMainSeed}
+            handleImportFromExternalSeed={handleImportFromExternalSeed}
+          />
+        </BottomSheet>
+      )}
     </TabLayoutContainer>
   )
 }
 
-export default HotWalletImportSelectorScreen
+export default React.memo(HotWalletImportSelectorScreen)

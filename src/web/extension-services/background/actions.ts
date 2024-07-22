@@ -40,6 +40,9 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: { privKeyOrSeed: string; shouldPersist?: boolean }
 }
+type MainControllerAccountAdderInitFromMainSeedPhraseAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_MAIN_SEED_PHRASE'
+}
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
   params: {
@@ -444,6 +447,7 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerAccountAdderInitFromMainSeedPhraseAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction

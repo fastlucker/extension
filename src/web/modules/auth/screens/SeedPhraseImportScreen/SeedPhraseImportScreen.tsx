@@ -33,9 +33,8 @@ import {
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import ImportSeedPhraseOrAccountsCards from '@web/modules/auth/components/ImportSeedPhraseOrAccountsCards'
 import Stepper from '@web/modules/router/components/Stepper'
-
-import ImportSeedPhraseCards from '../../components/ImportSeedPhraseCards'
 
 const arrayWithEmptyString = (length: number) => new Array(length).fill({ value: '' })
 
@@ -367,19 +366,21 @@ const SeedPhraseImportScreen = () => {
           ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
-      <BottomSheet
-        id="import-seed-phrase"
-        sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
-        backgroundColor="primaryBackground"
-        autoWidth
-      >
-        <ModalHeader hideLeftSideContainer title={t('Select import option')} />
-        <ImportSeedPhraseCards
-          handleImportSeed={handleImportSeed}
-          handleImportAccounts={handleImportAccounts}
-        />
-      </BottomSheet>
+      {!keystoreState.hasKeystoreMainSeed && (
+        <BottomSheet
+          id="import-seed-phrase"
+          sheetRef={sheetRef}
+          closeBottomSheet={closeBottomSheet}
+          backgroundColor="primaryBackground"
+          autoWidth
+        >
+          <ModalHeader hideLeftSideContainer title={t('Select import option')} />
+          <ImportSeedPhraseOrAccountsCards
+            handleImportSeed={handleImportSeed}
+            handleImportAccounts={handleImportAccounts}
+          />
+        </BottomSheet>
+      )}
     </TabLayoutContainer>
   )
 }
