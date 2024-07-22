@@ -20,6 +20,7 @@ import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
+import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -50,6 +51,7 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { isOffline } = useConnectivity()
   const { selectedAccount, accounts } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -210,6 +212,7 @@ const TokenDetails = ({
     [
       t,
       isGasTankOrRewardsToken,
+      isAmountZero,
       isGasTankFeeToken,
       hasTokenInfo,
       navigate,
@@ -221,7 +224,7 @@ const TokenDetails = ({
     ]
   )
   useEffect(() => {
-    if (!token?.address || !token?.networkId || !networks.length) return
+    if (!token?.address || !token?.networkId || !networks.length || isOffline) return
 
     setIsTokenInfoLoading(true)
 
