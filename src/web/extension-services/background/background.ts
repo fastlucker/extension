@@ -122,6 +122,7 @@ let mainCtrl: MainController
       fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
     hasSignAccountOpCtrlInitialized: boolean
+    portfolioLastUpdatedByIntervalAt: number
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
@@ -142,7 +143,8 @@ let mainCtrl: MainController
       standBy: 300000,
       retriedFastAccountStateReFetchForNetworks: []
     },
-    hasSignAccountOpCtrlInitialized: false
+    hasSignAccountOpCtrlInitialized: false,
+    portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
   }
 
   const pm = new PortMessenger()
@@ -216,7 +218,7 @@ let mainCtrl: MainController
 
   const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
   const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
-  function initPortfolioContinuousUpdate() {
+  async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
 
@@ -228,11 +230,23 @@ let mainCtrl: MainController
     async function updatePortfolio() {
       await mainCtrl.updateSelectedAccountPortfolio()
 
+      backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
       // Schedule the next update only when the previous one completes
       backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
     }
 
-    backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+    const isAtLeastOnePortfolioUpdateMissed =
+      Date.now() - backgroundState.portfolioLastUpdatedByIntervalAt >
+      INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
+
+    // If the extension is inactive and the last update was missed, update the portfolio immediately
+    if (isAtLeastOnePortfolioUpdateMissed) {
+      clearTimeout(backgroundState.updatePortfolioInterval)
+      await updatePortfolio()
+    } else {
+      // Start the first update
+      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+    }
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
