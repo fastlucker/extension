@@ -29,14 +29,16 @@ const puppeteerArgs = [
  * Log all page console.log messages.
  * The messages are sent as strings, as Puppeteer can't read more complex structures.
  */
-function logger(page) {
+async function serviceWorkerLogger(serviceWorker) {
   // Enable the logger, only if E2E_DEBUG is set to 'true'.
   // The same rule is applied in backgrounds.ts too.
   if (process.env.E2E_DEBUG !== 'true') return
 
-  page.on('console', (message) => {
-    const text = message.text()
+  const CDPSessionClient = serviceWorker.client
 
+  await CDPSessionClient.send('Console.enable')
+
+  CDPSessionClient.on('Console.messageAdded', async ({ message: { text } }) => {
     try {
       // The controllers' state is sent as a stringified JSON with the jsonRich library,
       // which is why we need to parse it back.
@@ -80,13 +82,13 @@ export async function bootstrap(namespace) {
   const [, , extensionId] = partialExtensionUrl.split('/')
   const extensionURL = `chrome-extension://${extensionId}`
 
-  const backgroundPage = await backgroundTarget.worker()
+  const serviceWorker = await backgroundTarget.worker()
 
   // Wait for the service worker to be activated.
   // Otherwise, the tests fail randomly, and we can't set the storage in `bootstrapWithStorage`,
-  // as the storage in `backgroundPage.evaluate(() => chrome.storage)` hasn't initialized yet.
-  // Before migrating to Manifest v3, it worked because the background page was always active (in contrast to service_worker).
-  await backgroundPage.evaluate(() => {
+  // as the storage in `serviceWorker.evaluate(() => chrome.storage)` hasn't initialized yet.
+  // Before migrating to Manifest v3, it worked because the background page was always active (in contrast to service_serviceWorker).
+  await serviceWorker.evaluate(() => {
     return new Promise((resolve) => {
       // eslint-disable-next-line no-restricted-globals
       if (self.registration.active) {
@@ -99,7 +101,7 @@ export async function bootstrap(namespace) {
   })
 
   // If env.E2E_DEBUG is set to 'true', we log all controllers' state updates from the background page
-  logger(backgroundPage)
+  await serviceWorkerLogger(serviceWorker)
 
   const page = await browser.newPage()
   page.setDefaultTimeout(120000)
@@ -116,7 +118,7 @@ export async function bootstrap(namespace) {
     page,
     recorder,
     extensionURL,
-    backgroundPage
+    serviceWorker
   }
 }
 
@@ -237,8 +239,8 @@ export const saParams = {
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
   // Initialize browser and page using bootstrap
-  const { browser, page, recorder, extensionURL, backgroundPage } = await bootstrap(namespace)
-  await backgroundPage.evaluate(
+  const { browser, page, recorder, extensionURL, serviceWorker } = await bootstrap(namespace)
+  await serviceWorker.evaluate(
     (params) =>
       chrome.storage.local.set({
         accountPreferences: params.parsedKeystoreAccountsPreferences,
@@ -287,7 +289,7 @@ export async function bootstrapWithStorage(namespace, params) {
     process.exit(1)
   }
 
-  return { browser, extensionURL, page, recorder }
+  return { browser, extensionURL, page, recorder, serviceWorker }
 }
 
 //----------------------------------------------------------------------------------------------
