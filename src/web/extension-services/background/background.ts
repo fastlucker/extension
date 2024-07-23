@@ -1111,6 +1111,8 @@ registerAllInpageScripts()
                 return await mainCtrl.domains.reverseLookup(params.address)
               case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
                 return mainCtrl.domains.saveResolvedReverseLookup(params)
+              case 'ASSET_INFO_CONTROLLER_LOOKUP':
+                return await mainCtrl.assetInfo.resolveAssetInfo(params.address, params.network)
               case 'SET_IS_DEFAULT_WALLET': {
                 walletStateCtrl.isDefaultWallet = params.isDefaultWallet
                 break

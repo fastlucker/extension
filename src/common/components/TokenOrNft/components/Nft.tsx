@@ -12,7 +12,7 @@ interface Props {
   network: Network
   networks: Network[]
   address: string
-  nftInfo: CollectionResult
+  nftInfo: { name:string }
 }
 
 const Nft: FC<Props> = ({ address, tokenId, textSize = 16, network, networks, nftInfo }) => {

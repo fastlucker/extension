@@ -3,6 +3,7 @@ import { AccountsController } from '@ambire-common/controllers/accounts/accounts
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
+import { AssetInfoController } from '@ambire-common/controllers/assetInfo/assetInfo'
 import { DappsController } from '@ambire-common/controllers/dapps/dapps'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
 import { EmailVaultController } from '@ambire-common/controllers/emailVault/emailVault'
@@ -36,6 +37,7 @@ export const controllersNestedInMainMapping = {
   settings: SettingsController,
   addressBook: AddressBookController,
   domains: DomainsController,
+  assetInfo: AssetInfoController,
   invite: InviteController
 
   // Add the rest of the controllers that are part of the main controller:
