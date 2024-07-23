@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
 import DriveIcon from '@common/assets/svg/DriveIcon'
@@ -10,49 +11,39 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useBackgroundService from '@web/hooks/useBackgroundService'
+import text from '@common/styles/utils/text'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
-import LedgerController from '../../controllers/LedgerController'
+import useLedger from '../../hooks/useLedger'
 
 type Props = {
-  modalRef: any
+  isVisible: boolean
   handleClose: () => void
+  handleOnConnect: () => void
 }
 
-const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
+const LedgerConnectModal = ({ isVisible, handleClose, handleOnConnect }: Props) => {
+  const { ref, open, close } = useModalize()
   const mainCtrlState = useMainControllerState()
+  const { requestLedgerDeviceAccess } = useLedger()
   const { addToast } = useToast()
-  const { updateStepperState } = useStepper()
   const { t } = useTranslation()
-  const { dispatch } = useBackgroundService()
   const [isGrantingPermission, setIsGrantingPermission] = useState(false)
 
   useEffect(() => {
-    updateStepperState('connect-hardware-wallet', 'hw')
-  }, [updateStepperState])
+    if (isVisible) open()
+    else close()
+  }, [open, close, isVisible])
 
   const onPressNext = async () => {
     setIsGrantingPermission(true)
 
     try {
-      const isSupported = await LedgerController.isSupported()
-      if (!isSupported) {
-        const message =
-          "Your browser doesn't support WebHID, which is required for the Ledger device. Please try using a different browser."
-        addToast(message, { type: 'error' })
-        return
-      }
+      await requestLedgerDeviceAccess()
 
-      // The WebHID API requires a user gesture to open the device selection prompt
-      // where users grant permission to the extension to access an HID device.
-      // Therefore, force unlocking the Ledger device on the foreground.
-      await LedgerController.grantDevicePermission()
-
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
+      handleOnConnect()
     } catch (error: any) {
       addToast(error.message, { type: 'error' })
     } finally {
@@ -69,18 +60,19 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
   return (
     <BottomSheet
       id="ledger-connect-modal"
-      sheetRef={modalRef}
-      closeBottomSheet={handleClose}
+      sheetRef={ref}
       backgroundColor="primaryBackground"
       autoWidth={false}
+      closeBottomSheet={handleClose}
+      onClosed={handleClose}
     >
-      <ModalHeader title={t('Connect your HW wallet')} />
+      <ModalHeader title={t('Connect Ledger')} />
       <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>
         <Text weight="regular" style={spacings.mbTy} fontSize={14}>
-          {t('1. Plug your Ledger device into your computer')}
+          {t('1. Plug in your Ledger via cable and enter a PIN to unlock it.')}
         </Text>
         <Text weight="regular" fontSize={14} style={{ marginBottom: 40 }}>
-          {t('2. Unlock your Ledger and open the Ethereum app')}
+          {t('2. Open the Ethereum app.')}
         </Text>
       </View>
       <View
@@ -90,8 +82,11 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
         <LeftPointerArrowIcon style={spacings.mrLg} />
         <AmbireDevice />
       </View>
+      <Text weight="regular" style={[spacings.mbLg, text.center]} fontSize={14}>
+        {t('If not previously granted, Ambire will ask for permission to connect to a HID device.')}
+      </Text>
       <Button
-        text={isLoading ? t('Connecting...') : t('Next')}
+        text={isLoading ? t('Connecting...') : t('Authorize & Connect')}
         disabled={isLoading}
         style={{ width: 264, ...flexbox.alignSelfCenter }}
         onPress={onPressNext}

@@ -76,7 +76,7 @@ class LedgerController implements ExternalSignerController {
    * Should be called only from the foreground and it requires a user gesture
    * to open the device selection prompt (click on a button, etc.).
    */
-  static grantDevicePermission = async () => {
+  static grantDevicePermissionIfNeeded = async () => {
     // If a device is already connected and permission is granted, no need to
     // reselect it again. The service worker than can access the device.
     if (await LedgerController.isConnected()) return
