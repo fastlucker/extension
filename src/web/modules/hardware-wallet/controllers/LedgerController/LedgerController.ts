@@ -72,6 +72,25 @@ class LedgerController implements ExternalSignerController {
   }
 
   /**
+   * Grant permission to the extension service worker to access an HID device.
+   * Should be called only from the foreground and it requires a user gesture
+   * to open the device selection prompt (click on a button, etc.).
+   */
+  static grantDevicePermission = async () => {
+    // If a device is already connected and permission is granted, no need to
+    // reselect it again. The service worker than can access the device.
+    if (await LedgerController.isConnected()) return
+
+    const filters = [{ vendorId: LedgerController.vendorId }]
+    const devices = await navigator.hid.requestDevice({ filters })
+
+    if (devices.length === 0) throw new Error('Ledger device connection request was canceled.')
+
+    const device = devices[0]
+    await device.open()
+  }
+
+  /**
    * The Ledger device requires a new SDK instance (session) every time the
    * device is connected (after being disconnected). This method checks if there
    * is an existing SDK instance and creates a new one if needed.

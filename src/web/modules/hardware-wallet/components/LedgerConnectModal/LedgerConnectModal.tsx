@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 
+import wait from '@ambire-common/utils/wait'
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
 import DriveIcon from '@common/assets/svg/DriveIcon'
 import LeftPointerArrowIcon from '@common/assets/svg/LeftPointerArrowIcon'
@@ -36,10 +37,6 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
   const onPressNext = async () => {
     setIsConnectingToDevice(true)
 
-    // The WebHID API requires a user gesture to open the device selection prompt
-    // where users grant permission to the extension to access an HID device.
-    // Therefore, force unlocking the Ledger device on the foreground.
-    let ledgerCtrlInstanceOnTheForeground
     try {
       const isSupported = await LedgerController.isSupported()
       if (!isSupported) {
@@ -48,22 +45,23 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
         return addToast(message, { type: 'error' })
       }
 
-      ledgerCtrlInstanceOnTheForeground = new LedgerController()
-      await ledgerCtrlInstanceOnTheForeground.unlock()
+      // The WebHID API requires a user gesture to open the device selection prompt
+      // where users grant permission to the extension to access an HID device.
+      // Therefore, force unlocking the Ledger device on the foreground.
+      await LedgerController.grantDevicePermission()
 
-      // Upon success, initiates the controller in the background service worker.
       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
     } catch (error: any) {
       addToast(error.message, { type: 'error' })
     } finally {
+      // FIXME: There is no loading flag for the 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER',
+      // so as a workaround, wait a bit before allowing the user to try again while the
+      // initialization is in progress. When initialization is done, user gets redirected.
+      await wait(2000)
       // Clear the flag to allow the user to try again. For all other cases,
       // the state gets reset automatically, because the on connect success
       // the flow redirects the user to another route (and this component unmounts).
       setIsConnectingToDevice(false)
-
-      // Always clean up the controller instance, to prevent multiple communication channels
-      // towards the Ledger device that brick the device.
-      await ledgerCtrlInstanceOnTheForeground?.cleanUp()
     }
   }
 
