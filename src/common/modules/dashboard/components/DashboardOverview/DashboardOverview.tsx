@@ -262,6 +262,7 @@ const DashboardOverview: FC<Props> = ({
                       <AnimatedPressable
                         style={[spacings.mlTy, refreshButtonAnimStyle]}
                         onPress={reloadAccount}
+                        testID="refresh-button"
                         {...bindRefreshButtonAnim}
                       >
                         <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
