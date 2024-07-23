@@ -20,11 +20,11 @@ import useLedger from '../../hooks/useLedger'
 
 type Props = {
   isVisible: boolean
-  handleClose: () => void
+  handleClose?: () => void
   handleOnConnect: () => void
 }
 
-const LedgerConnectModal = ({ isVisible, handleClose, handleOnConnect }: Props) => {
+const LedgerConnectModal = ({ isVisible, handleClose = () => {}, handleOnConnect }: Props) => {
   const { ref, open, close } = useModalize()
   const mainCtrlState = useMainControllerState()
   const { requestLedgerDeviceAccess } = useLedger()
@@ -65,6 +65,7 @@ const LedgerConnectModal = ({ isVisible, handleClose, handleOnConnect }: Props) 
       autoWidth={false}
       closeBottomSheet={handleClose}
       onClosed={handleClose}
+      autoOpen={isVisible}
     >
       <ModalHeader title={t('Connect Ledger')} />
       <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>

@@ -1,31 +1,34 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+
+import { browser } from '@web/constants/browserapi'
 
 import LedgerController from '../../controllers/LedgerController'
 
 const useLedger = () => {
-  // TODO: Connectivity indicators.
-  // const [isConnected, setIsConnected] = useState(false)
-  // const onConnect = async ({ device }: { device: HIDDevice }) => {
-  //   if (device.vendorId === LedgerController.vendorId) setIsConnected(true)
-  // }
-  // const onDisconnect = ({ device }: { device: HIDDevice }) => {
-  //   if (device.vendorId === LedgerController.vendorId) setIsConnected(false)
-  // }
-  // const detectDevice = async () => setIsConnected(await LedgerController.isConnected())
-  // TODO: Hook up only when needed.
-  // useEffect(() => {
-  //   detectDevice()
+  const [isLedgerConnected, setIsConnected] = useState(false)
 
-  //   navigator.hid.addEventListener('connect', onConnect)
-  //   navigator.hid.addEventListener('disconnect', onDisconnect)
-  //   browser.windows.onFocusChanged.addListener(detectDevice)
+  const onConnect = async ({ device }: { device: HIDDevice }) => {
+    if (device.vendorId === LedgerController.vendorId) setIsConnected(true)
+  }
+  const onDisconnect = ({ device }: { device: HIDDevice }) => {
+    if (device.vendorId === LedgerController.vendorId) setIsConnected(false)
+  }
+  const detectDevice = async () => setIsConnected(await LedgerController.isConnected())
 
-  //   return () => {
-  //     navigator.hid.removeEventListener('connect', onConnect)
-  //     navigator.hid.removeEventListener('disconnect', onDisconnect)
-  //     browser.windows.onFocusChanged.removeListener(detectDevice)
-  //   }
-  // }, [])
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    detectDevice()
+
+    navigator.hid.addEventListener('connect', onConnect)
+    navigator.hid.addEventListener('disconnect', onDisconnect)
+    browser.windows.onFocusChanged.addListener(detectDevice)
+
+    return () => {
+      navigator.hid.removeEventListener('connect', onConnect)
+      navigator.hid.removeEventListener('disconnect', onDisconnect)
+      browser.windows.onFocusChanged.removeListener(detectDevice)
+    }
+  }, [])
 
   const requestLedgerDeviceAccess = useCallback(async () => {
     const isSupported = await LedgerController.isSupported()
@@ -41,7 +44,7 @@ const useLedger = () => {
     await LedgerController.grantDevicePermissionIfNeeded()
   }, [])
 
-  return { requestLedgerDeviceAccess }
+  return { requestLedgerDeviceAccess, isLedgerConnected }
 }
 
 export default useLedger
