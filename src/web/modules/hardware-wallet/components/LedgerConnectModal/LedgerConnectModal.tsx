@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 
-import wait from '@ambire-common/utils/wait'
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
 import DriveIcon from '@common/assets/svg/DriveIcon'
 import LeftPointerArrowIcon from '@common/assets/svg/LeftPointerArrowIcon'
@@ -15,6 +14,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import LedgerController from '../../controllers/LedgerController'
 
@@ -24,25 +24,27 @@ type Props = {
 }
 
 const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
+  const mainCtrlState = useMainControllerState()
   const { addToast } = useToast()
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const [isConnectingToDevice, setIsConnectingToDevice] = useState(false)
+  const [isGrantingPermission, setIsGrantingPermission] = useState(false)
 
   useEffect(() => {
     updateStepperState('connect-hardware-wallet', 'hw')
   }, [updateStepperState])
 
   const onPressNext = async () => {
-    setIsConnectingToDevice(true)
+    setIsGrantingPermission(true)
 
     try {
       const isSupported = await LedgerController.isSupported()
       if (!isSupported) {
         const message =
           "Your browser doesn't support WebHID, which is required for the Ledger device. Please try using a different browser."
-        return addToast(message, { type: 'error' })
+        addToast(message, { type: 'error' })
+        return
       }
 
       // The WebHID API requires a user gesture to open the device selection prompt
@@ -54,16 +56,15 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
     } catch (error: any) {
       addToast(error.message, { type: 'error' })
     } finally {
-      // FIXME: There is no loading flag for the 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER',
-      // so as a workaround, wait a bit before allowing the user to try again while the
-      // initialization is in progress. When initialization is done, user gets redirected.
-      await wait(2000)
       // Clear the flag to allow the user to try again. For all other cases,
       // the state gets reset automatically, because the on connect success
       // the flow redirects the user to another route (and this component unmounts).
-      setIsConnectingToDevice(false)
+      setIsGrantingPermission(false)
     }
   }
+
+  const isLoading =
+    isGrantingPermission || mainCtrlState.statuses.handleAccountAdderInitLedger === 'LOADING'
 
   return (
     <BottomSheet
@@ -90,8 +91,8 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
         <AmbireDevice />
       </View>
       <Button
-        text={isConnectingToDevice ? t('Connecting...') : t('Next')}
-        disabled={isConnectingToDevice}
+        text={isLoading ? t('Connecting...') : t('Next')}
+        disabled={isLoading}
         style={{ width: 264, ...flexbox.alignSelfCenter }}
         onPress={onPressNext}
       />
