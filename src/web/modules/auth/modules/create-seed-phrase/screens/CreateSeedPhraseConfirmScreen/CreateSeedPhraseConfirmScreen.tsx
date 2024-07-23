@@ -83,10 +83,8 @@ const CreateSeedPhraseConfirmScreen = () => {
   const onSubmit = handleSubmit(() => {
     setIsLoading(true)
     dispatch({
-      type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT',
-      params: {
-        seed: seed.join(' ')
-      }
+      type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT',
+      params: { seed: seed.join(' ') }
     })
   })
 

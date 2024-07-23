@@ -800,10 +800,13 @@ let mainCtrl: MainController
               }
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
-              case 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT': {
+              case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
                 const keyIterator = new KeyIterator(params.seed)
+                if (!mainCtrl.keystore.hasKeystoreMainSeed) {
+                  await mainCtrl.keystore.addSeed(params.seed)
+                }
 
                 mainCtrl.accountAdder.init({
                   keyIterator,

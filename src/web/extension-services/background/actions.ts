@@ -79,11 +79,9 @@ type MainControllerAddAccounts = {
     })[]
   }
 }
-type MainControllerAddSeedPhraseAccounts = {
-  type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT'
-  params: {
-    seed: string
-  }
+type CreateNewSeedPhraseAndAddFirstSmartAccount = {
+  type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT'
+  params: { seed: string }
 }
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
@@ -462,11 +460,10 @@ export type Action =
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
-  | MainControllerAddSeedPhraseAccounts
+  | CreateNewSeedPhraseAndAddFirstSmartAccount
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
-  | MainControllerBuildClaimWalletUserRequest
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction

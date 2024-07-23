@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -27,7 +27,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -53,28 +52,22 @@ const CreateSeedPhrasePrepareScreen = () => {
   const { accounts } = useAccountsControllerState()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { theme } = useTheme()
   const { maxWidthSize } = useWindowSize()
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
-  const seed = Wallet.createRandom().mnemonic?.phrase || null
   const panelPaddingStyle = getPanelPaddings(maxWidthSize)
-  const keystoreState = useKeystoreControllerState()
-  const handleSubmit = () => {
+
+  const handleSubmit = useCallback(() => {
+    const seed = Wallet.createRandom().mnemonic?.phrase || null
+
     if (!seed) {
       addToast('Failed to generate seed phrase', { type: 'error' })
       return
     }
-    navigate(WEB_ROUTES.createSeedPhraseWrite, {
-      state: { seed: seed.split(' ') }
-    })
-  }
-
-  // prevent proceeding with new seed phrase setup if there is a main seed phrase already associated with the keystore
-  useEffect(() => {
-    if (keystoreState.hasKeystoreMainSeed) goBack()
-  }, [goBack, keystoreState.hasKeystoreMainSeed])
+    navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
+  }, [addToast, navigate])
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
@@ -202,4 +195,4 @@ const CreateSeedPhrasePrepareScreen = () => {
   )
 }
 
-export default CreateSeedPhrasePrepareScreen
+export default React.memo(CreateSeedPhrasePrepareScreen)
