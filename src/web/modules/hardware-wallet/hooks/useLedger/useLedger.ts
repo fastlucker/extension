@@ -5,15 +5,15 @@ import { browser } from '@web/constants/browserapi'
 import LedgerController from '../../controllers/LedgerController'
 
 const useLedger = () => {
-  const [isLedgerConnected, setIsConnected] = useState(false)
+  const [isLedgerConnected, setIsLedgerConnected] = useState(false)
 
   const onConnect = async ({ device }: { device: HIDDevice }) => {
-    if (device.vendorId === LedgerController.vendorId) setIsConnected(true)
+    if (device.vendorId === LedgerController.vendorId) setIsLedgerConnected(true)
   }
   const onDisconnect = ({ device }: { device: HIDDevice }) => {
-    if (device.vendorId === LedgerController.vendorId) setIsConnected(false)
+    if (device.vendorId === LedgerController.vendorId) setIsLedgerConnected(false)
   }
-  const detectDevice = async () => setIsConnected(await LedgerController.isConnected())
+  const detectDevice = async () => setIsLedgerConnected(await LedgerController.isConnected())
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -44,7 +44,7 @@ const useLedger = () => {
     await LedgerController.grantDevicePermissionIfNeeded()
   }, [])
 
-  return { requestLedgerDeviceAccess, isLedgerConnected }
+  return { requestLedgerDeviceAccess, isLedgerConnected, setIsLedgerConnected }
 }
 
 export default useLedger

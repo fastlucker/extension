@@ -27,7 +27,7 @@ const HardwareWalletReconnectScreen = () => {
   const { theme } = useTheme()
   const [isLedgerConnectModalVisible, setIsLedgerConnectModalVisible] = useState(false)
   const route = useRoute()
-  const { isLedgerConnected } = useLedger()
+  const { isLedgerConnected, setIsLedgerConnected } = useLedger()
   const { dispatch } = useBackgroundService()
 
   const onLedgerPress = useCallback(() => setIsLedgerConnectModalVisible(true), [])
@@ -35,7 +35,10 @@ const HardwareWalletReconnectScreen = () => {
   const onLedgerConnect = useCallback(() => {
     addToast(t('Ledger reconnected successfully.'), { type: 'success' })
     setIsLedgerConnectModalVisible(false)
-  }, [addToast, t])
+    // Trigger an update manually since listeners might not get triggered
+    // (if the Ledger is continuously connected and focus is not lost).
+    setIsLedgerConnected(true)
+  }, [setIsLedgerConnected, addToast, t])
 
   const options = useMemo(
     // As of v4.28.0, the only hardware wallet with an option to reconnect is Ledger
