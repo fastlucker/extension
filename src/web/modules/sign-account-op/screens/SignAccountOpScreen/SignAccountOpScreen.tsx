@@ -285,6 +285,7 @@ const SignAccountOpScreen = () => {
                 isVisible={!isLedgerConnected}
                 handleOnConnect={handleDismissLedgerConnectModal}
                 handleClose={handleDismissLedgerConnectModal}
+                displayOptionToAuthorize={false}
               />
             )}
           </View>

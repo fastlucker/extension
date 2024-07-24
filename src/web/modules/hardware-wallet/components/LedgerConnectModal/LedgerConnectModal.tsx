@@ -9,8 +9,9 @@ import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
+import { Trans, useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
@@ -22,9 +23,19 @@ type Props = {
   isVisible: boolean
   handleClose?: () => void
   handleOnConnect: () => void
+  /**
+   * The WebHID API allows the authorization to happen only in the extension
+   * foreground and on a new tab (not in an action window).
+   */
+  displayOptionToAuthorize?: boolean
 }
 
-const LedgerConnectModal = ({ isVisible, handleClose = () => {}, handleOnConnect }: Props) => {
+const LedgerConnectModal = ({
+  isVisible,
+  handleClose = () => {},
+  handleOnConnect,
+  displayOptionToAuthorize = true
+}: Props) => {
   const { ref, open, close } = useModalize()
   const mainCtrlState = useMainControllerState()
   const { requestLedgerDeviceAccess } = useLedger()
@@ -84,14 +95,30 @@ const LedgerConnectModal = ({ isVisible, handleClose = () => {}, handleOnConnect
         <AmbireDevice />
       </View>
       <Text weight="regular" style={[spacings.mbLg, text.center]} fontSize={14}>
-        {t('If not previously granted, Ambire will ask for permission to connect to a HID device.')}
+        {displayOptionToAuthorize ? (
+          t('If not previously granted, Ambire will ask for permission to connect to a HID device.')
+        ) : (
+          <Trans>
+            <Text weight="regular" fontSize={14}>
+              If it still doesn&apos;t work after completing these steps,{' '}
+            </Text>
+            <Text weight="semiBold" fontSize={14} underline color={colors.heliotrope}>
+              try re-authorizing Ambire to connect
+            </Text>
+            <Text weight="regular" fontSize={14}>
+              .
+            </Text>
+          </Trans>
+        )}
       </Text>
-      <Button
-        text={isLoading ? t('Connecting...') : t('Authorize & Connect')}
-        disabled={isLoading}
-        style={{ width: 264, ...flexbox.alignSelfCenter }}
-        onPress={onPressNext}
-      />
+      {displayOptionToAuthorize && (
+        <Button
+          text={isLoading ? t('Connecting...') : t('Authorize & Connect')}
+          disabled={isLoading}
+          style={{ width: 264, ...flexbox.alignSelfCenter }}
+          onPress={onPressNext}
+        />
+      )}
     </BottomSheet>
   )
 }
