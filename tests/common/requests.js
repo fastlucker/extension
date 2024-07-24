@@ -54,7 +54,10 @@ async function monitorRequests(
 
   await requestInducingFunction()
 
-  while (!lastRequestTime || Date.now() - lastRequestTime < maxTimeBetweenRequests) {
+  while (
+    !lastRequestTime ||
+    Date.now() - lastRequestTime < maxTimeBetweenRequests + throttleRequestsByMs
+  ) {
     // eslint-disable-next-line no-await-in-loop
     await wait(300)
   }
