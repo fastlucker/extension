@@ -3,7 +3,6 @@ import { Animated, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
-import RefreshIcon from '@common/assets/svg/RefreshIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -27,6 +26,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import RefreshIcon from './RefreshIcon'
 
 import getStyles from './styles'
 
@@ -199,7 +199,7 @@ const DashboardOverview: FC<Props> = ({
               }}
             >
               <View>
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                   {!accountPortfolio?.isAllReady ? (
                     <>
                       <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
@@ -216,10 +216,7 @@ const DashboardOverview: FC<Props> = ({
                       )}
                     </>
                   ) : (
-                    <View
-                      testID="full-balance"
-                      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}
-                    >
+                    <View testID="full-balance" style={[flexbox.directionRow, flexbox.alignCenter]}>
                       <Text selectable>
                         <Text
                           fontSize={32}
@@ -259,15 +256,21 @@ const DashboardOverview: FC<Props> = ({
                           <Tooltip id="total-balance-warning" />
                         </>
                       )}
-                      <AnimatedPressable
-                        style={[spacings.mlTy, refreshButtonAnimStyle]}
-                        onPress={reloadAccount}
-                        {...bindRefreshButtonAnim}
-                      >
-                        <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                      </AnimatedPressable>
                     </View>
                   )}
+                  <AnimatedPressable
+                    style={[spacings.mlTy, refreshButtonAnimStyle]}
+                    onPress={reloadAccount}
+                    {...bindRefreshButtonAnim}
+                    disabled={!accountPortfolio?.isAllReady}
+                  >
+                    <RefreshIcon
+                      spin={!accountPortfolio?.isAllReady}
+                      color={theme.primaryBackground}
+                      width={16}
+                      height={16}
+                    />
+                  </AnimatedPressable>
                 </View>
 
                 <AnimatedPressable
