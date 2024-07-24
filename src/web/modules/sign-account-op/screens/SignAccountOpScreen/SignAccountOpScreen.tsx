@@ -44,6 +44,7 @@ const SignAccountOpScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
+  const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
@@ -174,8 +175,12 @@ const SignAccountOpScreen = () => {
   const feePayerKeyType = mainState.feePayerKey?.type
   const isAtLeastOneOfTheKeysInvolvedLedger =
     signingKeyType === 'ledger' || feePayerKeyType === 'ledger'
+  const handleDismissLedgerConnectModal = useCallback(() => {
+    setDidTriggerSigning(false)
+  }, [])
 
   const handleSign = useCallback(() => {
+    setDidTriggerSigning(true)
     if (isAtLeastOneOfTheKeysInvolvedLedger && !isLedgerConnected) return
 
     dispatch({
@@ -274,12 +279,12 @@ const SignAccountOpScreen = () => {
               broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
               signAccountOpStatusType={signAccountOpState?.status?.type}
             />
-            {isAtLeastOneOfTheKeysInvolvedLedger && (
-              // TODO: Option to cancel
+            {isAtLeastOneOfTheKeysInvolvedLedger && didTriggerSigning && (
               // TODO: Fallback to re-authorize Ledger on a new tab
               <LedgerConnectModal
-                isVisible={!isLedgerConnected && isAtLeastOneOfTheKeysInvolvedLedger}
-                handleOnConnect={handleSign}
+                isVisible={!isLedgerConnected}
+                handleOnConnect={handleDismissLedgerConnectModal}
+                handleClose={handleDismissLedgerConnectModal}
               />
             )}
           </View>
