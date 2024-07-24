@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -39,12 +39,18 @@ const AccountAdderScreen = () => {
     keySubType: accountAdderState.subType
   })
 
-  const isLoading =
-    accountAdderState.addAccountsStatus !== 'INITIAL' ||
-    mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL'
+  const isLoading = useMemo(
+    () =>
+      accountAdderState.addAccountsStatus !== 'INITIAL' ||
+      mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL',
+    [accountAdderState.addAccountsStatus, mainControllerState.statuses.onAccountAdderSuccess]
+  )
 
-  const isImportDisabled =
-    isLoading || accountAdderState.accountsLoading || !accountAdderState.selectedAccounts.length
+  const isImportDisabled = useMemo(
+    () =>
+      isLoading || accountAdderState.accountsLoading || !accountAdderState.selectedAccounts.length,
+    [isLoading, accountAdderState.accountsLoading, accountAdderState.selectedAccounts.length]
+  )
 
   return (
     <TabLayoutContainer
