@@ -89,7 +89,7 @@ export async function bootstrap(namespace) {
   // Wait for the service worker to be activated.
   // Otherwise, the tests fail randomly, and we can't set the storage in `bootstrapWithStorage`,
   // as the storage in `serviceWorker.evaluate(() => chrome.storage)` hasn't initialized yet.
-  // Before migrating to Manifest v3, it worked because the background page was always active (in contrast to service_serviceWorker).
+  // Before migrating to Manifest v3, it worked because the background page was always active (in contrast to service_worker).
   await serviceWorker.evaluate(() => {
     return new Promise((resolve) => {
       // eslint-disable-next-line no-restricted-globals
