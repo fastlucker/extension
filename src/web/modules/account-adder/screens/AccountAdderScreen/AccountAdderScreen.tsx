@@ -39,13 +39,9 @@ const AccountAdderScreen = () => {
     keySubType: accountAdderState.subType
   })
 
-  // Since account adding is a multi-step process where the Account Adder and the
-  // Main controller interact, treat the SUCCESS state as a still loading one.
-  // Otherwise, in the split second between when the Account Adder method succeeds
-  // and the Main Controller one is still not triggered, the loading indicator flashes.
   const isLoading =
-    ['LOADING', 'SUCCESS'].includes(accountAdderState.addAccountsStatus) ||
-    ['LOADING', 'SUCCESS'].includes(mainControllerState.statuses.onAccountAdderSuccess)
+    accountAdderState.addAccountsStatus !== 'INITIAL' ||
+    mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL'
 
   const isImportDisabled =
     isLoading || accountAdderState.accountsLoading || !accountAdderState.selectedAccounts.length
