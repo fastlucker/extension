@@ -10,6 +10,7 @@ import {
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
 import { buildClaimWalletRequest } from '@ambire-common/libs/transfer/userRequest'
+import useConnectivity from '@common/hooks/useConnectivity'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
@@ -54,6 +55,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'portfolio'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
+  const { isOffline } = useConnectivity()
   const accountsState = useAccountsControllerState()
   const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
 
@@ -88,8 +90,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     const newAccountPortfolio = calculateAccountPortfolio(
       accountsState.selectedAccount,
       state,
-      prevAccountPortfolio?.current,
-      account
+      prevAccountPortfolio?.current
     )
 
     if (
@@ -112,6 +113,30 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       setStartedLoadingAtTimestamp(Date.now())
     }
   }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
+
+  useEffect(() => {
+    if (!account || !state.latest[account.addr]) return
+
+    if (
+      !isOffline &&
+      state.latest[account.addr].ethereum?.criticalError &&
+      state.latest[account.addr].polygon?.criticalError &&
+      state.latest[account.addr].optimism?.criticalError &&
+      accountPortfolio.isAllReady &&
+      accountsState?.statuses?.updateAccountState === 'INITIAL'
+    ) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+      })
+    }
+  }, [
+    account,
+    accountPortfolio.isAllReady,
+    accountsState?.statuses?.updateAccountState,
+    dispatch,
+    isOffline,
+    state.latest
+  ])
 
   const getTemporaryTokens = useCallback(
     (networkId: NetworkId, tokenId: string) => {
