@@ -1,5 +1,7 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { ethers, Network } from 'ethers'
+// eslint-disable-next-line import/no-unresolved
+import wait from '@ambire-common/utils/wait'
 
 const puppeteer = require('puppeteer')
 
@@ -511,4 +513,45 @@ export async function confirmTransactionStatus(
   console.log('getTransactionReceipt result', receipt)
   // Assertion to fail the test if transaction failed
   expect(receipt.status).toBe(1)
+}
+
+export async function monitorRequests(
+  client,
+  requestInducingFunction,
+  { maxTimeBetweenRequests, throttleRequestsByMs } = {
+    maxTimeBetweenRequests: 1000,
+    throttleRequestsByMs: 0
+  }
+) {
+  const httpRequests = []
+  let lastRequestTime = null
+
+  await client.send('Fetch.enable', {
+    patterns: [
+      {
+        urlPattern: '*',
+        requestStage: 'Response'
+      }
+    ]
+  })
+
+  await client.on('Fetch.requestPaused', async ({ requestId, request }) => {
+    httpRequests.push(request.url)
+    lastRequestTime = Date.now()
+
+    if (throttleRequestsByMs) await wait(throttleRequestsByMs)
+
+    await client.send('Fetch.continueRequest', {
+      requestId
+    })
+  })
+
+  await requestInducingFunction()
+
+  while (!lastRequestTime || Date.now() - lastRequestTime < maxTimeBetweenRequests) {
+    // eslint-disable-next-line no-await-in-loop
+    await wait(300)
+  }
+
+  return httpRequests
 }
