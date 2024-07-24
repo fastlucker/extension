@@ -38,11 +38,17 @@ const AccountAdderScreen = () => {
   const { onImportReady, setPage, handleGoBack } = useAccountAdder({
     keySubType: accountAdderState.subType
   })
+
+  // Since account adding a multi-step process where the Account Adder and the
+  // Main controller interact, treat the SUCCESS state as a still loading one.
+  // Otherwise, in the split second between when the Account Adder method succeeds
+  // and the Main Controller one is still not triggered, the loading indicator blinks.
+  const isLoading =
+    ['LOADING', 'SUCCESS'].includes(accountAdderState.addAccountsStatus) ||
+    ['LOADING', 'SUCCESS'].includes(mainControllerState.statuses.onAccountAdderSuccess)
+
   const isImportDisabled =
-    accountAdderState.accountsLoading ||
-    accountAdderState.addAccountsStatus === 'LOADING' ||
-    !accountAdderState.selectedAccounts.length ||
-    mainControllerState.statuses.onAccountAdderSuccess === 'LOADING'
+    isLoading || accountAdderState.accountsLoading || !accountAdderState.selectedAccounts.length
 
   return (
     <TabLayoutContainer
@@ -64,8 +70,7 @@ const AccountAdderScreen = () => {
             size="large"
             disabled={isImportDisabled}
             text={
-              accountAdderState.addAccountsStatus === 'LOADING' ||
-              mainControllerState.statuses.onAccountAdderSuccess === 'LOADING'
+              isLoading
                 ? t('Importing...')
                 : !accountAdderState.selectedAccounts.length
                 ? t('Continue')
