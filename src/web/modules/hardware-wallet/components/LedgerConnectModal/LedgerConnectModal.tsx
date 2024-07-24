@@ -17,6 +17,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import useLedger from '../../hooks/useLedger'
@@ -44,6 +45,7 @@ const LedgerConnectModal = ({
   const { addToast } = useToast()
   const { t } = useTranslation()
   const [isGrantingPermission, setIsGrantingPermission] = useState(false)
+  const { currentAction } = useActionsControllerState()
 
   useEffect(() => {
     if (isVisible) open()
@@ -68,8 +70,9 @@ const LedgerConnectModal = ({
   }
 
   const handleOnLedgerReauthorize = useCallback(
-    () => openInternalPageInTab(WEB_ROUTES.hardwareWalletReconnect),
-    []
+    () =>
+      openInternalPageInTab(`${WEB_ROUTES.hardwareWalletReconnect}?actionId=${currentAction?.id}`),
+    [currentAction?.id]
   )
 
   const isLoading =
