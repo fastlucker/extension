@@ -1246,29 +1246,3 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
     }, 500)
   }
 })
-
-/*
- * This content script is injected programmatically because
- * MAIN world injection does not work properly via manifest
- * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
- */
-const registerInPageContentScript = async () => {
-  try {
-    await browser.scripting.registerContentScripts([
-      {
-        id: 'inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['inpage.js'],
-        runAt: 'document_start',
-        world: 'MAIN'
-      }
-    ])
-  } catch (err) {
-    console.warn(`Failed to inject EthereumProvider: ${err}`)
-  }
-}
-
-// For mv2 the injection is located in the content-script
-if (isManifestV3) {
-  registerInPageContentScript()
-}
