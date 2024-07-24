@@ -115,7 +115,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
 
   useEffect(() => {
-    let timeout: any
     if (!account || !state.latest[account.addr]) return
 
     if (
@@ -129,10 +128,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       dispatch({
         type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
       })
-    }
-
-    return () => {
-      clearTimeout(timeout)
     }
   }, [
     account,
