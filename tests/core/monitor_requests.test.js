@@ -1,27 +1,8 @@
 /* eslint-disable import/no-unresolved */
 import { networks } from '@ambire-common/consts/networks'
+import { getBackgroundRequestsByType, monitorRequests } from '../common/requests.js'
 import { makeValidTransaction } from '../common/transactions.js'
-import { baParams, bootstrapWithStorage, clickOnElement, monitorRequests } from '../functions.js'
-
-const getRequestsByType = (requests) => {
-  // -- Native token price requests
-  const nativeTokenPriceRequests = requests.filter((request) => request.includes('/simple/price'))
-  // -- ERC20 token price requests
-  const batchedErc20TokenPriceRequests = requests.filter((request) =>
-    request.includes('/simple/token_price')
-  )
-  // Hints requests
-  const hintsRequests = requests.filter((request) => request.includes('/multi-hints'))
-  // RPC requests
-  const rpcRequests = requests.filter((request) => request.includes('invictus'))
-
-  return {
-    nativeTokenPriceRequests,
-    batchedErc20TokenPriceRequests,
-    hintsRequests,
-    rpcRequests
-  }
-}
+import { baParams, bootstrapWithStorage, clickOnElement } from '../functions.js'
 
 describe('Monitor network requests and make sure only necessary requests are made', () => {
   let browser
@@ -48,7 +29,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     })
 
     const { nativeTokenPriceRequests, batchedErc20TokenPriceRequests, hintsRequests, rpcRequests } =
-      getRequestsByType(httpRequests)
+      getBackgroundRequestsByType(httpRequests)
 
     expect(nativeTokenPriceRequests.length).toBe(networks.length)
 
@@ -67,7 +48,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     })
 
     const { rpcRequests, nativeTokenPriceRequests, batchedErc20TokenPriceRequests } =
-      getRequestsByType(httpRequests)
+      getBackgroundRequestsByType(httpRequests)
 
     const nonPolygonAndEthereumRpcRequests = rpcRequests.filter(
       (request) => !request.includes('polygon') && !request.includes('ethereum')
