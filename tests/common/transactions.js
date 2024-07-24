@@ -13,7 +13,14 @@ import {
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 //--------------------------------------------------------------------------------------------------------------
-export async function makeValidTransaction(page, extensionURL, browser) {
+export async function makeValidTransaction(
+  page,
+  extensionURL,
+  browser,
+  { shouldStopBeforeSign } = {
+    shouldStopBeforeSign: false
+  }
+) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   // Click on "Send" button
   await clickOnElement(page, '[data-testid="dashboard-button-send"]')
@@ -43,6 +50,8 @@ export async function makeValidTransaction(page, extensionURL, browser) {
     browser,
     '[data-testid="transfer-button-send"]'
   )
+
+  if (shouldStopBeforeSign) return
   // Check if select fee token is visible and select the token
   await selectFeeToken(
     newPage,
