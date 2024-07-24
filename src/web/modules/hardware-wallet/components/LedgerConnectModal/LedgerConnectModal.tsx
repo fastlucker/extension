@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -11,10 +11,12 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import useLedger from '../../hooks/useLedger'
@@ -65,6 +67,11 @@ const LedgerConnectModal = ({
     }
   }
 
+  const handleOnLedgerReauthorize = useCallback(
+    () => openInternalPageInTab(WEB_ROUTES.hardwareWalletReconnect),
+    []
+  )
+
   const isLoading =
     isGrantingPermission || mainCtrlState.statuses.handleAccountAdderInitLedger === 'LOADING'
 
@@ -102,7 +109,13 @@ const LedgerConnectModal = ({
             <Text weight="regular" fontSize={14}>
               If it still doesn&apos;t work after completing these steps,{' '}
             </Text>
-            <Text weight="semiBold" fontSize={14} underline color={colors.heliotrope}>
+            <Text
+              weight="semiBold"
+              fontSize={14}
+              underline
+              color={colors.heliotrope}
+              onPress={handleOnLedgerReauthorize}
+            >
               try re-authorizing Ambire to connect
             </Text>
             <Text weight="regular" fontSize={14}>

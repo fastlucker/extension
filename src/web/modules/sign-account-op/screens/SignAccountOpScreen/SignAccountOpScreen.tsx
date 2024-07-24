@@ -280,7 +280,6 @@ const SignAccountOpScreen = () => {
               signAccountOpStatusType={signAccountOpState?.status?.type}
             />
             {isAtLeastOneOfTheKeysInvolvedLedger && didTriggerSigning && (
-              // TODO: Fallback to re-authorize Ledger on a new tab
               <LedgerConnectModal
                 isVisible={!isLedgerConnected}
                 handleOnConnect={handleDismissLedgerConnectModal}
