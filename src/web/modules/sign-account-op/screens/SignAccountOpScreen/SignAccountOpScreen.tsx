@@ -21,6 +21,8 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
+import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
+import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
@@ -41,6 +43,8 @@ const SignAccountOpScreen = () => {
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
+  const { isLedgerConnected } = useLedger()
+  const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
@@ -167,17 +171,28 @@ const SignAccountOpScreen = () => {
     }
   }, [dispatch])
 
+  const signingKeyType = signAccountOpState?.accountOp?.signingKeyType
+  const feePayerKeyType = mainState.feePayerKey?.type
+  const isAtLeastOneOfTheKeysInvolvedLedger =
+    signingKeyType === 'ledger' || feePayerKeyType === 'ledger'
+  const handleDismissLedgerConnectModal = useCallback(() => {
+    setDidTriggerSigning(false)
+  }, [])
+
   const handleSign = useCallback(() => {
+    setDidTriggerSigning(true)
+    if (isAtLeastOneOfTheKeysInvolvedLedger && !isLedgerConnected) return
+
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
     })
-  }, [dispatch])
+  }, [dispatch, isAtLeastOneOfTheKeysInvolvedLedger, isLedgerConnected])
 
   const handleChangeSigningKey = useCallback(
-    (signingKeyAddr: string, signingKeyType: string) => {
+    (signingKeyAddr: string, _signingKeyType: string) => {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-        params: { signingKeyAddr, signingKeyType }
+        params: { signingKeyAddr, signingKeyType: _signingKeyType }
       })
 
       handleSign()
@@ -259,11 +274,19 @@ const SignAccountOpScreen = () => {
             />
 
             <SignAccountOpHardwareWalletSigningModal
-              signingKeyType={signAccountOpState?.accountOp.signingKeyType}
-              feePayerKeyType={mainState.feePayerKey?.type}
+              signingKeyType={signingKeyType}
+              feePayerKeyType={feePayerKeyType}
               broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
               signAccountOpStatusType={signAccountOpState?.status?.type}
             />
+            {isAtLeastOneOfTheKeysInvolvedLedger && didTriggerSigning && (
+              <LedgerConnectModal
+                isVisible={!isLedgerConnected}
+                handleOnConnect={handleDismissLedgerConnectModal}
+                handleClose={handleDismissLedgerConnectModal}
+                displayOptionToAuthorize={false}
+              />
+            )}
           </View>
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>
