@@ -6,7 +6,6 @@ import 'setimmediate'
 import { nanoid } from 'nanoid'
 
 import {
-  BIP44_LEDGER_DERIVATION_TEMPLATE,
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
@@ -628,38 +627,7 @@ registerAllInpageScripts()
                 break
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                try {
-                  // The second time a connection gets requested onwards,
-                  // the Ledger device throws with "invalid channel" error.
-                  // To overcome this, always make sure to clean up before starting
-                  // a new session, if the device is already unlocked.
-                  if (ledgerCtrl.isUnlocked()) await ledgerCtrl.cleanUp()
-
-                  await ledgerCtrl.unlock()
-
-                  const { walletSDK } = ledgerCtrl
-                  // Should never happen
-                  if (!walletSDK)
-                    throw new Error('Could not establish connection with the ledger device')
-
-                  const keyIterator = new LedgerKeyIterator({ walletSDK })
-                  mainCtrl.accountAdder.init({
-                    keyIterator,
-                    hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
-                  })
-
-                  return await mainCtrl.accountAdder.setPage({
-                    page: 1,
-                    networks: mainCtrl.networks.networks,
-                    providers: mainCtrl.providers.providers
-                  })
-                } catch (e: any) {
-                  throw new Error(
-                    e?.message || 'Could not unlock the Ledger device. Please try again.'
-                  )
-                }
+                return await mainCtrl.handleAccountAdderInitLedger(LedgerKeyIterator)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
@@ -1278,3 +1246,7 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
     }, 500)
   }
 })
+
+// FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
+// listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
+if (isManifestV3) navigator.hid.addEventListener('disconnect', () => {})
