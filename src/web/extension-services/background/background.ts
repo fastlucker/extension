@@ -1272,7 +1272,3 @@ const registerInPageContentScript = async () => {
 if (isManifestV3) {
   registerInPageContentScript()
 }
-
-// FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
-// listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
-if (isManifestV3) navigator.hid.addEventListener('disconnect', () => {})

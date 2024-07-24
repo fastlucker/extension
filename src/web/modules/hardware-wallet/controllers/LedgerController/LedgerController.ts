@@ -8,6 +8,7 @@ import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { ledgerUSBVendorId } from '@ledgerhq/devices'
 import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
+import { isManifestV3 } from '@web/constants/browserapi'
 
 class LedgerController implements ExternalSignerController {
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
@@ -37,6 +38,10 @@ class LedgerController implements ExternalSignerController {
     this.walletSDK = null
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
+
+    // FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
+    // listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
+    if (isManifestV3) navigator.hid.addEventListener('disconnect', () => {})
 
     // When the `cleanUpListener` method gets passed to the navigator.hid listeners
     // the `this` context gets lost, so we need to bind it here. The `this` context
