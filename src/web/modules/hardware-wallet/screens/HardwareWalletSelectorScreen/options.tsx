@@ -11,7 +11,7 @@ type Props = {
 const getOptions = ({ onTrezorPress, onLedgerPress, onGridPlusPress }: Props) => [
   {
     title: 'Trezor',
-    models: ['Trezor One', 'Trezor Model 3', 'Trezor Model T'],
+    models: ['Trezor One', 'Trezor Model 3', 'Trezor Model T,\nTrezor Safe 3, Trezor Safe 5'],
     image: TrezorIcon,
     onPress: onTrezorPress
   },
