@@ -689,7 +689,7 @@ registerAllInpageScripts()
                   providers: mainCtrl.providers.providers
                 })
               }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_MAIN_SEED_PHRASE': {
+              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
                 const seed = await mainCtrl.keystore.getSeed()
 
@@ -841,7 +841,7 @@ registerAllInpageScripts()
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
                 const keyIterator = new KeyIterator(params.seed)
-                if (!mainCtrl.keystore.hasKeystoreMainSeed) {
+                if (!mainCtrl.keystore.hasKeystoreDefaultSeed) {
                   await mainCtrl.keystore.addSeed(params.seed)
                 }
 
@@ -913,8 +913,8 @@ registerAllInpageScripts()
                   pageSize: 1
                 })
 
-                let currentPage = 1
-                let isAccountAlreadyAdded
+                let currentPage: number = 1
+                let isAccountAlreadyAdded: boolean
                 let nextSmartAccount: AccountWithNetworkMeta | undefined
 
                 const findNextSmartAccount = async () => {
@@ -931,7 +931,7 @@ registerAllInpageScripts()
 
                     if (!nextSmartAccount) break
 
-                    isAccountAlreadyAdded = mainCtrl.accounts.accounts.find(
+                    isAccountAlreadyAdded = !!mainCtrl.accounts.accounts.find(
                       // eslint-disable-next-line @typescript-eslint/no-loop-func
                       (a) => a.addr === nextSmartAccount!.addr
                     )

@@ -9,12 +9,12 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
 
 interface Props {
-  handleImportFromMainSeed: () => void
+  handleImportFromDefaultSeed: () => void
   handleImportFromExternalSeed: () => void
 }
 
 const SelectSeedPhraseToImportCards: FC<Props> = ({
-  handleImportFromMainSeed,
+  handleImportFromDefaultSeed,
   handleImportFromExternalSeed
 }) => {
   const { t } = useTranslation()
@@ -32,7 +32,7 @@ const SelectSeedPhraseToImportCards: FC<Props> = ({
         // TODO: fix icon
         icon={SeedPhraseRecoveryIcon}
         buttonText={keystoreState.statuses.addSeed !== 'INITIAL' ? t('Loading...') : t('Select')}
-        onPress={handleImportFromMainSeed}
+        onPress={handleImportFromDefaultSeed}
       />
       <Card
         title={t('Import Accounts from External Seed Phrase')}

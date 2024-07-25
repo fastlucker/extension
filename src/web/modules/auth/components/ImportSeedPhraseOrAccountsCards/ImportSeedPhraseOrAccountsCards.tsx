@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import ImportAccountsFromSeedPhraseIcon from '@common/assets/svg/ImportAccountsFromSeedPhraseIcon'
-import ImportSeedPhraseIcon from '@common/assets/svg/ImportSeedPhraseIcon'
+import Button from '@common/components/Button'
+import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import Card from '@web/modules/auth/components/Card'
+
+import getStyles from './styles'
 
 interface Props {
   handleImportSeed: () => void
@@ -17,33 +19,42 @@ interface Props {
 const ImportSeedPhraseOrAccountsCards: FC<Props> = ({ handleImportSeed, handleImportAccounts }) => {
   const { t } = useTranslation()
   const keystoreState = useKeystoreControllerState()
+  const { styles } = useTheme(getStyles)
 
   return (
-    <View style={[flexbox.directionRow]}>
-      <Card
-        title={t('Import Seed Phrase')}
-        text={t(
-          'This seed phrase will become the main seed phrase for the Ambire Extension, and all future hot accounts will be generated from it.'
-        )}
-        style={{ width: 296 }}
-        isSecondary
-        // TODO: fix icon
-        icon={ImportSeedPhraseIcon}
-        buttonText={keystoreState.statuses.addSeed !== 'INITIAL' ? t('Loading...') : t('Select')}
-        onPress={handleImportSeed}
-      />
-      <Card
-        title={t('Import Accounts from Seed Phrase')}
-        style={{ ...spacings.ml, width: 296 }}
-        text={t(
-          'This seed phrase will NOT be imported into the Ambire Extension. Only the accounts you choose at the moment will be imported.'
-        )}
-        isSecondary
-        // TODO: fix icon
-        icon={ImportAccountsFromSeedPhraseIcon}
-        buttonText={t('Select')}
-        onPress={handleImportAccounts}
-      />
+    <View>
+      <View style={styles.modalHeader}>
+        <Text weight="medium" fontSize={20}>
+          {t('Save as default Seed Phrase')}
+        </Text>
+      </View>
+      <View style={styles.modalInnerContainer}>
+        <View>
+          <ImportAccountsFromSeedPhraseIcon style={spacings.mrLg} />
+        </View>
+        <Text appearance="secondaryText">
+          {t(
+            'Do you want to save it as a default Seed Phrase for this Ambire Wallet extension? This will allow you to easily import more Smart Accounts from this Seed Phrase.'
+          )}
+        </Text>
+      </View>
+      <View style={styles.modalButtonsContainer}>
+        <Button
+          text={keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Yes')}
+          onPress={handleImportSeed}
+          hasBottomSpacing={false}
+          size="large"
+          style={{ minWidth: 128 }}
+        />
+        <Button
+          text={t('No')}
+          onPress={handleImportAccounts}
+          type="secondary"
+          hasBottomSpacing={false}
+          size="large"
+          style={{ minWidth: 128 }}
+        />
+      </View>
     </View>
   )
 }

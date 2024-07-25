@@ -46,12 +46,12 @@ const useGetAddAccountOptions = ({
     },
     {
       key: 'create-wallet',
-      text: keystoreState.hasKeystoreMainSeed
-        ? t('Import one more account from default seed phrase')
+      text: keystoreState.hasKeystoreDefaultSeed
+        ? t('Import a new Smart Account from the default Seed Phrase')
         : t('Create a new hot wallet'),
       icon: CreateWalletIcon,
       onPress: () => {
-        if (keystoreState.hasKeystoreMainSeed) {
+        if (keystoreState.hasKeystoreDefaultSeed) {
           dispatch({ type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE' })
         } else {
           navigateWrapped(ROUTES.createHotWallet)

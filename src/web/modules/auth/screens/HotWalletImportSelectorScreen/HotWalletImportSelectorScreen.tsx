@@ -28,7 +28,7 @@ const HotWalletImportSelectorScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { isReadyToStoreKeys, hasKeystoreMainSeed } = useKeystoreControllerState()
+  const { isReadyToStoreKeys, hasKeystoreDefaultSeed } = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const accountAdderCtrlState = useAccountAdderControllerState()
@@ -49,8 +49,8 @@ const HotWalletImportSelectorScreen = () => {
     navigate
   ])
 
-  const handleImportFromMainSeed = useCallback(() => {
-    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_MAIN_SEED_PHRASE' })
+  const handleImportFromDefaultSeed = useCallback(() => {
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE' })
   }, [dispatch])
 
   const handleImportFromExternalSeed = useCallback(() => {
@@ -67,7 +67,7 @@ const HotWalletImportSelectorScreen = () => {
       return
     }
     if (flow === 'seed') {
-      if (hasKeystoreMainSeed) {
+      if (hasKeystoreDefaultSeed) {
         openBottomSheet()
       } else {
         navigate(WEB_ROUTES.importSeedPhrase)
@@ -102,7 +102,7 @@ const HotWalletImportSelectorScreen = () => {
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
-      {!!hasKeystoreMainSeed && (
+      {!!hasKeystoreDefaultSeed && (
         <BottomSheet
           id="import-seed-phrase"
           sheetRef={sheetRef}
@@ -112,7 +112,7 @@ const HotWalletImportSelectorScreen = () => {
         >
           <ModalHeader hideLeftSideContainer title={t('Select import accounts option')} />
           <SelectSeedPhraseToImportCards
-            handleImportFromMainSeed={handleImportFromMainSeed}
+            handleImportFromDefaultSeed={handleImportFromDefaultSeed}
             handleImportFromExternalSeed={handleImportFromExternalSeed}
           />
         </BottomSheet>

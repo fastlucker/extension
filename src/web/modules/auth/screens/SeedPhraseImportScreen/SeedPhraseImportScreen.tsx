@@ -149,7 +149,7 @@ const SeedPhraseImportScreen = () => {
     await handleSubmit(({ seedFields }) => {
       const formattedSeed = seedFields.map((field) => field.value).join(' ')
 
-      if (!keystoreState.hasKeystoreMainSeed) {
+      if (!keystoreState.hasKeystoreDefaultSeed) {
         openBottomSheet()
       } else {
         dispatch({
@@ -158,7 +158,7 @@ const SeedPhraseImportScreen = () => {
         })
       }
     })()
-  }, [dispatch, handleSubmit, keystoreState.hasKeystoreMainSeed, openBottomSheet])
+  }, [dispatch, handleSubmit, keystoreState.hasKeystoreDefaultSeed, openBottomSheet])
 
   const handleImportSeed = useCallback(() => {
     dispatch({
@@ -366,15 +366,15 @@ const SeedPhraseImportScreen = () => {
           ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
-      {!keystoreState.hasKeystoreMainSeed && (
+      {!keystoreState.hasKeystoreDefaultSeed && (
         <BottomSheet
           id="import-seed-phrase"
           sheetRef={sheetRef}
           closeBottomSheet={closeBottomSheet}
-          backgroundColor="primaryBackground"
-          autoWidth
+          backgroundColor="secondaryBackground"
+          style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
+          type="modal"
         >
-          <ModalHeader hideLeftSideContainer title={t('Select import option')} />
           <ImportSeedPhraseOrAccountsCards
             handleImportSeed={handleImportSeed}
             handleImportAccounts={handleImportAccounts}
