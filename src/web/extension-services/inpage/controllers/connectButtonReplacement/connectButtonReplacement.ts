@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 
 import { delayPromise } from '@common/utils/promises'
-import { DefaultWallet } from '@web/extension-services/inpage/inpage'
+import { DefaultWallet } from '@web/extension-services/inpage/ethereum-inpage'
 
 // Ambire SVG icon 40x40
 export const ambireSvg =
@@ -39,7 +39,8 @@ export const blacklistedPages = [
   'duckduckgo',
   'stackoverflow',
   'medium',
-  'metamask'
+  'metamask',
+  'dodoex'
 ]
 
 type ConstructProps = {
@@ -220,7 +221,10 @@ export class ConnectButtonReplacementController {
     const imgElements = document.getElementsByTagName('img')
     for (let i = 0; i < imgElements.length; i++) {
       if (imgElements[i].src.includes(iconName)) {
+        const { clientWidth, clientHeight } = imgElements[i]
         imgElements[i].src = ambireSvg
+        imgElements[i].style.width = `${clientWidth}px`
+        imgElements[i].style.height = `${clientHeight}px`
       }
     }
   }
@@ -278,7 +282,10 @@ export class ConnectButtonReplacementController {
       newImgElement.src = ambireSvg
 
       if (imgElement) {
+        const { clientWidth, clientHeight } = imgElement
         imgElement.src = ambireSvg
+        imgElement.style.width = `${clientWidth}px`
+        imgElement.style.height = `${clientHeight}px`
         imgElement.removeAttribute('srcset')
 
         if (closestFoundIconType === 'img') return true

@@ -26,6 +26,8 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
+import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
+import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import MessageSummary from '@web/modules/sign-message/components/MessageSummary'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
@@ -41,7 +43,8 @@ const SignMessageScreen = () => {
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
-
+  const { isLedgerConnected } = useLedger()
+  const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
   const actionState = useActionsControllerState()
@@ -172,6 +175,9 @@ const SignMessageScreen = () => {
         return setIsChooseSignerShown(true)
       }
 
+      setDidTriggerSigning(true)
+      if (signMessageState.signingKeyType === 'ledger' && !isLedgerConnected) return
+
       const keyAddr = chosenSigningKeyAddr || selectedAccountKeyStoreKeys[0].addr
       const keyType = chosenSigningKeyType || selectedAccountKeyStoreKeys[0].type
 
@@ -180,8 +186,12 @@ const SignMessageScreen = () => {
         params: { keyAddr, keyType }
       })
     },
-    [dispatch, selectedAccountKeyStoreKeys]
+    [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys, signMessageState.signingKeyType]
   )
+
+  const handleDismissLedgerConnectModal = useCallback(() => {
+    setDidTriggerSigning(false)
+  }, [])
 
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
@@ -255,6 +265,14 @@ const SignMessageScreen = () => {
             <HardwareWalletSigningModal
               keyType={signMessageState.signingKeyType}
               isVisible={signStatus === 'LOADING'}
+            />
+          )}
+          {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
+            <LedgerConnectModal
+              isVisible={!isLedgerConnected}
+              handleOnConnect={handleDismissLedgerConnectModal}
+              handleClose={handleDismissLedgerConnectModal}
+              displayOptionToAuthorize={false}
             />
           )}
         </View>
