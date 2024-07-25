@@ -27,6 +27,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -52,13 +53,13 @@ const CreateSeedPhrasePrepareScreen = () => {
   const { accounts } = useAccountsControllerState()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
+  const { navigate, goBack } = useNavigation()
   const { theme } = useTheme()
   const { maxWidthSize } = useWindowSize()
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
   const panelPaddingStyle = getPanelPaddings(maxWidthSize)
-
+  const keystoreState = useKeystoreControllerState()
   const handleSubmit = useCallback(() => {
     const seed = Wallet.createRandom().mnemonic?.phrase || null
 
@@ -68,6 +69,11 @@ const CreateSeedPhrasePrepareScreen = () => {
     }
     navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
   }, [addToast, navigate])
+
+  // prevent proceeding with new seed phrase setup if there is a main seed phrase already associated with the keystore
+  useEffect(() => {
+    if (keystoreState.hasKeystoreMainSeed) goBack()
+  }, [goBack, keystoreState.hasKeystoreMainSeed])
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')

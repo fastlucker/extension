@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
@@ -11,6 +12,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { AccountWithNetworkMeta } from '@ambire-common/interfaces/account'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
@@ -908,16 +910,88 @@ registerAllInpageScripts()
 
                 await mainCtrl.accountAdder.addAccounts(
                   mainCtrl.accountAdder.selectedAccounts,
-                  {
-                    internal: readyToAddKeys,
-                    external: []
-                  },
+                  { internal: readyToAddKeys, external: [] },
                   readyToAddKeyPreferences
                 )
 
-                if (!mainCtrl.keystore.hasKeystoreMainSeed) {
-                  await mainCtrl.keystore.addSeed(params.seed)
+                break
+              }
+              case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
+                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
+                const defaultSeed = await mainCtrl.keystore.getSeed()
+                if (!defaultSeed) {
+                  console.error('No default seed phrase found')
+                  return
                 }
+
+                const keyIterator = new KeyIterator(defaultSeed)
+
+                mainCtrl.accountAdder.init({
+                  keyIterator,
+                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
+                  pageSize: 1
+                })
+
+                let currentPage = 1
+                let isAccountAlreadyAdded
+                let nextSmartAccount: AccountWithNetworkMeta | undefined
+
+                const findNextSmartAccount = async () => {
+                  do {
+                    await mainCtrl.accountAdder.setPage({
+                      page: currentPage,
+                      networks: mainCtrl.networks.networks,
+                      providers: mainCtrl.providers.providers
+                    })
+
+                    nextSmartAccount = mainCtrl.accountAdder.accountsOnPage.find(
+                      ({ isLinked, account }) => !isLinked && isSmartAccount(account)
+                    )?.account
+
+                    if (!nextSmartAccount) break
+
+                    isAccountAlreadyAdded = mainCtrl.accounts.accounts.find(
+                      // eslint-disable-next-line @typescript-eslint/no-loop-func
+                      (a) => a.addr === nextSmartAccount!.addr
+                    )
+
+                    currentPage++
+                  } while (isAccountAlreadyAdded)
+                }
+
+                await findNextSmartAccount()
+
+                if (!nextSmartAccount) {
+                  console.error('Failed to find the next smart account to add')
+                  return
+                }
+
+                await mainCtrl.accountAdder.selectAccount(nextSmartAccount)
+
+                const readyToAddKeys =
+                  mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
+
+                const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
+                  ({ account, accountKeys }) =>
+                    accountKeys.map(({ addr }, i: number) => ({
+                      addr,
+                      type: 'seed',
+                      label: getDefaultKeyLabel(
+                        mainCtrl.keystore.keys.filter((key) =>
+                          account.associatedKeys.includes(key.addr)
+                        ),
+                        i
+                      )
+                    }))
+                )
+
+                await mainCtrl.accountAdder.addAccounts(
+                  mainCtrl.accountAdder.selectedAccounts,
+                  { internal: readyToAddKeys, external: [] },
+                  readyToAddKeyPreferences
+                )
+
                 break
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {

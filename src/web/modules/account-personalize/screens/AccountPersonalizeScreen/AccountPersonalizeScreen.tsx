@@ -23,6 +23,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import Stepper from '@web/modules/router/components/Stepper'
@@ -35,8 +36,12 @@ const AccountPersonalizeScreen = () => {
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const { maxWidthSize } = useWindowSize()
+  const accountAdderState = useAccountAdderControllerState()
 
-  const newAccounts: Account[] = useMemo(() => params?.accounts || [], [params?.accounts])
+  const newAccounts: Account[] = useMemo(
+    () => params?.accounts || accountAdderState.readyToAddAccounts || [],
+    [params?.accounts, accountAdderState.readyToAddAccounts]
+  )
 
   const { handleSubmit, control } = useForm({
     defaultValues: { accounts: newAccounts }

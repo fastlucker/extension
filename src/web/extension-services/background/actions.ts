@@ -83,6 +83,9 @@ type CreateNewSeedPhraseAndAddFirstSmartAccount = {
   type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT'
   params: { seed: string }
 }
+type AddNextSmartAccountFromDefaultSeedPhraseAction = {
+  type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE'
+}
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
   params: {
@@ -461,6 +464,7 @@ export type Action =
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | CreateNewSeedPhraseAndAddFirstSmartAccount
+  | AddNextSmartAccountFromDefaultSeedPhraseAction
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest

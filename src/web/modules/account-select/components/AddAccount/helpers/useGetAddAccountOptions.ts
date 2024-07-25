@@ -5,11 +5,13 @@ import ViewModeIcon from '@common/assets/svg/ViewModeIcon'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 const { isActionWindow } = getUiType()
 
-const getAddAccountOptions = ({
+const useGetAddAccountOptions = ({
   navigate,
   t
 }: {
@@ -23,6 +25,9 @@ const getAddAccountOptions = ({
     }
     navigate(route)
   }
+
+  const keystoreState = useKeystoreControllerState()
+  const { dispatch } = useBackgroundService()
 
   return [
     {
@@ -41,9 +46,17 @@ const getAddAccountOptions = ({
     },
     {
       key: 'create-wallet',
-      text: t('Create a new hot wallet'),
+      text: keystoreState.hasKeystoreMainSeed
+        ? t('Import one more account from default seed phrase')
+        : t('Create a new hot wallet'),
       icon: CreateWalletIcon,
-      onPress: () => navigateWrapped(ROUTES.createHotWallet),
+      onPress: () => {
+        if (keystoreState.hasKeystoreMainSeed) {
+          dispatch({ type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE' })
+        } else {
+          navigateWrapped(ROUTES.createHotWallet)
+        }
+      },
       hasLargerBottomSpace: true,
       testID: 'create-new-wallet'
     },
@@ -57,4 +70,4 @@ const getAddAccountOptions = ({
   ]
 }
 
-export { getAddAccountOptions }
+export { useGetAddAccountOptions }

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { AccountId } from '@ambire-common/interfaces/account'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
+import useConnectivity from '@common/hooks/useConnectivity'
+import useDebounce from '@common/hooks/useDebounce'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
@@ -17,9 +19,20 @@ const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount: A
     return banner.accountAddr === selectedAccount
   })
 
+const OFFLINE_BANNER: BannerInterface = {
+  id: 'offline-banner',
+  type: 'error',
+  title: "You're offline",
+  text: 'Please check your internet connection',
+  actions: []
+}
+
 export default function useBanners(): BannerInterface[] {
   const state = useMainControllerState()
   const { selectedAccount } = useAccountsControllerState()
+  const { isOffline } = useConnectivity()
+  // Debounce offline status to prevent banner flickering
+  const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
   const {
     state: { banners: portfolioBanners = [] }
   } = usePortfolioControllerState()
@@ -60,18 +73,23 @@ export default function useBanners(): BannerInterface[] {
       ...innerBanners,
       ...state.banners,
       ...actionBanners,
-      ...getCurrentAccountBanners(portfolioBanners, selectedAccount),
+      // Don't display portfolio banners when offline
+      ...getCurrentAccountBanners(
+        debouncedIsOffline ? [OFFLINE_BANNER] : portfolioBanners,
+        selectedAccount
+      ),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, selectedAccount)
     ]
   }, [
-    activityBanners,
-    emailVaultBanners,
     innerBanners,
-    portfolioBanners,
     state.banners,
     actionBanners,
-    selectedAccount
+    debouncedIsOffline,
+    portfolioBanners,
+    selectedAccount,
+    activityBanners,
+    emailVaultBanners
   ])
 
   return allBanners
