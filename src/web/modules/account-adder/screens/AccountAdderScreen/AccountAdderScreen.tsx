@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -38,11 +38,19 @@ const AccountAdderScreen = () => {
   const { onImportReady, setPage, handleGoBack } = useAccountAdder({
     keySubType: accountAdderState.subType
   })
-  const isImportDisabled =
-    accountAdderState.accountsLoading ||
-    accountAdderState.addAccountsStatus === 'LOADING' ||
-    !accountAdderState.selectedAccounts.length ||
-    mainControllerState.statuses.onAccountAdderSuccess === 'LOADING'
+
+  const isLoading = useMemo(
+    () =>
+      accountAdderState.addAccountsStatus !== 'INITIAL' ||
+      mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL',
+    [accountAdderState.addAccountsStatus, mainControllerState.statuses.onAccountAdderSuccess]
+  )
+
+  const isImportDisabled = useMemo(
+    () =>
+      isLoading || accountAdderState.accountsLoading || !accountAdderState.selectedAccounts.length,
+    [isLoading, accountAdderState.accountsLoading, accountAdderState.selectedAccounts.length]
+  )
 
   return (
     <TabLayoutContainer
@@ -64,8 +72,7 @@ const AccountAdderScreen = () => {
             size="large"
             disabled={isImportDisabled}
             text={
-              accountAdderState.addAccountsStatus === 'LOADING' ||
-              mainControllerState.statuses.onAccountAdderSuccess === 'LOADING'
+              isLoading
                 ? t('Importing...')
                 : !accountAdderState.selectedAccounts.length
                 ? t('Continue')

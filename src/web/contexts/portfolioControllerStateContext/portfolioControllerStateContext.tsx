@@ -14,6 +14,7 @@ import useConnectivity from '@common/hooks/useConnectivity'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -58,6 +59,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const { isOffline } = useConnectivity()
   const accountsState = useAccountsControllerState()
   const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
+  const mainControllerState = useMainControllerState()
+  const hasSignAccountOp = !!mainControllerState.signAccountOp
 
   const [accountPortfolio, setAccountPortfolio] =
     useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
@@ -90,7 +93,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     const newAccountPortfolio = calculateAccountPortfolio(
       accountsState.selectedAccount,
       state,
-      prevAccountPortfolio?.current
+      prevAccountPortfolio?.current,
+      hasSignAccountOp
     )
 
     if (
@@ -101,7 +105,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
       if (newAccountPortfolio.isAllReady) prevAccountPortfolio.current = newAccountPortfolio
     }
-  }, [accountsState.selectedAccount, account, state])
+  }, [accountsState.selectedAccount, account, state, hasSignAccountOp])
 
   useEffect(() => {
     if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
