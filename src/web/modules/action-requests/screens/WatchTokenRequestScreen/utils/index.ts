@@ -7,8 +7,6 @@ import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import { TokenData } from '@web/modules/action-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen' // Polygon MATIC token address
 
-const polygonMaticTokenAddress = '0x0000000000000000000000000000000000001010'
-
 const selectNetwork = async (
   network: Network | undefined,
   tokenNetwork: Network | undefined,
@@ -88,9 +86,7 @@ const handleTokenIsInPortfolio = async (
         _t.amount > 0n
     )
 
-  const isNative =
-    tokenData?.address === ZeroAddress ||
-    (tokenNetwork?.id === 'polygon' && tokenData?.address === polygonMaticTokenAddress)
+  const isNative = tokenData?.address === ZeroAddress
 
   return isTokenInHints || tokenInPreferences || isNative
 }

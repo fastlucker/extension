@@ -11,13 +11,11 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import HotWalletCreateCards from '@web/modules/auth/components/HotWalletCreateCards'
 
 const HotWalletCreateSelectorScreen = () => {
   const { t } = useTranslation()
-  const { accounts } = useAccountsControllerState()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
   const { isReadyToStoreKeys } = useKeystoreControllerState()
@@ -40,11 +38,7 @@ const HotWalletCreateSelectorScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
-      footer={
-        <BackButton
-          fallbackBackRoute={accounts.length ? WEB_ROUTES.dashboard : WEB_ROUTES.getStarted}
-        />
-      }
+      footer={<BackButton fallbackBackRoute={WEB_ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>
         <Panel

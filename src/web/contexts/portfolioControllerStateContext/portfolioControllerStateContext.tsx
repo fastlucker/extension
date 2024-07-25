@@ -2,12 +2,15 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkId } from '@ambire-common/interfaces/network'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   CollectionResult as CollectionResultInterface,
   TokenResult as TokenResultInterface
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
+import { buildClaimWalletRequest } from '@ambire-common/libs/transfer/userRequest'
+import useConnectivity from '@common/hooks/useConnectivity'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
@@ -31,26 +34,29 @@ const PortfolioControllerStateContext = createContext<{
   accountPortfolio: AccountPortfolio | null
   state: PortfolioController
   startedLoadingAtTimestamp: null | number
-  refreshPortfolio: () => void
   getTemporaryTokens: (networkId: NetworkId, tokenId: CustomToken['address']) => void
   updateTokenPreferences: (token: CustomToken) => void
   removeTokenPreferences: (token: CustomToken) => void
   checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
+  claimWalletRewards: (token: TokenResultInterface) => void
+  resetAccountPortfolioLocalState: () => void
 }>({
   accountPortfolio: DEFAULT_ACCOUNT_PORTFOLIO,
   state: {} as any,
   startedLoadingAtTimestamp: null,
-  refreshPortfolio: () => {},
   getTemporaryTokens: () => {},
   updateTokenPreferences: () => {},
   removeTokenPreferences: () => {},
-  checkToken: () => {}
+  checkToken: () => {},
+  claimWalletRewards: () => {},
+  resetAccountPortfolioLocalState: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'portfolio'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
+  const { isOffline } = useConnectivity()
   const accountsState = useAccountsControllerState()
   const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
   const mainControllerState = useMainControllerState()
@@ -61,7 +67,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const [startedLoadingAtTimestamp, setStartedLoadingAtTimestamp] = useState<number | null>(null)
   const prevAccountPortfolio = useRef<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
 
-  const resetAccountPortfolio = useCallback(() => {
+  const resetAccountPortfolioLocalState = useCallback(() => {
     setAccountPortfolio(DEFAULT_ACCOUNT_PORTFOLIO)
     prevAccountPortfolio.current = DEFAULT_ACCOUNT_PORTFOLIO
     setStartedLoadingAtTimestamp(null)
@@ -78,8 +84,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     // Set an initial empty state for accountPortfolio
-    resetAccountPortfolio()
-  }, [accountsState.selectedAccount, resetAccountPortfolio])
+    resetAccountPortfolioLocalState()
+  }, [accountsState.selectedAccount, resetAccountPortfolioLocalState])
 
   useEffect(() => {
     if (!accountsState.selectedAccount || !account) return
@@ -91,9 +97,13 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       hasSignAccountOp
     )
 
-    if (newAccountPortfolio.isAllReady || !prevAccountPortfolio?.current?.tokens.length) {
+    if (
+      newAccountPortfolio.isAllReady ||
+      (!prevAccountPortfolio?.current?.tokens?.length && newAccountPortfolio.tokens.length)
+    ) {
       setAccountPortfolio(newAccountPortfolio)
-      prevAccountPortfolio.current = newAccountPortfolio
+
+      if (newAccountPortfolio.isAllReady) prevAccountPortfolio.current = newAccountPortfolio
     }
   }, [accountsState.selectedAccount, account, state, hasSignAccountOp])
 
@@ -107,6 +117,30 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       setStartedLoadingAtTimestamp(Date.now())
     }
   }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
+
+  useEffect(() => {
+    if (!account || !state.latest[account.addr]) return
+
+    if (
+      !isOffline &&
+      state.latest[account.addr].ethereum?.criticalError &&
+      state.latest[account.addr].polygon?.criticalError &&
+      state.latest[account.addr].optimism?.criticalError &&
+      accountPortfolio.isAllReady &&
+      accountsState?.statuses?.updateAccountState === 'INITIAL'
+    ) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+      })
+    }
+  }, [
+    account,
+    accountPortfolio.isAllReady,
+    accountsState?.statuses?.updateAccountState,
+    dispatch,
+    isOffline,
+    state.latest
+  ])
 
   const getTemporaryTokens = useCallback(
     (networkId: NetworkId, tokenId: string) => {
@@ -157,36 +191,50 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     [dispatch]
   )
 
-  const refreshPortfolio = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
-      params: { forceUpdate: true }
-    })
-    resetAccountPortfolio()
-  }, [dispatch, resetAccountPortfolio])
+  const claimWalletRewards = useCallback(
+    (token: TokenResultInterface) => {
+      if (!accountsState.selectedAccount || !account) return
 
+      const claimableRewardsData =
+        state.latest[accountsState.selectedAccount].rewards?.result?.claimableRewardsData
+
+      if (!claimableRewardsData) return
+      const userRequest: UserRequest = buildClaimWalletRequest({
+        selectedAccount: accountsState.selectedAccount,
+        selectedToken: token,
+        claimableRewardsData
+      })
+      dispatch({
+        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+        params: userRequest
+      })
+    },
+    [dispatch, account, accountsState.selectedAccount, state.latest]
+  )
   return (
     <PortfolioControllerStateContext.Provider
       value={useMemo(
         () => ({
           state,
           accountPortfolio,
-          refreshPortfolio,
           startedLoadingAtTimestamp,
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
-          getTemporaryTokens
+          getTemporaryTokens,
+          claimWalletRewards,
+          resetAccountPortfolioLocalState
         }),
         [
           state,
           accountPortfolio,
           startedLoadingAtTimestamp,
-          refreshPortfolio,
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
-          getTemporaryTokens
+          getTemporaryTokens,
+          claimWalletRewards,
+          resetAccountPortfolioLocalState
         ]
       )}
     >

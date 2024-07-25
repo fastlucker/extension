@@ -6,6 +6,8 @@ import { TooltipRefProps } from 'react-tooltip'
 
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import Dialog from '@common/components/Dialog'
+import DialogButton from '@common/components/Dialog/DialogButton'
+import DialogFooter from '@common/components/Dialog/DialogFooter'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
@@ -94,10 +96,13 @@ const ManageContact: FC<Props> = ({ address, name, tooltipRef }) => {
         id="delete-contact"
         title={t('Delete Contact')}
         text={t(`Are you sure you want to delete ${name} from your Address Book?`)}
-        handleClose={closeDialog}
-        handleConfirm={removeContact}
-        confirmButtonText={t('Delete')}
-      />
+        closeDialog={closeDialog}
+      >
+        <DialogFooter>
+          <DialogButton text={t('Delete')} type="danger" onPress={removeContact} />
+          <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
+        </DialogFooter>
+      </Dialog>
     </>
   )
 }

@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
-import { DEFAULT_ACCOUNT_LABEL } from '@ambire-common/consts/account'
 import { AddressState } from '@ambire-common/interfaces/domains'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -206,7 +205,7 @@ const ViewOnlyScreen = () => {
       header={<Header withAmbireLogo />}
       footer={
         <>
-          <BackButton fallbackBackRoute={ROUTES.getStarted} />
+          <BackButton fallbackBackRoute={ROUTES.dashboard} />
           <Button
             testID="view-only-button-import"
             textStyle={{ fontSize: 14 }}

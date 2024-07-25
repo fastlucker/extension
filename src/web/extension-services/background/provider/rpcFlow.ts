@@ -99,6 +99,11 @@ const flowContext = flow
             chainId: 1,
             isConnected: true
           })
+          mainCtrl.dapps.broadcastDappSessionEvent(
+            'chainChanged',
+            { chain: '0x1', networkVersion: '1' },
+            origin
+          )
         } catch (e) {
           connectOrigins.delete(origin)
           throw e

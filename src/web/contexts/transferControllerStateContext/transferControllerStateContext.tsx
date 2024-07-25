@@ -56,10 +56,15 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
         if (isTopUp) {
           const tokenNetwork = networks.find((network) => network.id === token.networkId)
 
-          return hasAmount && tokenNetwork?.hasRelayer && token.flags.canTopUpGasTank
+          return (
+            hasAmount &&
+            tokenNetwork?.hasRelayer &&
+            token.flags.canTopUpGasTank &&
+            !token.flags.onGasTank
+          )
         }
 
-        return hasAmount
+        return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
       }) || [],
     [accountPortfolio?.tokens, networks, selectedTokenFromUrl?.isTopUp]
   )

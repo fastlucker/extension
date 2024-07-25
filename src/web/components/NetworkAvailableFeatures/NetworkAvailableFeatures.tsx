@@ -108,10 +108,14 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
     ]
     const singletonInterface = new Interface(singletonABI)
     const txn = {
-      kind: 'call' as const,
-      to: SINGLETON,
-      value: 0n,
-      data: singletonInterface.encodeFunctionData('deploy', [bytecode, salt])
+      kind: 'calls' as const,
+      calls: [
+        {
+          to: SINGLETON,
+          value: 0n,
+          data: singletonInterface.encodeFunctionData('deploy', [bytecode, salt])
+        }
+      ]
     }
 
     const userRequest: SignUserRequest = {

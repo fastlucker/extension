@@ -1,16 +1,16 @@
 .skeleton {
-  animation: pulse 1s ease-in-out infinite alternate;
+  animation: pulse .7s ease-in-out infinite alternate;
   animation-timing-function: ease; 
 }
 
 .skeleton.low-opacity {
-  animation: pulse-low-opacity 1s ease-in-out infinite alternate; 
+  animation: pulse-low-opacity .7s ease-in-out infinite alternate; 
 }
 
 /* Animation keyframes */
 @keyframes pulse {
   0% {
-    opacity: 0.5;
+    opacity: 0.2;
   }
   100% {
     opacity: 1;

@@ -9,6 +9,7 @@ export function isValidReply<TResponse>({
   topic: string
   message: ReplyMessage<TResponse>
 }) {
+  if (!message) return
   if (message.topic !== `< ${topic}`) return
   if (typeof id !== 'undefined' && message.id !== id) return
   if (!message.payload) return

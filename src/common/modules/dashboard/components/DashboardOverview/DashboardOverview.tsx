@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -15,7 +15,6 @@ import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
 import Routes from '@common/modules/dashboard/components/Routes'
-import useBanners from '@common/modules/dashboard/hooks/useBanners'
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -24,8 +23,8 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
@@ -48,13 +47,13 @@ const DashboardOverview: FC<Props> = ({
   setDashboardOverviewSize
 }) => {
   const route = useRoute()
+  const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { selectedAccount } = useAccountsControllerState()
-  const banners = useBanners()
-  const { accountPortfolio, startedLoadingAtTimestamp, state, refreshPortfolio } =
+  const { accountPortfolio, startedLoadingAtTimestamp, state, resetAccountPortfolioLocalState } =
     usePortfolioControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -88,15 +87,34 @@ const DashboardOverview: FC<Props> = ({
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
-  const isBalanceInaccurate = useMemo(() => {
-    const portfolioRelatedBanners = banners.filter(
-      (banner) =>
-        banner.id === `${selectedAccount}-portfolio-prices-error` ||
-        banner.id === `${selectedAccount}-portfolio-critical-error`
+  const networksWithCriticalErrors: string[] = useMemo(() => {
+    if (
+      !selectedAccount ||
+      !state.latest[selectedAccount] ||
+      state.latest[selectedAccount]?.isLoading
     )
+      return []
 
-    return !!portfolioRelatedBanners.length
-  }, [banners, selectedAccount])
+    const networkNames: string[] = []
+
+    Object.keys(state.latest[selectedAccount]).forEach((networkId) => {
+      const networkState = state.latest[selectedAccount][networkId]
+
+      if (networkState?.criticalError) {
+        let networkName
+
+        if (networkId === 'gasTank') networkName = 'Gas Tank'
+        else if (networkId === 'rewards') networkName = 'Rewards'
+        else networkName = networks.find((n) => n.id === networkId)?.name
+
+        if (!networkName) return
+
+        networkNames.push(networkName)
+      }
+    })
+
+    return networkNames
+  }, [selectedAccount, state.latest, networks])
 
   // Compare the current timestamp with the timestamp when the loading started
   // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
@@ -128,6 +146,13 @@ const DashboardOverview: FC<Props> = ({
       clearInterval(interval)
     }
   }, [accountPortfolio?.isAllReady, startedLoadingAtTimestamp])
+
+  const reloadAccount = useCallback(() => {
+    resetAccountPortfolioLocalState()
+    dispatch({
+      type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+    })
+  }, [dispatch, resetAccountPortfolioLocalState])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -218,14 +243,17 @@ const DashboardOverview: FC<Props> = ({
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}
                         </Text>
                       </Text>
-                      {isBalanceInaccurate && (
+                      {!!networksWithCriticalErrors.length && (
                         <>
                           <WarningIcon
                             color={theme.warningDecorative}
                             style={spacings.mlMi}
                             data-tooltip-id="total-balance-warning"
                             data-tooltip-content={t(
-                              'Total balance may be inaccurate due to missing data.'
+                              'Total balance may be inaccurate due to network issues on {{networks}}',
+                              {
+                                networks: networksWithCriticalErrors.join(', ')
+                              }
                             )}
                           />
                           <Tooltip id="total-balance-warning" />
@@ -233,7 +261,7 @@ const DashboardOverview: FC<Props> = ({
                       )}
                       <AnimatedPressable
                         style={[spacings.mlTy, refreshButtonAnimStyle]}
-                        onPress={refreshPortfolio}
+                        onPress={reloadAccount}
                         {...bindRefreshButtonAnim}
                       >
                         <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
