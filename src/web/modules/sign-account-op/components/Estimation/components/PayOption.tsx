@@ -3,14 +3,14 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
-import { Avatar } from '@common/components/Avatar'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
+import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
-import shortenAddress from '@web/utils/shortenAddress'
 
 const PayOption = ({
   feeOption,

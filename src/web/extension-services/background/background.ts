@@ -6,14 +6,13 @@ import 'setimmediate'
 import { nanoid } from 'nanoid'
 
 import {
-  BIP44_LEDGER_DERIVATION_TEMPLATE,
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { Network } from '@ambire-common/interfaces/network'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import {
   isDerivedForSmartAccountKeyOnly,
   isSmartAccount
@@ -23,6 +22,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, VELCRO_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
@@ -33,6 +33,7 @@ import handleProviderRequests from '@web/extension-services/background/provider/
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
+import { sendBrowserNotification } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -56,6 +57,15 @@ function saveTimestamp() {
 }
 
 function stateDebug(event: string, stateToLog: object) {
+  // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
+  // Puppeteer listens for console.log events and will output the message to the CI console.
+  // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
+  // 💡 `logInfoWithPrefix` wraps console.log, and we can't add a listener to it from the Puppeteer configuration.
+  // That's why we use the native `console.log` method here to send the state to Puppeteer.
+  if (process.env.E2E_DEBUG === 'true') {
+    console.log(stringify(stateToLog))
+  }
+
   // In production, we avoid logging the complete state because `parse(stringify(stateToLog))` can be CPU-intensive.
   // This is especially true for the main controller, which includes all sub-controller states.
   // For example, the portfolio state for a single account can exceed 2.0MB, and `parse(stringify(portfolio))`
@@ -68,15 +78,79 @@ function stateDebug(event: string, stateToLog: object) {
   logInfoWithPrefix(event, parse(stringify(stateToLog)))
 }
 
+let mainCtrl: MainController
+
+/*
+ * This content script is injected programmatically because
+ * MAIN world injection does not work properly via manifest
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
+ */
+const registerAllInpageScripts = async () => {
+  // For mv2 the injection is located in the content-script
+  if (!isManifestV3) return
+  try {
+    await browser.scripting.registerContentScripts([
+      {
+        id: 'ambire-inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['ambire-inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      },
+      {
+        id: 'ethereum-inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['ethereum-inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      }
+    ])
+  } catch (err) {
+    console.warn(`Failed to inject EthereumProvider: ${err}`)
+  }
+}
+
+const unregisterAmbireInpageContentScript = async () => {
+  if (!isManifestV3) return
+  try {
+    await browser.scripting.unregisterContentScripts({ ids: ['ambire-inpage'] })
+  } catch (err) {
+    console.warn(`Failed to unregister ambire-inpage: ${err}`)
+  }
+}
+
+const unregisterEthereumInpageContentScript = async () => {
+  if (!isManifestV3) return
+  try {
+    await browser.scripting.unregisterContentScripts({ ids: ['ethereum-inpage'] })
+  } catch (err) {
+    console.warn(`Failed to inject ethereum-inpage: ${err}`)
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+registerAllInpageScripts()
+
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
   // ensuring that the Controllers are initialized with the storage correctly.
+  // Once the storage is configured in Puppeteer, we set the `isE2EStorageSet` flag to true.
+  // Here, we are waiting for its value to be set.
   if (process.env.IS_TESTING === 'true') {
-    await new Promise((r) => {
-      setTimeout(r, 4000)
-    })
+    const checkE2EStorage = async (): Promise<void> => {
+      const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
+
+      if (isE2EStorageSet) {
+        return
+      }
+
+      await wait(100)
+      await checkE2EStorage()
+    }
+
+    await checkE2EStorage()
   }
 
   if (isManifestV3) {
@@ -94,14 +168,18 @@ function stateDebug(event: string, stateToLog: object) {
     accountStateIntervals: {
       pending: number
       standBy: number
+      retriedFastAccountStateReFetchForNetworks: string[]
+      fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
     hasSignAccountOpCtrlInitialized: boolean
-    fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
+    portfolioLastUpdatedByIntervalAt: number
+    updatePortfolioInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
-    activityIntervalId?: ReturnType<typeof setInterval>
+    accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
-    accountStateInterval?: ReturnType<typeof setInterval>
+    accountStateLatestInterval?: ReturnType<typeof setTimeout>
+    accountStatePendingInterval?: ReturnType<typeof setTimeout>
     selectedAccountStateInterval?: number
   } = {
     /**
@@ -111,10 +189,12 @@ function stateDebug(event: string, stateToLog: object) {
     isUnlocked: false,
     ctrlOnUpdateIsDirtyFlags: {},
     accountStateIntervals: {
-      pending: 3000,
-      standBy: 300000
+      pending: 8000,
+      standBy: 300000,
+      retriedFastAccountStateReFetchForNetworks: []
     },
-    hasSignAccountOpCtrlInitialized: false
+    hasSignAccountOpCtrlInitialized: false,
+    portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
   }
 
   const pm = new PortMessenger()
@@ -144,7 +224,7 @@ function stateDebug(event: string, stateToLog: object) {
     return fetchFn(url, initWithCustomHeaders)
   }
 
-  const mainCtrl = new MainController({
+  mainCtrl = new MainController({
     storage,
     fetch: fetchWithCustomHeaders,
     relayerUrl: RELAYER_URL,
@@ -167,73 +247,123 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
-      notifyForSuccessfulBroadcast(type)
-      setAccountStateInterval(backgroundState.accountStateIntervals.pending)
+    onSignSuccess: async (type) => {
+      const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
+        message: 'Message was successfully signed',
+        'typed-data': 'TypedData was successfully signed',
+        'account-op': 'Your transaction was successfully signed and broadcasted to the network'
+      }
+      // Don't await this on purpose (fire and forget), errors get cough in the function
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      sendBrowserNotification(messages[type])
+
+      if (type === 'account-op')
+        await initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
   })
-  const walletStateCtrl = new WalletStateController()
+  const walletStateCtrl = new WalletStateController(
+    registerAllInpageScripts,
+    unregisterAmbireInpageContentScript,
+    unregisterEthereumInpageContentScript
+  )
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
 
-  function setPortfolioFetchInterval() {
-    !!backgroundState.fetchPortfolioIntervalId &&
-      clearInterval(backgroundState.fetchPortfolioIntervalId)
+  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
+  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
+  async function initPortfolioContinuousUpdate() {
+    if (backgroundState.updatePortfolioInterval)
+      clearTimeout(backgroundState.updatePortfolioInterval)
 
-    // mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
-    backgroundState.fetchPortfolioIntervalId = setInterval(
-      () => mainCtrl.updateSelectedAccountPortfolio(),
-      // In the case we have an active extension (opened tab, popup, action-window), we want to run the interval frequently (1 minute).
-      // Otherwise, when inactive we want to run it once in a while (10 minutes).
-      pm.ports.length ? 60000 : 600000
-    )
-  }
+    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
+    const updateInterval = isExtensionActive
+      ? ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
+      : INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
 
-  setPortfolioFetchInterval() // Call it once to initialize the interval
+    async function updatePortfolio() {
+      await mainCtrl.updateSelectedAccountPortfolio()
 
-  function setActivityInterval(timeout: number) {
-    !!backgroundState.activityIntervalId && clearInterval(backgroundState.activityIntervalId)
-    backgroundState.activityIntervalId = setInterval(
-      () => mainCtrl.updateAccountsOpsStatuses(),
-      timeout
-    )
-  }
-
-  function setAccountStateInterval(intervalLength: number) {
-    !!backgroundState.accountStateInterval && clearInterval(backgroundState.accountStateInterval)
-    backgroundState.selectedAccountStateInterval = intervalLength
-
-    // if setAccountStateInterval is called with a pending request (this happens after broadcast),
-    // update the account state with the pending block without waiting
-    if (
-      backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
-    ) {
-      mainCtrl.accounts.updateAccountStates('pending')
+      backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
+      // Schedule the next update only when the previous one completes
+      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
     }
 
-    backgroundState.accountStateInterval = setInterval(async () => {
-      // update the account state with the latest block in normal circumstances
-      // and with the pending block when there are pending account ops
-      const blockTag =
-        backgroundState.selectedAccountStateInterval ===
-        backgroundState.accountStateIntervals.standBy
-          ? 'latest'
-          : 'pending'
-      mainCtrl.accounts.updateAccountStates(blockTag)
+    const isAtLeastOnePortfolioUpdateMissed =
+      Date.now() - backgroundState.portfolioLastUpdatedByIntervalAt >
+      INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
 
-      // if we're in a pending update interval but there are no broadcastedButNotConfirmed account Ops, set the interval to standBy
-      if (
-        backgroundState.selectedAccountStateInterval ===
-          backgroundState.accountStateIntervals.pending &&
-        !mainCtrl.activity.broadcastedButNotConfirmed.length
-      ) {
-        setAccountStateInterval(backgroundState.accountStateIntervals.standBy)
-      }
-    }, intervalLength)
+    // If the extension is inactive and the last update was missed, update the portfolio immediately
+    if (isAtLeastOnePortfolioUpdateMissed) {
+      clearTimeout(backgroundState.updatePortfolioInterval)
+      await updatePortfolio()
+    } else {
+      // Start the first update
+      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+    }
   }
 
-  setAccountStateInterval(backgroundState.accountStateIntervals.standBy) // Call it once to initialize the interval
+  function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
+    if (backgroundState.accountsOpsStatusesInterval)
+      clearTimeout(backgroundState.accountsOpsStatusesInterval)
+
+    async function updateStatuses() {
+      await mainCtrl.updateAccountsOpsStatuses()
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+    }
+
+    backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+  }
+
+  async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
+    if (backgroundState.accountStateLatestInterval)
+      clearTimeout(backgroundState.accountStateLatestInterval)
+
+    const updateAccountState = async () => {
+      await mainCtrl.accounts.updateAccountStates('latest')
+      backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
+    }
+
+    // Start the first update
+    backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
+  }
+
+  async function initPendingAccountStateContinuousUpdate(intervalLength: number) {
+    if (backgroundState.accountStatePendingInterval)
+      clearTimeout(backgroundState.accountStatePendingInterval)
+
+    const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
+      .map((op) => op.networkId)
+      .filter((networkId, index, self) => self.indexOf(networkId) === index)
+    await mainCtrl.accounts.updateAccountStates('pending', networksToUpdate)
+
+    const updateAccountState = async (networkIds: NetworkId[]) => {
+      await mainCtrl.accounts.updateAccountStates('pending', networkIds)
+
+      // if there are no more broadcastedButNotConfirmed ops for the network,
+      // remove the timeout
+      const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
+        .map((op) => op.networkId)
+        .filter((networkId, index, self) => self.indexOf(networkId) === index)
+      if (!networksToUpdate.length) {
+        clearTimeout(backgroundState.accountStatePendingInterval)
+      } else {
+        // Schedule the next update
+        backgroundState.accountStatePendingInterval = setTimeout(
+          () => updateAccountState(networksToUpdate),
+          intervalLength
+        )
+      }
+    }
+
+    // Start the first update
+    backgroundState.accountStatePendingInterval = setTimeout(
+      () => updateAccountState(networksToUpdate),
+      intervalLength / 2
+    )
+  }
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
     const currentNetwork = mainCtrl.networks.networks.filter((n) => n.id === accountOp.networkId)[0]
@@ -357,13 +487,61 @@ function stateDebug(event: string, stateToLog: object) {
               // Start the interval for updating the accounts ops statuses, only if there are broadcasted but not confirmed accounts ops
               if (controller?.broadcastedButNotConfirmed.length) {
                 // If the interval is already set, then do nothing.
-                if (!backgroundState.activityIntervalId) {
-                  setActivityInterval(5000)
+                if (!backgroundState.accountsOpsStatusesInterval) {
+                  initAccountsOpsStatusesContinuousUpdate(5000)
                 }
               } else {
-                !!backgroundState.activityIntervalId &&
-                  clearInterval(backgroundState.activityIntervalId)
-                delete backgroundState.activityIntervalId
+                !!backgroundState.accountsOpsStatusesInterval &&
+                  clearTimeout(backgroundState.accountsOpsStatusesInterval)
+                delete backgroundState.accountsOpsStatusesInterval
+              }
+            }
+            if (ctrlName === 'accounts') {
+              const failedNetworkIds = getNetworksWithFailedRPC({
+                providers: mainCtrl.providers.providers
+              })
+
+              const retriedFastAccountStateReFetchForNetworks =
+                backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks
+
+              // Delete the network ids that have been successfully re-fetched so the logic can be re-applied
+              // if the RPC goes down again
+              if (retriedFastAccountStateReFetchForNetworks.length) {
+                retriedFastAccountStateReFetchForNetworks.forEach((networkId, index) => {
+                  if (!failedNetworkIds.includes(networkId)) {
+                    delete retriedFastAccountStateReFetchForNetworks[index]
+                  }
+                })
+              }
+
+              if (failedNetworkIds.length) {
+                // Filter out the network ids that have already been retried (update them with the regular interval)
+                const filteredNetworkIds = failedNetworkIds.filter(
+                  (id) =>
+                    !backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks.find(
+                      (networkId) => networkId === id
+                    )
+                )
+
+                if (filteredNetworkIds.length) {
+                  if (backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout) {
+                    clearTimeout(
+                      backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout
+                    )
+                  }
+
+                  backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
+                    async () => {
+                      await mainCtrl.accounts.updateAccountStates('latest', filteredNetworkIds)
+
+                      // Add the network ids that have been retried to the list
+                      failedNetworkIds.forEach((id) => {
+                        retriedFastAccountStateReFetchForNetworks.push(id)
+                      })
+                    },
+                    8000
+                  )
+                }
               }
             }
           }, 'background')
@@ -384,17 +562,6 @@ function stateDebug(event: string, stateToLog: object) {
         }
       }
     })
-
-    if (mainCtrl.isReady) {
-      // if there are failed networks, refresh the account state every 8 seconds
-      // for them until we get a clean state
-      const failedNetworkIds = getNetworksWithFailedRPC({
-        providers: mainCtrl.providers.providers
-      })
-      if (failedNetworkIds.length) {
-        setTimeout(() => mainCtrl.accounts.updateAccountStates('latest', failedNetworkIds), 8000)
-      }
-    }
   }, 'background')
   mainCtrl.onError(() => {
     stateDebug('onError (main ctrl)', mainCtrl)
@@ -437,7 +604,7 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
-      setPortfolioFetchInterval()
+      initPortfolioContinuousUpdate()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, { type, params }) => {
@@ -460,38 +627,7 @@ function stateDebug(event: string, stateToLog: object) {
                 break
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                try {
-                  // The second time a connection gets requested onwards,
-                  // the Ledger device throws with "invalid channel" error.
-                  // To overcome this, always make sure to clean up before starting
-                  // a new session, if the device is already unlocked.
-                  if (ledgerCtrl.isUnlocked()) await ledgerCtrl.cleanUp()
-
-                  await ledgerCtrl.unlock()
-
-                  const { walletSDK } = ledgerCtrl
-                  // Should never happen
-                  if (!walletSDK)
-                    throw new Error('Could not establish connection with the ledger device')
-
-                  const keyIterator = new LedgerKeyIterator({ walletSDK })
-                  mainCtrl.accountAdder.init({
-                    keyIterator,
-                    hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
-                  })
-
-                  return await mainCtrl.accountAdder.setPage({
-                    page: 1,
-                    networks: mainCtrl.networks.networks,
-                    providers: mainCtrl.providers.providers
-                  })
-                } catch (e: any) {
-                  throw new Error(
-                    e?.message || 'Could not unlock the Ledger device. Please try again.'
-                  )
-                }
+                return await mainCtrl.handleAccountAdderInitLedger(LedgerKeyIterator)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
@@ -546,6 +682,9 @@ function stateDebug(event: string, stateToLog: object) {
                   networks: mainCtrl.networks.networks,
                   providers: mainCtrl.providers.providers
                 })
+              }
+              case 'MAIN_CONTROLLER_TRACE_CALL': {
+                return await mainCtrl.traceCall(params.estimation)
               }
               case 'MAIN_CONTROLLER_ADD_NETWORK': {
                 return await mainCtrl.addNetwork(params)
@@ -719,6 +858,9 @@ function stateDebug(event: string, stateToLog: object) {
                   readyToAddKeyPreferences
                 )
               }
+              case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
+                return await mainCtrl.removeAccount(params.accountAddr)
+              }
               case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
                 return await mainCtrl.buildTransferUserRequest(
                   params.amount,
@@ -737,17 +879,15 @@ function stateDebug(event: string, stateToLog: object) {
                 return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
-                return mainCtrl.signMessage.init(params)
+              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
+                return await mainCtrl.signMessage.init(params)
+              }
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
                 return mainCtrl.signMessage.reset()
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
-                return await mainCtrl.signMessage.sign()
+              case 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE': {
+                mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
+                return await mainCtrl.handleSignMessage()
               }
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
-                return mainCtrl.signMessage.setSigningKey(params.key, params.type)
-              case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
-                return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init(params?.filters)
               case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
@@ -762,7 +902,7 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
                 return mainCtrl?.signAccountOp?.update(params)
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
-                return await mainCtrl?.signAccountOp?.sign()
+                return await mainCtrl.handleSignAccountOp()
               }
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
                 return mainCtrl.initSignAccOp(params.actionId)
@@ -781,9 +921,8 @@ function stateDebug(event: string, stateToLog: object) {
               case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
                 return mainCtrl.actions.setWindowLoaded()
 
-              case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
-                if (!mainCtrl.accounts.selectedAccount) return
-                return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate)
+              case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
+                return await mainCtrl.reloadSelectedAccount()
               }
 
               case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
@@ -996,6 +1135,7 @@ function stateDebug(event: string, stateToLog: object) {
             }
           }
         } catch (err: any) {
+          console.error(err)
           pm.send('> ui-error', {
             method: type,
             params: {
@@ -1016,7 +1156,7 @@ function stateDebug(event: string, stateToLog: object) {
       port.onDisconnect.addListener(() => {
         pm.dispose(port.id)
         pm.removePort(port.id)
-        setPortfolioFetchInterval()
+        initPortfolioContinuousUpdate()
 
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -1027,58 +1167,71 @@ function stateDebug(event: string, stateToLog: object) {
     }
   })
 
-  const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  providerRequestTransport.reply(async ({ method, id, params }, meta) => {
-    const sessionId = meta.sender?.tab?.id
-    if (sessionId === undefined || !meta.sender?.url) {
-      return
-    }
+  initPortfolioContinuousUpdate()
+  await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+})()
 
-    const origin = getOriginFromUrl(meta.sender.url)
-    const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
-    session.setMessenger(bridgeMessenger)
+const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+  // wait for mainCtrl to be initialized before handling dapp requests
+  while (!mainCtrl) {
+    // eslint-disable-next-line no-await-in-loop
+    await wait(200)
+  }
+  const sessionId = meta.sender?.tab?.id
+  if (sessionId === undefined || !meta.sender?.url) {
+    return
+  }
 
-    // Temporarily resolves the subscription methods as successful
-    // but the rpc block subscription is actually not implemented because it causes app crashes
-    if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
-      return true
-    }
+  const origin = getOriginFromUrl(meta.sender.url)
+  const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
+  session.setMessenger(bridgeMessenger)
 
-    try {
-      const res = await handleProviderRequests(
-        {
-          method,
-          params,
-          session,
-          origin
-        },
-        mainCtrl
-      )
-      return { id, result: res }
-    } catch (error: any) {
-      let errorRes
-      try {
-        errorRes = error.serialize()
-      } catch (e) {
-        errorRes = error
-      }
-      return { id, error: errorRes }
-    }
-  })
+  // Temporarily resolves the subscription methods as successful
+  // but the rpc block subscription is actually not implemented because it causes app crashes
+  if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
+    return true
+  }
 
   try {
-    browser.tabs.onRemoved.addListener((tabId: number) => {
-      const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
-      // eslint-disable-next-line no-restricted-syntax
-      for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
-        mainCtrl.dapps.deleteDappSession(key)
-      }
-    })
-  } catch (error) {
-    console.error('Failed to register browser.tabs.onRemoved.addListener', error)
+    const res = await handleProviderRequests(
+      {
+        method,
+        params,
+        session,
+        origin
+      },
+      mainCtrl
+    )
+    return { id, result: res }
+  } catch (error: any) {
+    let errorRes
+    try {
+      errorRes = error.serialize()
+    } catch (e) {
+      errorRes = error
+    }
+    return { id, error: errorRes }
   }
-})()
+})
+
+try {
+  browser.tabs.onRemoved.addListener(async (tabId: number) => {
+    // wait for mainCtrl to be initialized before handling dapp requests
+    while (!mainCtrl) {
+      // eslint-disable-next-line no-await-in-loop
+      await wait(200)
+    }
+    const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
+      mainCtrl.dapps.deleteDappSession(key)
+    }
+  })
+} catch (error) {
+  console.error('Failed to register browser.tabs.onRemoved.addListener', error)
+}
 
 // Open the get-started screen in a new tab right after the extension is installed.
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
@@ -1094,54 +1247,6 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
   }
 })
 
-// Send a browser notification when the signing process of a message or account op is finalized
-const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'account-op') => {
-  let message = ''
-  if (type === 'message') {
-    message = 'Message was successfully signed'
-  }
-  if (type === 'typed-data') {
-    message = 'TypedData was successfully signed'
-  }
-  if (type === 'account-op') {
-    message = 'Your transaction was successfully signed and broadcasted to the network'
-  }
-
-  // service_worker (mv3) - without await the notification doesn't show
-  try {
-    await browser.notifications.create(nanoid(), {
-      type: 'basic',
-      iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
-      title: 'Successfully signed',
-      message
-    })
-  } catch (err) {
-    console.warn(`Failed to register browser notification: ${err}`)
-  }
-}
-
-/*
- * This content script is injected programmatically because
- * MAIN world injection does not work properly via manifest
- * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
- */
-const registerInPageContentScript = async () => {
-  try {
-    await browser.scripting.registerContentScripts([
-      {
-        id: 'inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['inpage.js'],
-        runAt: 'document_start',
-        world: 'MAIN'
-      }
-    ])
-  } catch (err) {
-    console.warn(`Failed to inject EthereumProvider: ${err}`)
-  }
-}
-
-// For mv2 the injection is located in the content-script
-if (isManifestV3) {
-  registerInPageContentScript()
-}
+// FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
+// listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
+if (isManifestV3) navigator.hid.addEventListener('disconnect', () => {})

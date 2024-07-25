@@ -20,6 +20,7 @@ import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
+import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -50,6 +51,7 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { isOffline } = useConnectivity()
   const { selectedAccount, accounts } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -59,7 +61,7 @@ const TokenDetails = ({
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
-  const isGasTank = token?.flags.onGasTank
+  const isGasTankOrRewardsToken = token?.flags.onGasTank || !!token?.flags.rewardsType
   const isAmountZero = token && getTokenAmount(token) === 0n
   const isGasTankFeeToken = token?.flags.canTopUpGasTank
   const selectedAccountData = accounts.find((acc) => acc.addr === selectedAccount)
@@ -73,8 +75,9 @@ const TokenDetails = ({
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}`),
-        isDisabled: isGasTank || isAmountZero,
-        strokeWidth: 1.5
+        isDisabled: isGasTankOrRewardsToken || isAmountZero,
+        strokeWidth: 1.5,
+        testID: 'token-send'
       },
       {
         id: 'swap',
@@ -107,7 +110,7 @@ const TokenDetails = ({
 
           await createTab(`https://app.uniswap.org/swap?inputCurrency=${inputCurrency}`)
         },
-        isDisabled: isGasTank,
+        isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
       {
@@ -170,7 +173,7 @@ const TokenDetails = ({
             )
           }
         },
-        isDisabled: isGasTank,
+        isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
       {
@@ -208,7 +211,8 @@ const TokenDetails = ({
     ],
     [
       t,
-      isGasTank,
+      isGasTankOrRewardsToken,
+      isAmountZero,
       isGasTankFeeToken,
       hasTokenInfo,
       navigate,
@@ -220,7 +224,7 @@ const TokenDetails = ({
     ]
   )
   useEffect(() => {
-    if (!token?.address || !token?.networkId || !networks.length) return
+    if (!token?.address || !token?.networkId || !networks.length || isOffline) return
 
     setIsTokenInfoLoading(true)
 

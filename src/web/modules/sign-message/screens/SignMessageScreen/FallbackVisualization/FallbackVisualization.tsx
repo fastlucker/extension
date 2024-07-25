@@ -7,7 +7,7 @@ import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { getMessageAsText } from '@web/modules/sign-message/utils'
+import { getMessageAsText } from '@common/utils/messageToString'
 
 import getStyles from './styles'
 

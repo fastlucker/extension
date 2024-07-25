@@ -8,6 +8,7 @@ import {
 import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import wait from '@ambire-common/utils/wait'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
@@ -15,7 +16,6 @@ import TrezorController, {
   EthereumTransaction,
   EthereumTransactionEIP1559
 } from '@web/modules/hardware-wallet/controllers/TrezorController'
-import shortenAddress from '@web/utils/shortenAddress'
 
 const DELAY_BETWEEN_POPUPS = 1000
 
