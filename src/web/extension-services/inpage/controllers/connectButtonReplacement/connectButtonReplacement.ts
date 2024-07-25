@@ -39,7 +39,8 @@ export const blacklistedPages = [
   'duckduckgo',
   'stackoverflow',
   'medium',
-  'metamask'
+  'metamask',
+  'dodoex'
 ]
 
 type ConstructProps = {
