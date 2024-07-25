@@ -33,6 +33,12 @@ class TrezorController implements ExternalSignerController {
 
   walletSDK: TrezorConnect = trezorConnect
 
+  // Trezor SDK gets initiated once (upon extension start) and never unloaded
+  isInitiated = false
+
+  // Holds the initial load promise, so that one can wait until it completes
+  initialLoadPromise
+
   constructor() {
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
@@ -47,7 +53,16 @@ class TrezorController implements ExternalSignerController {
       }
     })
 
-    this.walletSDK.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
+    this.initialLoadPromise = this.#init()
+  }
+
+  async #init() {
+    try {
+      await this.walletSDK.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
+      this.isInitiated = true
+    } catch (error) {
+      console.error('TrezorController: failed to init the Trezor SDK', error)
+    }
   }
 
   cleanUp() {
