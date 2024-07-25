@@ -39,8 +39,10 @@ const TokenOrNft: FC<Props> = ({
   )
   const network = useMemo(() => networks.find((n) => n.id === networkId), [networks, networkId])
   // @TODO
-  const {assetInfo} = useAssetInfo({ address, network: network || networks[0] })
-
+  const { nftInfo, tokenInfo, isLoading } = useAssetInfo({
+    address,
+    network: network || networks[0]
+  })
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {!network ? (
@@ -48,21 +50,21 @@ const TokenOrNft: FC<Props> = ({
           <Address address={address} />
           <Text style={spacings.mlTy}>on {networkId}</Text>
         </>
-      ) : !assetInfo.isLoading && assetInfo?.type ==='ERC-721' ? (
+      ) : !isLoading && nftInfo ? (
         <Nft
           address={address}
           network={network}
           networks={networks}
           tokenId={value}
-          nftInfo={{name: assetInfo.name}}
+          nftInfo={{ name: nftInfo.name }}
         />
-      ) : !assetInfo.isLoading  ? (
+      ) : !isLoading ? (
         <Token
           textSize={textSize}
           network={network}
           address={address}
           amount={value}
-          tokenInfo={assetInfo}
+          tokenInfo={tokenInfo}
         />
       ) : (
         <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
