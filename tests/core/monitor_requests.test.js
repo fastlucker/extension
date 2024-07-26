@@ -28,8 +28,13 @@ describe('Monitor network requests and make sure only necessary requests are mad
       await clickOnElement(page, '[data-testid="refresh-button"]')
     })
 
-    const { nativeTokenPriceRequests, batchedErc20TokenPriceRequests, hintsRequests, rpcRequests } =
-      getBackgroundRequestsByType(httpRequests)
+    const {
+      nativeTokenPriceRequests,
+      batchedErc20TokenPriceRequests,
+      hintsRequests,
+      rpcRequests,
+      uncategorizedRequests
+    } = getBackgroundRequestsByType(httpRequests)
 
     expect(nativeTokenPriceRequests.length).toBe(networks.length)
 
@@ -38,6 +43,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(hintsRequests.length).toBe(networks.length)
 
     expect(rpcRequests.length).toBeLessThanOrEqual(20)
+    expect(uncategorizedRequests.length).toBe(5)
   })
 
   it('sign account op request created through transfer', async () => {
@@ -47,8 +53,12 @@ describe('Monitor network requests and make sure only necessary requests are mad
       })
     })
 
-    const { rpcRequests, nativeTokenPriceRequests, batchedErc20TokenPriceRequests } =
-      getBackgroundRequestsByType(httpRequests)
+    const {
+      rpcRequests,
+      nativeTokenPriceRequests,
+      batchedErc20TokenPriceRequests,
+      uncategorizedRequests
+    } = getBackgroundRequestsByType(httpRequests)
 
     const nonPolygonAndEthereumRpcRequests = rpcRequests.filter(
       (request) => !request.includes('polygon') && !request.includes('ethereum')
@@ -60,5 +70,6 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(nonPolygonAndEthereumRpcRequests.length).toBe(0)
     expect(nativeTokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(batchedErc20TokenPriceRequests.length).toBeLessThanOrEqual(2)
+    expect(uncategorizedRequests.length).toBe(5)
   })
 })

@@ -2,22 +2,38 @@
 import wait from '@ambire-common/utils/wait'
 
 function getBackgroundRequestsByType(requests) {
-  // -- Native token price requests
-  const nativeTokenPriceRequests = requests.filter((request) => request.includes('/simple/price'))
-  // -- ERC20 token price requests
-  const batchedErc20TokenPriceRequests = requests.filter((request) =>
-    request.includes('/simple/token_price')
-  )
-  // Hints requests
-  const hintsRequests = requests.filter((request) => request.includes('/multi-hints'))
-  // RPC requests
-  const rpcRequests = requests.filter((request) => request.includes('invictus'))
+  const nativeTokenPriceRequests = []
+  const batchedErc20TokenPriceRequests = []
+  const hintsRequests = []
+  const rpcRequests = []
+  const uncategorizedRequests = []
+
+  requests.forEach((request) => {
+    if (request.includes('/simple/price')) {
+      nativeTokenPriceRequests.push(request)
+      return
+    }
+    if (request.includes('/simple/token_price')) {
+      batchedErc20TokenPriceRequests.push(request)
+      return
+    }
+    if (request.includes('invictus')) {
+      rpcRequests.push(request)
+      return
+    }
+    if (request.includes('/multi-hints')) {
+      hintsRequests.push(request)
+      return
+    }
+    uncategorizedRequests.push(request)
+  })
 
   return {
     nativeTokenPriceRequests,
     batchedErc20TokenPriceRequests,
     hintsRequests,
-    rpcRequests
+    rpcRequests,
+    uncategorizedRequests
   }
 }
 
