@@ -42,7 +42,7 @@ interface Props {
 
 // We create a reusable height constant for both the Balance line-height and the Balance skeleton.
 // We want both components to have the same height; otherwise, clicking on the RefreshIcon causes a layout shift.
-const balanceHeight = 34
+const BALANCE_HEIGHT = 34
 
 const DashboardOverview: FC<Props> = ({
   openReceiveModal,
@@ -219,14 +219,14 @@ const DashboardOverview: FC<Props> = ({
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                   {!accountPortfolio?.isAllReady ? (
-                    <SkeletonLoader lowOpacity width={200} height={balanceHeight} borderRadius={8} />
+                    <SkeletonLoader lowOpacity width={200} height={BALANCE_HEIGHT} borderRadius={8} />
                   ) : (
                     <View testID="full-balance" style={[flexbox.directionRow, flexbox.alignCenter]}>
                       <Text selectable>
                         <Text
                           fontSize={32}
                           shouldScale={false}
-                          style={{ lineHeight: balanceHeight }}
+                          style={{ lineHeight: BALANCE_HEIGHT }}
                           weight="number_bold"
                           color={theme.primaryBackground}
                           selectable
