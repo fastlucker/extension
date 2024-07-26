@@ -112,7 +112,7 @@ const InputSendToken = ({
         error={errorMessage || undefined}
         button={maxAmount ? t('Max') : null}
         leftIcon={dollarIcon}
-        leftIconStyle={amountFieldMode === 'token' ? spacings.plMi : {}}
+        leftIconStyle={amountFieldMode === 'token' ? spacings.pl0 : spacings.plTy}
         inputStyle={amountFieldMode === 'token' ? {} : spacings.plMi}
         onButtonPress={handleSetMaxAmount}
         buttonProps={{ withBackground: true }}
