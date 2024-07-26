@@ -151,12 +151,14 @@ const InputSendToken = ({
         ) : (
           <View />
         )}
-        <MaxAmount
-          isLoading={isLoading}
-          maxAmount={Number(maxAmount)}
-          maxAmountInFiat={Number(maxAmountInFiat)}
-          selectedTokenSymbol={selectedTokenSymbol}
-        />
+        {!disabled && (
+          <MaxAmount
+            isLoading={isLoading}
+            maxAmount={Number(maxAmount)}
+            maxAmountInFiat={Number(maxAmountInFiat)}
+            selectedTokenSymbol={selectedTokenSymbol}
+          />
+        )}
       </View>
     </View>
   )
