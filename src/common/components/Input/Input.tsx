@@ -28,7 +28,9 @@ export interface InputProps extends TextInputProps {
   isValid?: boolean
   validLabel?: string
   button?: string | JSX.Element | null
-  buttonProps?: TouchableOpacityProps
+  buttonProps?: TouchableOpacityProps & {
+    withBackground?: boolean
+  }
   buttonStyle?: ViewStyle
   onButtonPress?: () => void
   disabled?: boolean
@@ -169,7 +171,12 @@ const Input = ({
                 focusable={false}
                 onPress={onButtonPress}
                 disabled={disabled}
-                style={[styles.button, buttonStyle, animStyle]}
+                style={[
+                  styles.button,
+                  buttonProps?.withBackground ? styles.buttonWithBackground : {},
+                  buttonStyle,
+                  animStyle
+                ]}
                 {...buttonProps}
                 {...bindAnim}
               >
