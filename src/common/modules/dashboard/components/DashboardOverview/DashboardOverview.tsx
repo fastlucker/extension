@@ -219,7 +219,12 @@ const DashboardOverview: FC<Props> = ({
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                   {!accountPortfolio?.isAllReady ? (
-                    <SkeletonLoader lowOpacity width={200} height={BALANCE_HEIGHT} borderRadius={8} />
+                    <SkeletonLoader
+                      lowOpacity
+                      width={200}
+                      height={BALANCE_HEIGHT}
+                      borderRadius={8}
+                    />
                   ) : (
                     <View testID="full-balance" style={[flexbox.directionRow, flexbox.alignCenter]}>
                       <Text selectable>
