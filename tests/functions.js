@@ -329,9 +329,6 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
 
 //----------------------------------------------------------------------------------------------
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
-  // Click on Import button.
-  await clickOnElement(page, '[data-testid="import-button"]')
-  await clickOnElement(page, '[data-testid="do-not-save-seed-button"]')
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
