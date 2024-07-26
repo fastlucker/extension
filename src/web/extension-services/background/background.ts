@@ -1261,4 +1261,4 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
 
 // FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
 // listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
-if (isManifestV3) navigator.hid.addEventListener('disconnect', () => {})
+if (isManifestV3 && 'hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})
