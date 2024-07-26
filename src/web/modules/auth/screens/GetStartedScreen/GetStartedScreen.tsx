@@ -103,7 +103,7 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
-    [navigate, keystoreState]
+    [navigate, keystoreState, openHotWalletModal]
   )
 
   const handleSetStoriesCompleted = () => {

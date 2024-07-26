@@ -8,7 +8,6 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
-import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
@@ -33,7 +32,7 @@ import {
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import ImportSeedPhraseOrAccountsCards from '@web/modules/auth/components/ImportSeedPhraseOrAccountsCards'
+import SaveSeedModal from '@web/modules/auth/components/SaveSeedModal'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const arrayWithEmptyString = (length: number) => new Array(length).fill({ value: '' })
@@ -160,14 +159,14 @@ const SeedPhraseImportScreen = () => {
     })()
   }, [dispatch, handleSubmit, keystoreState.hasKeystoreDefaultSeed, openBottomSheet])
 
-  const handleImportSeed = useCallback(() => {
+  const handleSaveSeedAndProceed = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
       params: { privKeyOrSeed: seedPhrase, shouldPersist: true }
     })
   }, [dispatch, seedPhrase])
 
-  const handleImportAccounts = useCallback(() => {
+  const handleDoNotSaveSeedAndProceed = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
       params: { privKeyOrSeed: seedPhrase }
@@ -375,9 +374,9 @@ const SeedPhraseImportScreen = () => {
           style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
           type="modal"
         >
-          <ImportSeedPhraseOrAccountsCards
-            handleImportSeed={handleImportSeed}
-            handleImportAccounts={handleImportAccounts}
+          <SaveSeedModal
+            onAgree={handleSaveSeedAndProceed}
+            onDeny={handleDoNotSaveSeedAndProceed}
           />
         </BottomSheet>
       )}

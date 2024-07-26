@@ -10,7 +10,6 @@ import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -23,7 +22,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import Stepper from '@web/modules/router/components/Stepper'
@@ -32,15 +31,15 @@ const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { stepperState, updateStepperState } = useStepper()
-  const { params } = useRoute()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const { maxWidthSize } = useWindowSize()
-  const accountAdderState = useAccountAdderControllerState()
+
+  const accountsState = useAccountsControllerState()
 
   const newAccounts: Account[] = useMemo(
-    () => params?.accounts || accountAdderState.readyToAddAccounts || [],
-    [params?.accounts, accountAdderState.readyToAddAccounts]
+    () => accountsState.accounts.filter((a) => a.newlyAdded),
+    [accountsState.accounts]
   )
 
   const { handleSubmit, control } = useForm({
@@ -48,9 +47,9 @@ const AccountPersonalizeScreen = () => {
   })
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
-  useEffect(() => {
-    if (!newAccounts.length) navigate('/')
-  }, [navigate, newAccounts.length])
+  // useEffect(() => {
+  //   if (accountsState?.accounts?.length && !newAccounts.length) navigate('/')
+  // }, [navigate, newAccounts.length, accountsState?.accounts?.length])
 
   useEffect(() => {
     if (!stepperState?.currentFlow) return

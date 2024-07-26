@@ -4,12 +4,12 @@ import { View } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
 import { KeyPreferences } from '@ambire-common/interfaces/settings'
+import { DEFAULT_KEY_LABEL_PATTERN } from '@ambire-common/libs/keys/keys'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
-import { DEFAULT_KEY_LABEL_PATTERN } from '@web/modules/account-personalize/libs/defaults'
 
 interface Props {
   associatedKeys: string[]

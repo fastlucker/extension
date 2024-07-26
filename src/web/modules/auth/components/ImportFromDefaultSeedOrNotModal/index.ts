@@ -1,0 +1,3 @@
+import ImportFromDefaultSeedOrNotModal from './ImportFromDefaultSeedOrNotModal'
+
+export default ImportFromDefaultSeedOrNotModal

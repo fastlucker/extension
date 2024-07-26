@@ -67,11 +67,9 @@ const CreateSeedPhraseConfirmScreen = () => {
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
-      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
-        state: { accounts: accountAdderState.readyToAddAccounts }
-      })
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
     },
-    [dispatch, navigate, accountAdderState.readyToAddAccounts]
+    [dispatch, navigate]
   )
 
   useEffect(() => {

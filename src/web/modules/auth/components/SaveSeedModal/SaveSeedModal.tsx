@@ -12,11 +12,11 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import getStyles from './styles'
 
 interface Props {
-  handleImportSeed: () => void
-  handleImportAccounts: () => void
+  onAgree: () => void
+  onDeny: () => void
 }
 
-const ImportSeedPhraseOrAccountsCards: FC<Props> = ({ handleImportSeed, handleImportAccounts }) => {
+const SaveSeedModal: FC<Props> = ({ onAgree, onDeny }) => {
   const { t } = useTranslation()
   const keystoreState = useKeystoreControllerState()
   const { styles } = useTheme(getStyles)
@@ -41,14 +41,14 @@ const ImportSeedPhraseOrAccountsCards: FC<Props> = ({ handleImportSeed, handleIm
       <View style={styles.modalButtonsContainer}>
         <Button
           text={keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Yes')}
-          onPress={handleImportSeed}
+          onPress={onAgree}
           hasBottomSpacing={false}
           size="large"
           style={{ minWidth: 128 }}
         />
         <Button
           text={t('No')}
-          onPress={handleImportAccounts}
+          onPress={onDeny}
           type="secondary"
           hasBottomSpacing={false}
           size="large"
@@ -59,4 +59,4 @@ const ImportSeedPhraseOrAccountsCards: FC<Props> = ({ handleImportSeed, handleIm
   )
 }
 
-export default React.memo(ImportSeedPhraseOrAccountsCards)
+export default React.memo(SaveSeedModal)

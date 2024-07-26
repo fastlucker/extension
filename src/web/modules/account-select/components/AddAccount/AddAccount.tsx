@@ -46,6 +46,7 @@ const AddAccount = () => {
           onPress={option.onPress}
           hasLargerBottomSpace={option.hasLargerBottomSpace}
           testID={option.testID}
+          disabled={option.disabled}
         />
       ))}
     </View>

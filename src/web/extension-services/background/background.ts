@@ -21,6 +21,7 @@ import {
 } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
+import { getDefaultKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -39,7 +40,6 @@ import { sendBrowserNotification } from '@web/extension-services/background/weba
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
-import { getDefaultKeyLabel } from '@web/modules/account-personalize/libs/defaults'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -838,140 +838,11 @@ registerAllInpageScripts()
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
               case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                const keyIterator = new KeyIterator(params.seed)
-                if (!mainCtrl.keystore.hasKeystoreDefaultSeed) {
-                  await mainCtrl.keystore.addSeed(params.seed)
-                }
-
-                mainCtrl.accountAdder.init({
-                  keyIterator,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                  pageSize: 1
-                })
-
-                await mainCtrl.accountAdder.setPage({
-                  page: 1,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
-
-                const firstSmartAccount = mainCtrl.accountAdder.accountsOnPage.find(
-                  ({ slot, isLinked, account }) =>
-                    slot === 1 && !isLinked && isSmartAccount(account)
-                )?.account
-
-                // This should never happen (added it because of typescript)
-                if (!firstSmartAccount) {
-                  console.error('No smart account found in the first page of the seed phrase')
-
-                  return
-                }
-
-                await mainCtrl.accountAdder.selectAccount(firstSmartAccount)
-
-                const readyToAddKeys =
-                  mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
-
-                const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ account, accountKeys }) =>
-                    accountKeys.map(({ addr }, i: number) => ({
-                      addr,
-                      type: 'seed',
-                      label: getDefaultKeyLabel(
-                        mainCtrl.keystore.keys.filter((key) =>
-                          account.associatedKeys.includes(key.addr)
-                        ),
-                        i
-                      )
-                    }))
-                )
-
-                await mainCtrl.accountAdder.addAccounts(
-                  mainCtrl.accountAdder.selectedAccounts,
-                  { internal: readyToAddKeys, external: [] },
-                  readyToAddKeyPreferences
-                )
-
+                await mainCtrl.importSmartAccountFromDefaultSeed(params.seed)
                 break
               }
               case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                const defaultSeed = await mainCtrl.keystore.getSeed()
-                if (!defaultSeed) {
-                  console.error('No default seed phrase found')
-                  return
-                }
-
-                const keyIterator = new KeyIterator(defaultSeed)
-
-                mainCtrl.accountAdder.init({
-                  keyIterator,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                  pageSize: 1
-                })
-
-                let currentPage: number = 1
-                let isAccountAlreadyAdded: boolean
-                let nextSmartAccount: AccountWithNetworkMeta | undefined
-
-                const findNextSmartAccount = async () => {
-                  do {
-                    await mainCtrl.accountAdder.setPage({
-                      page: currentPage,
-                      networks: mainCtrl.networks.networks,
-                      providers: mainCtrl.providers.providers
-                    })
-
-                    nextSmartAccount = mainCtrl.accountAdder.accountsOnPage.find(
-                      ({ isLinked, account }) => !isLinked && isSmartAccount(account)
-                    )?.account
-
-                    if (!nextSmartAccount) break
-
-                    isAccountAlreadyAdded = !!mainCtrl.accounts.accounts.find(
-                      // eslint-disable-next-line @typescript-eslint/no-loop-func
-                      (a) => a.addr === nextSmartAccount!.addr
-                    )
-
-                    currentPage++
-                  } while (isAccountAlreadyAdded)
-                }
-
-                await findNextSmartAccount()
-
-                if (!nextSmartAccount) {
-                  console.error('Failed to find the next smart account to add')
-                  return
-                }
-
-                await mainCtrl.accountAdder.selectAccount(nextSmartAccount)
-
-                const readyToAddKeys =
-                  mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
-
-                const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ account, accountKeys }) =>
-                    accountKeys.map(({ addr }, i: number) => ({
-                      addr,
-                      type: 'seed',
-                      label: getDefaultKeyLabel(
-                        mainCtrl.keystore.keys.filter((key) =>
-                          account.associatedKeys.includes(key.addr)
-                        ),
-                        i
-                      )
-                    }))
-                )
-
-                await mainCtrl.accountAdder.addAccounts(
-                  mainCtrl.accountAdder.selectedAccounts,
-                  { internal: readyToAddKeys, external: [] },
-                  readyToAddKeyPreferences
-                )
-
+                await mainCtrl.importSmartAccountFromDefaultSeed()
                 break
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {

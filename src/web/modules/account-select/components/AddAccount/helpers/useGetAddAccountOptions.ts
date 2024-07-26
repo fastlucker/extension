@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
@@ -7,6 +9,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 const { isActionWindow } = getUiType()
@@ -27,7 +30,13 @@ const useGetAddAccountOptions = ({
   }
 
   const keystoreState = useKeystoreControllerState()
+  const mainState = useMainControllerState()
   const { dispatch } = useBackgroundService()
+
+  const isAddNewSmartAccountLoading = useMemo(
+    () => mainState.statuses.importSmartAccountFromDefaultSeed !== 'INITIAL',
+    [mainState.statuses.importSmartAccountFromDefaultSeed]
+  )
 
   return [
     {
@@ -46,8 +55,11 @@ const useGetAddAccountOptions = ({
     },
     {
       key: 'create-wallet',
+      disabled: isAddNewSmartAccountLoading,
       text: keystoreState.hasKeystoreDefaultSeed
-        ? t('Import a new Smart Account from the default Seed Phrase')
+        ? isAddNewSmartAccountLoading
+          ? t('Importing a new Smart Account...')
+          : t('Import a new Smart Account from the default Seed Phrase')
         : t('Create a new hot wallet'),
       icon: CreateWalletIcon,
       onPress: () => {

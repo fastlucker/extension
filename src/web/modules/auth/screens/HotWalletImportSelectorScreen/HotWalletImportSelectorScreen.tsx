@@ -4,7 +4,6 @@ import { useModalize } from 'react-native-modalize'
 
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
-import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Panel from '@common/components/Panel'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -21,7 +20,7 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
-import SelectSeedPhraseToImportCards from '@web/modules/auth/components/SelectSeedPhraseToImportCards'
+import ImportFromDefaultSeedOrNotModal from '@web/modules/auth/components/ImportFromDefaultSeedOrNotModal'
 import options from '@web/modules/auth/screens/HotWalletImportSelectorScreen/options'
 
 const HotWalletImportSelectorScreen = () => {
@@ -107,13 +106,13 @@ const HotWalletImportSelectorScreen = () => {
           id="import-seed-phrase"
           sheetRef={sheetRef}
           closeBottomSheet={closeBottomSheet}
-          backgroundColor="primaryBackground"
-          autoWidth
+          backgroundColor="secondaryBackground"
+          style={{ overflow: 'hidden', width: 632, ...spacings.ph0, ...spacings.pv0 }}
+          type="modal"
         >
-          <ModalHeader hideLeftSideContainer title={t('Select import accounts option')} />
-          <SelectSeedPhraseToImportCards
-            handleImportFromDefaultSeed={handleImportFromDefaultSeed}
-            handleImportFromExternalSeed={handleImportFromExternalSeed}
+          <ImportFromDefaultSeedOrNotModal
+            onAgree={handleImportFromDefaultSeed}
+            onDeny={handleImportFromExternalSeed}
           />
         </BottomSheet>
       )}

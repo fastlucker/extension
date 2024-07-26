@@ -1,3 +1,0 @@
-import SelectSeedPhraseToImportCards from './SelectSeedPhraseToImportCards'
-
-export default SelectSeedPhraseToImportCards

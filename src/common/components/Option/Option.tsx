@@ -19,6 +19,7 @@ interface Props {
   iconProps?: SvgProps
   children?: React.ReactNode
   testID?: string
+  disabled?: boolean
 }
 
 const Option = ({
@@ -28,7 +29,8 @@ const Option = ({
   text,
   iconProps = {},
   children,
-  testID
+  testID,
+  disabled
 }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered] = useCustomHover({
@@ -46,6 +48,7 @@ const Option = ({
       onPress={onPress}
       {...bindAnim}
       testID={testID}
+      disabled={disabled}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         <View style={styles.iconWrapper}>

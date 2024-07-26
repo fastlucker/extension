@@ -28,9 +28,7 @@ const useNavigation = (): UseNavigationReturnType => {
     [nav, currentRoute]
   )
 
-  const goBack = useCallback(() => {
-    return nav(-1)
-  }, [nav])
+  const goBack = useCallback(() => nav(-1), [nav])
 
   const setOptions = useCallback<UseNavigationReturnType['setOptions']>(({ headerTitle }) => {
     if (headerTitle) {
