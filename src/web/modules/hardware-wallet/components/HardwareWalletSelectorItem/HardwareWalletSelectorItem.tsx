@@ -14,9 +14,17 @@ type Props = {
   image?: FunctionComponent<SvgProps>
   onPress: () => void
   style?: ViewStyle | ViewStyle[]
+  isDisabled?: boolean
 }
 
-const HardwareWalletSelectorItem = ({ title, models, image, style, onPress }: Props) => {
+const HardwareWalletSelectorItem = ({
+  title,
+  models,
+  image,
+  style,
+  onPress,
+  isDisabled = false
+}: Props) => {
   const { t } = useTranslation()
 
   return (
@@ -43,6 +51,7 @@ const HardwareWalletSelectorItem = ({ title, models, image, style, onPress }: Pr
         height: 80
       }}
       onPress={onPress}
+      isDisabled={isDisabled}
       buttonText={title}
     />
   )
