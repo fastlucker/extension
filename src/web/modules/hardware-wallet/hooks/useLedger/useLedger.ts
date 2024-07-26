@@ -19,13 +19,17 @@ const useLedger = () => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     detectDevice()
 
-    navigator.hid.addEventListener('connect', onConnect)
-    navigator.hid.addEventListener('disconnect', onDisconnect)
+    if ('hid' in navigator) {
+      navigator.hid.addEventListener('connect', onConnect)
+      navigator.hid.addEventListener('disconnect', onDisconnect)
+    }
     browser.windows.onFocusChanged.addListener(detectDevice)
 
     return () => {
-      navigator.hid.removeEventListener('connect', onConnect)
-      navigator.hid.removeEventListener('disconnect', onDisconnect)
+      if ('hid' in navigator) {
+        navigator.hid.removeEventListener('connect', onConnect)
+        navigator.hid.removeEventListener('disconnect', onDisconnect)
+      }
       browser.windows.onFocusChanged.removeListener(detectDevice)
     }
   }, [])
