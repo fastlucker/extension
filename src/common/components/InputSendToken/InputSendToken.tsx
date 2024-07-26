@@ -144,7 +144,7 @@ const InputSendToken = ({
             </View>
             <Text fontSize={12} appearance="primary" weight="medium">
               {amountFieldMode === 'token'
-                ? `${amountInFiat ? formatDecimals(Number(amountInFiat), 'value') : 0} USD`
+                ? `≈ ${amountInFiat ? formatDecimals(Number(amountInFiat), 'value') : 0} USD`
                 : `${amount ? formatDecimals(Number(amount), 'amount') : 0} ${selectedTokenSymbol}`}
             </Text>
           </Pressable>
