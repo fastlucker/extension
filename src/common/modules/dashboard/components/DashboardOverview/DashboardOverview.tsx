@@ -305,6 +305,8 @@ const DashboardOverview: FC<Props> = ({
                         style={spacings.mlTy}
                         data-tooltip-id="portfolio-warning"
                         data-tooltip-content={warningMessage}
+                        width={21}
+                        height={21}
                       />
                       <Tooltip id="portfolio-warning" />
                     </>
