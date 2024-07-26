@@ -16,20 +16,19 @@ const useLedger = () => {
   const detectDevice = async () => setIsLedgerConnected(await LedgerController.isConnected())
 
   useEffect(() => {
+    // Ledger requires WebHID for communication. No need to continue if that's not available.
+    if (!('hid' in navigator)) return
+
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     detectDevice()
 
-    if ('hid' in navigator) {
-      navigator.hid.addEventListener('connect', onConnect)
-      navigator.hid.addEventListener('disconnect', onDisconnect)
-    }
+    navigator.hid.addEventListener('connect', onConnect)
+    navigator.hid.addEventListener('disconnect', onDisconnect)
     browser.windows.onFocusChanged.addListener(detectDevice)
 
     return () => {
-      if ('hid' in navigator) {
-        navigator.hid.removeEventListener('connect', onConnect)
-        navigator.hid.removeEventListener('disconnect', onDisconnect)
-      }
+      navigator.hid.removeEventListener('connect', onConnect)
+      navigator.hid.removeEventListener('disconnect', onDisconnect)
       browser.windows.onFocusChanged.removeListener(detectDevice)
     }
   }, [])
