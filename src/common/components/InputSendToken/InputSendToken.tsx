@@ -92,6 +92,12 @@ const InputSendToken = ({
     setMaxAmount()
   }, [setMaxAmount, maxAmount])
 
+  const dollarIcon = useCallback(() => {
+    if (amountFieldMode === 'token') return null
+
+    return <Text>$</Text>
+  }, [amountFieldMode])
+
   return (
     <View style={spacings.mbLg}>
       <Text weight="regular" fontSize={14} appearance="secondaryText" style={spacings.mbMi}>
@@ -105,6 +111,9 @@ const InputSendToken = ({
         placeholder={amountFieldMode === 'fiat' ? '0 USD' : `0 ${selectedTokenSymbol}`}
         error={errorMessage || undefined}
         button={maxAmount ? t('Max') : null}
+        leftIcon={dollarIcon}
+        leftIconStyle={amountFieldMode === 'token' ? spacings.plMi : {}}
+        inputStyle={amountFieldMode === 'token' ? {} : spacings.plMi}
         onButtonPress={handleSetMaxAmount}
         buttonProps={{ withBackground: true }}
         disabled={disabled}

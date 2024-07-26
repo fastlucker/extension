@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import {
   NativeSyntheticEvent,
   TextInput,
@@ -41,7 +41,7 @@ export interface InputProps extends TextInputProps {
   borderWrapperStyle?: ViewStyle
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   infoTextStyle?: TextStyle | TextStyle[]
-  leftIcon?: () => JSX.Element | JSX.Element
+  leftIcon?: () => ReactNode
   leftIconStyle?: ViewStyle
   tooltip?: {
     id: string
