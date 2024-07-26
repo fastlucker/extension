@@ -9,6 +9,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 
@@ -113,9 +114,7 @@ const InputSendToken = ({
           flexbox.directionRow,
           flexbox.alignCenter,
           flexbox.justifySpaceBetween,
-          {
-            width: '100%'
-          }
+          common.fullWidth
         ]}
       >
         {!isSwitchAmountFieldModeDisabled ? (
