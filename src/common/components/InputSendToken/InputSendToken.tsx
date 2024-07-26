@@ -137,12 +137,12 @@ const InputSendToken = ({
                 backgroundColor: theme.infoBackground,
                 borderRadius: 50,
                 padding: SPACING_MI / 2,
-                ...spacings.mrTy
+                ...spacings.mhTy
               }}
             >
               <BridgeIcon width={16} height={16} color={theme.primary} />
             </View>
-            <Text fontSize={12} appearance="primary">
+            <Text fontSize={12} appearance="primary" weight="medium">
               {amountFieldMode === 'token'
                 ? `${amountInFiat ? formatDecimals(Number(amountInFiat), 'value') : 0} USD`
                 : `${amount ? formatDecimals(Number(amount), 'amount') : 0} ${selectedTokenSymbol}`}
