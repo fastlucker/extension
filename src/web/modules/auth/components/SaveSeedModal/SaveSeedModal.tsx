@@ -45,6 +45,7 @@ const SaveSeedModal: FC<Props> = ({ onAgree, onDeny }) => {
           hasBottomSpacing={false}
           size="large"
           style={{ minWidth: 128 }}
+          testID="save-seed-button"
         />
         <Button
           text={t('No')}
@@ -53,6 +54,7 @@ const SaveSeedModal: FC<Props> = ({ onAgree, onDeny }) => {
           hasBottomSpacing={false}
           size="large"
           style={{ minWidth: 128 }}
+          testID="do-not-save-seed-button"
         />
       </View>
     </View>
