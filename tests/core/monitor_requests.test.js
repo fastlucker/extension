@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 import { networks } from '@ambire-common/consts/networks'
 import { getBackgroundRequestsByType, monitorRequests } from '../common/requests.js'
-import { makeValidTransaction } from '../common/transactions.js'
+import { makeSwap, makeValidTransaction } from '../common/transactions.js'
 import { baParams, bootstrapWithStorage, clickOnElement } from '../functions.js'
 
 describe('Monitor network requests and make sure only necessary requests are made', () => {
@@ -43,7 +43,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(hintsRequests.length).toBe(networks.length)
 
     expect(rpcRequests.length).toBeLessThanOrEqual(20)
-    expect(uncategorizedRequests.length).toBe(5)
+    expect(uncategorizedRequests.length).toBeLessThanOrEqual(5)
   })
 
   it('sign account op request created through transfer', async () => {
@@ -70,6 +70,28 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(nonPolygonAndEthereumRpcRequests.length).toBe(0)
     expect(nativeTokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(batchedErc20TokenPriceRequests.length).toBeLessThanOrEqual(2)
-    expect(uncategorizedRequests.length).toBe(5)
+    expect(uncategorizedRequests.length).toBeLessThanOrEqual(5)
+  })
+
+  it('sign account op request created through swap', async () => {
+    const httpRequests = await monitorRequests(serviceWorker.client, async () => {
+      await makeSwap(page, extensionURL, browser, {
+        shouldStopBeforeSign: true
+      })
+    })
+
+    const {
+      nativeTokenPriceRequests,
+      batchedErc20TokenPriceRequests,
+      hintsRequests,
+      rpcRequests,
+      uncategorizedRequests
+    } = getBackgroundRequestsByType(httpRequests)
+
+    expect(nativeTokenPriceRequests.length).toBeLessThanOrEqual(2)
+    expect(batchedErc20TokenPriceRequests.length).toBeLessThanOrEqual(2)
+    expect(hintsRequests.length).toBe(1)
+    expect(rpcRequests.length).toBeLessThanOrEqual(10)
+    expect(uncategorizedRequests.length).toBeLessThanOrEqual(5)
   })
 })

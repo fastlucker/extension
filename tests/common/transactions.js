@@ -63,7 +63,14 @@ export async function makeValidTransaction(
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function makeSwap(page, extensionURL, browser) {
+export async function makeSwap(
+  page,
+  extensionURL,
+  browser,
+  { shouldStopBeforeSign } = {
+    shouldStopBeforeSign: false
+  }
+) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
   // Wait until modal with text "Introducing the Uniswap Extension." appears
@@ -145,6 +152,13 @@ export async function makeSwap(page, extensionURL, browser) {
     updatedPage,
     '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
   )
+
+  if (shouldStopBeforeSign) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000)
+    })
+    return
+  }
 
   // Sign and confirm the transaction
   await signTransaction(updatedPage, transactionRecorder)
