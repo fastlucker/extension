@@ -37,12 +37,10 @@ const Fee = ({ label, type, amountUsd, onPress, isSelected, disabled }: Props) =
     <Pressable
       style={[
         styles.container,
-        minWidthSize('l')
-          ? {
-              minWidth: '50%',
-              maxWidth: '50%'
-            }
-          : {}
+        minWidthSize('l') && {
+          minWidth: '50%',
+          maxWidth: '50%'
+        }
       ]}
       disabled={disabled}
       onPress={() => onPress(type)}
@@ -52,7 +50,7 @@ const Fee = ({ label, type, amountUsd, onPress, isSelected, disabled }: Props) =
       <Animated.View
         style={[
           styles.containerInner,
-          minWidthSize('l') ? { ...flexbox.directionRow, ...flexbox.justifySpaceBetween } : {},
+          minWidthSize('l') && { ...flexbox.directionRow, ...flexbox.justifySpaceBetween },
           animStyle,
           ...[disabled ? [styles.disabled] : []]
         ]}
@@ -61,7 +59,7 @@ const Fee = ({ label, type, amountUsd, onPress, isSelected, disabled }: Props) =
           weight="medium"
           fontSize={12}
           appearance={isSelected ? 'primary' : 'secondaryText'}
-          style={minWidthSize('l') ? spacings.mrTy : {}}
+          style={minWidthSize('l') && spacings.mrTy}
         >
           {label}
         </Text>
