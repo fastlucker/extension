@@ -286,7 +286,6 @@ const Estimation = ({
                     key={fee.amount + fee.type}
                     label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
                     type={fee.type}
-                    amount={parseFloat(fee.amountFormatted)}
                     amountUsd={parseFloat(fee.amountUsd)}
                     onPress={onFeeSelect}
                     isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
@@ -300,7 +299,6 @@ const Estimation = ({
             <AmountInfo
               label="Fee"
               amountFormatted={selectedFee.amountFormatted}
-              amountUsd={selectedFee.amountUsd}
               symbol={payValue.token?.symbol}
             />
           )}

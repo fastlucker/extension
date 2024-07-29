@@ -15,14 +15,13 @@ import getStyles from './styles'
 interface Props {
   label: string
   type: FeeSpeed
-  amount: number
   amountUsd: number
   onPress: (fee: FeeSpeed) => void
   isSelected: boolean
   disabled: boolean
 }
 
-const Fee = ({ label, type, amount, amountUsd, onPress, isSelected, disabled }: Props) => {
+const Fee = ({ label, type, amountUsd, onPress, isSelected, disabled }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const { minWidthSize } = useWindowSize()
   const [bindAnim, animStyle] = useCustomHover({
@@ -40,13 +39,10 @@ const Fee = ({ label, type, amount, amountUsd, onPress, isSelected, disabled }: 
         styles.container,
         minWidthSize('l')
           ? {
-              minWidth: '100%',
-              maxWidth: '100%'
-            }
-          : {
               minWidth: '50%',
               maxWidth: '50%'
             }
+          : {}
       ]}
       disabled={disabled}
       onPress={() => onPress(type)}
@@ -70,12 +66,12 @@ const Fee = ({ label, type, amount, amountUsd, onPress, isSelected, disabled }: 
           {label}
         </Text>
         <Text
-          fontSize={14}
+          fontSize={minWidthSize('m') ? 12 : 14}
           numberOfLines={1}
           weight="medium"
           color={isSelected ? theme.primary : theme.primaryText}
         >
-          {formatDecimals(amount, 'amount')} ≈ {formatDecimals(amountUsd, 'value')} USD
+          {formatDecimals(amountUsd, 'value')}
         </Text>
       </Animated.View>
     </Pressable>
