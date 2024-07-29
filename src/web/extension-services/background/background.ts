@@ -6,7 +6,6 @@ import 'setimmediate'
 import { nanoid } from 'nanoid'
 
 import {
-  BIP44_LEDGER_DERIVATION_TEMPLATE,
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
@@ -81,7 +80,58 @@ function stateDebug(event: string, stateToLog: object) {
 
 let mainCtrl: MainController
 
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+/*
+ * This content script is injected programmatically because
+ * MAIN world injection does not work properly via manifest
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
+ */
+const registerAllInpageScripts = async () => {
+  // For mv2 the injection is located in the content-script
+  if (!isManifestV3) return
+  try {
+    await browser.scripting.registerContentScripts([
+      {
+        id: 'ambire-inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['ambire-inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      },
+      {
+        id: 'ethereum-inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['ethereum-inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      }
+    ])
+  } catch (err) {
+    console.warn(`Failed to inject EthereumProvider: ${err}`)
+  }
+}
+
+const unregisterAmbireInpageContentScript = async () => {
+  if (!isManifestV3) return
+  try {
+    await browser.scripting.unregisterContentScripts({ ids: ['ambire-inpage'] })
+  } catch (err) {
+    console.warn(`Failed to unregister ambire-inpage: ${err}`)
+  }
+}
+
+const unregisterEthereumInpageContentScript = async () => {
+  if (!isManifestV3) return
+  try {
+    await browser.scripting.unregisterContentScripts({ ids: ['ethereum-inpage'] })
+  } catch (err) {
+    console.warn(`Failed to inject ethereum-inpage: ${err}`)
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+registerAllInpageScripts()
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
@@ -122,6 +172,7 @@ let mainCtrl: MainController
       fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
     hasSignAccountOpCtrlInitialized: boolean
+    portfolioLastUpdatedByIntervalAt: number
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
@@ -142,7 +193,8 @@ let mainCtrl: MainController
       standBy: 300000,
       retriedFastAccountStateReFetchForNetworks: []
     },
-    hasSignAccountOpCtrlInitialized: false
+    hasSignAccountOpCtrlInitialized: false,
+    portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
   }
 
   const pm = new PortMessenger()
@@ -209,14 +261,18 @@ let mainCtrl: MainController
         await initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
   })
-  const walletStateCtrl = new WalletStateController()
+  const walletStateCtrl = new WalletStateController(
+    registerAllInpageScripts,
+    unregisterAmbireInpageContentScript,
+    unregisterEthereumInpageContentScript
+  )
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
 
   const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
   const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
-  function initPortfolioContinuousUpdate() {
+  async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
 
@@ -228,11 +284,23 @@ let mainCtrl: MainController
     async function updatePortfolio() {
       await mainCtrl.updateSelectedAccountPortfolio()
 
+      backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
       // Schedule the next update only when the previous one completes
       backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
     }
 
-    backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+    const isAtLeastOnePortfolioUpdateMissed =
+      Date.now() - backgroundState.portfolioLastUpdatedByIntervalAt >
+      INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
+
+    // If the extension is inactive and the last update was missed, update the portfolio immediately
+    if (isAtLeastOnePortfolioUpdateMissed) {
+      clearTimeout(backgroundState.updatePortfolioInterval)
+      await updatePortfolio()
+    } else {
+      // Start the first update
+      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+    }
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
@@ -559,38 +627,7 @@ let mainCtrl: MainController
                 break
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                try {
-                  // The second time a connection gets requested onwards,
-                  // the Ledger device throws with "invalid channel" error.
-                  // To overcome this, always make sure to clean up before starting
-                  // a new session, if the device is already unlocked.
-                  if (ledgerCtrl.isUnlocked()) await ledgerCtrl.cleanUp()
-
-                  await ledgerCtrl.unlock()
-
-                  const { walletSDK } = ledgerCtrl
-                  // Should never happen
-                  if (!walletSDK)
-                    throw new Error('Could not establish connection with the ledger device')
-
-                  const keyIterator = new LedgerKeyIterator({ walletSDK })
-                  mainCtrl.accountAdder.init({
-                    keyIterator,
-                    hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
-                  })
-
-                  return await mainCtrl.accountAdder.setPage({
-                    page: 1,
-                    networks: mainCtrl.networks.networks,
-                    providers: mainCtrl.providers.providers
-                  })
-                } catch (e: any) {
-                  throw new Error(
-                    e?.message || 'Could not unlock the Ledger device. Please try again.'
-                  )
-                }
+                return await mainCtrl.handleAccountAdderInitLedger(LedgerKeyIterator)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
@@ -738,16 +775,28 @@ let mainCtrl: MainController
 
                 const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
                   ({ account, accountKeys }) =>
-                    accountKeys.map(({ addr }, i: number) => ({
-                      addr,
-                      type: mainCtrl.accountAdder.type as Key['type'],
-                      label: getDefaultKeyLabel(
-                        mainCtrl.keystore.keys.filter((key) =>
-                          account.associatedKeys.includes(key.addr)
-                        ),
-                        i
-                      )
-                    }))
+                    accountKeys
+                      .filter(({ addr }) => {
+                        const hasPreferences = mainCtrl.settings.keyPreferences.some(
+                          (pref) =>
+                            pref.addr === addr &&
+                            pref.type === (mainCtrl.accountAdder.type as Key['type'])
+                        )
+
+                        // Skip keys that already have preferences. Otherwise,
+                        // the preferences would get reset to default.
+                        return !hasPreferences
+                      })
+                      .map(({ addr }, i: number) => ({
+                        addr,
+                        type: mainCtrl.accountAdder.type as Key['type'],
+                        label: getDefaultKeyLabel(
+                          mainCtrl.keystore.keys.filter((key) =>
+                            account.associatedKeys.includes(key.addr)
+                          ),
+                          i
+                        )
+                      }))
                 )
 
                 return await mainCtrl.accountAdder.addAccounts(
@@ -1210,28 +1259,6 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
   }
 })
 
-/*
- * This content script is injected programmatically because
- * MAIN world injection does not work properly via manifest
- * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
- */
-const registerInPageContentScript = async () => {
-  try {
-    await browser.scripting.registerContentScripts([
-      {
-        id: 'inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['inpage.js'],
-        runAt: 'document_start',
-        world: 'MAIN'
-      }
-    ])
-  } catch (err) {
-    console.warn(`Failed to inject EthereumProvider: ${err}`)
-  }
-}
-
-// For mv2 the injection is located in the content-script
-if (isManifestV3) {
-  registerInPageContentScript()
-}
+// FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
+// listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
+if (isManifestV3 && 'hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})
