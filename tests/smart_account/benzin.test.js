@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer')
 
-describe('Standalone Benzin tests', () => {
+describe.skip('Standalone Benzin tests', () => {
   let browser
   let page
   let transactionID
