@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
-import { isManifestV3 } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 export class WalletStateController extends EventEmitter {
@@ -92,7 +91,6 @@ export class WalletStateController extends EventEmitter {
   }
 
   async #reloadPageOnSwitchDefaultWallet() {
-    if (!isManifestV3) return
     try {
       const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
       if (!tab || !tab?.id) return

@@ -13,10 +13,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
-import {
-  isDerivedForSmartAccountKeyOnly,
-  isSmartAccount
-} from '@ambire-common/libs/account/account'
+import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -25,7 +22,7 @@ import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, VELCRO_URL } from '@env'
-import { browser, isManifestV3 } from '@web/constants/browserapi'
+import { browser } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
@@ -86,8 +83,6 @@ let mainCtrl: MainController
  * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
  */
 const registerAllInpageScripts = async () => {
-  // For mv2 the injection is located in the content-script
-  if (!isManifestV3) return
   try {
     await browser.scripting.registerContentScripts([
       {
@@ -111,7 +106,6 @@ const registerAllInpageScripts = async () => {
 }
 
 const unregisterAmbireInpageContentScript = async () => {
-  if (!isManifestV3) return
   try {
     await browser.scripting.unregisterContentScripts({ ids: ['ambire-inpage'] })
   } catch (err) {
@@ -120,7 +114,6 @@ const unregisterAmbireInpageContentScript = async () => {
 }
 
 const unregisterEthereumInpageContentScript = async () => {
-  if (!isManifestV3) return
   try {
     await browser.scripting.unregisterContentScripts({ ids: ['ethereum-inpage'] })
   } catch (err) {
@@ -153,13 +146,12 @@ registerAllInpageScripts()
     await checkE2EStorage()
   }
 
-  if (isManifestV3) {
-    saveTimestamp()
-    // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
-    // miliseconds. This keeps the service worker alive.
-    const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
-    setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
-  }
+  saveTimestamp()
+  // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
+  // miliseconds. This keeps the service worker alive.
+  const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
+  setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
+
   await updateHumanizerMetaInStorage(storage)
 
   const backgroundState: {
@@ -214,14 +206,7 @@ registerAllInpageScripts()
     // Use the native fetch (instead of node-fetch or whatever else) since
     // browser extensions are designed to run within the web environment,
     // which already provides a native and well-optimized fetch API.
-    const fetchFn = isManifestV3
-      ? fetch
-      : // Popup pages don't have access to the global fetch, causing:
-        // "Error: Failed to execute 'fetch' on 'Window': Illegal invocation",
-        // Binding window to fetch provides the correct context.
-        window.fetch.bind(window)
-
-    return fetchFn(url, initWithCustomHeaders)
+    return fetch(url, initWithCustomHeaders)
   }
 
   mainCtrl = new MainController({
@@ -1261,4 +1246,4 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
 
 // FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
 // listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
-if (isManifestV3 && 'hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})
+if ('hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})

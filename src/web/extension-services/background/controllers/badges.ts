@@ -1,6 +1,6 @@
 import { MainController } from '@ambire-common/controllers/main/main'
 import colors from '@common/styles/colors'
-import { browser, isManifestV3 } from '@web/constants/browserapi'
+import { browser } from '@web/constants/browserapi'
 
 export class BadgesController {
   #mainCtrl: MainController
@@ -31,7 +31,7 @@ export class BadgesController {
   setBadges = (badgesCount: number) => {
     if (badgesCount <= 0) {
       ;(browser.browserAction || browser.action).setBadgeText({
-        text: isManifestV3 ? '' : null
+        text: ''
       })
     } else {
       ;(browser.browserAction || browser.action).setBadgeText({
