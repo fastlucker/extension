@@ -7,6 +7,7 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import { useCustomHover } from '@web/hooks/useHover'
 
 import getStyles from './styles'
@@ -14,16 +15,16 @@ import getStyles from './styles'
 interface Props {
   label: string
   type: FeeSpeed
-  amount: string
+  amount: number
+  amountUsd: number
   onPress: (fee: FeeSpeed) => void
   isSelected: boolean
-  isLastItem: boolean
   disabled: boolean
 }
 
-const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, disabled }: Props) => {
+const Fee = ({ label, type, amount, amountUsd, onPress, isSelected, disabled }: Props) => {
   const { theme, styles } = useTheme(getStyles)
-  const { minWidthSize, maxWidthSize } = useWindowSize()
+  const { minWidthSize } = useWindowSize()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'borderColor',
     values: {
@@ -36,14 +37,16 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, disabled }:
   return (
     <Pressable
       style={[
-        flexbox.flex1,
-        maxWidthSize('xxl') && !isLastItem && spacings.mrTy,
-        minWidthSize('xxl') && {
-          minWidth: '50%',
-          maxWidth: '50%',
-          ...spacings.phMi,
-          ...spacings.pvMi
-        }
+        styles.container,
+        minWidthSize('l')
+          ? {
+              minWidth: '100%',
+              maxWidth: '100%'
+            }
+          : {
+              minWidth: '50%',
+              maxWidth: '50%'
+            }
       ]}
       disabled={disabled}
       onPress={() => onPress(type)}
@@ -52,19 +55,17 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, disabled }:
     >
       <Animated.View
         style={[
-          styles.container,
-          minWidthSize('xxl') && flexbox.directionRow,
-          minWidthSize('xxl') && flexbox.justifySpaceBetween,
-          minWidthSize('xxl') && flexbox.alignCenter,
+          styles.containerInner,
+          minWidthSize('l') ? { ...flexbox.directionRow, ...flexbox.justifySpaceBetween } : {},
           animStyle,
           ...[disabled ? [styles.disabled] : []]
         ]}
       >
         <Text
           weight="medium"
-          fontSize={14}
-          style={maxWidthSize('xxl') ? spacings.mbMi : spacings.mrTy}
-          color={isSelected ? theme.primary : theme.primaryText}
+          fontSize={12}
+          appearance={isSelected ? 'primary' : 'secondaryText'}
+          style={minWidthSize('l') ? spacings.mrTy : {}}
         >
           {label}
         </Text>
@@ -74,7 +75,7 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, disabled }:
           weight="medium"
           color={isSelected ? theme.primary : theme.primaryText}
         >
-          {amount}
+          {formatDecimals(amount, 'amount')} ≈ {formatDecimals(amountUsd, 'value')} USD
         </Text>
       </Animated.View>
     </Pressable>
