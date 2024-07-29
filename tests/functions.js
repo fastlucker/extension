@@ -419,18 +419,11 @@ export async function checkForSignMessageWindow(page, extensionURL, browser) {
 
 //----------------------------------------------------------------------------------------------
 export async function selectFeeToken(actionWindowPage, feeToken) {
-  // Check if select fee token is visible
-  const selectToken = await actionWindowPage.evaluate(() => {
-    return !!document.querySelector('[data-testid="tokens-select"]')
-  })
+  // Click on the tokens select
+  await clickOnElement(actionWindowPage, '[data-testid="tokens-select"]')
 
-  if (selectToken) {
-    // Click on the tokens select
-    await clickOnElement(actionWindowPage, '[data-testid="tokens-select"]')
-
-    // Select fee token
-    await clickOnElement(actionWindowPage, feeToken)
-  }
+  // Select fee token
+  await clickOnElement(actionWindowPage, feeToken)
 }
 
 //----------------------------------------------------------------------------------------------
