@@ -47,10 +47,6 @@ const AccountPersonalizeScreen = () => {
   })
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
-  // useEffect(() => {
-  //   if (accountsState?.accounts?.length && !newAccounts.length) navigate('/')
-  // }, [navigate, newAccounts.length, accountsState?.accounts?.length])
-
   useEffect(() => {
     if (!stepperState?.currentFlow) return
 
