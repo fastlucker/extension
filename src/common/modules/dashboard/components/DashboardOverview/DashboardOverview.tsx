@@ -26,6 +26,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
@@ -39,6 +40,8 @@ interface Props {
   }
   setDashboardOverviewSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>
 }
+
+const { isPopup } = getUiType()
 
 // We create a reusable height constant for both the Balance line-height and the Balance skeleton.
 // We want both components to have the same height; otherwise, clicking on the RefreshIcon causes a layout shift.
@@ -81,7 +84,7 @@ const DashboardOverview: FC<Props> = ({
 
     networkName = `${networkName} Portfolio`
 
-    if (networkName.length > 20) {
+    if (networkName.length > 20 && isPopup) {
       networkName = `${networkName.slice(0, 20)}...`
     }
 
