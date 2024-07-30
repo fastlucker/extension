@@ -1,6 +1,8 @@
 import { getAddress } from 'ethers'
 import React, { FC, useMemo } from 'react'
 
+import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { Props as TextProps } from '@common/components/Text'
 import { isExtension } from '@web/constants/browserapi'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
@@ -20,6 +22,9 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
   const accountsState = useAccountsControllerState()
   const { contacts = [] } = useAddressBookControllerState()
   const checksummedAddress = useMemo(() => getAddress(address), [address])
+  const humanizerMeta = humanizerInfo as HumanizerMeta;
+  const isRecipientHumanizerKnownTokenOrSmartContract =
+  !!humanizerMeta.knownAddresses[address.toLowerCase()]?.isSC  
 
   const account = useMemo(() => {
     if (!accountsState?.accounts) return undefined
@@ -36,6 +41,13 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
       </BaseAddress>
     )
 
+  if (isRecipientHumanizerKnownTokenOrSmartContract)
+    return (
+      <BaseAddress address={checksummedAddress} {...rest}>
+        Token {humanizerMeta.knownAddresses[address.toLowerCase()]?.token?.symbol} Contract
+      </BaseAddress>
+    )
+    
   if (!isExtension) return <BenzinDomainsAddress address={checksummedAddress} {...rest} />
 
   return <DomainsAddress address={checksummedAddress} {...rest} />
