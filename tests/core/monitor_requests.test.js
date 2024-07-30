@@ -43,7 +43,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(hintsRequests.length).toBe(networks.length)
 
     expect(rpcRequests.length).toBeLessThanOrEqual(20)
-    expect(uncategorizedRequests.length).toBeLessThanOrEqual(5)
+    expect(uncategorizedRequests.length).toBe(0)
   })
 
   it('sign account op request created through transfer', async () => {
@@ -70,7 +70,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(nonPolygonAndEthereumRpcRequests.length).toBe(0)
     expect(nativeTokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(batchedErc20TokenPriceRequests.length).toBeLessThanOrEqual(2)
-    expect(uncategorizedRequests.length).toBeLessThanOrEqual(5)
+    expect(uncategorizedRequests.length).toBe(0)
   })
 
   it('sign account op request created through swap', async () => {
@@ -92,6 +92,6 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(batchedErc20TokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(hintsRequests.length).toBe(1)
     expect(rpcRequests.length).toBeLessThanOrEqual(10)
-    expect(uncategorizedRequests.length).toBeLessThanOrEqual(5)
+    expect(uncategorizedRequests.length).toBe(0)
   })
 })
