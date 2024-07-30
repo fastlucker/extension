@@ -15,7 +15,7 @@ interface Props {
 }
 
 const useAccountAdder = ({ keySubType }: Props) => {
-  const { navigate } = useNavigation()
+  const { navigate, goBack } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
   const { dispatch } = useBackgroundService()
@@ -50,6 +50,10 @@ const useAccountAdder = ({ keySubType }: Props) => {
 
     updateStepperState(WEB_ROUTES.accountAdder, step)
   }, [keySubType, updateStepperState])
+
+  useEffect(() => {
+    if (!accountAdderState.isInitialized) goBack()
+  }, [accountAdderState.isInitialized, goBack])
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {

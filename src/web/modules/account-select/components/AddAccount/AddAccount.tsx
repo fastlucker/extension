@@ -46,7 +46,11 @@ const AddAccount = () => {
           onPress={option.onPress}
           hasLargerBottomSpace={option.hasLargerBottomSpace}
           testID={option.testID}
-          disabled={option.disabled}
+          disabled={
+            option.disabled ||
+            mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL' ||
+            mainControllerState.statuses.importSmartAccountFromDefaultSeed !== 'INITIAL'
+          }
         />
       ))}
     </View>

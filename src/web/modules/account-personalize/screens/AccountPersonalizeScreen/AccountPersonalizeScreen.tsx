@@ -48,6 +48,10 @@ const AccountPersonalizeScreen = () => {
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
   useEffect(() => {
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
+  }, [dispatch])
+
+  useEffect(() => {
     if (!stepperState?.currentFlow) return
 
     updateStepperState(WEB_ROUTES.accountPersonalize, stepperState.currentFlow)
@@ -57,7 +61,7 @@ const AccountPersonalizeScreen = () => {
     (data: { accounts: Account[] }) => {
       dispatch({
         type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES',
-        params: data.accounts.map((a) => ({ addr: a.addr, preferences: a.preferences! }))
+        params: data.accounts.map((a) => ({ addr: a.addr, preferences: a.preferences }))
       })
 
       navigate('/', { state: { openOnboardingCompleted: true } })
