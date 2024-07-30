@@ -1,12 +1,8 @@
-import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import {
-  getFeeSpeedIdentifier,
-  getTokenUsdAmount
-} from '@ambire-common/controllers/signAccountOp/helper'
+import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import {
   FeeSpeed,
   SignAccountOpController,
@@ -22,7 +18,6 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
@@ -278,21 +273,20 @@ const Estimation = ({
               </Text>
               <View
                 style={[
-                  minWidthSize('xxl') && flexbox.wrap,
+                  flexbox.wrap,
                   flexbox.flex1,
                   flexbox.directionRow,
                   disabled && { opacity: 0.6 },
                   minWidthSize('xxl') && { margin: -SPACING_MI }
                 ]}
               >
-                {feeSpeeds.map((fee, i) => (
+                {feeSpeeds.map((fee) => (
                   <Fee
                     disabled={disabled || fee.disabled}
-                    isLastItem={i === feeSpeeds.length - 1}
                     key={fee.amount + fee.type}
                     label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
                     type={fee.type}
-                    amount={formatDecimals(parseFloat(fee.amountFormatted))}
+                    amountUsd={parseFloat(fee.amountUsd)}
                     onPress={onFeeSelect}
                     isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
                   />
@@ -305,7 +299,6 @@ const Estimation = ({
             <AmountInfo
               label="Fee"
               amountFormatted={selectedFee.amountFormatted}
-              amountUsd={selectedFee.amountUsd}
               symbol={payValue.token?.symbol}
             />
           )}
@@ -314,20 +307,6 @@ const Estimation = ({
           {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
           {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
           {/* </View> */}
-          {signAccountOpState.selectedOption && payValue && payValue.token && (
-            <AmountInfo
-              label="Available"
-              amountFormatted={formatUnits(
-                signAccountOpState.selectedOption.availableAmount,
-                Number(payValue.token.decimals)
-              )}
-              amountUsd={getTokenUsdAmount(
-                payValue.token,
-                signAccountOpState.selectedOption.availableAmount
-              )}
-              symbol={payValue.token.symbol}
-            />
-          )}
         </>
       )}
       <Warnings
