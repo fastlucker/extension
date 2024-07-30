@@ -104,18 +104,16 @@ const DappCatalogScreen = () => {
 
   const filteredDapps = useMemo(() => {
     const allDapps = state.dapps
-    if (debouncedSearch.length) {
+    if (search && debouncedSearch) {
       if (predefinedFilter) setPredefinedFilter(null)
-      return allDapps.filter((dapp) =>
-        dapp.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-      )
+      return allDapps.filter((dapp) => dapp.name.toLowerCase().includes(search.toLowerCase()))
     }
     if (!predefinedFilter) setPredefinedFilter('all')
     if (predefinedFilter === 'favorites') return allDapps.filter((dapp) => !!dapp.favorite)
     if (predefinedFilter === 'connected') return allDapps.filter((dapp) => dapp.isConnected)
 
     return allDapps
-  }, [debouncedSearch, state.dapps, predefinedFilter])
+  }, [state.dapps, search, debouncedSearch, predefinedFilter])
 
   const sortedByFavoriteDApps = useMemo(() => {
     if (!initialDAppListState.length) return []
@@ -133,9 +131,13 @@ const DappCatalogScreen = () => {
     })
   }, [filteredDapps, initialDAppListState])
 
-  const handleSelectPredefinedFilter = useCallback((type: 'all' | 'favorites' | 'connected') => {
-    setPredefinedFilter(type)
-  }, [])
+  const handleSelectPredefinedFilter = useCallback(
+    (type: 'all' | 'favorites' | 'connected') => {
+      setPredefinedFilter(type)
+      setValue('search', '')
+    },
+    [setValue]
+  )
 
   const renderItem = useCallback(({ item }: { item: Dapp }) => <DappItem {...item} />, [])
 
