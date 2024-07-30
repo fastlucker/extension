@@ -42,7 +42,7 @@ const ImportFromDefaultSeedOrNotModal: FC<Props> = ({ onAgree, onDeny }) => {
           onPress={onAgree}
           hasBottomSpacing={false}
           size="large"
-          style={{ minWidth: 128 }}
+          style={styles.button}
         />
         <Button
           text={t('Use external seed')}
@@ -50,7 +50,7 @@ const ImportFromDefaultSeedOrNotModal: FC<Props> = ({ onAgree, onDeny }) => {
           type="secondary"
           hasBottomSpacing={false}
           size="large"
-          style={{ minWidth: 128 }}
+          style={styles.button}
         />
       </View>
     </View>

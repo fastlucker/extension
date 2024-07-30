@@ -20,7 +20,7 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
-import ImportFromDefaultSeedOrNotModal from '@web/modules/auth/components/ImportFromDefaultSeedOrNotModal'
+import ImportFromDefaultSeedOrNotModal from '@web/modules/auth/components/Modal/ImportFromDefaultSeedOrNotModal'
 import options from '@web/modules/auth/screens/HotWalletImportSelectorScreen/options'
 
 const HotWalletImportSelectorScreen = () => {

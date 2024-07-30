@@ -8,6 +8,7 @@ interface Styles {
   modalHeader: ViewStyle
   modalInnerContainer: ViewStyle
   modalButtonsContainer: ViewStyle
+  button: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -30,6 +31,9 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
       ...spacings.phXl
+    },
+    button: {
+      minWidth: 128
     }
   })
 

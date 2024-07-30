@@ -32,7 +32,7 @@ import {
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import SaveSeedModal from '@web/modules/auth/components/SaveSeedModal'
+import SaveSeedModal from '@web/modules/auth/components/Modal/SaveSeedModal'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const arrayWithEmptyString = (length: number) => new Array(length).fill({ value: '' })
