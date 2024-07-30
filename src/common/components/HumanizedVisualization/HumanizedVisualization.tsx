@@ -1,19 +1,22 @@
 import React, { FC, memo } from 'react'
 import { Linking, Pressable, View } from 'react-native'
 
+import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
-import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { HumanizerMeta, IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import TokenOrNft from '@common/components/TokenOrNft'
+import { useTranslation } from '@common/config/localization'
 import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getMessageAsText } from '@common/utils/messageToString'
 
 import DeadlineItem from './DeadlineItem'
 
+const HUMANIZER_META = humanizerInfo as HumanizerMeta
 const visualizeContent = (kind: string, content?: string | Uint8Array) => {
   if ((kind === 'message' && !content) || content === '0x') {
     return 'Empty message '
@@ -40,7 +43,7 @@ const HumanizedVisualization: FC<Props> = ({
   networks
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
-
+  const { t } = useTranslation()
   return (
     <View
       testID={testID}
@@ -71,12 +74,22 @@ const HumanizedVisualization: FC<Props> = ({
         }
 
         if (item.type === 'address' && item.address) {
+          const isRecipientHumanizerKnownTokenOrSmartContract =
+          !!HUMANIZER_META.knownAddresses[item.address.toLowerCase()]?.isSC 
+          const humanizerToken = HUMANIZER_META.knownAddresses[item.address.toLowerCase()]?.token
+
+          let highestPriorityAlias = item?.humanizerMeta?.name
+          if (isRecipientHumanizerKnownTokenOrSmartContract) {
+            highestPriorityAlias = t((
+              humanizerToken ? `Token ${humanizerToken.symbol}` : HUMANIZER_META.knownAddresses[item.address.toLowerCase()]?.name ) + ' Contract')
+          }
+
           return (
             <View key={key} style={{ marginRight }}>
               <Address
                 fontSize={textSize}
                 address={item.address}
-                highestPriorityAlias={item?.humanizerMeta?.name}
+                highestPriorityAlias={highestPriorityAlias}
                 explorerNetworkId={networkId}
               />
             </View>
