@@ -3,12 +3,12 @@ import isEqual from 'react-fast-compare'
 import { Pressable, View } from 'react-native'
 
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
-import BridgeIcon from '@common/assets/svg/BridgeIcon'
+import FlipIcon from '@common/assets/svg/FlipIcon'
 import NumberInput from '@common/components/NumberInput'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
@@ -136,11 +136,12 @@ const InputSendToken = ({
               style={{
                 backgroundColor: theme.infoBackground,
                 borderRadius: 50,
-                padding: SPACING_MI / 2,
+                paddingHorizontal: 5,
+                paddingVertical: 5,
                 ...spacings.mhTy
               }}
             >
-              <BridgeIcon width={16} height={16} color={theme.primary} />
+              <FlipIcon width={11} height={11} color={theme.primary} />
             </View>
             <Text fontSize={12} appearance="primary" weight="medium">
               {amountFieldMode === 'token'
