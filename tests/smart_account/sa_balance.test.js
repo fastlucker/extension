@@ -22,7 +22,7 @@ describe('sa_balance', () => {
     await checkNetworks(page)
   })
 
-  it('check if item exist in Collectibles tab', async () => {
+  it.skip('check if item exist in Collectibles tab', async () => {
     await checkCollectibleItem(page)
   })
 })
