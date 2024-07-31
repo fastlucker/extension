@@ -60,19 +60,23 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     [pendingTokens]
   )
   const pendingSendCollection = useMemo(() => {
-    if (!signAccountOpState?.accountOp || !network?.id) return null
-
-    return portfolioState.state.pending[signAccountOpState?.accountOp?.accountAddr][
-      network?.id
-    ]?.result?.collections?.filter((i) => i.postSimulation?.sending?.length)
+    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+      return (
+        portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][
+          network.id
+        ]?.result?.collections?.filter((i) => i.postSimulation?.sending?.length) || []
+      )
+    return []
   }, [network, signAccountOpState?.accountOp.accountAddr, portfolioState])
 
   const pendingReceiveCollection = useMemo(() => {
-    if (!signAccountOpState?.accountOp || !network?.id) return null
-
-    return portfolioState.state.pending[signAccountOpState?.accountOp?.accountAddr][
-      network?.id
-    ]?.result?.collections?.filter((i) => i.postSimulation?.receiving?.length)
+    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+      return (
+        portfolioState.state.pending[signAccountOpState?.accountOp?.accountAddr][
+          network?.id
+        ]?.result?.collections?.filter((i) => i.postSimulation?.receiving?.length) || []
+      )
+    return []
   }, [network, signAccountOpState?.accountOp.accountAddr, portfolioState])
 
   const pendingReceiveTokens = useMemo(
@@ -129,7 +133,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
     if (simulationErrorMsg) return 'error'
-    return pendingSendCollection?.length || pendingReceiveCollection?.length || pendingTokens.length
+    return pendingSendCollection.length || pendingReceiveCollection.length || pendingTokens.length
       ? 'changes'
       : 'no-changes'
   }, [
@@ -160,7 +164,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
       </View>
       {simulationView === 'changes' && (
         <View style={[flexbox.directionRow, flexbox.flex1]}>
-          {(!!pendingSendTokens.length || !!pendingSendCollection?.length) && (
+          {(!!pendingSendTokens.length || !!pendingSendCollection.length) && (
             <View
               style={[styles.simulationContainer, !!pendingReceiveTokens.length && spacings.mrTy]}
             >
@@ -184,7 +188,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                   )
                 })}
                 {pendingSendCollection
-                  ?.map(({ name, postSimulation, address }) =>
+                  .map(({ name, postSimulation, address }) =>
                     postSimulation?.sending?.map((itemId: bigint) => (
                       <View key={address + itemId} style={[flexbox.directionRow, flexbox.wrap]}>
                         <Collectible
@@ -210,7 +214,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
               </ScrollableWrapper>
             </View>
           )}
-          {(!!pendingReceiveTokens.length || !!pendingReceiveCollection?.length) && (
+          {(!!pendingReceiveTokens.length || !!pendingReceiveCollection.length) && (
             <View style={styles.simulationContainer}>
               <View style={styles.simulationContainerHeader}>
                 <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
@@ -232,8 +236,8 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                   )
                 })}
                 {pendingReceiveCollection
-                  ?.map(({ name, postSimulation, address }) =>
-                    postSimulation?.receiving?.map((itemId: bigint) => (
+                  .map(({ name, postSimulation, address }) =>
+                    null?.map((itemId: bigint) => (
                       <View key={address + itemId} style={[flexbox.directionRow, flexbox.wrap]}>
                         <Collectible
                           style={spacings.mhTy}
