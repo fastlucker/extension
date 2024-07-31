@@ -11,7 +11,7 @@ describe('sa_balance', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
   it('check the balance in account ', async () => {
