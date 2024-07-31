@@ -64,7 +64,7 @@ export async function makeValidTransaction(page, extensionURL, browser, feeToken
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function makeSwap(page, extensionURL, browser) {
+export async function makeSwap(page, extensionURL, browser, feeToken) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   // Check if MATIC on Polygon are under 0.01
   await checkBalanceOfToken(
@@ -149,10 +149,9 @@ export async function makeSwap(page, extensionURL, browser) {
   const updatedPage = result.actionWindowPage
 
   // Check if select fee token is visible and select the token
-  await selectFeeToken(
-    updatedPage,
-    '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000matic"]'
-  )
+  if (feeToken) {
+    await selectFeeToken(newPage, feeToken)
+  }
 
   // Sign and confirm the transaction
   await signTransaction(updatedPage, transactionRecorder)
