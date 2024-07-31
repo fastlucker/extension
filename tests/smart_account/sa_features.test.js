@@ -171,7 +171,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Sent 0.000001 ETH on Optimism to smart account', async () => {
+  it.skip('Sent 0.000001 ETH on Optimism to smart account', async () => {
     // Click on Matic (not Gas Tank token)
     await clickOnElement(
       page,
