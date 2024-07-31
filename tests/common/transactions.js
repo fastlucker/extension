@@ -272,10 +272,10 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
 
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
+  await actionWindowSignMsgRecorder.stop()
+
   // Click on "Sign" button
   await clickOnElement(actionWindowPage, '[data-testid="button-sign"]')
-
-  await actionWindowSignMsgRecorder.stop()
 
   await page.waitForSelector('.signatureResult-signature')
   // Get the Message signature text
