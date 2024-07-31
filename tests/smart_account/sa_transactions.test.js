@@ -36,7 +36,12 @@ describe('sa_transactions', () => {
   })
 
   it('Make valid swap ', async () => {
-    await makeSwap(page, extensionURL, browser)
+    await makeSwap(
+      page,
+      extensionURL,
+      browser,
+      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000matic"]'
+    )
   })
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Send MATIC tokens greater than the available balance ', async () => {
