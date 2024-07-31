@@ -25,6 +25,11 @@ const handleRegisterScripts = async (skipInjectingMessengerBridgeScript?: boolea
       ]
 
   const firefoxVersion = getFirefoxVersion()
+
+  // Firefox versions older than 128.0 do not support world: MAIN.
+  // We handle this using dynamic scripting by injecting:
+  // 1. A script with world: MAIN for versions 128.0 or higher.
+  // 2. A content script that injects the ambire-inpage and ethereum-inpage scripts into the document for older versions
   const shouldUseWorldMain = engine === 'webkit' || (firefoxVersion && firefoxVersion >= 128)
 
   if (shouldUseWorldMain) {
@@ -81,6 +86,7 @@ const handleUnregisterAmbireInpageScript = async () => {
   }
 }
 
+// mainly used to unregister injection of window.ethereum when Ambire is not the default wallet
 const handleUnregisterEthereumInpageScript = async () => {
   try {
     const firefoxVersion = getFirefoxVersion()
