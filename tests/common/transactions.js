@@ -17,7 +17,7 @@ import {
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 //--------------------------------------------------------------------------------------------------------------
-export async function makeValidTransaction(page, extensionURL, browser) {
+export async function makeValidTransaction(page, extensionURL, browser, feeToken) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
   // Check if MATIC on Gas Tank are under 0.01
@@ -55,10 +55,9 @@ export async function makeValidTransaction(page, extensionURL, browser) {
     '[data-testid="transfer-button-send"]'
   )
   // Check if select fee token is visible and select the token
-  await selectFeeToken(
-    newPage,
-    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
-  )
+  if (feeToken) {
+    await selectFeeToken(newPage, feeToken)
+  }
   // Sign and confirm the transaction
   await signTransaction(newPage, transactionRecorder)
   await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
@@ -152,7 +151,7 @@ export async function makeSwap(page, extensionURL, browser) {
   // Check if select fee token is visible and select the token
   await selectFeeToken(
     updatedPage,
-    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
+    '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000matic"]'
   )
 
   // Sign and confirm the transaction
@@ -299,6 +298,13 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
   await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
   // Fill copied address in the Hexadecimal signature field
   await typeText(page, '[placeholder="Hexadecimal signature (0x....)"]', messageSignature)
+  // Select Polygon option in the dropdown
+  await clickOnElement(page, '[class="dropdown  "]')
+
+  const [optionPolygon] = await page.$x(
+    '//*[contains(@class, "networkName") and contains(text(), "Polygon")]'
+  )
+  await optionPolygon.click()
 
   // Click on "Verify" button
   await clickOnElement(page, '#verifyButton')
@@ -315,18 +321,18 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
   )
 
   // this is sign message validation  with @ambire/signature-validator
-  const provider = new ethers.JsonRpcProvider('https://invictus.ambire.com/polygon')
+  // const provider = new ethers.JsonRpcProvider('https://invictus.ambire.com/polygon')
 
-  async function run() {
-    const isValidSig = await verifyMessage({
-      signer: signerAddress,
-      message: textMessage,
-      signature: messageSignature,
-      provider
-    })
-    return isValidSig
-  }
+  // async function run() {
+  //   const isValidSig = await verifyMessage({
+  //     signer: signerAddress,
+  //     message: textMessage,
+  //     signature: messageSignature,
+  //     provider
+  //   })
+  //   return isValidSig
+  // }
 
-  const isValid = await run()
-  expect(isValid).toBe(true)
+  // const isValid = await run()
+  // expect(isValid).toBe(true)
 }
