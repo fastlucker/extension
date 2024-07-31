@@ -207,7 +207,8 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                           id={itemId}
                           collectionData={{
                             address,
-                            networkId: network?.id || 'ethereum'
+                            // if we have pendingSendCollection we also have network
+                            networkId: network!.id
                           }}
                           networks={networks}
                         />
@@ -258,7 +259,8 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                           id={itemId}
                           collectionData={{
                             address,
-                            networkId: network?.id || 'ethereum'
+                            // if we have pendingSendCollection we also have network
+                            networkId: network!.id
                           }}
                           networks={networks}
                         />
