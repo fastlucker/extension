@@ -3,6 +3,7 @@ import React, { FC, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
+import { CollectionResult } from '@ambire-common/libs/portfolio'
 import Address from '@common/components/Address'
 import Alert from '@common/components/Alert'
 import Collectible from '@common/components/Collectible'
@@ -64,7 +65,10 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
       return (
         portfolioState?.state?.pending[signAccountOpState.accountOp.accountAddr][
           network.id
-        ]?.result?.collections?.filter((i) => i.postSimulation?.sending?.length) || []
+        ]?.result?.collections?.filter(
+          (i): i is CollectionResult =>
+            i.postSimulation?.sending !== undefined && i.postSimulation.sending.length > 0
+        ) || []
       )
     return []
   }, [network, signAccountOpState?.accountOp.accountAddr, portfolioState])
@@ -74,7 +78,10 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
       return (
         portfolioState?.state?.pending[signAccountOpState.accountOp.accountAddr][
           network.id
-        ]?.result?.collections?.filter((i) => i.postSimulation?.receiving?.length) || []
+        ]?.result?.collections?.filter(
+          (i): i is CollectionResult =>
+            i.postSimulation?.receiving !== undefined && i.postSimulation.receiving.length > 0
+        ) || []
       )
     return []
   }, [network, signAccountOpState?.accountOp.accountAddr, portfolioState])
@@ -190,7 +197,10 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                 {pendingSendCollection
                   .map(({ name, postSimulation, address }) =>
                     postSimulation?.sending?.map((itemId: bigint) => (
-                      <View key={address + itemId} style={[flexbox.directionRow, flexbox.wrap]}>
+                      <View
+                        key={address + itemId}
+                        style={[flexbox.directionRow, flexbox.wrap, spacings.mbMi]}
+                      >
                         <Collectible
                           style={spacings.mhTy}
                           size={36}
@@ -238,7 +248,10 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                 {pendingReceiveCollection
                   .map(({ name, postSimulation, address }) =>
                     postSimulation?.receiving?.map((itemId: bigint) => (
-                      <View key={address + itemId} style={[flexbox.directionRow, flexbox.wrap]}>
+                      <View
+                        key={address + itemId}
+                        style={[flexbox.directionRow, flexbox.wrap, spacings.mbMi]}
+                      >
                         <Collectible
                           style={spacings.mhTy}
                           size={36}
