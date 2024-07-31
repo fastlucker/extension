@@ -47,6 +47,8 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
+import { handleRegisterScripts } from './handlers/handleScripting'
+
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
 
@@ -77,52 +79,8 @@ function stateDebug(event: string, stateToLog: object) {
 
 let mainCtrl: MainController
 
-/*
- * This content script is injected programmatically because
- * MAIN world injection does not work properly via manifest
- * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
- */
-const registerAllInpageScripts = async () => {
-  try {
-    await browser.scripting.registerContentScripts([
-      {
-        id: 'ambire-inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['ambire-inpage.js'],
-        runAt: 'document_start',
-        world: 'MAIN'
-      },
-      {
-        id: 'ethereum-inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['ethereum-inpage.js'],
-        runAt: 'document_start',
-        world: 'MAIN'
-      }
-    ])
-  } catch (err) {
-    console.warn(`Failed to inject EthereumProvider: ${err}`)
-  }
-}
-
-const unregisterAmbireInpageContentScript = async () => {
-  try {
-    await browser.scripting.unregisterContentScripts({ ids: ['ambire-inpage'] })
-  } catch (err) {
-    console.warn(`Failed to unregister ambire-inpage: ${err}`)
-  }
-}
-
-const unregisterEthereumInpageContentScript = async () => {
-  try {
-    await browser.scripting.unregisterContentScripts({ ids: ['ethereum-inpage'] })
-  } catch (err) {
-    console.warn(`Failed to inject ethereum-inpage: ${err}`)
-  }
-}
-
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-registerAllInpageScripts()
+handleRegisterScripts()
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
@@ -246,11 +204,7 @@ registerAllInpageScripts()
         await initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
   })
-  const walletStateCtrl = new WalletStateController(
-    registerAllInpageScripts,
-    unregisterAmbireInpageContentScript,
-    unregisterEthereumInpageContentScript
-  )
+  const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())

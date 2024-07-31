@@ -2,16 +2,16 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
+import {
+  handleRegisterScripts,
+  handleUnregisterAmbireInpageScript,
+  handleUnregisterEthereumInpageScript
+} from '../handlers/handleScripting'
+
 export class WalletStateController extends EventEmitter {
   isReady: boolean = false
 
   #_isDefaultWallet: boolean = true
-
-  #registerAllInpageScripts
-
-  #unregisterAmbireInpageContentScript
-
-  #unregisterEthereumInpageContentScript
 
   #_onboardingState?: {
     version: string
@@ -30,15 +30,15 @@ export class WalletStateController extends EventEmitter {
       // if Ambire is the default wallet inject and reload the current tab
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       ;(async () => {
-        await this.#unregisterAmbireInpageContentScript()
-        await this.#unregisterEthereumInpageContentScript()
-        await this.#registerAllInpageScripts()
+        await handleUnregisterAmbireInpageScript()
+        await handleUnregisterEthereumInpageScript()
+        await handleRegisterScripts(true)
         await this.#reloadPageOnSwitchDefaultWallet()
       })()
     } else {
       ;(async () => {
         // if Ambire is NOT the default wallet remove injection and reload the current tab
-        await this.#unregisterEthereumInpageContentScript()
+        await handleUnregisterEthereumInpageScript()
         await this.#reloadPageOnSwitchDefaultWallet()
       })()
     }
@@ -55,16 +55,9 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
-  constructor(
-    registerAllInpageScripts: Function,
-    unregisterAmbireInpageContentScript: Function,
-    unregisterEthereumInpageContentScript: Function
-  ) {
+  constructor() {
     super()
 
-    this.#registerAllInpageScripts = registerAllInpageScripts
-    this.#unregisterAmbireInpageContentScript = unregisterAmbireInpageContentScript
-    this.#unregisterEthereumInpageContentScript = unregisterEthereumInpageContentScript
     this.#init()
   }
 
@@ -80,7 +73,7 @@ export class WalletStateController extends EventEmitter {
       if (!isDefault) {
         // injecting is registered first thing in the background
         // but if Ambire is not the default wallet the injection should be removed
-        this.#unregisterEthereumInpageContentScript()
+        handleUnregisterEthereumInpageScript()
       }
     }
 

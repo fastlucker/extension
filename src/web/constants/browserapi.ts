@@ -23,4 +23,21 @@ try {
   // Silent fail
 }
 
-export { engine, isExtension, browser }
+const getFirefoxVersion = () => {
+  const ua = navigator.userAgent
+  console.log('ua', ua)
+  if (!ua) return undefined
+
+  try {
+    const match = ua.match(/Firefox\/(\d+\.\d+)/)
+
+    if (match) return parseInt(match[1], 10)
+
+    return undefined
+  } catch (error) {
+    console.log('err', error)
+    return undefined
+  }
+}
+
+export { engine, isExtension, browser, getFirefoxVersion }

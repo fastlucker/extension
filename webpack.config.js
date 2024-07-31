@@ -11,6 +11,7 @@ const expoEnv = require('@expo/webpack-config/env')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const appJSON = require('./app.json')
+const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
 module.exports = async function (env, argv) {
   function processManifest(content) {
@@ -35,23 +36,20 @@ module.exports = async function (env, argv) {
     //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
     // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
-    const csp = "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; frame-ancestors 'none';"
+
+    const csp = "frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
 
     if (process.env.WEB_ENGINE === 'gecko') {
       manifest.background = { scripts: ['background.js'] }
-      manifest.host_permissions = undefined
+      manifest.host_permissions = [...manifest.host_permissions, '<all_urls>']
       manifest.externally_connectable = undefined
-    }
-    manifest.content_scripts = [
-      ...manifest.content_scripts,
-      {
-        all_frames: false,
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        exclude_matches: ['*://doInWebPack.lan/*'],
-        run_at: 'document_start',
-        js: ['browser-polyfill.min.js', 'content-script.js']
+      manifest.browser_specific_settings = {
+        gecko: {
+          id: 'webextension@ambire.com',
+          strict_min_version: '115.0'
+        }
       }
-    ]
+    }
 
     const permissions = [...manifest.permissions, 'scripting', 'alarms']
     if (process.env.WEB_ENGINE === 'webkit') permissions.push('system.display')
@@ -102,10 +100,19 @@ module.exports = async function (env, argv) {
 
   config.entry = {
     main: config.entry[0], // the app entry
-    background: './src/web/extension-services/background/background.ts', // custom entry needed for the extension
-    'content-script': './src/web/extension-services/content-script/content-script.ts', // custom entry needed for the extension
-    'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts', // custom entry needed for the extension
-    'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts' // custom entry needed for the extension
+    // extension services
+    background: './src/web/extension-services/background/background.ts',
+    'content-script':
+      './src/web/extension-services/content-script/content-script-messenger-bridge.ts',
+    'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts',
+    'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts'
+  }
+
+  if (process.env.WEB_ENGINE === 'gecko') {
+    config.entry['content-script-ambire-injection'] =
+      './src/web/extension-services/content-script/content-script-ambire-injection.ts'
+    config.entry['content-script-ethereum-injection'] =
+      './src/web/extension-services/content-script/content-script-ethereum-injection.ts'
   }
 
   // The files in the /web directory should be transpiled not just copied
@@ -200,8 +207,18 @@ module.exports = async function (env, argv) {
     ...defaultExpoConfigPlugins,
     new NodePolyfillPlugin(),
     new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'], process: 'process' }),
+
     new CopyPlugin({ patterns: extensionCopyPatterns })
   ]
+
+  if (process.env.WEB_ENGINE === 'gecko') {
+    config.plugins.push(
+      new AssetReplacePlugin({
+        '#AMBIREINPAGE#': 'ambire-inpage',
+        '#ETHEREUMINPAGE#': 'ethereum-inpage'
+      })
+    )
+  }
 
   if (config.mode === 'production') {
     // @TODO: The extension doesn't work with splitChunks out of the box, so disable it for now
