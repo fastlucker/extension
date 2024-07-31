@@ -62,7 +62,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   const pendingSendCollection = useMemo(() => {
     if (signAccountOpState?.accountOp?.accountAddr && network?.id)
       return (
-        portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][
+        portfolioState?.state?.pending[signAccountOpState.accountOp.accountAddr][
           network.id
         ]?.result?.collections?.filter((i) => i.postSimulation?.sending?.length) || []
       )
@@ -72,8 +72,8 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   const pendingReceiveCollection = useMemo(() => {
     if (signAccountOpState?.accountOp?.accountAddr && network?.id)
       return (
-        portfolioState.state.pending[signAccountOpState?.accountOp?.accountAddr][
-          network?.id
+        portfolioState?.state?.pending[signAccountOpState.accountOp.accountAddr][
+          network.id
         ]?.result?.collections?.filter((i) => i.postSimulation?.receiving?.length) || []
       )
     return []
@@ -237,7 +237,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                 })}
                 {pendingReceiveCollection
                   .map(({ name, postSimulation, address }) =>
-                    null?.map((itemId: bigint) => (
+                    postSimulation?.receiving?.map((itemId: bigint) => (
                       <View key={address + itemId} style={[flexbox.directionRow, flexbox.wrap]}>
                         <Collectible
                           style={spacings.mhTy}
