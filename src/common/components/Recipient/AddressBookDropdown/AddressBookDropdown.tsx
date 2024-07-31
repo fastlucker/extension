@@ -89,7 +89,9 @@ const AddressBookDropdown: FC<Props> = ({
     // while searching. Otherwise the dropdown will be shown for addresses that aren't in
     // the address book, which isn't desired because we display an error message and that message
     // will be hidden by the dropdown.
-    if (!!search && filteredContacts.length === 0) setIsVisible(false)
+    if (search) {
+      setIsVisible(filteredContacts.length > 0)
+    }
   }, [filteredContacts.length, search, setIsVisible])
 
   if (!isVisible) return null
