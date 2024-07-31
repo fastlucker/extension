@@ -25,7 +25,6 @@ try {
 
 const getFirefoxVersion = () => {
   const ua = navigator.userAgent
-  console.log('ua', ua)
   if (!ua) return undefined
 
   try {
@@ -35,7 +34,6 @@ const getFirefoxVersion = () => {
 
     return undefined
   } catch (error) {
-    console.log('err', error)
     return undefined
   }
 }

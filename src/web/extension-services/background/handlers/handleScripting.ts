@@ -1,4 +1,4 @@
-import { engine, getFirefoxVersion } from '@web/constants/browserapi'
+import { browser, engine, getFirefoxVersion } from '@web/constants/browserapi'
 
 const handleRegisterScripts = async (skipInjectingMessengerBridgeScript?: boolean) => {
   const scripts: {
