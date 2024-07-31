@@ -213,7 +213,6 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                           networks={networks}
                         />
                         <Address
-                          // fontSize={textSize}
                           address={address}
                           highestPriorityAlias={`${name} #${itemId}`}
                           explorerNetworkId={network?.id}
