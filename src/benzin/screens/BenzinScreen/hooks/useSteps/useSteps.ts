@@ -183,6 +183,9 @@ const useSteps = ({
                 })
                 setActiveStep('in-progress')
                 setUrlToTxnId(foundUserOp.transactionHash, userOpHash, network.id)
+              } else {
+                // without timeout as it takes some time for the jiffyscan call
+                setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
               }
             })
           })

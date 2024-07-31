@@ -3,7 +3,6 @@ import { Animated, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
-import RefreshIcon from '@common/assets/svg/RefreshIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -27,6 +26,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import RefreshIcon from './RefreshIcon'
 
 import getStyles from './styles'
 
@@ -39,6 +39,10 @@ interface Props {
   }
   setDashboardOverviewSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>
 }
+
+// We create a reusable height constant for both the Balance line-height and the Balance skeleton.
+// We want both components to have the same height; otherwise, clicking on the RefreshIcon causes a layout shift.
+const BALANCE_HEIGHT = 34
 
 const DashboardOverview: FC<Props> = ({
   openReceiveModal,
@@ -115,6 +119,20 @@ const DashboardOverview: FC<Props> = ({
 
     return networkNames
   }, [selectedAccount, state.latest, networks])
+
+  const warningMessage = useMemo(() => {
+    if (isLoadingTakingTooLong) {
+      return t('Loading all networks is taking too long.')
+    }
+
+    if (networksWithCriticalErrors.length) {
+      return t('Total balance may be inaccurate due to network issues on {{networks}}', {
+        networks: networksWithCriticalErrors.join(', ')
+      })
+    }
+
+    return undefined
+  }, [isLoadingTakingTooLong, networksWithCriticalErrors])
 
   // Compare the current timestamp with the timestamp when the loading started
   // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
@@ -199,32 +217,21 @@ const DashboardOverview: FC<Props> = ({
               }}
             >
               <View>
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                   {!accountPortfolio?.isAllReady ? (
-                    <>
-                      <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
-                      {!!isLoadingTakingTooLong && (
-                        <>
-                          <WarningIcon
-                            color={theme.warningDecorative}
-                            style={spacings.mlMi}
-                            data-tooltip-id="loading-warning"
-                            data-tooltip-content={t('Loading all networks is taking too long.')}
-                          />
-                          <Tooltip id="loading-warning" />
-                        </>
-                      )}
-                    </>
+                    <SkeletonLoader
+                      lowOpacity
+                      width={200}
+                      height={BALANCE_HEIGHT}
+                      borderRadius={8}
+                    />
                   ) : (
-                    <View
-                      testID="full-balance"
-                      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}
-                    >
+                    <View testID="full-balance" style={[flexbox.directionRow, flexbox.alignCenter]}>
                       <Text selectable>
                         <Text
                           fontSize={32}
                           shouldScale={false}
-                          style={{ lineHeight: 34 }}
+                          style={{ lineHeight: BALANCE_HEIGHT }}
                           weight="number_bold"
                           color={theme.primaryBackground}
                           selectable
@@ -243,63 +250,68 @@ const DashboardOverview: FC<Props> = ({
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}
                         </Text>
                       </Text>
-                      {!!networksWithCriticalErrors.length && (
-                        <>
-                          <WarningIcon
-                            color={theme.warningDecorative}
-                            style={spacings.mlMi}
-                            data-tooltip-id="total-balance-warning"
-                            data-tooltip-content={t(
-                              'Total balance may be inaccurate due to network issues on {{networks}}',
-                              {
-                                networks: networksWithCriticalErrors.join(', ')
-                              }
-                            )}
-                          />
-                          <Tooltip id="total-balance-warning" />
-                        </>
-                      )}
-                      <AnimatedPressable
-                        style={[spacings.mlTy, refreshButtonAnimStyle]}
-                        onPress={reloadAccount}
-                        {...bindRefreshButtonAnim}
-                      >
-                        <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                      </AnimatedPressable>
                     </View>
                   )}
-                </View>
-
-                <AnimatedPressable
-                  style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
-                  onPress={() => {
-                    navigate(WEB_ROUTES.networks, {
-                      state: {
-                        filterByNetworkId,
-                        prevTab: window.location.hash.split('?')[1] || ''
-                      }
-                    })
-                  }}
-                  {...bindNetworkButtonAnim}
-                >
-                  {filterByNetworkId ? (
-                    <FilterIcon
+                  <AnimatedPressable
+                    style={[spacings.mlTy, refreshButtonAnimStyle]}
+                    onPress={reloadAccount}
+                    {...bindRefreshButtonAnim}
+                    disabled={!accountPortfolio?.isAllReady}
+                  >
+                    <RefreshIcon
+                      spin={!accountPortfolio?.isAllReady}
                       color={theme.primaryBackground}
                       width={16}
                       height={16}
-                      style={spacings.mrMi}
                     />
-                  ) : null}
-                  <Text fontSize={14} color={theme.primaryBackground} weight="medium">
-                    {filterByNetworkId ? `${filterByNetworkName} Portfolio` : t('All Networks')}
-                  </Text>
-                  <DownArrowIcon
-                    style={spacings.mlSm}
-                    color={theme.primaryBackground}
-                    width={12}
-                    height={6.5}
-                  />
-                </AnimatedPressable>
+                  </AnimatedPressable>
+                </View>
+
+                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <AnimatedPressable
+                    style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
+                    onPress={() => {
+                      navigate(WEB_ROUTES.networks, {
+                        state: {
+                          filterByNetworkId,
+                          prevTab: window.location.hash.split('?')[1] || ''
+                        }
+                      })
+                    }}
+                    {...bindNetworkButtonAnim}
+                  >
+                    {filterByNetworkId ? (
+                      <FilterIcon
+                        color={theme.primaryBackground}
+                        width={16}
+                        height={16}
+                        style={spacings.mrMi}
+                      />
+                    ) : null}
+                    <Text fontSize={14} color={theme.primaryBackground} weight="medium">
+                      {filterByNetworkId ? `${filterByNetworkName} Portfolio` : t('All Networks')}
+                    </Text>
+                    <DownArrowIcon
+                      style={spacings.mlSm}
+                      color={theme.primaryBackground}
+                      width={12}
+                      height={6.5}
+                    />
+                  </AnimatedPressable>
+                  {!!warningMessage && (
+                    <>
+                      <WarningIcon
+                        color={theme.warningDecorative}
+                        style={spacings.mlTy}
+                        data-tooltip-id="portfolio-warning"
+                        data-tooltip-content={warningMessage}
+                        width={21}
+                        height={21}
+                      />
+                      <Tooltip id="portfolio-warning" />
+                    </>
+                  )}
+                </View>
               </View>
               <Routes openReceiveModal={openReceiveModal} />
             </Animated.View>
