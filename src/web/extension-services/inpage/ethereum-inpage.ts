@@ -4,8 +4,6 @@
 
 import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
 
-import { EthereumProvider } from './EthereumProvider'
-
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 
 const connectButtonReplacementCtrl = new ConnectButtonReplacementController({
@@ -55,31 +53,6 @@ export const getProviderMode = (host: string) => {
   return 'default'
 }
 
-export const patchProvider = (p: any) => {
-  const mode = getProviderMode(window.location.hostname)
-  try {
-    if (mode === 'metamask') {
-      delete p.isAmbire
-      p.isMetaMask = true
-      return
-    }
-    if (mode === 'ambire') {
-      delete p.isMetaMask
-      p.isAmbire = true
-      return
-    }
-    if (mode === 'default') {
-      p.isMetaMask = true
-      p.isAmbire = true
-      return
-    }
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-const ambireProvider = window.ambire
-
 const setAmbireProvider = () => {
   try {
     Object.defineProperty(window, 'ethereum', {
@@ -105,12 +78,12 @@ const setAmbireProvider = () => {
           }
         }
 
-        return ambireProvider
+        return window.ambire
       }
     })
   } catch (e) {
     console.error(e)
-    window.ethereum = ambireProvider
+    window.ethereum = window.ambire
   }
 }
 
@@ -123,25 +96,16 @@ const initOperaProvider = () => {
     writable: false, // Make it non-writable
     enumerable: true
   })
-  patchProvider(ambireProvider)
 }
 
-const initProvider = () => {
-  let finalProvider: EthereumProvider | null = null
-
-  finalProvider = ambireProvider
-  patchProvider(ambireProvider)
-
+if (ambireIsOpera) {
+  initOperaProvider()
+} else {
   const descriptor = Object.getOwnPropertyDescriptor(window, 'ethereum')
   const canDefine = !descriptor || descriptor.configurable
 
   if (canDefine) setAmbireProvider()
-  if (!window.web3) window.web3 = { currentProvider: finalProvider }
-}
-if (ambireIsOpera) {
-  initOperaProvider()
-} else {
-  initProvider()
+  if (!window.web3) window.web3 = { currentProvider: window.ambire }
 }
 
 window.addEventListener<any>('eip6963:requestProvider', () => {
