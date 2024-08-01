@@ -66,8 +66,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
         portfolioState?.state?.pending[signAccountOpState.accountOp.accountAddr][
           network.id
         ]?.result?.collections?.filter(
-          (i): i is CollectionResult =>
-            i.postSimulation?.sending !== undefined && i.postSimulation.sending.length > 0
+          (i) => i.postSimulation?.sending && i.postSimulation.sending.length > 0
         ) || []
       )
     return []
@@ -79,8 +78,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
         portfolioState?.state?.pending[signAccountOpState.accountOp.accountAddr][
           network.id
         ]?.result?.collections?.filter(
-          (i): i is CollectionResult =>
-            i.postSimulation?.receiving !== undefined && i.postSimulation.receiving.length > 0
+          (i) => i.postSimulation?.receiving && i.postSimulation.receiving.length > 0
         ) || []
       )
     return []
