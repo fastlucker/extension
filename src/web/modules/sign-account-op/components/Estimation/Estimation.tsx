@@ -271,7 +271,18 @@ const Estimation = ({
       if (section.data.length === 0) return null
 
       return (
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phTy, spacings.pvTy]}>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            spacings.phTy,
+            spacings.pvTy,
+            section?.key === 'eoa-tokens' && {
+              borderTopWidth: 1,
+              borderTopColor: theme.secondaryBorder
+            }
+          ]}
+        >
           {section.title.icon}
           <Text
             style={spacings.mlMi}
@@ -284,7 +295,7 @@ const Estimation = ({
         </View>
       )
     },
-    [minWidthSize]
+    [minWidthSize, theme.secondaryBorder]
   )
 
   if ((!hasEstimation && !estimationFailed) || !signAccountOpState) {

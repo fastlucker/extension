@@ -93,7 +93,7 @@ const PayOption = ({
           }}
           width={iconSize}
           height={iconSize}
-          networkSize={10}
+          networkSize={12}
           address={feeOption.token.address}
           networkId={feeOption.token.networkId}
           onGasTank={feeOption.token.flags.onGasTank}
