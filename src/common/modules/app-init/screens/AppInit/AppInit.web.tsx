@@ -24,7 +24,6 @@ import { AccountsControllerStateProvider } from '@web/contexts/accountsControlle
 import { ActionsControllerStateProvider } from '@web/contexts/actionsControllerStateContext'
 import { ActivityControllerStateProvider } from '@web/contexts/activityControllerStateContext'
 import { AddressBookControllerStateProvider } from '@web/contexts/addressBookControllerStateContext'
-import { AssetInfoControllerStateProvider } from '@web/contexts/assetInfoControllerStateContext'
 import { AutoLockControllerStateProvider } from '@web/contexts/autoLockControllerStateContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
@@ -74,28 +73,26 @@ const AppInit = () => {
                                                 <EmailVaultControllerStateProvider>
                                                   <DappsControllerStateProvider>
                                                     <DomainsControllerStateProvider>
-                                                      <AssetInfoControllerStateProvider>
-                                                        <AddressBookControllerStateProvider>
-                                                          <ControllersStateLoadedProvider>
-                                                            <LoaderProvider>
-                                                              <StorageProvider>
-                                                                <KeyboardProvider>
-                                                                  <NetInfoProvider>
-                                                                    <AuthProvider>
-                                                                      <BiometricsProvider>
-                                                                        <PrivateModeProvider>
-                                                                          <AppRouter />
-                                                                        </PrivateModeProvider>
-                                                                        <PortalHost name="global" />
-                                                                      </BiometricsProvider>
-                                                                    </AuthProvider>
-                                                                  </NetInfoProvider>
-                                                                </KeyboardProvider>
-                                                              </StorageProvider>
-                                                            </LoaderProvider>
-                                                          </ControllersStateLoadedProvider>
-                                                        </AddressBookControllerStateProvider>
-                                                      </AssetInfoControllerStateProvider>
+                                                      <AddressBookControllerStateProvider>
+                                                        <ControllersStateLoadedProvider>
+                                                          <LoaderProvider>
+                                                            <StorageProvider>
+                                                              <KeyboardProvider>
+                                                                <NetInfoProvider>
+                                                                  <AuthProvider>
+                                                                    <BiometricsProvider>
+                                                                      <PrivateModeProvider>
+                                                                        <AppRouter />
+                                                                      </PrivateModeProvider>
+                                                                      <PortalHost name="global" />
+                                                                    </BiometricsProvider>
+                                                                  </AuthProvider>
+                                                                </NetInfoProvider>
+                                                              </KeyboardProvider>
+                                                            </StorageProvider>
+                                                          </LoaderProvider>
+                                                        </ControllersStateLoadedProvider>
+                                                      </AddressBookControllerStateProvider>
                                                     </DomainsControllerStateProvider>
                                                   </DappsControllerStateProvider>
                                                 </EmailVaultControllerStateProvider>

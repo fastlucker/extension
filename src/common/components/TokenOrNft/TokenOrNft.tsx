@@ -1,14 +1,15 @@
-import React, { FC, memo, useMemo } from 'react'
+import React, { FC, memo, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { extraNetworks, networks as hardcodedNetwork } from '@ambire-common/consts/networks'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import Address from '@common/components/Address'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
-import useAssetInfo from '@common/hooks/useAssetInfo'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { isExtension } from '@web/constants/browserapi'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import Nft from './components/Nft'
@@ -30,19 +31,27 @@ const TokenOrNft: FC<Props> = ({
   sizeMultiplierSize = 1
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
-
+  const [assetInfo, setAssetInfo] = useState<any>({})
   const { networks: stateNetworks } = useNetworksControllerState()
   // @TODO fix
   const networks: Network[] = useMemo(
     () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
     [stateNetworks]
   )
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsLoading(false), 10000)
+    return () => clearTimeout(timeout)
+  }, [])
+
   const network = useMemo(() => networks.find((n) => n.id === networkId), [networks, networkId])
-  // @TODO
-  const { nftInfo, tokenInfo, isLoading } = useAssetInfo({
-    address,
-    network: network || networks[0]
-  })
+  useEffect(() => {
+    if (!isExtension && network)
+      resolveAssetInfo(address, network, (_assetInfo: any) => {
+        setAssetInfo(_assetInfo)
+      }).catch(console.log)
+  }, [address, network])
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {!network ? (
@@ -50,21 +59,21 @@ const TokenOrNft: FC<Props> = ({
           <Address address={address} />
           <Text style={spacings.mlTy}>on {networkId}</Text>
         </>
-      ) : !isLoading && nftInfo ? (
+      ) : assetInfo?.nftInfo ? (
         <Nft
           address={address}
           network={network}
           networks={networks}
           tokenId={value}
-          nftInfo={{ name: nftInfo.name }}
+          nftInfo={{ name: assetInfo?.nftInfo.name }}
         />
-      ) : !isLoading ? (
+      ) : !isLoading || assetInfo?.tokenInfo ? (
         <Token
           textSize={textSize}
           network={network}
           address={address}
           amount={value}
-          tokenInfo={tokenInfo}
+          tokenInfo={assetInfo?.tokenInfo}
         />
       ) : (
         <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
