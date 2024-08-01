@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import {
   NativeSyntheticEvent,
   TextInput,
@@ -28,7 +28,9 @@ export interface InputProps extends TextInputProps {
   isValid?: boolean
   validLabel?: string
   button?: string | JSX.Element | null
-  buttonProps?: TouchableOpacityProps
+  buttonProps?: TouchableOpacityProps & {
+    withBackground?: boolean
+  }
   buttonStyle?: ViewStyle
   onButtonPress?: () => void
   disabled?: boolean
@@ -39,7 +41,7 @@ export interface InputProps extends TextInputProps {
   borderWrapperStyle?: ViewStyle
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   infoTextStyle?: TextStyle | TextStyle[]
-  leftIcon?: () => JSX.Element | JSX.Element
+  leftIcon?: () => ReactNode
   leftIconStyle?: ViewStyle
   tooltip?: {
     id: string
@@ -169,7 +171,12 @@ const Input = ({
                 focusable={false}
                 onPress={onButtonPress}
                 disabled={disabled}
-                style={[styles.button, buttonStyle, animStyle]}
+                style={[
+                  styles.button,
+                  buttonProps?.withBackground ? styles.buttonWithBackground : {},
+                  buttonStyle,
+                  animStyle
+                ]}
                 {...buttonProps}
                 {...bindAnim}
               >

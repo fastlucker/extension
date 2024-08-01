@@ -92,7 +92,7 @@ const Select = ({
   )
 
   return (
-    <View style={[styles.selectContainer, containerStyle]} testID="tokens-select">
+    <View style={[styles.selectContainer, containerStyle]}>
       {!!label && (
         <Text
           appearance="secondaryText"
@@ -119,6 +119,7 @@ const Select = ({
             { borderColor: isMenuOpen ? theme.primary : theme.secondaryBorder },
             selectStyle
           ]}
+          testID="tokens-select"
         >
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             {!!value && <Option item={value} />}
