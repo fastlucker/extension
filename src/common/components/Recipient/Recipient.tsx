@@ -141,12 +141,13 @@ const Recipient: React.FC<Props> = ({
         childrenBelowInput={
           <AddressBookDropdown
             isVisible={isAddressBookVisible}
+            actualAddress={actualAddress}
+            isRecipientDomainResolving={isRecipientDomainResolving}
             setIsVisible={setIsAddressBookVisible}
             filteredContacts={filteredContacts}
             passRef={addressBookMenuRef}
             onContactPress={setAddressAndCloseAddressBook}
             menuProps={menuProps}
-            search={actualAddress}
           />
         }
         childrenBeforeButtons={
