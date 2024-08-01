@@ -2,38 +2,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-param-reassign */
 
-import {
-  ConnectButtonReplacementController,
-  forceReplacementForPages
-} from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
-
-import { EthereumProvider } from './EthereumProvider'
-
-export type DefaultWallet = 'AMBIRE' | 'OTHER'
-
-declare let defaultWallet: DefaultWallet
-// On mv3 the defaultWallet here will always be AMBIRE because the logic is handled via the scripting mechanism in the background
-let _defaultWallet: DefaultWallet = 'AMBIRE'
+import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
 
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 
 const connectButtonReplacementCtrl = new ConnectButtonReplacementController({
-  isEIP6963: false,
-  defaultWallet: _defaultWallet
-})
-
-Object.defineProperty(window, 'defaultWallet', {
-  configurable: false,
-  get() {
-    return _defaultWallet
-  },
-  set(value: DefaultWallet) {
-    _defaultWallet = value
-    connectButtonReplacementCtrl.update({ defaultWallet: _defaultWallet })
-    if (value === 'AMBIRE' && forceReplacementForPages.includes(window.location.origin)) {
-      connectButtonReplacementCtrl.init()
-    }
-  }
+  isEIP6963: false
 })
 
 export interface Interceptor {
@@ -79,43 +53,11 @@ export const getProviderMode = (host: string) => {
   return 'default'
 }
 
-export const patchProvider = (p: any) => {
-  const mode = getProviderMode(window.location.hostname)
-  try {
-    if (mode === 'metamask') {
-      delete p.isAmbire
-      p.isMetaMask = true
-      return
-    }
-    if (mode === 'ambire') {
-      delete p.isMetaMask
-      p.isAmbire = true
-      return
-    }
-    if (mode === 'default') {
-      p.isMetaMask = true
-      p.isAmbire = true
-      return
-    }
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-let cacheOtherProvider: EthereumProvider | null = null
-const ambireProvider = window.ambire
-
 const setAmbireProvider = () => {
   try {
     Object.defineProperty(window, 'ethereum', {
       configurable: false,
       enumerable: true,
-      set(val) {
-        if (val?._isAmbire) {
-          return
-        }
-        cacheOtherProvider = val
-      },
       get() {
         // script to determine whether the page is a dapp or not
         // (only pages that are dapps should read the ethereum provider)
@@ -136,12 +78,12 @@ const setAmbireProvider = () => {
           }
         }
 
-        return defaultWallet === 'AMBIRE' ? ambireProvider : cacheOtherProvider || ambireProvider
+        return window.ambire
       }
     })
   } catch (e) {
     console.error(e)
-    window.ethereum = ambireProvider
+    window.ethereum = window.ambire
   }
 }
 
@@ -154,29 +96,16 @@ const initOperaProvider = () => {
     writable: false, // Make it non-writable
     enumerable: true
   })
-  patchProvider(ambireProvider)
 }
 
-const initProvider = () => {
-  let finalProvider: EthereumProvider | null = null
-
-  if (window.ethereum && !window.ethereum._isAmbire) {
-    cacheOtherProvider = window.ethereum
-  }
-
-  finalProvider = ambireProvider
-  patchProvider(ambireProvider)
-
+if (ambireIsOpera) {
+  initOperaProvider()
+} else {
   const descriptor = Object.getOwnPropertyDescriptor(window, 'ethereum')
   const canDefine = !descriptor || descriptor.configurable
 
   if (canDefine) setAmbireProvider()
-  if (!window.web3) window.web3 = { currentProvider: finalProvider }
-}
-if (ambireIsOpera) {
-  initOperaProvider()
-} else {
-  initProvider()
+  if (!window.web3) window.web3 = { currentProvider: window.ambire }
 }
 
 window.addEventListener<any>('eip6963:requestProvider', () => {

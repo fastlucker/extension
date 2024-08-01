@@ -68,29 +68,6 @@ export const getProviderMode = (host: string) => {
   return 'default'
 }
 
-export const patchProvider = (p: any) => {
-  const mode = getProviderMode(window.location.hostname)
-  try {
-    if (mode === 'metamask') {
-      delete p.isAmbire
-      p.isMetaMask = true
-      return
-    }
-    if (mode === 'ambire') {
-      delete p.isMetaMask
-      p.isAmbire = true
-      return
-    }
-    if (mode === 'default') {
-      p.isMetaMask = true
-      p.isAmbire = true
-      return
-    }
-  } catch (e) {
-    console.error(e)
-  }
-}
-
 declare global {
   interface Window {
     ethereum: EthereumProvider
@@ -163,7 +140,6 @@ export async function forwardRpcRequests(url: string, method: any, params: any) 
 }
 
 const provider = new EthereumProvider(forwardRpcRequests, () => foundDappRpcUrls)
-patchProvider(provider)
 const ambireProvider = new Proxy(provider, {
   deleteProperty: (target, prop) => {
     if (typeof prop === 'string' && ['on', 'isAmbire', 'isMetaMask', '_isAmbire'].includes(prop)) {
