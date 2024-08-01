@@ -14,8 +14,7 @@
       "@mobile/*": ["src/mobile/*"],
       "@web/*": ["src/web/*"],
       "@benzin/*": ["src/benzin/*"]
-    },
-    "typeRoots": ["src/type-declarations"]
+    }
   },
   "exclude": [
     "node_modules",
