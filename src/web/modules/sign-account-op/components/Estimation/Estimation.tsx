@@ -160,6 +160,8 @@ const Estimation = ({
 
   const [payValue, setPayValue] = useState(payOptionsPaidByUsOrGasTank[0] || payOptionsPaidByEOA[0])
   const [initialSetupDone, setInitialSetupDone] = useState(false)
+  const isFeePaidByEOA =
+    payValue?.paidBy && payValue?.paidBy !== signAccountOpState?.accountOp?.accountAddr
 
   const setFeeOption = useCallback(
     (localPayValue: any) => {
@@ -343,7 +345,7 @@ const Estimation = ({
               label={t('Pay fee with')}
               sections={feeOptionSelectSections}
               renderSectionHeader={renderFeeOptionSectionHeader}
-              containerStyle={spacings.mb}
+              containerStyle={isFeePaidByEOA ? spacings.mbTy : spacings.mb}
               value={payValue || NO_FEE_OPTIONS}
               disabled={
                 disabled ||
@@ -354,6 +356,15 @@ const Estimation = ({
               defaultValue={payValue}
               withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
               stickySectionHeadersEnabled
+            />
+          )}
+          {isFeePaidByEOA && (
+            <Alert
+              size="sm"
+              text={t(
+                'You’ve opt in to pay the transaction with Basic account, the signing process would require 2 signatures - one by the smart account and one by the Basic account, that would broadcast the transaction.'
+              )}
+              style={spacings.mbSm}
             />
           )}
           {feeSpeeds.length > 0 && (
