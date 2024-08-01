@@ -190,12 +190,20 @@ const SignMessageScreen = () => {
   )
 
   const resolveButtonText = useMemo(() => {
-    if (isScrollToBottomForced && !hasReachedBottom) return t('Read the message')
+    if (isScrollToBottomForced && !hasReachedBottom && shouldShowFallback && !visualizeHumanized)
+      return t('Read the message')
 
     if (signStatus === 'LOADING') return t('Signing...')
 
     return t('Sign')
-  }, [hasReachedBottom, isScrollToBottomForced, signStatus, t])
+  }, [
+    hasReachedBottom,
+    isScrollToBottomForced,
+    shouldShowFallback,
+    signStatus,
+    t,
+    visualizeHumanized
+  ])
 
   const handleDismissLedgerConnectModal = useCallback(() => {
     setDidTriggerSigning(false)
