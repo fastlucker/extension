@@ -1,4 +1,4 @@
-import { bootstrap, INVITE_STORAGE_ITEM } from './functions.js'
+import { bootstrap, INVITE_STORAGE_ITEM } from '../functions.js'
 
 describe('Onboarding', () => {
   let browser
