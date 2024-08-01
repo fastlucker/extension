@@ -1,66 +1,52 @@
-import { bootstrap, clickOnElement } from './functions.js'
+import { bootstrap, INVITE_STORAGE_ITEM } from './functions.js'
 
-describe('Invite Verification', () => {
+describe('Onboarding', () => {
   let browser
   let page
   let extensionURL
   let recorder
   let serviceWorker
 
-  // TODO: Same logic as the one found in the ba_login.test.js and
-  // sa_login.test.js, consider refactoring (so it's DRY).
   beforeEach(async () => {
-    const context = await bootstrap('invite')
-    browser = context.browser
-    page = context.page
-    extensionURL = context.extensionURL
-    serviceWorker = context.serviceWorker
-    recorder = context.recorder
-
-    await serviceWorker.evaluate(() => chrome.storage.local.set({ isE2EStorageSet: true }))
+    ;({ browser, extensionURL, serviceWorker, recorder, page } = await bootstrap('onboarding'))
+    // Bypass the invite verification step
+    await serviceWorker.evaluate(
+      (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
+      JSON.stringify(INVITE_STORAGE_ITEM)
+    )
 
     const getStartedPage = `${extensionURL}/tab.html#/get-started`
     await page.goto(getStartedPage)
-    await page.waitForFunction(() => window.location.href.includes('/invite-verify'))
   })
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
+  it('should pass through the onboarding steps and agree with the terms', async () => {
+    const buttonNext = '[data-testid="stories-button-next"]'
 
-  it('should immediately redirect to the invite verification route', async () => {
-    const href = await page.evaluate(() => window.location.href)
-    expect(href).toContain('/invite-verify')
-  })
+    await page.waitForSelector(buttonNext)
+    // Click on "Next" button several times to finish the onboarding
+    await page.$eval(buttonNext, (button) => button.click())
+    await page.waitForSelector('[data-testid="stories-button-previous"]')
+    await page.$eval(buttonNext, (button) => button.click())
+    await page.$eval(buttonNext, (button) => button.click())
+    await page.$eval(buttonNext, (button) => button.click())
+    await page.$eval(buttonNext, (button) => button.click())
 
-  it('should verify a valid invite code and unlock the extension', async () => {
-    await page.type(
-      '[data-testid="verify-invite-code-input"]',
-      process.env.DEFAULT_INVITATION_CODE_DEV
-    )
-    await clickOnElement(page, '[data-testid="verify-invite-code-submit"]')
+    // check the checkbox "I agree ..."
+    await page.$eval('[data-testid="checkbox"]', (button) => button.click())
+    // Click on "Got it"
+    await page.$eval(buttonNext, (button) => button.click())
 
-    // Upon successful verification, the extension should redirect to the
-    // get-started route, which otherwise is not accessible
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/get-started')
-      },
-      { timeout: 60000 }
-    )
+    await page.waitForSelector('[data-testid="get-started-button-import"]')
 
-    const href = await page.evaluate(() => window.location.href)
-    expect(href).toContain('/get-started')
-  })
+    // Check for the text "Welcome to Ambire Wallet" on the page
+    const textExists = await page.evaluate(() => {
+      return document.body.innerText.includes('Welcome to Ambire Wallet')
+    })
 
-  it('should fire an error toast in case of an invalid invite code', async () => {
-    await page.type('[data-testid="verify-invite-code-input"]', 'дъра-бъра-два-чадъра')
-    await clickOnElement(page, '[data-testid="verify-invite-code-submit"]')
-
-    // Wait for the error toast to appear in the DOM
-    const errorToast = await page.waitForSelector('[data-testid^="error-"]', { timeout: 60000 })
-    // and check if it is visible
-    expect(await errorToast.isIntersectingViewport()).toBeTruthy()
+    expect(textExists).toBe(true)
   })
 })
