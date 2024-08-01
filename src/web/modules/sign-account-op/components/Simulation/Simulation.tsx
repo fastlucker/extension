@@ -3,7 +3,6 @@ import React, { FC, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
-import { CollectionResult } from '@ambire-common/libs/portfolio'
 import Address from '@common/components/Address'
 import Alert from '@common/components/Alert'
 import Collectible from '@common/components/Collectible'
