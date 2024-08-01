@@ -29,4 +29,5 @@ export type SelectProps = CommonSelectProps & {
 
 export type SectionedSelectProps = CommonSelectProps & {
   sections: SectionListProps<SelectValue>['sections']
+  renderSectionHeader?: SectionListProps<SelectValue>['renderSectionHeader']
 }

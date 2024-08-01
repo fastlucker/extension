@@ -10,9 +10,10 @@ import {
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
+import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
-import Select from '@common/components/Select'
+import { SectionedSelect } from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -49,6 +50,71 @@ const EstimationWrapper = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
+const sortFeeOptions = (
+  a: FeePaymentOption,
+  b: FeePaymentOption,
+  signAccountOpState: SignAccountOpController
+) => {
+  const aId = getFeeSpeedIdentifier(
+    a,
+    signAccountOpState.accountOp.accountAddr,
+    signAccountOpState.rbfAccountOps[a.paidBy]
+  )
+  const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
+  if (!aSlow) return -1
+  const aCanCoverFee = a.availableAmount >= aSlow.amount
+
+  const bId = getFeeSpeedIdentifier(
+    b,
+    signAccountOpState.accountOp.accountAddr,
+    signAccountOpState.rbfAccountOps[b.paidBy]
+  )
+  const bSlow = signAccountOpState.feeSpeeds[bId].find((speed) => speed.type === 'slow')
+  if (!bSlow) return 1
+  const bCanCoverFee = b.availableAmount >= bSlow.amount
+
+  if (aCanCoverFee && !bCanCoverFee) return -1
+  if (!aCanCoverFee && bCanCoverFee) return 1
+  if (a.token.flags.onGasTank && !b.token.flags.onGasTank) return -1
+  if (!a.token.flags.onGasTank && b.token.flags.onGasTank) return 1
+  return 0
+}
+
+const mapFeeOptions = (
+  feeOption: FeePaymentOption,
+  signAccountOpState: SignAccountOpController
+) => {
+  const gasTankKey = feeOption.token.flags.onGasTank ? 'gasTank' : ''
+
+  const id = getFeeSpeedIdentifier(
+    feeOption,
+    signAccountOpState.accountOp.accountAddr,
+    signAccountOpState.rbfAccountOps[feeOption.paidBy]
+  )
+  const speedCoverage: FeeSpeed[] = []
+  signAccountOpState.feeSpeeds[id].forEach((speed) => {
+    if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
+  })
+
+  const isDisabled = !speedCoverage.includes(FeeSpeed.Slow)
+  const disabledReason = isDisabled ? 'Insufficient amount' : undefined
+
+  return {
+    value:
+      feeOption.paidBy +
+      feeOption.token.address +
+      feeOption.token.symbol.toLowerCase() +
+      gasTankKey,
+    label: (
+      <PayOption feeOption={feeOption} disabled={isDisabled} disabledReason={disabledReason} />
+    ),
+    paidBy: feeOption.paidBy,
+    token: feeOption.token,
+    isDisabled,
+    speedCoverage
+  }
+}
+
 const Estimation = ({
   signAccountOpState,
   disabled,
@@ -63,88 +129,27 @@ const Estimation = ({
   const { minWidthSize } = useWindowSize()
   const { accountStates } = useAccountsControllerState()
 
-  const payOptions = useMemo(() => {
+  const payOptionsPaidByUsOrGasTank = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation || estimationFailed)
-      return [
-        {
-          value: 'no-option',
-          label: 'Nothing available at the moment to cover the fee',
-          paidBy: 'no-option',
-          token: null,
-          speedCoverage: []
-        }
-      ]
+      return []
+
     return signAccountOpState.availableFeeOptions
-      .sort((a: FeePaymentOption, b: FeePaymentOption) => {
-        const aId = getFeeSpeedIdentifier(
-          a,
-          signAccountOpState.accountOp.accountAddr,
-          signAccountOpState.rbfAccountOps[a.paidBy]
-        )
-        const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
-        if (!aSlow) return -1
-        const aCanCoverFee = a.availableAmount >= aSlow.amount
+      .filter((feeOption) => feeOption.paidBy === signAccountOpState.accountOp.accountAddr)
+      .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
+      .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
+  }, [estimationFailed, hasEstimation, signAccountOpState])
 
-        const bId = getFeeSpeedIdentifier(
-          b,
-          signAccountOpState.accountOp.accountAddr,
-          signAccountOpState.rbfAccountOps[b.paidBy]
-        )
-        const bSlow = signAccountOpState.feeSpeeds[bId].find((speed) => speed.type === 'slow')
-        if (!bSlow) return 1
-        const bCanCoverFee = b.availableAmount >= bSlow.amount
+  const payOptionsPaidByEOA = useMemo(() => {
+    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation || estimationFailed)
+      return []
 
-        if (aCanCoverFee && !bCanCoverFee) return -1
-        if (!aCanCoverFee && bCanCoverFee) return 1
-        if (a.token.flags.onGasTank && !b.token.flags.onGasTank) return -1
-        if (!a.token.flags.onGasTank && b.token.flags.onGasTank) return 1
-        return 0
-      })
-      .map((feeOption) => {
-        const gasTankKey = feeOption.token.flags.onGasTank ? 'gasTank' : ''
+    return signAccountOpState.availableFeeOptions
+      .filter((feeOption) => feeOption.paidBy !== signAccountOpState.accountOp.accountAddr)
+      .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
+      .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
+  }, [estimationFailed, hasEstimation, signAccountOpState])
 
-        const id = getFeeSpeedIdentifier(
-          feeOption,
-          signAccountOpState.accountOp.accountAddr,
-          signAccountOpState.rbfAccountOps[feeOption.paidBy]
-        )
-        const speedCoverage: FeeSpeed[] = []
-        signAccountOpState.feeSpeeds[id].forEach((speed) => {
-          if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
-        })
-
-        const isDisabled = !speedCoverage.includes(FeeSpeed.Slow)
-        const disabledReason = isDisabled ? 'Insufficient amount' : undefined
-
-        return {
-          value:
-            feeOption.paidBy +
-            feeOption.token.address +
-            feeOption.token.symbol.toLowerCase() +
-            gasTankKey,
-          label: (
-            <PayOption
-              feeOption={feeOption}
-              disabled={isDisabled}
-              disabledReason={disabledReason}
-            />
-          ),
-          paidBy: feeOption.paidBy,
-          token: feeOption.token,
-          isDisabled,
-          speedCoverage
-        }
-      })
-  }, [
-    signAccountOpState?.availableFeeOptions,
-    signAccountOpState?.accountOp.accountAddr,
-    signAccountOpState?.feeSpeeds,
-    hasEstimation,
-    estimationFailed,
-    signAccountOpState?.rbfAccountOps
-  ])
-
-  const [payValue, setPayValue] = useState(payOptions[0])
+  const [payValue, setPayValue] = useState(payOptionsPaidByUsOrGasTank[0] || payOptionsPaidByEOA[0])
   const [initialSetupDone, setInitialSetupDone] = useState(false)
 
   const setFeeOption = useCallback(
@@ -184,10 +189,14 @@ const Estimation = ({
   ])
 
   useEffect(() => {
-    if (!initialSetupDone && payOptions.length > 0) {
-      setPayValue(payOptions[0])
+    if (
+      !initialSetupDone &&
+      (payOptionsPaidByUsOrGasTank.length > 0 || payOptionsPaidByEOA.length > 0)
+    ) {
+      const defaultPayOption = payOptionsPaidByUsOrGasTank[0] || payOptionsPaidByEOA[0]
+      setPayValue(defaultPayOption)
     }
-  }, [initialSetupDone, payOptions])
+  }, [initialSetupDone, payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank])
 
   useEffect(() => {
     if (!initialSetupDone && payValue && payValue.token && hasEstimation && !estimationFailed) {
@@ -235,6 +244,49 @@ const Estimation = ({
     [dispatch]
   )
 
+  const feeOptionSelectSections = useMemo(
+    () => [
+      {
+        title: {
+          icon: <GasTankIcon width={16} height={16} />,
+          text: t('With fee tokens from current account')
+        },
+        data: payOptionsPaidByUsOrGasTank,
+        key: 'account-tokens'
+      },
+      {
+        title: {
+          icon: <GasTankIcon width={16} height={16} />,
+          text: t('With native assets of my basic accounts')
+        },
+        data: payOptionsPaidByEOA,
+        key: 'eoa-tokens'
+      }
+    ],
+    [payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank, t]
+  )
+
+  const renderFeeOptionSectionHeader = useCallback(
+    ({ section }: any) => {
+      if (section.data.length === 0) return null
+
+      return (
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phTy, spacings.pvTy]}>
+          {section.title.icon}
+          <Text
+            style={spacings.mlMi}
+            fontSize={minWidthSize('xl') ? 12 : 14}
+            weight="medium"
+            appearance="secondaryText"
+          >
+            {section.title.text}
+          </Text>
+        </View>
+      )
+    },
+    [minWidthSize]
+  )
+
   if ((!hasEstimation && !estimationFailed) || !signAccountOpState) {
     return (
       <EstimationWrapper>
@@ -256,10 +308,11 @@ const Estimation = ({
       {!!hasEstimation && !estimationFailed && (
         <>
           {isSmartAccount(signAccountOpState.account) && (
-            <Select
+            <SectionedSelect
               setValue={setFeeOption}
               label={t('Pay fee with')}
-              options={payOptions}
+              sections={feeOptionSelectSections}
+              renderSectionHeader={renderFeeOptionSectionHeader}
               containerStyle={spacings.mb}
               value={payValue || {}}
               disabled={disabled}
@@ -314,7 +367,7 @@ const Estimation = ({
         estimationFailed={estimationFailed}
         slowRequest={slowRequest}
         isViewOnly={isViewOnly}
-        rbfDetected={!!signAccountOpState.rbfAccountOps[payValue.paidBy]}
+        rbfDetected={payValue ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
         bundlerFailure={
           !!signAccountOpState.estimation?.nonFatalErrors?.find(
             (err) => err.cause === '4337_ESTIMATION'
