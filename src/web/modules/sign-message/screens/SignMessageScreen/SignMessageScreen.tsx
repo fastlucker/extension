@@ -38,7 +38,7 @@ const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const signStatus = signMessageState.statuses.sign
-  const [hasReachedBottom, setHasReachedBottom] = useState(false)
+  const [hasReachedBottom, setHasReachedBottom] = useState<boolean | null>(null)
   const keystoreState = useKeystoreControllerState()
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
@@ -95,9 +95,10 @@ const SignMessageScreen = () => {
   const isScrollToBottomForced = useMemo(
     () =>
       signMessageState.messageToSign?.content.kind === 'typedMessage' &&
+      typeof hasReachedBottom === 'boolean' &&
       !hasReachedBottom &&
       !visualizeHumanized,
-    [hasReachedBottom, signMessageState.messageToSign?.content?.kind, visualizeHumanized]
+    [hasReachedBottom, signMessageState.messageToSign?.content.kind, visualizeHumanized]
   )
 
   useEffect(() => {
@@ -190,20 +191,12 @@ const SignMessageScreen = () => {
   )
 
   const resolveButtonText = useMemo(() => {
-    if (isScrollToBottomForced && !hasReachedBottom && shouldShowFallback && !visualizeHumanized)
-      return t('Read the message')
+    if (isScrollToBottomForced && shouldShowFallback) return t('Read the message')
 
     if (signStatus === 'LOADING') return t('Signing...')
 
     return t('Sign')
-  }, [
-    hasReachedBottom,
-    isScrollToBottomForced,
-    shouldShowFallback,
-    signStatus,
-    t,
-    visualizeHumanized
-  ])
+  }, [isScrollToBottomForced, shouldShowFallback, signStatus, t])
 
   const handleDismissLedgerConnectModal = useCallback(() => {
     setDidTriggerSigning(false)
@@ -229,7 +222,13 @@ const SignMessageScreen = () => {
           onReject={handleReject}
           onResolve={handleSign}
           resolveButtonText={resolveButtonText}
-          resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
+          resolveDisabled={
+            signStatus === 'LOADING' ||
+            isScrollToBottomForced ||
+            isViewOnly ||
+            (!visualizeHumanized && !shouldShowFallback) ||
+            (typeof hasReachedBottom !== 'boolean' && shouldShowFallback)
+          }
           resolveButtonTestID="button-sign"
         />
       }

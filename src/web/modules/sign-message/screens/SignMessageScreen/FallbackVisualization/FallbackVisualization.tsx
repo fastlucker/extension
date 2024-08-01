@@ -28,10 +28,11 @@ const FallbackVisualization: FC<{
   const [contentHeight, setContentHeight] = useState(0)
 
   useEffect(() => {
+    if (!messageToSign || !containerHeight || !contentHeight) return
     const isScrollNotVisible = contentHeight < containerHeight
 
     setHasReachedBottom(isScrollNotVisible)
-  }, [contentHeight, containerHeight, setHasReachedBottom])
+  }, [contentHeight, containerHeight, setHasReachedBottom, messageToSign])
   if (!messageToSign) return null
 
   const { content } = messageToSign
