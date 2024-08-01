@@ -11,7 +11,6 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { AccountWithNetworkMeta } from '@ambire-common/interfaces/account'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
@@ -630,7 +629,7 @@ handleRegisterScripts()
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-                const seed = await mainCtrl.keystore.getSeed()
+                const seed = await mainCtrl.keystore.getDefaultSeed()
 
                 if (!seed) return
                 const keyIterator = new KeyIterator(seed)
