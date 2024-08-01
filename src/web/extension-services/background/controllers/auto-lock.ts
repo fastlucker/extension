@@ -1,7 +1,7 @@
 import i18n from 'i18next'
 
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
-import { browser, isManifestV3 } from '@web/constants/browserapi'
+import { browser } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 export const ALARMS_AUTO_LOCK = 'ALARMS_AUTO_LOCK'
@@ -28,8 +28,6 @@ export const getAutoLockLabel = (time: AUTO_LOCK_TIMES) => {
 
 export class AutoLockController extends EventEmitter {
   isReady: boolean = false
-
-  timer: ReturnType<typeof setTimeout> | null = null
 
   #_autoLockTime: AUTO_LOCK_TIMES = 0 // number in ms
 
@@ -59,29 +57,20 @@ export class AutoLockController extends EventEmitter {
   }
 
   #resetTimer() {
-    if (this.timer) {
-      clearTimeout(this.timer)
-    } else if (isManifestV3) {
-      browser.alarms.clear(ALARMS_AUTO_LOCK)
-    }
+    browser.alarms.clear(ALARMS_AUTO_LOCK)
+
     if (!this.autoLockTime) return
 
-    if (isManifestV3) {
-      browser.alarms.create(ALARMS_AUTO_LOCK, {
-        delayInMinutes: this.autoLockTime,
-        periodInMinutes: this.autoLockTime
-      })
-      browser.alarms.onAlarm.addListener((alarm) => {
-        if (alarm.name === ALARMS_AUTO_LOCK) {
-          this.#onAutoLock()
-          browser.alarms.clear(ALARMS_AUTO_LOCK)
-        }
-      })
-    } else {
-      this.timer = setTimeout(() => {
-        if (this.autoLockTime) this.#onAutoLock()
-      }, this.autoLockTime * 60 * 1000)
-    }
+    browser.alarms.create(ALARMS_AUTO_LOCK, {
+      delayInMinutes: this.autoLockTime,
+      periodInMinutes: this.autoLockTime
+    })
+    browser.alarms.onAlarm.addListener((alarm) => {
+      if (alarm.name === ALARMS_AUTO_LOCK) {
+        this.#onAutoLock()
+        browser.alarms.clear(ALARMS_AUTO_LOCK)
+      }
+    })
   }
 
   setLastActiveTime() {

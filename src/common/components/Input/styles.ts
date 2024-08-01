@@ -14,6 +14,7 @@ export interface Style {
   input: TextStyle
   nativeInput: ViewStyle
   button: ViewStyle
+  buttonWithBackground: ViewStyle
   infoText: TextStyle
   errorText: TextStyle
   validText: TextStyle
@@ -80,7 +81,14 @@ const getStyles = (theme: ThemeProps) =>
     button: {
       ...flexbox.justifyCenter,
       ...spacings.mlTy,
-      ...spacings.mr
+      ...spacings.mrTy,
+      ...spacings.mvTy,
+      ...spacings.pvMi,
+      ...spacings.phSm,
+      ...common.borderRadiusPrimary
+    },
+    buttonWithBackground: {
+      backgroundColor: theme.tertiaryBackground
     },
     leftIcon: {
       ...flexbox.justifyCenter,

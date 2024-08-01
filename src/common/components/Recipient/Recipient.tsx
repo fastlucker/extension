@@ -162,6 +162,7 @@ const Recipient: React.FC<Props> = ({
         buttonProps={{
           onPress: toggleAddressBookMenu
         }}
+        buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
       />
       <View style={styles.inputBottom}>
         <Text

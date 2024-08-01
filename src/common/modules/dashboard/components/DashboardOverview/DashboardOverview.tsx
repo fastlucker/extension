@@ -26,8 +26,9 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import RefreshIcon from './RefreshIcon'
+import { getUiType } from '@web/utils/uiType'
 
+import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
 
 interface Props {
@@ -39,6 +40,8 @@ interface Props {
   }
   setDashboardOverviewSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>
 }
+
+const { isPopup } = getUiType()
 
 // We create a reusable height constant for both the Balance line-height and the Balance skeleton.
 // We want both components to have the same height; otherwise, clicking on the RefreshIcon causes a layout shift.
@@ -72,12 +75,20 @@ const DashboardOverview: FC<Props> = ({
   const filterByNetworkName = useMemo(() => {
     if (!filterByNetworkId) return ''
 
-    if (filterByNetworkId === 'rewards') return 'Ambire Rewards'
-    if (filterByNetworkId === 'gasTank') return 'Gas Tank'
+    if (filterByNetworkId === 'rewards') return 'Ambire Rewards Portfolio'
+    if (filterByNetworkId === 'gasTank') return 'Gas Tank Portfolio'
 
     const network = networks.find((n) => n.id === filterByNetworkId)
 
-    return network?.name
+    let networkName = network?.name || 'Unknown Network'
+
+    networkName = `${networkName} Portfolio`
+
+    if (networkName.length > 20 && isPopup) {
+      networkName = `${networkName.slice(0, 20)}...`
+    }
+
+    return networkName
   }, [filterByNetworkId, networks])
 
   const totalPortfolioAmount = useMemo(() => {
@@ -257,6 +268,7 @@ const DashboardOverview: FC<Props> = ({
                     onPress={reloadAccount}
                     {...bindRefreshButtonAnim}
                     disabled={!accountPortfolio?.isAllReady}
+                    testID="refresh-button"
                   >
                     <RefreshIcon
                       spin={!accountPortfolio?.isAllReady}
@@ -289,7 +301,7 @@ const DashboardOverview: FC<Props> = ({
                       />
                     ) : null}
                     <Text fontSize={14} color={theme.primaryBackground} weight="medium">
-                      {filterByNetworkId ? `${filterByNetworkName} Portfolio` : t('All Networks')}
+                      {filterByNetworkId ? filterByNetworkName : t('All Networks')}
                     </Text>
                     <DownArrowIcon
                       style={spacings.mlSm}
