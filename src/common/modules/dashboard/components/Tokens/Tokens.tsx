@@ -198,7 +198,7 @@ const Tokens = ({
                 appearance="secondaryText"
                 fontSize={14}
                 weight="medium"
-                style={{ flex: 0.8, textAlign: 'right' }}
+                style={{ flex: 0.4, textAlign: 'right' }}
               >
                 {t('USD VALUE')}
               </Text>
