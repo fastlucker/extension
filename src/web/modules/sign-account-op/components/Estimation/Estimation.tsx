@@ -10,7 +10,8 @@ import {
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
-import GasTankIcon from '@common/assets/svg/GasTankIcon'
+import AssetIcon from '@common/assets/svg/AssetIcon'
+import FeeIcon from '@common/assets/svg/FeeIcon'
 import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import { SectionedSelect } from '@common/components/Select'
@@ -36,6 +37,14 @@ type Props = {
   hasEstimation: boolean
   slowRequest: boolean
   isViewOnly: boolean
+}
+
+const NO_FEE_OPTIONS = {
+  value: 'no-option',
+  label: 'Nothing available at the moment to cover the fee',
+  paidBy: 'no-option',
+  token: null,
+  speedCoverage: []
 }
 
 const EstimationWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -244,11 +253,19 @@ const Estimation = ({
     [dispatch]
   )
 
-  const feeOptionSelectSections = useMemo(
-    () => [
+  const feeOptionSelectSections = useMemo(() => {
+    if (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length)
+      return [
+        {
+          data: [NO_FEE_OPTIONS],
+          key: 'no-options'
+        }
+      ]
+
+    return [
       {
         title: {
-          icon: <GasTankIcon width={16} height={16} />,
+          icon: <FeeIcon color={theme.secondaryText} width={16} height={16} />,
           text: t('With fee tokens from current account')
         },
         data: payOptionsPaidByUsOrGasTank,
@@ -256,19 +273,18 @@ const Estimation = ({
       },
       {
         title: {
-          icon: <GasTankIcon width={16} height={16} />,
+          icon: <AssetIcon color={theme.secondaryText} width={16} height={16} />,
           text: t('With native assets of my basic accounts')
         },
         data: payOptionsPaidByEOA,
         key: 'eoa-tokens'
       }
-    ],
-    [payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank, t]
-  )
+    ]
+  }, [payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank, t, theme.secondaryText])
 
   const renderFeeOptionSectionHeader = useCallback(
     ({ section }: any) => {
-      if (section.data.length === 0) return null
+      if (section.data.length === 0 || !section.title) return null
 
       return (
         <View
@@ -277,6 +293,9 @@ const Estimation = ({
             flexbox.alignCenter,
             spacings.phTy,
             spacings.pvTy,
+            {
+              backgroundColor: theme.primaryBackground
+            },
             section?.key === 'eoa-tokens' && {
               borderTopWidth: 1,
               borderTopColor: theme.secondaryBorder
@@ -285,7 +304,7 @@ const Estimation = ({
         >
           {section.title.icon}
           <Text
-            style={spacings.mlMi}
+            style={minWidthSize('xl') ? spacings.mlMi : spacings.mlTy}
             fontSize={minWidthSize('xl') ? 12 : 14}
             weight="medium"
             appearance="secondaryText"
@@ -295,7 +314,7 @@ const Estimation = ({
         </View>
       )
     },
-    [minWidthSize, theme.secondaryBorder]
+    [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
   if ((!hasEstimation && !estimationFailed) || !signAccountOpState) {
@@ -325,9 +344,16 @@ const Estimation = ({
               sections={feeOptionSelectSections}
               renderSectionHeader={renderFeeOptionSectionHeader}
               containerStyle={spacings.mb}
-              value={payValue || {}}
-              disabled={disabled}
+              value={payValue || NO_FEE_OPTIONS}
+              disabled={
+                disabled ||
+                ((payOptionsPaidByUsOrGasTank[0]?.value === 'no-option' ||
+                  !payOptionsPaidByUsOrGasTank.length) &&
+                  !payOptionsPaidByEOA.length)
+              }
               defaultValue={payValue}
+              withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
+              stickySectionHeadersEnabled
             />
           )}
           {feeSpeeds.length > 0 && (

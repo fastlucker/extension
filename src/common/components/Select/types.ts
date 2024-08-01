@@ -30,5 +30,5 @@ export type SelectProps = CommonSelectProps & {
 export type SectionedSelectProps = CommonSelectProps &
   Pick<
     SectionListProps<SelectValue>,
-    'sections' | 'renderSectionHeader' | 'SectionSeparatorComponent'
+    'sections' | 'renderSectionHeader' | 'SectionSeparatorComponent' | 'stickySectionHeadersEnabled'
   >
