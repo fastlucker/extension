@@ -14,6 +14,7 @@ const SectionedSelect = ({
   sections,
   menuOptionHeight = MENU_OPTION_HEIGHT,
   renderSectionHeader,
+  SectionSeparatorComponent,
   ...props
 }: SectionedSelectProps) => {
   const selectData = useSelectInternal({ menuOptionHeight, setValue, value })
@@ -49,6 +50,7 @@ const SectionedSelect = ({
         initialNumToRender={15}
         windowSize={10}
         maxToRenderPerBatch={20}
+        SectionSeparatorComponent={SectionSeparatorComponent}
         removeClippedSubviews
         ListEmptyComponent={<EmptyListPlaceholder />}
       />
