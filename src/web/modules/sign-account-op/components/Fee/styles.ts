@@ -7,6 +7,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
+  containerInner: ViewStyle
   disabled: ViewStyle
 }
 
@@ -14,6 +15,10 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...flexbox.flex1,
+      ...spacings.phMi,
+      ...spacings.pvMi
+    },
+    containerInner: {
       ...flexbox.alignCenter,
       ...spacings.phTy,
       ...spacings.pvTy,
