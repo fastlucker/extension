@@ -189,6 +189,14 @@ const SignMessageScreen = () => {
     [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys, signMessageState.signingKeyType]
   )
 
+  const resolveButtonText = useMemo(() => {
+    if (isScrollToBottomForced && !hasReachedBottom) return t('Read the message')
+
+    if (signStatus === 'LOADING') return t('Signing...')
+
+    return t('Sign')
+  }, [hasReachedBottom, isScrollToBottomForced, signStatus, t])
+
   const handleDismissLedgerConnectModal = useCallback(() => {
     setDidTriggerSigning(false)
   }, [])
@@ -212,7 +220,7 @@ const SignMessageScreen = () => {
         <ActionFooter
           onReject={handleReject}
           onResolve={handleSign}
-          resolveButtonText={signStatus === 'LOADING' ? t('Signing...') : t('Sign')}
+          resolveButtonText={resolveButtonText}
           resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
           resolveButtonTestID="button-sign"
         />
