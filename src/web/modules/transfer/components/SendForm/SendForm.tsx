@@ -186,6 +186,7 @@ const SendForm = ({
           value={tokenSelectValue}
           disabled={disableForm}
           containerStyle={styles.tokenSelect}
+          testID="tokens-select"
         />
       )}
       <InputSendToken

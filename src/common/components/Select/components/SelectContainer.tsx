@@ -35,13 +35,14 @@ const SelectContainer: FC<Props> = ({
   menuRef,
   toggleMenu,
   control,
-  children
+  children,
+  testID
 }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
 
   return (
-    <View style={[styles.selectContainer, containerStyle]} testID="tokens-select">
+    <View style={[styles.selectContainer, containerStyle]} testID={testID}>
       {!!label && (
         <Text
           appearance="secondaryText"

@@ -12,7 +12,7 @@ const Select = ({
   setValue,
   value,
   options,
-
+  testID,
   menuOptionHeight = MENU_OPTION_HEIGHT,
   ...props
 }: SelectProps) => {
@@ -32,7 +32,7 @@ const Select = ({
   }, [options, search])
 
   return (
-    <SelectContainer value={value} setValue={setValue} {...selectData} {...props}>
+    <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
       <FlatList
         data={filteredOptions}
         renderItem={renderItem}

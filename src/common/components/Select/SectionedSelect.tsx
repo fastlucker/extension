@@ -16,6 +16,7 @@ const SectionedSelect = ({
   renderSectionHeader,
   SectionSeparatorComponent,
   stickySectionHeadersEnabled,
+  testID,
   ...props
 }: SectionedSelectProps) => {
   const selectData = useSelectInternal({ menuOptionHeight, setValue, value })
@@ -42,7 +43,7 @@ const SectionedSelect = ({
   }, [sections, search])
 
   return (
-    <SelectContainer value={value} setValue={setValue} {...selectData} {...props}>
+    <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
       <SectionList
         sections={filteredSections}
         renderItem={renderItem}
