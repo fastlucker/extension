@@ -1,7 +1,5 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 
-import { ethers } from 'ethers'
-import { verifyMessage } from '@ambire/signature-validator'
 import {
   typeText,
   clickOnElement,
@@ -17,7 +15,14 @@ import {
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 //--------------------------------------------------------------------------------------------------------------
-export async function makeValidTransaction(page, extensionURL, browser, feeToken) {
+export async function makeValidTransaction(
+  page,
+  extensionURL,
+  browser,
+  { shouldStopBeforeSign, feeToken } = {
+    shouldStopBeforeSign: false
+  }
+) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
   // Check if MATIC on Gas Tank are under 0.01
@@ -54,6 +59,8 @@ export async function makeValidTransaction(page, extensionURL, browser, feeToken
     browser,
     '[data-testid="transfer-button-send"]'
   )
+
+  if (shouldStopBeforeSign) return
   // Check if select fee token is visible and select the token
   if (feeToken) {
     await selectFeeToken(newPage, feeToken)
@@ -64,14 +71,14 @@ export async function makeValidTransaction(page, extensionURL, browser, feeToken
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function makeSwap(page, extensionURL, browser, feeToken) {
-  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
-  // Check if MATIC on Polygon are under 0.01
-  await checkBalanceOfToken(
-    page,
-    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-    0.01
-  )
+export async function makeSwap(
+  page,
+  extensionURL,
+  browser,
+  { shouldStopBeforeSign, feeToken } = {
+    shouldStopBeforeSign: false
+  }
+) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
   // Wait until modal with text "Introducing the Uniswap Extension." appears
@@ -151,6 +158,13 @@ export async function makeSwap(page, extensionURL, browser, feeToken) {
   // Check if select fee token is visible and select the token
   if (feeToken) {
     await selectFeeToken(newPage, feeToken)
+  }
+
+  if (shouldStopBeforeSign) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000)
+    })
+    return
   }
 
   // Sign and confirm the transaction

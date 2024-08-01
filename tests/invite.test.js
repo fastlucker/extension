@@ -5,7 +5,7 @@ describe('Invite Verification', () => {
   let page
   let extensionURL
   let recorder
-  let backgroundPage
+  let serviceWorker
 
   // TODO: Same logic as the one found in the ba_login.test.js and
   // sa_login.test.js, consider refactoring (so it's DRY).
@@ -14,10 +14,10 @@ describe('Invite Verification', () => {
     browser = context.browser
     page = context.page
     extensionURL = context.extensionURL
-    backgroundPage = context.backgroundPage
+    serviceWorker = context.serviceWorker
     recorder = context.recorder
 
-    await backgroundPage.evaluate(() => chrome.storage.local.set({ isE2EStorageSet: true }))
+    await serviceWorker.evaluate(() => chrome.storage.local.set({ isE2EStorageSet: true }))
 
     const getStartedPage = `${extensionURL}/tab.html#/get-started`
     await page.goto(getStartedPage)
