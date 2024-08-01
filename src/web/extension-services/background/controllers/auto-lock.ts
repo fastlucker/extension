@@ -29,8 +29,6 @@ export const getAutoLockLabel = (time: AUTO_LOCK_TIMES) => {
 export class AutoLockController extends EventEmitter {
   isReady: boolean = false
 
-  timer: ReturnType<typeof setTimeout> | null = null
-
   #_autoLockTime: AUTO_LOCK_TIMES = 0 // number in ms
 
   get autoLockTime() {
@@ -59,11 +57,8 @@ export class AutoLockController extends EventEmitter {
   }
 
   #resetTimer() {
-    if (this.timer) {
-      clearTimeout(this.timer)
-    } else {
-      browser.alarms.clear(ALARMS_AUTO_LOCK)
-    }
+    browser.alarms.clear(ALARMS_AUTO_LOCK)
+
     if (!this.autoLockTime) return
 
     browser.alarms.create(ALARMS_AUTO_LOCK, {
