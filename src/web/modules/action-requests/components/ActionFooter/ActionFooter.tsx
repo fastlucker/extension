@@ -57,7 +57,7 @@ const ActionFooter = ({
       <View style={flexbox.flex1}>
         <Button
           testID={resolveButtonTestID}
-          style={{ ...spacings.phLg, ...flexbox.alignSelfEnd }}
+          style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}
           size="large"
           hasBottomSpacing={false}
           onPress={handleOnResolve}
