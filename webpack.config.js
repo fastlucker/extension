@@ -95,7 +95,6 @@ module.exports = async function (env, argv) {
   const config = await createExpoWebpackConfigAsync(env, argv)
 
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
-  config.resolve.alias['@trezor/connect-web'] = '@trezor/connect-webextension'
   config.resolve.alias.dns = 'dns-js'
 
   config.entry = {
