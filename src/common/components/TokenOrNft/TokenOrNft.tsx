@@ -7,10 +7,11 @@ import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import Address from '@common/components/Address'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
+import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { isExtension } from '@web/constants/browserapi'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import Nft from './components/Nft'
 import Token from './components/Token'
@@ -31,8 +32,10 @@ const TokenOrNft: FC<Props> = ({
   sizeMultiplierSize = 1
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
+  const { addToast } = useToast()
   const [assetInfo, setAssetInfo] = useState<any>({})
   const { networks: stateNetworks } = useNetworksControllerState()
+  const { accountPortfolio } = usePortfolioControllerState()
   // @TODO fix
   const networks: Network[] = useMemo(
     () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
@@ -47,10 +50,20 @@ const TokenOrNft: FC<Props> = ({
 
   const network = useMemo(() => networks.find((n) => n.id === networkId), [networks, networkId])
   useEffect(() => {
-    if (!isExtension && network)
+    const tokenFromPortfolio = accountPortfolio?.tokens?.find(
+      (t) => t.address.toLowerCase() === address.toLowerCase()
+    )
+    const nftFromPortfolio = accountPortfolio?.collections?.find(
+      (c) => c.address.toLowerCase() === address.toLowerCase()
+    )
+    if (tokenFromPortfolio || nftFromPortfolio)
+      setAssetInfo({ tokenInfo: tokenFromPortfolio, nftInfo: nftFromPortfolio })
+    else if (network)
       resolveAssetInfo(address, network, (_assetInfo: any) => {
         setAssetInfo(_assetInfo)
-      }).catch(console.log)
+      }).catch(() => {
+        addToast('We were unable to fetch token info', { type: 'error' })
+      })
   }, [address, network])
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
