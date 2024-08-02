@@ -251,6 +251,7 @@ const Estimation = ({
           {isSmartAccount(signAccountOpState.account) && (
             <SectionedSelect
               setValue={setFeeOption}
+              testID="fee-option-select"
               label={t('Pay fee with')}
               sections={feeOptionSelectSections}
               renderSectionHeader={renderFeeOptionSectionHeader}
