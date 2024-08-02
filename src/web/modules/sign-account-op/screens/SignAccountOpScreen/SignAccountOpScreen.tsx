@@ -67,9 +67,8 @@ const SignAccountOpScreen = () => {
   }, [isChooseSignerShown, prevIsChooseSignerShown, signAccountOpState?.errors.length])
 
   const isSignLoading =
-    signAccountOpState?.status?.type === SigningStatus.InProgress ||
-    signAccountOpState?.status?.type === SigningStatus.Done ||
-    mainState.statuses.broadcastSignedAccountOp === 'LOADING'
+    mainState.statuses.handleSignAccountOp !== 'INITIAL' ||
+    mainState.statuses.broadcastSignedAccountOp !== 'INITIAL'
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -183,9 +182,7 @@ const SignAccountOpScreen = () => {
     setDidTriggerSigning(true)
     if (isAtLeastOneOfTheKeysInvolvedLedger && !isLedgerConnected) return
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
-    })
+    dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_ACCOUNT_OP' })
   }, [dispatch, isAtLeastOneOfTheKeysInvolvedLedger, isLedgerConnected])
 
   const handleChangeSigningKey = useCallback(
@@ -216,6 +213,11 @@ const SignAccountOpScreen = () => {
     [signAccountOpState?.accountKeyStoreKeys]
   )
 
+  // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
+  // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
+  const notReadyToSignButAlsoNotDone =
+    !signAccountOpState?.readyToSign && signAccountOpState?.status?.type !== SigningStatus.Done
+
   if (mainState.signAccOpInitError) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -238,7 +240,7 @@ const SignAccountOpScreen = () => {
             onAddToCart={handleAddToCart}
             isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
             isSignLoading={isSignLoading}
-            readyToSign={!!signAccountOpState && signAccountOpState.readyToSign}
+            isSignDisabled={isViewOnly || isSignLoading || notReadyToSignButAlsoNotDone}
             isViewOnly={isViewOnly}
             onSign={onSignButtonClick}
           />

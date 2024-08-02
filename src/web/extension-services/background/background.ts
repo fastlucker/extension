@@ -913,7 +913,7 @@ registerAllInpageScripts()
 
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
                 return mainCtrl?.signAccountOp?.update(params)
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
+              case 'MAIN_CONTROLLER_HANDLE_SIGN_ACCOUNT_OP': {
                 return await mainCtrl.handleSignAccountOp()
               }
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
