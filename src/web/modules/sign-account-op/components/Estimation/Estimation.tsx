@@ -119,7 +119,7 @@ const mapFeeOptions = (
     ),
     paidBy: feeOption.paidBy,
     token: feeOption.token,
-    isDisabled,
+    disabled: isDisabled,
     speedCoverage
   }
 }

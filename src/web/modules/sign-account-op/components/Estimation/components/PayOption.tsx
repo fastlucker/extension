@@ -32,10 +32,6 @@ const PayOption = ({
 
   const iconSize = 24
 
-  const disabledStyle = useMemo(() => {
-    return disabled ? { opacity: 0.5 } : {}
-  }, [disabled])
-
   const account = useMemo(
     () => accounts.find((a) => a.addr === feeOption.paidBy),
     [accounts, feeOption.paidBy]
@@ -81,8 +77,7 @@ const PayOption = ({
           spacings.mrTy,
           {
             flexGrow: 1,
-            flexShrink: 1,
-            ...disabledStyle
+            flexShrink: 1
           }
         ]}
       >

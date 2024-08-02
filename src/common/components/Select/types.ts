@@ -5,6 +5,7 @@ export type SelectValue = {
   value: string | number
   label: string | ReactNode
   icon?: string | ReactNode
+  disabled?: boolean
   [key: string]: any
 }
 

@@ -22,13 +22,13 @@ const useSelectInternal = ({ menuOptionHeight, setValue, value }: Props) => {
   )
 
   const renderItem = useCallback(
-    // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: SelectValue }) => (
       <MenuOption
         item={item}
         height={menuOptionHeight}
         isSelected={item.value === value.value}
         onPress={handleOptionSelect}
+        disabled={!!item?.disabled}
       />
     ),
     [value, menuOptionHeight, handleOptionSelect]
