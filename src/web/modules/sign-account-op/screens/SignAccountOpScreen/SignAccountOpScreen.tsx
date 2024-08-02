@@ -178,21 +178,29 @@ const SignAccountOpScreen = () => {
     setDidTriggerSigning(false)
   }, [])
 
-  const handleSign = useCallback(() => {
-    setDidTriggerSigning(true)
-    if (isAtLeastOneOfTheKeysInvolvedLedger && !isLedgerConnected) return
+  const handleSign = useCallback(
+    (_nextSigningKeyType?: string) => {
+      setDidTriggerSigning(true)
+      const isAtLeastOneOfTheCurrentKeysInvolvedLedger =
+        _nextSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
+      if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) return
 
-    dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_ACCOUNT_OP' })
-  }, [dispatch, isAtLeastOneOfTheKeysInvolvedLedger, isLedgerConnected])
+      dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_ACCOUNT_OP' })
+    },
+    [dispatch, feePayerKeyType, isLedgerConnected]
+  )
 
   const handleChangeSigningKey = useCallback(
-    (signingKeyAddr: string, _signingKeyType: string) => {
+    (signingKeyAddr: string, _nextSigningKeyType: string) => {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-        params: { signingKeyAddr, signingKeyType: _signingKeyType }
+        params: { signingKeyAddr, signingKeyType: _nextSigningKeyType }
       })
 
-      handleSign()
+      // Explicitly pass the currently selected signing key type, because
+      // the signing key type in the state might not be updated yet,
+      // and Sign Account Op controller assigns a default signing upfront
+      handleSign(_nextSigningKeyType)
     },
     [dispatch, handleSign]
   )
