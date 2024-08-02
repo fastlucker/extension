@@ -3,17 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
-import {
-  FeeSpeed,
-  SignAccountOpController,
-  SigningStatus
-} from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
 import Alert from '@common/components/Alert'
-import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import { SectionedSelect } from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -22,107 +17,15 @@ import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
+import Warnings from '@web/modules/sign-account-op/components/Warnings'
 
-import SectionHeading from '../SectionHeading'
-import Warnings from '../Warnings'
 import AmountInfo from './components/AmountInfo'
 import EstimationSkeleton from './components/EstimationSkeleton'
-import getStyles from './styles'
-
-type Props = {
-  signAccountOpState: SignAccountOpController | null
-  disabled: boolean
-  hasEstimation: boolean
-  slowRequest: boolean
-  isViewOnly: boolean
-}
-
-const NO_FEE_OPTIONS = {
-  value: 'no-option',
-  label: 'Nothing available at the moment to cover the fee',
-  paidBy: 'no-option',
-  token: null,
-  speedCoverage: []
-}
-
-const EstimationWrapper = ({ children }: { children: React.ReactNode }) => {
-  const { t } = useTranslation()
-
-  const { styles } = useTheme(getStyles)
-  return (
-    <View style={styles.estimationContainer}>
-      <SectionHeading>{t('Estimation')}</SectionHeading>
-      <ScrollableWrapper style={styles.estimationScrollView}>{children}</ScrollableWrapper>
-    </View>
-  )
-}
-
-const sortFeeOptions = (
-  a: FeePaymentOption,
-  b: FeePaymentOption,
-  signAccountOpState: SignAccountOpController
-) => {
-  const aId = getFeeSpeedIdentifier(
-    a,
-    signAccountOpState.accountOp.accountAddr,
-    signAccountOpState.rbfAccountOps[a.paidBy]
-  )
-  const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
-  if (!aSlow) return -1
-  const aCanCoverFee = a.availableAmount >= aSlow.amount
-
-  const bId = getFeeSpeedIdentifier(
-    b,
-    signAccountOpState.accountOp.accountAddr,
-    signAccountOpState.rbfAccountOps[b.paidBy]
-  )
-  const bSlow = signAccountOpState.feeSpeeds[bId].find((speed) => speed.type === 'slow')
-  if (!bSlow) return 1
-  const bCanCoverFee = b.availableAmount >= bSlow.amount
-
-  if (aCanCoverFee && !bCanCoverFee) return -1
-  if (!aCanCoverFee && bCanCoverFee) return 1
-  if (a.token.flags.onGasTank && !b.token.flags.onGasTank) return -1
-  if (!a.token.flags.onGasTank && b.token.flags.onGasTank) return 1
-  return 0
-}
-
-const mapFeeOptions = (
-  feeOption: FeePaymentOption,
-  signAccountOpState: SignAccountOpController
-) => {
-  const gasTankKey = feeOption.token.flags.onGasTank ? 'gasTank' : ''
-
-  const id = getFeeSpeedIdentifier(
-    feeOption,
-    signAccountOpState.accountOp.accountAddr,
-    signAccountOpState.rbfAccountOps[feeOption.paidBy]
-  )
-  const speedCoverage: FeeSpeed[] = []
-  signAccountOpState.feeSpeeds[id].forEach((speed) => {
-    if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
-  })
-
-  const isDisabled = !speedCoverage.includes(FeeSpeed.Slow)
-  const disabledReason = isDisabled ? 'Insufficient amount' : undefined
-
-  return {
-    value:
-      feeOption.paidBy +
-      feeOption.token.address +
-      feeOption.token.symbol.toLowerCase() +
-      gasTankKey,
-    label: (
-      <PayOption feeOption={feeOption} disabled={isDisabled} disabledReason={disabledReason} />
-    ),
-    paidBy: feeOption.paidBy,
-    token: feeOption.token,
-    disabled: isDisabled,
-    speedCoverage
-  }
-}
+import EstimationWrapper from './components/EstimationWrapper'
+import { NO_FEE_OPTIONS } from './consts'
+import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
+import { Props } from './types'
 
 const Estimation = ({
   signAccountOpState,
@@ -158,7 +61,12 @@ const Estimation = ({
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
   }, [estimationFailed, hasEstimation, signAccountOpState])
 
-  const [payValue, setPayValue] = useState(payOptionsPaidByUsOrGasTank[0] || payOptionsPaidByEOA[0])
+  const defaultFeeOption = useMemo(
+    () => getDefaultFeeOption(payOptionsPaidByUsOrGasTank, payOptionsPaidByEOA),
+    [payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank]
+  )
+
+  const [payValue, setPayValue] = useState(defaultFeeOption)
   const [initialSetupDone, setInitialSetupDone] = useState(false)
   const isFeePaidByEOA =
     payValue?.paidBy && payValue?.paidBy !== signAccountOpState?.accountOp?.accountAddr
@@ -200,14 +108,10 @@ const Estimation = ({
   ])
 
   useEffect(() => {
-    if (
-      !initialSetupDone &&
-      (payOptionsPaidByUsOrGasTank.length > 0 || payOptionsPaidByEOA.length > 0)
-    ) {
-      const defaultPayOption = payOptionsPaidByUsOrGasTank[0] || payOptionsPaidByEOA[0]
-      setPayValue(defaultPayOption)
+    if (!initialSetupDone) {
+      setPayValue(defaultFeeOption)
     }
-  }, [initialSetupDone, payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank])
+  }, [defaultFeeOption, initialSetupDone, payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank])
 
   useEffect(() => {
     if (!initialSetupDone && payValue && payValue.token && hasEstimation && !estimationFailed) {

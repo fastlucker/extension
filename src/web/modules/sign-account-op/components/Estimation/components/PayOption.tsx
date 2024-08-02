@@ -17,11 +17,9 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 const PayOption = ({
   feeOption,
-  disabled,
   disabledReason
 }: {
   feeOption: FeePaymentOption
-  disabled: boolean
   disabledReason?: string
 }) => {
   const { t } = useTranslation()
