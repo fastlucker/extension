@@ -1,4 +1,4 @@
-import { bootstrapWithStorage, saParams } from '../functions.js'
+import { bootstrapWithStorage, saParams } from '../common-helpers/functions.js'
 import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../common/balance.js'
 
 describe('sa_balance', () => {

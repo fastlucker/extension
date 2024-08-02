@@ -9,7 +9,7 @@ import {
   confirmTransactionStatus,
   selectFeeToken,
   checkBalanceOfToken
-} from '../functions'
+} from '../common-helpers/functions'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'

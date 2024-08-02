@@ -1,4 +1,4 @@
-import { bootstrap, clickOnElement } from '../functions.js'
+import { bootstrap, clickOnElement } from '../common-helpers/functions'
 
 describe('Invite Verification', () => {
   let browser

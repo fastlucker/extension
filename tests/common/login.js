@@ -3,7 +3,7 @@ import {
   clickOnElement,
   finishStoriesAndSelectAccount,
   setAmbKeyStore
-} from '../functions'
+} from '../common-helpers/functions'
 
 //--------------------------------------------------------------------------------------------------------------
 export async function createAccountWithPhrase(page, extensionURL, phrase) {

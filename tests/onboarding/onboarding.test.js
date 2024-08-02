@@ -1,4 +1,4 @@
-import { bootstrap, INVITE_STORAGE_ITEM } from '../functions.js'
+import { bootstrap, INVITE_STORAGE_ITEM } from '../common-helpers/functions'
 
 describe('Onboarding', () => {
   let browser
@@ -21,7 +21,7 @@ describe('Onboarding', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
   it('should pass through the onboarding steps and agree with the terms', async () => {
     const buttonNext = '[data-testid="stories-button-next"]'

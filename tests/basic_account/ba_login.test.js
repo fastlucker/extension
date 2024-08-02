@@ -5,7 +5,7 @@ import {
   clickOnElement,
   typeText,
   INVITE_STORAGE_ITEM
-} from '../functions.js'
+} from '../common-helpers/functions.js'
 
 import {
   createAccountWithPhrase,

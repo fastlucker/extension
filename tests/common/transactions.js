@@ -10,7 +10,7 @@ import {
   signTransaction,
   confirmTransactionStatus,
   checkBalanceOfToken
-} from '../functions.js'
+} from '../common-helpers/functions.js'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
