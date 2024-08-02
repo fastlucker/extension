@@ -8,13 +8,13 @@ import { nanoid } from 'nanoid'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
 import { APP_VERSION } from '@common/config/env'
 import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 
+import { notificationManager } from '../webapi/notification'
 import { RequestRes, Web3WalletPermission } from './types'
 
 type ProviderRequest = DappProviderRequest & { requestRes: RequestRes }
@@ -218,9 +218,7 @@ export class ProviderController {
     this.mainCtrl.dapps.updateDapp(origin, { chainId })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      await browser.notifications.create(nanoid(), {
-        type: 'basic',
-        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+      await notificationManager.create({
         title: 'Network added',
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
@@ -281,9 +279,7 @@ export class ProviderController {
     this.mainCtrl.dapps.updateDapp(origin, { chainId })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      await browser.notifications.create(nanoid(), {
-        type: 'basic',
-        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+      await notificationManager.create({
         title: 'Successfully switched network',
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
