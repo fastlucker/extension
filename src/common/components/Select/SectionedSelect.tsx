@@ -25,7 +25,7 @@ const SectionedSelect = ({
   const filteredSections = useMemo(() => {
     if (!search) return sections
 
-    return sections.map((section) => {
+    const sectionsWithFilteredData = sections.map((section) => {
       const filteredData = section.data.filter((o) => {
         let found: boolean = o.value.toString().toLowerCase().includes(search.toLowerCase())
         if (!found && typeof o.label === 'string') {
@@ -40,6 +40,12 @@ const SectionedSelect = ({
         data: filteredData
       }
     })
+
+    if (sectionsWithFilteredData.every((section) => section.data.length === 0)) {
+      return []
+    }
+
+    return sectionsWithFilteredData
   }, [sections, search])
 
   return (

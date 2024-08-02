@@ -42,14 +42,13 @@ const SelectContainer: FC<Props> = ({
   const { styles } = useTheme(getStyles)
 
   return (
-    <View style={[styles.selectContainer, containerStyle]}>
+    <View style={[styles.selectContainer, containerStyle]} testID={testID}>
       {!!label && (
         <Text
           appearance="secondaryText"
           fontSize={14}
           weight="regular"
           style={[spacings.mbMi, labelStyle]}
-          testID={testID}
         >
           {label}
         </Text>
