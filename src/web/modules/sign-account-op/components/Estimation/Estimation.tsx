@@ -426,6 +426,7 @@ const Estimation = ({
         <Alert
           type="info"
           title={t('Note')}
+          style={spacings.mtTy}
           text={t(
             'Because this is your first Ambire transaction, the fee is 32% higher than usual because we have to deploy your smart wallet. Subsequent transactions will be cheaper.'
           )}
