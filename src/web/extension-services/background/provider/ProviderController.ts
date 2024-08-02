@@ -4,17 +4,15 @@ import 'reflect-metadata'
 import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
-import { nanoid } from 'nanoid'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import bundler from '@ambire-common/services/bundlers'
 import { APP_VERSION } from '@common/config/env'
 import { delayPromise } from '@common/utils/promises'
-import { browser } from '@web/constants/browserapi'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
+import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
-import { notificationManager } from '../webapi/notification'
 import { RequestRes, Web3WalletPermission } from './types'
 
 type ProviderRequest = DappProviderRequest & { requestRes: RequestRes }
