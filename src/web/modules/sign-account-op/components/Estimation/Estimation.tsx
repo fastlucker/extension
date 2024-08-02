@@ -25,7 +25,7 @@ import EstimationSkeleton from './components/EstimationSkeleton'
 import EstimationWrapper from './components/EstimationWrapper'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
-import { Props } from './types'
+import { FeeOption, Props } from './types'
 
 const Estimation = ({
   signAccountOpState,
@@ -66,8 +66,7 @@ const Estimation = ({
     [payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank]
   )
 
-  const [payValue, setPayValue] = useState(defaultFeeOption)
-  const [initialSetupDone, setInitialSetupDone] = useState(false)
+  const [payValue, setPayValue] = useState<FeeOption | null>(null)
   const isFeePaidByEOA =
     payValue?.paidBy && payValue?.paidBy !== signAccountOpState?.accountOp?.accountAddr
 
@@ -108,17 +107,23 @@ const Estimation = ({
   ])
 
   useEffect(() => {
-    if (!initialSetupDone) {
-      setPayValue(defaultFeeOption)
-    }
-  }, [defaultFeeOption, initialSetupDone, payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank])
+    if (!hasEstimation || estimationFailed) return
 
-  useEffect(() => {
-    if (!initialSetupDone && payValue && payValue.token && hasEstimation && !estimationFailed) {
-      setInitialSetupDone(true)
-      setFeeOption(payValue)
+    const isInitialValueSet = !!payValue
+    const isPayValueOutdated =
+      payValue?.value === NO_FEE_OPTIONS.value && defaultFeeOption.value !== NO_FEE_OPTIONS.value
+
+    if (!isInitialValueSet || isPayValueOutdated) {
+      setFeeOption(defaultFeeOption)
     }
-  }, [initialSetupDone, payValue, setFeeOption, hasEstimation, estimationFailed])
+  }, [
+    payValue,
+    setFeeOption,
+    hasEstimation,
+    estimationFailed,
+    defaultFeeOption.value,
+    defaultFeeOption
+  ])
 
   const feeSpeeds = useMemo(() => {
     if (!signAccountOpState?.selectedOption) return []
@@ -223,7 +228,7 @@ const Estimation = ({
     [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
-  if ((!hasEstimation && !estimationFailed) || !signAccountOpState) {
+  if ((!hasEstimation && !estimationFailed) || !signAccountOpState || !payValue) {
     return (
       <EstimationWrapper>
         <EstimationSkeleton />
@@ -253,9 +258,8 @@ const Estimation = ({
               value={payValue || NO_FEE_OPTIONS}
               disabled={
                 disabled ||
-                ((payOptionsPaidByUsOrGasTank[0]?.value === 'no-option' ||
-                  !payOptionsPaidByUsOrGasTank.length) &&
-                  !payOptionsPaidByEOA.length)
+                (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
+                defaultFeeOption.label === NO_FEE_OPTIONS.label
               }
               defaultValue={payValue}
               withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
@@ -319,7 +323,7 @@ const Estimation = ({
         estimationFailed={estimationFailed}
         slowRequest={slowRequest}
         isViewOnly={isViewOnly}
-        rbfDetected={payValue ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
+        rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
         bundlerFailure={
           !!signAccountOpState.estimation?.nonFatalErrors?.find(
             (err) => err.cause === '4337_ESTIMATION'

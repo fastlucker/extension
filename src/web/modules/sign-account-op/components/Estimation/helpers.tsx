@@ -82,7 +82,7 @@ const getDefaultFeeOption = (
   if (payOptionsPaidByEOA.length > 0 && !payOptionsPaidByEOA[0].disabled)
     return payOptionsPaidByEOA[0]
 
-  return NO_FEE_OPTIONS
+  return NO_FEE_OPTIONS as FeeOption
 }
 
 export { sortFeeOptions, mapFeeOptions, getDefaultFeeOption }
