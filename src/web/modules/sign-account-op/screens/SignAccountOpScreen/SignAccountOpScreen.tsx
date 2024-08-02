@@ -67,7 +67,7 @@ const SignAccountOpScreen = () => {
   }, [isChooseSignerShown, prevIsChooseSignerShown, signAccountOpState?.errors.length])
 
   const isSignLoading =
-    mainState.statuses.handleSignAccountOp !== 'INITIAL' ||
+    mainState.statuses.signAccountOp !== 'INITIAL' ||
     mainState.statuses.broadcastSignedAccountOp !== 'INITIAL'
 
   useEffect(() => {
