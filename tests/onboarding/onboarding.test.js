@@ -1,4 +1,5 @@
-import { bootstrap, INVITE_STORAGE_ITEM } from '../common-helpers/functions'
+import { bootstrap } from '../common-helpers/bootstrap'
+import { INVITE_STORAGE_ITEM } from '../common-helpers/constants'
 
 describe('Onboarding', () => {
   let browser
