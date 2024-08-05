@@ -34,8 +34,10 @@ const useGetAddAccountOptions = ({
   const { dispatch } = useBackgroundService()
 
   const isAddNewSmartAccountLoading = useMemo(
-    () => mainState.statuses.importSmartAccountFromDefaultSeed !== 'INITIAL',
-    [mainState.statuses.importSmartAccountFromDefaultSeed]
+    () =>
+      mainState.statuses.importSmartAccountFromDefaultSeed !== 'INITIAL' ||
+      mainState.statuses.onAccountAdderSuccess !== 'INITIAL',
+    [mainState.statuses.importSmartAccountFromDefaultSeed, mainState.statuses.onAccountAdderSuccess]
   )
 
   return [
