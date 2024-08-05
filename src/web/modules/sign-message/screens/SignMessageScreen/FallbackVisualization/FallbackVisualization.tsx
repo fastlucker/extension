@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, Pressable, ScrollView, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { isValidAddress } from '@ambire-common/services/address'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
+import Address from '@common/components/Address'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -82,7 +84,7 @@ const FallbackVisualization: FC<{
                     <div key={JSON.stringify(i)}>
                       <Text style={i.type === 'key' ? { fontWeight: 'bold' } : {}}>
                         {'    '.repeat(i.n)}
-                        {i.value}
+                        {isValidAddress(i.value) ? <Address address={i.value} /> : i.value}
                       </Text>
                     </div>
                   ))
