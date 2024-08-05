@@ -7,7 +7,7 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 
 import { SkeletonLoaderProps } from './types'
 
-const ANIMATION_DURATION: number = 1000
+const ANIMATION_DURATION: number = 700
 
 const sharedAnimationConfig = {
   duration: ANIMATION_DURATION,
@@ -34,7 +34,7 @@ const SkeletonLoader = ({
         }),
         Animated.timing(pulseAnim, {
           ...sharedAnimationConfig,
-          toValue: lowOpacity ? 0.05 : 0.5,
+          toValue: lowOpacity ? 0.05 : 0.2,
           easing: Easing.in(Easing.ease)
         })
       ])

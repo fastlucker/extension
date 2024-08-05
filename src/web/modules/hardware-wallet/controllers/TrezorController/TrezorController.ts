@@ -5,10 +5,13 @@ import {
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import trezorConnect, { TrezorConnect } from '@trezor/connect-web'
+import trezorConnect, { TrezorConnect } from '@trezor/connect-webextension'
 
-export type { TrezorConnect } from '@trezor/connect-web'
-export type { EthereumTransaction, EthereumTransactionEIP1559 } from '@trezor/connect-web'
+export type {
+  EthereumTransaction,
+  EthereumTransactionEIP1559,
+  TrezorConnect
+} from '@trezor/connect-webextension'
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'contactus@ambire.com',
@@ -30,6 +33,12 @@ class TrezorController implements ExternalSignerController {
 
   walletSDK: TrezorConnect = trezorConnect
 
+  // Trezor SDK gets initiated once (upon extension start) and never unloaded
+  isInitiated = false
+
+  // Holds the initial load promise, so that one can wait until it completes
+  initialLoadPromise
+
   constructor() {
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
@@ -44,7 +53,16 @@ class TrezorController implements ExternalSignerController {
       }
     })
 
-    this.walletSDK.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
+    this.initialLoadPromise = this.#init()
+  }
+
+  async #init() {
+    try {
+      await this.walletSDK.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
+      this.isInitiated = true
+    } catch (error) {
+      console.error('TrezorController: failed to init the Trezor SDK', error)
+    }
   }
 
   cleanUp() {

@@ -18,12 +18,12 @@ describe('ba_login', () => {
   let page
   let extensionURL
   let recorder
-  let backgroundPage
+  let serviceWorker
 
   beforeEach(async () => {
-    ;({ browser, page, recorder, extensionURL, backgroundPage } = await bootstrap('ba_login'))
+    ;({ browser, page, recorder, extensionURL, serviceWorker } = await bootstrap('ba_login'))
     // Bypass the invite verification step
-    await backgroundPage.evaluate(
+    await serviceWorker.evaluate(
       (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
       JSON.stringify(INVITE_STORAGE_ITEM)
     )

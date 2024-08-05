@@ -498,6 +498,15 @@ const NetworkForm = ({
     [rpcUrls.length, watch, errors, handleSelectRpcUrl, validateRpcUrlAndRecalculateFeatures]
   )
 
+  const isSaveOrAddButtonDisabled = useMemo(
+    () =>
+      !!Object.keys(errors).length ||
+      isValidatingRPC ||
+      features.some((f) => f.level === 'loading') ||
+      !!features.filter((f) => f.id === 'flagged')[0],
+    [errors, features, isValidatingRPC]
+  )
+
   return (
     <>
       <View style={styles.modalHeader}>
@@ -735,12 +744,7 @@ const NetworkForm = ({
                 <Button
                   onPress={handleSubmitButtonPress}
                   text={t('Add network')}
-                  disabled={
-                    !!Object.keys(errors).length ||
-                    isValidatingRPC ||
-                    features.some((f) => f.level === 'loading') ||
-                    !!features.filter((f) => f.id === 'flagged')[0]
-                  }
+                  disabled={isSaveOrAddButtonDisabled}
                   hasBottomSpacing={false}
                   size="large"
                 />
@@ -758,9 +762,7 @@ const NetworkForm = ({
                   <Button
                     onPress={handleSubmitButtonPress}
                     text={t('Save')}
-                    disabled={
-                      !showEnableSaveButton || !!Object.keys(errors).length || isValidatingRPC
-                    }
+                    disabled={!showEnableSaveButton || isSaveOrAddButtonDisabled}
                     style={[spacings.mlMi, flexbox.flex1, { width: 160 }]}
                     hasBottomSpacing={false}
                     size="large"

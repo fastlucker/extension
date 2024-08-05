@@ -4,20 +4,20 @@ import { ScrollView } from 'react-native'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import ExpandableCard from '@common/components/ExpandableCard'
+import HumanizedVisualization from '@common/components/HumanizedVisualization'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 
-import HumanizedVisualization from '../HumanizedVisualization'
 import getStyles from './styles'
 
 interface Props {
   message: IrMessage
   networkId?: NetworkId
-  explorerUrl?: Network['explorerUrl']
   kind: IrMessage['content']['kind']
+  networks: Network[]
 }
 
-const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
+const MessageSummary = ({ message, networkId, kind, networks }: Props) => {
   const { styles } = useTheme(getStyles)
   const isTypedMessage = kind === 'typedMessage'
 
@@ -28,9 +28,8 @@ const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
       content={
         <HumanizedVisualization
           data={message.fullVisualization}
-          networkId={networkId}
-          explorerUrl={explorerUrl}
-          kind={kind}
+          networkId={networkId || 'ethereum'}
+          networks={networks}
         />
       }
       expandedContent={

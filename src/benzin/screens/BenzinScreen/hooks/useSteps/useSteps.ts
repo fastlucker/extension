@@ -32,9 +32,9 @@ import { isExtension } from '@web/constants/browserapi'
 import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
-const REFETCH_TXN_TIME = 4000 // 3.5 seconds
+const REFETCH_TXN_TIME = 4000 // 4 seconds
 const REFETCH_RECEIPT_TIME = 5000 // 5 seconds
-const REFETCH_JIFFY_SCAN_TIME = 10000 // 10 seconds as jiffy scan is a bit slower
+const REFETCH_USER_OP = 3000 // 3 seconds
 
 interface Props {
   txnId: string | null
@@ -60,6 +60,7 @@ export interface StepsData {
   userOpStatusData: { status: null | string; txnId: null | string }
   txnId: string | null
   from: string | null
+  originatedFrom: string | null
 }
 
 // if the transaction hash is found, we make the top url the real txn id
@@ -99,8 +100,9 @@ const useSteps = ({
   const [txnReceipt, setTxnReceipt] = useState<{
     actualGasCost: null | BigInt
     from: null | string
+    originatedFrom: null | string
     blockNumber: null | BigInt
-  }>({ actualGasCost: null, from: null, blockNumber: null })
+  }>({ actualGasCost: null, from: null, originatedFrom: null, blockNumber: null })
   const [blockData, setBlockData] = useState<null | Block>(null)
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
@@ -119,6 +121,7 @@ const useSteps = ({
 
     // implement the bundler fetch here, why not
     // and only listen for txIds
+    let bundlerSuccess = false
     Bundler.getStatusAndTxnId(userOpHash, network)
       .then((bundlerResult) => {
         if (bundlerResult.status === 'rejected') {
@@ -128,8 +131,10 @@ const useSteps = ({
             reason: 'Bundler has rejected the user operation'
           })
           setActiveStep('finalized')
+          bundlerSuccess = true
           return
         }
+
         if (bundlerResult.transactionHash && !userOpStatusData.txnId) {
           setUserOpStatusData({
             status: 'submitted',
@@ -137,52 +142,55 @@ const useSteps = ({
           })
           setActiveStep('in-progress')
           setUrlToTxnId(bundlerResult.transactionHash, userOpHash, network.id)
+          bundlerSuccess = true
         }
       })
       .catch((e) => e)
+      .finally(() => {
+        if (bundlerSuccess) return
 
-    fetchUserOp(userOpHash, standardOptions.fetch, getExplorerId(network))
-      .then((reqRes: any) => {
-        if (reqRes.status !== 200) {
-          setTimeout(() => {
-            setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
-          }, REFETCH_JIFFY_SCAN_TIME)
-          return
-        }
-
-        reqRes.json().then((data: any) => {
-          const userOps = data.userOps
-          if (!userOps.length) {
-            // if we can't find it in the next 2 minutes, we drop it
-            if (refetchUserOpStatusCounter > 10) {
-              setFinalizedStatus({ status: 'dropped' })
-              setActiveStep('finalized')
-              setUserOpStatusData({ status: 'not_found', txnId: null })
-              return
+        // jiffy scan fetch
+        fetchUserOp(userOpHash, standardOptions.fetch, getExplorerId(network))
+          .then((reqRes: any) => {
+            if (reqRes.status !== 200) {
+              setTimeout(() => {
+                setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
+              }, REFETCH_USER_OP)
             }
 
-            setTimeout(() => {
-              setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
-            }, REFETCH_JIFFY_SCAN_TIME)
-            return
-          }
+            reqRes.json().then((data: any) => {
+              const userOps = data.userOps
+              if (!userOps.length) {
+                // if we can't find it in the next 2 minutes, we drop it
+                if (refetchUserOpStatusCounter > 10 && !userOpStatusData.txnId) {
+                  setFinalizedStatus({ status: 'dropped' })
+                  setActiveStep('finalized')
+                  setUserOpStatusData({ status: 'not_found', txnId: null })
+                  return
+                }
 
-          // if the txnId has already been found by the bundler,
-          // do not change the state
-          if (userOpStatusData.txnId) return
+                setTimeout(() => {
+                  setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
+                }, REFETCH_USER_OP)
+                return
+              }
 
-          const foundUserOp = userOps[0]
-          if (foundUserOp.transactionHash) {
-            setUserOpStatusData({
-              status: 'submitted',
-              txnId: foundUserOp.transactionHash
+              const foundUserOp = userOps[0]
+              if (foundUserOp.transactionHash && !userOpStatusData.txnId) {
+                setUserOpStatusData({
+                  status: 'submitted',
+                  txnId: foundUserOp.transactionHash
+                })
+                setActiveStep('in-progress')
+                setUrlToTxnId(foundUserOp.transactionHash, userOpHash, network.id)
+              } else {
+                // without timeout as it takes some time for the jiffyscan call
+                setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
+              }
             })
-            setActiveStep('in-progress')
-            setUrlToTxnId(foundUserOp.transactionHash, userOpHash, network.id)
-          }
-        })
+          })
+          .catch((e) => e)
       })
-      .catch((e) => e)
   }, [
     userOpHash,
     standardOptions,
@@ -245,8 +253,13 @@ const useSteps = ({
           return
         }
 
+        // if the txn is still not fetched at this moment, do not proceed
+        // as it will set incorrect data for sender (from)
+        if (!txn) return
+
         setTxnReceipt({
-          from: txn ? getSender(txn, receipt) : receipt.from,
+          from: getSender(receipt, txn),
+          originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
         })
@@ -530,7 +543,8 @@ const useSteps = ({
     pendingTime,
     userOpStatusData,
     txnId: userOpStatusData.txnId ?? txnId,
-    from: userOp?.sender || txn?.from || txnReceipt.from
+    from: txnReceipt.from,
+    originatedFrom: txnReceipt.originatedFrom
   }
 }
 

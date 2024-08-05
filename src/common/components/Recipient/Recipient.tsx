@@ -15,8 +15,10 @@ import Text from '@common/components/Text'
 import useSelect from '@common/hooks/useSelect'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { findAccountDomainFromPartialDomain } from '@common/utils/domains'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
+import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 
 import AddContactBottomSheet from './AddContactBottomSheet'
 import AddressBookDropdown from './AddressBookDropdown'
@@ -68,6 +70,7 @@ const Recipient: React.FC<Props> = ({
   const { theme } = useTheme()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { contacts } = useAddressBookControllerState()
+  const { domains } = useDomainsControllerState()
   const {
     selectRef: addressBookSelectRef,
     menuRef: addressBookMenuRef,
@@ -87,16 +90,24 @@ const Recipient: React.FC<Props> = ({
     const lowercaseActualAddress = actualAddress.toLowerCase()
     const lowercaseName = contact.name.toLowerCase()
     const lowercaseAddress = contact.address.toLowerCase()
+    const doesDomainMatch = findAccountDomainFromPartialDomain(
+      contact.address,
+      actualAddress,
+      domains
+    )
 
     return (
       lowercaseAddress.includes(lowercaseActualAddress) ||
-      lowercaseName.includes(lowercaseActualAddress)
+      lowercaseName.includes(lowercaseActualAddress) ||
+      doesDomainMatch
     )
   })
 
   const setAddressAndCloseAddressBook = (newAddress: string) => {
+    const correspondingDomain = domains[newAddress]?.ens || domains[newAddress]?.ud
+
     setIsAddressBookVisible(false)
-    setAddress(newAddress)
+    setAddress(correspondingDomain || newAddress)
   }
 
   const visualizeAddressBookDropdown = () => {
@@ -106,7 +117,10 @@ const Recipient: React.FC<Props> = ({
   const selectSingleContactResult = () => {
     if (!isAddressBookVisible || filteredContacts.length !== 1) return
 
-    setAddressAndCloseAddressBook(filteredContacts[0].address)
+    const correspondingDomain =
+      domains[filteredContacts[0].address]?.ens || domains[filteredContacts[0].address]?.ud
+
+    setAddressAndCloseAddressBook(correspondingDomain || filteredContacts[0].address)
   }
 
   return (
@@ -127,12 +141,13 @@ const Recipient: React.FC<Props> = ({
         childrenBelowInput={
           <AddressBookDropdown
             isVisible={isAddressBookVisible}
+            actualAddress={actualAddress}
+            isRecipientDomainResolving={isRecipientDomainResolving}
             setIsVisible={setIsAddressBookVisible}
             filteredContacts={filteredContacts}
             passRef={addressBookMenuRef}
             onContactPress={setAddressAndCloseAddressBook}
             menuProps={menuProps}
-            search={actualAddress}
           />
         }
         childrenBeforeButtons={
@@ -148,6 +163,7 @@ const Recipient: React.FC<Props> = ({
         buttonProps={{
           onPress: toggleAddressBookMenu
         }}
+        buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
       />
       <View style={styles.inputBottom}>
         <Text

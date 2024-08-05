@@ -1,10 +1,11 @@
 import React, { FC, useCallback } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Alert from '@common/components/Alert'
+import NetworkBadge from '@common/components/NetworkBadge'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -49,37 +50,39 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
       <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
       <View style={styles.content}>
         {renderMessageTypeBadge(true)}
-        <View style={[flexbox.flex1, spacings.phLg]}>
-          <Trans values={{ name: dapp?.name || 'The dApp' }}>
+        <View style={[flexbox.flex1, spacings.phLg, flexbox.alignCenter]}>
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {(!messageToSign ||
               messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
-              <Text style={text.center}>
+              <Text style={[text.center, spacings.mrTy]}>
                 <Text fontSize={20} appearance="secondaryText" weight="semiBold">
-                  {'{{name}} '}
+                  {dapp?.name || t('The dApp')}
                 </Text>
                 <Text fontSize={20} appearance="secondaryText">
-                  {t('is requesting your signature')}.
+                  {t(' is requesting your signature on')}
                 </Text>
               </Text>
             )}
-            {(!messageToSign ||
-              messageToSign.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
-              <Text style={text.center}>
-                <View style={spacings.mb}>
-                  <Text fontSize={24} appearance="secondaryText">
-                    {t('Entry point authorization')}
-                  </Text>
-                </View>
-                <View>
-                  <Text fontSize={16} appearance="secondaryText">
-                    {t(
-                      'This is your first smart account transaction. In order to proceed, you must grant privileges to a smart contract called "Entry point". The Entry point is responsible for safely executing smart account transactions. This is a normal procedure and we ask all our smart account users to grant these privileges. If you still have any doubts, please contact support'
-                    )}
-                  </Text>
-                </View>
-              </Text>
-            )}
-          </Trans>
+            <NetworkBadge networkId={messageToSign?.networkId} />
+          </View>
+
+          {(!messageToSign ||
+            messageToSign.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
+            <Text style={text.center}>
+              <View style={spacings.mb}>
+                <Text fontSize={24} appearance="secondaryText">
+                  {t('Entry point authorization')}
+                </Text>
+              </View>
+              <View>
+                <Text fontSize={16} appearance="secondaryText">
+                  {t(
+                    'This is your first smart account transaction. In order to proceed, you must grant privileges to a smart contract called "Entry point". The Entry point is responsible for safely executing smart account transactions. This is a normal procedure and we ask all our smart account users to grant these privileges. If you still have any doubts, please contact support'
+                  )}
+                </Text>
+              </View>
+            </Text>
+          )}
         </View>
         {renderMessageTypeBadge()}
       </View>

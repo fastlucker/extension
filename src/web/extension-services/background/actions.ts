@@ -431,7 +431,7 @@ type InviteControllerVerifyAction = {
 
 type MainControllerTraceCallAction = {
   type: 'MAIN_CONTROLLER_TRACE_CALL'
-  params: { actionId: AccountOpAction['id']; estimation: EstimateResult }
+  params: { estimation: EstimateResult }
 }
 
 export type Action =

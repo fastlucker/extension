@@ -10,9 +10,11 @@ import {
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
 import { buildClaimWalletRequest } from '@ambire-common/libs/transfer/userRequest'
+import useConnectivity from '@common/hooks/useConnectivity'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -54,8 +56,11 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'portfolio'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
+  const { isOffline } = useConnectivity()
   const accountsState = useAccountsControllerState()
   const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
+  const mainControllerState = useMainControllerState()
+  const hasSignAccountOp = !!mainControllerState.signAccountOp
 
   const [accountPortfolio, setAccountPortfolio] =
     useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
@@ -89,7 +94,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       accountsState.selectedAccount,
       state,
       prevAccountPortfolio?.current,
-      account
+      hasSignAccountOp
     )
 
     if (
@@ -100,7 +105,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
       if (newAccountPortfolio.isAllReady) prevAccountPortfolio.current = newAccountPortfolio
     }
-  }, [accountsState.selectedAccount, account, state])
+  }, [accountsState.selectedAccount, account, state, hasSignAccountOp])
 
   useEffect(() => {
     if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
@@ -112,6 +117,30 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       setStartedLoadingAtTimestamp(Date.now())
     }
   }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
+
+  useEffect(() => {
+    if (!account || !state.latest || !state.latest[account.addr]) return
+
+    if (
+      !isOffline &&
+      state.latest[account.addr].ethereum?.criticalError &&
+      state.latest[account.addr].polygon?.criticalError &&
+      state.latest[account.addr].optimism?.criticalError &&
+      accountPortfolio.isAllReady &&
+      accountsState?.statuses?.updateAccountState === 'INITIAL'
+    ) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+      })
+    }
+  }, [
+    account,
+    accountPortfolio.isAllReady,
+    accountsState?.statuses?.updateAccountState,
+    dispatch,
+    isOffline,
+    state.latest
+  ])
 
   const getTemporaryTokens = useCallback(
     (networkId: NetworkId, tokenId: string) => {

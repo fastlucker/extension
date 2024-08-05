@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
 import DriveIcon from '@common/assets/svg/DriveIcon'
@@ -8,68 +9,92 @@ import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import { Trans, useTranslation } from '@common/config/localization'
+import useToast from '@common/hooks/useToast'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useBackgroundService from '@web/hooks/useBackgroundService'
+import text from '@common/styles/utils/text'
+import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
-import LedgerController from '../../controllers/LedgerController'
+import useLedger from '../../hooks/useLedger'
 
 type Props = {
-  modalRef: any
-  handleClose: () => void
+  isVisible: boolean
+  handleClose?: () => void
+  handleOnConnect: () => void
+  /**
+   * The WebHID API allows the authorization to happen only in the extension
+   * foreground and on a new tab (not in an action window).
+   */
+  displayOptionToAuthorize?: boolean
 }
 
-const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
-  const { updateStepperState } = useStepper()
+const LedgerConnectModal = ({
+  isVisible,
+  handleClose = () => {},
+  handleOnConnect,
+  displayOptionToAuthorize = true
+}: Props) => {
+  const { ref, open, close } = useModalize()
+  const mainCtrlState = useMainControllerState()
+  const { requestLedgerDeviceAccess } = useLedger()
+  const { addToast } = useToast()
   const { t } = useTranslation()
-  const { dispatch } = useBackgroundService()
-  const [isConnectingToDevice, setIsConnectingToDevice] = useState(false)
+  const [isGrantingPermission, setIsGrantingPermission] = useState(false)
+  const { currentAction } = useActionsControllerState()
 
   useEffect(() => {
-    updateStepperState('connect-hardware-wallet', 'hw')
-  }, [updateStepperState])
+    if (isVisible) open()
+    else close()
+  }, [open, close, isVisible])
 
   const onPressNext = async () => {
-    setIsConnectingToDevice(true)
+    setIsGrantingPermission(true)
 
-    // The WebHID API requires a user gesture to open the device selection prompt
-    // where users grant permission to the extension to access an HID device.
-    // Therefore, force unlocking the Ledger device here.
     try {
-      const ledgerCtrl = await new LedgerController()
-      await ledgerCtrl.unlock()
-      await ledgerCtrl.cleanUp()
+      await requestLedgerDeviceAccess()
+
+      handleOnConnect()
     } catch (error: any) {
+      addToast(error.message, { type: 'error' })
+    } finally {
       // Clear the flag to allow the user to try again. For all other cases,
       // the state gets reset automatically, because the on connect success
       // the flow redirects the user to another route (and this component unmounts).
-      setIsConnectingToDevice(false)
-
-      // Fail silently. The error handling feedback for the user comes from the
-      // controller instance in the background process.
-      console.error(error)
+      setIsGrantingPermission(false)
     }
-
-    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
   }
+
+  const handleOnLedgerReauthorize = useCallback(
+    () =>
+      openInternalPageInTab(`${WEB_ROUTES.hardwareWalletReconnect}?actionId=${currentAction?.id}`),
+    [currentAction?.id]
+  )
+
+  const isLoading =
+    isGrantingPermission || mainCtrlState.statuses.handleAccountAdderInitLedger === 'LOADING'
 
   return (
     <BottomSheet
       id="ledger-connect-modal"
-      sheetRef={modalRef}
-      closeBottomSheet={handleClose}
+      sheetRef={ref}
       backgroundColor="primaryBackground"
       autoWidth={false}
+      closeBottomSheet={handleClose}
+      onClosed={handleClose}
+      autoOpen={isVisible}
     >
-      <ModalHeader title={t('Connect your HW wallet')} />
+      <ModalHeader title={t('Connect Ledger')} />
       <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>
         <Text weight="regular" style={spacings.mbTy} fontSize={14}>
-          {t('1. Plug your Ledger device into your computer')}
+          {t('1. Plug in your Ledger via cable and enter a PIN to unlock it.')}
         </Text>
         <Text weight="regular" fontSize={14} style={{ marginBottom: 40 }}>
-          {t('2. Unlock your Ledger and open the Ethereum app')}
+          {t('2. Open the Ethereum app.')}
         </Text>
       </View>
       <View
@@ -79,12 +104,37 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
         <LeftPointerArrowIcon style={spacings.mrLg} />
         <AmbireDevice />
       </View>
-      <Button
-        text={isConnectingToDevice ? t('Connecting...') : t('Next')}
-        disabled={isConnectingToDevice}
-        style={{ width: 264, ...flexbox.alignSelfCenter }}
-        onPress={onPressNext}
-      />
+      <Text weight="regular" style={[spacings.mbLg, text.center]} fontSize={14}>
+        {displayOptionToAuthorize ? (
+          t('If not previously granted, Ambire will ask for permission to connect to a HID device.')
+        ) : (
+          <Trans>
+            <Text weight="regular" fontSize={14}>
+              If it still doesn&apos;t work after completing these steps,{' '}
+            </Text>
+            <Text
+              weight="semiBold"
+              fontSize={14}
+              underline
+              color={colors.heliotrope}
+              onPress={handleOnLedgerReauthorize}
+            >
+              try re-authorizing Ambire to connect
+            </Text>
+            <Text weight="regular" fontSize={14}>
+              .
+            </Text>
+          </Trans>
+        )}
+      </Text>
+      {displayOptionToAuthorize && (
+        <Button
+          text={isLoading ? t('Connecting...') : t('Authorize & Connect')}
+          disabled={isLoading}
+          style={{ width: 264, ...flexbox.alignSelfCenter }}
+          onPress={onPressNext}
+        />
+      )}
     </BottomSheet>
   )
 }

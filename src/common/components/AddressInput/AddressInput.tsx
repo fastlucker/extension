@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import EnsIcon from '@common/assets/svg/EnsIcon'
 import ScanIcon from '@common/assets/svg/ScanIcon'
@@ -18,7 +19,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import shortenAddress from '@web/utils/shortenAddress'
 
 import BottomSheet from '../BottomSheet'
 import QRCodeScanner from '../QRCodeScanner'
@@ -134,7 +134,7 @@ const AddressInput: React.FC<Props> = ({
                 />
               </AnimatedPressable>
             ) : null}
-            <View style={[styles.domainIcons, rest.button ? spacings.prTy : spacings.pr]}>
+            <View style={[styles.domainIcons, rest.button ? spacings.pr0 : spacings.pr]}>
               {childrenBeforeButtons}
               <UnstoppableDomainIcon isActive={!!udAddress} />
               <View style={styles.plTy}>

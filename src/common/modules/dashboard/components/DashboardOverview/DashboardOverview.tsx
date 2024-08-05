@@ -3,7 +3,6 @@ import { Animated, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
-import RefreshIcon from '@common/assets/svg/RefreshIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -15,7 +14,6 @@ import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
 import Routes from '@common/modules/dashboard/components/Routes'
-import useBanners from '@common/modules/dashboard/hooks/useBanners'
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -28,7 +26,9 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getUiType } from '@web/utils/uiType'
 
+import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
 
 interface Props {
@@ -40,6 +40,12 @@ interface Props {
   }
   setDashboardOverviewSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>
 }
+
+const { isPopup } = getUiType()
+
+// We create a reusable height constant for both the Balance line-height and the Balance skeleton.
+// We want both components to have the same height; otherwise, clicking on the RefreshIcon causes a layout shift.
+const BALANCE_HEIGHT = 34
 
 const DashboardOverview: FC<Props> = ({
   openReceiveModal,
@@ -54,7 +60,6 @@ const DashboardOverview: FC<Props> = ({
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { selectedAccount } = useAccountsControllerState()
-  const banners = useBanners()
   const { accountPortfolio, startedLoadingAtTimestamp, state, resetAccountPortfolioLocalState } =
     usePortfolioControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
@@ -70,12 +75,20 @@ const DashboardOverview: FC<Props> = ({
   const filterByNetworkName = useMemo(() => {
     if (!filterByNetworkId) return ''
 
-    if (filterByNetworkId === 'rewards') return 'Ambire Rewards'
-    if (filterByNetworkId === 'gasTank') return 'Gas Tank'
+    if (filterByNetworkId === 'rewards') return 'Ambire Rewards Portfolio'
+    if (filterByNetworkId === 'gasTank') return 'Gas Tank Portfolio'
 
     const network = networks.find((n) => n.id === filterByNetworkId)
 
-    return network?.name
+    let networkName = network?.name || 'Unknown Network'
+
+    networkName = `${networkName} Portfolio`
+
+    if (networkName.length > 20 && isPopup) {
+      networkName = `${networkName.slice(0, 20)}...`
+    }
+
+    return networkName
   }, [filterByNetworkId, networks])
 
   const totalPortfolioAmount = useMemo(() => {
@@ -89,15 +102,48 @@ const DashboardOverview: FC<Props> = ({
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
-  const isBalanceInaccurate = useMemo(() => {
-    const portfolioRelatedBanners = banners.filter(
-      (banner) =>
-        banner.id === `${selectedAccount}-portfolio-prices-error` ||
-        banner.id === `${selectedAccount}-portfolio-critical-error`
+  const networksWithCriticalErrors: string[] = useMemo(() => {
+    if (
+      !selectedAccount ||
+      !state.latest[selectedAccount] ||
+      state.latest[selectedAccount]?.isLoading
     )
+      return []
 
-    return !!portfolioRelatedBanners.length
-  }, [banners, selectedAccount])
+    const networkNames: string[] = []
+
+    Object.keys(state.latest[selectedAccount]).forEach((networkId) => {
+      const networkState = state.latest[selectedAccount][networkId]
+
+      if (networkState?.criticalError) {
+        let networkName
+
+        if (networkId === 'gasTank') networkName = 'Gas Tank'
+        else if (networkId === 'rewards') networkName = 'Rewards'
+        else networkName = networks.find((n) => n.id === networkId)?.name
+
+        if (!networkName) return
+
+        networkNames.push(networkName)
+      }
+    })
+
+    return networkNames
+  }, [selectedAccount, state.latest, networks])
+
+  const warningMessage = useMemo(() => {
+    if (isLoadingTakingTooLong) {
+      return t('Loading all networks is taking too long.')
+    }
+
+    if (networksWithCriticalErrors.length) {
+      return t('Total balance may be inaccurate due to network issues on {{networks}}', {
+        networks: networksWithCriticalErrors.join(', ')
+      })
+    }
+
+    return undefined
+  }, [isLoadingTakingTooLong, networksWithCriticalErrors])
 
   // Compare the current timestamp with the timestamp when the loading started
   // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
@@ -182,32 +228,21 @@ const DashboardOverview: FC<Props> = ({
               }}
             >
               <View>
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                   {!accountPortfolio?.isAllReady ? (
-                    <>
-                      <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
-                      {!!isLoadingTakingTooLong && (
-                        <>
-                          <WarningIcon
-                            color={theme.warningDecorative}
-                            style={spacings.mlMi}
-                            data-tooltip-id="loading-warning"
-                            data-tooltip-content={t('Loading all networks is taking too long.')}
-                          />
-                          <Tooltip id="loading-warning" />
-                        </>
-                      )}
-                    </>
+                    <SkeletonLoader
+                      lowOpacity
+                      width={200}
+                      height={BALANCE_HEIGHT}
+                      borderRadius={8}
+                    />
                   ) : (
-                    <View
-                      testID="full-balance"
-                      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}
-                    >
+                    <View testID="full-balance" style={[flexbox.directionRow, flexbox.alignCenter]}>
                       <Text selectable>
                         <Text
                           fontSize={32}
                           shouldScale={false}
-                          style={{ lineHeight: 34 }}
+                          style={{ lineHeight: BALANCE_HEIGHT }}
                           weight="number_bold"
                           color={theme.primaryBackground}
                           selectable
@@ -226,60 +261,69 @@ const DashboardOverview: FC<Props> = ({
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}
                         </Text>
                       </Text>
-                      {isBalanceInaccurate && (
-                        <>
-                          <WarningIcon
-                            color={theme.warningDecorative}
-                            style={spacings.mlMi}
-                            data-tooltip-id="total-balance-warning"
-                            data-tooltip-content={t(
-                              'Total balance may be inaccurate due to missing data.'
-                            )}
-                          />
-                          <Tooltip id="total-balance-warning" />
-                        </>
-                      )}
-                      <AnimatedPressable
-                        style={[spacings.mlTy, refreshButtonAnimStyle]}
-                        onPress={reloadAccount}
-                        {...bindRefreshButtonAnim}
-                      >
-                        <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                      </AnimatedPressable>
                     </View>
                   )}
-                </View>
-
-                <AnimatedPressable
-                  style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
-                  onPress={() => {
-                    navigate(WEB_ROUTES.networks, {
-                      state: {
-                        filterByNetworkId,
-                        prevTab: window.location.hash.split('?')[1] || ''
-                      }
-                    })
-                  }}
-                  {...bindNetworkButtonAnim}
-                >
-                  {filterByNetworkId ? (
-                    <FilterIcon
+                  <AnimatedPressable
+                    style={[spacings.mlTy, refreshButtonAnimStyle]}
+                    onPress={reloadAccount}
+                    {...bindRefreshButtonAnim}
+                    disabled={!accountPortfolio?.isAllReady}
+                    testID="refresh-button"
+                  >
+                    <RefreshIcon
+                      spin={!accountPortfolio?.isAllReady}
                       color={theme.primaryBackground}
                       width={16}
                       height={16}
-                      style={spacings.mrMi}
                     />
-                  ) : null}
-                  <Text fontSize={14} color={theme.primaryBackground} weight="medium">
-                    {filterByNetworkId ? `${filterByNetworkName} Portfolio` : t('All Networks')}
-                  </Text>
-                  <DownArrowIcon
-                    style={spacings.mlSm}
-                    color={theme.primaryBackground}
-                    width={12}
-                    height={6.5}
-                  />
-                </AnimatedPressable>
+                  </AnimatedPressable>
+                </View>
+
+                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <AnimatedPressable
+                    style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
+                    onPress={() => {
+                      navigate(WEB_ROUTES.networks, {
+                        state: {
+                          filterByNetworkId,
+                          prevTab: window.location.hash.split('?')[1] || ''
+                        }
+                      })
+                    }}
+                    {...bindNetworkButtonAnim}
+                  >
+                    {filterByNetworkId ? (
+                      <FilterIcon
+                        color={theme.primaryBackground}
+                        width={16}
+                        height={16}
+                        style={spacings.mrMi}
+                      />
+                    ) : null}
+                    <Text fontSize={14} color={theme.primaryBackground} weight="medium">
+                      {filterByNetworkId ? filterByNetworkName : t('All Networks')}
+                    </Text>
+                    <DownArrowIcon
+                      style={spacings.mlSm}
+                      color={theme.primaryBackground}
+                      width={12}
+                      height={6.5}
+                    />
+                  </AnimatedPressable>
+                  {!!warningMessage && (
+                    <>
+                      <WarningIcon
+                        color={theme.warningDecorative}
+                        style={spacings.mlTy}
+                        data-tooltip-id="portfolio-warning"
+                        data-tooltip-content={warningMessage}
+                        width={21}
+                        height={21}
+                      />
+                      <Tooltip id="portfolio-warning" />
+                    </>
+                  )}
+                </View>
               </View>
               <Routes openReceiveModal={openReceiveModal} />
             </Animated.View>

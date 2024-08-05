@@ -5,11 +5,12 @@ import spacings from '@common/styles/spacings'
 
 interface Props {
   children: React.ReactNode
+  withMb?: boolean
 }
 
-const SectionHeading: FC<Props> = ({ children }) => {
+const SectionHeading: FC<Props> = ({ children, withMb = true }) => {
   return (
-    <Text fontSize={20} weight="medium" style={spacings.mbLg}>
+    <Text fontSize={20} weight="medium" style={withMb ? spacings.mbLg : spacings.mb0}>
       {children}
     </Text>
   )

@@ -79,9 +79,7 @@ const Collectible: FC<Props> = ({
         <ManifestImage
           uri={imageUrl}
           size="100%"
-          skeletonProps={{
-            appearance: 'primaryBackground'
-          }}
+          skeletonAppearance="primaryBackground"
           fallback={() => (
             <View
               style={[

@@ -57,7 +57,7 @@ const flowContext = flow
           await new Promise((resolve, reject) => {
             mainCtrl.buildUserRequestFromDAppRequest(
               { ...request, method: 'unlock', params: {} },
-              { resolve, reject }
+              { resolve, reject, session: request.session }
             )
           })
           lockedOrigins.delete(origin)
@@ -86,7 +86,7 @@ const flowContext = flow
           await new Promise((resolve, reject) => {
             mainCtrl.buildUserRequestFromDAppRequest(
               { ...request, method: 'dapp_connect', params: {} },
-              { resolve, reject }
+              { resolve, reject, session: request.session }
             )
           })
           connectOrigins.delete(origin)
@@ -99,6 +99,11 @@ const flowContext = flow
             chainId: 1,
             isConnected: true
           })
+          mainCtrl.dapps.broadcastDappSessionEvent(
+            'chainChanged',
+            { chain: '0x1', networkVersion: '1' },
+            origin
+          )
         } catch (e) {
           connectOrigins.delete(origin)
           throw e
@@ -117,7 +122,11 @@ const flowContext = flow
     if (requestType && (!condition || !condition(props))) {
       // eslint-disable-next-line no-param-reassign
       props.requestRes = await new Promise((resolve, reject) => {
-        mainCtrl.buildUserRequestFromDAppRequest(request, { resolve, reject })
+        mainCtrl.buildUserRequestFromDAppRequest(request, {
+          resolve,
+          reject,
+          session: request.session
+        })
       })
     }
 

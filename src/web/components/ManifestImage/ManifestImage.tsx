@@ -16,10 +16,7 @@ type Props = {
   iconScale?: number
   containerStyle?: ViewStyle
   imageStyle?: ImageStyle
-  skeletonProps?: {
-    appearance?: SkeletonLoaderProps['appearance']
-    lowOpacity?: SkeletonLoaderProps['lowOpacity']
-  }
+  skeletonAppearance?: SkeletonLoaderProps['appearance']
 }
 
 const ManifestImage = ({
@@ -31,7 +28,7 @@ const ManifestImage = ({
   iconScale = 1,
   containerStyle = {},
   imageStyle = {},
-  skeletonProps = {}
+  skeletonAppearance
 }: Props) => {
   const { theme } = useTheme()
   const [isLoading, setIsLoading] = useState(true)
@@ -76,7 +73,7 @@ const ManifestImage = ({
             position: 'absolute',
             zIndex: 3
           }}
-          {...skeletonProps}
+          appearance={skeletonAppearance}
         />
       )}
       {!isLoading && hasError && !!fallback && fallback()}

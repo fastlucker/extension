@@ -1,13 +1,10 @@
 import React, { FC, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Avatar from '@common/components/Avatar'
-import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
@@ -23,16 +20,12 @@ import { tabLayoutWidths } from '../TabLayoutWrapper'
 import getStyles from './styles'
 
 interface Props {
-  networkName?: string
-  networkId?: NetworkIconIdType
   withAmbireLogo?: boolean
 }
-const HeaderAccountAndNetworkInfo: FC<Props> = ({
-  networkName,
-  networkId,
-  withAmbireLogo = true
-}) => {
-  const { t } = useTranslation()
+
+// @TODO: Not renamed because this component will no longer exist in the near future
+// @TODO: refactor the header component @petromir.
+const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true }) => {
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
@@ -45,10 +38,6 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
   const { isLoading, ens, ud } = useReverseLookup({ address: account?.addr || '' })
 
   const isActionWindow = getUiType().isActionWindow
-
-  const fontSize = useMemo(() => {
-    return maxWidthSize(750) ? 16 : 14
-  }, [maxWidthSize])
 
   if (!account) return null
 
@@ -73,29 +62,6 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
             </View>
             <AccountAddress isLoading={isLoading} ens={ens} ud={ud} address={account.addr} />
           </View>
-          {!!networkName && !!networkId && (
-            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlLg]}>
-              <Text
-                appearance="secondaryText"
-                weight="regular"
-                fontSize={fontSize}
-                style={spacings.mrMi}
-              >
-                {t('on')}
-              </Text>
-              <Text
-                appearance="secondaryText"
-                weight="regular"
-                style={spacings.mrMi}
-                fontSize={fontSize}
-              >
-                {networkName || t('Unknown network')}
-              </Text>
-              {networkId && maxWidthSize(800) ? (
-                <NetworkIcon id={networkId} withTooltip={false} size={40} />
-              ) : null}
-            </View>
-          )}
         </View>
         {!!withAmbireLogo && maxWidthSize(700) && (
           <View style={spacings.pl}>

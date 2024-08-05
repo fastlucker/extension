@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
+import { isValidAddress } from '@ambire-common/services/address'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
@@ -26,8 +27,9 @@ interface Props {
   filteredContacts: Contact[]
   passRef: React.RefObject<View>
   onContactPress: (address: string) => void
-  search: string
   menuProps: ReturnType<typeof useSelect>['menuProps']
+  actualAddress: string
+  isRecipientDomainResolving: boolean
 }
 
 const TitleRow = ({
@@ -65,8 +67,9 @@ const AddressBookDropdown: FC<Props> = ({
   filteredContacts,
   passRef: ref,
   onContactPress,
-  search,
-  menuProps
+  menuProps,
+  actualAddress,
+  isRecipientDomainResolving
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -85,12 +88,12 @@ const AddressBookDropdown: FC<Props> = ({
   const manuallyAddedContacts = filteredContacts.filter((contact) => !contact.isWalletAccount)
 
   useEffect(() => {
-    // Don't render if there are no contacts to show
-    // while searching. Otherwise the dropdown will be shown for addresses that aren't in
-    // the address book, which isn't desired because we display an error message and that message
-    // will be hidden by the dropdown.
-    if (!!search && filteredContacts.length === 0) setIsVisible(false)
-  }, [filteredContacts.length, search, setIsVisible])
+    // Hide the dropdown if the address is valid or if the domain is resolving
+    if (!actualAddress) return
+    if (isRecipientDomainResolving) return setIsVisible(false)
+
+    setIsVisible(!isValidAddress(actualAddress))
+  }, [actualAddress, filteredContacts.length, isRecipientDomainResolving, setIsVisible])
 
   if (!isVisible) return null
 

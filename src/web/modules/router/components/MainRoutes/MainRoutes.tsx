@@ -26,6 +26,7 @@ import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletIm
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
+import HardwareWalletReconnectScreen from '@web/modules/hardware-wallet/screens/HardwareWalletReconnectScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -77,6 +78,10 @@ const MainRoutes = () => {
             <Route
               path={WEB_ROUTES.hardwareWalletSelect}
               element={<HardwareWalletSelectorScreen />}
+            />
+            <Route
+              path={WEB_ROUTES.hardwareWalletReconnect}
+              element={<HardwareWalletReconnectScreen />}
             />
 
             <Route

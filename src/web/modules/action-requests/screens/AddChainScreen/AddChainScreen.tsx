@@ -69,7 +69,7 @@ const AddChainScreen = () => {
   const rpcUrls: string[] = useMemo(() => {
     if (!requestData || !requestData?.rpcUrls) return []
 
-    return requestData.rpcUrls.filter((url: string) => url.startsWith('http'))
+    return requestData.rpcUrls.filter((url: string) => !!url && url.startsWith('http'))
   }, [requestData])
 
   const networkDetails: AddNetworkRequestParams | undefined = useMemo(() => {

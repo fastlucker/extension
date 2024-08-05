@@ -76,7 +76,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
 
     const fee = parseFloat(
       formatUnits(
-        submittedAccountOpFee!.amount || submittedAccountOp.gasFeePayment!.amount,
+        submittedAccountOpFee!.value || submittedAccountOp.gasFeePayment!.amount,
         submittedAccountOpFee?.humanizerMeta?.token?.decimals
       )
     )
@@ -86,6 +86,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   useEffect(() => {
     ;(async () => {
       const meta = await storage.get(HUMANIZER_META_KEY, {})
+      // @TODO should be replaced with something outside the humanizer lib
       const res = humanizerMetaParsing(
         {
           humanizerMeta: meta,
@@ -95,7 +96,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         [
           {
             type: 'token',
-            amount: submittedAccountOp.gasFeePayment?.amount,
+            value: submittedAccountOp.gasFeePayment?.amount,
             address: submittedAccountOp.gasFeePayment?.inToken,
             id: randomId()
           }

@@ -6,6 +6,7 @@ import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
+import HumanizedVisualization from '@common/components/HumanizedVisualization'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -15,7 +16,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 import FallbackVisualization from './FallbackVisualization'
-import HumanizedVisualization from './HumanizedVisualization'
 import getStyles from './styles'
 
 interface Props {

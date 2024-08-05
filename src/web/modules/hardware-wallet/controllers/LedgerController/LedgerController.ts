@@ -5,8 +5,8 @@ import {
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { ledgerUSBVendorId } from '@ledgerhq/devices'
 import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
-import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 
 class LedgerController implements ExternalSignerController {
@@ -18,7 +18,7 @@ class LedgerController implements ExternalSignerController {
 
   isWebHID: boolean
 
-  transport: Transport | null
+  transport: TransportWebHID | null
 
   walletSDK: null | Eth
 
@@ -28,6 +28,8 @@ class LedgerController implements ExternalSignerController {
 
   deviceId = ''
 
+  static vendorId = ledgerUSBVendorId
+
   constructor() {
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
@@ -36,13 +38,10 @@ class LedgerController implements ExternalSignerController {
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
 
-    // When the `cleanUp` method gets passed to the `this.transport.on` and
-    // "this.transport.off" methods, the `this` context gets lost, so we need
-    // to bind it here. The `this` context in the `cleanUp` method should be
-    // the `LedgerController` instance. Not sure why this happens, since the
-    // `cleanUp` method is an arrow function and should have the `this` context
-    // of the `LedgerController` instance by default.
-    this.cleanUp = this.cleanUp.bind(this)
+    // When the `cleanUpListener` method gets passed to the navigator.hid listeners
+    // the `this` context gets lost, so we need to bind it here. The `this` context
+    // in the `cleanUp` method should be the `LedgerController` instance.
+    this.cleanUpListener = this.cleanUpListener.bind(this)
   }
 
   isUnlocked(path?: string, expectedKeyOnThisPath?: string) {
@@ -58,37 +57,60 @@ class LedgerController implements ExternalSignerController {
   }
 
   /**
+   * Checks if WebUSB transport is supported by the browser. Does not work in the
+   * service worker (background) in manifest v3, because it needs a `window` ref.
+   */
+  static isSupported = TransportWebHID.isSupported
+
+  /**
+   * Checks if at least one Ledger device is connected.
+   */
+  static isConnected = async () => {
+    const devices = await navigator.hid.getDevices()
+    return devices.filter((device) => device.vendorId === LedgerController.vendorId).length > 0
+  }
+
+  /**
+   * Grant permission to the extension service worker to access an HID device.
+   * Should be called only from the foreground and it requires a user gesture
+   * to open the device selection prompt (click on a button, etc.).
+   */
+  static grantDevicePermissionIfNeeded = async () => {
+    // If a device is already connected and permission is granted, no need to
+    // reselect it again. The service worker than can access the device.
+    if (await LedgerController.isConnected()) return
+
+    const filters = [{ vendorId: LedgerController.vendorId }]
+    const devices = await navigator.hid.requestDevice({ filters })
+
+    if (devices.length === 0) throw new Error('Ledger device connection request was canceled.')
+
+    const device = devices[0]
+    await device.open()
+  }
+
+  /**
    * The Ledger device requires a new SDK instance (session) every time the
    * device is connected (after being disconnected). This method checks if there
    * is an existing SDK instance and creates a new one if needed.
    */
   async #initSDKSessionIfNeeded() {
-    if (this.walletSDK) return
+    const isConnected = await LedgerController.isConnected()
+    if (!isConnected) throw new Error("Ledger is not connected. Please make sure it's plugged in.")
 
-    const isSupported = await TransportWebHID.isSupported()
-    if (!isSupported) {
-      throw new Error(
-        'Can not establish connection with your Ledger device. Your browser does not support WebHID. Please use a different browser.'
-      )
-    }
+    if (this.walletSDK) return
 
     try {
       // @ts-ignore types mismatch, not sure why
       this.transport = await TransportWebHID.create()
       if (!this.transport) throw new Error('Transport failed to get initialized')
-
-      this.transport.on('disconnect', this.cleanUp)
+      navigator.hid.addEventListener('disconnect', this.cleanUpListener)
 
       this.walletSDK = new Eth(this.transport)
 
-      if (this.transport.deviceModel?.id) {
-        this.deviceModel = this.transport.deviceModel.id
-      }
-      // @ts-ignore missing or bad type, but the `device` is in there
-      if (this.transport?.device?.productId) {
-        // @ts-ignore missing or bad type, but the `device` is in there
-        this.deviceId = this.transport.device.productId.toString()
-      }
+      // Transport is glitchy and its types mismatch, so overprotect by optional chaining
+      this.deviceModel = this.transport.deviceModel?.id || 'unknown'
+      this.deviceId = this.transport.device?.productId?.toString() || ''
     } catch (e: any) {
       throw new Error(normalizeLedgerMessage(e?.message))
     }
@@ -127,20 +149,24 @@ class LedgerController implements ExternalSignerController {
   }
 
   cleanUp = async () => {
+    if (!this.walletSDK) return
+
     this.walletSDK = null
     this.unlockedPath = ''
     this.unlockedPathKeyAddr = ''
 
-    try {
-      if (this.transport) {
-        this.transport.off('disconnect', this.cleanUp)
+    navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
 
-        await this.transport.close()
-        this.transport = null
-      }
-    } catch {
-      // Fail silently
+    try {
+      // Might fail if the transport was already closed, which is fine.
+      await this.transport?.close()
+    } finally {
+      this.transport = null
     }
+  }
+
+  async cleanUpListener({ device }: { device: HIDDevice }) {
+    if (device.vendorId === LedgerController.vendorId) await this.cleanUp()
   }
 }
 

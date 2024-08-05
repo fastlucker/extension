@@ -16,6 +16,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
@@ -31,15 +32,21 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
     [stateNetworks]
   )
 
-  if (!state?.network) {
-    // @TODO
-    return <Text>Loading...</Text>
-  }
-
-  if (!state?.network || (!state?.txnId && !state?.userOpHash)) {
-    // @TODO
-    return <Text>Error loading transaction</Text>
-  }
+  if (!state || !state.network)
+    return (
+      <View style={[spacings.pv, spacings.ph, flexbox.center, flexbox.flex1]}>
+        <Text fontSize={24} style={spacings.mbMi} weight="semiBold">
+          Error loading transaction
+        </Text>
+        <Text fontSize={16}>
+          Invalid url params. Make sure{' '}
+          <Text fontSize={16} weight="medium">
+            networkId and txnId/userOpHash
+          </Text>{' '}
+          are provided.
+        </Text>
+      </View>
+    )
 
   const {
     activeStep,

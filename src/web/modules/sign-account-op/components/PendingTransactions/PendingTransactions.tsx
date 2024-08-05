@@ -36,7 +36,7 @@ const PendingTransactions: FC<Props> = ({ callsToVisualize, network }) => {
                 key={`${call.fromUserRequestId!}+${i}`}
                 style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                 call={call}
-                networkId={network?.id || ''}
+                networkId={network.id}
                 testID={`recipient-address-${i}`}
                 networks={networks}
               />

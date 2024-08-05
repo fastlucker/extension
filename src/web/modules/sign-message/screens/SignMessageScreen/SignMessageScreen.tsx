@@ -5,15 +5,14 @@ import { StyleSheet, View } from 'react-native'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { Network } from '@ambire-common/interfaces/network'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
-import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
@@ -27,6 +26,8 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
+import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
+import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import MessageSummary from '@web/modules/sign-message/components/MessageSummary'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
@@ -42,7 +43,8 @@ const SignMessageScreen = () => {
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
-
+  const { isLedgerConnected } = useLedger()
+  const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
   const actionState = useActionsControllerState()
@@ -60,9 +62,6 @@ const SignMessageScreen = () => {
 
     return signMessageAction.userRequest
   }, [signMessageAction])
-
-  const networkData: Network | null =
-    networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
   const selectedAccountFull = useMemo(
     () => accounts.find((acc) => acc.addr === selectedAccount),
@@ -176,6 +175,9 @@ const SignMessageScreen = () => {
         return setIsChooseSignerShown(true)
       }
 
+      setDidTriggerSigning(true)
+      if (signMessageState.signingKeyType === 'ledger' && !isLedgerConnected) return
+
       const keyAddr = chosenSigningKeyAddr || selectedAccountKeyStoreKeys[0].addr
       const keyType = chosenSigningKeyType || selectedAccountKeyStoreKeys[0].type
 
@@ -184,8 +186,12 @@ const SignMessageScreen = () => {
         params: { keyAddr, keyType }
       })
     },
-    [dispatch, selectedAccountKeyStoreKeys]
+    [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys, signMessageState.signingKeyType]
   )
+
+  const handleDismissLedgerConnectModal = useCallback(() => {
+    setDidTriggerSigning(false)
+  }, [])
 
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
@@ -201,12 +207,7 @@ const SignMessageScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={
-        <HeaderAccountAndNetworkInfo
-          networkName={networkData?.name}
-          networkId={networkData?.id as NetworkIconIdType}
-        />
-      }
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <ActionFooter
           onReject={handleReject}
@@ -226,7 +227,7 @@ const SignMessageScreen = () => {
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
         <View style={flexbox.flex1}>
-          <Text weight="medium" fontSize={20} style={spacings.mbLg}>
+          <Text weight="medium" fontSize={20} style={[spacings.mbLg, textStyles.center]}>
             {t('Sign message')}
           </Text>
           <Info
@@ -240,8 +241,8 @@ const SignMessageScreen = () => {
             <MessageSummary
               message={signMessageState.humanReadable}
               networkId={network?.id}
-              explorerUrl={network?.explorerUrl}
               kind={signMessageState.messageToSign?.content.kind}
+              networks={networks}
             />
           ) : shouldShowFallback ? (
             <FallbackVisualization
@@ -264,6 +265,14 @@ const SignMessageScreen = () => {
             <HardwareWalletSigningModal
               keyType={signMessageState.signingKeyType}
               isVisible={signStatus === 'LOADING'}
+            />
+          )}
+          {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
+            <LedgerConnectModal
+              isVisible={!isLedgerConnected}
+              handleOnConnect={handleDismissLedgerConnectModal}
+              handleClose={handleDismissLedgerConnectModal}
+              displayOptionToAuthorize={false}
             />
           )}
         </View>

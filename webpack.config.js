@@ -16,15 +16,6 @@ const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 module.exports = async function (env, argv) {
   function processManifest(content) {
     const manifest = JSON.parse(content.toString())
-    // TODO: Manifest V3 support for Chromium browsers has also been implemented.
-    // However, there is one remaining unresolved issue: @trezor/connect-web is not intended to work in a service worker.
-    // Trezor is currently developing a new package, but it is still a work in progress.
-    // There is a workaround that enables the use of @trezor/connect-web with Manifest V3, but
-    // some of the logic needs to be moved from the service worker to the frontend (FE), which is not an optimal solution at the moment.
-    // https://github.com/trezor/trezor-suite/issues/6458
-    // https://github.com/trezor/trezor-suite/pull/9525
-    const manifestVersion = 2
-
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
 
@@ -45,65 +36,34 @@ module.exports = async function (env, argv) {
     //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
     // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
-    const csp = "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; frame-ancestors 'none';"
 
-    if (manifestVersion === 3) {
-      manifest.content_security_policy = {
-        extension_pages: csp
-      }
-      manifest.content_scripts = [
-        ...manifest.content_scripts,
-        {
-          all_frames: false,
-          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-          exclude_matches: ['*://doInWebPack.lan/*'],
-          run_at: 'document_start',
-          js: ['browser-polyfill.min.js', 'content-script.js']
+    const csp = "frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+
+    if (process.env.WEB_ENGINE === 'gecko') {
+      manifest.background = { scripts: ['background.js'] }
+      manifest.host_permissions = [...manifest.host_permissions, '<all_urls>']
+      manifest.externally_connectable = undefined
+      manifest.browser_specific_settings = {
+        gecko: {
+          id: 'webextension@ambire.com',
+          strict_min_version: '115.0'
         }
-      ]
-      // This value can be used to control the unique ID of an extension,
-      // when it is loaded during development. In prod, the ID is generated
-      // in Chrome Web Store and can't be changed.
-      // {@link https://developer.chrome.com/extensions/manifest/key}
-      // TODO: Figure out if this works for gecko
-      manifest.permissions = [...manifest.permissions, 'scripting', 'system.display']
-      manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
+      }
     }
 
-    // Tweak manifest file, so it's compatible with gecko extensions specifics
-    if (manifestVersion === 2) {
-      manifest.manifest_version = 2
-      manifest.background = {
-        scripts: ['background.js'],
-        persistent: true
-      }
-      manifest.content_scripts = [
-        ...manifest.content_scripts,
-        {
-          all_frames: true,
-          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-          exclude_matches: ['*://doInWebPack.lan/*'],
-          run_at: 'document_start',
-          js: ['browser-polyfill.min.js', 'content-script.js']
-        }
-      ]
-      // Chrome extensions do not respect `browser_specific_settings`
-      // {@link https://stackoverflow.com/a/72527986/1333836}
-      if (process.env.WEB_ENGINE === 'gecko') {
-        manifest.browser_specific_settings = {
-          gecko: {
-            id: 'webextension@ambire.com',
-            strict_min_version: '68.0'
-          }
-        }
-      }
-      manifest.web_accessible_resources = ['*']
-      manifest.host_permissions = undefined
-      manifest.browser_action = JSON.parse(JSON.stringify(manifest.action))
-      delete manifest.action
-      manifest.externally_connectable = undefined
-      manifest.permissions.push('<all_urls>')
-      manifest.content_security_policy = csp
+    const permissions = [...manifest.permissions, 'scripting', 'alarms']
+    if (process.env.WEB_ENGINE === 'webkit') permissions.push('system.display')
+    manifest.permissions = permissions
+
+    manifest.content_security_policy = { extension_pages: csp }
+
+    // This value can be used to control the unique ID of an extension,
+    // when it is loaded during development. In prod, the ID is generated
+    // in Chrome Web Store and can't be changed.
+    // {@link https://developer.chrome.com/extensions/manifest/key}
+    // TODO: key not supported in gecko browsers
+    if (process.env.WEB_ENGINE === 'webkit') {
+      manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
     }
 
     const manifestJSON = JSON.stringify(manifest, null, 2)
@@ -134,15 +94,24 @@ module.exports = async function (env, argv) {
 
   const config = await createExpoWebpackConfigAsync(env, argv)
 
-  // config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
   config.resolve.alias.dns = 'dns-js'
 
   config.entry = {
     main: config.entry[0], // the app entry
-    background: './src/web/extension-services/background/background.ts', // custom entry needed for the extension
-    'content-script': './src/web/extension-services/content-script/content-script.ts', // custom entry needed for the extension
-    inpage: './src/web/extension-services/inpage/inpage.ts' // custom entry needed for the extension
+    // extension services
+    background: './src/web/extension-services/background/background.ts',
+    'content-script':
+      './src/web/extension-services/content-script/content-script-messenger-bridge.ts',
+    'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts',
+    'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts'
+  }
+
+  if (process.env.WEB_ENGINE === 'gecko') {
+    config.entry['content-script-ambire-injection'] =
+      './src/web/extension-services/content-script/content-script-ambire-injection.ts'
+    config.entry['content-script-ethereum-injection'] =
+      './src/web/extension-services/content-script/content-script-ethereum-injection.ts'
   }
 
   // The files in the /web directory should be transpiled not just copied
@@ -185,65 +154,70 @@ module.exports = async function (env, argv) {
     }
     defaultExpoConfigPlugins.push(new MiniCssExtractPlugin()) // default filename: [name].css
   }
+
+  const extensionCopyPatterns = [
+    {
+      from: './src/web/assets',
+      to: 'assets'
+    },
+    {
+      from: './src/web/public/style.css',
+      to: 'style.css',
+      transform(content) {
+        if (process.env.WEB_ENGINE === 'gecko') {
+          return processStyleGecko(content)
+        }
+
+        return content
+      }
+    },
+    {
+      from: './src/web/public/manifest.json',
+      to: 'manifest.json',
+      transform: processManifest
+    },
+    {
+      from: './src/web/public/index.html',
+      to: 'index.html'
+    },
+    {
+      from: './src/web/public/action-window.html',
+      to: 'action-window.html'
+    },
+    {
+      from: './src/web/public/tab.html',
+      to: 'tab.html'
+    },
+    {
+      from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
+      to: 'browser-polyfill.min.js'
+    },
+    {
+      from: require.resolve('@trezor/connect-webextension/build/content-script.js'),
+      to: 'vendor/trezor/trezor-content-script.js'
+    },
+    {
+      from: require.resolve('@trezor/connect-webextension/build/trezor-connect-webextension.js'),
+      to: 'vendor/trezor/trezor-connect-webextension.js'
+    }
+  ]
+
   config.plugins = [
     ...defaultExpoConfigPlugins,
     new NodePolyfillPlugin(),
-    new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer'],
-      process: 'process'
-    }),
-    new AssetReplacePlugin({
-      '#PAGEPROVIDER#': 'inpage'
-    }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: './src/web/assets',
-          to: 'assets'
-        },
-        {
-          from: './src/web/vendor',
-          to: 'vendor'
-        },
-        {
-          from: './src/web/public/style.css',
-          to: 'style.css',
-          transform(content) {
-            if (process.env.WEB_ENGINE === 'gecko') {
-              return processStyleGecko(content)
-            }
+    new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'], process: 'process' }),
 
-            return content
-          }
-        },
-        {
-          from: './src/web/public/manifest.json',
-          to: 'manifest.json',
-          transform: processManifest
-        },
-        {
-          from: './src/web/public/index.html',
-          to: 'index.html'
-        },
-        {
-          from: './src/web/public/action-window.html',
-          to: 'action-window.html'
-        },
-        {
-          from: './src/web/public/tab.html',
-          to: 'tab.html'
-        },
-        {
-          from: './src/web/public/trezor-usb-permissions.html',
-          to: 'trezor-usb-permissions.html'
-        },
-        {
-          from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
-          to: 'browser-polyfill.min.js'
-        }
-      ]
-    })
+    new CopyPlugin({ patterns: extensionCopyPatterns })
   ]
+
+  if (process.env.WEB_ENGINE === 'gecko') {
+    config.plugins.push(
+      new AssetReplacePlugin({
+        '#AMBIREINPAGE#': 'ambire-inpage',
+        '#ETHEREUMINPAGE#': 'ethereum-inpage'
+      })
+    )
+  }
 
   if (config.mode === 'production') {
     // @TODO: The extension doesn't work with splitChunks out of the box, so disable it for now

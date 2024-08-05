@@ -124,6 +124,8 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     return !isRejected
   }, [network, stepsState.userOpStatusData])
 
+  if (!networkId || (!txnId && !userOpHash)) return null
+
   return {
     activeStep,
     handleCopyText,
