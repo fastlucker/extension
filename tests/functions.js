@@ -420,7 +420,7 @@ export async function checkForSignMessageWindow(page, extensionURL, browser) {
 //----------------------------------------------------------------------------------------------
 export async function selectFeeToken(actionWindowPage, feeToken) {
   // Click on the tokens select
-  await clickOnElement(actionWindowPage, '[data-testid="tokens-select"]')
+  await clickOnElement(actionWindowPage, '[data-testid="fee-option-select"]')
 
   // Select fee token
   await clickOnElement(actionWindowPage, feeToken)
