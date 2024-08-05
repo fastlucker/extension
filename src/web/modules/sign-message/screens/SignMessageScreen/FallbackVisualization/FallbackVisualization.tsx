@@ -82,7 +82,7 @@ const FallbackVisualization: FC<{
                 : simplifyTypedMessage(content.message).map((i) => (
                     <div key={JSON.stringify(i)}>
                       <Text style={i.type === 'key' ? { fontWeight: 'bold' } : {}}>
-                        {' '.repeat(i.n)}
+                        {'    '.repeat(i.n)}
                         {i.value}
                       </Text>
                     </div>
