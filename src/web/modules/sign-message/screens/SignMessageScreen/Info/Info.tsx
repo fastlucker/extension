@@ -75,7 +75,8 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
             </View>
           )}
           {messageToSign?.content?.kind === 'typedMessage' &&
-            messageToSign?.content?.domain?.verifyingContract && (
+            messageToSign?.content?.domain?.verifyingContract &&
+            typeof messageToSign?.content?.domain?.verifyingContract === 'string' && (
               <View style={[flexbox.directionRow, flexbox.justifyCenter]}>
                 <Text fontSize={20} appearance="secondaryText">
                   {t('To be verified by ')}
