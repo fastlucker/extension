@@ -265,6 +265,9 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
                       currentStory !== bulletIndex && hovered && styles.hoveredBullet
                     ]}
                     onPress={() => handleBulletPress(bulletIndex)}
+                    testID={
+                      currentStory === bulletIndex ? `selected-bullet-${bulletIndex}` : undefined
+                    }
                   />
                 ))}
               </View>

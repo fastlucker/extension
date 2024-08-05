@@ -18,23 +18,53 @@ describe('Onboarding', () => {
 
     const getStartedPage = `${extensionURL}/tab.html#/get-started`
     await page.goto(getStartedPage)
+
+    const href = await page.evaluate(() => window.location.href)
+    expect(href).toContain('/get-started')
   })
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
   it('should pass through the onboarding steps and agree with the terms', async () => {
+    // Click on "Next" button several times to finish the onboarding.
     const buttonNext = '[data-testid="stories-button-next"]'
 
     await page.waitForSelector(buttonNext)
+    // Check if selected bullet is correct
+    await page.$eval('[data-testid="selected-bullet-0"]', (el) =>
+      el.classList.contains('r-backgroundColor')
+    )
     // Click on "Next" button several times to finish the onboarding
     await page.$eval(buttonNext, (button) => button.click())
-    await page.waitForSelector('[data-testid="stories-button-previous"]')
+
+    await page.$eval('[data-testid="selected-bullet-1"]', (el) =>
+      el.classList.contains('r-backgroundColor')
+    )
     await page.$eval(buttonNext, (button) => button.click())
+
+    await page.$eval('[data-testid="selected-bullet-2"]', (el) =>
+      el.classList.contains('r-backgroundColor')
+    )
+
     await page.$eval(buttonNext, (button) => button.click())
+
+    await page.$eval('[data-testid="selected-bullet-3"]', (el) =>
+      el.classList.contains('r-backgroundColor')
+    )
+
     await page.$eval(buttonNext, (button) => button.click())
+
+    await page.$eval('[data-testid="selected-bullet-4"]', (el) =>
+      el.classList.contains('r-backgroundColor')
+    )
+
     await page.$eval(buttonNext, (button) => button.click())
+
+    await page.$eval('[data-testid="selected-bullet-5"]', (el) =>
+      el.classList.contains('r-backgroundColor')
+    )
 
     // check the checkbox "I agree ..."
     await page.$eval('[data-testid="checkbox"]', (button) => button.click())
