@@ -9,6 +9,7 @@ import Alert from '@common/components/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
@@ -24,6 +25,7 @@ interface Props {
 const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
   const { dapp, messageToSign } = useSignMessageControllerState()
 
   const renderMessageTypeBadge = useCallback(
@@ -47,36 +49,42 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
   )
 
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
-      <View style={styles.content}>
+    <View style={[styles.container, maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd]}>
+      {(!messageToSign || messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
+        <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
+      )}
+      <View style={[styles.content, maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd]}>
         {renderMessageTypeBadge(true)}
         <View style={[flexbox.flex1, spacings.phLg, flexbox.alignCenter]}>
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            {(!messageToSign ||
-              messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
+          {(!messageToSign ||
+            messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               <Text style={[text.center, spacings.mrTy]}>
-                <Text fontSize={20} appearance="secondaryText" weight="semiBold">
+                <Text
+                  fontSize={maxWidthSize('xl') ? 20 : 16}
+                  appearance="secondaryText"
+                  weight="semiBold"
+                >
                   {dapp?.name || t('The dApp')}
                 </Text>
-                <Text fontSize={20} appearance="secondaryText">
-                  {t(' is requesting your signature on')}
+                <Text fontSize={maxWidthSize('xl') ? 20 : 16} appearance="secondaryText">
+                  {t(' is requesting your signature on ')}
+                  <NetworkBadge networkId={messageToSign?.networkId} />
                 </Text>
               </Text>
-            )}
-            <NetworkBadge networkId={messageToSign?.networkId} />
-          </View>
+            </View>
+          )}
           {messageToSign?.content?.kind === 'typedMessage' &&
             messageToSign?.content?.domain?.verifyingContract && (
               <View style={[flexbox.directionRow, flexbox.justifyCenter]}>
                 <Text fontSize={20} appearance="secondaryText">
                   {t('To be verified by ')}
+                  <Address
+                    fontSize={16}
+                    address={messageToSign.content.domain.verifyingContract}
+                    explorerNetworkId={messageToSign.networkId}
+                  />
                 </Text>
-                <Address
-                  fontSize={16}
-                  address={messageToSign.content.domain.verifyingContract}
-                  explorerNetworkId={messageToSign.networkId}
-                />
               </View>
             )}
 
@@ -84,12 +92,13 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
             messageToSign.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
             <Text style={text.center}>
               <View style={spacings.mb}>
-                <Text fontSize={24} appearance="secondaryText">
-                  {t('Entry point authorization')}
+                <Text fontSize={maxWidthSize('xl') ? 20 : 16} appearance="secondaryText">
+                  {t('Entry point authorization on ')}
+                  <NetworkBadge networkId={messageToSign?.networkId} />
                 </Text>
               </View>
               <View>
-                <Text fontSize={16} appearance="secondaryText">
+                <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
                   {t(
                     'This is your first smart account transaction. In order to proceed, you must grant privileges to a smart contract called "Entry point". The Entry point is responsible for safely executing smart account transactions. This is a normal procedure and we ask all our smart account users to grant these privileges. If you still have any doubts, please contact support'
                   )}
@@ -101,7 +110,11 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
         {renderMessageTypeBadge()}
       </View>
       {!isViewOnly && (
-        <Alert type="warning" text={t('Please, read the entire message before signing it.')} />
+        <Alert
+          size={maxWidthSize('xl') ? 'md' : 'sm'}
+          type="warning"
+          text={t('Please, read the entire message before signing it.')}
+        />
       )}
     </View>
   )

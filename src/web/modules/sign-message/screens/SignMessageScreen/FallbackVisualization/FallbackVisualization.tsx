@@ -4,11 +4,10 @@ import { NativeScrollEvent, Pressable, ScrollView, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
-import Address from '@common/components/Address'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import { getMessageAsText, simplifyTypedMessage } from '@common/utils/messageToString'
 
 import getStyles from './styles'
@@ -24,14 +23,16 @@ const FallbackVisualization: FC<{
 }> = ({ messageToSign, setHasReachedBottom }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
   const [showRawTypedMessage, setShowRawTypedMessage] = useState(false)
   useEffect(() => {
+    if (!messageToSign || !containerHeight || !contentHeight) return
     const isScrollNotVisible = contentHeight < containerHeight
 
     setHasReachedBottom(isScrollNotVisible)
-  }, [contentHeight, containerHeight, setHasReachedBottom])
+  }, [contentHeight, containerHeight, setHasReachedBottom, messageToSign])
   if (!messageToSign) return null
 
   const { content } = messageToSign
@@ -41,11 +42,12 @@ const FallbackVisualization: FC<{
       <View style={styles.header}>
         <ErrorOutlineIcon width={36} height={36} />
         <Text style={styles.headerText}>
-          <Text appearance="warningText" weight="semiBold">
-            {t('Warning:')}{' '}
+          <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="warningText" weight="semiBold">
+            Warning:{' '}
           </Text>
-          <Text appearance="warningText">
-            {t('We are not able to decode this message for your convenience.')}
+          <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="warningText">
+            We are not able to decode this message for your convenience, and it&apos;s presented in
+            the original format.
           </Text>
         </Text>
       </View>
@@ -66,7 +68,13 @@ const FallbackVisualization: FC<{
           <Text weight="regular" appearance="secondaryText" style={spacings.mb}>
             {t(`Click here to show the ${showRawTypedMessage ? 'parsed' : 'raw'} message`)}
           </Text>
-          <Text selectable weight="regular" appearance="secondaryText" style={spacings.mb}>
+          <Text
+            selectable
+            weight="regular"
+            fontSize={maxWidthSize('xl') ? 14 : 12}
+            appearance="secondaryText"
+            style={spacings.mb}
+          >
             {content.kind === 'typedMessage'
               ? showRawTypedMessage
                 ? JSON.stringify(content.message, null, 4)

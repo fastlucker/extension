@@ -38,7 +38,7 @@ const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const signStatus = signMessageState.statuses.sign
-  const [hasReachedBottom, setHasReachedBottom] = useState(false)
+  const [hasReachedBottom, setHasReachedBottom] = useState<boolean | null>(null)
   const keystoreState = useKeystoreControllerState()
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
@@ -95,9 +95,10 @@ const SignMessageScreen = () => {
   const isScrollToBottomForced = useMemo(
     () =>
       signMessageState.messageToSign?.content.kind === 'typedMessage' &&
+      typeof hasReachedBottom === 'boolean' &&
       !hasReachedBottom &&
       !visualizeHumanized,
-    [hasReachedBottom, signMessageState.messageToSign?.content?.kind, visualizeHumanized]
+    [hasReachedBottom, signMessageState.messageToSign?.content.kind, visualizeHumanized]
   )
 
   useEffect(() => {
@@ -189,6 +190,14 @@ const SignMessageScreen = () => {
     [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys, signMessageState.signingKeyType]
   )
 
+  const resolveButtonText = useMemo(() => {
+    if (isScrollToBottomForced && shouldShowFallback) return t('Read the message')
+
+    if (signStatus === 'LOADING') return t('Signing...')
+
+    return t('Sign')
+  }, [isScrollToBottomForced, shouldShowFallback, signStatus, t])
+
   const handleDismissLedgerConnectModal = useCallback(() => {
     setDidTriggerSigning(false)
   }, [])
@@ -212,8 +221,14 @@ const SignMessageScreen = () => {
         <ActionFooter
           onReject={handleReject}
           onResolve={handleSign}
-          resolveButtonText={signStatus === 'LOADING' ? t('Signing...') : t('Sign')}
-          resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
+          resolveButtonText={resolveButtonText}
+          resolveDisabled={
+            signStatus === 'LOADING' ||
+            isScrollToBottomForced ||
+            isViewOnly ||
+            (!visualizeHumanized && !shouldShowFallback) ||
+            (typeof hasReachedBottom !== 'boolean' && shouldShowFallback)
+          }
           resolveButtonTestID="button-sign"
         />
       }
