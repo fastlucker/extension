@@ -7,6 +7,7 @@ import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import Address from '@common/components/Address'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -36,7 +37,7 @@ const TokenOrNft: FC<Props> = ({
   const [assetInfo, setAssetInfo] = useState<any>({})
   const { networks: stateNetworks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
-
+  const { t } = useTranslation()
   const networks: Network[] = useMemo(
     () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
     [stateNetworks]
@@ -51,7 +52,7 @@ const TokenOrNft: FC<Props> = ({
   const network = useMemo(() => networks.find((n) => n.id === networkId), [networks, networkId])
   useEffect(() => {
     const tokenFromPortfolio = accountPortfolio?.tokens?.find(
-      (t) => t.address.toLowerCase() === address.toLowerCase()
+      (token) => token.address.toLowerCase() === address.toLowerCase()
     )
     const nftFromPortfolio = accountPortfolio?.collections?.find(
       (c) => c.address.toLowerCase() === address.toLowerCase()
@@ -62,9 +63,9 @@ const TokenOrNft: FC<Props> = ({
       resolveAssetInfo(address, network, (_assetInfo: any) => {
         setAssetInfo(_assetInfo)
       }).catch(() => {
-        addToast('We were unable to fetch token info', { type: 'error' })
+        addToast(t('We were unable to fetch token info'), { type: 'error' })
       })
-  }, [address, network, addToast, accountPortfolio?.collections, accountPortfolio?.tokens])
+  }, [address, network, addToast, accountPortfolio?.collections, accountPortfolio?.tokens, t])
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {!assetInfo.nftInfo && !assetInfo.tokenInfo && isLoading && (
@@ -83,7 +84,7 @@ const TokenOrNft: FC<Props> = ({
           network={network}
           networks={networks}
           tokenId={value}
-          nftInfo={{ name: assetInfo?.nftInfo.name }}
+          nftInfo={{ name: assetInfo?.nftInfo }}
         />
       )}
       {(assetInfo?.tokenInfo || !isLoading) && network && (
