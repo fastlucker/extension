@@ -203,6 +203,7 @@ export class EthereumProvider extends EventEmitter {
     this.#requestPromiseCheckVisibility()
 
     // store in the EthereumProvider state the valid RPC URLs of the connected dapp to use them for forwarding
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       if (!this.#forwardRpcRequests || !this.#getFoundRpcUrls) return
 

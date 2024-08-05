@@ -53,7 +53,7 @@ const KeyStoreSetupForm = ({
     if (isKeystoreReady) {
       openDevicePasswordSetModal()
     }
-  }, [isKeystoreReady])
+  }, [isKeystoreReady, openDevicePasswordSetModal])
 
   return (
     <>
