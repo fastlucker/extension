@@ -79,7 +79,7 @@ const FallbackVisualization: FC<{
           >
             {content.kind === 'typedMessage'
               ? showRawTypedMessage
-                ? JSON.stringify(content.message, null, 4)
+                ? JSON.stringify(content, null, 4)
                 : simplifyTypedMessage(content.message).map((i) => (
                     <div key={JSON.stringify(i)}>
                       <Text style={i.type === 'key' ? { fontWeight: 'bold' } : {}}>
