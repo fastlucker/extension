@@ -15,9 +15,9 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...common.borderRadiusPrimary,
-      backgroundColor: theme.warningBackground,
+      backgroundColor: theme.secondaryBackground,
       borderWidth: 1,
-      borderColor: theme.warningDecorative,
+      borderColor: theme.primaryBorder,
       ...spacings.pvSm, // Same as MessageSummary
       ...spacings.ph,
       ...flexbox.flex1,
