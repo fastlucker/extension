@@ -36,7 +36,7 @@ const TokenOrNft: FC<Props> = ({
   const [assetInfo, setAssetInfo] = useState<any>({})
   const { networks: stateNetworks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
-  // @TODO fix
+
   const networks: Network[] = useMemo(
     () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
     [stateNetworks]
@@ -64,7 +64,7 @@ const TokenOrNft: FC<Props> = ({
       }).catch(() => {
         addToast('We were unable to fetch token info', { type: 'error' })
       })
-  }, [address, network])
+  }, [address, network, addToast, accountPortfolio?.collections, accountPortfolio?.tokens])
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {!network ? (
