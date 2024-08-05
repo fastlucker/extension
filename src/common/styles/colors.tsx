@@ -62,6 +62,7 @@ const colors = {
   titan_05: 'rgba(235, 236, 255, 0.05)',
   titan_25: 'rgba(235, 236, 255, 0.25)',
   titan_50: 'rgba(235, 236, 255, 0.5)',
+  azureBlue: '#0F71DD',
 
   zircon: '#F7F8FF',
   mischka: '#D6D7E1',
