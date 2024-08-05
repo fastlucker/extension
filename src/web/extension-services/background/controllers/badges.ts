@@ -31,7 +31,11 @@ export class BadgesController {
     })
 
     this.#mainCtrl.keystore.onUpdate(() => {
-      if (!mainCtrl.keystore.isUnlocked && (!this.#icon || this.#icon === 'default')) {
+      if (
+        mainCtrl.keystore.hasPasswordSecret &&
+        !mainCtrl.keystore.isUnlocked &&
+        (!this.#icon || this.#icon === 'default')
+      ) {
         this.#icon = 'locked'
         setExtensionIcon('locked')
       }
