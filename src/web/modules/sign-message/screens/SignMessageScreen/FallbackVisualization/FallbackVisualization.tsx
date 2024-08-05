@@ -71,13 +71,13 @@ const FallbackVisualization: FC<{
         }}
         scrollEventThrottle={400}
       >
-        <Text weight="regular" appearance="secondaryText" style={spacings.mb}>
-          {t('The entries in the message:')}
-        </Text>
-        <Text selectable weight="regular" appearance="secondaryText" style={spacings.mb}>
-          {content.kind === 'typedMessage' ? (
-            <Pressable onPress={() => setShowRawTypedMessage(!showRawTypedMessage)}>
-              {showRawTypedMessage
+        <Pressable onPress={() => setShowRawTypedMessage(!showRawTypedMessage)}>
+          <Text weight="regular" appearance="secondaryText" style={spacings.mb}>
+            {t(`Click here to show the ${showRawTypedMessage ? 'parsed' : 'raw'} message`)}
+          </Text>
+          <Text selectable weight="regular" appearance="secondaryText" style={spacings.mb}>
+            {content.kind === 'typedMessage'
+              ? showRawTypedMessage
                 ? JSON.stringify(content.message, null, 4)
                 : simplifyTypedMessage(content.message).map((i) => (
                     <div key={JSON.stringify(i)}>
@@ -86,12 +86,10 @@ const FallbackVisualization: FC<{
                         {i.value}
                       </Text>
                     </div>
-                  ))}
-            </Pressable>
-          ) : (
-            getMessageAsText(content.message) || t('(Empty message)')
-          )}
-        </Text>
+                  ))
+              : getMessageAsText(content.message) || t('(Empty message)')}
+          </Text>
+        </Pressable>
       </ScrollView>
     </View>
   )
