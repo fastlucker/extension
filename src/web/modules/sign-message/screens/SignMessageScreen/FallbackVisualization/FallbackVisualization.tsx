@@ -49,16 +49,7 @@ const FallbackVisualization: FC<{
           </Text>
         </Text>
       </View>
-      {messageToSign?.content?.kind === 'typedMessage' &&
-        messageToSign?.content?.domain?.verifyingContract && (
-          <View style={flexbox.directionRow}>
-            <Text style={spacings.mrTy}>To be verified by</Text>
-            <Address
-              address={messageToSign.content.domain.verifyingContract}
-              explorerNetworkId={messageToSign.networkId}
-            />
-          </View>
-        )}
+
       <ScrollView
         onScroll={(e) => {
           if (isCloseToBottom(e.nativeEvent)) setHasReachedBottom(true)

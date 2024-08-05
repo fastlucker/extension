@@ -4,6 +4,7 @@ import { Image, View } from 'react-native'
 
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import InfoIcon from '@common/assets/svg/InfoIcon'
+import Address from '@common/components/Address'
 import Alert from '@common/components/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Text from '@common/components/Text'
@@ -65,6 +66,19 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
             )}
             <NetworkBadge networkId={messageToSign?.networkId} />
           </View>
+          {messageToSign?.content?.kind === 'typedMessage' &&
+            messageToSign?.content?.domain?.verifyingContract && (
+              <View style={[flexbox.directionRow, flexbox.justifyCenter]}>
+                <Text fontSize={20} appearance="secondaryText">
+                  {t('To be verified by ')}
+                </Text>
+                <Address
+                  fontSize={16}
+                  address={messageToSign.content.domain.verifyingContract}
+                  explorerNetworkId={messageToSign.networkId}
+                />
+              </View>
+            )}
 
           {(!messageToSign ||
             messageToSign.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
