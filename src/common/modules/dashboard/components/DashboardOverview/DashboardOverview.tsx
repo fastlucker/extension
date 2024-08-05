@@ -268,6 +268,7 @@ const DashboardOverview: FC<Props> = ({
                     onPress={reloadAccount}
                     {...bindRefreshButtonAnim}
                     disabled={!accountPortfolio?.isAllReady}
+                    testID="refresh-button"
                   >
                     <RefreshIcon
                       spin={!accountPortfolio?.isAllReady}

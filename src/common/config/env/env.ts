@@ -52,7 +52,8 @@ const CONFIG: Config = {
   SENTRY_DSN,
   NFT_CDN_URL: NFT_CDN_URL || 'https://nftcdn.ambire.com',
   ENVIRONMENT: process.env.ENVIRONMENT || 'development',
-  DEFAULT_INVITATION_CODE_DEV: process.env.DEFAULT_INVITATION_CODE_DEV || ''
+  DEFAULT_INVITATION_CODE_DEV: process.env.DEFAULT_INVITATION_CODE_DEV || '',
+  DEFAULT_KEYSTORE_PASSWORD_DEV: process.env.DEFAULT_KEYSTORE_PASSWORD_DEV || ''
 }
 
 if (isProd) {

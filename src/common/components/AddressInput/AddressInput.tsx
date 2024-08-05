@@ -134,7 +134,7 @@ const AddressInput: React.FC<Props> = ({
                 />
               </AnimatedPressable>
             ) : null}
-            <View style={[styles.domainIcons, rest.button ? spacings.prTy : spacings.pr]}>
+            <View style={[styles.domainIcons, rest.button ? spacings.pr0 : spacings.pr]}>
               {childrenBeforeButtons}
               <UnstoppableDomainIcon isActive={!!udAddress} />
               <View style={styles.plTy}>

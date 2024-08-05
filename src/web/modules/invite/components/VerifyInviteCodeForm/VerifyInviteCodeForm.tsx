@@ -5,10 +5,9 @@ import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
-import { isDev, isWeb, isTesting } from '@common/config/env'
+import { isDev, isTesting, isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import { DEFAULT_INVITATION_CODE_DEV } from '@env'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -18,7 +17,6 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const { addToast } = useToast()
   const { inviteStatus } = useInviteControllerState()
   const {
     control,
@@ -35,10 +33,9 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
   // on success and 2) prevent someone from navigating to this route directly.
   useEffect(() => {
     if (inviteStatus === INVITE_STATUS.VERIFIED) {
-      addToast(t('Your invite code was verified successfully.'), { type: 'success' })
       navigate('/')
     }
-  }, [addToast, inviteStatus, navigate, t])
+  }, [inviteStatus, navigate, t])
 
   const handleFormSubmit = useCallback(
     () =>

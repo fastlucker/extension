@@ -179,18 +179,6 @@ export class EthereumProvider extends EventEmitter {
   }
 
   #handleBackgroundMessage = ({ event, data }: any) => {
-    if (data?.type === 'setDefaultWallet') {
-      ;(window as any).defaultWallet = data?.value
-      if (data.shouldReload) {
-        if (document.hasFocus()) {
-          window.location.reload()
-        } else {
-          this.#shouldReloadOnFocus = true
-        }
-      }
-      return
-    }
-
     if ((this.#pushEventHandlers as any)[event]) {
       return (this.#pushEventHandlers as any)[event](data)
     }
@@ -215,6 +203,7 @@ export class EthereumProvider extends EventEmitter {
     this.#requestPromiseCheckVisibility()
 
     // store in the EthereumProvider state the valid RPC URLs of the connected dapp to use them for forwarding
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       if (!this.#forwardRpcRequests || !this.#getFoundRpcUrls) return
 

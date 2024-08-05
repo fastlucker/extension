@@ -177,7 +177,7 @@ const TokenItem = ({
             fontSize={16}
             weight="number_bold"
             color={isPending ? theme.warningText : theme.primaryText}
-            style={{ flex: 0.8, textAlign: 'right' }}
+            style={{ flex: 0.4, textAlign: 'right' }}
           >
             {isPending ? pendingBalanceUSDFormatted : balanceUSDFormatted}
           </Text>
