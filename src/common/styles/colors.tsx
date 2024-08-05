@@ -24,6 +24,7 @@ const colors = {
   darkMustard: '#8C6800',
   husk: '#B89C4B',
   brown: '#944901',
+  lightBrown: '#94490114',
   pirateGold: '#ca7e04',
   pirateGold_08: '#ca7e0414',
   linen: '#FBF5EB',
@@ -62,6 +63,7 @@ const colors = {
   titan_05: 'rgba(235, 236, 255, 0.05)',
   titan_25: 'rgba(235, 236, 255, 0.25)',
   titan_50: 'rgba(235, 236, 255, 0.5)',
+  lightAzureBlue: '#0F6DD214',
   azureBlue: '#0F71DD',
 
   zircon: '#F7F8FF',

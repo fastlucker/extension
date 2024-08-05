@@ -1,5 +1,5 @@
 import React from 'react'
-import {ColorValue, View} from 'react-native'
+import { ColorValue, View } from 'react-native'
 import Text from '@common/components/Text'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import spacings from '@common/styles/spacings'
@@ -17,35 +17,37 @@ const PendingBadge = ({
   amountFormatted,
   label,
   Icon,
-  primaryColor
+  backgroundColor,
+  textColor
 }: {
   amount: bigint
   amountFormatted: string
   label: string
   Icon: React.ComponentType<IconProps>
-  primaryColor: ColorValue
+  backgroundColor: ColorValue
+  textColor: ColorValue
 }) => {
   const { t } = useTranslation()
 
   return (
     <View
       style={[
-        spacings.pvTy,
+        spacings.pvMi,
         spacings.phTy,
         spacings.mbMi,
         flexboxStyles.alignSelfStart,
+        flexboxStyles.alignCenter,
         flexboxStyles.directionRow,
         {
           borderRadius: BORDER_RADIUS_PRIMARY,
-          borderWidth: 1,
-          borderColor: primaryColor
+          backgroundColor
         }
       ]}
     >
-      <Text selectable color={primaryColor} fontSize={14} numberOfLines={1} style={[spacings.mrTy]}>
+      <Text selectable color={textColor} fontSize={13} numberOfLines={1} style={[spacings.mrTy]}>
         {t(`${amount > 0n ? '+' : ''}${amountFormatted} ${label}`)}
       </Text>
-      <Icon color={primaryColor} width={20} height={21} />
+      <Icon color={textColor} width={13} height={13} />
     </View>
   )
 }

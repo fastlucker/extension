@@ -190,7 +190,8 @@ const TokenItem = ({
                   amount={simAmount}
                   amountFormatted={balanceChange}
                   label="Pending transaction signature"
-                  primaryColor={theme.warningText}
+                  backgroundColor={colors.lightBrown}
+                  textColor={theme.warningText}
                   Icon={CartIcon}
                 />
               )}
@@ -199,7 +200,8 @@ const TokenItem = ({
                   amount={pendingToBeConfirmed}
                   amountFormatted={pendingToBeConfirmedFormatted}
                   label="Pending to be confirmed"
-                  primaryColor={colors.azureBlue}
+                  backgroundColor={colors.lightAzureBlue}
+                  textColor={colors.azureBlue}
                   Icon={PendingToBeConfirmedIcon}
                 />
               )}
@@ -210,7 +212,7 @@ const TokenItem = ({
                 selectable
                 style={[spacings.mrMi, { opacity: 0.7 }]}
                 color={theme.successText}
-                fontSize={16}
+                fontSize={14}
                 weight="number_bold"
                 numberOfLines={1}
               >
@@ -220,7 +222,7 @@ const TokenItem = ({
                 selectable
                 style={{ opacity: 0.7 }}
                 color={theme.successText}
-                fontSize={14}
+                fontSize={12}
                 numberOfLines={1}
               >
                 {t('(On-chain)')}
