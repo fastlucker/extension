@@ -141,6 +141,7 @@ type MainControllerBuildTransferUserRequest = {
     amount: string
     selectedToken: TokenResult
     recipientAddress: string
+    executionType: 'queue' | 'open'
   }
 }
 type MainControllerRemoveUserRequestAction = {

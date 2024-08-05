@@ -816,7 +816,8 @@ handleRegisterScripts()
                 return await mainCtrl.buildTransferUserRequest(
                   params.amount,
                   params.recipientAddress,
-                  params.selectedToken
+                  params.selectedToken,
+                  params.executionType
                 )
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)

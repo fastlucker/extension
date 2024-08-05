@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native'
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
+import CartIcon from '@common/assets/svg/CartIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
@@ -20,6 +21,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { getAddressFromAddressState } from '@common/utils/domains'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
@@ -78,25 +80,29 @@ const TransferScreen = () => {
     navigate(ROUTES.dashboard)
   }, [navigate])
 
-  const sendTransaction = useCallback(() => {
-    if (!state.amount || !state.selectedToken) return
+  const addTransaction = useCallback(
+    (executionType: 'queue' | 'open') => {
+      if (!state.amount || !state.selectedToken) return
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST',
-      params: {
-        amount: state.amount,
-        selectedToken: state.selectedToken,
-        recipientAddress: isTopUp ? FEE_COLLECTOR : getAddressFromAddressState(addressState)
-      }
-    })
+      dispatch({
+        type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST',
+        params: {
+          amount: state.amount,
+          selectedToken: state.selectedToken,
+          recipientAddress: isTopUp ? FEE_COLLECTOR : getAddressFromAddressState(addressState),
+          executionType
+        }
+      })
 
-    transferCtrl.resetForm()
-  }, [addressState, dispatch, isTopUp, state.amount, state.selectedToken, transferCtrl])
+      transferCtrl.resetForm()
+    },
+    [addressState, dispatch, isTopUp, state.amount, state.selectedToken, transferCtrl]
+  )
 
   const submitButtonText = useMemo(() => {
     if (isOffline) return t("You're offline")
 
-    return t(!isTopUp ? 'Send' : 'Top Up')
+    return t(isTopUp ? 'Top Up' : 'Send')
   }, [isOffline, isTopUp, t])
 
   return (
@@ -107,32 +113,55 @@ const TransferScreen = () => {
       footer={
         <>
           <BackButton onPress={onBack} />
-          <Button
-            testID="transfer-button-send"
-            type="primary"
-            text={submitButtonText}
-            onPress={sendTransaction}
-            hasBottomSpacing={false}
-            size="large"
-            disabled={
-              !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
-            }
+          <View
+            style={[flexbox.directionRow, !isSmartAccount && flexbox.flex1, flexbox.justifyEnd]}
           >
-            {!isOffline && (
-              <View style={spacings.plTy}>
-                {isTopUp ? (
-                  <TopUpIcon
-                    strokeWidth={1}
-                    width={24}
-                    height={24}
-                    color={theme.primaryBackground}
-                  />
-                ) : (
-                  <SendIcon width={24} height={24} color={theme.primaryBackground} />
-                )}
-              </View>
+            {!!isSmartAccount && (
+              <Button
+                testID="transfer-queue-and-add-more-button"
+                type="outline"
+                accentColor={theme.primary}
+                text={t('Queue and Add More')}
+                onPress={() => addTransaction('queue')}
+                disabled={
+                  !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
+                }
+                hasBottomSpacing={false}
+                style={spacings.mr}
+                size="large"
+              >
+                <View style={spacings.plSm}>
+                  <CartIcon color={theme.primary} />
+                </View>
+              </Button>
             )}
-          </Button>
+            <Button
+              testID="transfer-button-confirm"
+              type="primary"
+              text={submitButtonText}
+              onPress={() => addTransaction('open')}
+              hasBottomSpacing={false}
+              size="large"
+              disabled={
+                !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
+              }
+            >
+              {!isOffline && (
+                <View style={spacings.plTy}>
+                  {isTopUp ? (
+                    <TopUpIcon
+                      strokeWidth={1}
+                      width={24}
+                      height={24}
+                      color={theme.primaryBackground}
+                    />
+                  ) : (
+                    <SendIcon width={24} height={24} color={theme.primaryBackground} />
+                  )}
+                </View>
+              )}
+            </Button>
+          </View>
         </>
       }
     >
