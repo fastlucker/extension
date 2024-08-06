@@ -20,7 +20,8 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.warningDecorative,
       ...spacings.pvSm, // Same as MessageSummary
       ...spacings.ph,
-      ...flexbox.flex1
+      ...flexbox.flex1,
+      minHeight: 200
     },
     header: {
       ...spacings.mb,

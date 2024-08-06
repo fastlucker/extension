@@ -127,7 +127,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [transferCtrl])
 
   useEffect(() => {
-    if (!transferCtrl) return
+    if (!transferCtrl || transferCtrl.selectedToken) return
     const selectedTokenData = tokens.find(
       (token) =>
         token.address === selectedTokenFromUrl?.addr &&

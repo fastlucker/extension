@@ -10,6 +10,7 @@ declare module '@env' {
     SENTRY_DSN?: string
     ENVIRONMENT: string
     DEFAULT_INVITATION_CODE_DEV: string
+    DEFAULT_KEYSTORE_PASSWORD_DEV: string
     NFT_CDN_URL: string
   }
 
@@ -64,6 +65,11 @@ declare module '@env' {
    * Unlimited-use invitation code for the app, for easy access during development
    */
   export const DEFAULT_INVITATION_CODE_DEV: EnvTypes['DEFAULT_INVITATION_CODE_DEV']
+
+  /**
+   * Auto-Fill Keystore Password during development
+   */
+  export const DEFAULT_KEYSTORE_PASSWORD_DEV: EnvTypes['DEFAULT_KEYSTORE_PASSWORD_DEV']
 
   /**
    * Are we running the E2E tests?

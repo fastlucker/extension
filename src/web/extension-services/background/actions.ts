@@ -38,7 +38,10 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: { privKeyOrSeed: string }
+  params: { privKeyOrSeed: string; shouldPersist?: boolean }
+}
+type MainControllerAccountAdderInitFromDefaultSeedPhraseAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE'
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -76,11 +79,12 @@ type MainControllerAddAccounts = {
     })[]
   }
 }
-type MainControllerAddSeedPhraseAccounts = {
-  type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT'
-  params: {
-    seed: string
-  }
+type CreateNewSeedPhraseAndAddFirstSmartAccount = {
+  type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT'
+  params: { seed: string }
+}
+type AddNextSmartAccountFromDefaultSeedPhraseAction = {
+  type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE'
 }
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
@@ -284,6 +288,10 @@ type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
   params: { secret: string; newSecret: string }
 }
+type KeystoreControllerAddSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_ADD_SEED'
+  params: { seed: string }
+}
 type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
   params: { newSecret: string }
@@ -440,6 +448,7 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerAccountAdderInitFromDefaultSeedPhraseAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
@@ -454,11 +463,11 @@ export type Action =
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
-  | MainControllerAddSeedPhraseAccounts
+  | CreateNewSeedPhraseAndAddFirstSmartAccount
+  | AddNextSmartAccountFromDefaultSeedPhraseAction
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
-  | MainControllerBuildClaimWalletUserRequest
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
@@ -487,6 +496,7 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
+  | KeystoreControllerAddSeedAction
   | KeystoreControllerChangePasswordFromRecoveryAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction

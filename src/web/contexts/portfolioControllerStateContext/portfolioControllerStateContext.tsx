@@ -119,7 +119,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
 
   useEffect(() => {
-    if (!account || !state.latest[account.addr]) return
+    if (!account || !state.latest || !state.latest[account.addr]) return
 
     if (
       !isOffline &&
