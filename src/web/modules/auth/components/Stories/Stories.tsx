@@ -265,16 +265,13 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
                       currentStory !== bulletIndex && hovered && styles.hoveredBullet
                     ]}
                     onPress={() => handleBulletPress(bulletIndex)}
-                    testID={
-                      currentStory === bulletIndex ? `selected-bullet-${bulletIndex}` : undefined
-                    }
                   />
                 ))}
               </View>
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 {currentStory !== 0 && (
                   <Button
-                    testID="stories-button-previous"
+                    testID={`stories-button-previous-${currentStory}`}
                     type="ghost"
                     size="small"
                     text={t('Previous')}
@@ -287,7 +284,7 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
                   </Button>
                 )}
                 <Button
-                  testID="stories-button-next"
+                  testID={`stories-button-next-${currentStory}`}
                   type="secondary"
                   size="small"
                   text={currentStory === STORIES_DATA.length - 1 ? t('Got it') : t('Next')}

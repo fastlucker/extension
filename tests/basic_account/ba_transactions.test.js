@@ -1,5 +1,5 @@
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
-import { baParams } from '../common-helpers/constants'
+import { baParams } from '../constants'
 
 import {
   makeValidTransaction,
@@ -27,7 +27,7 @@ describe('ba_transactions', () => {
     // await browser.close()
   })
 
-  it.only('Makes a valid transaction', async () => {
+  it('Makes a valid transaction', async () => {
     await makeValidTransaction(page, extensionURL, browser)
   })
 

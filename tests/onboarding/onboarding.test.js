@@ -1,5 +1,6 @@
+import { clickOnElement } from '../common-helpers/clickOnElement'
 import { bootstrap } from '../common-helpers/bootstrap'
-import { INVITE_STORAGE_ITEM } from '../common-helpers/constants'
+import { INVITE_STORAGE_ITEM } from '../constants'
 
 describe('Onboarding', () => {
   let browser
@@ -25,54 +26,32 @@ describe('Onboarding', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
   it('should pass through the onboarding steps and agree with the terms', async () => {
     // Click on "Next" button several times to finish the onboarding.
-    const buttonNext = '[data-testid="stories-button-next"]'
+    await clickOnElement(page, '[data-testid="stories-button-next-0"]')
 
-    await page.waitForSelector('[data-testid="selected-bullet-0"]')
-    // Check if selected bullet is correct
-    await page.$eval('[data-testid="selected-bullet-0"]', (el) =>
-      el.classList.contains('r-backgroundColor')
-    )
-    // Click on "Next" button several times to finish the onboarding
-    await page.$eval(buttonNext, (button) => button.click())
+    await page.waitForSelector('[data-testid="stories-button-next-1"]')
+    await page.$eval('[data-testid="stories-button-next-1"]', (button) => button.click())
 
-    await page.waitForSelector(buttonNext)
-    await page.waitForSelector('[data-testid="selected-bullet-1"]')
+    await page.waitForSelector('[data-testid="stories-button-next-2"]')
+    await page.$eval('[data-testid="stories-button-next-2"]', (button) => button.click())
 
-    await page.$eval('[data-testid="selected-bullet-1"]', (el) =>
-      el.classList.contains('r-backgroundColor')
-    )
-    await page.$eval(buttonNext, (button) => button.click())
-    await page.waitForSelector('[data-testid="selected-bullet-2"]')
-    await page.$eval('[data-testid="selected-bullet-2"]', (el) =>
-      el.classList.contains('r-backgroundColor')
-    )
+    await page.waitForSelector('[data-testid="stories-button-next-3"]')
+    await page.$eval('[data-testid="stories-button-next-3"]', (button) => button.click())
 
-    await page.$eval(buttonNext, (button) => button.click())
-    await page.waitForSelector('[data-testid="selected-bullet-3"]')
-    await page.$eval('[data-testid="selected-bullet-3"]', (el) =>
-      el.classList.contains('r-backgroundColor')
-    )
-
-    await page.$eval(buttonNext, (button) => button.click())
-    await page.waitForSelector('[data-testid="selected-bullet-4"]')
-    await page.$eval('[data-testid="selected-bullet-4"]', (el) =>
-      el.classList.contains('r-backgroundColor')
-    )
-
-    await page.$eval(buttonNext, (button) => button.click())
-    await page.waitForSelector('[data-testid="selected-bullet-5"]')
-    await page.$eval('[data-testid="selected-bullet-5"]', (el) =>
-      el.classList.contains('r-backgroundColor')
-    )
+    await page.waitForSelector('[data-testid="stories-button-next-4"]')
+    await page.$eval('[data-testid="stories-button-next-4"]', (button) => button.click())
 
     // check the checkbox "I agree ..."
     await page.$eval('[data-testid="checkbox"]', (button) => button.click())
     // Click on "Got it"
-    await page.$eval(buttonNext, (button) => button.click())
+
+    await page.waitForSelector('[data-testid="stories-button-next-5"]')
+    await page.$eval('[data-testid="stories-button-next-5"]', (button) => button.click())
+
+    await page.waitForFunction(() => window.location.href.includes('/get-started'))
 
     await page.waitForSelector('[data-testid="get-started-button-import"]')
 
