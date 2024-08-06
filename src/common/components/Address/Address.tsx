@@ -50,14 +50,12 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
   const contact = contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())
 
   // highestPriorityAlias and account labels are of higher priority than domains
-  if (highestPriorityAlias || contact?.name || account?.preferences?.label)
+  if (highestPriorityAlias || contact?.name || account?.preferences?.label || tokenLabel)
     return (
       <BaseAddress address={checksummedAddress} {...rest}>
-        {highestPriorityAlias || contact?.name || account?.preferences?.label}
+        {highestPriorityAlias || contact?.name || account?.preferences?.label || tokenLabel}
       </BaseAddress>
     )
-    
-  if (!!tokenLabel) return <BaseAddress address={checksummedAddress} {...rest}>{tokenLabel}</BaseAddress>
 
   if (!isExtension) return <BenzinDomainsAddress address={checksummedAddress} {...rest} />
 

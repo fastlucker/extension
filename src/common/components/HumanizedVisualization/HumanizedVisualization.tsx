@@ -1,9 +1,8 @@
 import React, { FC, memo } from 'react'
 import { Linking, Pressable, View } from 'react-native'
 
-import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
-import { HumanizerMeta, IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
 import NetworkIcon from '@common/components/NetworkIcon'
