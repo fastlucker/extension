@@ -1,11 +1,9 @@
-import { JsonRpcProvider } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { getRpcProvider } from '@ambire-common/services/provider'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
@@ -14,6 +12,7 @@ import useToast from '@common/hooks/useToast'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 import useBenzinGetNetwork from './useBenzinGetNetwork'
+import useBenzinGetProvider from './useBenzinGetProvider'
 
 const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
   // remove deadlines from humanizer
@@ -56,23 +55,9 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const route = useRoute()
   const { txnId, userOpHash, isRenderedInternally, chainId } = getParams(route?.search)
   const { network, isNetworkLoading } = useBenzinGetNetwork({ chainId })
-  const [provider, setProvider] = useState<JsonRpcProvider | null>(null)
+  const { provider } = useBenzinGetProvider({ network })
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
   const isInitialized = !isNetworkLoading
-
-  useEffect(() => {
-    if (!network?.rpcUrls || !network.rpcUrls.length) return
-
-    setProvider(getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl))
-
-    return () => {
-      setProvider((prev) => {
-        prev?.destroy()
-
-        return null
-      })
-    }
-  }, [network?.rpcUrls, network?.chainId, network?.selectedRpcUrl])
 
   const stepsState = useSteps({
     txnId,
