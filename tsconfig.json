@@ -24,6 +24,8 @@
     "webkit-prod",
     "gecko-dev",
     "gecko-prod",
+    "benzin-dev",
+    "benzin-prod",
     "coverage",
     ".expo",
     "babel.config.js",
