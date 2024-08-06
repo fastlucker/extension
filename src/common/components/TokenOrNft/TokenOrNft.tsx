@@ -6,15 +6,13 @@ import { extraNetworks, networks as hardcodedNetwork } from '@ambire-common/cons
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import Address from '@common/components/Address'
 import SkeletonLoader from '@common/components/SkeletonLoader'
-import Text from '@common/components/Text'
 import useToast from '@common/hooks/useToast'
-import spacings, { SPACING_TY } from '@common/styles/spacings'
+import { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import getTokenInfo from '@common/utils/tokenInfo'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
-import ChainVisualization from '../HumanizedVisualization/ChainVisualization'
 import Nft from './components/Nft'
 import Token from './components/Token'
 
@@ -106,14 +104,7 @@ const TokenOrNft: FC<Props> = ({
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {!network ? (
-        <>
-          <Address address={address} fontSize={16} />
-          {chainId ? (
-            <ChainVisualization chainId={chainId} networks={networks} />
-          ) : (
-            <Text style={spacings.mlTy}>on {networkId}</Text>
-          )}
-        </>
+        <Address address={address} fontSize={16} />
       ) : nftInfo ? (
         <Nft
           address={address}
