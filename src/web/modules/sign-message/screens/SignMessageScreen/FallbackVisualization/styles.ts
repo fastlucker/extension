@@ -16,10 +16,7 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       ...common.borderRadiusPrimary,
       backgroundColor: theme.secondaryBackground,
-      borderWidth: 1,
       borderColor: theme.primaryBorder,
-      ...spacings.pvSm, // Same as MessageSummary
-      ...spacings.ph,
       ...flexbox.flex1,
       minHeight: 200
     },

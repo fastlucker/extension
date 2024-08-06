@@ -8,6 +8,7 @@ import HumanizedVisualization from '@common/components/HumanizedVisualization'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 
+import FallbackVisualization from '../../screens/SignMessageScreen/FallbackVisualization'
 import getStyles from './styles'
 
 interface Props {
@@ -34,16 +35,12 @@ const MessageSummary = ({ message, networkId, kind, networks }: Props) => {
       }
       expandedContent={
         <ScrollView contentContainerStyle={styles.rawMessage}>
-          <Text
-            appearance="secondaryText"
-            fontSize={14}
-            weight="regular"
-            style={styles.rawMessageTitle}
-          >
-            Raw message:
-          </Text>
           <Text selectable appearance="secondaryText" fontSize={14} weight="regular">
-            {JSON.stringify(message.content, null, 4)}
+            <FallbackVisualization
+              setHasReachedBottom={() => {}}
+              messageToSign={message}
+              standalone={false}
+            />
           </Text>
         </ScrollView>
       }

@@ -224,10 +224,9 @@ const SignMessageScreen = () => {
           resolveButtonText={resolveButtonText}
           resolveDisabled={
             signStatus === 'LOADING' ||
-            isScrollToBottomForced ||
+            (isScrollToBottomForced && hasReachedBottom !== true) ||
             isViewOnly ||
-            (!visualizeHumanized && !shouldShowFallback) ||
-            (typeof hasReachedBottom !== 'boolean' && shouldShowFallback)
+            (!visualizeHumanized && !shouldShowFallback)
           }
           resolveButtonTestID="button-sign"
         />
@@ -263,6 +262,7 @@ const SignMessageScreen = () => {
             <FallbackVisualization
               setHasReachedBottom={setHasReachedBottom}
               messageToSign={signMessageState.messageToSign}
+              standalone
             />
           ) : (
             <SkeletonLoader width="100%" height={48} />
