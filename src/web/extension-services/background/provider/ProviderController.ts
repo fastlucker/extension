@@ -7,6 +7,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
+import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
@@ -236,7 +237,7 @@ export class ProviderController {
 
   // explain to the dapp what features the wallet has for the selected account
   walletGetCapabilities = async (data: any) => {
-    if (!this.dappsCtrl.hasPermission(data.session.origin) || !this.isUnlocked) {
+    if (!this.mainCtrl.dapps.hasPermission(data.session.origin) || !this.isUnlocked) {
       throw ethErrors.provider.unauthorized()
     }
 
@@ -245,20 +246,16 @@ export class ProviderController {
     }
 
     const accountAddr = data.params[0]
-    const state = this.mainCtrl.accountStates[accountAddr]
+    const state = this.mainCtrl.accounts.accountStates[accountAddr]
     if (!state) {
       throw ethErrors.rpc.invalidParams(`account with address ${accountAddr} does not exist`)
     }
 
     const capabilities: any = {}
-    this.mainCtrl.settings.networks.forEach((network) => {
+    this.mainCtrl.networks.networks.forEach((network) => {
       capabilities[toBeHex(network.chainId)] = {
         atomicBatch: {
-          supported: !this.mainCtrl.accountStates[accountAddr][network.id].isEOA
-        },
-        paymasterService: {
-          supported:
-            this.mainCtrl.accountStates[accountAddr][network.id].isV2 && network.erc4337.enabled
+          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
         }
       }
     })
@@ -279,9 +276,9 @@ export class ProviderController {
     if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
 
     const dappNetwork = this.getDappNetwork(data.session.origin)
-    const network = this.mainCtrl.settings.networks.filter((net) => net.id === dappNetwork.id)[0]
+    const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
     const accountState =
-      this.mainCtrl.accountStates?.[this.mainCtrl.selectedAccount!]?.[network.id]!
+      this.mainCtrl.accounts.accountStates?.[this.mainCtrl.accounts.selectedAccount!]?.[network.id]!
     if (!accountState) throw ethErrors.rpc.invalidParams('account state not found')
     const txnId = isErc4337Broadcast(network, accountState)
       ? (await bundler.pollTxnHash(id, network)).transactionHash
