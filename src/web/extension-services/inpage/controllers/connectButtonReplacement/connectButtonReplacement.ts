@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 
 import { delayPromise } from '@common/utils/promises'
-import { DefaultWallet } from '@web/extension-services/inpage/ethereum-inpage'
 
 // Ambire SVG icon 40x40
 export const ambireSvg =
@@ -44,12 +43,10 @@ export const blacklistedPages = [
 ]
 
 type ConstructProps = {
-  defaultWallet: DefaultWallet
   isEIP6963: boolean
 }
 
 type UpdateProps = {
-  defaultWallet?: DefaultWallet
   isEIP6963?: boolean
   observerOptions?: MutationObserverInit
 }
@@ -58,8 +55,6 @@ export class ConnectButtonReplacementController {
   public doesWebpageReadOurProvider: boolean = false // if true then the webpage is a dApp
 
   public hasInteractedWithPage: Boolean = false
-
-  #defaultWallet: DefaultWallet
 
   #isEIP6963: boolean
 
@@ -75,8 +70,7 @@ export class ConnectButtonReplacementController {
 
   #initializeReplacementTimeout: any
 
-  constructor({ defaultWallet, isEIP6963 }: ConstructProps) {
-    this.#defaultWallet = defaultWallet
+  constructor({ isEIP6963 }: ConstructProps) {
     this.#isEIP6963 = isEIP6963
     this.#observerOptions = { childList: true, subtree: true, attributes: true }
 
@@ -87,14 +81,7 @@ export class ConnectButtonReplacementController {
     window.addEventListener('unload', this.#cleanup.bind(this))
   }
 
-  public update({ defaultWallet, isEIP6963, observerOptions }: UpdateProps) {
-    if (defaultWallet) {
-      if (defaultWallet === 'OTHER') {
-        this.#cleanup()
-      }
-      this.#defaultWallet = defaultWallet
-    }
-
+  public update({ isEIP6963, observerOptions }: UpdateProps) {
     if (typeof isEIP6963 === 'boolean') {
       this.#isEIP6963 = isEIP6963
     }
@@ -456,7 +443,6 @@ export class ConnectButtonReplacementController {
   }
 
   #runReplacementScript(shouldUpdateShadowRoots: boolean = true) {
-    if (this.#defaultWallet === 'OTHER') return
     if (!window.ethereum._isAmbire) return
     if (!this.doesWebpageReadOurProvider) return
 

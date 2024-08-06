@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { nanoid } from 'nanoid'
 
-import { EthereumProvider } from './EthereumProvider'
+import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 
 const ambireId = nanoid()
 
@@ -68,29 +68,6 @@ export const getProviderMode = (host: string) => {
   return 'default'
 }
 
-export const patchProvider = (p: any) => {
-  const mode = getProviderMode(window.location.hostname)
-  try {
-    if (mode === 'metamask') {
-      delete p.isAmbire
-      p.isMetaMask = true
-      return
-    }
-    if (mode === 'ambire') {
-      delete p.isMetaMask
-      p.isAmbire = true
-      return
-    }
-    if (mode === 'default') {
-      p.isMetaMask = true
-      p.isAmbire = true
-      return
-    }
-  } catch (e) {
-    console.error(e)
-  }
-}
-
 declare global {
   interface Window {
     ethereum: EthereumProvider
@@ -112,13 +89,26 @@ const foundDappRpcUrls: string[] = []
       fetchURL = resource
       fetchBody = config.body
     }
-    if (typeof resource === 'object' && (resource as Request)?.body) {
+
+    if (typeof resource === 'object') {
       // Avoid reading the body from the original fetch request, as the Request object has a 'bodyUsed' property that prevents multiple reads of the body.
       // To work around this, clone the original Request, read the body from the clone, and leave the original request intact for the webpage to read
       const reqClone = (resource as Request).clone()
-      if (reqClone.body) {
-        fetchURL = reqClone.url
-        fetchBody = await new Response(reqClone.body).text()
+      if ((resource as Request)?.body) {
+        if (reqClone.body) {
+          fetchURL = reqClone.url
+          fetchBody = await new Response(reqClone.body).text()
+        }
+      } else {
+        try {
+          // In Firefox, reqClone.body is not present in the object.
+          // It needs to be retrieved asynchronously via the .json() func
+          const body = await reqClone.json()
+          fetchURL = reqClone.url
+          fetchBody = body
+        } catch (error) {
+          // silent fail
+        }
       }
     }
 
@@ -163,7 +153,6 @@ export async function forwardRpcRequests(url: string, method: any, params: any) 
 }
 
 const provider = new EthereumProvider(forwardRpcRequests, () => foundDappRpcUrls)
-patchProvider(provider)
 const ambireProvider = new Proxy(provider, {
   deleteProperty: (target, prop) => {
     if (typeof prop === 'string' && ['on', 'isAmbire', 'isMetaMask', '_isAmbire'].includes(prop)) {

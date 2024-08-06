@@ -9,7 +9,7 @@ import UnlockScreenBackground from '@common/assets/svg/UnlockScreenBackground'
 import Button from '@common/components/Button'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
+import { isDev, isTesting, isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useDisableNavigatingBack from '@common/hooks/useDisableNavigatingBack'
 import useElementSize from '@common/hooks/useElementSize'
@@ -20,6 +20,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import { DEFAULT_KEYSTORE_PASSWORD_DEV } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import { POPUP_WIDTH } from '@web/constants/spacings'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
@@ -52,7 +53,7 @@ const KeyStoreUnlockScreen = () => {
   } = useForm({
     mode: 'all',
     defaultValues: {
-      password: ''
+      password: isDev && !isTesting ? DEFAULT_KEYSTORE_PASSWORD_DEV ?? '' : ''
     }
   })
 
