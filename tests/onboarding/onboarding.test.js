@@ -25,13 +25,13 @@ describe('Onboarding', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
   it('should pass through the onboarding steps and agree with the terms', async () => {
     // Click on "Next" button several times to finish the onboarding.
     const buttonNext = '[data-testid="stories-button-next"]'
 
-    await page.waitForSelector(buttonNext)
+    await page.waitForSelector('[data-testid="selected-bullet-0"]')
     // Check if selected bullet is correct
     await page.$eval('[data-testid="selected-bullet-0"]', (el) =>
       el.classList.contains('r-backgroundColor')
@@ -39,29 +39,32 @@ describe('Onboarding', () => {
     // Click on "Next" button several times to finish the onboarding
     await page.$eval(buttonNext, (button) => button.click())
 
+    await page.waitForSelector(buttonNext)
+    await page.waitForSelector('[data-testid="selected-bullet-1"]')
+
     await page.$eval('[data-testid="selected-bullet-1"]', (el) =>
       el.classList.contains('r-backgroundColor')
     )
     await page.$eval(buttonNext, (button) => button.click())
-
+    await page.waitForSelector('[data-testid="selected-bullet-2"]')
     await page.$eval('[data-testid="selected-bullet-2"]', (el) =>
       el.classList.contains('r-backgroundColor')
     )
 
     await page.$eval(buttonNext, (button) => button.click())
-
+    await page.waitForSelector('[data-testid="selected-bullet-3"]')
     await page.$eval('[data-testid="selected-bullet-3"]', (el) =>
       el.classList.contains('r-backgroundColor')
     )
 
     await page.$eval(buttonNext, (button) => button.click())
-
+    await page.waitForSelector('[data-testid="selected-bullet-4"]')
     await page.$eval('[data-testid="selected-bullet-4"]', (el) =>
       el.classList.contains('r-backgroundColor')
     )
 
     await page.$eval(buttonNext, (button) => button.click())
-
+    await page.waitForSelector('[data-testid="selected-bullet-5"]')
     await page.$eval('[data-testid="selected-bullet-5"]', (el) =>
       el.classList.contains('r-backgroundColor')
     )
