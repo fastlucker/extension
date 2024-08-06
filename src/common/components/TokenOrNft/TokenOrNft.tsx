@@ -14,6 +14,7 @@ import getTokenInfo from '@common/utils/tokenInfo'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
+import ChainVisualization from '../HumanizedVisualization/ChainVisualization'
 import Nft from './components/Nft'
 import Token from './components/Token'
 
@@ -69,17 +70,17 @@ const TokenOrNft: FC<Props> = ({
 
     const infoFromBalance = accountPortfolio?.tokens?.find(
       (token) =>
-        token.networkId === networkId && token.address.toLowerCase() === address.toLowerCase()
+        token.networkId === network.id && token.address.toLowerCase() === address.toLowerCase()
     )
     return infoFromBalance || fetchedFromCena
-  }, [network, accountPortfolio?.tokens, address, fetchedFromCena, networkId])
+  }, [network, accountPortfolio?.tokens, address, fetchedFromCena])
 
   const nftInfo = useMemo(() => {
     if (!network) return
     return accountPortfolio?.collections?.find(
-      (i) => i.networkId === networkId && address.toLowerCase() === i.address.toLowerCase()
+      (i) => i.networkId === network.id && address.toLowerCase() === i.address.toLowerCase()
     )
-  }, [network, accountPortfolio?.collections, address, networkId])
+  }, [network, accountPortfolio?.collections, address])
 
   useEffect(() => {
     const fetchTriggerTimeout = setTimeout(() => {
@@ -100,14 +101,18 @@ const TokenOrNft: FC<Props> = ({
       clearTimeout(loadingLimitTimeout)
       clearTimeout(fetchTriggerTimeout)
     }
-  }, [tokenInfo, address, network, addToast, networkId])
+  }, [tokenInfo, nftInfo, address, network, addToast])
 
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {!network ? (
         <>
-          <Address address={address} />
-          <Text style={spacings.mlTy}>on {networkId}</Text>
+          <Address address={address} fontSize={16} />
+          {chainId ? (
+            <ChainVisualization chainId={chainId} networks={networks} />
+          ) : (
+            <Text style={spacings.mlTy}>on {networkId}</Text>
+          )}
         </>
       ) : nftInfo ? (
         <Nft
