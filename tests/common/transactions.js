@@ -1,4 +1,5 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
+
 import {
   typeText,
   clickOnElement,
@@ -7,14 +8,29 @@ import {
   checkForSignMessageWindow,
   selectFeeToken,
   signTransaction,
-  confirmTransactionStatus
+  confirmTransactionStatus,
+  checkBalanceOfToken
 } from '../functions.js'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 //--------------------------------------------------------------------------------------------------------------
-export async function makeValidTransaction(page, extensionURL, browser) {
+export async function makeValidTransaction(
+  page,
+  extensionURL,
+  browser,
+  { shouldStopBeforeSign, feeToken } = {
+    shouldStopBeforeSign: false
+  }
+) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
+  // Check if MATIC on Gas Tank are under 0.01
+  await checkBalanceOfToken(
+    page,
+    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
+    0.01
+  )
   // Click on "Send" button
   await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 
@@ -43,18 +59,26 @@ export async function makeValidTransaction(page, extensionURL, browser) {
     browser,
     '[data-testid="transfer-button-send"]'
   )
+
+  if (shouldStopBeforeSign) return
   // Check if select fee token is visible and select the token
-  await selectFeeToken(
-    newPage,
-    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
-  )
+  if (feeToken) {
+    await selectFeeToken(newPage, feeToken)
+  }
   // Sign and confirm the transaction
   await signTransaction(newPage, transactionRecorder)
   await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function makeSwap(page, extensionURL, browser) {
+export async function makeSwap(
+  page,
+  extensionURL,
+  browser,
+  { shouldStopBeforeSign, feeToken } = {
+    shouldStopBeforeSign: false
+  }
+) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
   // Wait until modal with text "Introducing the Uniswap Extension." appears
@@ -132,10 +156,16 @@ export async function makeSwap(page, extensionURL, browser) {
   const updatedPage = result.actionWindowPage
 
   // Check if select fee token is visible and select the token
-  await selectFeeToken(
-    updatedPage,
-    '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
-  )
+  if (feeToken) {
+    await selectFeeToken(newPage, feeToken)
+  }
+
+  if (shouldStopBeforeSign) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000)
+    })
+    return
+  }
 
   // Sign and confirm the transaction
   await signTransaction(updatedPage, transactionRecorder)
@@ -175,10 +205,15 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function sendFundsToSmartContract(page, extensionURL) {
+  // Check if MATIC on Polygon are under 0.0015
+  await checkBalanceOfToken(
+    page,
+    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
+    0.0002
+  )
+
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
-
   await page.waitForSelector('[data-testid="max-available-amount"]')
-
   await selectMaticToken(page)
 
   // Type the amount
@@ -251,6 +286,9 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
 
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000)
+  })
   // Click on "Sign" button
   await clickOnElement(actionWindowPage, '[data-testid="button-sign"]')
 
@@ -276,6 +314,13 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
   await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
   // Fill copied address in the Hexadecimal signature field
   await typeText(page, '[placeholder="Hexadecimal signature (0x....)"]', messageSignature)
+  // Select Polygon option in the dropdown
+  await clickOnElement(page, '[class="dropdown  "]')
+
+  const [optionPolygon] = await page.$x(
+    '//*[contains(@class, "networkName") and contains(text(), "Polygon")]'
+  )
+  await optionPolygon.click()
 
   // Click on "Verify" button
   await clickOnElement(page, '#verifyButton')
@@ -290,4 +335,20 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
     {},
     'Signature is Valid'
   )
+
+  // this is sign message validation  with @ambire/signature-validator
+  // const provider = new ethers.JsonRpcProvider('https://invictus.ambire.com/polygon')
+
+  // async function run() {
+  //   const isValidSig = await verifyMessage({
+  //     signer: signerAddress,
+  //     message: textMessage,
+  //     signature: messageSignature,
+  //     provider
+  //   })
+  //   return isValidSig
+  // }
+
+  // const isValid = await run()
+  // expect(isValid).toBe(true)
 }

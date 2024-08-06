@@ -67,11 +67,9 @@ const CreateSeedPhraseConfirmScreen = () => {
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
-      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
-        state: { accounts: accountAdderState.readyToAddAccounts }
-      })
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
     },
-    [dispatch, navigate, accountAdderState.readyToAddAccounts]
+    [dispatch, navigate]
   )
 
   useEffect(() => {
@@ -83,10 +81,8 @@ const CreateSeedPhraseConfirmScreen = () => {
   const onSubmit = handleSubmit(() => {
     setIsLoading(true)
     dispatch({
-      type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT',
-      params: {
-        seed: seed.join(' ')
-      }
+      type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT',
+      params: { seed: seed.join(' ') }
     })
   })
 

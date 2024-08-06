@@ -7,6 +7,11 @@ the steps in the section `Writing new tests or modifying existing ones`.
 2. Run `yarn run test:e2e:web`. This command builds the production version of the extension and runs the tests against the `/webkit-prod` folder.
 3. If you are writing new tests, it is helpful to have a visual display to see how the tests are performing. In this case, you can skip the next section. It explains how to create a virtual display (not visible to us) that enables running the tests in a CI environment. To use your local display, run `export DISPLAY=:0`.
 
+### Important:
+Some linux environments may require additional setup to run the tests.
+
+- Fedora: You need to run `xhost +local:$(whoami)` to authorize the current user to connect to the X11 server.
+
 ## How to simulate CI environment?
 If you are fixing a failing CI test and want to mimic the CI environment, you should configure the display server as follows:
 

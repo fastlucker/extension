@@ -141,12 +141,13 @@ const Recipient: React.FC<Props> = ({
         childrenBelowInput={
           <AddressBookDropdown
             isVisible={isAddressBookVisible}
+            actualAddress={actualAddress}
+            isRecipientDomainResolving={isRecipientDomainResolving}
             setIsVisible={setIsAddressBookVisible}
             filteredContacts={filteredContacts}
             passRef={addressBookMenuRef}
             onContactPress={setAddressAndCloseAddressBook}
             menuProps={menuProps}
-            search={actualAddress}
           />
         }
         childrenBeforeButtons={
@@ -162,6 +163,7 @@ const Recipient: React.FC<Props> = ({
         buttonProps={{
           onPress: toggleAddressBookMenu
         }}
+        buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
       />
       <View style={styles.inputBottom}>
         <Text

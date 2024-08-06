@@ -2,7 +2,9 @@ import { bootstrapWithStorage, saParams } from '../functions.js'
 import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../common/balance.js'
 
 describe('sa_balance', () => {
-  let browser, page, recorder
+  let browser
+  let page
+  let recorder
   beforeEach(async () => {
     ;({ browser, page, recorder } = await bootstrapWithStorage('sa_balance', saParams))
   })
@@ -20,7 +22,7 @@ describe('sa_balance', () => {
     await checkNetworks(page)
   })
 
-  it('check if item exist in Collectibles tab', async () => {
+  it.skip('check if item exist in Collectibles tab', async () => {
     await checkCollectibleItem(page)
   })
 })

@@ -166,7 +166,7 @@ const ViewOnlyScreen = () => {
 
       throw e
     }
-  }, [accounts, addToast, dispatch, t])
+  }, [accounts, accountsState.accounts, addToast, dispatch, t])
 
   useEffect(() => {
     // Prevents navigating when user is in the middle of adding accounts,
@@ -183,11 +183,7 @@ const ViewOnlyScreen = () => {
     )
 
     // Navigate when the new accounts are imported, indicating the final step for the view-only account adding flow completes.
-    if (newAccountsAdded.length) {
-      navigate(WEB_ROUTES.accountPersonalize, {
-        state: { accounts: newAccountsAdded }
-      })
-    }
+    if (newAccountsAdded.length) navigate(WEB_ROUTES.accountPersonalize)
   }, [
     accounts,
     dispatch,

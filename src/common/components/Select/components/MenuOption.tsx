@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Image, Pressable, View } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -6,8 +6,8 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-import getStyles from './styles'
-import { SelectValue } from './types'
+import getStyles from '../styles'
+import { SelectValue } from '../types'
 
 const Option = React.memo(({ item }: { item: SelectValue }) => {
   const { styles } = useTheme(getStyles)
@@ -48,14 +48,22 @@ const MenuOption = React.memo(
     item,
     height,
     isSelected,
-    onPress
+    onPress,
+    disabled
   }: {
     item: SelectValue
     height?: number
     isSelected: boolean
     onPress: (item: SelectValue) => void
+    disabled?: boolean
   }) => {
     const { theme, styles } = useTheme(getStyles)
+
+    const onPressWrapped = useCallback(() => {
+      if (disabled) return
+
+      onPress(item)
+    }, [onPress, item, disabled])
 
     return (
       <Pressable
@@ -63,9 +71,10 @@ const MenuOption = React.memo(
           styles.menuOption,
           !!height && { height },
           isSelected && { backgroundColor: theme.tertiaryBackground },
-          hovered && { backgroundColor: theme.secondaryBackground }
+          hovered && !disabled && { backgroundColor: theme.secondaryBackground },
+          disabled && { opacity: 0.6, cursor: 'not-allowed' }
         ]}
-        onPress={() => onPress(item)}
+        onPress={onPressWrapped}
       >
         <Option item={item} />
       </Pressable>

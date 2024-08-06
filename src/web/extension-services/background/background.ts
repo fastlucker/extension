@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
@@ -13,19 +14,17 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
-import {
-  isDerivedForSmartAccountKeyOnly,
-  isSmartAccount
-} from '@ambire-common/libs/account/account'
+import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
+import { getDefaultKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, VELCRO_URL } from '@env'
-import { browser, isManifestV3 } from '@web/constants/browserapi'
+import { browser } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
@@ -33,11 +32,10 @@ import handleProviderRequests from '@web/extension-services/background/provider/
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
-import { sendBrowserNotification } from '@web/extension-services/background/webapi/notification'
+import { notificationManager } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
-import { getDefaultKeyLabel } from '@web/modules/account-personalize/libs/defaults'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -49,6 +47,8 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
+
+import { handleRegisterScripts } from './handlers/handleScripting'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -80,56 +80,8 @@ function stateDebug(event: string, stateToLog: object) {
 
 let mainCtrl: MainController
 
-/*
- * This content script is injected programmatically because
- * MAIN world injection does not work properly via manifest
- * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
- */
-const registerAllInpageScripts = async () => {
-  // For mv2 the injection is located in the content-script
-  if (!isManifestV3) return
-  try {
-    await browser.scripting.registerContentScripts([
-      {
-        id: 'ambire-inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['ambire-inpage.js'],
-        runAt: 'document_start',
-        world: 'MAIN'
-      },
-      {
-        id: 'ethereum-inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['ethereum-inpage.js'],
-        runAt: 'document_start',
-        world: 'MAIN'
-      }
-    ])
-  } catch (err) {
-    console.warn(`Failed to inject EthereumProvider: ${err}`)
-  }
-}
-
-const unregisterAmbireInpageContentScript = async () => {
-  if (!isManifestV3) return
-  try {
-    await browser.scripting.unregisterContentScripts({ ids: ['ambire-inpage'] })
-  } catch (err) {
-    console.warn(`Failed to unregister ambire-inpage: ${err}`)
-  }
-}
-
-const unregisterEthereumInpageContentScript = async () => {
-  if (!isManifestV3) return
-  try {
-    await browser.scripting.unregisterContentScripts({ ids: ['ethereum-inpage'] })
-  } catch (err) {
-    console.warn(`Failed to inject ethereum-inpage: ${err}`)
-  }
-}
-
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-registerAllInpageScripts()
+handleRegisterScripts()
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
@@ -153,13 +105,12 @@ registerAllInpageScripts()
     await checkE2EStorage()
   }
 
-  if (isManifestV3) {
-    saveTimestamp()
-    // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
-    // miliseconds. This keeps the service worker alive.
-    const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
-    setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
-  }
+  saveTimestamp()
+  // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
+  // miliseconds. This keeps the service worker alive.
+  const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
+  setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
+
   await updateHumanizerMetaInStorage(storage)
 
   const backgroundState: {
@@ -214,14 +165,7 @@ registerAllInpageScripts()
     // Use the native fetch (instead of node-fetch or whatever else) since
     // browser extensions are designed to run within the web environment,
     // which already provides a native and well-optimized fetch API.
-    const fetchFn = isManifestV3
-      ? fetch
-      : // Popup pages don't have access to the global fetch, causing:
-        // "Error: Failed to execute 'fetch' on 'Window': Illegal invocation",
-        // Binding window to fetch provides the correct context.
-        window.fetch.bind(window)
-
-    return fetchFn(url, initWithCustomHeaders)
+    return fetch(url, initWithCustomHeaders)
   }
 
   mainCtrl = new MainController({
@@ -247,25 +191,9 @@ registerAllInpageScripts()
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onSignSuccess: async (type) => {
-      const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
-        message: 'Message was successfully signed',
-        'typed-data': 'TypedData was successfully signed',
-        'account-op': 'Your transaction was successfully signed and broadcasted to the network'
-      }
-      // Don't await this on purpose (fire and forget), errors get cough in the function
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      sendBrowserNotification(messages[type])
-
-      if (type === 'account-op')
-        await initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
-    }
+    notificationManager
   })
-  const walletStateCtrl = new WalletStateController(
-    registerAllInpageScripts,
-    unregisterAmbireInpageContentScript,
-    unregisterEthereumInpageContentScript
-  )
+  const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
@@ -449,6 +377,11 @@ registerAllInpageScripts()
       }
 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
+    }
+
+    if (mainCtrl.statuses.broadcastSignedAccountOp === 'SUCCESS') {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
 
     Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
@@ -671,9 +604,31 @@ registerAllInpageScripts()
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
                 const keyIterator = new KeyIterator(params.privKeyOrSeed)
+                if (keyIterator.subType === 'seed' && params.shouldPersist) {
+                  await mainCtrl.keystore.addSeed(params.privKeyOrSeed)
+                }
+
                 mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
+                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                })
+
+                return await mainCtrl.accountAdder.setPage({
+                  page: 1,
+                  networks: mainCtrl.networks.networks,
+                  providers: mainCtrl.providers.providers
+                })
+              }
+              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
+                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+                const seed = await mainCtrl.keystore.getDefaultSeed()
+
+                if (!seed) return
+                const keyIterator = new KeyIterator(seed)
+                mainCtrl.accountAdder.init({
+                  keyIterator,
+                  pageSize: 5,
                   hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
                 })
 
@@ -813,62 +768,13 @@ registerAllInpageScripts()
               }
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
-              case 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                const keyIterator = new KeyIterator(params.seed)
-
-                mainCtrl.accountAdder.init({
-                  keyIterator,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                  pageSize: 1
-                })
-
-                await mainCtrl.accountAdder.setPage({
-                  page: 1,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
-
-                const firstSmartAccount = mainCtrl.accountAdder.accountsOnPage.find(
-                  ({ slot, isLinked, account }) =>
-                    slot === 1 && !isLinked && isSmartAccount(account)
-                )?.account
-
-                // This should never happen (added it because of typescript)
-                if (!firstSmartAccount) {
-                  console.error('No smart account found in the first page of the seed phrase')
-
-                  return
-                }
-
-                await mainCtrl.accountAdder.selectAccount(firstSmartAccount)
-
-                const readyToAddKeys =
-                  mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
-
-                const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ account, accountKeys }) =>
-                    accountKeys.map(({ addr }, i: number) => ({
-                      addr,
-                      type: 'seed',
-                      label: getDefaultKeyLabel(
-                        mainCtrl.keystore.keys.filter((key) =>
-                          account.associatedKeys.includes(key.addr)
-                        ),
-                        i
-                      )
-                    }))
-                )
-
-                return await mainCtrl.accountAdder.addAccounts(
-                  mainCtrl.accountAdder.selectedAccounts,
-                  {
-                    internal: readyToAddKeys,
-                    external: []
-                  },
-                  readyToAddKeyPreferences
-                )
+              case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
+                await mainCtrl.importSmartAccountFromDefaultSeed(params.seed)
+                break
+              }
+              case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
+                await mainCtrl.importSmartAccountFromDefaultSeed()
+                break
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
                 return await mainCtrl.removeAccount(params.accountAddr)
@@ -1041,6 +947,8 @@ registerAllInpageScripts()
                   params.newSecret,
                   params.secret
                 )
+              case 'KEYSTORE_CONTROLLER_ADD_SEED':
+                return await mainCtrl.keystore.addSeed(params.seed)
               case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
                 // In the case we change the user's device password through the recovery process,
                 // we don't know the old password, which is why we send only the new password.
@@ -1261,4 +1169,4 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
 
 // FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
 // listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
-if (isManifestV3 && 'hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})
+if ('hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})

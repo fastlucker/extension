@@ -18,12 +18,12 @@ describe('ba_login', () => {
   let page
   let extensionURL
   let recorder
-  let backgroundPage
+  let serviceWorker
 
   beforeEach(async () => {
-    ;({ browser, page, recorder, extensionURL, backgroundPage } = await bootstrap('ba_login'))
+    ;({ browser, page, recorder, extensionURL, serviceWorker } = await bootstrap('ba_login'))
     // Bypass the invite verification step
-    await backgroundPage.evaluate(
+    await serviceWorker.evaluate(
       (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
       JSON.stringify(INVITE_STORAGE_ITEM)
     )
@@ -45,6 +45,8 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
+    // Click on Import button.
+    await clickOnElement(page, '[data-testid="import-button"]')
     // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
       await finishStoriesAndSelectAccount(page)
@@ -138,6 +140,8 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
+    // Click on Import button.
+    await clickOnElement(page, '[data-testid="import-button"]')
     // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     await finishStoriesAndSelectAccount(page)
 

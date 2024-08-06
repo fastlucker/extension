@@ -4,7 +4,7 @@ import { View, ViewStyle } from 'react-native'
 import useTheme from '@common/hooks/useTheme'
 import { Portal } from '@gorhom/portal'
 
-import getStyles from './styles'
+import getStyles from '../styles'
 
 interface Props {
   menuRef: any

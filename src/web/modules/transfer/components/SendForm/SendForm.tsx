@@ -84,6 +84,9 @@ const SendForm = ({
   const { accountPortfolio } = usePortfolioControllerState()
   const {
     maxAmount,
+    maxAmountInFiat,
+    amountFieldMode,
+    amountInFiat,
     selectedToken,
     isSWWarningAgreed,
     isRecipientAddressUnknownAgreed,
@@ -126,8 +129,16 @@ const SendForm = ({
   )
 
   const setMaxAmount = useCallback(() => {
-    transferCtrl.update({ amount: maxAmount })
-  }, [maxAmount, transferCtrl])
+    transferCtrl.update({
+      amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat
+    })
+  }, [amountFieldMode, maxAmount, maxAmountInFiat, transferCtrl])
+
+  const switchAmountFieldMode = useCallback(() => {
+    transferCtrl.update({
+      amountFieldMode: amountFieldMode === 'token' ? 'fiat' : 'token'
+    })
+  }, [amountFieldMode, transferCtrl])
 
   const setAmount = useCallback(
     (value: string) => {
@@ -186,6 +197,7 @@ const SendForm = ({
           value={tokenSelectValue}
           disabled={disableForm}
           containerStyle={styles.tokenSelect}
+          testID="tokens-select"
         />
       )}
       <InputSendToken
@@ -194,9 +206,14 @@ const SendForm = ({
         selectedTokenSymbol={selectedToken?.symbol || ''}
         errorMessage={amountErrorMessage}
         setMaxAmount={setMaxAmount}
-        maxAmount={!amountSelectDisabled ? Number(maxAmount) : null}
-        disabled={disableForm}
+        maxAmount={maxAmount}
+        amountInFiat={amountInFiat}
+        amountFieldMode={amountFieldMode}
+        maxAmountInFiat={maxAmountInFiat}
+        switchAmountFieldMode={switchAmountFieldMode}
+        disabled={disableForm || amountSelectDisabled}
         isLoading={!accountPortfolio?.isAllReady}
+        isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
       />
       <View>
         {!isTopUp && (
