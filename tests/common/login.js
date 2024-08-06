@@ -20,6 +20,9 @@ export async function createAccountWithPhrase(page, extensionURL, phrase) {
     await page.type(inputSelector, wordToType)
   }
 
+  // Click on Import button.
+  await clickOnElement(page, '[data-testid="import-button"]')
+  await clickOnElement(page, '[data-testid="do-not-save-seed-button"]', true, 1500)
   // This function will complete the onboarding stories and will select and retrieve first basic and first smarts account
   const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
     await finishStoriesAndSelectAccount(page, 'true')

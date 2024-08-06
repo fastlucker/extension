@@ -1,18 +1,37 @@
-import React, { useMemo } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import Option from '@common/components/Option'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import { getUiType } from '@web/utils/uiType'
 
-import { getAddAccountOptions } from './helpers/getAddAccountOptions'
+import { useGetAddAccountOptions } from './helpers/useGetAddAccountOptions'
 
 const AddAccount = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const options = useMemo(() => getAddAccountOptions({ navigate, t }), [navigate, t])
+  const options = useGetAddAccountOptions({ navigate, t })
+  const mainControllerState = useMainControllerState()
+  const accountAdderControllerState = useAccountAdderControllerState()
+
+  useEffect(() => {
+    if (mainControllerState.statuses.onAccountAdderSuccess === 'SUCCESS') {
+      getUiType().isTab
+        ? navigate(WEB_ROUTES.accountPersonalize)
+        : openInternalPageInTab(WEB_ROUTES.accountPersonalize)
+    }
+  }, [
+    mainControllerState.statuses.onAccountAdderSuccess,
+    navigate,
+    accountAdderControllerState.readyToAddAccounts
+  ])
 
   return (
     <View style={spacings.ptSm}>
@@ -27,6 +46,11 @@ const AddAccount = () => {
           onPress={option.onPress}
           hasLargerBottomSpace={option.hasLargerBottomSpace}
           testID={option.testID}
+          disabled={
+            option.disabled ||
+            mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL' ||
+            mainControllerState.statuses.importSmartAccountFromDefaultSeed !== 'INITIAL'
+          }
         />
       ))}
     </View>

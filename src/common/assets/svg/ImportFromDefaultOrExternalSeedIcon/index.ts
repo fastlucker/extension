@@ -1,0 +1,3 @@
+import ImportFromDefaultOrExternalSeedIcon from './ImportFromDefaultOrExternalSeedIcon'
+
+export default ImportFromDefaultOrExternalSeedIcon
