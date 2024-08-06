@@ -9,11 +9,11 @@ import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
+import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import ManifestImage from '@web/components/ManifestImage'
 import {
   TabLayoutContainer,
@@ -66,7 +66,7 @@ const DappConnectScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={<HeaderAccountAndNetworkInfo />}
+      header={<Header customTitle={t('Connection requested')} withAmbireLogo />}
       footer={
         <ActionFooter
           onReject={handleDenyButtonPress}
@@ -78,9 +78,6 @@ const DappConnectScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg}>
-        <Text weight="medium" fontSize={20} style={[spacings.mbXl, textStyles.center]}>
-          {t('Connection requested')}
-        </Text>
         <View style={[spacings.pvSm, flexbox.alignCenter]}>
           <ManifestImage
             uri={userRequest?.session?.icon}

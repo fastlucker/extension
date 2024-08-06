@@ -10,7 +10,6 @@ import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -23,6 +22,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import Stepper from '@web/modules/router/components/Stepper'
@@ -31,12 +31,16 @@ const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { stepperState, updateStepperState } = useStepper()
-  const { params } = useRoute()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const { maxWidthSize } = useWindowSize()
 
-  const newAccounts: Account[] = useMemo(() => params?.accounts || [], [params?.accounts])
+  const accountsState = useAccountsControllerState()
+
+  const newAccounts: Account[] = useMemo(
+    () => accountsState.accounts.filter((a) => a.newlyAdded),
+    [accountsState.accounts]
+  )
 
   const { handleSubmit, control } = useForm({
     defaultValues: { accounts: newAccounts }
@@ -44,8 +48,8 @@ const AccountPersonalizeScreen = () => {
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
   useEffect(() => {
-    if (!newAccounts.length) navigate('/')
-  }, [navigate, newAccounts.length])
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
+  }, [dispatch])
 
   useEffect(() => {
     if (!stepperState?.currentFlow) return
@@ -57,7 +61,7 @@ const AccountPersonalizeScreen = () => {
     (data: { accounts: Account[] }) => {
       dispatch({
         type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES',
-        params: data.accounts.map((a) => ({ addr: a.addr, preferences: a.preferences! }))
+        params: data.accounts.map((a) => ({ addr: a.addr, preferences: a.preferences }))
       })
 
       navigate('/', { state: { openOnboardingCompleted: true } })

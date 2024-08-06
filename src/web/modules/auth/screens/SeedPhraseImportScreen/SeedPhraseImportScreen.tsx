@@ -2,10 +2,12 @@ import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
@@ -29,6 +31,8 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import SaveSeedModal from '@web/modules/auth/components/Modal/SaveSeedModal'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const arrayWithEmptyString = (length: number) => new Array(length).fill({ value: '' })
@@ -66,6 +70,7 @@ const SeedPhraseImportScreen = () => {
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const accountAdderCtrlState = useAccountAdderControllerState()
+  const keystoreState = useKeystoreControllerState()
   const {
     watch,
     control,
@@ -88,6 +93,13 @@ const SeedPhraseImportScreen = () => {
     control,
     name: 'seedFields'
   })
+
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
+  const seedPhrase =
+    watch('seedFields')
+      ?.map((field) => field.value?.trim())
+      .join(' ') || ''
 
   useEffect(() => {
     updateStepperState(WEB_ROUTES.importSeedPhrase, 'seed')
@@ -136,12 +148,30 @@ const SeedPhraseImportScreen = () => {
     await handleSubmit(({ seedFields }) => {
       const formattedSeed = seedFields.map((field) => field.value).join(' ')
 
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-        params: { privKeyOrSeed: formattedSeed }
-      })
+      if (!keystoreState.hasKeystoreDefaultSeed) {
+        openBottomSheet()
+      } else {
+        dispatch({
+          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+          params: { privKeyOrSeed: formattedSeed }
+        })
+      }
     })()
-  }, [dispatch, handleSubmit])
+  }, [dispatch, handleSubmit, keystoreState.hasKeystoreDefaultSeed, openBottomSheet])
+
+  const handleSaveSeedAndProceed = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+      params: { privKeyOrSeed: seedPhrase, shouldPersist: true }
+    })
+  }, [dispatch, seedPhrase])
+
+  const handleDoNotSaveSeedAndProceed = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+      params: { privKeyOrSeed: seedPhrase }
+    })
+  }, [dispatch, seedPhrase])
 
   const updateFieldsLength = useCallback(
     (newLength: number) => {
@@ -335,8 +365,23 @@ const SeedPhraseImportScreen = () => {
           ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
+      {!keystoreState.hasKeystoreDefaultSeed && (
+        <BottomSheet
+          id="import-seed-phrase"
+          sheetRef={sheetRef}
+          closeBottomSheet={closeBottomSheet}
+          backgroundColor="secondaryBackground"
+          style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
+          type="modal"
+        >
+          <SaveSeedModal
+            onAgree={handleSaveSeedAndProceed}
+            onDeny={handleDoNotSaveSeedAndProceed}
+          />
+        </BottomSheet>
+      )}
     </TabLayoutContainer>
   )
 }
 
-export default SeedPhraseImportScreen
+export default React.memo(SeedPhraseImportScreen)
