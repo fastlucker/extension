@@ -45,7 +45,7 @@ const TokenOrNft: FC<Props> = ({
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const timeout = setTimeout(() => setIsLoading(false), 10000)
+    const timeout = setTimeout(() => setIsLoading(false), 3000)
     return () => clearTimeout(timeout)
   }, [])
 
@@ -84,10 +84,10 @@ const TokenOrNft: FC<Props> = ({
           network={network}
           networks={networks}
           tokenId={value}
-          nftInfo={{ name: assetInfo?.nftInfo }}
+          nftInfo={assetInfo.nftInfo}
         />
       )}
-      {(assetInfo?.tokenInfo || !isLoading) && network && (
+      {(assetInfo?.tokenInfo || !isLoading) && !assetInfo.nftInfo && network && (
         <Token
           textSize={textSize}
           network={network}
