@@ -186,7 +186,7 @@ const SignAccountOpScreen = () => {
         : isAtLeastOneOfTheKeysInvolvedLedger
       if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) return
 
-      dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_ACCOUNT_OP' })
+      dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP' })
     },
     [dispatch, isAtLeastOneOfTheKeysInvolvedLedger, feePayerKeyType, isLedgerConnected]
   )

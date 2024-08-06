@@ -819,8 +819,8 @@ handleRegisterScripts()
 
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
                 return mainCtrl?.signAccountOp?.update(params)
-              case 'MAIN_CONTROLLER_HANDLE_SIGN_ACCOUNT_OP': {
-                return await mainCtrl.handleSignAccountOp()
+              case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
+                return await mainCtrl.handleSignAndBroadcastAccountOp()
               }
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
                 return mainCtrl.initSignAccOp(params.actionId)
