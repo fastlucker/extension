@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import CollectibleModal, { SelectedCollectible } from '@common/components/CollectibleModal'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
@@ -14,8 +15,6 @@ import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import CollectibleModal from './CollectibleModal'
-import { SelectedCollectible } from './CollectibleModal/CollectibleModal'
 import Collection from './Collection'
 import CollectionsSkeleton from './CollectionsSkeleton'
 import styles from './styles'
@@ -26,13 +25,21 @@ interface Props {
   initTab?: {
     [key: string]: boolean
   }
-  filterByNetworkId: NetworkDescriptor['id']
+  filterByNetworkId: NetworkId
   onScroll: FlatListProps<any>['onScroll']
+  networks: Network[]
 }
 
 const { isPopup } = getUiType()
 
-const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll, filterByNetworkId }) => {
+const Collections: FC<Props> = ({
+  openTab,
+  setOpenTab,
+  initTab,
+  onScroll,
+  filterByNetworkId,
+  networks
+}) => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
@@ -118,6 +125,7 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll, filter
           collectibles={collectibles}
           priceIn={priceIn}
           openCollectibleModal={openCollectibleModal}
+          networks={networks}
         />
       )
     },

@@ -1,35 +1,62 @@
-import React from 'react'
+import { formatUnits } from 'ethers'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
-import { Avatar } from '@common/components/Avatar'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
+import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import shortenAddress from '@web/utils/shortenAddress'
+import formatDecimals from '@common/utils/formatDecimals'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 const PayOption = ({
   feeOption,
-  disabled,
   disabledReason
 }: {
   feeOption: FeePaymentOption
-  disabled: boolean
   disabledReason?: string
 }) => {
   const { t } = useTranslation()
-  const settingsCtrl = useSettingsControllerState()
   const { maxWidthSize } = useWindowSize()
-  const isL = maxWidthSize('l')
-  const accountPref = settingsCtrl.accountPreferences[feeOption.paidBy]
-  const iconSize = isL ? 20 : 16
-  const label = accountPref?.label || DEFAULT_ACCOUNT_LABEL
-  const disabledStyle = disabled ? { opacity: 0.5 } : {}
+  const isXl = maxWidthSize('xl')
+  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { networks } = useNetworksControllerState()
+
+  const iconSize = 24
+
+  const account = useMemo(
+    () => accounts.find((a) => a.addr === feeOption.paidBy),
+    [accounts, feeOption.paidBy]
+  )
+
+  const formattedAmount = useMemo(() => {
+    return formatDecimals(
+      Number(formatUnits(feeOption.token.amount, feeOption.token.decimals)),
+      'amount'
+    )
+  }, [feeOption.token.amount, feeOption.token.decimals])
+
+  const feeTokenNetworkName = useMemo(() => {
+    if (feeOption.token.flags.onGasTank) {
+      return 'Gas Tank'
+    }
+
+    return networks.find((n) => n.id === feeOption.token.networkId)?.name || ''
+  }, [feeOption.token.flags.onGasTank, feeOption.token.networkId, networks])
+
+  const isPaidByAnotherAccount = feeOption.paidBy !== selectedAccount
+
+  const paidByLabel = useMemo(() => {
+    return accounts.find((a) => a.addr === feeOption.paidBy)?.preferences.label
+  }, [accounts, feeOption.paidBy])
+
+  if (!account) return null
 
   return (
     <View
@@ -48,79 +75,67 @@ const PayOption = ({
           spacings.mrTy,
           {
             flexGrow: 1,
-            flexShrink: 1,
-            ...disabledStyle
+            flexShrink: 1
           }
         ]}
       >
-        <Avatar pfp={accountPref?.pfp} size={32} />
-        <View style={[flexbox.flex1, spacings.mrMi]}>
-          <Text weight="medium" fontSize={isL ? 14 : 12} numberOfLines={1}>
-            {label}
-          </Text>
-          <Text weight="medium" fontSize={10} numberOfLines={1} appearance="secondaryText">
-            (
-            {!feeOption.token.flags.onGasTank
-              ? shortenAddress(feeOption.paidBy, isL ? 23 : 13)
-              : t('Gas Tank')}
-            )
-          </Text>
-        </View>
-      </View>
-      <View>
-        <View
-          style={[
-            flexbox.directionRow,
-            flexbox.alignCenter,
-            flexbox.justifyEnd,
-            flexbox.flex1,
-            {
-              minWidth: 'fit-content',
-              flexShrink: 0,
-              ...disabledStyle
-            }
-          ]}
-        >
-          <TokenIcon
-            containerStyle={{
-              width: iconSize,
-              height: iconSize
-            }}
-            width={iconSize}
-            height={iconSize}
-            networkSize={10}
-            address={feeOption.token.address}
-            networkId={feeOption.token.networkId}
-            onGasTank={feeOption.token.flags.onGasTank}
-            skeletonAppearance="secondaryBackground"
-          />
-          <Text weight="medium" numberOfLines={1} style={spacings.mlMi} fontSize={isL ? 14 : 12}>
-            {feeOption.token.symbol}
-          </Text>
-        </View>
-        <View
-          style={{
-            marginLeft: 'auto',
-            ...disabledStyle
+        <TokenIcon
+          containerStyle={{
+            width: iconSize,
+            height: iconSize
           }}
-        >
-          <Text
-            fontSize={10}
-            appearance="secondaryText"
-            weight="medium"
-            style={{ textAlign: 'right' }}
-          >
-            {disabledReason && (
-              <Text fontSize={10} appearance="errorText" weight="semiBold">
-                ({disabledReason}){' '}
-              </Text>
-            )}
-            {t('Fee token')}
+          width={iconSize}
+          height={iconSize}
+          networkSize={12}
+          address={feeOption.token.address}
+          networkId={feeOption.token.networkId}
+          onGasTank={feeOption.token.flags.onGasTank}
+          skeletonAppearance="secondaryBackground"
+        />
+
+        <View style={[flexbox.flex1, isXl ? spacings.mlTy : spacings.mlMi]}>
+          <Text weight="semiBold" fontSize={12} numberOfLines={1}>
+            {formattedAmount} {feeOption.token.symbol}{' '}
+            <Text weight="semiBold" fontSize={10}>
+              ({t('Available')})
+            </Text>
           </Text>
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <Text
+              weight="medium"
+              fontSize={10}
+              numberOfLines={1}
+              appearance={disabledReason ? 'errorText' : 'secondaryText'}
+            >
+              {disabledReason || t('Fee token')}
+            </Text>
+            <Text
+              weight="medium"
+              fontSize={10}
+              numberOfLines={1}
+              appearance="secondaryText"
+              style={spacings.mlMi}
+            >
+              ({feeTokenNetworkName})
+            </Text>
+          </View>
         </View>
       </View>
+      {isPaidByAnotherAccount && (
+        <View style={[flexbox.flex1, flexbox.alignEnd]}>
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <Avatar size={16} pfp={feeOption.paidBy} style={spacings.prTy} />
+            <Text fontSize={10} weight="semiBold" numberOfLines={1}>
+              {paidByLabel}
+            </Text>
+          </View>
+          <Text fontSize={10} weight="medium">
+            {shortenAddress(feeOption.paidBy, 13)}
+          </Text>
+        </View>
+      )}
     </View>
   )
 }
 
-export default PayOption
+export default React.memo(PayOption)

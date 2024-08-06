@@ -2,8 +2,8 @@ import { formatUnits } from 'ethers'
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { PendingToken } from '@ambire-common/libs/portfolio/portfolioView'
+import { NetworkId } from '@ambire-common/interfaces/network'
+import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
@@ -14,8 +14,8 @@ import formatDecimals from '@common/utils/formatDecimals'
 import getStyles from './styles'
 
 interface Props {
-  token: PendingToken
-  networkId: NetworkDescriptor['id']
+  token: TokenResult
+  networkId: NetworkId
   hasBottomSpacing?: boolean
 }
 
@@ -31,24 +31,24 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
 
     if (!usdPrice) return null
 
-    const value = usdPrice * Number(formatUnits(token.amountToSend, token.decimals))
+    const value = usdPrice * Number(formatUnits(token.simulationAmount!, token.decimals))
 
     return formatDecimals(value)
   }, [token])
 
   const amountToSendSign = useMemo(() => {
-    if (token.type === 'send') return '-'
-    if (token.type === 'receive') return '+'
+    if (token.simulationAmount! < 0) return '-'
+    if (token.simulationAmount! > 0) return '+'
 
     return ''
-  }, [token.type])
+  }, [token.simulationAmount])
 
   const amountToSendTextColor = useMemo(() => {
-    if (token.type === 'send') return colors.radicalRed
-    if (token.type === 'receive') return colors.greenHaze
+    if (token.simulationAmount! < 0) return colors.radicalRed
+    if (token.simulationAmount! > 0) return colors.greenHaze
 
     return colors.martinique
-  }, [token.type])
+  }, [token.simulationAmount])
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
@@ -63,7 +63,7 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
       </View>
       <Text selectable fontSize={16} weight="medium" color={amountToSendTextColor}>
         {`${amountToSendSign}${formatDecimals(
-          Number(formatUnits(token.amountToSend, token.decimals || 18))
+          Math.abs(Number(formatUnits(token.simulationAmount!, token.decimals || 18)))
         )}`}
         <Text fontSize={16} weight="medium">
           {` ${token.symbol}`}

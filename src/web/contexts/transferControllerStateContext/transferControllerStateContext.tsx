@@ -9,10 +9,10 @@ import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import Spinner from '@common/components/Spinner'
 import useRoute from '@common/hooks/useRoute'
 import flexbox from '@common/styles/utils/flexbox'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 type ContextReturn = {
   state: TransferController
@@ -35,8 +35,8 @@ export const getInfoFromSearch = (search: string | undefined) => {
 }
 
 const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
-  const mainState = useMainControllerState()
-  const { networks } = useSettingsControllerState()
+  const accountsState = useAccountsControllerState()
+  const { networks } = useNetworksControllerState()
   const { contacts } = useAddressBookControllerState()
   const { search } = useRoute()
   const [state, setState] = useState<TransferController>({} as TransferController)
@@ -49,40 +49,61 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const tokens = useMemo(
     () =>
-      accountPortfolio?.tokens.filter(
-        (token) => Number(getTokenAmount(token)) > 0 && !token.flags.onGasTank
-      ) || [],
-    [accountPortfolio]
+      accountPortfolio?.tokens.filter((token) => {
+        const hasAmount = Number(getTokenAmount(token)) > 0
+        const isTopUp = selectedTokenFromUrl?.isTopUp
+
+        if (isTopUp) {
+          const tokenNetwork = networks.find((network) => network.id === token.networkId)
+
+          return (
+            hasAmount &&
+            tokenNetwork?.hasRelayer &&
+            token.flags.canTopUpGasTank &&
+            !token.flags.onGasTank
+          )
+        }
+
+        return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
+      }) || [],
+    [accountPortfolio?.tokens, networks, selectedTokenFromUrl?.isTopUp]
   )
 
   useEffect(() => {
     // Don't reinit the controller if it already exists. Only update its properties
     if (transferCtrl) return
 
+    const selectedAccountData = accountsState.accounts.find(
+      (acc) => acc.addr === accountsState.selectedAccount
+    )
+
+    if (!selectedAccountData) return
+
     transferCtrlRef.current = new TransferController(
       humanizerInfo as HumanizerMeta,
-      mainState.selectedAccount || '',
+      selectedAccountData,
       networks
     )
     forceUpdate()
-  }, [forceUpdate, mainState.selectedAccount, networks, transferCtrl])
+  }, [forceUpdate, accountsState.accounts, accountsState.selectedAccount, networks, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return
     transferCtrl.onUpdate(() => {
-      console.log('update')
       setState(transferCtrl.toJSON())
     })
   }, [transferCtrl])
 
   useEffect(() => {
-    if (!transferCtrl) return
-    if (!mainState.selectedAccount) return
+    const selectedAccountData = accountsState.accounts.find(
+      (acc) => acc.addr === accountsState.selectedAccount
+    )
+    if (!selectedAccountData || !transferCtrl) return
 
     transferCtrl.update({
-      selectedAccount: mainState.selectedAccount
+      selectedAccountData
     })
-  }, [mainState.selectedAccount, transferCtrl])
+  }, [accountsState.accounts, accountsState.selectedAccount, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return
@@ -106,7 +127,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [transferCtrl])
 
   useEffect(() => {
-    if (!transferCtrl) return
+    if (!transferCtrl || transferCtrl.selectedToken) return
     const selectedTokenData = tokens.find(
       (token) =>
         token.address === selectedTokenFromUrl?.addr &&

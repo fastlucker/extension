@@ -16,9 +16,10 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -31,11 +32,8 @@ interface Props {
 const { isPopup } = getUiType()
 
 const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
-  const {
-    selectedAccount,
-    accounts,
-    settings: { networks }
-  } = useMainControllerState()
+  const { selectedAccount, accounts } = useAccountsControllerState()
+  const { networks } = useNetworksControllerState()
   const { keys } = useKeystoreControllerState()
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)

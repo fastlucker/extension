@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import AddIcon from '@common/assets/svg/AddIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -21,7 +21,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import Networks from '@web/modules/networks/components/Networks'
 
 import AllNetworksOption from '../components/AllNetworksOption/AllNetworksOption'
@@ -33,12 +33,12 @@ const NetworksScreen = () => {
   const { state } = useRoute()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { selectedAccount } = useMainControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const [selectedNetworkId, setSelectedNetworkId] = useState<NetworkDescriptor['id'] | null>(null)
+  const [selectedNetworkId, setSelectedNetworkId] = useState<NetworkId | null>(null)
   const filterByNetworkId = state?.filterByNetworkId || null
 
-  const openSettingsBottomSheet = (networkId: NetworkDescriptor['id']) => {
+  const openSettingsBottomSheet = (networkId: NetworkId) => {
     openBottomSheet()
     setSelectedNetworkId(networkId)
   }

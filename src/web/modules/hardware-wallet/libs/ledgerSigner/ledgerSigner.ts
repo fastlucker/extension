@@ -4,10 +4,9 @@ import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, {
-  ledgerService
-} from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, { ledgerService } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -48,7 +47,10 @@ class LedgerSigner implements KeystoreSigner {
 
     if (!this.controller.isUnlocked(path, this.key.addr)) {
       throw new Error(
-        `The Ledger is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
+        `The Ledger is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${shortenAddress(
+          this.key.addr,
+          13
+        )})`
       )
     }
   }
@@ -60,10 +62,13 @@ class LedgerSigner implements KeystoreSigner {
    * associated with the operation never resolves or rejects.
    */
   async #withDisconnectProtection<T>(operation: () => Promise<T>): Promise<T> {
-    let transportCbRef: (...args: Array<any>) => any = () => {}
-    const disconnectHandler = (reject: (reason?: any) => void) => () => {
-      reject(new Error('Ledger device got disconnected.'))
-    }
+    let listenerCbRef: (...args: Array<any>) => any = () => {}
+    const disconnectHandler =
+      (reject: (reason?: any) => void) =>
+      ({ device }: { device: HIDDevice }) => {
+        if (LedgerController.vendorId === device.vendorId)
+          reject(new Error('Ledger device got disconnected.'))
+      }
 
     try {
       // Race the operation against a new Promise that rejects if a 'disconnect'
@@ -74,8 +79,8 @@ class LedgerSigner implements KeystoreSigner {
       const result = await Promise.race<T>([
         operation(),
         new Promise((_, reject) => {
-          transportCbRef = disconnectHandler(reject)
-          this.controller!.transport?.on('disconnect', transportCbRef)
+          listenerCbRef = disconnectHandler(reject)
+          navigator.hid.addEventListener('disconnect', listenerCbRef)
         })
       ])
 
@@ -83,7 +88,7 @@ class LedgerSigner implements KeystoreSigner {
     } finally {
       // In either case, the 'disconnect' event listener should be removed
       // after the operation to clean up resources.
-      if (transportCbRef) this.controller!.transport?.off('disconnect', transportCbRef)
+      if (listenerCbRef) navigator.hid.removeEventListener('disconnect', listenerCbRef)
     }
   }
 

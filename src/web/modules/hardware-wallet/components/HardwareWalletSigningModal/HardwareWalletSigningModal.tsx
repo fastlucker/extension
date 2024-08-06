@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
-import CloseIcon from '@common/assets/svg/CloseIcon'
 import DriveIcon from '@common/assets/svg/DriveIcon'
 import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
 import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
@@ -11,10 +11,8 @@ import LeftPointerArrowIcon from '@common/assets/svg/LeftPointerArrowIcon'
 import TrezorMiniIcon from '@common/assets/svg/TrezorMiniIcon/TrezorMiniIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
-import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -22,9 +20,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 
 type Props = {
-  modalRef: any
   keyType: ExternalKey['type']
-  onReject: () => void
+  isVisible: boolean
 }
 
 const iconByKeyType = {
@@ -33,9 +30,14 @@ const iconByKeyType = {
   lattice: LatticeMiniIcon
 }
 
-const HardwareWalletSigningModal = ({ modalRef, keyType, onReject }: Props) => {
+const HardwareWalletSigningModal = ({ keyType, isVisible }: Props) => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { ref, open, close } = useModalize()
+
+  useEffect(() => {
+    if (isVisible) open()
+    else close()
+  }, [open, close, isVisible])
 
   const titleSuffix = useMemo(() => {
     const Icon = keyType && iconByKeyType[keyType as keyof typeof iconByKeyType]
@@ -49,7 +51,9 @@ const HardwareWalletSigningModal = ({ modalRef, keyType, onReject }: Props) => {
       id="hardware-wallet-signing-modal"
       backgroundColor="primaryBackground"
       autoWidth
-      sheetRef={modalRef}
+      sheetRef={ref}
+      shouldBeClosableOnDrag={false}
+      autoOpen={isVisible}
     >
       <ModalHeader
         title={t('Sign with your {{deviceName}} device', {
@@ -75,17 +79,6 @@ const HardwareWalletSigningModal = ({ modalRef, keyType, onReject }: Props) => {
           {t('Sending signing request...')}
         </Text>
       </View>
-      <Button
-        type="danger"
-        text={t('Reject')}
-        onPress={onReject}
-        hasBottomSpacing={false}
-        style={spacings.phLg}
-      >
-        <View style={spacings.plSm}>
-          <CloseIcon color={theme.errorDecorative} />
-        </View>
-      </Button>
     </BottomSheet>
   )
 }

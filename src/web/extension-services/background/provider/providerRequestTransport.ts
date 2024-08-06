@@ -1,6 +1,5 @@
-import { Messenger } from '@web/extension-services/messengers'
+import { CallbackOptions, Messenger } from '@ambire-common/interfaces/messenger'
 import { bridgeMessenger } from '@web/extension-services/messengers/internal/bridge'
-import { CallbackOptions } from '@web/extension-services/messengers/internal/createMessenger'
 
 export enum RpcMethods {
   eth_chainId = 'eth_chainId',
@@ -46,6 +45,8 @@ export type RequestResponse =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       result: any
     }
+  | undefined
+  | boolean
 
 export type ProviderRequestPayload = RequestArguments & {
   id: number

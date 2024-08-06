@@ -5,104 +5,39 @@ declare module '@env' {
   const log = require('loglevel')
 
   export type EnvTypes = {
-    /**
-     * The Ambire relayer for all EVM chains. Responsible for managing on-chain
-     * Identities (called "Ambire accounts") and relaying gasless transactions
-     * to the Ethereum network. It is not intended to be blockchain-agnostic,
-     * and it is Ethereum-specific.
-     */
     RELAYER_URL: string
-
-    /**
-     * Ambire specific static constants, shared between all Ambire apps
-     */
-    CONSTANTS_ENDPOINT: string
-
-    /**
-     * Integrated decentralized exchange (DEX) in Ambire that allows users to
-     * buy, sell and swap crypto assets.
-     */
-    SWAP_URL: string
-
-    /**
-     * The Zapper API provides DeFi related data, everything from liquidity
-     * and prices on different AMMs to complex Defi protocol balances.
-     */
-    ZAPPER_API_ENDPOINT: string
-    /**
-     * See `ZAPPER_API_ENDPOINT`
-     */
-    ZAPPER_API_KEY: string
-
-    /**
-     * Alternative to Zapper, developed by Ambire. Serves the same purpose.
-     */
-    VELCRO_API_ENDPOINT: string
-
-    /**
-     * Ramp Network enables exchange of traditional currencies into cryptocurrencies
-     */
-    RAMP_HOST_API_KEY: string
-
-    /**
-     * Transak is a developer integration toolkit to let users buy / sell crypto
-     */
-    TRANSAK_API_KEY: string
-
-    /**
-     * Paytrie allows clients to exchange Canadian dollars (CAD) for stablecoins
-     */
-    PAYTRIE_PARTNER_URL: string
-
-    /**
-     * Sentry is application monitoring and error tracking app
-     */
-    SENTRY_DSN: string
-
+    VELCRO_URL: string
+    SENTRY_DSN?: string
     ENVIRONMENT: string
-
     DEFAULT_INVITATION_CODE_DEV: string
-    /**
-     * The URL for the Ambire NFT proxy service, responsible for resolving NFT images from the passed parameters.
-     * Takes in RPC url, contract address and token Id so we can use the complete proxy URL as source for image components.
-     */
+    DEFAULT_KEYSTORE_PASSWORD_DEV: string
     NFT_CDN_URL: string
   }
 
+  /**
+   * The Ambire relayer for all EVM chains. Responsible for managing on-chain
+   * Identities (called "Ambire accounts") and relaying gasless transactions
+   * to the Ethereum network. It is not intended to be blockchain-agnostic,
+   * and it is Ethereum-specific.
+   */
   export const RELAYER_URL: EnvTypes['RELAYER_URL']
-  export const APP_RELAYRLESS: string
-  export const CONSTANTS_ENDPOINT: EnvTypes['CONSTANTS_ENDPOINT']
-  export const SWAP_URL: EnvTypes['SWAP_URL']
 
-  export const RPC_URL_ETHEREUM: string
-  export const RPC_URL_POLYGON: string
-  export const RPC_URL_AVALANCHE: string
-  export const RPC_URL_BNB_CHAIN: string
-  export const RPC_URL_FANTOM: string
-  export const RPC_URL_MOONBEAM: string
-  export const RPC_URL_MOONRIVER: string
-  export const RPC_URL_ARBITRUM: string
-  export const RPC_URL_GNOSIS: string
-  export const RPC_URL_KUCOIN: string
-  export const RPC_URL_OPTIMISM: string
-  export const RPC_URL_ANDROMEDA: string
-  export const RPC_URL_RINKEBY: string
-  export const RPC_URL_CRONOS: string
-  export const RPC_URL_AURORA: string
-  export const RPC_URL_ETHEREUM_POW: string
+  /**
+   * Alternative to Zapper, developed by Ambire. Serves the same purpose.
+   */
+  export const VELCRO_URL: EnvTypes['VELCRO_URL']
 
-  export const ZAPPER_API_ENDPOINT: EnvTypes['ZAPPER_API_ENDPOINT']
-  export const ZAPPER_API_KEY: EnvTypes['ZAPPER_API_KEY']
-  export const VELCRO_API_ENDPOINT: EnvTypes['VELCRO_API_ENDPOINT']
+  /**
+   * Sentry is application monitoring and error tracking app used by the mobile app.
+   */
+  export const SENTRY_DSN: EnvTypes['SENTRY_DSN'] | undefined
 
-  export const RAMP_HOST_API_KEY: EnvTypes['RAMP_HOST_API_KEY']
-  export const TRANSAK_API_KEY_STAGING: EnvTypes['TRANSAK_API_KEY']
-  export const TRANSAK_API_KEY_PROD: EnvTypes['TRANSAK_API_KEY']
-  export const PAYTRIE_PARTNER_URL: EnvTypes['PAYTRIE_PARTNER_URL']
-
-  export const SENTRY_DSN: EnvTypes['SENTRY_DSN']
-
+  /**
+   * The URL for the Ambire NFT proxy service, responsible for resolving NFT images from the passed parameters.
+   * Takes in RPC url, contract address and token Id so we can use the complete proxy URL as source for image components.
+   */
   export const NFT_CDN_URL: EnvTypes['NFT_CDN_URL']
+
   /**
    * Possible log level descriptors, may be string, lower or upper case, or number.
    * There are 6 levels: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'.
@@ -111,6 +46,7 @@ declare module '@env' {
    * will output messages, but log.info("something") will not.
    */
   export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: log.LogLevelDesc
+
   /** See `BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD` */
   export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: log.LogLevelDesc
 
@@ -129,4 +65,17 @@ declare module '@env' {
    * Unlimited-use invitation code for the app, for easy access during development
    */
   export const DEFAULT_INVITATION_CODE_DEV: EnvTypes['DEFAULT_INVITATION_CODE_DEV']
+
+  /**
+   * Auto-Fill Keystore Password during development
+   */
+  export const DEFAULT_KEYSTORE_PASSWORD_DEV: EnvTypes['DEFAULT_KEYSTORE_PASSWORD_DEV']
+
+  /**
+   * Are we running the E2E tests?
+   * The accepted value is 'true'.
+   * Note that we don't have a dedicated testing environment (APP_ENV).
+   * E2E tests can be run against both DEV and PROD environments.
+   */
+  export const IS_TESTING: string
 }

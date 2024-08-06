@@ -1,4 +1,4 @@
-import { ReplyMessage } from '@web/extension-services/messengers/internal/createMessenger'
+import { ReplyMessage } from '@ambire-common/interfaces/messenger'
 
 export function isValidReply<TResponse>({
   id,
@@ -9,6 +9,7 @@ export function isValidReply<TResponse>({
   topic: string
   message: ReplyMessage<TResponse>
 }) {
+  if (!message) return
   if (message.topic !== `< ${topic}`) return
   if (typeof id !== 'undefined' && message.id !== id) return
   if (!message.payload) return

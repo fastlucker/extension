@@ -8,10 +8,10 @@ import { ToggleProps } from './types'
 
 interface Props extends ToggleProps {
   labelProps?: TextProps
-  toggleProps?: React.CSSProperties
+  toggleStyle?: React.CSSProperties
 }
 
-const Toggle: React.FC<Props> = ({ id, isOn, onToggle, label, labelProps, toggleProps }) => {
+const Toggle: React.FC<Props> = ({ id, isOn, onToggle, label, labelProps, toggleStyle }) => {
   const handleOnToggle: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     onToggle(e.target.checked)
   }
@@ -25,7 +25,7 @@ const Toggle: React.FC<Props> = ({ id, isOn, onToggle, label, labelProps, toggle
         id={id}
         onChange={handleOnToggle}
       />
-      <div className="toggle__fill" style={toggleProps} />
+      <div className="toggle__fill" style={toggleStyle} />
       <Text fontSize={12} weight="medium" {...labelProps}>
         {label}
       </Text>

@@ -3,12 +3,10 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
+import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
-import {
-  ProviderNeededControllers,
-  RequestRes
-} from '@web/extension-services/background/provider/types'
+import { RequestRes } from '@web/extension-services/background/provider/types'
 import PromiseFlow from '@web/utils/promiseFlow'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
 
@@ -17,17 +15,16 @@ const connectOrigins = new Set<string>()
 
 const flow = new PromiseFlow<{
   request: DappProviderRequest
-  controllers: ProviderNeededControllers
+  mainCtrl: MainController
   mapMethod: string
   requestRes?: RequestRes
 }>()
 
 const flowContext = flow
   // validate the provided method
-  .use(async ({ request, controllers, mapMethod }, next) => {
-    const { mainCtrl, dappsCtrl } = controllers
+  .use(async ({ request, mainCtrl, mapMethod }, next) => {
     const { method, params } = request
-    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
+    const providerCtrl = new ProviderController(mainCtrl)
     if (!(providerCtrl as any)[mapMethod]) {
       if (method.startsWith('eth_') || method === 'net_version') {
         return providerCtrl.ethRpc(request)
@@ -42,17 +39,16 @@ const flowContext = flow
     return next()
   })
   // unlock the wallet before proceeding with the request
-  .use(async ({ request, controllers, mapMethod }, next) => {
-    const { mainCtrl, dappsCtrl } = controllers
+  .use(async ({ request, mainCtrl, mapMethod }, next) => {
     const {
       session: { origin }
     } = request
 
-    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
+    const providerCtrl = new ProviderController(mainCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       const isUnlock = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
 
-      if (!isUnlock && dappsCtrl.hasPermission(origin)) {
+      if (!isUnlock && mainCtrl.dapps.hasPermission(origin)) {
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
         }
@@ -61,7 +57,7 @@ const flowContext = flow
           await new Promise((resolve, reject) => {
             mainCtrl.buildUserRequestFromDAppRequest(
               { ...request, method: 'unlock', params: {} },
-              { resolve, reject }
+              { resolve, reject, session: request.session }
             )
           })
           lockedOrigins.delete(origin)
@@ -75,14 +71,13 @@ const flowContext = flow
     return next()
   })
   // if dApp not connected - prompt connect action window
-  .use(async ({ request, controllers, mapMethod }, next) => {
-    const { mainCtrl, dappsCtrl } = controllers
+  .use(async ({ request, mainCtrl, mapMethod }, next) => {
     const {
       session: { origin, name, icon }
     } = request
-    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
+    const providerCtrl = new ProviderController(mainCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
-      if (!dappsCtrl.hasPermission(origin)) {
+      if (!mainCtrl.dapps.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing connect. Please wait.')
         }
@@ -91,11 +86,11 @@ const flowContext = flow
           await new Promise((resolve, reject) => {
             mainCtrl.buildUserRequestFromDAppRequest(
               { ...request, method: 'dapp_connect', params: {} },
-              { resolve, reject }
+              { resolve, reject, session: request.session }
             )
           })
           connectOrigins.delete(origin)
-          dappsCtrl.addDapp({
+          mainCtrl.dapps.addDapp({
             name,
             url: origin,
             icon,
@@ -104,6 +99,11 @@ const flowContext = flow
             chainId: 1,
             isConnected: true
           })
+          mainCtrl.dapps.broadcastDappSessionEvent(
+            'chainChanged',
+            { chain: '0x1', networkVersion: '1' },
+            origin
+          )
         } catch (e) {
           connectOrigins.delete(origin)
           throw e
@@ -115,28 +115,30 @@ const flowContext = flow
   })
   // add the dapp request as a userRequest and action
   .use(async (props, next) => {
-    const { request, controllers, mapMethod } = props
-    const { mainCtrl, dappsCtrl } = controllers
-    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
+    const { request, mainCtrl, mapMethod } = props
+    const providerCtrl = new ProviderController(mainCtrl)
     const [requestType, condition] =
       Reflect.getMetadata('ACTION_REQUEST', providerCtrl, mapMethod) || []
     if (requestType && (!condition || !condition(props))) {
       // eslint-disable-next-line no-param-reassign
       props.requestRes = await new Promise((resolve, reject) => {
-        mainCtrl.buildUserRequestFromDAppRequest(request, { resolve, reject })
+        mainCtrl.buildUserRequestFromDAppRequest(request, {
+          resolve,
+          reject,
+          session: request.session
+        })
       })
     }
 
     return next()
   })
-  .use(async ({ request, controllers, mapMethod, requestRes }) => {
-    const { mainCtrl, dappsCtrl } = controllers
-    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
+  .use(async ({ request, mainCtrl, mapMethod, requestRes }) => {
+    const providerCtrl = new ProviderController(mainCtrl)
 
     return Promise.resolve((providerCtrl as any)[mapMethod]({ ...request, requestRes }))
   })
   .callback()
 
-export default (request: DappProviderRequest, controllers: ProviderNeededControllers) => {
-  return flowContext({ request, controllers, mapMethod: underline2Camelcase(request.method) })
+export default (request: DappProviderRequest, mainCtrl: MainController) => {
+  return flowContext({ request, mainCtrl, mapMethod: underline2Camelcase(request.method) })
 }

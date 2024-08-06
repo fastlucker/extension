@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { AccountId } from '@ambire-common/interfaces/account'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
+import useConnectivity from '@common/hooks/useConnectivity'
+import useDebounce from '@common/hooks/useDebounce'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
@@ -9,15 +12,27 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
-const getCurrentAccountBanners = (banners: BannerInterface[], selectAccount: AccountId | null) =>
+const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount: AccountId | null) =>
   banners.filter((banner) => {
     if (!banner.accountAddr) return true
 
-    return banner.accountAddr === selectAccount
+    return banner.accountAddr === selectedAccount
   })
+
+const OFFLINE_BANNER: BannerInterface = {
+  id: 'offline-banner',
+  type: 'error',
+  title: "You're offline",
+  text: 'Please check your internet connection',
+  actions: []
+}
 
 export default function useBanners(): BannerInterface[] {
   const state = useMainControllerState()
+  const { selectedAccount } = useAccountsControllerState()
+  const { isOffline } = useConnectivity()
+  // Debounce offline status to prevent banner flickering
+  const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
   const {
     state: { banners: portfolioBanners = [] }
   } = usePortfolioControllerState()
@@ -58,18 +73,23 @@ export default function useBanners(): BannerInterface[] {
       ...innerBanners,
       ...state.banners,
       ...actionBanners,
-      ...getCurrentAccountBanners(portfolioBanners, state.selectedAccount),
+      // Don't display portfolio banners when offline
+      ...getCurrentAccountBanners(
+        debouncedIsOffline ? [OFFLINE_BANNER] : portfolioBanners,
+        selectedAccount
+      ),
       ...activityBanners,
-      ...getCurrentAccountBanners(emailVaultBanners, state.selectedAccount)
+      ...getCurrentAccountBanners(emailVaultBanners, selectedAccount)
     ]
   }, [
-    activityBanners,
-    emailVaultBanners,
     innerBanners,
-    portfolioBanners,
     state.banners,
     actionBanners,
-    state.selectedAccount
+    debouncedIsOffline,
+    portfolioBanners,
+    selectedAccount,
+    activityBanners,
+    emailVaultBanners
   ])
 
   return allBanners

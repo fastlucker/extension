@@ -1,27 +1,29 @@
 import { isHexString } from 'ethers'
-import React, { FC, useMemo, useState } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { CustomNetwork, NetworkPreference } from '@ambire-common/interfaces/settings'
-import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
+import { Network } from '@ambire-common/interfaces/network'
+import Address from '@common/components/Address'
 import Alert from '@common/components/Alert'
+import Collectible from '@common/components/Collectible'
+import NetworkBadge from '@common/components/NetworkBadge'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 
+import SimulationSkeleton from './SimulationSkeleton'
 import getStyles from './styles'
 
 interface Props {
-  network: (NetworkDescriptor & (NetworkPreference | CustomNetwork)) | undefined
+  network?: Network
   hasEstimation: boolean
 }
 
@@ -30,16 +32,19 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   const { styles } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
   const portfolioState = usePortfolioControllerState()
-
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
+  const { networks } = useNetworksControllerState()
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
-      return calculateTokensPendingState(
-        signAccountOpState?.accountOp.accountAddr,
-        network,
-        portfolioState.state
-      )
+      const pendingData =
+        portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][network.id]
+
+      if (!pendingData || !pendingData.isReady || !pendingData.result) {
+        return []
+      }
+
+      return pendingData.result.tokens.filter((token) => token.simulationAmount !== undefined)
     }
     return []
   }, [network, portfolioState.state, signAccountOpState?.accountOp])
@@ -47,143 +52,239 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   const portfolioStatePending = useMemo(() => {
     if (!signAccountOpState?.accountOp || !network?.id) return null
 
-    return portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][network!.id]
+    return portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][network?.id]
   }, [network, portfolioState.state.pending, signAccountOpState?.accountOp])
 
   const pendingSendTokens = useMemo(
-    () => pendingTokens.filter((token) => token.type === 'send'),
+    () => pendingTokens.filter((token) => token.simulationAmount! < 0),
     [pendingTokens]
   )
+  const pendingSendCollection = useMemo(() => {
+    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+      return (
+        portfolioState?.state?.pending[signAccountOpState.accountOp.accountAddr][
+          network.id
+        ]?.result?.collections?.filter(
+          (i) => i.postSimulation?.sending && i.postSimulation.sending.length > 0
+        ) || []
+      )
+    return []
+  }, [network, signAccountOpState?.accountOp.accountAddr, portfolioState])
+
+  const pendingReceiveCollection = useMemo(() => {
+    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+      return (
+        portfolioState?.state?.pending[signAccountOpState.accountOp.accountAddr][
+          network.id
+        ]?.result?.collections?.filter(
+          (i) => i.postSimulation?.receiving && i.postSimulation.receiving.length > 0
+        ) || []
+      )
+    return []
+  }, [network, signAccountOpState?.accountOp.accountAddr, portfolioState])
 
   const pendingReceiveTokens = useMemo(
-    () => pendingTokens.filter((token) => token.type === 'receive'),
+    () => pendingTokens.filter((token) => token.simulationAmount! > 0),
     [pendingTokens]
   )
 
-  // @TODO: Structure this code in a more readable way- helpers, useEffect and useState
-  let hasSimulationError = false
-  if (
-    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
-    (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
-      !!portfolioStatePending?.criticalError?.simulationErrorMsg ||
-      !!signAccountOpState?.errors.length)
-  ) {
-    hasSimulationError = true
-    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
-  }
+  const isReloading = useMemo(
+    () => initialSimulationLoaded && !hasEstimation,
+    [hasEstimation, initialSimulationLoaded]
+  )
 
-  let simulationErrorMsg = 'We were unable to simulate the transaction'
-  if (portfolioStatePending?.criticalError) {
-    if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
-      simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
-    } else if (portfolioStatePending?.criticalError.simulationErrorMsg) {
-      simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
+  const simulationErrorMsg = useMemo(() => {
+    if (portfolioStatePending?.isLoading || !initialSimulationLoaded) return ''
+
+    if (portfolioStatePending?.criticalError) {
+      if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
+        return `Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
+      }
+
+      return portfolioStatePending?.criticalError.simulationErrorMsg
     }
-  } else {
+
     const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
     if (simulationError) {
       if (isHexString(simulationError)) {
-        simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${simulationError.simulationErrorMsg}`
-      } else if (simulationError.simulationErrorMsg) {
-        simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
+        return `Please report this error to our team: ${simulationError.simulationErrorMsg}`
       }
+      return simulationError.simulationErrorMsg
     }
-  }
 
-  let shouldShowNoBalanceChanges = false
-  if (
-    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
-    !pendingTokens.length &&
-    !portfolioStatePending?.errors.length &&
-    !portfolioStatePending?.criticalError &&
-    !signAccountOpState?.errors.length &&
+    return ''
+  }, [
+    initialSimulationLoaded,
+    portfolioStatePending?.criticalError,
+    portfolioStatePending?.errors,
+    portfolioStatePending?.isLoading
+  ])
+
+  const shouldShowLoader = useMemo(
+    () =>
+      (!!portfolioStatePending?.isLoading && !initialSimulationLoaded) ||
+      isReloading ||
+      !signAccountOpState?.isInitialized,
+    [
+      initialSimulationLoaded,
+      isReloading,
+      portfolioStatePending?.isLoading,
+      signAccountOpState?.isInitialized
+    ]
+  )
+
+  const simulationView: 'no-changes' | 'changes' | 'error' | null = useMemo(() => {
+    if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
+
+    if (simulationErrorMsg) return 'error'
+    return pendingSendCollection.length || pendingReceiveCollection.length || pendingTokens.length
+      ? 'changes'
+      : 'no-changes'
+  }, [
+    simulationErrorMsg,
+    pendingTokens.length,
+    shouldShowLoader,
     signAccountOpState?.isInitialized
-  ) {
-    shouldShowNoBalanceChanges = true
-    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
-  }
+  ])
 
-  let shouldShowSimulation = false
-  const isReloading = initialSimulationLoaded && !hasEstimation
-  if (
-    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
-    !!pendingTokens.length &&
-    !hasSimulationError &&
-    !isReloading
-  ) {
-    shouldShowSimulation = true
-    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
-  }
-
-  let shouldShowLoader = false
-  if ((!!portfolioStatePending?.isLoading && !initialSimulationLoaded) || isReloading) {
-    shouldShowLoader = true
-  }
-  // End of @TODO
+  useEffect(() => {
+    if (simulationView && !initialSimulationLoaded) {
+      setInitialSimulationLoaded(true)
+    }
+  }, [initialSimulationLoaded, simulationView])
 
   return (
     <View style={styles.simulationSection}>
-      <SectionHeading>{t('Simulation results')}</SectionHeading>
-      {!!shouldShowSimulation && (
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.justifySpaceBetween,
+          spacings.mbLg
+        ]}
+      >
+        <SectionHeading withMb={false}>{t('Simulation results')}</SectionHeading>
+        <NetworkBadge networkId={network?.id} withOnPrefix />
+      </View>
+      {simulationView === 'changes' && (
         <View style={[flexbox.directionRow, flexbox.flex1]}>
-          {!!pendingSendTokens.length && (
+          {(!!pendingSendTokens.length || !!pendingSendCollection.length) && (
             <View
               style={[styles.simulationContainer, !!pendingReceiveTokens.length && spacings.mrTy]}
             >
               <View style={styles.simulationContainerHeader}>
                 <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                  {t('Tokens out')}
+                  {t('Assets out')}
                 </Text>
               </View>
               <ScrollableWrapper
                 style={styles.simulationScrollView}
                 contentContainerStyle={{ flexGrow: 1 }}
               >
-                {pendingSendTokens.map((token, i) => {
+                {pendingSendTokens?.map((token, i) => {
                   return (
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network!.id}
+                      networkId={network?.id || ''}
                       hasBottomSpacing={i < pendingTokens.length - 1}
                     />
                   )
                 })}
+                {pendingSendCollection
+                  .map(({ name, postSimulation, address }) =>
+                    postSimulation?.sending?.map((itemId: bigint) => (
+                      <View
+                        key={address + itemId}
+                        style={[flexbox.directionRow, flexbox.wrap, spacings.mbMi]}
+                      >
+                        <Collectible
+                          style={spacings.mhTy}
+                          size={36}
+                          id={itemId}
+                          collectionData={{
+                            address,
+                            // if we have pendingSendCollection we also have network
+                            networkId: network!.id
+                          }}
+                          networks={networks}
+                        />
+                        <Address
+                          address={address}
+                          highestPriorityAlias={`${name} #${itemId}`}
+                          explorerNetworkId={network?.id}
+                        />
+                      </View>
+                    ))
+                  )
+                  .flat()}
               </ScrollableWrapper>
             </View>
           )}
-          {!!pendingReceiveTokens.length && (
+          {(!!pendingReceiveTokens.length || !!pendingReceiveCollection.length) && (
             <View style={styles.simulationContainer}>
               <View style={styles.simulationContainerHeader}>
                 <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                  {t('Tokens in')}
+                  {t('Assets in')}
                 </Text>
               </View>
               <ScrollableWrapper
                 style={styles.simulationScrollView}
                 contentContainerStyle={{ flexGrow: 1 }}
               >
-                {pendingReceiveTokens.map((token, i) => {
+                {pendingReceiveTokens?.map((token, i) => {
                   return (
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network!.id}
+                      networkId={network?.id || ''}
                       hasBottomSpacing={i < pendingTokens.length - 1}
                     />
                   )
                 })}
+                {pendingReceiveCollection
+                  .map(({ name, postSimulation, address }) =>
+                    postSimulation?.receiving?.map((itemId: bigint) => (
+                      <View
+                        key={address + itemId}
+                        style={[flexbox.directionRow, flexbox.wrap, spacings.mbMi]}
+                      >
+                        <Collectible
+                          style={spacings.mhTy}
+                          size={36}
+                          id={itemId}
+                          collectionData={{
+                            address,
+                            // if we have pendingSendCollection we also have network
+                            networkId: network!.id
+                          }}
+                          networks={networks}
+                        />
+                        <Address
+                          // fontSize={textSize}
+                          address={address}
+                          highestPriorityAlias={`${name} #${itemId}`}
+                          explorerNetworkId={network?.id}
+                        />
+                      </View>
+                    ))
+                  )
+                  .flat()}
               </ScrollableWrapper>
             </View>
           )}
         </View>
       )}
-      {!!hasSimulationError && (
+
+      {simulationView === 'error' && (
         <View>
-          <Alert type="error" title={simulationErrorMsg} />
+          <Alert
+            type="error"
+            title={`We were unable to simulate the transaction: ${simulationErrorMsg}`}
+          />
         </View>
       )}
-      {!!shouldShowNoBalanceChanges && (
+      {simulationView === 'no-changes' && (
         <View>
           <Alert
             type="info"
@@ -200,13 +301,9 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
           />
         </View>
       )}
-      {shouldShowLoader && (
-        <View style={spacings.mt}>
-          <Spinner style={styles.spinner} />
-        </View>
-      )}
+      {shouldShowLoader && <SimulationSkeleton />}
     </View>
   )
 }
 
-export default Simulation
+export default React.memo(Simulation)

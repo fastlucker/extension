@@ -1,17 +1,10 @@
-import { MainController } from '@ambire-common/controllers/main/main'
-import { DappsController } from '@web/extension-services/background/controllers/dapps'
-import { Session } from '@web/extension-services/background/services/session'
+import { Session } from '@ambire-common/classes/session'
 
 export type ProviderRequest<TMethod = string> = {
   method: TMethod
   params?: any
   session: Session
   origin: string
-}
-
-export type ProviderNeededControllers = {
-  mainCtrl: MainController
-  dappsCtrl: DappsController
 }
 
 export type RequestRes = {
@@ -29,6 +22,7 @@ export type RequestRes = {
   signingTxId?: string
   hash?: string
   error?: string
+  isUserOp?: boolean
 }
 
 export type Web3WalletPermission = {

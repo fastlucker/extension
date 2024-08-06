@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
@@ -16,7 +16,7 @@ import getStyles from './styles'
 
 interface Props {
   activeStep: ActiveStepType
-  network: NetworkDescriptor
+  network: Network
   stepsState: StepsData
 }
 
@@ -62,7 +62,7 @@ const Header: FC<Props> = ({ activeStep, network, stepsState }) => {
           on{' '}
         </Text>
         <NetworkIcon id={network.id} style={spacings.mrMi} benzinNetwork={network} />
-        <Text appearance="secondaryText" fontSize={14}>
+        <Text testID="network-name" appearance="secondaryText" fontSize={14}>
           {network.name}
         </Text>
       </View>

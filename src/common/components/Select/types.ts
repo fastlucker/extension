@@ -1,16 +1,18 @@
 import { ReactNode } from 'react'
-import { TextStyle, ViewStyle } from 'react-native'
+import { SectionListProps, TextStyle, ViewStyle } from 'react-native'
 
 export type SelectValue = {
   value: string | number
   label: string | ReactNode
   icon?: string | ReactNode
+  disabled?: boolean
   [key: string]: any
 }
-export type SelectProps = {
+
+export type CommonSelectProps = {
   value: SelectValue
   setValue?: (value: SelectValue) => void
-  options: SelectValue[]
+  handleSearch?: (search: string) => void
   defaultValue?: {}
   placeholder?: string
   label?: string
@@ -21,4 +23,14 @@ export type SelectProps = {
   menuOptionHeight?: number
   menuStyle?: ViewStyle
   withSearch?: boolean
+  testID?: string
 }
+export type SelectProps = CommonSelectProps & {
+  options: SelectValue[]
+}
+
+export type SectionedSelectProps = CommonSelectProps &
+  Pick<
+    SectionListProps<SelectValue>,
+    'sections' | 'renderSectionHeader' | 'SectionSeparatorComponent' | 'stickySectionHeadersEnabled'
+  >

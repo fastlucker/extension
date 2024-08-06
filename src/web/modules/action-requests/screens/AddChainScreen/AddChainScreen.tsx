@@ -4,9 +4,8 @@ import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
-import { NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
-import { CustomNetwork } from '@ambire-common/interfaces/settings'
-import { getFeatures } from '@ambire-common/libs/settings/settings'
+import { AddNetworkRequestParams, NetworkFeature } from '@ambire-common/interfaces/network'
+import { getFeatures } from '@ambire-common/libs/networks/networks'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -27,7 +26,7 @@ import {
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
 
@@ -40,7 +39,7 @@ const AddChainScreen = () => {
   const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { maxWidthSize } = useWindowSize()
-  const { statuses, networkToAddOrUpdate } = useSettingsControllerState()
+  const { statuses, networkToAddOrUpdate } = useNetworksControllerState()
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
   const actionButtonPressedRef = useRef(false)
@@ -70,10 +69,10 @@ const AddChainScreen = () => {
   const rpcUrls: string[] = useMemo(() => {
     if (!requestData || !requestData?.rpcUrls) return []
 
-    return requestData.rpcUrls.filter((url: string) => url.startsWith('http'))
+    return requestData.rpcUrls.filter((url: string) => !!url && url.startsWith('http'))
   }, [requestData])
 
-  const networkDetails: CustomNetwork | undefined = useMemo(() => {
+  const networkDetails: AddNetworkRequestParams | undefined = useMemo(() => {
     if (!areParamsValid || !requestData) return undefined
     if (!requestData.rpcUrls) return
     const name = requestData.chainName
@@ -96,12 +95,12 @@ const AddChainScreen = () => {
   }, [areParamsValid, rpcUrls, requestData, rpcUrlIndex])
 
   useEffect(() => {
-    if (networkDetails) {
-      dispatch({
-        type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
-        params: { chainId: networkDetails.chainId, rpcUrl: networkDetails.selectedRpcUrl }
-      })
-    }
+    if (!networkDetails) return
+
+    dispatch({
+      type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+      params: { chainId: networkDetails.chainId, rpcUrl: networkDetails.selectedRpcUrl }
+    })
   }, [dispatch, rpcUrlIndex, networkDetails])
 
   useEffect(() => {
@@ -110,13 +109,13 @@ const AddChainScreen = () => {
 
   useEffect(() => {
     if (!dappAction) return
-    if (statuses.addCustomNetwork === 'SUCCESS') {
+    if (statuses.addNetwork === 'SUCCESS') {
       dispatch({
         type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
         params: { data: null, id: dappAction.id }
       })
     }
-  }, [dispatch, statuses.addCustomNetwork, dappAction])
+  }, [dispatch, statuses.addNetwork, dappAction])
 
   const handleDenyButtonPress = useCallback(() => {
     if (!dappAction) return
@@ -132,7 +131,7 @@ const AddChainScreen = () => {
     if (!networkDetails) return
     actionButtonPressedRef.current = true
     dispatch({
-      type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK',
+      type: 'MAIN_CONTROLLER_ADD_NETWORK',
       params: networkDetails
     })
   }, [dispatch, networkDetails])
@@ -150,11 +149,11 @@ const AddChainScreen = () => {
           onReject={handleDenyButtonPress}
           onResolve={handleAddNetworkButtonPress}
           resolveButtonText={
-            statuses.addCustomNetwork === 'LOADING' ? t('Adding network...') : t('Add network')
+            statuses.addNetwork === 'LOADING' ? t('Adding network...') : t('Add network')
           }
           resolveDisabled={
             !areParamsValid ||
-            statuses.addCustomNetwork === 'LOADING' ||
+            statuses.addNetwork === 'LOADING' ||
             (features &&
               (features.some((f) => f.level === 'loading') ||
                 !!features.filter((f) => f.id === 'flagged')[0]))

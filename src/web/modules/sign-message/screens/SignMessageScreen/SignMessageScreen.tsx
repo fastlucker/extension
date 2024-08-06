@@ -2,32 +2,32 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
-import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
-import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import usePrevious from '@common/hooks/usePrevious'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
+import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
+import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import MessageSummary from '@web/modules/sign-message/components/MessageSummary'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
@@ -37,13 +37,14 @@ import { getUiType } from '@web/utils/uiType'
 const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
-  const [hasReachedBottom, setHasReachedBottom] = useState(false)
+  const signStatus = signMessageState.statuses.sign
+  const [hasReachedBottom, setHasReachedBottom] = useState<boolean | null>(null)
   const keystoreState = useKeystoreControllerState()
-  const mainState = useMainControllerState()
-  const { networks } = useSettingsControllerState()
+  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
-  const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
-
+  const { isLedgerConnected } = useLedger()
+  const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
   const actionState = useActionsControllerState()
@@ -62,15 +63,9 @@ const SignMessageScreen = () => {
     return signMessageAction.userRequest
   }, [signMessageAction])
 
-  const networkData: NetworkDescriptor | null =
-    networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
-
-  const prevSignMessageState: SignMessageController =
-    usePrevious(signMessageState) || ({} as SignMessageController)
-
   const selectedAccountFull = useMemo(
-    () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
-    [mainState.accounts, mainState.selectedAccount]
+    () => accounts.find((acc) => acc.addr === selectedAccount),
+    [accounts, selectedAccount]
   )
 
   const selectedAccountKeyStoreKeys = useMemo(
@@ -100,9 +95,10 @@ const SignMessageScreen = () => {
   const isScrollToBottomForced = useMemo(
     () =>
       signMessageState.messageToSign?.content.kind === 'typedMessage' &&
+      typeof hasReachedBottom === 'boolean' &&
       !hasReachedBottom &&
       !visualizeHumanized,
-    [hasReachedBottom, signMessageState.messageToSign?.content?.kind, visualizeHumanized]
+    [hasReachedBottom, signMessageState.messageToSign?.content.kind, visualizeHumanized]
   )
 
   useEffect(() => {
@@ -111,24 +107,6 @@ const SignMessageScreen = () => {
     }, 3000)
     return () => clearTimeout(timer)
   })
-
-  useEffect(() => {
-    if (
-      prevSignMessageState.status === 'LOADING' &&
-      signMessageState.status === 'DONE' &&
-      signMessageState.signedMessage
-    ) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE',
-        params: { signedMessage: signMessageState.signedMessage }
-      })
-    }
-  }, [
-    dispatch,
-    prevSignMessageState.status,
-    signMessageState.signedMessage,
-    signMessageState.status
-  ])
 
   useEffect(() => {
     if (!userRequest || !signMessageAction) return
@@ -156,20 +134,10 @@ const SignMessageScreen = () => {
           content: userRequest.action as PlainTextMessage | TypedMessage,
           fromActionId: signMessageAction.id,
           signature: null
-        },
-        accounts: mainState.accounts,
-        accountStates: mainState.accountStates
+        }
       }
     })
-  }, [
-    dispatch,
-    networks,
-    userRequest,
-    signMessageAction,
-    mainState.selectedAccount,
-    mainState.accounts,
-    mainState.accountStates
-  ])
+  }, [dispatch, userRequest, signMessageAction])
 
   useEffect(() => {
     if (!getUiType().isActionWindow) return
@@ -191,16 +159,6 @@ const SignMessageScreen = () => {
     }
   }, [dispatch])
 
-  const handleChangeSigningKey = useCallback(
-    (keyAddr: string, keyType: string) => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
-        params: { key: keyAddr, type: keyType }
-      })
-    },
-    [dispatch]
-  )
-
   const handleReject = () => {
     if (!signMessageAction || !userRequest) return
 
@@ -210,45 +168,44 @@ const SignMessageScreen = () => {
     })
   }
 
-  const handleSign = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
-    })
-  }, [dispatch])
+  const handleSign = useCallback(
+    (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
+      // Has more than one key, should first choose the key to sign with
+      const hasChosenSigningKey = chosenSigningKeyAddr && chosenSigningKeyType
+      if (selectedAccountKeyStoreKeys.length > 1 && !hasChosenSigningKey) {
+        return setIsChooseSignerShown(true)
+      }
 
-  useEffect(() => {
-    if (
-      signMessageState.isInitialized &&
-      signMessageState.status === 'INITIAL' &&
-      signMessageState.signingKeyAddr &&
-      signMessageState.signingKeyType &&
-      signMessageState.messageToSign
-    ) {
-      handleSign()
-    }
-  }, [
-    handleSign,
-    signMessageState.isInitialized,
-    signMessageState.status,
-    signMessageState.signingKeyAddr,
-    signMessageState.signingKeyType,
-    signMessageState.messageToSign
-  ])
+      setDidTriggerSigning(true)
+      if (signMessageState.signingKeyType === 'ledger' && !isLedgerConnected) return
 
-  useEffect(() => {
-    if (
-      signMessageState.signingKeyType &&
-      signMessageState.signingKeyType !== 'internal' &&
-      signMessageState.status === 'LOADING'
-    ) {
-      openHwModal()
-      return
-    }
+      const keyAddr = chosenSigningKeyAddr || selectedAccountKeyStoreKeys[0].addr
+      const keyType = chosenSigningKeyType || selectedAccountKeyStoreKeys[0].type
 
-    closeHwModal()
-  }, [signMessageState.signingKeyType, signMessageState.status, openHwModal, closeHwModal])
+      dispatch({
+        type: 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE',
+        params: { keyAddr, keyType }
+      })
+    },
+    [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys, signMessageState.signingKeyType]
+  )
 
-  if (!Object.keys(signMessageState).length) {
+  const resolveButtonText = useMemo(() => {
+    if (isScrollToBottomForced && shouldShowFallback) return t('Read the message')
+
+    if (signStatus === 'LOADING') return t('Signing...')
+
+    return t('Sign')
+  }, [isScrollToBottomForced, shouldShowFallback, signStatus, t])
+
+  const handleDismissLedgerConnectModal = useCallback(() => {
+    setDidTriggerSigning(false)
+  }, [])
+
+  // In the split second when the action window opens, but the state is not yet
+  // initialized, to prevent a flash of the fallback visualization, show a
+  // loading spinner instead (would better be a skeleton, but whatever).
+  if (!signMessageState.isInitialized) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />
@@ -256,54 +213,21 @@ const SignMessageScreen = () => {
     )
   }
 
-  const onSignButtonClick = () => {
-    // FIXME: Ugly workaround for triggering `handleSign` manually.
-    // This approach is a temporary fix to address the issue where the
-    // 'useEffect' hook fails to get re-triggered. The original 'useEffect' was
-    // supposed to trigger 'handleSign' when certain conditions in
-    // 'signMessageState' were met. However, we encountered a problem: when
-    // 'mainCtrl.signMessage.sign()' throws an error (e.g., hardware wallet issues),
-    // the 'Sign' button becomes non-responsive. This happens because the
-    // 'useEffect' doesn't reactivate after the first  execution of
-    // 'mainCtrl.signMessage.setSigningKey'. To ensure functionality, this
-    // workaround checks if the signing key is set (via 'hasSigningKey') and
-    // then directly calls 'handleSign', bypassing the problematic 'useEffect' logic.
-    // A more robust and maintainable fix should be explored
-    // to handle such edge cases effectively in the future!
-    // FIXME: this won't allow changing the signing key (if user has multiple)
-    // after the first time the user picks key and attempts to sign the message
-    // (which ultimately sets the signing key the first time it gets triggered).
-    const hasSigningKey = signMessageState.signingKeyAddr && signMessageState.signingKeyType
-    if (hasSigningKey) return handleSign()
-
-    // If the account has only one signer, we don't need to show the keys select
-    if (selectedAccountKeyStoreKeys.length === 1) {
-      handleChangeSigningKey(
-        selectedAccountKeyStoreKeys[0].addr,
-        selectedAccountKeyStoreKeys[0].type
-      )
-      return
-    }
-
-    setIsChooseSignerShown(true)
-  }
-
   return (
     <TabLayoutContainer
       width="full"
-      header={
-        <HeaderAccountAndNetworkInfo
-          networkName={networkData?.name}
-          networkId={networkData?.id as NetworkIconIdType}
-        />
-      }
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <ActionFooter
           onReject={handleReject}
-          onResolve={onSignButtonClick}
-          resolveButtonText={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
+          onResolve={handleSign}
+          resolveButtonText={resolveButtonText}
           resolveDisabled={
-            signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly
+            signStatus === 'LOADING' ||
+            isScrollToBottomForced ||
+            isViewOnly ||
+            (!visualizeHumanized && !shouldShowFallback) ||
+            (typeof hasReachedBottom !== 'boolean' && shouldShowFallback)
           }
           resolveButtonTestID="button-sign"
         />
@@ -311,14 +235,14 @@ const SignMessageScreen = () => {
     >
       <SigningKeySelect
         isVisible={isChooseSignerShown}
-        isSigning={signMessageState.status === 'LOADING'}
+        isSigning={signStatus === 'LOADING'}
         selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
-        handleChangeSigningKey={handleChangeSigningKey}
+        handleChooseSigningKey={handleSign}
         handleClose={() => setIsChooseSignerShown(false)}
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
         <View style={flexbox.flex1}>
-          <Text weight="medium" fontSize={20} style={spacings.mbLg}>
+          <Text weight="medium" fontSize={20} style={[spacings.mbLg, textStyles.center]}>
             {t('Sign message')}
           </Text>
           <Info
@@ -332,8 +256,8 @@ const SignMessageScreen = () => {
             <MessageSummary
               message={signMessageState.humanReadable}
               networkId={network?.id}
-              explorerUrl={network?.explorerUrl}
               kind={signMessageState.messageToSign?.content.kind}
+              networks={networks}
             />
           ) : shouldShowFallback ? (
             <FallbackVisualization
@@ -341,24 +265,29 @@ const SignMessageScreen = () => {
               messageToSign={signMessageState.messageToSign}
             />
           ) : (
-            <Text>Loading</Text>
+            <SkeletonLoader width="100%" height={48} />
           )}
           {isViewOnly && (
-            <View
+            <NoKeysToSignAlert
               style={{
                 ...flexbox.alignSelfCenter,
                 marginTop: 'auto',
                 maxWidth: 600
               }}
-            >
-              <NoKeysToSignAlert />
-            </View>
+            />
           )}
-          {!!signMessageState.signingKeyType && (
+          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
-              modalRef={hwModalRef}
               keyType={signMessageState.signingKeyType}
-              onReject={handleReject}
+              isVisible={signStatus === 'LOADING'}
+            />
+          )}
+          {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
+            <LedgerConnectModal
+              isVisible={!isLedgerConnected}
+              handleOnConnect={handleDismissLedgerConnectModal}
+              handleClose={handleDismissLedgerConnectModal}
+              displayOptionToAuthorize={false}
             />
           )}
         </View>

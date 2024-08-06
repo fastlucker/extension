@@ -1,111 +1,67 @@
 import React, { FC, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import AccountAddress from '@common/components/AccountAddress'
+import AccountBadges from '@common/components/AccountBadges'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
-import { Avatar } from '@common/components/Avatar'
-import Badge from '@common/components/Badge'
-import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
+import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
-import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
+import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import shortenAddress from '@web/utils/shortenAddress'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import { tabLayoutWidths } from '../TabLayoutWrapper'
+import getStyles from './styles'
 
 interface Props {
-  networkName?: string
-  networkId?: NetworkIconIdType
   withAmbireLogo?: boolean
 }
-const HeaderAccountAndNetworkInfo: FC<Props> = ({
-  networkName,
-  networkId,
-  withAmbireLogo = true
-}) => {
-  const { t } = useTranslation()
+
+// @TODO: Not renamed because this component will no longer exist in the near future
+// @TODO: refactor the header component @petromir.
+const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true }) => {
   const { styles: headerStyles } = useTheme(getHeaderStyles)
-  const mainCtrl = useMainControllerState()
-  const settingsCtrl = useSettingsControllerState()
-  const selectedAccount = mainCtrl.selectedAccount || ''
-  const selectedAccountPref = settingsCtrl.accountPreferences[selectedAccount]
-  const selectedAccountLabel = selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL
-  const { minWidthSize, maxWidthSize } = useWindowSize()
+  const { styles } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
+  const accountsState = useAccountsControllerState()
+
+  const account = useMemo(() => {
+    return accountsState.accounts.find((acc) => acc.addr === accountsState.selectedAccount)
+  }, [accountsState.accounts, accountsState.selectedAccount])
+
+  const { isLoading, ens, ud } = useReverseLookup({ address: account?.addr || '' })
 
   const isActionWindow = getUiType().isActionWindow
 
-  const fontSize = useMemo(() => {
-    return maxWidthSize(750) ? 16 : 14
-  }, [maxWidthSize])
-
-  const account = useMemo(() => {
-    return mainCtrl.accounts.find((acc) => acc.addr === mainCtrl.selectedAccount)
-  }, [mainCtrl.accounts, mainCtrl.selectedAccount])
+  if (!account) return null
 
   return (
-    <Header mode="custom" withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}>
+    <Header
+      mode="custom"
+      withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}
+      style={styles.container}
+    >
       <View
         style={[headerStyles.widthContainer, !isActionWindow && { maxWidth: tabLayoutWidths.xl }]}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
-          <Avatar pfp={selectedAccountPref?.pfp} />
-          <Text
-            appearance="secondaryText"
-            weight="medium"
-            fontSize={fontSize}
-            numberOfLines={1}
-            style={spacings.mrMi}
-          >
-            {selectedAccountLabel}
-          </Text>
-          <Text
-            selectable
-            appearance="primaryText"
-            weight="medium"
-            fontSize={fontSize}
-            style={spacings.mrMi}
-          >
-            ({minWidthSize(900) && shortenAddress(selectedAccount, 12)}
-            {maxWidthSize(900) && minWidthSize(1000) && shortenAddress(selectedAccount, 20)}
-            {maxWidthSize(1000) && minWidthSize(1150) && shortenAddress(selectedAccount, 30)}
-            {maxWidthSize(1150) && selectedAccount})
-          </Text>
-          <Badge
-            type={!account?.creation ? 'warning' : 'success'}
-            text={!account?.creation ? t('Basic Account') : t('Smart Account')}
-          />
-          {!!networkName && !!networkId && (
-            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlTy]}>
-              <Text
-                appearance="secondaryText"
-                weight="regular"
-                fontSize={fontSize}
-                style={spacings.mrMi}
-              >
-                {t('on')}
+          <Avatar pfp={account.preferences.pfp} ens={ens} ud={ud} />
+          <View>
+            <View style={[flexbox.directionRow]}>
+              <Text fontSize={16} weight="medium">
+                {account.preferences.label}
               </Text>
-              <Text
-                appearance="secondaryText"
-                weight="regular"
-                style={spacings.mrMi}
-                fontSize={fontSize}
-              >
-                {networkName || t('Unknown network')}
-              </Text>
-              {networkId && maxWidthSize(800) ? (
-                <NetworkIcon id={networkId} withTooltip={false} size={40} />
-              ) : null}
+
+              <AccountBadges accountData={account} />
             </View>
-          )}
+            <AccountAddress isLoading={isLoading} ens={ens} ud={ud} address={account.addr} />
+          </View>
         </View>
         {!!withAmbireLogo && maxWidthSize(700) && (
           <View style={spacings.pl}>

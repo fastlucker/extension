@@ -4,23 +4,18 @@ import { StyleSheet, View } from 'react-native'
 
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { Account } from '@ambire-common/interfaces/account'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import shortenAddress from '@web/utils/shortenAddress'
 
 import HistorySettingsPage from '../../components/TransactionHistory/HistorySettingsPage'
 import SubmittedTransactionSummary from '../../components/TransactionHistory/SubmittedTransactionSummary'
 
-const AccountOpHistory: FC<{ network?: NetworkDescriptor; account: Account }> = ({
-  network,
-  account
-}) => {
-  const { accountPreferences } = useSettingsControllerState()
+const AccountOpHistory: FC<{ network?: Network; account: Account }> = ({ network, account }) => {
   const activityState = useActivityControllerState()
 
   if (!activityState?.accountsOps?.items?.length) {
@@ -32,7 +27,7 @@ const AccountOpHistory: FC<{ network?: NetworkDescriptor; account: Account }> = 
           <Text style={text.center}>
             <Text fontSize={16}>{'No transactions history for\n'}</Text>
             <Text fontSize={16} weight="medium">
-              {`${accountPreferences?.[account.addr]?.label} (${shortenAddress(account.addr, 10)})`}
+              {`${account.preferences.label} (${shortenAddress(account.addr, 10)})`}
             </Text>
             <Text fontSize={16}>{' on '}</Text>
             <Text fontSize={16} weight="medium">

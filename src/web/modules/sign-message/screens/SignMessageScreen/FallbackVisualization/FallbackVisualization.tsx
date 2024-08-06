@@ -6,8 +6,9 @@ import { SignMessageController } from '@ambire-common/controllers/signMessage/si
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
-import { getMessageAsText } from '@web/modules/sign-message/utils'
+import { getMessageAsText } from '@common/utils/messageToString'
 
 import getStyles from './styles'
 
@@ -22,14 +23,16 @@ const FallbackVisualization: FC<{
 }> = ({ messageToSign, setHasReachedBottom }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
 
   useEffect(() => {
+    if (!messageToSign || !containerHeight || !contentHeight) return
     const isScrollNotVisible = contentHeight < containerHeight
 
     setHasReachedBottom(isScrollNotVisible)
-  }, [contentHeight, containerHeight, setHasReachedBottom])
+  }, [contentHeight, containerHeight, setHasReachedBottom, messageToSign])
   if (!messageToSign) return null
 
   const { content } = messageToSign
@@ -39,10 +42,10 @@ const FallbackVisualization: FC<{
       <View style={styles.header}>
         <ErrorOutlineIcon width={24} height={24} />
         <Text style={styles.headerText}>
-          <Text fontSize={16} appearance="warningText" weight="semiBold">
+          <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="warningText" weight="semiBold">
             Warning:{' '}
           </Text>
-          <Text fontSize={16} appearance="warningText">
+          <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="warningText">
             We are not able to decode this message for your convenience, and it&apos;s presented in
             the original format
           </Text>
@@ -66,7 +69,7 @@ const FallbackVisualization: FC<{
         <Text
           selectable
           weight="regular"
-          fontSize={14}
+          fontSize={maxWidthSize('xl') ? 14 : 12}
           appearance="secondaryText"
           style={spacings.mb}
         >

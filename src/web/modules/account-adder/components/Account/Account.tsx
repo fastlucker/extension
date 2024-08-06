@@ -3,8 +3,9 @@ import React, { useContext, useEffect } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface, ImportStatus } from '@ambire-common/interfaces/account'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Badge from '@common/components/Badge'
 import Checkbox from '@common/components/Checkbox'
 import Label from '@common/components/Label'
@@ -23,7 +24,6 @@ import {
   BasicAccountIntroId,
   SmartAccountIntroId
 } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
-import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
 
@@ -39,7 +39,7 @@ const Account = ({
   isDisabled,
   importStatus
 }: {
-  account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
+  account: AccountInterface & { usedOnNetworks: Network[] }
   type: 'basic' | 'smart' | 'linked'
   unused: boolean
   isSelected: boolean

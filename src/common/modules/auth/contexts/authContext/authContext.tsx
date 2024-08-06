@@ -2,7 +2,7 @@
 import React, { createContext, Dispatch, useEffect, useMemo, useState } from 'react'
 
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 
 type AuthContextData = {
   authStatus: AUTH_STATUS
@@ -16,22 +16,22 @@ const AuthContext = createContext<AuthContextData>({
 
 const AuthProvider: React.FC = ({ children }: any) => {
   const [authStatus, setAuthStatus] = useState<AUTH_STATUS>(AUTH_STATUS.LOADING)
-  const mainCtrlState = useMainControllerState()
+  const accountsState = useAccountsControllerState()
 
   useEffect(() => {
     // authStatus = AUTH_STATUS.LOADING while mainCtrlState not initialized in the context yet
-    if (!mainCtrlState.accounts) return
+    if (!accountsState.accounts) return
 
     // if no accounts were added authStatus = AUTH_STATUS.NOT_AUTHENTICATED
-    if (!mainCtrlState.accounts?.length) {
+    if (!accountsState.accounts?.length) {
       setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
       return
     }
 
-    if (mainCtrlState.selectedAccount) {
+    if (accountsState.selectedAccount) {
       setAuthStatus(AUTH_STATUS.AUTHENTICATED)
     }
-  }, [mainCtrlState?.accounts?.length, mainCtrlState.accounts, mainCtrlState.selectedAccount])
+  }, [accountsState?.accounts?.length, accountsState.accounts, accountsState.selectedAccount])
 
   return (
     <AuthContext.Provider

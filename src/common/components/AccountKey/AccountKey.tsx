@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Animated, View, ViewStyle } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
 import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
@@ -19,12 +20,12 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
-import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
 export type AccountKeyType = {
   isImported: boolean
   addr: Key['addr']
+  dedicatedToOneSA: Key['dedicatedToOneSA']
   type?: Key['type']
   meta?: Key['meta']
   label?: string
@@ -35,6 +36,7 @@ type Props = AccountKeyType & {
   style?: ViewStyle
   enableEditing?: boolean
   handleOnKeyDetailsPress?: () => void
+  showCopyAddr?: boolean
 }
 
 const { isPopup } = getUiType()
@@ -50,6 +52,8 @@ const KeyTypeIcon = memo(({ type }: { type: Key['type'] }) => {
 const AccountKey: React.FC<Props> = ({
   label,
   addr,
+  showCopyAddr = true,
+  dedicatedToOneSA,
   isLast = false,
   type,
   isImported,
@@ -96,6 +100,8 @@ const AccountKey: React.FC<Props> = ({
     addToast(t('Key label updated'), { type: 'success' })
   }
 
+  const shortAddr = shortenAddress(addr, 13)
+
   return (
     <View
       style={[
@@ -125,7 +131,7 @@ const AccountKey: React.FC<Props> = ({
                 weight: 'semiBold'
               }}
               fontSize={fontSize}
-              value={label || ''}
+              initialValue={label || ''}
               onSave={editKeyLabel}
               maxLength={40}
             />
@@ -135,16 +141,28 @@ const AccountKey: React.FC<Props> = ({
             </Text>
           )}
         </View>
-        <Text fontSize={fontSize} style={label || isImported ? spacings.mlTy : {}}>
-          {label ? `(${shortenAddress(addr, 13)})` : addr}
-        </Text>
-        <AnimatedPressable
-          style={[spacings.mlTy, copyIconAnimStyle]}
-          onPress={handleCopy}
-          {...bindCopyIconAnim}
+        <Text
+          color={dedicatedToOneSA ? theme.infoDecorative : theme.primaryText}
+          fontSize={fontSize - 1}
+          weight={dedicatedToOneSA ? 'semiBold' : 'regular'}
+          style={[
+            label || isImported ? spacings.mlMi : {},
+            // Reduce the letter spacing as a hack to be able to fit all elements
+            // on the row, even for the extreme case when the key label is max length
+            dedicatedToOneSA && { letterSpacing: -0.2 }
+          ]}
         >
-          <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
-        </AnimatedPressable>
+          {dedicatedToOneSA ? t('(dedicated key)') : label ? `(${shortAddr})` : addr}
+        </Text>
+        {showCopyAddr && (
+          <AnimatedPressable
+            style={[spacings.mlTy, copyIconAnimStyle]}
+            onPress={handleCopy}
+            {...bindCopyIconAnim}
+          >
+            <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
+          </AnimatedPressable>
+        )}
       </View>
       {isImported ? (
         handleOnKeyDetailsPress && (

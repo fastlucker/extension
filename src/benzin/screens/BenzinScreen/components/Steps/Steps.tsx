@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
@@ -13,7 +13,7 @@ import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from '.
 
 interface Props {
   activeStep: ActiveStepType
-  network: NetworkDescriptor
+  network: Network
   txnId: string | null
   userOpHash: string | null
   stepsState: StepsData
@@ -21,7 +21,7 @@ interface Props {
 }
 
 const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, summary }) => {
-  const { nativePrice, blockData, finalizedStatus, cost, calls, from } = stepsState
+  const { nativePrice, blockData, finalizedStatus, cost, calls, from, originatedFrom } = stepsState
 
   const stepRows: any = [
     {
@@ -36,8 +36,15 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
 
   if (from) {
     stepRows.push({
-      label: 'From',
+      label: 'Sender',
       value: from
+    })
+  }
+
+  if (from && originatedFrom && originatedFrom.toLowerCase() !== from.toLowerCase()) {
+    stepRows.push({
+      label: 'Originated from',
+      value: originatedFrom
     })
   }
 
@@ -65,6 +72,7 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
         activeStep={activeStep}
         finalizedStatus={finalizedStatus}
         rows={stepRows}
+        testID="signed-step"
       />
       {shouldShowTxnProgress(finalizedStatus) && (
         <Step
@@ -74,6 +82,7 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
           stepName="in-progress"
           activeStep={activeStep}
           finalizedStatus={finalizedStatus}
+          testID="txn-progress-step"
         >
           {!!summary && summary}
           {!!calls && !calls.length && stepsState.finalizedStatus?.status !== 'fetching' && (
@@ -94,6 +103,7 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
       />
       {activeStep === 'finalized' ? (
         <Step
+          testID="finalized-rows"
           style={{
             ...spacings[IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'pt' : 'ptSm'],
             borderWidth: 0

@@ -2,10 +2,11 @@ import { formatUnits } from 'ethers'
 import React, { ReactNode, useCallback } from 'react'
 import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
+import HumanizedVisualization from '@common/components/HumanizedVisualization'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -15,17 +16,18 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 import FallbackVisualization from './FallbackVisualization'
-import HumanizedVisualization from './HumanizedVisualization'
 import getStyles from './styles'
 
 interface Props {
   style: ViewStyle
   call: IrCall
-  networkId: NetworkDescriptor['id']
+  networkId: NetworkId
   rightIcon?: ReactNode
   onRightIconPress?: () => void
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
+  testID?: string
+  networks: Network[]
 }
 
 const sizeMultiplier = {
@@ -41,7 +43,9 @@ const TransactionSummary = ({
   rightIcon,
   onRightIconPress,
   size = 'lg',
-  isHistory
+  isHistory,
+  testID,
+  networks
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
@@ -80,6 +84,8 @@ const TransactionSummary = ({
               textSize={textSize}
               networkId={networkId}
               isHistory={isHistory}
+              testID={testID}
+              networks={networks}
             />
           ) : (
             <FallbackVisualization

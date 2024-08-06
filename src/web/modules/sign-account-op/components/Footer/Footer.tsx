@@ -53,6 +53,7 @@ const Footer = ({
       <View style={[flexbox.directionRow, isEOA && flexbox.flex1, flexbox.justifyEnd]}>
         {!isEOA && (
           <Button
+            testID="queue-and-sign-later-button"
             type="outline"
             accentColor={theme.primary}
             text={t('Queue and Sign Later')}

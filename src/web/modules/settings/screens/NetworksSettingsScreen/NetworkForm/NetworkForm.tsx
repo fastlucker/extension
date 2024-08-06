@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View, ViewStyle } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { getFeatures } from '@ambire-common/libs/settings/settings'
+import { NetworkId } from '@ambire-common/interfaces/network'
+import { getFeatures } from '@ambire-common/libs/networks/networks'
 import { isValidURL } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -23,7 +23,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import {
   getAreDefaultsChanged,
   handleErrors
@@ -114,17 +114,16 @@ const NetworkForm = ({
   onCancel,
   onSaved
 }: {
-  selectedNetworkId?: NetworkDescriptor['id']
+  selectedNetworkId?: NetworkId
   onCancel: () => void
   onSaved: () => void
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
-  const { networks } = useSettingsControllerState()
+  const { networks, networkToAddOrUpdate, statuses } = useNetworksControllerState()
   const [isValidatingRPC, setValidatingRPC] = useState<boolean>(false)
   const { styles } = useTheme(getStyles)
-  const { networkToAddOrUpdate, statuses } = useSettingsControllerState()
 
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.id === selectedNetworkId),
@@ -132,7 +131,7 @@ const NetworkForm = ({
   )
 
   const isPredefinedNetwork = useMemo(
-    () => selectedNetwork && predefinedNetworks.some((n) => n.id === selectedNetwork.id),
+    () => selectedNetwork && selectedNetwork.predefined,
     [selectedNetwork]
   )
 
@@ -161,8 +160,8 @@ const NetworkForm = ({
       chainId: Number(selectedNetwork?.chainId) || '',
       nativeAssetSymbol: selectedNetwork?.nativeAssetSymbol || '',
       explorerUrl: selectedNetwork?.explorerUrl || '',
-      coingeckoPlatformId: (selectedNetwork?.coingeckoPlatformId as string) || '',
-      coingeckoNativeAssetId: (selectedNetwork?.coingeckoNativeAssetId as string) || ''
+      coingeckoPlatformId: (selectedNetwork?.platformId as string) || '',
+      coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || ''
     }
   })
   const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
@@ -196,8 +195,14 @@ const NetworkForm = ({
       if (type === 'change') {
         dispatch({ type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE' })
       }
-      if (!rpcUrl && !selectedRpcUrl) return
-      if (!rpcUrl && !chainId) return
+      if (!rpcUrl && !selectedRpcUrl) {
+        setValidatingRPC(false)
+        return
+      }
+      if (!rpcUrl && !chainId) {
+        setValidatingRPC(false)
+        return
+      }
 
       if (!rpcUrl) {
         rpcUrl = selectedRpcUrl as string
@@ -234,11 +239,23 @@ const NetworkForm = ({
           setValue('chainId', chainId)
         }
 
-        if (Number(network.chainId) !== Number(chainId) && selectedNetwork && rpcUrl) {
+        if (Number(network.chainId) !== Number(chainId) && rpcUrl) {
           setValidatingRPC(false)
           setError('rpcUrl', {
             type: 'custom-error',
             message: `RPC chain id ${network.chainId} does not match ${selectedNetwork?.name} chain id ${chainId}`
+          })
+          return
+        }
+
+        if (
+          networks.find((n) => n.chainId === network.chainId) &&
+          selectedNetworkId === 'add-custom-network'
+        ) {
+          setValidatingRPC(false)
+          setError('rpcUrl', {
+            type: 'custom-error',
+            message: `You already have a network with RPC chain id ${network.chainId}`
           })
           return
         }
@@ -260,7 +277,17 @@ const NetworkForm = ({
         setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })
       }
     },
-    [selectedNetwork, rpcUrls, selectedRpcUrl, setValue, clearErrors, setError, dispatch]
+    [
+      selectedNetwork,
+      rpcUrls,
+      selectedRpcUrl,
+      selectedNetworkId,
+      networks,
+      setValue,
+      clearErrors,
+      setError,
+      dispatch
+    ]
   )
 
   useEffect(() => {
@@ -353,18 +380,18 @@ const NetworkForm = ({
   ])
 
   useEffect(() => {
-    if (statuses.addCustomNetwork === 'SUCCESS') {
+    if (statuses.addNetwork === 'SUCCESS') {
       addToast('Network successfully added!')
       !!onSaved && onSaved()
     }
-  }, [addToast, onSaved, statuses.addCustomNetwork])
+  }, [addToast, onSaved, statuses.addNetwork])
 
   useEffect(() => {
-    if (statuses.updateNetworkPreferences === 'SUCCESS') {
+    if (statuses.updateNetwork === 'SUCCESS') {
       addToast(`${selectedNetwork?.name} settings saved!`)
       !!onSaved && onSaved()
     }
-  }, [addToast, onSaved, selectedNetwork?.name, statuses.updateNetworkPreferences])
+  }, [addToast, onSaved, selectedNetwork?.name, statuses.updateNetwork])
 
   const handleSubmitButtonPress = () => {
     // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
@@ -397,7 +424,7 @@ const NetworkForm = ({
 
       if (selectedNetworkId === 'add-custom-network') {
         dispatch({
-          type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK',
+          type: 'MAIN_CONTROLLER_ADD_NETWORK',
           params: {
             ...networkFormValues,
             name: networkFormValues.name,
@@ -405,14 +432,15 @@ const NetworkForm = ({
             explorerUrl: networkFormValues.explorerUrl,
             rpcUrls,
             selectedRpcUrl,
-            chainId: BigInt(networkFormValues.chainId)
+            chainId: BigInt(networkFormValues.chainId),
+            iconUrls: []
           }
         })
       } else {
         dispatch({
-          type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
+          type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
           params: {
-            networkPreferences: {
+            network: {
               rpcUrls,
               selectedRpcUrl,
               explorerUrl: networkFormValues.explorerUrl
@@ -467,7 +495,16 @@ const NetworkForm = ({
         }
       }
     },
-    [rpcUrls.length, watch, errors.rpcUrl, handleSelectRpcUrl, validateRpcUrlAndRecalculateFeatures]
+    [rpcUrls.length, watch, errors, handleSelectRpcUrl, validateRpcUrlAndRecalculateFeatures]
+  )
+
+  const isSaveOrAddButtonDisabled = useMemo(
+    () =>
+      !!Object.keys(errors).length ||
+      isValidatingRPC ||
+      features.some((f) => f.level === 'loading') ||
+      !!features.filter((f) => f.id === 'flagged')[0],
+    [errors, features, isValidatingRPC]
   )
 
   return (
@@ -564,7 +601,12 @@ const NetworkForm = ({
                             : t('Add')
                         }
                         type="secondary"
-                        disabled={!value.length || !!errors.rpcUrl || isValidatingRPC}
+                        disabled={
+                          !value.length ||
+                          (!!errors.rpcUrl &&
+                            errors.rpcUrl.message !== 'At least one RPC URL should be added') ||
+                          isValidatingRPC
+                        }
                         containerStyle={{ height: 40 }}
                         style={{ height: 40 }}
                         onPress={() => handleAddRpcUrl(value)}
@@ -702,12 +744,7 @@ const NetworkForm = ({
                 <Button
                   onPress={handleSubmitButtonPress}
                   text={t('Add network')}
-                  disabled={
-                    !!Object.keys(errors).length ||
-                    isValidatingRPC ||
-                    features.some((f) => f.level === 'loading') ||
-                    !!features.filter((f) => f.id === 'flagged')[0]
-                  }
+                  disabled={isSaveOrAddButtonDisabled}
                   hasBottomSpacing={false}
                   size="large"
                 />
@@ -725,9 +762,7 @@ const NetworkForm = ({
                   <Button
                     onPress={handleSubmitButtonPress}
                     text={t('Save')}
-                    disabled={
-                      !showEnableSaveButton || !!Object.keys(errors).length || isValidatingRPC
-                    }
+                    disabled={!showEnableSaveButton || isSaveOrAddButtonDisabled}
                     style={[spacings.mlMi, flexbox.flex1, { width: 160 }]}
                     hasBottomSpacing={false}
                     size="large"

@@ -21,6 +21,7 @@ interface Props {
   isTokenInfoLoading: boolean
   strokeWidth?: number
   isDisabled?: boolean
+  testID: string
 }
 
 const TokenDetailsButton: FC<Props> = ({
@@ -32,7 +33,8 @@ const TokenDetailsButton: FC<Props> = ({
   icon: Icon,
   token,
   handleClose,
-  isTokenInfoLoading
+  isTokenInfoLoading,
+  testID
 }) => {
   const { styles, theme } = useTheme(getStyles)
   const [bindAnim, animStyle] = useCustomHover({
@@ -46,6 +48,7 @@ const TokenDetailsButton: FC<Props> = ({
 
   return (
     <AnimatedPressable
+      testID={testID}
       key={id}
       style={[styles.action, animStyle, isDisabled && { opacity: 0.4 }]}
       disabled={isDisabled}

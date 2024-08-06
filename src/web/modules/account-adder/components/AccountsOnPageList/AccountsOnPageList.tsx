@@ -1,6 +1,7 @@
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
+import { Trans } from 'react-i18next'
 import { Dimensions, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -20,22 +21,21 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import { useTranslation } from '@common/config/localization'
+import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
+import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import Account from '@web/modules/account-adder/components/Account'
 import {
   AccountAdderIntroStepsProvider,
   BasicAccountIntroId
 } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
-import { createTab } from '@web/extension-services/background/webapi/tab'
-import { Trans } from 'react-i18next'
-import useToast from '@common/hooks/useToast'
 
 const AccountsOnPageList = ({
   state,
@@ -53,8 +53,8 @@ const AccountsOnPageList = ({
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
-  const mainState = useMainControllerState()
-  const keystoreCtrl = useKeystoreControllerState()
+  const accountsState = useAccountsControllerState()
+  const keystoreState = useKeystoreControllerState()
   const [onlySmartAccountsVisible, setOnlySmartAccountsVisible] = useState(!!subType)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
@@ -96,10 +96,10 @@ const AccountsOnPageList = ({
 
   const accountsWithKeys = useMemo(
     () =>
-      mainState.accounts.filter((acc) =>
-        keystoreCtrl.keys.some((k) => acc.associatedKeys.includes(k.addr))
+      accountsState.accounts.filter((acc) =>
+        keystoreState.keys.some((k) => acc.associatedKeys.includes(k.addr))
       ),
-    [keystoreCtrl.keys, mainState.accounts]
+    [keystoreState.keys, accountsState.accounts]
   )
 
   const linkedAccounts = useMemo(() => {

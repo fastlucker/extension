@@ -15,11 +15,12 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const prevState: ActionsController = usePrevious(state) || ({} as ActionsController)
-
   const { navigate } = useNavigation()
-
   useEffect(() => {
     dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller } })
+    if (getUiType().isActionWindow) {
+      dispatch({ type: 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED' })
+    }
   }, [dispatch])
 
   useEffect(() => {
@@ -39,14 +40,14 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
 
     if (
       isPopup &&
-      state.actionWindowId &&
+      state.actionWindow?.id &&
       state.currentAction &&
       state.currentAction?.type !== 'benzin'
     ) {
       dispatch({ type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW' })
       window.close()
     }
-  }, [dispatch, state.currentAction?.type, state.actionWindowId, state.currentAction])
+  }, [dispatch, state.currentAction?.type, state.actionWindow?.id, state.currentAction])
 
   return (
     <ActionsControllerStateContext.Provider value={useMemo(() => state, [state])}>

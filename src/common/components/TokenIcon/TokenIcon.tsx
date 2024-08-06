@@ -7,7 +7,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import useTheme from '@common/hooks/useTheme'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import SkeletonLoader from '../SkeletonLoader'
 import { SkeletonLoaderProps } from '../SkeletonLoader/types'
@@ -47,7 +47,7 @@ const TokenIcon: React.FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [hasError, setHasError] = useState<boolean>(false)
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const network = useMemo(
     () =>
@@ -58,7 +58,10 @@ const TokenIcon: React.FC<Props> = ({
   )
 
   const imageUrl = useMemo(() => {
-    if (!network) return undefined
+    if (!network || !network.platformId) {
+      setHasError(true)
+      return undefined
+    }
     setHasError(false)
     return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
   }, [address, network])
@@ -81,7 +84,6 @@ const TokenIcon: React.FC<Props> = ({
     ],
     [containerStyle, withContainer, containerWidth, containerHeight, theme.secondaryBackground]
   )
-
   const setLoadingFinished = useCallback(() => {
     setIsLoading(false)
   }, [])

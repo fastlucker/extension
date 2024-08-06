@@ -16,7 +16,7 @@ import getStyles from './styles'
 
 type Props = {
   selectedAccountKeyStoreKeys: Key[]
-  handleChangeSigningKey: (keyAddr: Key['addr'], keyType: Key['type']) => void
+  handleChooseSigningKey: (keyAddr: Key['addr'], keyType: Key['type']) => void
   isVisible: boolean
   isSigning: boolean
   handleClose: () => void
@@ -24,7 +24,7 @@ type Props = {
 
 const SigningKeySelect = ({
   selectedAccountKeyStoreKeys,
-  handleChangeSigningKey,
+  handleChooseSigningKey,
   isVisible,
   isSigning,
   handleClose
@@ -60,7 +60,7 @@ const SigningKeySelect = ({
             return (
               <Pressable
                 key={`${key.addr}-${key.type}`}
-                onPress={() => handleChangeSigningKey(key.addr, key.type)}
+                onPress={() => handleChooseSigningKey(key.addr, key.type)}
                 style={({ hovered }: any) => ({
                   backgroundColor: hovered ? theme.secondaryBackground : 'transparent'
                 })}
@@ -69,6 +69,7 @@ const SigningKeySelect = ({
                 <AccountKey
                   addr={key.addr}
                   type={key.type}
+                  dedicatedToOneSA={key.dedicatedToOneSA}
                   label={label || `Key ${i + 1}`}
                   isLast={i === selectedAccountKeyStoreKeys.length - 1}
                   isImported={isImported}

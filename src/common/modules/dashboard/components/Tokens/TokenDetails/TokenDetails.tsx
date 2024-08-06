@@ -20,6 +20,7 @@ import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
+import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -29,9 +30,9 @@ import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
@@ -50,16 +51,17 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { selectedAccount, accounts } = useMainControllerState()
+  const { isOffline } = useConnectivity()
+  const { selectedAccount, accounts } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
-  const isGasTank = token?.flags.onGasTank
+  const isGasTankOrRewardsToken = token?.flags.onGasTank || !!token?.flags.rewardsType
   const isAmountZero = token && getTokenAmount(token) === 0n
   const isGasTankFeeToken = token?.flags.canTopUpGasTank
   const selectedAccountData = accounts.find((acc) => acc.addr === selectedAccount)
@@ -73,8 +75,9 @@ const TokenDetails = ({
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}`),
-        isDisabled: isGasTank || isAmountZero,
-        strokeWidth: 1.5
+        isDisabled: isGasTankOrRewardsToken || isAmountZero,
+        strokeWidth: 1.5,
+        testID: 'token-send'
       },
       {
         id: 'swap',
@@ -107,7 +110,7 @@ const TokenDetails = ({
 
           await createTab(`https://app.uniswap.org/swap?inputCurrency=${inputCurrency}`)
         },
-        isDisabled: isGasTank,
+        isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
       {
@@ -134,8 +137,13 @@ const TokenDetails = ({
           if (canTopUp) navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`)
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
-        isDisabled: !isGasTankFeeToken || !isSmartAccount,
-        strokeWidth: 1
+        // disable the top up for now as it is not working in a lot of cases:
+        // 1) eoa pays for sa; 2) 4337
+        // once the relayer moves to transfer logs, uncomment the line below
+        // isDisabled: !isGasTankFeeToken || !isSmartAccount,
+        isDisabled: true,
+        strokeWidth: 1,
+        testID: 'top-up-button'
       },
       {
         id: 'earn',
@@ -165,7 +173,7 @@ const TokenDetails = ({
             )
           }
         },
-        isDisabled: isGasTank,
+        isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
       {
@@ -203,7 +211,8 @@ const TokenDetails = ({
     ],
     [
       t,
-      isGasTank,
+      isGasTankOrRewardsToken,
+      isAmountZero,
       isGasTankFeeToken,
       hasTokenInfo,
       navigate,
@@ -215,13 +224,14 @@ const TokenDetails = ({
     ]
   )
   useEffect(() => {
-    if (!token?.address || !token?.networkId || !networks.length) return
+    if (!token?.address || !token?.networkId || !networks.length || isOffline) return
 
     setIsTokenInfoLoading(true)
 
     const networkData = networks.find((n) => n.id === token?.networkId)
     if (!networkData) {
       addToast(t('Network not found'), { type: 'error' })
+      setIsTokenInfoLoading(false)
       return
     }
     const coingeckoId = geckoIdMapper(token?.address, networkData)
@@ -245,26 +255,28 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [addToast, t, token?.address, token?.networkId, networks])
+  }, [t, token?.address, token?.networkId, networks, addToast])
 
   const handleHideToken = () => {
     if (!token) return
     setIsHidden((prev) => !prev)
-    const tokenInPreferences =
-      tokenPreferences?.length &&
-      tokenPreferences.find(
-        (_token) =>
-          token.address.toLowerCase() === _token.address.toLowerCase() &&
-          token.networkId === _token.networkId
-      )
+    const tokenInPreferences = tokenPreferences?.length
+      ? tokenPreferences.find(
+          (_token) =>
+            token.address.toLowerCase() === _token.address.toLowerCase() &&
+            token.networkId === _token.networkId
+        )
+      : null
 
     const newToken = {
-      ...token,
+      symbol: token.symbol,
+      decimals: token.decimals,
+      address: token.address,
+      networkId: token.networkId,
       isHidden: !token.isHidden,
-      ...(tokenInPreferences && 'standard' in tokenInPreferences
-        ? { standard: tokenInPreferences.standard }
-        : {})
+      standard: tokenInPreferences?.standard || 'ERC20'
     }
+
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
       params: {
@@ -327,7 +339,7 @@ const TokenDetails = ({
                   isOn={isHidden}
                   onToggle={handleHideToken}
                   label={isHidden ? t('Show Token') : t('Hide Token')}
-                  toggleProps={spacings.mrTy}
+                  toggleStyle={spacings.mrTy}
                 />
               </View>
             )}
@@ -376,6 +388,7 @@ const TokenDetails = ({
           <TokenDetailsButton
             key={action.id}
             {...action}
+            isDisabled={!!action.isDisabled}
             token={token}
             isTokenInfoLoading={isTokenInfoLoading}
             handleClose={handleClose}

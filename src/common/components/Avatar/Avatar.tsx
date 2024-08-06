@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import React from 'react'
+import React, { FC } from 'react'
 import { Image, View, ViewStyle } from 'react-native'
 
 import { isValidAddress } from '@ambire-common/services/address'
@@ -17,6 +17,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import { getAvatarType } from '@common/utils/avatars'
 
 import Blockie from './Blockies/Blockies'
+import DomainBadge from './DomainBadge'
 import JazzIcon from './Jazz'
 
 export {
@@ -51,36 +52,45 @@ export const getAccountPfpSource = (pfpId: string) => {
   return buildInAvatars.find(({ id }) => id === pfpId)?.source || DEFAULT_AVATAR.source
 }
 
-export const Avatar = React.memo(
-  ({ pfp, size = 40, style }: { pfp: string; size?: number; style?: ViewStyle }) => {
-    const selectedAccountPfp = getAccountPfpSource(pfp)
-    const avatarType = getAvatarType(selectedAccountPfp)
-    const borderRadius = size / 2
+interface Props {
+  pfp: string
+  size?: number
+  ens?: string | null
+  ud?: string | null
+  style?: ViewStyle
+}
 
-    if (['jazz', 'blockies'].includes(avatarType)) {
-      return (
-        <View style={[spacings.prTy, flexbox.alignCenter, flexbox.justifyCenter, style]}>
-          {avatarType === 'jazz' && (
-            <JazzIcon borderRadius={borderRadius} address={selectedAccountPfp} size={size} />
-          )}
-          {avatarType === 'blockies' && (
-            <Blockie
-              seed={selectedAccountPfp}
-              width={size}
-              height={size}
-              borderRadius={borderRadius}
-            />
-          )}
-        </View>
-      )
-    }
+const Avatar: FC<Props> = ({ pfp, size = 40, ens, ud, style }) => {
+  const selectedAccountPfp = getAccountPfpSource(pfp)
+  const avatarType = getAvatarType(selectedAccountPfp)
+  const borderRadius = size / 2
 
+  if (['jazz', 'blockies'].includes(avatarType)) {
     return (
-      <Image
-        source={selectedAccountPfp}
-        style={[spacings.mrTy, { width: size, height: size, borderRadius }]}
-        resizeMode="contain"
-      />
+      <View style={[spacings.prTy, flexbox.alignCenter, flexbox.justifyCenter, style]}>
+        {avatarType === 'jazz' && (
+          <JazzIcon borderRadius={borderRadius} address={selectedAccountPfp} size={size} />
+        )}
+        {avatarType === 'blockies' && (
+          <Blockie
+            seed={selectedAccountPfp}
+            width={size}
+            height={size}
+            borderRadius={borderRadius}
+          />
+        )}
+        <DomainBadge ens={ens} ud={ud} />
+      </View>
     )
   }
-)
+
+  return (
+    <Image
+      source={selectedAccountPfp}
+      style={[spacings.mrTy, { width: size, height: size, borderRadius }]}
+      resizeMode="contain"
+    />
+  )
+}
+
+export default Avatar

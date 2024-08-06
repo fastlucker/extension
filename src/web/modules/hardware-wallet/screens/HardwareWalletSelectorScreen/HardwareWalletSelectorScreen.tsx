@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
@@ -31,7 +30,7 @@ const HardwareWalletSelectorScreen = () => {
   const accountAdderCtrlState = useAccountAdderControllerState()
   const { dispatch } = useBackgroundService()
   const { theme } = useTheme()
-  const { ref: ledgerModalRef, open: openLedgerModal, close: closeLedgerModal } = useModalize()
+  const [isLedgerConnectModalVisible, setIsLedgerConnectModalVisible] = useState(false)
 
   useEffect(() => {
     updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
@@ -53,13 +52,21 @@ const HardwareWalletSelectorScreen = () => {
     [dispatch]
   )
 
-  const onGridPlusPress = useCallback(async () => {
-    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' })
-  }, [dispatch])
+  const onGridPlusPress = useCallback(
+    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' }),
+    [dispatch]
+  )
+
+  const onLedgerPress = useCallback(() => setIsLedgerConnectModalVisible(true), [])
+  const onLedgerModalClose = useCallback(() => setIsLedgerConnectModalVisible(false), [])
+  const onLedgerConnect = useCallback(
+    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' }),
+    [dispatch]
+  )
 
   const options = useMemo(
-    () => getOptions({ onGridPlusPress, onLedgerPress: openLedgerModal, onTrezorPress }),
-    [onGridPlusPress, onTrezorPress, openLedgerModal]
+    () => getOptions({ onGridPlusPress, onLedgerPress, onTrezorPress }),
+    [onGridPlusPress, onTrezorPress, onLedgerPress]
   )
 
   return (
@@ -71,7 +78,7 @@ const HardwareWalletSelectorScreen = () => {
           <Stepper />
         </Header>
       }
-      footer={<BackButton fallbackBackRoute={ROUTES.getStarted} />}
+      footer={<BackButton fallbackBackRoute={ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Select your hardware wallet device')}>
@@ -88,7 +95,11 @@ const HardwareWalletSelectorScreen = () => {
             ))}
           </View>
         </Panel>
-        <LedgerConnectModal modalRef={ledgerModalRef} handleClose={closeLedgerModal} />
+        <LedgerConnectModal
+          isVisible={isLedgerConnectModalVisible}
+          handleClose={onLedgerModalClose}
+          handleOnConnect={onLedgerConnect}
+        />
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )

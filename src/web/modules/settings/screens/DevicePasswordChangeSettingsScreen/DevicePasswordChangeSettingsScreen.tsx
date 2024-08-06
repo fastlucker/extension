@@ -44,7 +44,7 @@ const DevicePasswordChangeSettingsScreen = () => {
     getValues,
     trigger,
     reset,
-    formState: { errors, isSubmitting, isValid }
+    formState: { errors, isValid }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -99,8 +99,6 @@ const DevicePasswordChangeSettingsScreen = () => {
     })()
   }
 
-  const isChangeKeystorePasswordLoading = state.statuses.changeKeystorePassword === 'LOADING'
-
   return (
     <>
       <View style={[flexbox.directionRow, flexbox.flex1]}>
@@ -113,6 +111,7 @@ const DevicePasswordChangeSettingsScreen = () => {
             rules={{ validate: isValidPassword }}
             render={({ field: { onChange, onBlur, value } }) => (
               <InputPassword
+                testID="enter-current-pass-field"
                 onBlur={onBlur}
                 placeholder={t('Enter current password')}
                 onChangeText={onChange}
@@ -134,6 +133,7 @@ const DevicePasswordChangeSettingsScreen = () => {
             rules={{ validate: isValidPassword }}
             render={({ field: { onChange, onBlur, value } }) => (
               <InputPassword
+                testID="enter-new-pass-field"
                 onBlur={onBlur}
                 placeholder={t('Enter new password')}
                 onChangeText={onChange}
@@ -156,6 +156,7 @@ const DevicePasswordChangeSettingsScreen = () => {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
+                testID="repeat-new-pass-field"
                 onBlur={onBlur}
                 placeholder={t('Repeat new password')}
                 onChangeText={onChange}
@@ -172,12 +173,14 @@ const DevicePasswordChangeSettingsScreen = () => {
             name="confirmNewPassword"
           />
           <Button
+            testID="change-device-pass-button"
             style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
             textStyle={{ fontSize: 14 }}
             hasBottomSpacing={false}
-            disabled={isSubmitting || isChangeKeystorePasswordLoading || !isValid}
+            // !== 'INITIAL' to prevent calling same func while the prev execution of that func sends it's status to the FE
+            disabled={state.statuses.changeKeystorePassword !== 'INITIAL' || !isValid}
             text={
-              isSubmitting || isChangeKeystorePasswordLoading
+              state.statuses.changeKeystorePassword === 'LOADING'
                 ? t('Loading...')
                 : t('Change Device Password')
             }
@@ -217,6 +220,7 @@ const DevicePasswordChangeSettingsScreen = () => {
           {t('Your Device Password was successfully changed!')}
         </Text>
         <Button
+          testID="device-pass-success-modal"
           text={t('Got it')}
           hasBottomSpacing={false}
           style={{ minWidth: 232 }}

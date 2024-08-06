@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Collections from '../Collections'
@@ -14,7 +15,7 @@ import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import Tokens from '../Tokens'
 
 interface Props {
-  filterByNetworkId: NetworkDescriptor['id']
+  filterByNetworkId: NetworkId
   tokenPreferences: CustomToken[]
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
@@ -42,7 +43,7 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
       setInitTab((prev) => ({ ...prev, [openTab]: true }))
     }
   }, [openTab, prevOpenTab, initTab])
-
+  const { networks } = useNetworksControllerState()
   return (
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
@@ -60,6 +61,7 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
         setOpenTab={setOpenTab}
         initTab={initTab}
         onScroll={onScroll}
+        networks={networks}
       />
     </View>
   )

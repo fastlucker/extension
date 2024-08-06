@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react'
 import { Pressable, View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -13,17 +13,17 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, DURATIONS, useCustomHover, useMultiHover } from '@web/hooks/useHover'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
 
 interface Props {
-  networkId: NetworkDescriptor['id']
-  filterByNetworkId: NetworkDescriptor['id'] | null
+  networkId: NetworkId
+  filterByNetworkId: NetworkId | null
   openBlockExplorer: (url?: string) => void
-  openSettingsBottomSheet: (networkId: NetworkDescriptor['id']) => void
+  openSettingsBottomSheet: (networkId: NetworkId) => void
 }
 
 const Network: FC<Props> = ({
@@ -35,8 +35,8 @@ const Network: FC<Props> = ({
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
   const { state } = useRoute()
-  const { networks } = useSettingsControllerState()
-  const { selectedAccount } = useMainControllerState()
+  const { networks } = useNetworksControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const portfolioControllerState = usePortfolioControllerState()
   const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({
     values: [

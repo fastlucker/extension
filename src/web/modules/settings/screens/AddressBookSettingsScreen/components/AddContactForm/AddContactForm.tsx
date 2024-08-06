@@ -8,9 +8,9 @@ import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import useAddressInput from '@common/hooks/useAddressInput'
 import spacings from '@common/styles/spacings'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import Section from '../Section'
 
@@ -18,7 +18,7 @@ const AddContactForm = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { contacts } = useAddressBookControllerState()
-  const { accounts } = useMainControllerState()
+  const { accounts } = useAccountsControllerState()
   const {
     control,
     watch,
@@ -114,6 +114,7 @@ const AddContactForm = () => {
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
+            testID="contact-name-field"
             label={t('Name')}
             placeholder={t('Contact name')}
             maxLength={32}
@@ -149,6 +150,7 @@ const AddContactForm = () => {
       />
 
       <Button
+        testID="add-to-address-book-button"
         text={t('Add to Address Book')}
         disabled={!isValid || isSubmitting}
         onPress={submitForm}

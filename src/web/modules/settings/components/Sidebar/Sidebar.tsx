@@ -159,6 +159,7 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
           return (
             <SettingsLink
               {...link}
+              key={link.key}
               isActive={isActive}
               style={i === SETTINGS_LINKS.length - 1 ? spacings.mb0 : {}}
             />
@@ -178,6 +179,7 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
           return (
             <SettingsLink
               {...link}
+              key={link.key}
               isActive={isActive}
               style={i === OTHER_LINKS.length - 1 ? spacings.mb0 : {}}
             />

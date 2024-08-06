@@ -7,7 +7,6 @@ import useTheme from '@common/hooks/useTheme'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
-import { StrategiesMetadata } from '@yfi/sdk'
 
 interface Props {
   label?: ReactNode
@@ -17,6 +16,7 @@ interface Props {
   style?: ViewProps['style']
   uncheckedBorderColor?: ColorValue
   isDisabled?: boolean
+  testID?: string
 }
 
 const Checkbox = ({
@@ -26,7 +26,8 @@ const Checkbox = ({
   value,
   style,
   uncheckedBorderColor,
-  isDisabled
+  isDisabled,
+  testID = 'checkbox'
 }: Props) => {
   const { theme } = useTheme()
   const onChange = () => {
@@ -46,7 +47,7 @@ const Checkbox = ({
             },
             !!value && { backgroundColor: theme.successDecorative }
           ]}
-          testID='checkbox'
+          testID={testID}
           onPress={onChange}
           activeOpacity={0.6}
           disabled={isDisabled}

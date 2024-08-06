@@ -134,12 +134,12 @@ const KeyStoreResetScreen = () => {
           {!ev.hasConfirmedRecoveryEmail ? (
             <Text style={styles.text} weight="regular" fontSize={14}>
               At Ambire Wallet, we take your security seriously.{'\n'}
-              To ensure that your device password password remains private, we do not keep a copy of
-              it. Your device password recovery is activated by email. To change your device
-              password, simply click on the &apos;recover by email&apos; option and enter the
-              one-time code that you receive. Then, fill out the password and confirm password
-              fields to reset your device password. This ensures that only you have access to your
-              wallet. Thanks for trusting Ambire Wallet with your crypto!
+              To ensure that your device password remains private, we do not keep a copy of it. Your
+              device password recovery is activated by email. To change your device password, simply
+              click on the &apos;recover by email&apos; option and enter the one-time code that you
+              receive. Then, fill out the password and confirm password fields to reset your device
+              password. This ensures that only you have access to your wallet. Thanks for trusting
+              Ambire Wallet with your crypto!
             </Text>
           ) : (
             <>

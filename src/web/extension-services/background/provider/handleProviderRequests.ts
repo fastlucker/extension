@@ -1,24 +1,23 @@
 import { ethErrors } from 'eth-rpc-errors'
 
+import { Session } from '@ambire-common/classes/session'
+import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import rpcFlow from '@web/extension-services/background/provider/rpcFlow'
-import { ProviderNeededControllers } from '@web/extension-services/background/provider/types'
-import { Session } from '@web/extension-services/background/services/session'
 
 const handleProviderRequests = async (
   request: DappProviderRequest & { session: Session },
-  controllers: ProviderNeededControllers
+  mainCtrl: MainController
 ): Promise<any> => {
   const { method, params, session } = request
-  const { mainCtrl, dappsCtrl } = controllers
   if (method === 'tabCheckin') {
     session.setProp({ origin: request.origin, name: params.name, icon: params.icon })
     return
   }
 
   if (method === 'getProviderState') {
-    const providerController = new ProviderController(mainCtrl, dappsCtrl)
+    const providerController = new ProviderController(mainCtrl)
     const isUnlocked = mainCtrl.keystore.isUnlocked
     const chainId = await providerController.ethChainId(request)
     let networkVersion = '1'
@@ -45,7 +44,7 @@ const handleProviderRequests = async (
     })
   }
 
-  return rpcFlow(request, controllers)
+  return rpcFlow(request, mainCtrl)
 }
 
 export default handleProviderRequests

@@ -78,7 +78,7 @@ const DappConnectScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg}>
-        <Text weight="medium" fontSize={20} style={spacings.mbXl}>
+        <Text weight="medium" fontSize={20} style={[spacings.mbXl, textStyles.center]}>
           {t('Connection requested')}
         </Text>
         <View style={[spacings.pvSm, flexbox.alignCenter]}>

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 // import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -17,15 +18,14 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import shortenAddress from '@web/utils/shortenAddress'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Option from './BaseAddressOption'
 
 interface Props extends TextProps {
   address: string
-  explorerNetworkId?: NetworkDescriptor['id']
+  explorerNetworkId?: NetworkId
 }
 
 const { isActionWindow } = getUiType()
@@ -35,7 +35,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
   const { theme } = useTheme()
   const { addToast } = useToast()
   // Standalone Benzin doesn't have access to controllers
-  const { networks = constantNetworks } = useSettingsControllerState()
+  const { networks = constantNetworks } = useNetworksControllerState()
   const network = networks?.find((n) => n.id === explorerNetworkId)
 
   const handleCopyAddress = useCallback(async () => {
@@ -56,6 +56,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
       // openInTab doesn't work in Standalone Benzin
       if (!isExtension) {
         await Linking.openURL(`${network?.explorerUrl}/address/${address}`)
+        return
       }
       // Close the action-window if this address is opened in one, otherwise
       // the user will have to minimize it to see the explorer.

@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import BottomSheet from '@common/components/BottomSheet'
+import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
@@ -14,19 +16,24 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import TokenDetails from '../TokenDetails'
 import getStyles from './styles'
 
 const TokenItem = ({
   token,
-  tokenPreferences
+  tokenPreferences,
+  testID
 }: {
   token: TokenResult
   tokenPreferences: CustomToken[]
+  testID?: string
 }) => {
+  const { claimWalletRewards } = usePortfolioControllerState()
   const {
     symbol,
     address,
@@ -34,7 +41,8 @@ const TokenItem = ({
     flags: { onGasTank }
   } = token
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
+  const { accounts, selectedAccount } = useAccountsControllerState()
 
   const { styles, theme } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -46,8 +54,17 @@ const TokenItem = ({
     }
   })
 
-  const isPending =
-    token.amountPostSimulation !== undefined && token.amountPostSimulation !== token.amount
+  const account = useMemo(
+    () => accounts.find((acc) => acc.addr === selectedAccount),
+    [accounts, selectedAccount]
+  )
+
+  // By design we should simulate only for SA on the DashboardScreen
+  const isPending = useMemo(() => {
+    if (!isSmartAccount(account)) return false
+
+    return token.amountPostSimulation !== undefined && token.amountPostSimulation !== token.amount
+  }, [account, token.amount, token.amountPostSimulation])
 
   const {
     balanceFormatted,
@@ -66,11 +83,16 @@ const TokenItem = ({
 
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
 
+  const sendClaimTransaction = useCallback(() => {
+    claimWalletRewards(token)
+  }, [token, claimWalletRewards])
+
   return (
     <AnimatedPressable
       onPress={() => openBottomSheet()}
       style={[styles.container, animStyle]}
       {...bindAnim}
+      testID={testID}
     >
       <BottomSheet
         id={`token-details-${address}`}
@@ -104,28 +126,41 @@ const TokenItem = ({
                 />
               )}
             </View>
-            <View style={flexboxStyles.flex1}>
-              <Text
-                selectable
-                style={spacings.mrTy}
-                color={isPending ? theme.warningText : theme.primaryText}
-                fontSize={16}
-                weight="number_bold"
-                numberOfLines={1}
-              >
-                {isPending ? pendingBalanceFormatted : balanceFormatted} {symbol}{' '}
-              </Text>
-
-              <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-                <Text weight="regular" shouldScale={false} fontSize={12}>
-                  {!!isRewards && t('Claimable rewards')}
-                  {!!isVesting && t('Claimable early supporters vestings')}
-                  {!isRewards && !isVesting && t('on')}{' '}
-                </Text>
-                <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
-                  {!!onGasTank && t('Gas Tank')}
-                  {!onGasTank && !isRewards && !isVesting && networkData?.name}
-                </Text>
+            <View style={[flexboxStyles.alignCenter]}>
+              <View style={[flexboxStyles.flex1, flexboxStyles.directionRow]}>
+                <View>
+                  <Text
+                    selectable
+                    style={spacings.mrTy}
+                    color={isPending ? theme.warningText : theme.primaryText}
+                    fontSize={16}
+                    weight="number_bold"
+                    numberOfLines={1}
+                  >
+                    {isPending ? pendingBalanceFormatted : balanceFormatted} {symbol}{' '}
+                  </Text>
+                  <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+                    <Text weight="regular" shouldScale={false} fontSize={12}>
+                      {!!isRewards && t('Claimable rewards')}
+                      {!!isVesting && t('Claimable early supporters vestings')}
+                      {!isRewards && !isVesting && t('on')}{' '}
+                    </Text>
+                    <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
+                      {!!onGasTank && t('Gas Tank')}
+                      {!onGasTank && !isRewards && !isVesting && networkData?.name}
+                    </Text>
+                  </View>
+                </View>
+                {!!isRewards && (
+                  <Button
+                    style={spacings.ml}
+                    size="small"
+                    hasBottomSpacing={false}
+                    type="secondary"
+                    text={t('Claim')}
+                    onPress={sendClaimTransaction}
+                  />
+                )}
               </View>
             </View>
           </View>
@@ -137,7 +172,7 @@ const TokenItem = ({
             fontSize={16}
             weight="number_bold"
             color={isPending ? theme.warningText : theme.primaryText}
-            style={{ flex: 0.8, textAlign: 'right' }}
+            style={{ flex: 0.4, textAlign: 'right' }}
           >
             {isPending ? pendingBalanceUSDFormatted : balanceUSDFormatted}
           </Text>

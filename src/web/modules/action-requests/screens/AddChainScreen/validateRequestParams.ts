@@ -9,6 +9,8 @@ const validateRequestParams = (kind: string | undefined, params: { [key: string]
   if (
     !params?.chainId ||
     !params?.rpcUrls ||
+    !params?.rpcUrls?.length ||
+    !params?.rpcUrls?.[0] ||
     !params?.chainName ||
     !params?.nativeCurrency?.symbol
   ) {

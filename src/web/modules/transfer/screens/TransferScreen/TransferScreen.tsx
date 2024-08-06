@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -14,6 +14,7 @@ import Panel from '@common/components/Panel'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useAddressInput from '@common/hooks/useAddressInput'
+import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -26,8 +27,8 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
@@ -36,6 +37,7 @@ import getStyles from './styles'
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
+  const { isOffline } = useConnectivity()
   const { state, transferCtrl } = useTransferControllerState()
   const {
     isTopUp,
@@ -49,7 +51,7 @@ const TransferScreen = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-  const { selectedAccount, accounts } = useMainControllerState()
+  const { selectedAccount, accounts } = useAccountsControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
 
@@ -91,6 +93,12 @@ const TransferScreen = () => {
     transferCtrl.resetForm()
   }, [addressState, dispatch, isTopUp, state.amount, state.selectedToken, transferCtrl])
 
+  const submitButtonText = useMemo(() => {
+    if (isOffline) return t("You're offline")
+
+    return t(!isTopUp ? 'Send' : 'Top Up')
+  }, [isOffline, isTopUp, t])
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -102,24 +110,33 @@ const TransferScreen = () => {
           <Button
             testID="transfer-button-send"
             type="primary"
-            text={t(!isTopUp ? 'Send' : 'Top Up')}
+            text={submitButtonText}
             onPress={sendTransaction}
             hasBottomSpacing={false}
             size="large"
-            disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
+            disabled={
+              !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
+            }
           >
-            <View style={spacings.plTy}>
-              {isTopUp ? (
-                <TopUpIcon strokeWidth={1} width={24} height={24} color={theme.primaryBackground} />
-              ) : (
-                <SendIcon width={24} height={24} color={theme.primaryBackground} />
-              )}
-            </View>
+            {!isOffline && (
+              <View style={spacings.plTy}>
+                {isTopUp ? (
+                  <TopUpIcon
+                    strokeWidth={1}
+                    width={24}
+                    height={24}
+                    color={theme.primaryBackground}
+                  />
+                ) : (
+                  <SendIcon width={24} height={24} color={theme.primaryBackground} />
+                )}
+              </View>
+            )}
           </Button>
         </>
       }
     >
-      <TabLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
         {state?.isInitialized ? (
           <Panel
             style={[styles.panel]}

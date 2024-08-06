@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { isSmartAccount } from '@ambire-common/libs/account/account'
@@ -8,13 +8,16 @@ import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
 import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Alert from '@common/components/Alert'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
-const NoKeysToSignAlert = () => {
-  const { accounts, selectedAccount } = useMainControllerState()
+interface Props {
+  style?: ViewStyle
+}
+
+const NoKeysToSignAlert: FC<Props> = ({ style }) => {
+  const { accounts, selectedAccount } = useAccountsControllerState()
   const { keys } = useKeystoreControllerState()
   const { keyPreferences } = useSettingsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -28,23 +31,16 @@ const NoKeysToSignAlert = () => {
   if (!account) return null
 
   return (
-    <>
-      <View
-        style={{
-          ...spacings.ptSm,
-          marginTop: 'auto'
+    <View style={style}>
+      <Alert
+        type="error"
+        title={t('No keys available to sign this transaction.')}
+        customIcon={() => <NoKeysIcon color={theme.secondaryText} />}
+        buttonProps={{
+          onPress: () => openBottomSheet(),
+          text: t('Import Key')
         }}
-      >
-        <Alert
-          type="error"
-          title={t('No keys available to sign this transaction.')}
-          customIcon={() => <NoKeysIcon color={theme.secondaryText} />}
-          buttonProps={{
-            onPress: () => openBottomSheet(),
-            text: t('Import Key')
-          }}
-        />
-      </View>
+      />
       <AccountKeysBottomSheet
         isSmartAccount={isSmartAccount(account)}
         sheetRef={sheetRef}
@@ -53,7 +49,7 @@ const NoKeysToSignAlert = () => {
         importedAccountKeys={importedAccountKeys}
         closeBottomSheet={closeBottomSheet}
       />
-    </>
+    </View>
   )
 }
 

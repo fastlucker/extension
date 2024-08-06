@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET } from '@ambire-common/consts/derivation'
-import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import BackButton from '@common/components/BackButton'
 import Text from '@common/components/Text'
@@ -23,13 +23,24 @@ interface Props {
 const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const { type, meta } = details
+  const { type, meta, addr, dedicatedToOneSA } = details
 
   // Ideally, the meta should be all in there for external keys,
   // but just in case, add fallbacks (that should never happen)
   const metaDetails = useMemo(() => {
-    // TODO: Implement internal key details. Could also be in a separate component?
-    if (type === 'internal') return []
+    if (type === 'internal')
+      return [
+        {
+          key: t('Address'),
+          value: addr,
+          tooltip: dedicatedToOneSA
+            ? t(
+                'Ambire derives a different key from your private key, for security and privacy reasons.'
+              )
+            : undefined,
+          suffix: dedicatedToOneSA ? `\n${t('(dedicated key derived from the private key)')}` : ''
+        }
+      ]
 
     return [
       {
@@ -49,15 +60,30 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
         value: meta?.hdPathTemplate
           ? getHdPathFromTemplate(meta?.hdPathTemplate, meta?.index)
           : '-',
-        tooltip:
-          typeof meta?.index === 'number' && isDerivedForSmartAccountKeyOnly(meta?.index)
-            ? t(
-                `Ambire smart account keys use a derived address by an offset of ${SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET}.`
-              )
-            : undefined
+        tooltip: dedicatedToOneSA
+          ? t(
+              'Ambire derives a different key on your hardware wallet with an offset of {{offset}}, for security and privacy reasons. You may see {{addr}} when signing on your hardware device.',
+              {
+                addr: shortenAddress(addr, 13),
+                offset: SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+              }
+            )
+          : undefined,
+        suffix: dedicatedToOneSA
+          ? `\n${t('(dedicated key with different derivation)\n{{addr}}', { addr })}`
+          : ''
       }
     ]
-  }, [t, type, meta?.deviceId, meta?.deviceModel, meta?.hdPathTemplate, meta?.index])
+  }, [
+    type,
+    t,
+    meta?.deviceModel,
+    meta?.deviceId,
+    meta?.hdPathTemplate,
+    meta?.index,
+    dedicatedToOneSA,
+    addr
+  ])
 
   return (
     <View>
@@ -68,8 +94,8 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
       <View style={styles.container}>
         <AccountKey {...details} />
         <View style={[spacings.phSm, spacings.pvSm, spacings.mtMi]}>
-          {metaDetails.map(({ key, value, tooltip }) => (
-            <Row key={key} rowKey={key} value={value} tooltip={tooltip} />
+          {metaDetails.map(({ key, value, tooltip, suffix }) => (
+            <Row key={key} rowKey={key} value={value} tooltip={tooltip} suffix={suffix} />
           ))}
         </View>
       </View>
