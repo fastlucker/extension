@@ -50,6 +50,7 @@ const TokenOrNft: FC<Props> = ({
     | undefined
   >()
   const networks: Network[] = useMemo(
+    // @TODO: get rid of extraNetworks as they are no longer used in benzin
     () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
     [stateNetworks]
   )

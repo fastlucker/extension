@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
+import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -73,13 +74,12 @@ const SortHat = () => {
 
       if (actionType === 'benzin') {
         const benzinAction = actionsState.currentAction
-        let link = `${ROUTES.benzin}?networkId=${benzinAction.userRequest.meta?.networkId}&isInternal`
-        if (benzinAction.userRequest.meta?.txnId) {
-          link += `&txnId=${benzinAction.userRequest.meta?.txnId}`
-        }
-        if (benzinAction.userRequest.meta?.userOpHash) {
-          link += `&userOpHash=${benzinAction.userRequest.meta?.userOpHash}`
-        }
+        const link = getBenzinUrlParams({
+          chainId: benzinAction.userRequest.meta?.chainId,
+          isInternal: true,
+          txnId: benzinAction.userRequest.meta?.txnId,
+          userOpHash: benzinAction.userRequest.meta?.userOpHash
+        })
         return navigate(link)
       }
     } else if (params?.openOnboardingCompleted) {
