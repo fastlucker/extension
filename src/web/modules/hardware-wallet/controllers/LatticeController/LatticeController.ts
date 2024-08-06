@@ -8,7 +8,7 @@ import {
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { browser } from '@web/constants/browserapi'
 
-const LATTICE_APP_NAME = 'Ambire Wallet Extension'
+const LATTICE_APP_NAME = 'Ambire Wallet'
 const LATTICE_MANAGER_URL = 'https://lattice.gridplus.io'
 const LATTICE_BASE_URL = 'https://signing.gridpl.us'
 
