@@ -74,12 +74,14 @@ const SortHat = () => {
 
       if (actionType === 'benzin') {
         const benzinAction = actionsState.currentAction
-        const link = getBenzinUrlParams({
-          chainId: benzinAction.userRequest.meta?.chainId,
-          isInternal: true,
-          txnId: benzinAction.userRequest.meta?.txnId,
-          userOpHash: benzinAction.userRequest.meta?.userOpHash
-        })
+        const link =
+          ROUTES.benzin +
+          getBenzinUrlParams({
+            chainId: benzinAction.userRequest.meta?.chainId,
+            isInternal: true,
+            txnId: benzinAction.userRequest.meta?.txnId,
+            userOpHash: benzinAction.userRequest.meta?.userOpHash
+          })
         return navigate(link)
       }
     } else if (params?.openOnboardingCompleted) {

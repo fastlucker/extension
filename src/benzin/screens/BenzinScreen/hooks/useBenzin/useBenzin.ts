@@ -87,7 +87,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     try {
       let address = window.location.href
 
-      if (isRenderedInternally && chainId) {
+      if (chainId) {
         address = `https://benzin.ambire.com/${getBenzinUrlParams({
           chainId,
           txnId: stepsState.txnId,
@@ -100,7 +100,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
       addToast('Error copying to clipboard', { type: 'error' })
     }
     addToast('Copied to clipboard!')
-  }, [addToast, isRenderedInternally, chainId, stepsState.txnId, userOpHash])
+  }, [addToast, chainId, stepsState.txnId, userOpHash])
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network?.explorerUrl) return
@@ -121,8 +121,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     if (!network) return true
 
     const isRejected = stepsState.userOpStatusData.status === 'rejected'
-    const isCustom = !network.hasRelayer
-    return !isCustom && !isRejected
+    return !isRejected
   }, [network, stepsState.userOpStatusData])
 
   const showOpenExplorerBtn = useMemo(() => {
