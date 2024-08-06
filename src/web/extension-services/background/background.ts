@@ -32,7 +32,7 @@ import handleProviderRequests from '@web/extension-services/background/provider/
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
-import { sendBrowserNotification } from '@web/extension-services/background/webapi/notification'
+import { notificationManager } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -191,19 +191,7 @@ handleRegisterScripts()
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onSignSuccess: async (type) => {
-      const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
-        message: 'Message was successfully signed',
-        'typed-data': 'TypedData was successfully signed',
-        'account-op': 'Your transaction was successfully signed and broadcasted to the network'
-      }
-      // Don't await this on purpose (fire and forget), errors get cough in the function
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      sendBrowserNotification(messages[type])
-
-      if (type === 'account-op')
-        await initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
-    }
+    notificationManager
   })
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -389,6 +377,11 @@ handleRegisterScripts()
       }
 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
+    }
+
+    if (mainCtrl.statuses.broadcastSignedAccountOp === 'SUCCESS') {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
 
     Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
