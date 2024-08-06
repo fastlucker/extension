@@ -29,7 +29,7 @@ const getStyles = (theme: ThemeProps) =>
     modalButtonsContainer: {
       ...spacings.pvXl,
       ...flexbox.directionRow,
-      ...flexbox.justifySpaceBetween,
+      ...flexbox.justifyEnd,
       ...spacings.phXl
     },
     button: {
