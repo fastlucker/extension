@@ -34,7 +34,7 @@ export async function bootstrap(namespace) {
     args: puppeteerArgs,
     defaultViewport: null,
     // DISPLAY variable is being set in tests.yml, and it's needed only for running the tests in Github actions.
-    // It configures the display server and make the tests working in headful mode in Github actions.
+    // It configures the display server and make the tests working in headfull mode in Github actions.
     ...(process.env.DISPLAY && {
       env: { DISPLAY: process.env.DISPLAY }
     }),

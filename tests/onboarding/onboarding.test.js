@@ -1,6 +1,6 @@
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { bootstrap } from '../common-helpers/bootstrap'
-import { INVITE_STORAGE_ITEM } from '../constants'
+import { INVITE_STORAGE_ITEM } from '../constants/constants.js'
 
 describe('Onboarding', () => {
   let browser
@@ -26,7 +26,7 @@ describe('Onboarding', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
   it('should pass through the onboarding steps and agree with the terms', async () => {
     // Click on "Next" button several times to finish the onboarding.
