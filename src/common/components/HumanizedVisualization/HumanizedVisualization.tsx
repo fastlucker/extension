@@ -64,6 +64,7 @@ const HumanizedVisualization: FC<Props> = ({
               value={item.value}
               address={item.address!}
               textSize={textSize}
+              chainId={item.chainId}
               networkId={networkId}
             />
           )

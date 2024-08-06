@@ -23,6 +23,7 @@ interface Props {
   sizeMultiplierSize?: number
   textSize?: number
   networkId?: NetworkId
+  chainId?: bigint
 }
 const MAX_PORTFOLIO_WAIT_TIME = 2
 const MAX_TOTAL_LOADING_TIME = 4
@@ -32,6 +33,7 @@ const TokenOrNft: FC<Props> = ({
   address,
   textSize = 16,
   networkId,
+  chainId,
   sizeMultiplierSize = 1
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
@@ -53,7 +55,10 @@ const TokenOrNft: FC<Props> = ({
     () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
     [stateNetworks]
   )
-  const network = useMemo(() => networks.find((n) => n.id === networkId), [networks, networkId])
+  const network = useMemo(
+    () => networks.find((n) => (chainId ? n.chainId === chainId : n.id === networkId)),
+    [networks, networkId, chainId]
+  )
   const tokenInfo = useMemo(() => {
     if (!network) return
     if (address === ZeroAddress)
