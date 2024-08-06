@@ -182,7 +182,7 @@ const TokenItem = ({
             {isPending ? pendingBalanceUSDFormatted : balanceUSDFormatted}
           </Text>
         </View>
-        {(simAmount !== 0n || pendingToBeConfirmed !== 0n) && (
+        {isPending && (
           <View style={[{ marginLeft: SPACING_2XL + SPACING_TY }, spacings.mtSm]}>
             <View>
               {simAmount !== 0n && (
