@@ -39,6 +39,7 @@ const TokenOrNft: FC<Props> = ({
   const { accountPortfolio } = usePortfolioControllerState()
   const { t } = useTranslation()
   const networks: Network[] = useMemo(
+    // @TODO: get rid of extraNetworks as they are no longer used in benzin
     () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
     [stateNetworks]
   )
