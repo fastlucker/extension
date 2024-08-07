@@ -42,16 +42,7 @@ const FallbackVisualization: FC<{
   const { content } = messageToSign
 
   return (
-    <View
-      style={[
-        styles.container,
-        !standalone && {
-          borderWidth: 0
-        },
-        standalone && spacings.pvSm,
-        standalone && spacings.ph
-      ]}
-    >
+    <View style={[styles.container, standalone && styles.standalone]}>
       {standalone && (
         <View style={styles.header}>
           <ErrorOutlineIcon width={36} height={36} />

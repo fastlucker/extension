@@ -7,12 +7,19 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
+  standalone: ViewStyle
   header: ViewStyle
   headerText: TextStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
+    standalone: {
+      ...spacings.pvSm,
+      ...spacings.ph,
+      borderWidth: 1
+    },
+
     container: {
       ...common.borderRadiusPrimary,
       backgroundColor: theme.secondaryBackground,
