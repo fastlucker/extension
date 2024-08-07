@@ -1,5 +1,4 @@
 import React, { FC, memo, useEffect, useMemo, useState } from 'react'
-import { View } from 'react-native'
 
 import { extraNetworks, networks as hardcodedNetwork } from '@ambire-common/consts/networks'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
@@ -8,7 +7,6 @@ import SkeletonLoader from '@common/components/SkeletonLoader'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import { SPACING_TY } from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
@@ -70,7 +68,7 @@ const TokenOrNft: FC<Props> = ({
       })
   }, [address, network, addToast, accountPortfolio?.collections, accountPortfolio?.tokens, t])
   return (
-    <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
+    <>
       {!assetInfo.nftInfo && !assetInfo.tokenInfo && isLoading && (
         <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
       )}
@@ -91,9 +89,10 @@ const TokenOrNft: FC<Props> = ({
           address={address}
           amount={value}
           tokenInfo={assetInfo?.tokenInfo}
+          marginRight={marginRight}
         />
       )}
-    </View>
+    </>
   )
 }
 

@@ -22,6 +22,7 @@ interface Props {
   network?: Network
   address: string
   sizeMultiplierSize?: number
+  marginRight: number
 }
 
 const InnerToken: FC<Props> = ({
@@ -30,7 +31,8 @@ const InnerToken: FC<Props> = ({
   textSize = 16,
   tokenInfo,
   network,
-  sizeMultiplierSize = 1
+  sizeMultiplierSize = 1,
+  marginRight
 }) => {
   const { t } = useTranslation()
   const openExplorer = useCallback(async () => {
@@ -68,7 +70,10 @@ const InnerToken: FC<Props> = ({
           )}
         </Text>
       ) : null}
-      <Pressable style={{ ...flexbox.directionRow, ...flexbox.alignCenter }} onPress={openExplorer}>
+      <Pressable
+        style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}
+        onPress={openExplorer}
+      >
         <TokenIcon
           width={24 * sizeMultiplierSize}
           height={24 * sizeMultiplierSize}
