@@ -11,16 +11,17 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Props {
   networks: Network[]
   chainId: bigint
+  marginRight?: number
 }
 
-const ChainVisualization: FC<Props> = ({ chainId, networks }) => {
+const ChainVisualization: FC<Props> = ({ chainId, networks, marginRight }) => {
   const handleLink = useCallback(
     () => Linking.openURL(`https://chainlist.org/chain/${chainId}`),
     [chainId]
   )
   const foundChain = networks.find((n) => n.chainId === chainId)
   return (
-    <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
+    <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {foundChain ? (
         <>
           <NetworkIcon id={foundChain.id} benzinNetwork={foundChain} />
@@ -29,7 +30,7 @@ const ChainVisualization: FC<Props> = ({ chainId, networks }) => {
           </Text>
         </>
       ) : (
-        <Text onPress={handleLink} weight="semiBold" style={spacings.mlTy}>
+        <Text onPress={handleLink} weight="semiBold">
           {`Chain with id ${chainId}`}
         </Text>
       )}

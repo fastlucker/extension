@@ -5,6 +5,7 @@ import { Linking, Pressable } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import Address from '@common/components/Address'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
@@ -18,7 +19,7 @@ interface Props {
     decimals: number
     symbol: string
   }
-  network: Network
+  network?: Network
   address: string
   sizeMultiplierSize?: number
 }
@@ -32,10 +33,9 @@ const InnerToken: FC<Props> = ({
   sizeMultiplierSize = 1
 }) => {
   const { t } = useTranslation()
-  const openExplorer = useCallback(
-    () => Linking.openURL(`${network.explorerUrl}/address/${address}`),
-    [address, network.explorerUrl]
-  )
+  const openExplorer = useCallback(async () => {
+    if (network) await Linking.openURL(`${network.explorerUrl}/address/${address}`)
+  }, [network, address])
 
   const shouldDisplayUnlimitedAmount = useMemo(() => {
     const isUnlimitedByPermit2 = amount.toString(16).toLowerCase() === 'f'.repeat(40)
@@ -72,14 +72,14 @@ const InnerToken: FC<Props> = ({
         <TokenIcon
           width={24 * sizeMultiplierSize}
           height={24 * sizeMultiplierSize}
-          networkId={network.id}
+          networkId={network?.id}
           address={address}
           withNetworkIcon={false}
         />
         <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mhMi}>
-          {tokenInfo?.symbol || t('unknown token')}
+          {tokenInfo?.symbol || <Address fontSize={16} address={address} />}
         </Text>
-        <OpenIcon width={14} height={14} />
+        {network && <OpenIcon width={14} height={14} />}
       </Pressable>
     </>
   )

@@ -92,7 +92,14 @@ const HumanizedVisualization: FC<Props> = ({
             />
           )
         if (item.type === 'chain' && item.chainId)
-          return <ChainVisualization chainId={item.chainId} key={key} networks={networks} />
+          return (
+            <ChainVisualization
+              chainId={item.chainId}
+              key={key}
+              networks={networks}
+              marginRight={marginRight}
+            />
+          )
 
         if (item.type === 'message' && item.messageContent) {
           return (

@@ -4,12 +4,10 @@ import { View } from 'react-native'
 import { extraNetworks, networks as hardcodedNetwork } from '@ambire-common/consts/networks'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
-import Address from '@common/components/Address'
 import SkeletonLoader from '@common/components/SkeletonLoader'
-import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
-import spacings, { SPACING_TY } from '@common/styles/spacings'
+import { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -77,12 +75,6 @@ const TokenOrNft: FC<Props> = ({
         <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
       )}
 
-      {!network && !isLoading && (
-        <>
-          <Address address={address} />
-          <Text style={spacings.mlTy}>on {networkId}</Text>
-        </>
-      )}
       {network && assetInfo?.nftInfo && (
         <Nft
           address={address}
@@ -92,7 +84,7 @@ const TokenOrNft: FC<Props> = ({
           nftInfo={assetInfo.nftInfo}
         />
       )}
-      {(assetInfo?.tokenInfo || !isLoading) && !assetInfo.nftInfo && network && (
+      {(assetInfo?.tokenInfo || !isLoading) && !assetInfo.nftInfo && (
         <Token
           textSize={textSize}
           network={network}
