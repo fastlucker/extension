@@ -34,7 +34,9 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
@@ -61,6 +63,12 @@ const TransferScreen = () => {
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { userRequests } = useMainControllerState()
+  const { currentAction, visibleActionsQueue } = useActionsControllerState()
+
+  const transferUserRequests = useMemo(() => {
+    return userRequests.filter((r) => r.action.kind === 'calls' && !r.dappPromise)
+  }, [userRequests])
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -81,29 +89,87 @@ const TransferScreen = () => {
       : ''
   })
 
+  const submitButtonText = useMemo(() => {
+    if (isOffline) return t("You're offline")
+    if (isTopUp) return t('Top Up')
+
+    if (currentAction) return t('Send')
+
+    let numOfRequests = transferUserRequests.length
+    if (isFormValid && !addressInputState.validation.isError) {
+      numOfRequests++
+    }
+    if (numOfRequests) return t('Send ({{count}})', { count: numOfRequests })
+
+    return t('Send')
+  }, [
+    isOffline,
+    isTopUp,
+    transferUserRequests,
+    currentAction,
+    addressInputState.validation.isError,
+    isFormValid,
+    t
+  ])
+
+  const isFormEmpty = useMemo(() => {
+    return !transferCtrl.amount && !transferCtrl.recipientAddress
+  }, [transferCtrl])
+
+  const isSendButtonDisabled = useMemo(() => {
+    if (isOffline) return true
+    if (isTopUp) return !isFormValid
+    if (addressInputState.validation.isError && !isFormEmpty) return true
+    if (transferUserRequests.length) {
+      return !isFormValid && !isFormEmpty
+    }
+    return !isFormValid
+  }, [
+    addressInputState.validation.isError,
+    isFormEmpty,
+    isFormValid,
+    isOffline,
+    isTopUp,
+    transferUserRequests.length
+  ])
+
   const onBack = useCallback(() => {
     navigate(ROUTES.dashboard)
   }, [navigate])
 
   const addTransaction = useCallback(
     (executionType: 'queue' | 'open') => {
-      if (!state.amount || !state.selectedToken) return
+      if (isFormValid && state.selectedToken) {
+        if (executionType === 'queue' && !transferCtrl.shouldSkipTransactionQueuedModal) {
+          openBottomSheet()
+        }
 
-      if (executionType === 'queue' && !transferCtrl.shouldSkipTransactionQueuedModal) {
-        openBottomSheet()
+        dispatch({
+          type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST',
+          params: {
+            amount: state.amount,
+            selectedToken: state.selectedToken,
+            recipientAddress: isTopUp ? FEE_COLLECTOR : getAddressFromAddressState(addressState),
+            executionType
+          }
+        })
+
+        transferCtrl.resetForm()
+        return
       }
 
-      dispatch({
-        type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST',
-        params: {
-          amount: state.amount,
-          selectedToken: state.selectedToken,
-          recipientAddress: isTopUp ? FEE_COLLECTOR : getAddressFromAddressState(addressState),
-          executionType
-        }
-      })
+      if (executionType === 'open' && transferUserRequests.length && isFormEmpty) {
+        const firstAccountOpAction = visibleActionsQueue
+          .reverse()
+          .find((a) => a.type === 'accountOp')
+        if (!firstAccountOpAction) return
 
-      transferCtrl.resetForm()
+        dispatch({
+          type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
+          params: { actionId: firstAccountOpAction?.id }
+        })
+        transferCtrl.resetForm()
+      }
     },
     [
       transferCtrl,
@@ -111,16 +177,14 @@ const TransferScreen = () => {
       isTopUp,
       state.amount,
       state.selectedToken,
+      isFormEmpty,
+      transferUserRequests.length,
+      visibleActionsQueue,
+      isFormValid,
       dispatch,
       openBottomSheet
     ]
   )
-
-  const submitButtonText = useMemo(() => {
-    if (isOffline) return t("You're offline")
-
-    return t(isTopUp ? 'Top Up' : 'Send')
-  }, [isOffline, isTopUp, t])
 
   return (
     <TabLayoutContainer
@@ -147,8 +211,15 @@ const TransferScreen = () => {
                 style={spacings.mr}
                 size="large"
               >
-                <View style={spacings.plSm}>
+                <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
                   <CartIcon color={theme.primary} />
+                  {!!transferUserRequests.length && !currentAction && (
+                    <Text
+                      fontSize={16}
+                      weight="medium"
+                      color={theme.primary}
+                    >{` (${transferUserRequests.length})`}</Text>
+                  )}
                 </View>
               </Button>
             )}
@@ -159,9 +230,7 @@ const TransferScreen = () => {
               onPress={() => addTransaction('open')}
               hasBottomSpacing={false}
               size="large"
-              disabled={
-                !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
-              }
+              disabled={isSendButtonDisabled}
             >
               {!isOffline && (
                 <View style={spacings.plTy}>
