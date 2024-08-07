@@ -40,7 +40,6 @@ const HumanizedVisualization: FC<Props> = ({
   networks
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
-
   return (
     <View
       testID={testID}

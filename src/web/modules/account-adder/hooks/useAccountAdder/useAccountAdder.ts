@@ -15,8 +15,7 @@ interface Props {
 }
 
 const useAccountAdder = ({ keySubType }: Props) => {
-  const { goBack } = useNavigation()
-  const { navigate } = useNavigation()
+  const { navigate, goBack } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
   const { dispatch } = useBackgroundService()
@@ -26,10 +25,6 @@ const useAccountAdder = ({ keySubType }: Props) => {
   useEffect(() => {
     return () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
   }, [dispatch])
-
-  useEffect(() => {
-    if (!accountAdderState.isInitialized) goBack()
-  }, [accountAdderState.isInitialized, goBack])
 
   /**
    * Resetting the Account Adder controller is enough for navigating the user
@@ -56,15 +51,17 @@ const useAccountAdder = ({ keySubType }: Props) => {
     updateStepperState(WEB_ROUTES.accountAdder, step)
   }, [keySubType, updateStepperState])
 
+  useEffect(() => {
+    if (!accountAdderState.isInitialized) goBack()
+  }, [accountAdderState.isInitialized, goBack])
+
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
       hasAccountsToImport
-        ? navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
-            state: { accounts: accountAdderState.readyToAddAccounts }
-          })
+        ? navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
         : navigate('/', { state: { openOnboardingCompleted: true } })
     },
-    [navigate, accountAdderState]
+    [navigate]
   )
 
   useEffect(() => {
