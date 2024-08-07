@@ -29,7 +29,6 @@ export async function bootstrap(namespace) {
   const browser = await puppeteer.launch({
     // devtools: true,
     slowMo: 10,
-
     headless: false,
     args: puppeteerArgs,
     defaultViewport: null,

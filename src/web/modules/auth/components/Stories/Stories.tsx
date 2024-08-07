@@ -271,7 +271,6 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 {currentStory !== 0 && (
                   <Button
-                    testID={`stories-button-previous-${currentStory}`}
                     type="ghost"
                     size="small"
                     text={t('Previous')}
@@ -284,7 +283,7 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
                   </Button>
                 )}
                 <Button
-                  testID={`stories-button-next-${currentStory}`}
+                  testID={`stories-button-next-${i}`}
                   type="secondary"
                   size="small"
                   text={currentStory === STORIES_DATA.length - 1 ? t('Got it') : t('Next')}

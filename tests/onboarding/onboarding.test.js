@@ -1,6 +1,6 @@
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { bootstrap } from '../common-helpers/bootstrap'
-import { INVITE_STORAGE_ITEM } from '../constants/constants.js'
+import { INVITE_STORAGE_ITEM } from '../constants/constants'
 
 describe('Onboarding', () => {
   let browser
@@ -11,6 +11,7 @@ describe('Onboarding', () => {
 
   beforeEach(async () => {
     ;({ browser, extensionURL, serviceWorker, recorder, page } = await bootstrap('onboarding'))
+
     // Bypass the invite verification step
     await serviceWorker.evaluate(
       (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
@@ -31,25 +32,16 @@ describe('Onboarding', () => {
   it('should pass through the onboarding steps and agree with the terms', async () => {
     // Click on "Next" button several times to finish the onboarding.
     await clickOnElement(page, '[data-testid="stories-button-next-0"]')
-
-    await page.waitForSelector('[data-testid="stories-button-next-1"]')
-    await page.$eval('[data-testid="stories-button-next-1"]', (button) => button.click())
-
-    await page.waitForSelector('[data-testid="stories-button-next-2"]')
-    await page.$eval('[data-testid="stories-button-next-2"]', (button) => button.click())
-
-    await page.waitForSelector('[data-testid="stories-button-next-3"]')
-    await page.$eval('[data-testid="stories-button-next-3"]', (button) => button.click())
-
-    await page.waitForSelector('[data-testid="stories-button-next-4"]')
-    await page.$eval('[data-testid="stories-button-next-4"]', (button) => button.click())
+    await clickOnElement(page, '[data-testid="stories-button-next-1"]')
+    await clickOnElement(page, '[data-testid="stories-button-next-2"]')
+    await clickOnElement(page, '[data-testid="stories-button-next-3"]')
+    await clickOnElement(page, '[data-testid="stories-button-next-4"]')
 
     // check the checkbox "I agree ..."
     await page.$eval('[data-testid="checkbox"]', (button) => button.click())
-    // Click on "Got it"
 
-    await page.waitForSelector('[data-testid="stories-button-next-5"]')
-    await page.$eval('[data-testid="stories-button-next-5"]', (button) => button.click())
+    // Click on "Got it"
+    await clickOnElement(page, '[data-testid="stories-button-next-5"]')
 
     await page.waitForFunction(() => window.location.href.includes('/get-started'))
 
