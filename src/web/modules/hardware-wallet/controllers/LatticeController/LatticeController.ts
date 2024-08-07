@@ -121,7 +121,7 @@ class LatticeController implements ExternalSignerController {
 
     const tabId = await this._openLatticeConnector(url, shouldOpenLatticeConnectorInTab)
 
-    // TODO: Ugly workaround that listens for changes to the URL which contains
+    // Ugly workaround that listens for changes to the URL which contains
     // the Lattice Connector login info.
     // NOTE: This will only work if have `https://lattice.gridplus.io/*` (or wildcard)
     // host permissions in your manifest file and also `activeTab` permission.
