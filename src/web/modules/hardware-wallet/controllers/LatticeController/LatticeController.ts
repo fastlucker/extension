@@ -8,7 +8,7 @@ import {
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { browser } from '@web/constants/browserapi'
 
-const LATTICE_APP_NAME = 'Ambire Wallet'
+const LATTICE_APP_NAME = 'Ambire Wallet (browser)' // should be 6-23 characters
 const LATTICE_MANAGER_URL = 'https://lattice.gridplus.io'
 const LATTICE_BASE_URL = 'https://signing.gridpl.us'
 
@@ -139,7 +139,7 @@ class LatticeController implements ExternalSignerController {
         listenInterval = setInterval(() => {
           this._findTabById(conn.tab.id).then((tab) => {
             if (!tab || !tab.url) {
-              return reject(new Error('Lattice connector closed.'))
+              return reject(new Error('Closing the Lattice Connector interrupted the connection.'))
             }
             // If the tab we opened contains a new URL param
             const paramLoc = tab.url.indexOf(loginUrlParam)
