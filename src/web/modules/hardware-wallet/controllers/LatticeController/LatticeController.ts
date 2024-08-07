@@ -94,9 +94,9 @@ class LatticeController implements ExternalSignerController {
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
-  async _openLatticeConnector(url: string, openInTab: boolean) {
+  async _openLatticeConnector(url: string, shouldOpenInTab: boolean) {
     try {
-      if (openInTab) {
+      if (shouldOpenInTab) {
         const tab = await browser.tabs.create({ url })
         return tab.id
       }
