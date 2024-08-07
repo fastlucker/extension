@@ -6,6 +6,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import wait from '@ambire-common/utils/wait'
 import { browser } from '@web/constants/browserapi'
 
 const LATTICE_APP_NAME = 'Ambire Wallet (browser)' // should be 6-23 characters
@@ -94,6 +95,12 @@ class LatticeController implements ExternalSignerController {
   }
 
   async _openLatticeConnector(url: string, openInTab: boolean) {
+    // Wait a little bit before opening the Lattice Connector on purpose,
+    // so that user sees some feedback on Ambire that something is happening -
+    // either the "sending signing request" modal when signing or the
+    // loading state of the button when importing accounts.
+    await wait(1000)
+
     try {
       if (openInTab) {
         const tab = await browser.tabs.create({ url })
