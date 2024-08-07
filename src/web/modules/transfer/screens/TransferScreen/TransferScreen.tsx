@@ -93,7 +93,7 @@ const TransferScreen = () => {
     if (isOffline) return t("You're offline")
     if (isTopUp) return t('Top Up')
 
-    if (currentAction) return t('Send')
+    if (currentAction || !selectedAccountData?.creation) return t('Send')
 
     let numOfRequests = transferUserRequests.length
     if (isFormValid && !addressInputState.validation.isError) {
@@ -109,6 +109,7 @@ const TransferScreen = () => {
     currentAction,
     addressInputState.validation.isError,
     isFormValid,
+    selectedAccountData?.creation,
     t
   ])
 

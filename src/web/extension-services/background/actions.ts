@@ -166,7 +166,7 @@ type MainControllerResolveAccountOpAction = {
 }
 type MainControllerRejectAccountOpAction = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
-  params: { err: string; actionId: AccountOpAction['id'] }
+  params: { err: string; actionId: AccountOpAction['id']; shouldOpenNextAction: boolean }
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'

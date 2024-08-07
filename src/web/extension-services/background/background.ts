@@ -797,7 +797,11 @@ handleRegisterScripts()
               case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
                 return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
-                return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
+                return mainCtrl.rejectAccountOpAction(
+                  params.err,
+                  params.actionId,
+                  params.shouldOpenNextAction
+                )
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
                 return await mainCtrl.signMessage.init(params)
               }
