@@ -160,7 +160,7 @@ class LatticeSigner implements KeystoreSigner {
         `The key you signed with is different than the key we expected (${shortenAddress(
           this.key.addr,
           13
-        )}). Your likely unlocked your Lattice1 with different wallet.`
+        )}). You likely have different active wallet on your Lattice1 device.`
       )
     }
 
