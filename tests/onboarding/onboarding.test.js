@@ -38,7 +38,7 @@ describe('Onboarding', () => {
     await clickOnElement(page, '[data-testid="stories-button-next-4"]')
 
     // check the checkbox "I agree ..."
-    await page.$eval('[data-testid="checkbox"]', (button) => button.click())
+    await clickOnElement(page, '[data-testid="checkbox"]')
 
     // Click on "Got it"
     await clickOnElement(page, '[data-testid="stories-button-next-5"]')
