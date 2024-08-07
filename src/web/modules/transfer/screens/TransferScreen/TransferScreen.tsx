@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
@@ -10,7 +11,10 @@ import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Checkbox from '@common/components/Checkbox'
+import DualChoiceModal from '@common/components/DualChoiceModal'
 import Panel from '@common/components/Panel'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -56,6 +60,7 @@ const TransferScreen = () => {
   const { selectedAccount, accounts } = useAccountsControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -84,6 +89,10 @@ const TransferScreen = () => {
     (executionType: 'queue' | 'open') => {
       if (!state.amount || !state.selectedToken) return
 
+      if (executionType === 'queue' && !transferCtrl.shouldSkipTransactionQueuedModal) {
+        openBottomSheet()
+      }
+
       dispatch({
         type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST',
         params: {
@@ -96,7 +105,15 @@ const TransferScreen = () => {
 
       transferCtrl.resetForm()
     },
-    [addressState, dispatch, isTopUp, state.amount, state.selectedToken, transferCtrl]
+    [
+      transferCtrl,
+      addressState,
+      isTopUp,
+      state.amount,
+      state.selectedToken,
+      dispatch,
+      openBottomSheet
+    ]
   )
 
   const submitButtonText = useMemo(() => {
@@ -223,6 +240,49 @@ const TransferScreen = () => {
           />
         )}
       </TabLayoutWrapperMainContent>
+      <BottomSheet
+        id="import-seed-phrase"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        backgroundColor="secondaryBackground"
+        style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
+        type="modal"
+      >
+        <DualChoiceModal
+          title={t('Transaction queued')}
+          description={
+            <View>
+              <Text style={spacings.mbTy} appearance="secondaryText">
+                {t(
+                  'You can now add multiple transactions on that network and send them batched all together for signing.'
+                )}
+              </Text>
+              <Text appearance="secondaryText" style={spacings.mbLg}>
+                {t('The queued pending transactions are available on your Dashboard.')}
+              </Text>
+              <Checkbox
+                value={transferCtrl.shouldSkipTransactionQueuedModal}
+                onValueChange={() => {
+                  transferCtrl.shouldSkipTransactionQueuedModal =
+                    !transferCtrl.shouldSkipTransactionQueuedModal
+                }}
+                uncheckedBorderColor={theme.secondaryText}
+                label={t("Don't show this modal again")}
+                labelProps={{
+                  style: {
+                    color: theme.secondaryText
+                  },
+                  weight: 'medium'
+                }}
+                style={spacings.mb0}
+              />
+            </View>
+          }
+          onPrimaryButtonPress={closeBottomSheet}
+          primaryButtonText={t('Got it')}
+          primaryButtonTestID="queue-modal-got-it-button"
+        />
+      </BottomSheet>
     </TabLayoutContainer>
   )
 }

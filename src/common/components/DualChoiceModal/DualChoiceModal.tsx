@@ -6,17 +6,18 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
 
 import getStyles from './styles'
 
 interface Props {
   title: string | ReactNode
   description: string | ReactNode
-  Icon: React.FC<SvgProps>
+  Icon?: React.FC<SvgProps>
   onPrimaryButtonPress: () => void
-  onSecondaryButtonPress: () => void
+  onSecondaryButtonPress?: () => void
   primaryButtonText: string
-  secondaryButtonText: string
+  secondaryButtonText?: string
   primaryButtonTestID?: string
   secondaryButtonTestID?: string
 }
@@ -42,21 +43,25 @@ const DualChoiceModal: FC<Props> = ({
         </Text>
       </View>
       <View style={styles.modalInnerContainer}>
-        <View>
-          <Icon style={spacings.mrLg} />
-        </View>
+        {!!Icon && (
+          <View>
+            <Icon style={spacings.mrLg} color={iconColors.primary} />
+          </View>
+        )}
         <Text appearance="secondaryText">{description}</Text>
       </View>
       <View style={styles.modalButtonsContainer}>
-        <Button
-          text={secondaryButtonText}
-          onPress={onSecondaryButtonPress}
-          type="secondary"
-          hasBottomSpacing={false}
-          size="large"
-          style={[styles.button, spacings.mr]}
-          testID={secondaryButtonTestID}
-        />
+        {!!secondaryButtonText && !!onSecondaryButtonPress && (
+          <Button
+            text={secondaryButtonText}
+            onPress={onSecondaryButtonPress}
+            type="secondary"
+            hasBottomSpacing={false}
+            size="large"
+            style={[styles.button, spacings.mr]}
+            testID={secondaryButtonTestID}
+          />
+        )}
         <Button
           text={primaryButtonText}
           onPress={onPrimaryButtonPress}

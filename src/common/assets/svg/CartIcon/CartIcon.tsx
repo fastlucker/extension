@@ -3,12 +3,7 @@ import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const CartIcon: React.FC<Props> = ({ width = 21, height = 22, color = colors.white }) => (
+const CartIcon: React.FC<SvgProps> = ({ width = 21, height = 22, color = colors.white }) => (
   <Svg width={width} height={height} viewBox="0 0 21.049 21.5">
     <G transform="translate(0.75 0.75)">
       <Path
@@ -51,4 +46,4 @@ const CartIcon: React.FC<Props> = ({ width = 21, height = 22, color = colors.whi
   </Svg>
 )
 
-export default CartIcon
+export default React.memo(CartIcon)
