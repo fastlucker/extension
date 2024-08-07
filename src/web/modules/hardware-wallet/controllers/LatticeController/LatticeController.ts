@@ -37,7 +37,14 @@ class LatticeController implements ExternalSignerController {
   // Determine if we have a connection to the Lattice and an existing wallet UID
   // against which to make requests.
   isUnlocked() {
-    return !!this._getCurrentWalletUID() && !!this.sdkSession
+    // If the current wallet UID is different, it means that 1) The device has
+    // changed or 2) The Lattice device is currently unlocked with different
+    // (seed) wallet - the device itself can hold one (seed) wallet, and the
+    // SafeCard connected can hold another (seed) wallet. In case of a mismatch,
+    // we need to reconnect to the Lattice (treat it as locked).
+    const isSameWallet = this._getCurrentWalletUID() === this.deviceId
+
+    return isSameWallet && !!this.sdkSession
   }
 
   async unlock() {
