@@ -39,7 +39,7 @@ const REFETCH_USER_OP = 3000 // 3 seconds
 interface Props {
   txnId: string | null
   userOpHash: string | null
-  network?: Network
+  network: Network | null
   standardOptions: {
     storage: Storage
     fetch: Fetch
