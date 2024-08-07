@@ -5,6 +5,7 @@ import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
+import wait from '@ambire-common/utils/wait'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 
 class LatticeSigner implements KeystoreSigner {
@@ -27,27 +28,40 @@ class LatticeSigner implements KeystoreSigner {
     this.controller = externalSignerController
   }
 
+  #prepareForSigning = async () => {
+    if (!this.controller)
+      throw new Error(
+        'Something went wrong when preparing Lattice1 to sign. Please try again or contact support if the problem persists.'
+      )
+
+    if (!this.key)
+      throw new Error(
+        'Something went wrong when preparing Lattice1 to sign. Required information about the signing ey was found missing. Please try again or contact Ambire support.'
+      )
+
+    // Wait a little bit before opening the Lattice Connector on purpose, so
+    // that user sees feedback (the "sending signing request" modal) that
+    // something is about to happen
+    await wait(1000)
+    await this.controller.unlock()
+
+    if (!this.controller.sdkSession)
+      throw new Error(
+        'Something went wrong when preparing Lattice1 to sign. Please try again or contact support if the problem persists.'
+      )
+  }
+
   signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
-    if (!this.controller) {
-      throw new Error(
-        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
-      )
-    }
-
-    await this._onBeforeLatticeRequest()
-
-    if (!this.controller.sdkSession) {
-      throw new Error(
-        'Something went wrong with initiating a session with the device. Please try again or contact support if the problem persists.'
-      )
-    }
+    await this.#prepareForSigning()
 
     // EIP1559 and EIP2930 support was added to Lattice in firmware v0.11.0,
     // "general signing" was introduced in v0.14.0. In order to avoid supporting
     // legacy firmware, throw an error and prompt user to update.
-    const fwVersion = this.controller.sdkSession.getFwVersion()
+    const fwVersion = this.controller!.sdkSession!.getFwVersion()
     if (fwVersion?.major === 0 && fwVersion?.minor <= 14) {
-      throw new Error('Please update Lattice1 firmware.')
+      throw new Error(
+        'Unable to sign the transaction because your Lattice1 device firmware is outdated. Please update to the latest firmware and try again.'
+      )
     }
 
     try {
@@ -59,7 +73,7 @@ class LatticeSigner implements KeystoreSigner {
 
       const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
-      const res = await this.controller.sdkSession.sign({
+      const res = await this.controller!.sdkSession!.sign({
         // Prior to general signing, request data was sent to the device in
         // preformatted ways and was used to build the transaction in firmware.
         // GridPlus are phasing out this mechanism, for signing raw transactions
@@ -125,17 +139,7 @@ class LatticeSigner implements KeystoreSigner {
   }
 
   async _signMsgRequest(payload: any, protocol: 'signPersonal' | 'eip712') {
-    if (!this.controller) {
-      throw new Error(
-        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
-      )
-    }
-
-    if (!this.key) {
-      throw new Error('latticeSigner: key not found')
-    }
-
-    await this._onBeforeLatticeRequest()
+    await this.#prepareForSigning()
 
     const req = {
       currency: 'ETH_MSG',
@@ -146,7 +150,7 @@ class LatticeSigner implements KeystoreSigner {
       }
     }
 
-    const res = await this.controller.sdkSession!.sign(req)
+    const res = await this.controller!.sdkSession!.sign(req)
 
     if (!res.sig) {
       throw new Error(
@@ -154,7 +158,7 @@ class LatticeSigner implements KeystoreSigner {
       )
     }
 
-    const foundIdx = await this.controller._keyIdxInCurrentWallet(this.key)
+    const foundIdx = await this.controller!._keyIdxInCurrentWallet(this.key)
     if (foundIdx === null) {
       throw new Error(
         `The key you signed with is different than the key we expected (${shortenAddress(
@@ -165,15 +169,6 @@ class LatticeSigner implements KeystoreSigner {
     }
 
     return addHexPrefix(`${res.sig.r}${res.sig.s}${res.sig.v.toString('hex')}`)
-  }
-
-  async _onBeforeLatticeRequest() {
-    const wasUnlocked = this.controller?.isUnlocked()
-    await this.controller?.unlock()
-
-    if (wasUnlocked) {
-      await this.controller?._connect()
-    }
   }
 }
 

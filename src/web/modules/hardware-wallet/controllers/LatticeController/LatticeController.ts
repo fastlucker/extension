@@ -95,12 +95,6 @@ class LatticeController implements ExternalSignerController {
   }
 
   async _openLatticeConnector(url: string, openInTab: boolean) {
-    // Wait a little bit before opening the Lattice Connector on purpose,
-    // so that user sees some feedback on Ambire that something is happening -
-    // either the "sending signing request" modal when signing or the
-    // loading state of the button when importing accounts.
-    await wait(1000)
-
     try {
       if (openInTab) {
         const tab = await browser.tabs.create({ url })
