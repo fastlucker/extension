@@ -45,7 +45,7 @@ module.exports = async function (env, argv) {
       manifest.externally_connectable = undefined
       manifest.browser_specific_settings = {
         gecko: {
-          id: 'webextension@ambire.com',
+          id: 'wallet@ambire.com',
           strict_min_version: '115.0'
         }
       }
