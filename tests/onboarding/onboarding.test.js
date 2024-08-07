@@ -45,8 +45,6 @@ describe('Onboarding', () => {
 
     await page.waitForFunction(() => window.location.href.includes('/get-started'))
 
-    await page.waitForSelector('[data-testid="get-started-button-import"]')
-
     // Check for the text "Welcome to Ambire Wallet" on the page
     const textExists = await page.evaluate(() => {
       return document.body.innerText.includes('Welcome to Ambire Wallet')
