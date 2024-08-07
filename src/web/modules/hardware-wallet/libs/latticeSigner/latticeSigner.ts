@@ -4,6 +4,7 @@ import * as SDK from 'gridplus-sdk'
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 
 class LatticeSigner implements KeystoreSigner {
@@ -148,26 +149,22 @@ class LatticeSigner implements KeystoreSigner {
     const res = await this.controller.sdkSession!.sign(req)
 
     if (!res.sig) {
-      throw new Error('latticeSigner: no signature returned')
-    }
-
-    // Convert the `v` to a number. It should convert to 0 or 1
-    let v
-    try {
-      v = res.sig.v.toString('hex')
-      if (v.length < 2) {
-        v = `0${v}`
-      }
-    } catch (err) {
-      throw new Error('latticeSigner: invalid signature format returned')
+      throw new Error(
+        'Required signature data was found missing. Please try again later or contact Ambire support.'
+      )
     }
 
     const foundIdx = await this.controller._keyIdxInCurrentWallet(this.key)
     if (foundIdx === null) {
-      throw new Error('latticeSigner: key not found in the current Lattice1 wallet')
+      throw new Error(
+        `The key you signed with is different than the key we expected (${shortenAddress(
+          this.key.addr,
+          13
+        )}). Your likely unlocked your Lattice1 with different wallet.`
+      )
     }
 
-    return addHexPrefix(`${res.sig.r}${res.sig.s}${v}`)
+    return addHexPrefix(`${res.sig.r}${res.sig.s}${res.sig.v.toString('hex')}`)
   }
 
   async _onBeforeLatticeRequest() {
