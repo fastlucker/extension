@@ -67,7 +67,7 @@ const Collections: FC<Props> = ({
 
   const filteredPortfolioCollections = useMemo(
     () =>
-      (accountPortfolio?.collections || []).filter(({ name, address, networkId }) => {
+      (accountPortfolio?.collections || []).filter(({ name, address, networkId, collectibles }) => {
         let isMatchingNetwork = true
         let isMatchingSearch = true
 
@@ -81,7 +81,7 @@ const Collections: FC<Props> = ({
             address.toLowerCase().includes(searchValue.toLowerCase())
         }
 
-        return isMatchingNetwork && isMatchingSearch
+        return isMatchingNetwork && isMatchingSearch && collectibles.length
       }),
     [accountPortfolio?.collections, filterByNetworkId, searchValue]
   )
