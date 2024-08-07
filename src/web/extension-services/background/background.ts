@@ -581,7 +581,7 @@ handleRegisterScripts()
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
                 try {
-                  await latticeCtrl.unlock()
+                  await latticeCtrl.unlock(undefined, undefined, true)
 
                   const { sdkSession } = latticeCtrl
                   mainCtrl.accountAdder.init({

@@ -47,7 +47,11 @@ class LatticeController implements ExternalSignerController {
     return isSameWallet && !!this.sdkSession
   }
 
-  async unlock() {
+  async unlock(
+    _path?: string,
+    _expectedKeyOnThisPath?: string,
+    shouldOpenLatticeConnectorInTab = false
+  ) {
     if (this.isUnlocked()) {
       return 'ALREADY_UNLOCKED'
     }
@@ -62,7 +66,7 @@ class LatticeController implements ExternalSignerController {
     // TODO: Currently not implemented
     const bypassOnStateData = false
 
-    const creds: any = await this._getCreds()
+    const creds: any = await this._getCreds(shouldOpenLatticeConnectorInTab)
     if (creds) {
       this.creds.deviceID = creds.deviceID
       this.creds.password = creds.password
@@ -89,12 +93,17 @@ class LatticeController implements ExternalSignerController {
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
-  async _openConnectorTab(url: string) {
+  async _openLatticeConnector(url: string, openInTab: boolean) {
     try {
-      const tab = await browser.tabs.create({ url })
-      return { tab }
+      if (openInTab) {
+        const tab = await browser.tabs.create({ url })
+        return tab.id
+      }
+
+      const ref = await browser.windows.create({ url, type: 'popup' })
+      return ref.tabs[0].id
     } catch (err) {
-      throw new Error('Failed to open Lattice connector.')
+      throw new Error('Failed to open the Lattice Connector.')
     }
   }
 
@@ -103,67 +112,55 @@ class LatticeController implements ExternalSignerController {
     return tabs.find((tab) => tab.id === id)
   }
 
-  _getCreds() {
+  async _getCreds(shouldOpenLatticeConnectorInTab: boolean) {
+    if (this._hasCreds()) return
+
+    const url = `${LATTICE_MANAGER_URL}?keyring=${LATTICE_APP_NAME}&forceLogin=true`
+    let listenInterval: ReturnType<typeof setInterval>
+
+    const tabId = await this._openLatticeConnector(url, shouldOpenLatticeConnectorInTab)
+
+    // TODO: Ugly workaround that listens for changes to the URL which contains
+    // the Lattice Connector login info.
+    // NOTE: This will only work if have `https://lattice.gridplus.io/*` (or wildcard)
+    // host permissions in your manifest file and also `activeTab` permission.
+    // TODO: Could maybe be achieved with a content script that sends a message
+    // to the background script with the login data.
+    const loginUrlParam = '&loginCache='
     return new Promise((resolve, reject) => {
-      // We only need to setup if we don't have a deviceID
-      if (this._hasCreds()) return resolve()
-      const url = `${LATTICE_MANAGER_URL}?keyring=${LATTICE_APP_NAME}&forceLogin=true`
-      let listenInterval: any
-
-      // PostMessage handler
-      function receiveMessage(event) {
-        // Ensure origin
-        if (event.origin !== LATTICE_MANAGER_URL) return
+      listenInterval = setInterval(async () => {
         try {
-          // Stop the listener
-          clearInterval(listenInterval)
-          // Parse and return creds
-          const creds = JSON.parse(event.data)
-          if (!creds.deviceID || !creds.password)
-            return reject(new Error('Invalid credentials returned from Lattice.'))
-          return resolve(creds)
-        } catch (err) {
-          return reject(err)
-        }
-      }
-
-      // Open the tab
-      this._openConnectorTab(url).then((conn) => {
-        // For Firefox we cannot use `window` in the extension and can't
-        // directly communicate with the tabs very easily so we use a
-        // workaround: listen for changes to the URL, which will contain
-        // the login info.
-        // NOTE: This will only work if have `https://lattice.gridplus.io/*`
-        // host permissions in your manifest file (and also `activeTab` permission)
-        const loginUrlParam = '&loginCache='
-        listenInterval = setInterval(() => {
-          this._findTabById(conn.tab.id).then((tab) => {
-            if (!tab || !tab.url) {
-              return reject(new Error('Closing the Lattice Connector interrupted the connection.'))
-            }
-            // If the tab we opened contains a new URL param
-            const paramLoc = tab.url.indexOf(loginUrlParam)
-            if (paramLoc < 0) return
-            const dataLoc = paramLoc + loginUrlParam.length
-            // Stop this interval
+          const tab = await this._findTabById(tabId)
+          if (!tab || !tab.url) {
             clearInterval(listenInterval)
-            try {
-              // Parse the login data. It is a stringified JSON object
-              // encoded as a base64 string.
-              const _creds = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
-              // Close the tab and return the credentials
-              browser.tabs.remove(tab.id).then(() => {
-                const creds = JSON.parse(_creds)
-                if (!creds.deviceID || !creds.password)
-                  return reject(new Error('Invalid credentials returned from Lattice.'))
-                return resolve(creds)
-              })
-            } catch (err) {
-              return reject('Failed to get login data from Lattice. Please try again.')
-            }
-          })
-        }, 500)
-      })
+            return reject(new Error('Closing the Lattice Connector interrupted the connection.'))
+          }
+
+          // If the tab we opened contains a new URL param
+          const paramLoc = tab.url.indexOf(loginUrlParam)
+          if (paramLoc < 0) return
+
+          const dataLoc = paramLoc + loginUrlParam.length
+          // Stop this interval
+          clearInterval(listenInterval)
+          // Parse the login data. It is a stringified JSON object
+          // encoded as a base64 string.
+          const credsString = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
+
+          // Close the tab and return the credentials
+          await browser.tabs.remove(tab.id)
+
+          const creds = JSON.parse(credsString)
+          if (!creds.deviceID || !creds.password) {
+            return reject(new Error('Invalid credentials returned from Lattice.'))
+          }
+
+          resolve(creds)
+        } catch (err) {
+          clearInterval(listenInterval)
+          reject(new Error('Failed to get login data from Lattice. Please try again.'))
+        }
+      }, 500)
     })
   }
 
