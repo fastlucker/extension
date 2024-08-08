@@ -423,6 +423,10 @@ type SetOnboardingStateAction = {
   type: 'SET_ONBOARDING_STATE'
   params: { version: string; viewedAt: number }
 }
+type SetIsPinnedAction = {
+  type: 'SET_IS_PINNED'
+  params: { isPinned: boolean }
+}
 
 type AutoLockControllerSetLastActiveTimeAction = {
   type: 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME'
@@ -524,6 +528,7 @@ export type Action =
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
   | SetOnboardingStateAction
+  | SetIsPinnedAction
   | AutoLockControllerSetLastActiveTimeAction
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction

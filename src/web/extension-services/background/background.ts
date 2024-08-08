@@ -1007,6 +1007,10 @@ handleRegisterScripts()
                 walletStateCtrl.onboardingState = params
                 break
               }
+              case 'SET_IS_PINNED': {
+                walletStateCtrl.isPinned = params.isPinned
+                break
+              }
               case 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME': {
                 autoLockCtrl.setLastActiveTime()
                 break

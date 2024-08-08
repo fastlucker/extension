@@ -2,14 +2,19 @@ import React, { useCallback, useRef, useState } from 'react'
 import { Animated, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import PinExtensionIcon from '@common/assets/svg/PinExtensionIcon'
+import Backdrop from '@common/components/BottomSheet/Backdrop'
 import { isWeb } from '@common/config/env'
 import useDebounce from '@common/hooks/useDebounce'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { Portal } from '@gorhom/portal'
 import ReceiveModal from '@web/components/ReceiveModal'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useWalletStateController from '@web/hooks/useWalletStateController'
 import { getUiType } from '@web/utils/uiType'
 
 import DAppFooter from '../components/DAppFooter'
@@ -25,6 +30,8 @@ const DashboardScreen = () => {
   const route = useRoute()
   const { styles } = useTheme(getStyles)
   const { state } = usePortfolioControllerState()
+  const { isPinned } = useWalletStateController()
+  const { dispatch } = useBackgroundService()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const lastOffsetY = useRef(0)
   const scrollUpStartedAt = useRef(0)
@@ -93,6 +100,21 @@ const DashboardScreen = () => {
         </View>
         {!!isPopup && <DAppFooter />}
       </View>
+      <Portal hostName="global">
+        {!isPinned && (
+          <>
+            <PinExtensionIcon style={styles.pinExtensionIcon} />
+
+            <Backdrop
+              isVisible
+              isBottomSheetVisible
+              onPress={() => {
+                dispatch({ type: 'SET_IS_PINNED', params: { isPinned: true } })
+              }}
+            />
+          </>
+        )}
+      </Portal>
     </>
   )
 }

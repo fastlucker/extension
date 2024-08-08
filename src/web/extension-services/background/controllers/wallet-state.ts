@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { browser } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 import {
@@ -13,10 +14,11 @@ export class WalletStateController extends EventEmitter {
 
   #_isDefaultWallet: boolean = true
 
-  #_onboardingState?: {
-    version: string
-    viewedAt: number
-  } = undefined
+  #_onboardingState?: { version: string; viewedAt: number } = undefined
+
+  #isPinned: boolean = true
+
+  #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
 
   get isDefaultWallet() {
     return this.#_isDefaultWallet
@@ -55,6 +57,16 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
+  get isPinned() {
+    return this.#isPinned
+  }
+
+  set isPinned(newValue: boolean) {
+    this.#isPinned = newValue
+    storage.set('isPinned', true)
+    this.emitUpdate()
+  }
+
   constructor() {
     super()
 
@@ -79,6 +91,10 @@ export class WalletStateController extends EventEmitter {
 
     this.#_onboardingState = await storage.get('onboardingState', undefined)
 
+    const pinned: boolean = await storage.get('isPinned', false)
+    this.#isPinned = pinned
+    this.#initCheckIsPinned()
+
     this.isReady = true
     this.emitUpdate()
   }
@@ -98,12 +114,25 @@ export class WalletStateController extends EventEmitter {
     }
   }
 
+  async #initCheckIsPinned() {
+    if (this.isPinned && this.#isPinnedInterval) clearTimeout(this.#isPinnedInterval)
+    if (this.isPinned) return
+    // @ts-ignore
+    const userSettings = await browser.action.getUserSettings()
+    if (userSettings.isOnToolbar) this.isPinned = true
+
+    if (!this.isPinned) {
+      this.#isPinnedInterval = setTimeout(this.#initCheckIsPinned.bind(this), 500)
+    }
+  }
+
   toJSON() {
     return {
       ...this,
       ...super.toJSON(),
       isDefaultWallet: this.isDefaultWallet,
-      onboardingState: this.onboardingState
+      onboardingState: this.onboardingState,
+      isPinned: this.isPinned
     }
   }
 }
