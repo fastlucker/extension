@@ -1,6 +1,6 @@
 import { bootstrap } from '../common-helpers/bootstrap'
 import { setAmbKeyStore } from '../common-helpers/setAmbKeyStore'
-import { finishStoriesAndSelectAccount } from '../auth/auth-helper/auth-helper'
+import { finishStoriesAndSelectAccount } from '../auth/auth-helper'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { INVITE_STORAGE_ITEM } from '../constants/constants'
