@@ -1,7 +1,6 @@
 import React, { FC, memo } from 'react'
 
 import { Network } from '@ambire-common/interfaces/network'
-import { CollectionResult } from '@ambire-common/libs/portfolio'
 import Address from '@common/components/Address'
 import Collectible from '@common/components/Collectible'
 import spacings from '@common/styles/spacings'
@@ -12,7 +11,7 @@ interface Props {
   network: Network
   networks: Network[]
   address: string
-  nftInfo: CollectionResult
+  nftInfo: { name: string }
 }
 
 const Nft: FC<Props> = ({ address, tokenId, textSize = 16, network, networks, nftInfo }) => {
