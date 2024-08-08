@@ -126,17 +126,20 @@ const TransferScreen = () => {
     if (isOffline) return true
     if (isTopUp) return !isFormValid
 
-    if (transactionUserRequests.length) {
-      return !isFormEmpty && (!isFormValid || addressInputState.validation.isError)
+    const isTransferFormValid = isFormValid && !addressInputState.validation.isError
+
+    if (transactionUserRequests.length && !actionsState.currentAction) {
+      return !isFormEmpty && !isTransferFormValid
     }
-    return !isFormValid && addressInputState.validation.isError
+    return !isTransferFormValid
   }, [
     addressInputState.validation.isError,
     isFormEmpty,
     isFormValid,
     isOffline,
     isTopUp,
-    transactionUserRequests.length
+    transactionUserRequests.length,
+    actionsState.currentAction
   ])
 
   const onBack = useCallback(() => {
