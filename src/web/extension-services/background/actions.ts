@@ -266,8 +266,8 @@ type MainControllerSignAccountOpUpdateAction = {
     gasUsedTooHighAgreed?: boolean
   }
 }
-type MainControllerSignAccountOpSignAction = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
+type MainControllerHandleSignAndBroadcastAccountOp = {
+  type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
 type KeystoreControllerAddSecretAction = {
@@ -484,7 +484,7 @@ export type Action =
   | MainControllerSignAccountOpInitAction
   | MainControllerSignAccountOpDestroyAction
   | MainControllerSignAccountOpUpdateMainDepsAction
-  | MainControllerSignAccountOpSignAction
+  | MainControllerHandleSignAndBroadcastAccountOp
   | MainControllerSignAccountOpUpdateAction
   | MainControllerReloadSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
