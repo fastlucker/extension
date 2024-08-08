@@ -6,7 +6,6 @@ import { selectMaticToken } from '../common-helpers/selectMaticToken'
 import { triggerTransaction } from '../common-helpers/triggerTransaction'
 import { checkForSignMessageWindow } from '../common-helpers/checkForSignMessageWindow'
 import { selectFeeToken } from '../common-helpers/selectFeeToken'
-
 import { signTransaction } from '../common-helpers/signTransaction'
 import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'

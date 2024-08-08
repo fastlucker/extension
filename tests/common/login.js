@@ -1,9 +1,7 @@
-import {
-  typeText,
-  clickOnElement,
-  finishStoriesAndSelectAccount,
-  setAmbKeyStore
-} from '../common-helpers/functions'
+import { typeText } from '../common-helpers/typeText'
+import { clickOnElement } from '../common-helpers/clickOnElement'
+import { finishStoriesAndSelectAccount } from '../auth/auth-helper/auth-helper'
+import { setAmbKeyStore } from '../common-helpers/setAmbKeyStore'
 
 //--------------------------------------------------------------------------------------------------------------
 export async function createAccountWithPhrase(page, extensionURL, phrase) {
@@ -112,23 +110,20 @@ export async function createAccountWithInvalidPhrase(page) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function addViewOnlyAccount(page, extensionURL, viewOnlyAddress) {
-  const buttonNext = '[data-testid="stories-button-next"]'
-  await page.waitForSelector(buttonNext)
-
-  // Click on "Next" button several times to finish the onboarding
-  await page.$eval(buttonNext, (button) => button.click())
-
-  await page.waitForSelector('[data-testid="stories-button-previous"]')
-
-  await page.$eval(buttonNext, (button) => button.click())
-  await page.$eval(buttonNext, (button) => button.click())
-  await page.$eval(buttonNext, (button) => button.click())
-  await page.$eval(buttonNext, (button) => button.click())
+  // Click on "Next" button several times to finish the onboarding.
+  await clickOnElement(page, '[data-testid="stories-button-next-0"]')
+  await clickOnElement(page, '[data-testid="stories-button-next-1"]')
+  await clickOnElement(page, '[data-testid="stories-button-next-2"]')
+  await clickOnElement(page, '[data-testid="stories-button-next-3"]')
+  await clickOnElement(page, '[data-testid="stories-button-next-4"]')
 
   // check the checkbox "I agree ..."
   await page.$eval('[data-testid="checkbox"]', (button) => button.click())
+
   // Click on "Got it"
-  await page.$eval(buttonNext, (button) => button.click())
+  await clickOnElement(page, '[data-testid="stories-button-next-5"]')
+
+  await page.waitForFunction(() => window.location.href.includes('/get-started'))
 
   // Select "Add"
   await clickOnElement(page, '[data-testid="get-started-button-add"]')

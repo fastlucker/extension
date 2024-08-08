@@ -1,4 +1,6 @@
-import { bootstrapWithStorage, saParams } from '../common-helpers/functions.js'
+import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
+import { saParams } from '../constants/constants'
+
 import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../common/balance.js'
 
 describe('sa_balance', () => {

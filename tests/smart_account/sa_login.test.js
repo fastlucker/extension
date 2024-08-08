@@ -1,4 +1,5 @@
-import { bootstrap, INVITE_STORAGE_ITEM } from '../common-helpers/functions.js'
+import { bootstrap } from '../common-helpers/bootstrap'
+import { INVITE_STORAGE_ITEM } from '../constants/constants'
 
 import {
   createAccountWithPhrase,

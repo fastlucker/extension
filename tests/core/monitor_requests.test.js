@@ -2,7 +2,10 @@
 import { networks } from '@ambire-common/consts/networks'
 import { getBackgroundRequestsByType, monitorRequests } from '../common/requests.js'
 import { makeSwap, makeValidTransaction } from '../common/transactions.js'
-import { baParams, bootstrapWithStorage, clickOnElement } from '../common-helpers/functions.js'
+
+import { baParams } from '../common-helpers/baParams'
+import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
+import { clickOnElement } from '../common-helpers/clickOnElement'
 
 describe('Monitor network requests and make sure only necessary requests are made', () => {
   let browser

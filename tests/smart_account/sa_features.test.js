@@ -1,15 +1,13 @@
-import {
-  typeText,
-  clickOnElement,
-  bootstrapWithStorage,
-  saParams,
-  selectMaticToken,
-  triggerTransaction,
-  signTransaction,
-  confirmTransactionStatus,
-  selectFeeToken,
-  checkBalanceOfToken
-} from '../common-helpers/functions'
+import { clickOnElement } from '../common-helpers/clickOnElement'
+import { typeText } from '../common-helpers/typeText'
+import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
+import { selectMaticToken } from '../common-helpers/selectMaticToken'
+import { saParams } from '../constants/constants'
+import { triggerTransaction } from '../common-helpers/triggerTransaction'
+import { signTransaction } from '../common-helpers/signTransaction'
+import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
+import { selectFeeToken } from '../common-helpers/selectFeeToken'
+import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
