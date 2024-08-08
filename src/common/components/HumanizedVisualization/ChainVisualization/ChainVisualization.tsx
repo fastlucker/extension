@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react'
+import React, { FC, memo, useCallback, useMemo } from 'react'
 import { Linking, Pressable, View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
@@ -19,7 +19,8 @@ const ChainVisualization: FC<Props> = ({ chainId, networks, marginRight }) => {
     () => Linking.openURL(`https://chainlist.org/chain/${chainId}`),
     [chainId]
   )
-  const foundChain = networks.find((n) => n.chainId === chainId)
+  const foundChain = useMemo(() => networks.find((n) => n.chainId === chainId), [networks, chainId])
+
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {foundChain ? (
@@ -34,10 +35,7 @@ const ChainVisualization: FC<Props> = ({ chainId, networks, marginRight }) => {
           {`Chain with id ${chainId}`}
         </Text>
       )}
-      <Pressable
-        style={spacings.mlMi}
-        onPress={() => Linking.openURL(`https://chainlist.org/chain/${chainId}`)}
-      >
+      <Pressable style={spacings.mlMi} onPress={handleLink}>
         <InfoIcon width={14} height={14} />
       </Pressable>
     </View>
