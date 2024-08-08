@@ -14,7 +14,7 @@ import useConnectivity from '@common/hooks/useConnectivity'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -59,8 +59,12 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const { isOffline } = useConnectivity()
   const accountsState = useAccountsControllerState()
   const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
-  const mainControllerState = useMainControllerState()
-  const hasSignAccountOp = !!mainControllerState.signAccountOp
+  const actionState = useActionsControllerState()
+
+  const hasSignAccountOp = useMemo(
+    () => !!actionState?.visibleActionsQueue?.filter((action) => action.type === 'accountOp'),
+    [actionState?.visibleActionsQueue]
+  )
 
   const [accountPortfolio, setAccountPortfolio] =
     useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
