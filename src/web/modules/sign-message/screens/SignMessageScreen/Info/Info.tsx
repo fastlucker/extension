@@ -75,6 +75,7 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
             </View>
           )}
           {messageToSign?.content?.kind === 'typedMessage' &&
+            messageToSign?.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID &&
             messageToSign?.content?.domain?.verifyingContract &&
             typeof messageToSign?.content?.domain?.verifyingContract === 'string' && (
               <View style={[flexbox.directionRow, flexbox.justifyCenter]}>
