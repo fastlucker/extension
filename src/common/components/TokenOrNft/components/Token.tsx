@@ -59,7 +59,7 @@ const InnerToken: FC<Props> = ({
                   fontSize={textSize}
                   weight="medium"
                   appearance="primaryText"
-                  style={{ maxWidth: '100%' }}
+                  style={{ maxWidth: '100%', ...spacings.mrTy }}
                 >
                   {t('units of')}
                 </Text>
