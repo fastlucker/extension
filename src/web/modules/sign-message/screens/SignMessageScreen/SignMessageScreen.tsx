@@ -226,7 +226,9 @@ const SignMessageScreen = () => {
             signStatus === 'LOADING' ||
             (isScrollToBottomForced && hasReachedBottom !== true) ||
             isViewOnly ||
-            (!visualizeHumanized && !shouldShowFallback)
+            (!visualizeHumanized &&
+              !shouldShowFallback &&
+              signMessageState.messageToSign?.content.kind === 'typedMessage')
           }
           resolveButtonTestID="button-sign"
         />
