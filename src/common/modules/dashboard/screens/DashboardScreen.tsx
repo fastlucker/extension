@@ -1,7 +1,14 @@
 import React, { useCallback, useRef, useState } from 'react'
-import { Animated, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
+import {
+  Animated,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  TouchableOpacity,
+  View
+} from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import PinExtensionIcon from '@common/assets/svg/PinExtensionIcon'
 import Backdrop from '@common/components/BottomSheet/Backdrop'
 import { isWeb } from '@common/config/env'
@@ -103,7 +110,17 @@ const DashboardScreen = () => {
       <Portal hostName="global">
         {!isPinned && (
           <>
-            <PinExtensionIcon style={styles.pinExtensionIcon} />
+            <View style={styles.pinExtensionIcon}>
+              <TouchableOpacity
+                style={styles.closeIcon}
+                onPress={() => {
+                  dispatch({ type: 'SET_IS_PINNED', params: { isPinned: true } })
+                }}
+              >
+                <CloseIcon />
+              </TouchableOpacity>
+              <PinExtensionIcon />
+            </View>
 
             <Backdrop
               isVisible

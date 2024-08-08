@@ -9,6 +9,7 @@ import { getUiType } from '@web/utils/uiType'
 interface Style {
   container: ViewStyle
   pinExtensionIcon: ViewStyle
+  closeIcon: ViewStyle
 }
 
 export const NEUTRAL_BACKGROUND = '#1418333D'
@@ -24,11 +25,16 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.primaryBackground
     },
     pinExtensionIcon: {
-      // @ts-ignore
       position: 'absolute',
       right: isPopup ? -SPACING_XL - SPACING_MI : SPACING_4XL + SPACING_XL,
       top: SPACING_TY,
       zIndex: BOTTOM_SHEET_Z_INDEX
+    },
+    closeIcon: {
+      position: 'absolute',
+      zIndex: 2,
+      right: 68,
+      top: 24
     }
   })
 
