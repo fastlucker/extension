@@ -42,8 +42,6 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
-    // Click on Import button.
-    await clickOnElement(page, '[data-testid="import-button"]')
     // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
       await finishStoriesAndSelectAccount(page)
