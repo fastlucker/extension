@@ -66,8 +66,8 @@ const TransferScreen = () => {
   const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
-  const transferUserRequests = useMemo(() => {
-    return userRequests.filter((r) => r.action.kind === 'calls' && !r.dappPromise)
+  const transactionUserRequests = useMemo(() => {
+    return userRequests.filter((r) => r.action.kind === 'calls')
   }, [userRequests])
 
   const setAddressState = useCallback(
@@ -99,13 +99,13 @@ const TransferScreen = () => {
 
     if (actionsState.currentAction || !isSmartAccount) return t('Send')
 
-    let numOfRequests = transferUserRequests.length
+    let numOfRequests = transactionUserRequests.length
     if (isFormValid && !addressInputState.validation.isError) {
       numOfRequests++
     }
 
     if (numOfRequests) {
-      if (isFormEmpty) return t('Send All Pending ({{count}})', { count: numOfRequests })
+      if (isFormEmpty) return t('Sign All Pending ({{count}})', { count: numOfRequests })
       return t('Send ({{count}})', { count: numOfRequests })
     }
 
@@ -113,7 +113,7 @@ const TransferScreen = () => {
   }, [
     isOffline,
     isTopUp,
-    transferUserRequests,
+    transactionUserRequests,
     actionsState,
     addressInputState.validation.isError,
     isFormValid,
@@ -126,7 +126,7 @@ const TransferScreen = () => {
     if (isOffline) return true
     if (isTopUp) return !isFormValid
 
-    if (transferUserRequests.length) {
+    if (transactionUserRequests.length) {
       return !isFormEmpty && (!isFormValid || addressInputState.validation.isError)
     }
     return !isFormValid && addressInputState.validation.isError
@@ -136,7 +136,7 @@ const TransferScreen = () => {
     isFormValid,
     isOffline,
     isTopUp,
-    transferUserRequests.length
+    transactionUserRequests.length
   ])
 
   const onBack = useCallback(() => {
@@ -164,7 +164,7 @@ const TransferScreen = () => {
         return
       }
 
-      if (executionType === 'open' && transferUserRequests.length && isFormEmpty) {
+      if (executionType === 'open' && transactionUserRequests.length && isFormEmpty) {
         const firstAccountOpAction = actionsState.visibleActionsQueue
           .reverse()
           .find((a) => a.type === 'accountOp')
@@ -182,7 +182,7 @@ const TransferScreen = () => {
       state.amount,
       state.selectedToken,
       isFormEmpty,
-      transferUserRequests.length,
+      transactionUserRequests.length,
       actionsState,
       isFormValid,
       dispatch,
@@ -217,12 +217,12 @@ const TransferScreen = () => {
               >
                 <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
                   <CartIcon color={theme.primary} />
-                  {!!transferUserRequests.length && !actionsState.currentAction && (
+                  {!!transactionUserRequests.length && !actionsState.currentAction && (
                     <Text
                       fontSize={16}
                       weight="medium"
                       color={theme.primary}
-                    >{` (${transferUserRequests.length})`}</Text>
+                    >{` (${transactionUserRequests.length})`}</Text>
                   )}
                 </View>
               </Button>
