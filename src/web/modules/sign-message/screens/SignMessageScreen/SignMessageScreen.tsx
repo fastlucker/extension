@@ -224,7 +224,7 @@ const SignMessageScreen = () => {
           resolveButtonText={resolveButtonText}
           resolveDisabled={
             signStatus === 'LOADING' ||
-            (isScrollToBottomForced && hasReachedBottom !== true) ||
+            isScrollToBottomForced ||
             isViewOnly ||
             (!visualizeHumanized &&
               !shouldShowFallback &&
