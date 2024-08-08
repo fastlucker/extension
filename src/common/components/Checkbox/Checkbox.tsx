@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 import { ColorValue, TouchableOpacity, View, ViewProps } from 'react-native'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
-import Text from '@common/components/Text'
+import Text, { Props as TextProps } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
@@ -10,6 +10,7 @@ import styles from './styles'
 
 interface Props {
   label?: ReactNode
+  labelProps?: TextProps
   onValueChange: (value: boolean) => void
   value: boolean
   children?: any
@@ -21,6 +22,7 @@ interface Props {
 
 const Checkbox = ({
   label,
+  labelProps,
   children,
   onValueChange,
   value,
@@ -57,7 +59,13 @@ const Checkbox = ({
       </View>
       <View style={flexboxStyles.flex1}>
         {label ? (
-          <Text shouldScale={false} onPress={onChange} weight="regular" fontSize={12}>
+          <Text
+            shouldScale={false}
+            onPress={onChange}
+            weight="regular"
+            fontSize={12}
+            {...labelProps}
+          >
             {label}
           </Text>
         ) : (
@@ -68,4 +76,4 @@ const Checkbox = ({
   )
 }
 
-export default Checkbox
+export default React.memo(Checkbox)

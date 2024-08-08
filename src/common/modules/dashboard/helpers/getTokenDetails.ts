@@ -11,7 +11,8 @@ const getTokenDetails = (
     priceIn,
     amount,
     decimals,
-    amountPostSimulation
+    amountPostSimulation,
+    simulationAmount
   }: TokenResult,
   networks: Network[]
 ) => {
@@ -19,8 +20,8 @@ const getTokenDetails = (
   const isVesting = rewardsType === 'wallet-vesting'
   const networkData = networks.find(({ id }) => networkId === id)
   const amountish = BigInt(amount)
-  const postAmount = typeof amountPostSimulation === 'bigint' ? amountPostSimulation : 0n
   const isPending = typeof amountPostSimulation === 'bigint' && amountPostSimulation !== amountish
+  const simAmount = simulationAmount || 0n
 
   const balance = parseFloat(formatUnits(amountish, decimals))
   const pendingBalance = isPending
@@ -31,8 +32,6 @@ const getTokenDetails = (
   )?.price
   const balanceUSD = priceUSD ? balance * priceUSD : undefined
   const pendingBalanceUSD = priceUSD && isPending ? pendingBalance * priceUSD : undefined
-  const isBalanceIncrease = postAmount > amountish
-  const balanceChange = isBalanceIncrease ? postAmount - amountish : amountish - postAmount
 
   return {
     balance,
@@ -47,8 +46,14 @@ const getTokenDetails = (
     networkData,
     isRewards,
     isVesting,
-    isBalanceIncrease,
-    balanceChange: formatDecimals(parseFloat(formatUnits(balanceChange, decimals)), 'amount')
+    balanceChange: formatDecimals(parseFloat(formatUnits(simAmount, decimals)), 'amount'),
+    simAmount,
+    // The UI badge logic is already implemented for the next two properties,
+    // but the implementation for determining the pending-to-be-confirmed amount is still not done.
+    // Once we figure out how we want to do it, we just need to pass the amount here.
+    // @link: https://github.com/AmbireTech/ambire-app/issues/2162#issuecomment-2191731436
+    pendingToBeConfirmed: 0n,
+    pendingToBeConfirmedFormatted: formatDecimals(parseFloat(formatUnits(0n, decimals)), 'amount')
   }
 }
 

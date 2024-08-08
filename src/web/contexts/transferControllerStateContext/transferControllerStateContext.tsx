@@ -9,6 +9,7 @@ import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import Spinner from '@common/components/Spinner'
 import useRoute from '@common/hooks/useRoute'
 import flexbox from '@common/styles/utils/flexbox'
+import { storage } from '@web/extension-services/background/webapi/storage'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -80,6 +81,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     if (!selectedAccountData) return
 
     transferCtrlRef.current = new TransferController(
+      storage,
       humanizerInfo as HumanizerMeta,
       selectedAccountData,
       networks
