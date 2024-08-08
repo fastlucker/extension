@@ -4,11 +4,13 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import ImportAccountsFromSeedPhraseIcon from '@common/assets/svg/ImportAccountsFromSeedPhraseIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import DualChoiceModal from '@common/components/DualChoiceModal'
 import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
@@ -32,7 +34,6 @@ import {
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import SaveSeedModal from '@web/modules/auth/components/Modal/SaveSeedModal'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const arrayWithEmptyString = (length: number) => new Array(length).fill({ value: '' })
@@ -374,9 +375,31 @@ const SeedPhraseImportScreen = () => {
           style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
           type="modal"
         >
-          <SaveSeedModal
-            onAgree={handleSaveSeedAndProceed}
-            onDeny={handleDoNotSaveSeedAndProceed}
+          <DualChoiceModal
+            title={t('Save as default Seed Phrase')}
+            description={
+              <View>
+                <Text style={spacings.mbTy} appearance="secondaryText">
+                  {t(
+                    'Do you want to save it as a default Seed Phrase for this Ambire Wallet extension?'
+                  )}
+                </Text>
+                <Text appearance="secondaryText">
+                  {t(
+                    'This will allow you to easily import more Smart Accounts from this Seed Phrase.'
+                  )}
+                </Text>
+              </View>
+            }
+            Icon={ImportAccountsFromSeedPhraseIcon}
+            onSecondaryButtonPress={handleDoNotSaveSeedAndProceed}
+            onPrimaryButtonPress={handleSaveSeedAndProceed}
+            secondaryButtonText={t('No')}
+            primaryButtonText={
+              keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Yes')
+            }
+            secondaryButtonTestID="do-not-save-seed-button"
+            primaryButtonTestID="save-seed-button"
           />
         </BottomSheet>
       )}

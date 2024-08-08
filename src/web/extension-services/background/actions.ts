@@ -145,6 +145,7 @@ type MainControllerBuildTransferUserRequest = {
     amount: string
     selectedToken: TokenResult
     recipientAddress: string
+    executionType: 'queue' | 'open'
   }
 }
 type MainControllerRemoveUserRequestAction = {
@@ -165,7 +166,7 @@ type MainControllerResolveAccountOpAction = {
 }
 type MainControllerRejectAccountOpAction = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
-  params: { err: string; actionId: AccountOpAction['id'] }
+  params: { err: string; actionId: AccountOpAction['id']; shouldOpenNextAction: boolean }
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
@@ -361,7 +362,7 @@ type ActionsControllerAddToActionsQueue = {
 }
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
-  params: { id: ActionFromActionsQueue['id'] }
+  params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
 }
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'

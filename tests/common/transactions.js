@@ -57,7 +57,7 @@ export async function makeValidTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="transfer-button-send"]'
+    '[data-testid="transfer-button-confirm"]'
   )
 
   if (shouldStopBeforeSign) return
