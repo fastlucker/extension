@@ -21,8 +21,8 @@ const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: Nati
 
 const FallbackVisualization: FC<{
   messageToSign: SignMessageController['messageToSign']
-  setHasReachedBottom: (hasReachedBottom: boolean) => void
-  standalone: boolean
+  setHasReachedBottom?: (hasReachedBottom: boolean) => void
+  standalone?: boolean
 }> = ({ messageToSign, setHasReachedBottom, standalone }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
@@ -34,7 +34,7 @@ const FallbackVisualization: FC<{
     if (!messageToSign || !containerHeight || !contentHeight) return
     const isScrollNotVisible = contentHeight < containerHeight
 
-    setHasReachedBottom(isScrollNotVisible)
+    if (setHasReachedBottom) setHasReachedBottom(isScrollNotVisible)
   }, [contentHeight, containerHeight, setHasReachedBottom, messageToSign, showRawTypedMessage])
   if (!messageToSign) return null
 
@@ -82,7 +82,7 @@ const FallbackVisualization: FC<{
         )}
         <ScrollView
           onScroll={(e) => {
-            if (isCloseToBottom(e.nativeEvent)) setHasReachedBottom(true)
+            if (isCloseToBottom(e.nativeEvent) && setHasReachedBottom) setHasReachedBottom(true)
           }}
           onLayout={(e) => {
             setContainerHeight(e.nativeEvent.layout.height)

@@ -1,14 +1,13 @@
 import React from 'react'
-import { ScrollView } from 'react-native'
+import { View } from 'react-native'
 
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
-import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
 
-import FallbackVisualization from '../../screens/SignMessageScreen/FallbackVisualization'
 import getStyles from './styles'
 
 interface Props {
@@ -34,15 +33,9 @@ const MessageSummary = ({ message, networkId, kind, networks }: Props) => {
         />
       }
       expandedContent={
-        <ScrollView contentContainerStyle={styles.rawMessage}>
-          <Text selectable appearance="secondaryText" fontSize={14} weight="regular">
-            <FallbackVisualization
-              setHasReachedBottom={() => {}}
-              messageToSign={message}
-              standalone={false}
-            />
-          </Text>
-        </ScrollView>
+        <View style={[styles.rawMessage]}>
+          <FallbackVisualization messageToSign={message} />
+        </View>
       }
     />
   )
