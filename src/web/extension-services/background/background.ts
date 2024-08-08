@@ -834,7 +834,7 @@ handleRegisterScripts()
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addOrUpdateAction(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
-                return mainCtrl.actions.removeAction(params.id)
+                return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
               case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
                 return mainCtrl.actions.focusActionWindow()
               case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':

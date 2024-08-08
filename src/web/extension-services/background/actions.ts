@@ -362,7 +362,7 @@ type ActionsControllerAddToActionsQueue = {
 }
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
-  params: { id: ActionFromActionsQueue['id'] }
+  params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
 }
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
