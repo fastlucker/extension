@@ -8,6 +8,8 @@ import ErrorIcon from '@common/assets/svg/ErrorIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
+import CartIcon from '@common/assets/svg/CartIcon'
+import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
@@ -34,14 +36,20 @@ const ICON_MAP = {
   info: InfoIcon
 }
 
-const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) => {
+const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions = [] }) => {
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { visibleActionsQueue } = useActionsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const Icon = ICON_MAP[type]
+
+  const Icon = useMemo(() => {
+    if (category === 'pending-to-be-signed-acc-op') return CartIcon
+    if (category === 'pending-to-be-confirmed-acc-op') return PendingToBeConfirmedIcon
+
+    return ICON_MAP[type]
+  }, [type, category])
 
   const withRpcUrlSelectBottomSheet = useMemo(
     () => !!actions.filter((a) => a.actionName === 'select-rpc-url').length,
