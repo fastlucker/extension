@@ -34,7 +34,7 @@ async function handleTransaction(page, extensionURL, browser, feeToken) {
     page,
     extensionURL,
     browser,
-    '[data-testid="transfer-button-send"]'
+    '[data-testid="transfer-button-confirm"]'
   )
 
   if (feeToken) {
@@ -141,7 +141,7 @@ describe('sa_features', () => {
     await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
     await prepareTransaction(page, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C', '0.0001')
 
-    const elementToClick = await page.waitForSelector('[data-testid="transfer-button-send"]')
+    const elementToClick = await page.waitForSelector('[data-testid="transfer-button-confirm"]')
     await elementToClick.click()
 
     const newTarget = await browser.waitForTarget((target) =>
@@ -169,7 +169,7 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="transfer-button-send"]:not([disabled])'
+      '[data-testid="transfer-button-confirm"]:not([disabled])'
     )
     await actionWindowPage.waitForFunction(
       (text1, text2) => {
@@ -266,7 +266,7 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="transfer-button-send"]'
+      '[data-testid="transfer-button-confirm"]'
     )
 
     // Check if select fee token is visible and select the token
