@@ -64,7 +64,7 @@ const TransferScreen = () => {
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { userRequests } = useMainControllerState()
-  const { currentAction, visibleActionsQueue } = useActionsControllerState()
+  const actionsState = useActionsControllerState()
 
   const transferUserRequests = useMemo(() => {
     return userRequests.filter((r) => r.action.kind === 'calls' && !r.dappPromise)
@@ -89,42 +89,47 @@ const TransferScreen = () => {
       : ''
   })
 
+  const isFormEmpty = useMemo(() => {
+    return (!transferCtrl.amount && !transferCtrl.recipientAddress) || !transferCtrl.selectedToken
+  }, [transferCtrl.amount, transferCtrl.recipientAddress, transferCtrl.selectedToken])
+
   const submitButtonText = useMemo(() => {
     if (isOffline) return t("You're offline")
     if (isTopUp) return t('Top Up')
 
-    if (currentAction || !selectedAccountData?.creation) return t('Send')
+    if (actionsState.currentAction || !isSmartAccount) return t('Send')
 
     let numOfRequests = transferUserRequests.length
     if (isFormValid && !addressInputState.validation.isError) {
       numOfRequests++
     }
-    if (numOfRequests) return t('Send ({{count}})', { count: numOfRequests })
+
+    if (numOfRequests) {
+      if (isFormEmpty) return t('Send All Pending ({{count}})', { count: numOfRequests })
+      return t('Send ({{count}})', { count: numOfRequests })
+    }
 
     return t('Send')
   }, [
     isOffline,
     isTopUp,
     transferUserRequests,
-    currentAction,
+    actionsState,
     addressInputState.validation.isError,
     isFormValid,
-    selectedAccountData?.creation,
+    isFormEmpty,
+    isSmartAccount,
     t
   ])
-
-  const isFormEmpty = useMemo(() => {
-    return !transferCtrl.amount && !transferCtrl.recipientAddress
-  }, [transferCtrl])
 
   const isSendButtonDisabled = useMemo(() => {
     if (isOffline) return true
     if (isTopUp) return !isFormValid
-    if (addressInputState.validation.isError && !isFormEmpty) return true
+
     if (transferUserRequests.length) {
-      return !isFormValid && !isFormEmpty
+      return !isFormEmpty && (!isFormValid || addressInputState.validation.isError)
     }
-    return !isFormValid
+    return !isFormValid && addressInputState.validation.isError
   }, [
     addressInputState.validation.isError,
     isFormEmpty,
@@ -160,16 +165,14 @@ const TransferScreen = () => {
       }
 
       if (executionType === 'open' && transferUserRequests.length && isFormEmpty) {
-        const firstAccountOpAction = visibleActionsQueue
+        const firstAccountOpAction = actionsState.visibleActionsQueue
           .reverse()
           .find((a) => a.type === 'accountOp')
         if (!firstAccountOpAction) return
-
         dispatch({
           type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
           params: { actionId: firstAccountOpAction?.id }
         })
-        transferCtrl.resetForm()
       }
     },
     [
@@ -180,7 +183,7 @@ const TransferScreen = () => {
       state.selectedToken,
       isFormEmpty,
       transferUserRequests.length,
-      visibleActionsQueue,
+      actionsState,
       isFormValid,
       dispatch,
       openBottomSheet
@@ -214,7 +217,7 @@ const TransferScreen = () => {
               >
                 <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
                   <CartIcon color={theme.primary} />
-                  {!!transferUserRequests.length && !currentAction && (
+                  {!!transferUserRequests.length && !actionsState.currentAction && (
                     <Text
                       fontSize={16}
                       weight="medium"
@@ -324,7 +327,7 @@ const TransferScreen = () => {
             <View>
               <Text style={spacings.mbTy} appearance="secondaryText">
                 {t(
-                  'You can now add multiple transactions on that network and send them batched all together for signing.'
+                  'You can now add more transactions on this network and send them batched all together for signing.'
                 )}
               </Text>
               <Text appearance="secondaryText" style={spacings.mbLg}>
