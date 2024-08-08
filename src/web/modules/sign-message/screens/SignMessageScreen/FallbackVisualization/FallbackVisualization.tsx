@@ -99,18 +99,21 @@ const FallbackVisualization: FC<{
             appearance="secondaryText"
             style={spacings.mb}
           >
-            {content.kind === 'typedMessage'
-              ? showRawTypedMessage
-                ? JSON.stringify(content, null, 4)
-                : simplifyTypedMessage(content.message).map((i) => (
-                    <div key={JSON.stringify(i)}>
-                      <Text style={i.type === 'key' ? { fontWeight: 'bold' } : {}}>
-                        {'    '.repeat(i.n)}
-                        {isValidAddress(i.value) ? <Address address={i.value} /> : i.value}
-                      </Text>
-                    </div>
-                  ))
-              : getMessageAsText(content.message) || t('(Empty message)')}
+            {content.kind === 'typedMessage' &&
+              showRawTypedMessage &&
+              JSON.stringify(content, null, 4)}
+            {content.kind === 'typedMessage' &&
+              !showRawTypedMessage &&
+              simplifyTypedMessage(content.message).map((i) => (
+                <div key={JSON.stringify(i)}>
+                  <Text style={i.type === 'key' ? { fontWeight: 'bold' } : {}}>
+                    {'    '.repeat(i.n)}
+                    {isValidAddress(i.value) ? <Address address={i.value} /> : i.value}
+                  </Text>
+                </div>
+              ))}
+            {content.kind !== 'typedMessage' &&
+              (getMessageAsText(content.message) || t('(Empty message)'))}
           </Text>
         </ScrollView>
       </View>
