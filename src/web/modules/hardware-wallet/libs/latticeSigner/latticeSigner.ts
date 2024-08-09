@@ -201,7 +201,7 @@ class LatticeSigner implements KeystoreSigner {
 
     // TODO: Figure out how to retrieve the signing key address from the
     // signature and then use the #validateSigningKey instead.
-    this.#validateKeyExistsInTheCurrentWallet()
+    await this.#validateKeyExistsInTheCurrentWallet()
 
     return addHexPrefix(`${res.sig.r}${res.sig.s}${res.sig.v.toString('hex')}`)
   }
