@@ -20,6 +20,8 @@ export class WalletStateController extends EventEmitter {
 
   #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
 
+  #isSetupComplete: boolean
+
   get isDefaultWallet() {
     return this.#_isDefaultWallet
   }
@@ -63,7 +65,17 @@ export class WalletStateController extends EventEmitter {
 
   set isPinned(newValue: boolean) {
     this.#isPinned = newValue
-    storage.set('isPinned', true)
+    storage.set('isPinned', newValue)
+    this.emitUpdate()
+  }
+
+  get isSetupComplete() {
+    return this.#isSetupComplete
+  }
+
+  set isSetupComplete(newValue: boolean) {
+    this.#isSetupComplete = newValue
+    storage.set('isSetupComplete', newValue)
     this.emitUpdate()
   }
 
@@ -132,7 +144,8 @@ export class WalletStateController extends EventEmitter {
       ...super.toJSON(),
       isDefaultWallet: this.isDefaultWallet,
       onboardingState: this.onboardingState,
-      isPinned: this.isPinned
+      isPinned: this.isPinned,
+      isSetupComplete: this.isSetupComplete
     }
   }
 }

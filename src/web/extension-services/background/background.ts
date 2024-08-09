@@ -1016,6 +1016,10 @@ handleRegisterScripts()
                 walletStateCtrl.isPinned = params.isPinned
                 break
               }
+              case 'SET_IS_SETUP_COMPLETE': {
+                walletStateCtrl.isSetupComplete = params.isSetupComplete
+                break
+              }
               case 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME': {
                 autoLockCtrl.setLastActiveTime()
                 break

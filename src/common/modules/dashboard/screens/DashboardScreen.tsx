@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Animated,
   NativeScrollEvent,
@@ -15,18 +15,22 @@ import { isWeb } from '@common/config/env'
 import useDebounce from '@common/hooks/useDebounce'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { Portal } from '@gorhom/portal'
 import ReceiveModal from '@web/components/ReceiveModal'
+import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 import { getUiType } from '@web/utils/uiType'
 
+import ConfettiAnimation from '../components/ConfettiAnimation'
 import DAppFooter from '../components/DAppFooter'
 import DashboardOverview from '../components/DashboardOverview'
 import DashboardPages from '../components/DashboardPages'
+import useConfetti from '../hooks/useConfetti'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
@@ -37,8 +41,10 @@ const DashboardScreen = () => {
   const route = useRoute()
   const { styles } = useTheme(getStyles)
   const { state } = usePortfolioControllerState()
-  const { isPinned } = useWalletStateController()
+  const { isPinned, isSetupComplete } = useWalletStateController()
   const { dispatch } = useBackgroundService()
+  const { width, height } = useWindowSize()
+  const { visible: confettiVisible, setVisible: setConfettiVisible } = useConfetti()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const lastOffsetY = useRef(0)
   const scrollUpStartedAt = useRef(0)
@@ -50,6 +56,13 @@ const DashboardScreen = () => {
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
+
+  useEffect(() => {
+    if (isPinned && !isSetupComplete) {
+      dispatch({ type: 'SET_IS_SETUP_COMPLETE', params: { isSetupComplete: true } })
+      setConfettiVisible(true)
+    }
+  }, [isPinned, isSetupComplete, dispatch, setConfettiVisible])
 
   const onScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -130,6 +143,13 @@ const DashboardScreen = () => {
               }}
             />
           </>
+        )}
+
+        {!!confettiVisible && (
+          <ConfettiAnimation
+            width={width > TAB_CONTENT_WIDTH ? TAB_CONTENT_WIDTH : width}
+            height={height}
+          />
         )}
       </Portal>
     </>

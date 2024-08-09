@@ -428,6 +428,10 @@ type SetIsPinnedAction = {
   type: 'SET_IS_PINNED'
   params: { isPinned: boolean }
 }
+type SetIsSetupCompleteAction = {
+  type: 'SET_IS_SETUP_COMPLETE'
+  params: { isSetupComplete: boolean }
+}
 
 type AutoLockControllerSetLastActiveTimeAction = {
   type: 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME'
@@ -530,6 +534,7 @@ export type Action =
   | SetIsDefaultWalletAction
   | SetOnboardingStateAction
   | SetIsPinnedAction
+  | SetIsSetupCompleteAction
   | AutoLockControllerSetLastActiveTimeAction
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction
