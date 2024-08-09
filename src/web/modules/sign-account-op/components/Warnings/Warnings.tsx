@@ -52,7 +52,7 @@ const Warnings: FC<Props> = ({
         <Alert
           type="error"
           title={t(
-            'This network is not supported by v1 accounts. Please use a v2 Smart Account or a Basic Account to interact with this network.'
+            'V1 accounts cannot be used on this network. You can use V1 accounts on all networks that are natively integrated in web and mobile wallet. Please use a V2 Smart Account or Basic account to interact with this network.'
           )}
         />
       </View>
