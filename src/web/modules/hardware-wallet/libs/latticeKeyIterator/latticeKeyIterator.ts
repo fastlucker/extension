@@ -6,8 +6,8 @@ import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/k
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-type WALLET_TYPE = {
-  sdkSession?: Client | null
+type KeyIteratorProps = {
+  walletSDK: Client
 }
 
 /**
@@ -16,19 +16,20 @@ type WALLET_TYPE = {
 class LatticeKeyIterator implements KeyIteratorInterface {
   type = 'lattice'
 
-  sdkSession?: Client | null
+  walletSDK: KeyIteratorProps['walletSDK']
 
-  constructor(_wallet: WALLET_TYPE) {
-    if (!Object.prototype.hasOwnProperty.call(_wallet, 'sdkSession'))
-      throw new Error('latticeKeyIterator: invalid props passed to the constructor')
+  constructor({ walletSDK }: KeyIteratorProps) {
+    if (!walletSDK) throw new Error('latticeKeyIterator: missing walletSDK prop')
 
-    this.sdkSession = _wallet.sdkSession
+    this.walletSDK = walletSDK
   }
 
   async retrieve(
     fromToArr: { from: number; to: number }[],
     hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
   ) {
+    if (!this.walletSDK) throw new Error('latticeKeyIterator: walletSDK not initialized')
+
     const keys: string[] = []
 
     // eslint-disable-next-line no-restricted-syntax
@@ -43,7 +44,7 @@ class LatticeKeyIterator implements KeyIteratorInterface {
 
       // TODO: Figure out the corner cases when this returns Buffer[]
       // eslint-disable-next-line no-await-in-loop
-      let res: string[] = await this.sdkSession?.getAddresses(keyData)
+      let res: string[] = await this.walletSDK.getAddresses(keyData)
       // For some reason, the addresses incoming from the device are not
       // checksumed, that's why manually checksum them here.
       res = res?.map((addr) => getAddress(addr)) || []
