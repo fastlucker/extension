@@ -56,6 +56,40 @@ class LatticeSigner implements KeystoreSigner {
       )
   }
 
+  /**
+   * Checks if the key (address) the Lattice1 signed with is the same as the key
+   * (address) address we expect. They could differ if the Lattice1 active wallet
+   * is different than the one we expect.
+   */
+  #validateSigningKey = (signedWithAddr: string | null) => {
+    // Missing address means the validation can't be done, skip it (should never happen)
+    if (!signedWithAddr) return
+
+    if (signedWithAddr !== this.key.addr) {
+      throw new Error(
+        `The key you signed with (${shortenAddress(
+          signedWithAddr,
+          13
+        )}) is different than the key we expected (${shortenAddress(
+          this.key.addr,
+          13
+        )}). You likely have different active wallet on your Lattice1 device.`
+      )
+    }
+  }
+
+  #validateKeyExistsInTheCurrentWallet = async () => {
+    const foundIdx = await this.controller!._keyIdxInCurrentWallet(this.key)
+    if (foundIdx === null) {
+      throw new Error(
+        `The key you signed with is different than the key we expected (${shortenAddress(
+          this.key.addr,
+          13
+        )}). You likely have different active wallet on your Lattice1 device.`
+      )
+    }
+  }
+
   signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     await this.#prepareForSigning()
 
@@ -112,12 +146,14 @@ class LatticeSigner implements KeystoreSigner {
         s: hexlify(s),
         v: Signature.getNormalizedV(hexlify(v))
       })
-      const signedSerializedTxn = Transaction.from({
+      const signedTxn = Transaction.from({
         ...unsignedTxn,
         signature
-      }).serialized
+      })
 
-      return signedSerializedTxn
+      await this.#validateSigningKey(signedTxn.from)
+
+      return signedTxn.serialized
     } catch (error: any) {
       throw new Error(
         // An `error.err` message might come from the Lattice .sign() failure
@@ -133,7 +169,9 @@ class LatticeSigner implements KeystoreSigner {
     primaryType
   }) => {
     if (!types.EIP712Domain) {
-      throw new Error('latticeSigner: only EIP712 messages are supported')
+      throw new Error(
+        'Unable to sign the message. Lattice1 supports signing EIP-712 type messages only.'
+      )
     }
 
     return this._signMsgRequest({ domain, types, primaryType, message }, 'eip712')
@@ -156,22 +194,14 @@ class LatticeSigner implements KeystoreSigner {
     }
 
     const res = await this.controller!.walletSDK!.sign(req)
-
-    if (!res.sig) {
+    if (!res.sig)
       throw new Error(
         'Required signature data was found missing. Please try again later or contact Ambire support.'
       )
-    }
 
-    const foundIdx = await this.controller!._keyIdxInCurrentWallet(this.key)
-    if (foundIdx === null) {
-      throw new Error(
-        `The key you signed with is different than the key we expected (${shortenAddress(
-          this.key.addr,
-          13
-        )}). You likely have different active wallet on your Lattice1 device.`
-      )
-    }
+    // TODO: Figure out how to retrieve the signing key address from the
+    // signature and then use the #validateSigningKey instead.
+    this.#validateKeyExistsInTheCurrentWallet()
 
     return addHexPrefix(`${res.sig.r}${res.sig.s}${res.sig.v.toString('hex')}`)
   }
