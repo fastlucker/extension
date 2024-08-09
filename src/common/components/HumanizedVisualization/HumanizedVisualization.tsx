@@ -26,7 +26,7 @@ interface Props {
   networkId: NetworkId
   isHistory?: boolean
   testID?: string
-  networks: Network[]
+  network?: Network
 }
 
 const HumanizedVisualization: FC<Props> = ({
@@ -36,7 +36,7 @@ const HumanizedVisualization: FC<Props> = ({
   networkId,
   isHistory,
   testID,
-  networks
+  network
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   return (
@@ -96,7 +96,7 @@ const HumanizedVisualization: FC<Props> = ({
             <ChainVisualization
               chainId={item.chainId}
               key={key}
-              networks={networks}
+              network={network}
               marginRight={marginRight}
             />
           )

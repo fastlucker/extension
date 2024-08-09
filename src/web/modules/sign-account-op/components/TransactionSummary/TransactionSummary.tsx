@@ -27,7 +27,7 @@ interface Props {
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
   testID?: string
-  networks: Network[]
+  network?: Network
 }
 
 const sizeMultiplier = {
@@ -45,7 +45,7 @@ const TransactionSummary = ({
   size = 'lg',
   isHistory,
   testID,
-  networks
+  network
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
@@ -85,7 +85,7 @@ const TransactionSummary = ({
               networkId={networkId}
               isHistory={isHistory}
               testID={testID}
-              networks={networks}
+              network={network}
             />
           ) : (
             <FallbackVisualization

@@ -12,12 +12,12 @@ import getStyles from './styles'
 
 interface Props {
   message: IrMessage
-  networkId?: NetworkId
   kind: IrMessage['content']['kind']
-  networks: Network[]
+  networkId?: NetworkId
+  network?: Network
 }
 
-const MessageSummary = ({ message, networkId, kind, networks }: Props) => {
+const MessageSummary = ({ message, networkId, kind, network }: Props) => {
   const { styles } = useTheme(getStyles)
   const isTypedMessage = kind === 'typedMessage'
 
@@ -29,7 +29,7 @@ const MessageSummary = ({ message, networkId, kind, networks }: Props) => {
         <HumanizedVisualization
           data={message.fullVisualization}
           networkId={networkId || 'ethereum'}
-          networks={networks}
+          network={network}
         />
       }
       expandedContent={

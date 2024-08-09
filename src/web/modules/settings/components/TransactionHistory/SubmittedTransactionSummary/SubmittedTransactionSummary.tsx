@@ -97,8 +97,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         [
           {
             type: 'token',
-            value: submittedAccountOp.gasFeePayment?.amount,
-            address: submittedAccountOp.gasFeePayment?.inToken,
+            value: submittedAccountOp.gasFeePayment?.amount || 0n,
+            address: submittedAccountOp.gasFeePayment?.inToken || '',
             id: randomId()
           }
         ],
@@ -172,7 +172,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           }
           onRightIconPress={handleOpenExplorer}
           isHistory
-          networks={networks}
+          network={network}
         />
       ))}
       {submittedAccountOp.status !== AccountOpStatus.Rejected &&

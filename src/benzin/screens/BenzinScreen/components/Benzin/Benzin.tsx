@@ -44,7 +44,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
         }
         onRightIconPress={state?.handleOpenExplorer}
         size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
-        networks={state?.network ? [state.network] : []}
+        network={state?.network ?? undefined}
       />
     ))
   }, [state?.stepsState?.calls, state?.network, state?.handleOpenExplorer])
