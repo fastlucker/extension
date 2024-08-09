@@ -14,6 +14,7 @@ type Props = {
   hasEstimation: boolean
   slowRequest: boolean
   isViewOnly: boolean
+  isAmbireV1AndNetworkNotSupported: boolean
 }
 
 export type { FeeOption, Props }

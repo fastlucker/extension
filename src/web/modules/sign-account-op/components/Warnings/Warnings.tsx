@@ -20,6 +20,7 @@ interface Props {
   isViewOnly: boolean
   rbfDetected: boolean
   bundlerFailure: boolean
+  isAmbireV1AndNetworkNotSupported: boolean
 }
 
 const Warnings: FC<Props> = ({
@@ -28,7 +29,8 @@ const Warnings: FC<Props> = ({
   slowRequest,
   isViewOnly,
   rbfDetected,
-  bundlerFailure
+  bundlerFailure,
+  isAmbireV1AndNetworkNotSupported
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
@@ -43,6 +45,18 @@ const Warnings: FC<Props> = ({
   }, [signAccountOpState?.gasUsedTooHighAgreed, dispatch])
 
   if (!signAccountOpState) return null
+
+  if (isAmbireV1AndNetworkNotSupported)
+    return (
+      <View>
+        <Alert
+          type="error"
+          title={t(
+            'This network is not supported by v1 accounts. Please use a v2 Smart Account or a Basic Account to interact with this network.'
+          )}
+        />
+      </View>
+    )
 
   return (
     <View style={styles.container}>
