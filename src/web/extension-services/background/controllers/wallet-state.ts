@@ -103,9 +103,10 @@ export class WalletStateController extends EventEmitter {
 
     this.#_onboardingState = await storage.get('onboardingState', undefined)
 
-    const pinned: boolean = await storage.get('isPinned', false)
-    this.#isPinned = pinned
+    this.#isPinned = await storage.get('isPinned', false)
     this.#initCheckIsPinned()
+
+    this.#isSetupComplete = await storage.get('isSetupComplete', false)
 
     this.isReady = true
     this.emitUpdate()
