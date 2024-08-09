@@ -38,12 +38,14 @@ class LatticeController implements ExternalSignerController {
   // Determine if we have a connection to the Lattice and an existing wallet UID
   // against which to make requests.
   isUnlocked() {
+    const activeWallet = this._getCurrentWalletUID()
     // If the current wallet UID is different, it means that 1) The device has
     // changed or 2) The Lattice device is currently unlocked with different
     // (seed) wallet - the device itself can hold one (seed) wallet, and the
     // SafeCard connected can hold another (seed) wallet. In case of a mismatch,
     // we need to reconnect to the Lattice (treat it as locked).
-    const isSameWallet = this._getCurrentWalletUID() === this.deviceId
+    const walletDetailsExist = !!activeWallet && !!this.deviceId
+    const isSameWallet = walletDetailsExist && activeWallet === this.deviceId
 
     return isSameWallet && !!this.walletSDK
   }
@@ -54,6 +56,10 @@ class LatticeController implements ExternalSignerController {
     shouldOpenLatticeConnectorInTab = false
   ) {
     if (this.isUnlocked()) {
+      // Even if unlocked, reconnect to the Lattice to ensure the correct wallet.
+      // Otherwise, if the user has changed the active wallet, errors get thrown.
+      await this._connect()
+
       return 'ALREADY_UNLOCKED'
     }
 
@@ -74,11 +80,11 @@ class LatticeController implements ExternalSignerController {
       this.creds.endpoint = creds.endpoint || null
     }
     const includedStateData = await this._initSession()
+
     // If state data was provided and if we are authorized to
     // bypass reconnecting, we can exit here.
-    if (includedStateData && bypassOnStateData) {
-      return 'ALREADY_UNLOCKED'
-    }
+    if (includedStateData && bypassOnStateData) return 'ALREADY_UNLOCKED'
+
     await this._connect()
     return 'JUST_UNLOCKED'
   }
@@ -169,6 +175,11 @@ class LatticeController implements ExternalSignerController {
   // the expected wallet UID is still the one active in the Lattice.
   // This will handle SafeCard insertion/removal events.
   async _connect() {
+    if (!this.walletSDK)
+      throw new Error(
+        'Could not connect to the Lattice1 device. Please try again or contact Ambire support.'
+      )
+
     try {
       // Attempt to connect with a Lattice using a shorter timeout. If
       // the device is unplugged it will time out and we don't need to wait
@@ -183,10 +194,6 @@ class LatticeController implements ExternalSignerController {
   }
 
   async _initSession() {
-    if (this.isUnlocked()) {
-      return
-    }
-
     const setupData = {
       name: LATTICE_APP_NAME,
       baseUrl: this.creds.endpoint || LATTICE_BASE_URL,
@@ -240,10 +247,8 @@ class LatticeController implements ExternalSignerController {
   async _keyIdxInCurrentWallet(key: ExternalKey) {
     // Get the last updated SDK wallet UID
     const activeWallet = this.walletSDK!.getActiveWallet()
-    if (!activeWallet) {
-      this._connect()
-      throw new Error('No active wallet in Lattice.')
-    }
+    if (!activeWallet) await this._connect()
+
     const activeUID = activeWallet.uid.toString('hex')
     // If this is already the active wallet we don't need to make a request
     if (key.meta.deviceId === activeUID) {

@@ -43,12 +43,7 @@ class LatticeSigner implements KeystoreSigner {
     // that user sees feedback (the "sending signing request" modal) that
     // something is about to happen
     await wait(1000)
-    const wasUnlocked = this.controller?.isUnlocked()
     await this.controller.unlock()
-
-    // If this was unlocked already, the `unlock` call does NOT sync data
-    // with the Lattice device. Therefore, force a sync by reconnecting.
-    if (wasUnlocked) await this.controller?._connect()
 
     if (!this.controller.walletSDK)
       throw new Error(
