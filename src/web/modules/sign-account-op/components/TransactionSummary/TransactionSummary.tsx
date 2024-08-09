@@ -118,12 +118,14 @@ const TransactionSummary = ({
             paddingVertical: SPACING_TY * sizeMultiplier[size]
           }}
         >
-          <Text selectable fontSize={12} style={styles.bodyText}>
-            <Text fontSize={12} style={styles.bodyText} weight="regular">
-              {t('Interacting with (to): ')}
+          {call.to && (
+            <Text selectable fontSize={12} style={styles.bodyText}>
+              <Text fontSize={12} style={styles.bodyText} weight="regular">
+                {t('Interacting with (to): ')}
+              </Text>
+              {call.to}
             </Text>
-            {call.to}
-          </Text>
+          )}
           <Text selectable fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Value to be sent (value): ')}
