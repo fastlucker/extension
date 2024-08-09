@@ -19,7 +19,7 @@ const CONNECT_TIMEOUT = 20000
 class LatticeController implements ExternalSignerController {
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
-  sdkSession?: SDK.Client | null
+  walletSDK?: SDK.Client | null
 
   creds: any
 
@@ -45,7 +45,7 @@ class LatticeController implements ExternalSignerController {
     // we need to reconnect to the Lattice (treat it as locked).
     const isSameWallet = this._getCurrentWalletUID() === this.deviceId
 
-    return isSameWallet && !!this.sdkSession
+    return isSameWallet && !!this.walletSDK
   }
 
   async unlock(
@@ -90,7 +90,7 @@ class LatticeController implements ExternalSignerController {
       endpoint: null
     }
     this.deviceId = ''
-    this.sdkSession = null
+    this.walletSDK = null
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
@@ -173,12 +173,12 @@ class LatticeController implements ExternalSignerController {
       // Attempt to connect with a Lattice using a shorter timeout. If
       // the device is unplugged it will time out and we don't need to wait
       // 2 minutes for that to happen.
-      this.sdkSession.timeout = CONNECT_TIMEOUT
-      await this.sdkSession.connect(this.creds.deviceID)
+      this.walletSDK.timeout = CONNECT_TIMEOUT
+      await this.walletSDK.connect(this.creds.deviceID)
       this.deviceId = this._getCurrentWalletUID()
     } finally {
       // Reset to normal timeout no matter what
-      this.sdkSession.timeout = SDK_TIMEOUT
+      this.walletSDK.timeout = SDK_TIMEOUT
     }
   }
 
@@ -205,7 +205,7 @@ class LatticeController implements ExternalSignerController {
       }
     }
     */
-    this.sdkSession = new SDK.Client(setupData)
+    this.walletSDK = new SDK.Client(setupData)
     // Return a boolean indicating whether we provided state data.
     // If we have, we can skip `connect`.
     return !!setupData.stateData
@@ -227,10 +227,10 @@ class LatticeController implements ExternalSignerController {
   }
 
   _getCurrentWalletUID() {
-    if (!this.sdkSession) {
+    if (!this.walletSDK) {
       return ''
     }
-    const activeWallet = this.sdkSession.getActiveWallet()
+    const activeWallet = this.walletSDK.getActiveWallet()
     if (!activeWallet || !activeWallet.uid) {
       return ''
     }
@@ -239,7 +239,7 @@ class LatticeController implements ExternalSignerController {
 
   async _keyIdxInCurrentWallet(key: ExternalKey) {
     // Get the last updated SDK wallet UID
-    const activeWallet = this.sdkSession!.getActiveWallet()
+    const activeWallet = this.walletSDK!.getActiveWallet()
     if (!activeWallet) {
       this._connect()
       throw new Error('No active wallet in Lattice.')

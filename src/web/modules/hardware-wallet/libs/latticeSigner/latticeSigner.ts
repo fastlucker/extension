@@ -36,7 +36,7 @@ class LatticeSigner implements KeystoreSigner {
 
     if (!this.key)
       throw new Error(
-        'Something went wrong when preparing Lattice1 to sign. Required information about the signing ey was found missing. Please try again or contact Ambire support.'
+        'Something went wrong when preparing Lattice1 to sign. Required information about the signing key was found missing. Please try again or contact Ambire support.'
       )
 
     // Wait a little bit before opening the Lattice Connector on purpose, so
@@ -50,7 +50,7 @@ class LatticeSigner implements KeystoreSigner {
     // with the Lattice device. Therefore, force a sync by reconnecting.
     if (wasUnlocked) await this.controller?._connect()
 
-    if (!this.controller.sdkSession)
+    if (!this.controller.walletSDK)
       throw new Error(
         'Something went wrong when preparing Lattice1 to sign. Please try again or contact support if the problem persists.'
       )
@@ -62,7 +62,7 @@ class LatticeSigner implements KeystoreSigner {
     // EIP1559 and EIP2930 support was added to Lattice in firmware v0.11.0,
     // "general signing" was introduced in v0.14.0. In order to avoid supporting
     // legacy firmware, throw an error and prompt user to update.
-    const fwVersion = this.controller!.sdkSession!.getFwVersion()
+    const fwVersion = this.controller!.walletSDK!.getFwVersion()
     if (fwVersion?.major === 0 && fwVersion?.minor <= 14) {
       throw new Error(
         'Unable to sign the transaction because your Lattice1 device firmware is outdated. Please update to the latest firmware and try again.'
@@ -78,7 +78,7 @@ class LatticeSigner implements KeystoreSigner {
 
       const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
-      const res = await this.controller!.sdkSession!.sign({
+      const res = await this.controller!.walletSDK!.sign({
         // Prior to general signing, request data was sent to the device in
         // preformatted ways and was used to build the transaction in firmware.
         // GridPlus are phasing out this mechanism, for signing raw transactions
@@ -155,7 +155,7 @@ class LatticeSigner implements KeystoreSigner {
       }
     }
 
-    const res = await this.controller!.sdkSession!.sign(req)
+    const res = await this.controller!.walletSDK!.sign(req)
 
     if (!res.sig) {
       throw new Error(
