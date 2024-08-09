@@ -62,7 +62,7 @@ describe('ba_login', () => {
 
     await page.waitForFunction(
       () => {
-        return window.location.href.includes('/onboarding-completed')
+        return window.location.href.includes('/dashboard')
       },
       { timeout: 60000 }
     )
@@ -176,7 +176,7 @@ describe('ba_login', () => {
 
     await page.waitForFunction(
       () => {
-        return window.location.href.includes('/onboarding-completed')
+        return window.location.href.includes('/dashboard')
       },
       { timeout: 60000 }
     )
