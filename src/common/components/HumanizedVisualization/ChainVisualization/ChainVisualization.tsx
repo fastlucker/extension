@@ -28,7 +28,7 @@ const ChainVisualization: FC<Props> = ({ chainId, marginRight }) => {
       {destinationNetwork && !isNetworkLoading && (
         <>
           <NetworkIcon id={destinationNetwork.id} benzinNetwork={destinationNetwork} />
-          <Text onPress={handleLink} weight="semiBold">
+          <Text onPress={handleLink} weight="semiBold" style={spacings.mlMi}>
             {destinationNetwork.name}
           </Text>
         </>
