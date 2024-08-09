@@ -67,6 +67,11 @@ const TransferScreen = () => {
   const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
+  const hasOpenedActionWindow = useMemo(
+    () => actionsState.currentAction || actionsState.actionWindow.id,
+    [actionsState.currentAction, actionsState.actionWindow.id]
+  )
+
   const transactionUserRequests = useMemo(() => {
     return userRequests.filter((r) => r.action.kind === 'calls')
   }, [userRequests])
@@ -98,7 +103,7 @@ const TransferScreen = () => {
     if (isOffline) return t("You're offline")
     if (isTopUp) return t('Top Up')
 
-    if (actionsState.currentAction || !isSmartAccount) return t('Send')
+    if (hasOpenedActionWindow || !isSmartAccount) return t('Send')
 
     let numOfRequests = transactionUserRequests.length
     if (isFormValid && !addressInputState.validation.isError) {
@@ -115,11 +120,11 @@ const TransferScreen = () => {
     isOffline,
     isTopUp,
     transactionUserRequests,
-    actionsState,
     addressInputState.validation.isError,
     isFormValid,
     isFormEmpty,
     isSmartAccount,
+    hasOpenedActionWindow,
     t
   ])
 
@@ -131,7 +136,7 @@ const TransferScreen = () => {
 
     if (!isSmartAccount) return !isTransferFormValid
 
-    if (transactionUserRequests.length && !actionsState.currentAction) {
+    if (transactionUserRequests.length && !hasOpenedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
     return !isTransferFormValid
@@ -143,7 +148,7 @@ const TransferScreen = () => {
     isTopUp,
     isSmartAccount,
     transactionUserRequests.length,
-    actionsState.currentAction
+    hasOpenedActionWindow
   ])
 
   const onBack = useCallback(() => {
@@ -235,7 +240,7 @@ const TransferScreen = () => {
               >
                 <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
                   <CartIcon color={theme.primary} />
-                  {!!transactionUserRequests.length && !actionsState.currentAction && (
+                  {!!transactionUserRequests.length && !hasOpenedActionWindow && (
                     <Text
                       fontSize={16}
                       weight="medium"
