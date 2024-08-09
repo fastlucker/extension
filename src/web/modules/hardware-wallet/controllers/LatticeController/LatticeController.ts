@@ -6,9 +6,10 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import wait from '@ambire-common/utils/wait'
 import { browser } from '@web/constants/browserapi'
 
-const LATTICE_APP_NAME = 'Ambire Wallet'
+const LATTICE_APP_NAME = 'Ambire Wallet (browser)' // should be 6-23 characters
 const LATTICE_MANAGER_URL = 'https://lattice.gridplus.io'
 const LATTICE_BASE_URL = 'https://signing.gridpl.us'
 
@@ -18,7 +19,7 @@ const CONNECT_TIMEOUT = 20000
 class LatticeController implements ExternalSignerController {
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
-  sdkSession?: SDK.Client | null
+  walletSDK?: SDK.Client | null
 
   creds: any
 
@@ -37,11 +38,28 @@ class LatticeController implements ExternalSignerController {
   // Determine if we have a connection to the Lattice and an existing wallet UID
   // against which to make requests.
   isUnlocked() {
-    return !!this._getCurrentWalletUID() && !!this.sdkSession
+    const activeWallet = this._getCurrentWalletUID()
+    // If the current wallet UID is different, it means that 1) The device has
+    // changed or 2) The Lattice device is currently unlocked with different
+    // (seed) wallet - the device itself can hold one (seed) wallet, and the
+    // SafeCard connected can hold another (seed) wallet. In case of a mismatch,
+    // we need to reconnect to the Lattice (treat it as locked).
+    const walletDetailsExist = !!activeWallet && !!this.deviceId
+    const isSameWallet = walletDetailsExist && activeWallet === this.deviceId
+
+    return isSameWallet && !!this.walletSDK
   }
 
-  async unlock() {
+  async unlock(
+    _path?: string,
+    _expectedKeyOnThisPath?: string,
+    shouldOpenLatticeConnectorInTab = false
+  ) {
     if (this.isUnlocked()) {
+      // Even if unlocked, reconnect to the Lattice to ensure the correct wallet.
+      // Otherwise, if the user has changed the active wallet, errors get thrown.
+      await this._connect()
+
       return 'ALREADY_UNLOCKED'
     }
 
@@ -55,18 +73,18 @@ class LatticeController implements ExternalSignerController {
     // TODO: Currently not implemented
     const bypassOnStateData = false
 
-    const creds: any = await this._getCreds()
+    const creds: any = await this._getCreds(shouldOpenLatticeConnectorInTab)
     if (creds) {
       this.creds.deviceID = creds.deviceID
       this.creds.password = creds.password
       this.creds.endpoint = creds.endpoint || null
     }
     const includedStateData = await this._initSession()
+
     // If state data was provided and if we are authorized to
     // bypass reconnecting, we can exit here.
-    if (includedStateData && bypassOnStateData) {
-      return 'ALREADY_UNLOCKED'
-    }
+    if (includedStateData && bypassOnStateData) return 'ALREADY_UNLOCKED'
+
     await this._connect()
     return 'JUST_UNLOCKED'
   }
@@ -78,16 +96,21 @@ class LatticeController implements ExternalSignerController {
       endpoint: null
     }
     this.deviceId = ''
-    this.sdkSession = null
+    this.walletSDK = null
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
-  async _openConnectorTab(url: string) {
+  async _openLatticeConnector(url: string, shouldOpenInTab: boolean) {
     try {
-      const tab = await browser.tabs.create({ url })
-      return { tab }
+      if (shouldOpenInTab) {
+        const tab = await browser.tabs.create({ url })
+        return tab.id
+      }
+
+      const ref = await browser.windows.create({ url, type: 'popup' })
+      return ref.tabs[0].id
     } catch (err) {
-      throw new Error('Failed to open Lattice connector.')
+      throw new Error('Failed to open the Lattice Connector.')
     }
   }
 
@@ -96,67 +119,55 @@ class LatticeController implements ExternalSignerController {
     return tabs.find((tab) => tab.id === id)
   }
 
-  _getCreds() {
+  async _getCreds(shouldOpenLatticeConnectorInTab: boolean) {
+    if (this._hasCreds()) return
+
+    const url = `${LATTICE_MANAGER_URL}?keyring=${LATTICE_APP_NAME}&forceLogin=true`
+    let listenInterval: ReturnType<typeof setInterval>
+
+    const tabId = await this._openLatticeConnector(url, shouldOpenLatticeConnectorInTab)
+
+    // Ugly workaround that listens for changes to the URL which contains
+    // the Lattice Connector login info.
+    // NOTE: This will only work if have `https://lattice.gridplus.io/*` (or wildcard)
+    // host permissions in your manifest file and also `activeTab` permission.
+    // TODO: Could maybe be achieved with a content script that sends a message
+    // to the background script with the login data.
+    const loginUrlParam = '&loginCache='
     return new Promise((resolve, reject) => {
-      // We only need to setup if we don't have a deviceID
-      if (this._hasCreds()) return resolve()
-      const url = `${LATTICE_MANAGER_URL}?keyring=${LATTICE_APP_NAME}&forceLogin=true`
-      let listenInterval: any
-
-      // PostMessage handler
-      function receiveMessage(event) {
-        // Ensure origin
-        if (event.origin !== LATTICE_MANAGER_URL) return
+      listenInterval = setInterval(async () => {
         try {
-          // Stop the listener
-          clearInterval(listenInterval)
-          // Parse and return creds
-          const creds = JSON.parse(event.data)
-          if (!creds.deviceID || !creds.password)
-            return reject(new Error('Invalid credentials returned from Lattice.'))
-          return resolve(creds)
-        } catch (err) {
-          return reject(err)
-        }
-      }
-
-      // Open the tab
-      this._openConnectorTab(url).then((conn) => {
-        // For Firefox we cannot use `window` in the extension and can't
-        // directly communicate with the tabs very easily so we use a
-        // workaround: listen for changes to the URL, which will contain
-        // the login info.
-        // NOTE: This will only work if have `https://lattice.gridplus.io/*`
-        // host permissions in your manifest file (and also `activeTab` permission)
-        const loginUrlParam = '&loginCache='
-        listenInterval = setInterval(() => {
-          this._findTabById(conn.tab.id).then((tab) => {
-            if (!tab || !tab.url) {
-              return reject(new Error('Lattice connector closed.'))
-            }
-            // If the tab we opened contains a new URL param
-            const paramLoc = tab.url.indexOf(loginUrlParam)
-            if (paramLoc < 0) return
-            const dataLoc = paramLoc + loginUrlParam.length
-            // Stop this interval
+          const tab = await this._findTabById(tabId)
+          if (!tab || !tab.url) {
             clearInterval(listenInterval)
-            try {
-              // Parse the login data. It is a stringified JSON object
-              // encoded as a base64 string.
-              const _creds = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
-              // Close the tab and return the credentials
-              browser.tabs.remove(tab.id).then(() => {
-                const creds = JSON.parse(_creds)
-                if (!creds.deviceID || !creds.password)
-                  return reject(new Error('Invalid credentials returned from Lattice.'))
-                return resolve(creds)
-              })
-            } catch (err) {
-              return reject('Failed to get login data from Lattice. Please try again.')
-            }
-          })
-        }, 500)
-      })
+            return reject(new Error('Closing the Lattice Connector interrupted the connection.'))
+          }
+
+          // If the tab we opened contains a new URL param
+          const paramLoc = tab.url.indexOf(loginUrlParam)
+          if (paramLoc < 0) return
+
+          const dataLoc = paramLoc + loginUrlParam.length
+          // Stop this interval
+          clearInterval(listenInterval)
+          // Parse the login data. It is a stringified JSON object
+          // encoded as a base64 string.
+          const credsString = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
+
+          // Close the tab and return the credentials
+          await browser.tabs.remove(tab.id)
+
+          const creds = JSON.parse(credsString)
+          if (!creds.deviceID || !creds.password) {
+            return reject(new Error('Invalid credentials returned from Lattice.'))
+          }
+
+          resolve(creds)
+        } catch (err) {
+          clearInterval(listenInterval)
+          reject(new Error('Failed to get login data from Lattice. Please try again.'))
+        }
+      }, 500)
     })
   }
 
@@ -164,24 +175,25 @@ class LatticeController implements ExternalSignerController {
   // the expected wallet UID is still the one active in the Lattice.
   // This will handle SafeCard insertion/removal events.
   async _connect() {
+    if (!this.walletSDK)
+      throw new Error(
+        'Could not connect to the Lattice1 device. Please try again or contact Ambire support.'
+      )
+
     try {
       // Attempt to connect with a Lattice using a shorter timeout. If
       // the device is unplugged it will time out and we don't need to wait
       // 2 minutes for that to happen.
-      this.sdkSession.timeout = CONNECT_TIMEOUT
-      await this.sdkSession.connect(this.creds.deviceID)
+      this.walletSDK.timeout = CONNECT_TIMEOUT
+      await this.walletSDK.connect(this.creds.deviceID)
       this.deviceId = this._getCurrentWalletUID()
     } finally {
       // Reset to normal timeout no matter what
-      this.sdkSession.timeout = SDK_TIMEOUT
+      this.walletSDK.timeout = SDK_TIMEOUT
     }
   }
 
   async _initSession() {
-    if (this.isUnlocked()) {
-      return
-    }
-
     const setupData = {
       name: LATTICE_APP_NAME,
       baseUrl: this.creds.endpoint || LATTICE_BASE_URL,
@@ -200,7 +212,7 @@ class LatticeController implements ExternalSignerController {
       }
     }
     */
-    this.sdkSession = new SDK.Client(setupData)
+    this.walletSDK = new SDK.Client(setupData)
     // Return a boolean indicating whether we provided state data.
     // If we have, we can skip `connect`.
     return !!setupData.stateData
@@ -222,10 +234,10 @@ class LatticeController implements ExternalSignerController {
   }
 
   _getCurrentWalletUID() {
-    if (!this.sdkSession) {
+    if (!this.walletSDK) {
       return ''
     }
-    const activeWallet = this.sdkSession.getActiveWallet()
+    const activeWallet = this.walletSDK.getActiveWallet()
     if (!activeWallet || !activeWallet.uid) {
       return ''
     }
@@ -234,11 +246,9 @@ class LatticeController implements ExternalSignerController {
 
   async _keyIdxInCurrentWallet(key: ExternalKey) {
     // Get the last updated SDK wallet UID
-    const activeWallet = this.sdkSession!.getActiveWallet()
-    if (!activeWallet) {
-      this._connect()
-      throw new Error('No active wallet in Lattice.')
-    }
+    const activeWallet = this.walletSDK!.getActiveWallet()
+    if (!activeWallet) await this._connect()
+
     const activeUID = activeWallet.uid.toString('hex')
     // If this is already the active wallet we don't need to make a request
     if (key.meta.deviceId === activeUID) {

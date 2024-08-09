@@ -578,27 +578,7 @@ handleRegisterScripts()
                 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                try {
-                  await latticeCtrl.unlock()
-
-                  const { sdkSession } = latticeCtrl
-                  mainCtrl.accountAdder.init({
-                    keyIterator: new LatticeKeyIterator({ sdkSession }),
-                    hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
-                  })
-
-                  return await mainCtrl.accountAdder.setPage({
-                    page: 1,
-                    networks: mainCtrl.networks.networks,
-                    providers: mainCtrl.providers.providers
-                  })
-                } catch (e: any) {
-                  throw new Error(
-                    e?.message || 'Could not unlock the GridPlus device. Please try again.'
-                  )
-                }
+                return await mainCtrl.handleAccountAdderInitLattice(LatticeKeyIterator)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
