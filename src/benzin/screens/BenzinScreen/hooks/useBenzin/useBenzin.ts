@@ -2,6 +2,7 @@ import { setStringAsync } from 'expo-clipboard'
 import { useCallback, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
+import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
@@ -46,14 +47,35 @@ const getParams = (search?: string) => {
     txnId: params.get('txnId') ?? null,
     userOpHash: params.get('userOpHash') ?? null,
     isRenderedInternally: typeof params.get('isInternal') === 'string',
-    chainId: params.get('chainId')
+    chainId: params.get('chainId'),
+    networkId: params.get('networkId')
   }
+}
+
+const getChainId = (networkId: string | null, paramsChainId: string | null) => {
+  if (paramsChainId) return paramsChainId
+
+  const chainIdDerivedFromNetworkId = constantNetworks.find(
+    (network) => network.id === networkId
+  )?.chainId
+
+  if (!chainIdDerivedFromNetworkId) return null
+
+  return String(chainIdDerivedFromNetworkId)
 }
 
 const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const { addToast } = useToast()
   const route = useRoute()
-  const { txnId, userOpHash, isRenderedInternally, chainId } = getParams(route?.search)
+  const {
+    txnId,
+    userOpHash,
+    isRenderedInternally,
+    chainId: paramChainId,
+    networkId
+  } = getParams(route?.search)
+
+  const chainId = getChainId(networkId, paramChainId)
   const { network, isNetworkLoading } = useBenzinGetNetwork({ chainId })
   const { provider } = useBenzinGetProvider({ network })
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')

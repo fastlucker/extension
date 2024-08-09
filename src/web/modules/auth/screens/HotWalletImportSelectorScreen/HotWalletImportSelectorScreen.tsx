@@ -2,9 +2,12 @@ import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import ImportFromDefaultOrExternalSeedIcon from '@common/assets/svg/ImportFromDefaultOrExternalSeedIcon'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
+import DualChoiceModal from '@common/components/DualChoiceModal'
 import Panel from '@common/components/Panel'
+import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -20,7 +23,6 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
-import ImportFromDefaultSeedOrNotModal from '@web/modules/auth/components/Modal/ImportFromDefaultSeedOrNotModal'
 import options from '@web/modules/auth/screens/HotWalletImportSelectorScreen/options'
 
 const HotWalletImportSelectorScreen = () => {
@@ -110,9 +112,27 @@ const HotWalletImportSelectorScreen = () => {
           style={{ overflow: 'hidden', width: 632, ...spacings.ph0, ...spacings.pv0 }}
           type="modal"
         >
-          <ImportFromDefaultSeedOrNotModal
-            onAgree={handleImportFromDefaultSeed}
-            onDeny={handleImportFromExternalSeed}
+          <DualChoiceModal
+            title={t('Import from default or external Seed Phrase')}
+            description={
+              <View>
+                <Text style={spacings.mbTy} appearance="secondaryText">
+                  {t(
+                    'If you use default seed, you will be given the option to import selected accounts from the currently associated seed phase.'
+                  )}
+                </Text>
+                <Text appearance="secondaryText">
+                  {t(
+                    'If you use external seed, you can import selected accounts from a seed phrase that you enter now. The seed phase itself won’t be persisted.'
+                  )}
+                </Text>
+              </View>
+            }
+            Icon={ImportFromDefaultOrExternalSeedIcon}
+            onSecondaryButtonPress={handleImportFromExternalSeed}
+            onPrimaryButtonPress={handleImportFromDefaultSeed}
+            secondaryButtonText={t('Use external seed')}
+            primaryButtonText={t('Use default seed')}
           />
         </BottomSheet>
       )}
