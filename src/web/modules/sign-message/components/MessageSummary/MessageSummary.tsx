@@ -1,7 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
@@ -14,10 +14,9 @@ interface Props {
   message: IrMessage
   kind: IrMessage['content']['kind']
   networkId?: NetworkId
-  network?: Network
 }
 
-const MessageSummary = ({ message, networkId, kind, network }: Props) => {
+const MessageSummary = ({ message, networkId, kind }: Props) => {
   const { styles } = useTheme(getStyles)
   const isTypedMessage = kind === 'typedMessage'
 
@@ -29,7 +28,6 @@ const MessageSummary = ({ message, networkId, kind, network }: Props) => {
         <HumanizedVisualization
           data={message.fullVisualization}
           networkId={networkId || 'ethereum'}
-          network={network}
         />
       }
       expandedContent={

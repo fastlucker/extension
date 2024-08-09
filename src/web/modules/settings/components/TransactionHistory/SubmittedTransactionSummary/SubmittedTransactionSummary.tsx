@@ -172,7 +172,6 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           }
           onRightIconPress={handleOpenExplorer}
           isHistory
-          network={network}
         />
       ))}
       {submittedAccountOp.status !== AccountOpStatus.Rejected &&
