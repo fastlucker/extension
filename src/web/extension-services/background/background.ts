@@ -783,7 +783,8 @@ handleRegisterScripts()
                 return await mainCtrl.buildTransferUserRequest(
                   params.amount,
                   params.recipientAddress,
-                  params.selectedToken
+                  params.selectedToken,
+                  params.executionType
                 )
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)
@@ -796,7 +797,11 @@ handleRegisterScripts()
               case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
                 return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
-                return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
+                return mainCtrl.rejectAccountOpAction(
+                  params.err,
+                  params.actionId,
+                  params.shouldOpenNextAction
+                )
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
                 return await mainCtrl.signMessage.init(params)
               }
@@ -829,7 +834,7 @@ handleRegisterScripts()
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addOrUpdateAction(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
-                return mainCtrl.actions.removeAction(params.id)
+                return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
               case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
                 return mainCtrl.actions.focusActionWindow()
               case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':

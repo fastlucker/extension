@@ -104,7 +104,7 @@ const SignMessageScreen = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShouldShowFallback(true)
-    }, 3000)
+    }, 1500)
     return () => clearTimeout(timer)
   })
 
@@ -226,8 +226,9 @@ const SignMessageScreen = () => {
             signStatus === 'LOADING' ||
             isScrollToBottomForced ||
             isViewOnly ||
-            (!visualizeHumanized && !shouldShowFallback) ||
-            (typeof hasReachedBottom !== 'boolean' && shouldShowFallback)
+            (!visualizeHumanized &&
+              !shouldShowFallback &&
+              signMessageState.messageToSign?.content.kind === 'typedMessage')
           }
           resolveButtonTestID="button-sign"
         />
@@ -263,6 +264,7 @@ const SignMessageScreen = () => {
             <FallbackVisualization
               setHasReachedBottom={setHasReachedBottom}
               messageToSign={signMessageState.messageToSign}
+              standalone
             />
           ) : (
             <SkeletonLoader width="100%" height={48} />

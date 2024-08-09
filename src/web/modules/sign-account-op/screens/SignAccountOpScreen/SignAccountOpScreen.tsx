@@ -149,7 +149,8 @@ const SignAccountOpScreen = () => {
       type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
       params: {
         err: 'User rejected the transaction request.',
-        actionId: accountOpAction.id
+        actionId: accountOpAction.id,
+        shouldOpenNextAction: true
       }
     })
   }, [dispatch, accountOpAction])

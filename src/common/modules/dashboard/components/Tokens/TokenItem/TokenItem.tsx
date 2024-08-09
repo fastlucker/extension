@@ -14,12 +14,15 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import CartIcon from '@common/assets/svg/CartIcon'
+import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
+import colors from '@common/styles/colors'
+import PendingBadge from './PendingBadge'
 
 import TokenDetails from '../TokenDetails'
 import getStyles from './styles'
@@ -77,8 +80,10 @@ const TokenItem = ({
     isVesting,
     networkData,
     isRewards,
-    isBalanceIncrease,
-    balanceChange
+    balanceChange,
+    simAmount,
+    pendingToBeConfirmed,
+    pendingToBeConfirmedFormatted
   } = getTokenDetails(token, networks)
 
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
@@ -179,24 +184,27 @@ const TokenItem = ({
         </View>
         {isPending && (
           <View style={[{ marginLeft: SPACING_2XL + SPACING_TY }, spacings.mtSm]}>
-            <View
-              style={[
-                spacings.pvMi,
-                spacings.phMi,
-                spacings.mbMi,
-                flexboxStyles.alignSelfStart,
-                {
-                  borderRadius: BORDER_RADIUS_PRIMARY,
-                  borderWidth: 1,
-                  borderColor: theme.warningText
-                }
-              ]}
-            >
-              <Text selectable color={theme.warningText} fontSize={14} numberOfLines={1}>
-                {t(
-                  `${isBalanceIncrease ? '+' : '-'}${balanceChange} Pending transaction signature`
-                )}
-              </Text>
+            <View>
+              {simAmount !== 0n && (
+                <PendingBadge
+                  amount={simAmount}
+                  amountFormatted={balanceChange}
+                  label="Pending transaction signature"
+                  backgroundColor={colors.lightBrown}
+                  textColor={theme.warningText}
+                  Icon={CartIcon}
+                />
+              )}
+              {pendingToBeConfirmed !== 0n && (
+                <PendingBadge
+                  amount={pendingToBeConfirmed}
+                  amountFormatted={pendingToBeConfirmedFormatted}
+                  label="Pending to be confirmed"
+                  backgroundColor={colors.lightAzureBlue}
+                  textColor={colors.azureBlue}
+                  Icon={PendingToBeConfirmedIcon}
+                />
+              )}
             </View>
 
             <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
@@ -204,7 +212,7 @@ const TokenItem = ({
                 selectable
                 style={[spacings.mrMi, { opacity: 0.7 }]}
                 color={theme.successText}
-                fontSize={16}
+                fontSize={14}
                 weight="number_bold"
                 numberOfLines={1}
               >
@@ -214,7 +222,7 @@ const TokenItem = ({
                 selectable
                 style={{ opacity: 0.7 }}
                 color={theme.successText}
-                fontSize={14}
+                fontSize={12}
                 numberOfLines={1}
               >
                 {t('(On-chain)')}

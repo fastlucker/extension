@@ -1,17 +1,16 @@
 import React, { FC, memo } from 'react'
-import { Linking, Pressable, View } from 'react-native'
+import { View } from 'react-native'
 
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
-import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import TokenOrNft from '@common/components/TokenOrNft'
-import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
+import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getMessageAsText } from '@common/utils/messageToString'
 
+import ChainVisualization from './ChainVisualization/ChainVisualization'
 import DeadlineItem from './DeadlineItem'
 
 const visualizeContent = (kind: string, content?: string | Uint8Array) => {
@@ -64,6 +63,7 @@ const HumanizedVisualization: FC<Props> = ({
               value={item.value}
               address={item.address!}
               textSize={textSize}
+              chainId={item.chainId}
               networkId={networkId}
             />
           )
@@ -91,38 +91,15 @@ const HumanizedVisualization: FC<Props> = ({
               marginRight={marginRight}
             />
           )
-        if (item.type === 'chain' && item.chainId) {
-          const foundChain = networks.find((n) => n.chainId === item.chainId)
-
+        if (item.type === 'chain' && item.chainId)
           return (
-            <View key={key} style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
-              {foundChain ? (
-                <>
-                  <NetworkIcon id={foundChain.id} benzinNetwork={foundChain} />
-                  <Text
-                    onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
-                    weight="semiBold"
-                  >
-                    {foundChain.name}
-                  </Text>
-                </>
-              ) : (
-                <Text
-                  onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
-                  weight="semiBold"
-                >
-                  {`Chain with id ${item.chainId}`}
-                </Text>
-              )}
-              <Pressable
-                style={spacings.mlMi}
-                onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
-              >
-                <InfoIcon width={14} height={14} />
-              </Pressable>
-            </View>
+            <ChainVisualization
+              chainId={item.chainId}
+              key={key}
+              networks={networks}
+              marginRight={marginRight}
+            />
           )
-        }
 
         if (item.type === 'message' && item.messageContent) {
           return (
