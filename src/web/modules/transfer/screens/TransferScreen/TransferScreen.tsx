@@ -129,6 +129,8 @@ const TransferScreen = () => {
 
     const isTransferFormValid = isFormValid && !addressInputState.validation.isError
 
+    if (!isSmartAccount) return !isTransferFormValid
+
     if (transactionUserRequests.length && !actionsState.currentAction) {
       return !isFormEmpty && !isTransferFormValid
     }
@@ -139,6 +141,7 @@ const TransferScreen = () => {
     isFormValid,
     isOffline,
     isTopUp,
+    isSmartAccount,
     transactionUserRequests.length,
     actionsState.currentAction
   ])
