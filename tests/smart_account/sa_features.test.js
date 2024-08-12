@@ -201,7 +201,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
+  it('4337 transaction. Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
     // Check if ETH in optimism are under 0.00000001
     await checkBalanceOfToken(
       page,
