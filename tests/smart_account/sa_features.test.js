@@ -209,7 +209,7 @@ describe('sa_features', () => {
       0.00000001
     )
 
-    // Click on Matic (not Gas Tank token)
+    // Click on ETH (not Gas Tank token)
     await clickOnElement(
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]'
