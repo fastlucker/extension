@@ -15,6 +15,7 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Fee from '@web/modules/sign-account-op/components/Fee'
@@ -308,9 +309,17 @@ const Estimation = ({
           {!!selectedFee && !!payValue && (
             <AmountInfo
               label="Fee"
-              amountFormatted={selectedFee.amountFormatted}
+              amountFormatted={formatDecimals(parseFloat(selectedFee.amountFormatted))}
               symbol={payValue.token?.symbol}
             />
+          )}
+          {!!signAccountOpState.gasSavedUSD && (
+            <AmountInfo.Wrapper>
+              <AmountInfo.Label appearance="primary">{t('Gas Tank saves you')}</AmountInfo.Label>
+              <AmountInfo.Text appearance="primary" selectable>
+                {formatDecimals(signAccountOpState.gasSavedUSD, 'price')} USD
+              </AmountInfo.Text>
+            </AmountInfo.Wrapper>
           )}
           {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
           {/* <View style={styles.gasTankContainer}> */}
