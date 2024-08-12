@@ -1,16 +1,21 @@
 import './styles.css'
 
-import LottieView from 'lottie-react'
+import LottieView, { LottieComponentProps } from 'lottie-react'
 import React from 'react'
 
 import animation from './animation.json'
 
-const ConfettiAnimation = ({ width, height }: { width: number; height: number }) => {
+const ConfettiAnimation = ({
+  width,
+  height,
+  ...rest
+}: { width: number; height: number } & Omit<LottieComponentProps, 'animationData'>) => {
   return (
     <LottieView
+      {...rest}
       animationData={animation}
       style={{ width, height, position: 'absolute', pointerEvents: 'none', alignSelf: 'center' }}
-      autoPlay
+      loop={false}
     />
   )
 }
