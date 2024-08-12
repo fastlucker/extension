@@ -17,6 +17,7 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import Stepper from '@web/modules/router/components/Stepper'
 
 import HardwareWalletSelectorItem from '../../components/HardwareWalletSelectorItem'
@@ -27,6 +28,7 @@ const HardwareWalletSelectorScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
+  const mainCtrlState = useMainControllerState()
   const accountAdderCtrlState = useAccountAdderControllerState()
   const { dispatch } = useBackgroundService()
   const { theme } = useTheme()
@@ -64,6 +66,8 @@ const HardwareWalletSelectorScreen = () => {
     [dispatch]
   )
 
+  const isLatticeLoading = mainCtrlState.statuses.handleAccountAdderInitLattice !== 'INITIAL'
+
   const options = useMemo(
     () => getOptions({ onGridPlusPress, onLedgerPress, onTrezorPress }),
     [onGridPlusPress, onTrezorPress, onLedgerPress]
@@ -87,10 +91,16 @@ const HardwareWalletSelectorScreen = () => {
               <HardwareWalletSelectorItem
                 style={[flexbox.flex1, index === 1 ? spacings.mh : {}]}
                 key={option.title}
-                title={option.title}
+                title={
+                  option.id === 'lattice' && isLatticeLoading ? t('Connecting...') : option.title
+                }
                 models={option.models}
                 image={option.image}
                 onPress={option.onPress}
+                // While Lattice is loading, disable all other options temporarily.
+                // No need to do this for the other hardware wallets, since their
+                // connection flow is different (and specific).
+                isDisabled={isLatticeLoading}
               />
             ))}
           </View>

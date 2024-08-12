@@ -54,10 +54,11 @@ const TokenOrNft: FC<Props> = ({
 
   useEffect(() => {
     const tokenFromPortfolio = accountPortfolio?.tokens?.find(
-      (token) => token.address.toLowerCase() === address.toLowerCase()
+      (token) =>
+        token.address.toLowerCase() === address.toLowerCase() && token.networkId === network?.id
     )
     const nftFromPortfolio = accountPortfolio?.collections?.find(
-      (c) => c.address.toLowerCase() === address.toLowerCase()
+      (c) => c.address.toLowerCase() === address.toLowerCase() && c.networkId === network?.id
     )
     if (tokenFromPortfolio || nftFromPortfolio)
       setAssetInfo({ tokenInfo: tokenFromPortfolio, nftInfo: nftFromPortfolio })

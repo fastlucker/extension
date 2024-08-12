@@ -1,40 +1,44 @@
-import React, { FC, memo, useCallback, useMemo } from 'react'
+import React, { FC, memo, useCallback } from 'react'
 import { Linking, Pressable, View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
+import useBenzinGetNetwork from '@benzin/screens/BenzinScreen/hooks/useBenzin/useBenzinGetNetwork'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Props {
-  networks: Network[]
   chainId: bigint
   marginRight?: number
 }
 
-const ChainVisualization: FC<Props> = ({ chainId, networks, marginRight }) => {
+const ChainVisualization: FC<Props> = ({ chainId, marginRight }) => {
+  const { network: destinationNetwork, isNetworkLoading } = useBenzinGetNetwork({
+    chainId: String(chainId)
+  })
   const handleLink = useCallback(
     () => Linking.openURL(`https://chainlist.org/chain/${chainId}`),
     [chainId]
   )
-  const foundChain = useMemo(() => networks.find((n) => n.chainId === chainId), [networks, chainId])
 
   return (
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
-      {foundChain ? (
+      {destinationNetwork && !isNetworkLoading && (
         <>
-          <NetworkIcon id={foundChain.id} benzinNetwork={foundChain} />
-          <Text onPress={handleLink} weight="semiBold">
-            {foundChain.name}
+          <NetworkIcon id={destinationNetwork.id} benzinNetwork={destinationNetwork} />
+          <Text onPress={handleLink} weight="semiBold" style={spacings.mlMi}>
+            {destinationNetwork.name}
           </Text>
         </>
-      ) : (
+      )}
+      {!destinationNetwork && !isNetworkLoading && (
         <Text onPress={handleLink} weight="semiBold">
           {`Chain with id ${chainId}`}
         </Text>
       )}
+      {isNetworkLoading && <SkeletonLoader width={140} height={20} />}
       <Pressable style={spacings.mlMi} onPress={handleLink}>
         <InfoIcon width={14} height={14} />
       </Pressable>
