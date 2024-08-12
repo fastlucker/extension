@@ -76,12 +76,13 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     const networkId: NetworkId =
       submittedAccountOp.gasFeePayment?.networkId ||
       // the rest is support for legacy data (no networkId recorded for the fee)
-
       (feeTokenAddress === ZeroAddress && submittedAccountOp.networkId) ||
       gasTankFeeTokens.find((constFeeToken: any) => constFeeToken.address === feeTokenAddress)
         ?.networkId ||
       submittedAccountOp.networkId
 
+    // did is used to avoid tokenNetwork being Network | undefined
+    // the assumption is that we cant pay the fee with token on network that is not present
     const tokenNetwork = networks.filter((n: Network) => n.id === networkId)[0]
 
     const feeTokenAmount = submittedAccountOp.gasFeePayment?.amount
