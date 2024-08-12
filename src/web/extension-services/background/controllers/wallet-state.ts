@@ -20,7 +20,7 @@ export class WalletStateController extends EventEmitter {
 
   #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
 
-  #isSetupComplete: boolean
+  #isSetupComplete: boolean = false
 
   get isDefaultWallet() {
     return this.#_isDefaultWallet
