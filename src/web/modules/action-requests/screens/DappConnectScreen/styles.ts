@@ -21,7 +21,6 @@ const getStyles = (theme: ThemeProps) =>
       marginHorizontal: 'auto'
     },
     content: {
-      ...flexbox.flex1,
       ...common.fullWidth,
       borderRadius: BORDER_RADIUS_PRIMARY,
       overflow: 'hidden',
