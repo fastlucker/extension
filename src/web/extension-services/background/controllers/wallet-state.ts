@@ -20,7 +20,7 @@ export class WalletStateController extends EventEmitter {
 
   #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
 
-  #isSetupComplete: boolean = false
+  #isSetupComplete: boolean = true
 
   get isDefaultWallet() {
     return this.#_isDefaultWallet
@@ -75,6 +75,11 @@ export class WalletStateController extends EventEmitter {
 
   set isSetupComplete(newValue: boolean) {
     this.#isSetupComplete = newValue
+    if (!newValue) {
+      this.#initCheckIsPinned()
+    } else {
+      clearTimeout(this.#isPinnedInterval)
+    }
     storage.set('isSetupComplete', newValue)
     this.emitUpdate()
   }
@@ -106,7 +111,7 @@ export class WalletStateController extends EventEmitter {
     this.#isPinned = await storage.get('isPinned', false)
     this.#initCheckIsPinned()
 
-    this.#isSetupComplete = await storage.get('isSetupComplete', false)
+    this.#isSetupComplete = await storage.get('isSetupComplete', true)
 
     this.isReady = true
     this.emitUpdate()
@@ -134,7 +139,7 @@ export class WalletStateController extends EventEmitter {
     const userSettings = await browser.action.getUserSettings()
     if (userSettings.isOnToolbar) this.isPinned = true
 
-    if (!this.isSetupComplete) {
+    if (!this.#isSetupComplete) {
       this.#isPinnedInterval = setTimeout(this.#initCheckIsPinned.bind(this), 500)
     }
   }
