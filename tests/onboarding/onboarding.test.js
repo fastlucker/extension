@@ -43,7 +43,8 @@ describe('Onboarding', () => {
     // Click on "Got it"
     await clickOnElement(page, '[data-testid="stories-button-next-5"]')
 
-    await page.waitForFunction(() => window.location.href.includes('/get-started'))
+    const href = await page.evaluate(() => window.location.href)
+    expect(href).toContain('/get-started')
 
     // Check for the text "Welcome to Ambire Wallet" on the page
     const textExists = await page.evaluate(() => {

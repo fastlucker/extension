@@ -1,4 +1,4 @@
-import { clickOnElement } from '../common-helpers/clickOnElement'
+import { clickOnElement } from './clickOnElement'
 
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
   // Click on Import button.
@@ -34,6 +34,7 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
     clickOnElement(page, '[data-testid="button-import-account"]:not([disabled])'),
     page.waitForNavigation()
   ])
-
+  const currentUrl = page.url()
+  expect(currentUrl).toContain('/account-personalize')
   return { firstSelectedBasicAccount, firstSelectedSmartAccount }
 }

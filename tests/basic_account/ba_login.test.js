@@ -1,6 +1,6 @@
 import { bootstrap } from '../common-helpers/bootstrap'
 import { setAmbKeyStore } from '../common-helpers/setAmbKeyStore'
-import { finishStoriesAndSelectAccount } from '../auth/auth-helper'
+import { finishStoriesAndSelectAccount } from '../common-helpers/auth-helper'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { INVITE_STORAGE_ITEM } from '../constants/constants'
@@ -44,17 +44,19 @@ describe('ba_login', () => {
 
     // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page)
+      await finishStoriesAndSelectAccount(page, true)
 
     // Click on "Save and Continue" button
     await clickOnElement(page, '[data-testid="button-save-and-continue"]')
 
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/onboarding-completed')
-      },
-      { timeout: 60000 }
-    )
+    // await page.waitForFunction(
+    //   () => {
+    //     return window.location.href.includes('/onboarding-completed')
+    //   },
+    //   { timeout: 60000 }
+    // )
+    const href = await page.evaluate(() => window.location.href)
+    expect(href).toContain('/onboarding-completed')
 
     await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
@@ -163,12 +165,14 @@ describe('ba_login', () => {
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/onboarding-completed')
-      },
-      { timeout: 60000 }
-    )
+    // await page.waitForFunction(
+    //   () => {
+    //     return window.location.href.includes('/onboarding-completed')
+    //   },
+    //   { timeout: 60000 }
+    // )
+    const href = await page.evaluate(() => window.location.href)
+    expect(href).toContain('/onboarding-completed')
 
     await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 

@@ -1,6 +1,6 @@
 import { typeText } from '../common-helpers/typeText'
 import { clickOnElement } from '../common-helpers/clickOnElement'
-import { finishStoriesAndSelectAccount } from '../auth/auth-helper'
+import { finishStoriesAndSelectAccount } from '../common-helpers/auth-helper'
 import { setAmbKeyStore } from '../common-helpers/setAmbKeyStore'
 
 //--------------------------------------------------------------------------------------------------------------
