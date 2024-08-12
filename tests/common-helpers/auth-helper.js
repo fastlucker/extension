@@ -1,8 +1,6 @@
 import { clickOnElement } from './clickOnElement'
 
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
-  // Click on Import button.
-  await clickOnElement(page, '[data-testid="import-button"]')
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
