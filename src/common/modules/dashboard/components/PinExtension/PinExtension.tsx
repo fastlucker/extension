@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
@@ -9,6 +9,7 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import { Portal } from '@gorhom/portal'
 import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
@@ -18,7 +19,9 @@ const PinExtension = () => {
   const { styles } = useTheme(getStyles)
   const { isPinned, isSetupComplete, isReady } = useWalletStateController()
   const { dispatch } = useBackgroundService()
+  const { accounts } = useAccountsControllerState()
   const { width, height } = useWindowSize()
+  const areAllAccountsNewlyAdded = accounts.every((account) => account.newlyAdded)
 
   const onAnimationCompletion = useCallback(() => {
     dispatch({ type: 'SET_IS_SETUP_COMPLETE', params: { isSetupComplete: true } })
@@ -29,7 +32,7 @@ const PinExtension = () => {
     dispatch({ type: 'SET_IS_SETUP_COMPLETE', params: { isSetupComplete: true } })
   }, [dispatch])
 
-  if (isSetupComplete || !isReady) return null
+  if (isSetupComplete || !areAllAccountsNewlyAdded || !isReady) return null
 
   return (
     <Portal hostName="global">
