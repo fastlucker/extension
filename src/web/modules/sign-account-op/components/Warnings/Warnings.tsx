@@ -52,7 +52,7 @@ const Warnings: FC<Props> = ({
         <Alert
           type="error"
           title={t(
-            'V1 accounts cannot be used on this network. You can use V1 accounts on all networks that are natively integrated in web and mobile wallet. Please use a V2 Smart Account or Basic account to interact with this network.'
+            'Ambire v1 accounts cannot be used on this network. You can use v1 accounts on all networks that are natively integrated in Ambire web and mobile wallet. Please use Ambire v2 Smart Account or Basic Account to interact with this network.'
           )}
         />
       </View>
