@@ -59,7 +59,7 @@ const useAccountAdder = ({ keySubType }: Props) => {
     (hasAccountsToImport: boolean = true) => {
       hasAccountsToImport
         ? navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
-        : navigate('/', { state: { openOnboardingCompleted: true } })
+        : navigate('/')
     },
     [navigate]
   )

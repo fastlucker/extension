@@ -64,7 +64,7 @@ const AccountPersonalizeScreen = () => {
         params: data.accounts.map((a) => ({ addr: a.addr, preferences: a.preferences }))
       })
 
-      navigate('/', { state: { openOnboardingCompleted: true } })
+      navigate('/')
     },
     [navigate, dispatch]
   )
