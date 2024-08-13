@@ -33,7 +33,8 @@ const Estimation = ({
   disabled,
   hasEstimation,
   slowRequest,
-  isViewOnly
+  isViewOnly,
+  isAmbireV1AndNetworkNotSupported
 }: Props) => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
@@ -229,7 +230,10 @@ const Estimation = ({
     [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
-  if ((!hasEstimation && !estimationFailed) || !signAccountOpState || !payValue) {
+  if (
+    !signAccountOpState ||
+    (!isAmbireV1AndNetworkNotSupported && ((!hasEstimation && !estimationFailed) || !payValue))
+  ) {
     return (
       <EstimationWrapper>
         <EstimationSkeleton />
@@ -240,6 +244,7 @@ const Estimation = ({
           isViewOnly={isViewOnly}
           rbfDetected={false}
           bundlerFailure={false}
+          isAmbireV1AndNetworkNotSupported={false}
         />
       </EstimationWrapper>
     )
@@ -329,6 +334,7 @@ const Estimation = ({
         </>
       )}
       <Warnings
+        isAmbireV1AndNetworkNotSupported={isAmbireV1AndNetworkNotSupported}
         hasEstimation={hasEstimation}
         estimationFailed={estimationFailed}
         slowRequest={slowRequest}
@@ -340,7 +346,7 @@ const Estimation = ({
           )
         }
       />
-      {isSmartAccountAndNotDeployed ? (
+      {isSmartAccountAndNotDeployed && !isAmbireV1AndNetworkNotSupported ? (
         <Alert
           type="info"
           title={t('Note')}

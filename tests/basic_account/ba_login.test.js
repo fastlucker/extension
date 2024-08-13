@@ -24,7 +24,13 @@ describe('ba_login', () => {
     ;({ browser, page, recorder, extensionURL, serviceWorker } = await bootstrap('ba_login'))
     // Bypass the invite verification step
     await serviceWorker.evaluate(
-      (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
+      (invite) =>
+        chrome.storage.local.set({
+          invite,
+          isE2EStorageSet: true,
+          isPinned: 'true',
+          isSetupComplete: 'true'
+        }),
       JSON.stringify(INVITE_STORAGE_ITEM)
     )
 
@@ -56,7 +62,7 @@ describe('ba_login', () => {
 
     await page.waitForFunction(
       () => {
-        return window.location.href.includes('/onboarding-completed')
+        return window.location.href.includes('/dashboard')
       },
       { timeout: 60000 }
     )
@@ -170,7 +176,7 @@ describe('ba_login', () => {
 
     await page.waitForFunction(
       () => {
-        return window.location.href.includes('/onboarding-completed')
+        return window.location.href.includes('/dashboard')
       },
       { timeout: 60000 }
     )

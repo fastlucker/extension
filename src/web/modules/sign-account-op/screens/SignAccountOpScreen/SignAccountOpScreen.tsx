@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
@@ -222,7 +222,13 @@ const SignAccountOpScreen = () => {
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
     [signAccountOpState?.accountKeyStoreKeys]
   )
+  const isAmbireV1AndNetworkNotSupported = useMemo(() => {
+    const isAmbireV1 = isAmbireV1LinkedAccount(signAccountOpState?.account?.creation?.factoryAddr)
 
+    if (!isAmbireV1) return false
+
+    return isAmbireV1 && !network?.hasRelayer
+  }, [network?.hasRelayer, signAccountOpState?.account?.creation?.factoryAddr])
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
   const notReadyToSignButAlsoNotDone =
@@ -248,9 +254,18 @@ const SignAccountOpScreen = () => {
           <Footer
             onReject={handleRejectAccountOp}
             onAddToCart={handleAddToCart}
-            isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
+            isEOA={
+              !signAccountOpState ||
+              !isSmartAccount(signAccountOpState.account) ||
+              isAmbireV1AndNetworkNotSupported
+            }
             isSignLoading={isSignLoading}
-            isSignDisabled={isViewOnly || isSignLoading || notReadyToSignButAlsoNotDone}
+            isSignDisabled={
+              isViewOnly ||
+              isSignLoading ||
+              notReadyToSignButAlsoNotDone ||
+              isAmbireV1AndNetworkNotSupported
+            }
             isViewOnly={isViewOnly}
             onSign={onSignButtonClick}
           />
@@ -283,6 +298,7 @@ const SignAccountOpScreen = () => {
               hasEstimation={!!hasEstimation && !!signAccountOpState}
               slowRequest={slowRequest}
               isViewOnly={isViewOnly}
+              isAmbireV1AndNetworkNotSupported={isAmbireV1AndNetworkNotSupported}
             />
 
             <SignAccountOpHardwareWalletSigningModal
