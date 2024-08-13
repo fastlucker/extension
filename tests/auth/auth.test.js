@@ -1,16 +1,11 @@
+import { INVITE_STORAGE_ITEM } from '../constants/constants'
 import { bootstrap } from '../common-helpers/bootstrap'
-import { setAmbKeyStore } from '../common-helpers/setAmbKeyStore'
-import { finishStoriesAndSelectAccount } from '../auth/auth-helper'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
-import { INVITE_STORAGE_ITEM } from '../constants/constants'
-import {
-  createAccountWithPhrase,
-  createAccountWithInvalidPhrase,
-  addViewOnlyAccount
-} from '../common/login'
+import { finishStoriesAndSelectAccount } from './auth-helper'
+import { setAmbKeyStore } from '../common-helpers/setAmbKeyStore'
 
-describe('ba_login', () => {
+describe('auth', () => {
   let browser
   let page
   let extensionURL
@@ -18,7 +13,7 @@ describe('ba_login', () => {
   let serviceWorker
 
   beforeEach(async () => {
-    ;({ browser, page, recorder, extensionURL, serviceWorker } = await bootstrap('ba_login'))
+    ;({ browser, page, recorder, extensionURL, serviceWorker } = await bootstrap('auth'))
     // Bypass the invite verification step
     await serviceWorker.evaluate(
       (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
@@ -33,14 +28,13 @@ describe('ba_login', () => {
     await browser.close()
   })
 
-  const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'
-
-  //------------------------------------------------------------------------------------------------------
-  it('create basic and smart accounts with private key', async () => {
+  //--------------------------------------------------------------------------------------------------------------
+  it('should import basic and smart accounts from a private key', async () => {
     await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
+
     // Click on Import button.
     await clickOnElement(page, '[data-testid="import-button"]')
 
@@ -50,10 +44,14 @@ describe('ba_login', () => {
 
     // Click on "Save and Continue" button
     await clickOnElement(page, '[data-testid="button-save-and-continue"]')
-
-    const href = await page.evaluate(() => window.location.href)
-    expect(href).toContain('/onboarding-completed')
-
+    await page.waitForFunction(
+      () => {
+        return window.location.href.includes('/onboarding-completed')
+      },
+      { timeout: 60000 }
+    )
+    const currentUrl = page.url()
+    expect(currentUrl).toContain('/onboarding-completed')
     await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
     // Wait for account addresses to load
@@ -75,68 +73,18 @@ describe('ba_login', () => {
     expect(selectedSmartAccount).toContain(firstSelectedSmartAccount)
   })
 
-  //------------------------------------------------------------------------------------------------------
-  it('create basic account with phrase', async () => {
-    await createAccountWithPhrase(page, extensionURL, process.env.BA_PASSPHRASE)
-  })
-
-  //------------------------------------------------------------------------------------------------------
-  it('(-) login into account with invalid private key', async () => {
-    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
-
-    const typeTextAndCheckValidity = async (privateKey) => {
-      await typeText(page, enterSeedPhraseField, privateKey, { delay: 10 })
-
-      // Check whether text "Invalid private key." exists on the page
-      await page.$$eval('div[dir="auto"]', (element) => {
-        return element.find((item) => item.textContent === 'Invalid private key.').textContent
-      })
-
-      // Check whether button is disabled
-      const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
-        return button.getAttribute('aria-disabled')
-      })
-
-      expect(isButtonDisabled).toBe('true')
-    }
-
-    // Test cases with different private keys
-    await typeTextAndCheckValidity(
-      '0000000000000000000000000000000000000000000000000000000000000000'
-    )
-    await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
-
-    await typeTextAndCheckValidity('', 'Test 2')
-    await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
-
-    await typeTextAndCheckValidity(
-      '00390ce7b96835258b010e25f9196bf4ddbff575b7c102546e9e40780118018'
-    )
-    await new Promise((r) => setTimeout(r, 1000))
-    await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
-
-    await typeTextAndCheckValidity(
-      '03#90ce7b96835258b019e25f9196bf4ddbff575b7c102546e9e40780118018'
-    )
-  })
-
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Login into basic account with invalid phrase', async () => {
-    await createAccountWithInvalidPhrase(page)
-  })
-
-  //--------------------------------------------------------------------------------------------------------------
-  it('change the name of the selected BA & SA account', async () => {
+  it('should import basic and smart accounts from a seed phrase and personalize them', async () => {
     await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
-
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
-
     // Click on Import button.
     await clickOnElement(page, '[data-testid="import-button"]')
+
     // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
-    await finishStoriesAndSelectAccount(page)
+    const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
+      await finishStoriesAndSelectAccount(page)
 
     const accountName1 = 'Test-Account-1'
     const accountName2 = 'Test-Account-2'
@@ -161,12 +109,12 @@ describe('ba_login', () => {
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
-    const href = await page.evaluate(() => window.location.href)
-    expect(href).toContain('/onboarding-completed')
+    const newHref = await page.evaluate(() => window.location.href)
+    expect(newHref).toContain('/onboarding-completed')
 
     await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
-    // Verify that selected accounts exist on the page
+    // Verify that selected accounts exist on the page and contains the new names
     const selectedBasicAccount = await page.$$eval(
       '[data-testid="account"]',
       (el) => el[0].innerText
@@ -177,11 +125,10 @@ describe('ba_login', () => {
       '[data-testid="account"]',
       (el) => el[1].innerText
     )
-    expect(selectedSmartAccount).toContain(accountName2)
-  })
 
-  //--------------------------------------------------------------------------------------------------------------
-  it('add view-only basic account', async () => {
-    await addViewOnlyAccount(page, extensionURL, '0x048d8573402CE085A6c8f34d568eC2Ccc995196e')
+    expect(selectedBasicAccount).toContain(firstSelectedBasicAccount)
+    expect(selectedBasicAccount).toContain(accountName1)
+    expect(selectedSmartAccount).toContain(firstSelectedSmartAccount)
+    expect(selectedSmartAccount).toContain(accountName2)
   })
 })

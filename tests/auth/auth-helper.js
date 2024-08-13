@@ -1,4 +1,4 @@
-import { clickOnElement } from './clickOnElement'
+import { clickOnElement } from '../common-helpers/clickOnElement'
 
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
