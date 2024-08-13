@@ -69,6 +69,7 @@ const DappConnectScreen = () => {
           onResolve={handleAuthorizeButtonPress}
           resolveButtonText={isAuthorizing ? t('Connecting...') : t('Connect')}
           resolveDisabled={isAuthorizing}
+          rejectButtonText={t('Deny')}
           resolveButtonTestID="dapp-connect-button"
         />
       }
