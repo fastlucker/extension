@@ -43,7 +43,7 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
   let tokenLabel = ''
 
   if (tokenInPortfolio) {
-    tokenLabel = `Token ${tokenInPortfolio.symbol} Contract`
+    tokenLabel = `Token ${tokenInPortfolio?.symbol} Contract`
   } else if (hardcodedTokenSymbol) {
     tokenLabel = t(`Token ${hardcodedTokenSymbol} Contract`)
   }
