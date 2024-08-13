@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createContext, FC, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ColorValue, View } from 'react-native'
 
@@ -11,9 +11,24 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-const DAppPermissionWrapper = ({ children }: { children: React.ReactNode }) => (
-  <View style={[flexbox.directionRow, spacings.mbMd]}>{children}</View>
-)
+const dAppPermissionWrapperContext = createContext({
+  isSmall: false
+})
+
+const DAppPermissionWrapper = ({
+  children,
+  isSmall
+}: {
+  children: React.ReactNode
+  isSmall: boolean
+}) => {
+  const contextValue = useMemo(() => ({ isSmall }), [isSmall])
+  return (
+    <dAppPermissionWrapperContext.Provider value={contextValue}>
+      <View style={[flexbox.directionRow, spacings.mbMd]}>{children}</View>
+    </dAppPermissionWrapperContext.Provider>
+  )
+}
 
 const DAppPermissionIcon = ({
   children,
@@ -21,54 +36,73 @@ const DAppPermissionIcon = ({
 }: {
   children: React.ReactNode
   backgroundColor: ColorValue | string
-}) => (
-  <View
-    style={{
-      backgroundColor,
-      width: 32,
-      height: 32,
-      ...flexbox.center,
-      ...spacings.mrTy,
-      borderRadius: 25
-    }}
-  >
-    {children}
-  </View>
-)
+}) => {
+  const { isSmall } = useContext(dAppPermissionWrapperContext)
+  return (
+    <View
+      style={{
+        backgroundColor,
+        width: isSmall ? 24 : 32,
+        height: isSmall ? 24 : 32,
+        ...flexbox.center,
+        ...spacings.mrTy,
+        borderRadius: 25
+      }}
+    >
+      {children}
+    </View>
+  )
+}
 
-const DAppPermissionText = ({ children, ...rest }: { children: React.ReactNode } & TextProps) => (
-  <Text appearance="secondaryText" fontSize={16} {...rest}>
-    {children}
-  </Text>
-)
+const DAppPermissionText = ({ children, ...rest }: { children: React.ReactNode } & TextProps) => {
+  const { isSmall } = useContext(dAppPermissionWrapperContext)
 
-const DAppPermissions = () => {
+  return (
+    <Text appearance="secondaryText" fontSize={isSmall ? 14 : 16} {...rest}>
+      {children}
+    </Text>
+  )
+}
+
+const DAppPermissions: FC<{ isSmall: boolean }> = ({ isSmall }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
 
   return (
-    <View style={spacings.mbLg}>
-      <DAppPermissionWrapper>
+    <View style={isSmall ? spacings.mb : spacings.mbLg}>
+      <DAppPermissionWrapper isSmall={isSmall}>
         <DAppPermissionIcon backgroundColor={colors.lightAzureBlue}>
-          <VisibilityIcon width={22} height={22} color={colors.azureBlue} />
+          <VisibilityIcon
+            width={isSmall ? 20 : 24}
+            height={isSmall ? 20 : 24}
+            color={colors.azureBlue}
+          />
         </DAppPermissionIcon>
         <DAppPermissionText style={spacings.ptMi}>
           Allow the dApp to{' '}
           <DAppPermissionText weight="medium">{t('see your addresses')}</DAppPermissionText>
         </DAppPermissionText>
       </DAppPermissionWrapper>
-      <DAppPermissionWrapper>
+      <DAppPermissionWrapper isSmall={isSmall}>
         <DAppPermissionIcon backgroundColor={theme.infoBackground}>
-          <TransactionsIcon width={16} height={16} color={theme.infoDecorative} />
+          <TransactionsIcon
+            width={isSmall ? 14 : 18}
+            height={isSmall ? 14 : 18}
+            color={theme.infoDecorative}
+          />
         </DAppPermissionIcon>
         <DAppPermissionText style={spacings.ptMi}>
           Allow the dApp to{' '}
           <DAppPermissionText weight="medium">{t('propose transactions')}</DAppPermissionText>
         </DAppPermissionText>
       </DAppPermissionWrapper>
-      <DAppPermissionWrapper>
+      <DAppPermissionWrapper isSmall={isSmall}>
         <DAppPermissionIcon backgroundColor={theme.errorBackground}>
-          <CloseIcon width={14} height={14} color={theme.errorDecorative} />
+          <CloseIcon
+            width={isSmall ? 10 : 14}
+            height={isSmall ? 10 : 14}
+            color={theme.errorDecorative}
+          />
         </DAppPermissionIcon>
         <DAppPermissionText style={spacings.ptMi}>
           The dApp <DAppPermissionText weight="medium">{t('cannot move funds')}</DAppPermissionText>{' '}

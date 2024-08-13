@@ -17,7 +17,6 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       ...flexbox.alignCenter,
       ...spacings.pvLg,
-      width: 454,
       marginHorizontal: 'auto'
     },
     content: {
@@ -31,15 +30,10 @@ const getStyles = (theme: ThemeProps) =>
       elevation: SPACING_SM
     },
     contentHeader: {
-      ...spacings.pvXl,
-      ...spacings.phXl,
       ...flexbox.alignCenter,
       backgroundColor: theme.tertiaryBackground
     },
     contentBody: {
-      ...spacings.phXl,
-      ...spacings.pvXl,
-      ...spacings.pbLg,
       backgroundColor: theme.primaryBackground
     }
   })

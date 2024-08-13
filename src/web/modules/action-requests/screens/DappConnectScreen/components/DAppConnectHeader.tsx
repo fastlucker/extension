@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -9,33 +9,83 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import textStyles from '@common/styles/utils/text'
 import ManifestImage from '@web/components/ManifestImage'
+import useDappsControllerState from '@web/hooks/useDappsControllerState'
 
 import getStyles from '../styles'
+import TrustedIcon from './TrustedIcon'
 
-const DAppConnectHeader = ({
-  origin,
-  name = 'Unknown dApp',
-  icon
-}: Partial<DappProviderRequest['session']>) => {
+type Props = Partial<DappProviderRequest['session']> & {
+  isSmall: boolean
+}
+
+const DAppConnectHeader: FC<Props> = ({ origin, name = 'Unknown dApp', icon, isSmall }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
+  const { state } = useDappsControllerState()
+
+  const hostname = origin ? new URL(origin).hostname : ''
+
+  const isDAppTrusted = useMemo(() => {
+    if (!hostname) return false
+
+    return state.dapps.some((dapp) => dapp.url.includes(hostname))
+  }, [hostname, state.dapps])
+
+  const spacingsStyle = useMemo(() => {
+    if (!isSmall)
+      return {
+        ...spacings.phXl,
+        ...spacings.pvXl
+      }
+
+    return {
+      ...spacings.phXl,
+      ...spacings.pvLg
+    }
+  }, [isSmall])
 
   return (
-    <View style={styles.contentHeader}>
-      <Text weight="medium" fontSize={20} style={spacings.mbXl}>
+    <View style={[styles.contentHeader, spacingsStyle]}>
+      <Text
+        weight="medium"
+        fontSize={isSmall ? 18 : 20}
+        style={isSmall ? spacings.mbLg : spacings.mbXl}
+      >
         {t('Connection requested')}
       </Text>
-      <ManifestImage
-        uri={icon}
-        size={56}
-        containerStyle={spacings.mbSm}
-        fallback={() => <ManifestFallbackIcon width={56} height={56} />}
-      />
-      <Text style={[spacings.mbMi, textStyles.center]} fontSize={20} weight="semiBold">
+      <View>
+        <ManifestImage
+          uri={icon}
+          size={isSmall ? 48 : 56}
+          containerStyle={isSmall ? spacings.mbTy : spacings.mbSm}
+          fallback={() => (
+            <ManifestFallbackIcon width={isSmall ? 48 : 56} height={isSmall ? 48 : 56} />
+          )}
+        />
+
+        {isDAppTrusted && (
+          <View
+            style={{
+              position: 'absolute',
+              right: -8,
+              top: -2,
+              width: 24,
+              height: 24
+            }}
+          >
+            <TrustedIcon />
+          </View>
+        )}
+      </View>
+      <Text
+        style={[!isSmall && spacings.mbMi, textStyles.center]}
+        fontSize={isSmall ? 18 : 20}
+        weight="semiBold"
+      >
         {name}
       </Text>
       <Text style={textStyles.center} fontSize={14} appearance="secondaryText">
-        {origin ? new URL(origin).hostname : ''}
+        {hostname}
       </Text>
     </View>
   )

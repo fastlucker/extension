@@ -6,6 +6,7 @@ import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
@@ -23,6 +24,8 @@ const DappConnectScreen = () => {
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
+  const { minWidthSize } = useWindowSize()
+  const isSmall = minWidthSize('l')
 
   const dappAction = useMemo(() => {
     if (state.currentAction?.type !== 'dappRequest') return undefined
@@ -70,15 +73,23 @@ const DappConnectScreen = () => {
         />
       }
     >
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          {
+            width: isSmall ? 420 : 454
+          }
+        ]}
+      >
         <AmbireLogoHorizontal style={spacings.mbLg} />
         <View style={styles.content}>
           <DAppConnectHeader
+            isSmall={isSmall}
             name={userRequest?.session?.name}
             origin={userRequest?.session?.origin}
             icon={userRequest?.session?.icon}
           />
-          <DAppConnectBody />
+          <DAppConnectBody isSmall={isSmall} />
         </View>
       </View>
     </TabLayoutContainer>
