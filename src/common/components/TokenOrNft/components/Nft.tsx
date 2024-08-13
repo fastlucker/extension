@@ -1,4 +1,5 @@
 import React, { FC, memo } from 'react'
+import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import Address from '@common/components/Address'
@@ -27,12 +28,14 @@ const Nft: FC<Props> = ({ address, tokenId, textSize = 16, network, networks, nf
         }}
         networks={networks}
       />
-      <Address
-        fontSize={textSize}
-        address={address}
-        highestPriorityAlias={`${nftInfo?.name || 'NFT'} #${tokenId}`}
-        explorerNetworkId={network.id}
-      />
+      <View style={[spacings.mrTy]}>
+        <Address
+          fontSize={textSize}
+          address={address}
+          highestPriorityAlias={`${nftInfo?.name || 'NFT'} #${tokenId}`}
+          explorerNetworkId={network.id}
+        />
+      </View>
     </>
   )
 }
