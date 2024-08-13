@@ -1,8 +1,8 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
+import { Dapp, DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -22,14 +22,24 @@ const DAppConnectHeader: FC<Props> = ({ origin, name = 'Unknown dApp', icon, isS
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const { state } = useDappsControllerState()
+  // When the user connects to a dApp, the dApp is added to the list of dApps.
+  // If we don't use the initial list of dApps to determine if a dApp is trusted,
+  // the dApp will be marked as trusted for a split second before the window closes.
+  const [initialDappsList, setInitialDappsList] = useState<Dapp[]>([])
 
   const hostname = origin ? new URL(origin).hostname : ''
+
+  useEffect(() => {
+    if (!initialDappsList.length && state.dapps.length) {
+      setInitialDappsList(state.dapps)
+    }
+  }, [initialDappsList, state.dapps])
 
   const isDAppTrusted = useMemo(() => {
     if (!hostname) return false
 
-    return state.dapps.some((dapp) => dapp.url.includes(hostname))
-  }, [hostname, state.dapps])
+    return initialDappsList.some((dapp) => dapp.url.includes(hostname))
+  }, [hostname, initialDappsList])
 
   const spacingsStyle = useMemo(() => {
     if (!isSmall)
