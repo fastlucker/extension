@@ -24,7 +24,9 @@ export async function bootstrapWithStorage(namespace, params) {
         termsState: params.envTermState,
         tokenIcons: params.parsedTokenItems,
         invite: params.invite,
-        isE2EStorageSet: true
+        isE2EStorageSet: true,
+        isPinned: 'true',
+        isSetupComplete: 'true'
       }),
     params
   )
