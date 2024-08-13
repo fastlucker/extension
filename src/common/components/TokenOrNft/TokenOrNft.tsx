@@ -6,7 +6,7 @@ import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
-import spacings, { SPACING_TY } from '@common/styles/spacings'
+import { SPACING_TY } from '@common/styles/spacings'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
