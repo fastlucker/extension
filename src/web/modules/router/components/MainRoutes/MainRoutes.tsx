@@ -31,7 +31,6 @@ import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/H
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import NetworksScreen from '@web/modules/networks/screens'
-import OnBoardingCompletedScreen from '@web/modules/onboarding/screens/OnBoardingCompletedScreen'
 import InviteVerifiedRoute from '@web/modules/router/components/InviteVerifiedRoute'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
@@ -109,7 +108,6 @@ const MainRoutes = () => {
 
             <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
             <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
-            <Route path={WEB_ROUTES.onboardingCompleted} element={<OnBoardingCompletedScreen />} />
 
             <Route path={WEB_ROUTES.keyStoreReset} element={<KeyStoreResetScreen />} />
             <Route element={<PrivateRoute />}>

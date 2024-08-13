@@ -21,7 +21,13 @@ describe('ba_login', () => {
     ;({ browser, page, recorder, extensionURL, serviceWorker } = await bootstrap('ba_login'))
     // Bypass the invite verification step
     await serviceWorker.evaluate(
-      (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
+      (invite) =>
+        chrome.storage.local.set({
+          invite,
+          isE2EStorageSet: true,
+          isPinned: 'true',
+          isSetupComplete: 'true'
+        }),
       JSON.stringify(INVITE_STORAGE_ITEM)
     )
 

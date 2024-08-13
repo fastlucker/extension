@@ -5,7 +5,6 @@ import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -23,7 +22,6 @@ const SortHat = () => {
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
-  const { params } = useRoute()
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -84,13 +82,10 @@ const SortHat = () => {
           })
         return navigate(link)
       }
-    } else if (params?.openOnboardingCompleted) {
-      navigate(ROUTES.onboardingCompleted, { state: { validSession: true } })
     } else {
       navigate(ROUTES.dashboard)
     }
   }, [
-    params?.openOnboardingCompleted,
     isActionWindow,
     actionsState.currentAction,
     authStatus,

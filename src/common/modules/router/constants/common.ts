@@ -51,7 +51,6 @@ const WEB_ROUTES = {
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
-  onboardingCompleted: 'onboarding-completed',
   dappConnectRequest: 'dapp-connect-request',
   watchAsset: 'watch-asset',
   addChain: 'add-chain',

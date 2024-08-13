@@ -20,14 +20,14 @@ export async function createAccountWithPhrase(page, extensionURL, phrase) {
 
   // Click on Import button.
   await clickOnElement(page, '[data-testid="import-button"]')
-  await clickOnElement(page, '[data-testid="do-not-save-seed-button"]', true, 1500)
+  await clickOnElement(page, '[data-testid="do-not-save-seed-button"]', false, 1500)
   // This function will complete the onboarding stories and will select and retrieve first basic and first smarts account
   const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
     await finishStoriesAndSelectAccount(page, 'true')
 
   // Click on "Save and Continue" button
   await clickOnElement(page, '[data-testid="button-save-and-continue"]')
-  await page.waitForFunction(() => window.location.href.includes('/onboarding-completed'))
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
   // Verify that selected accounts exist on the page

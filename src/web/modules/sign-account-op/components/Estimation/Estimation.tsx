@@ -15,6 +15,7 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Fee from '@web/modules/sign-account-op/components/Fee'
@@ -32,7 +33,8 @@ const Estimation = ({
   disabled,
   hasEstimation,
   slowRequest,
-  isViewOnly
+  isViewOnly,
+  isAmbireV1AndNetworkNotSupported
 }: Props) => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
@@ -228,7 +230,10 @@ const Estimation = ({
     [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
-  if ((!hasEstimation && !estimationFailed) || !signAccountOpState || !payValue) {
+  if (
+    !signAccountOpState ||
+    (!isAmbireV1AndNetworkNotSupported && ((!hasEstimation && !estimationFailed) || !payValue))
+  ) {
     return (
       <EstimationWrapper>
         <EstimationSkeleton />
@@ -239,6 +244,7 @@ const Estimation = ({
           isViewOnly={isViewOnly}
           rbfDetected={false}
           bundlerFailure={false}
+          isAmbireV1AndNetworkNotSupported={false}
         />
       </EstimationWrapper>
     )
@@ -308,9 +314,17 @@ const Estimation = ({
           {!!selectedFee && !!payValue && (
             <AmountInfo
               label="Fee"
-              amountFormatted={selectedFee.amountFormatted}
+              amountFormatted={formatDecimals(parseFloat(selectedFee.amountFormatted))}
               symbol={payValue.token?.symbol}
             />
+          )}
+          {!!signAccountOpState.gasSavedUSD && (
+            <AmountInfo.Wrapper>
+              <AmountInfo.Label appearance="primary">{t('Gas Tank saves you')}</AmountInfo.Label>
+              <AmountInfo.Text appearance="primary" selectable>
+                {formatDecimals(signAccountOpState.gasSavedUSD, 'price')} USD
+              </AmountInfo.Text>
+            </AmountInfo.Wrapper>
           )}
           {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
           {/* <View style={styles.gasTankContainer}> */}
@@ -320,6 +334,7 @@ const Estimation = ({
         </>
       )}
       <Warnings
+        isAmbireV1AndNetworkNotSupported={isAmbireV1AndNetworkNotSupported}
         hasEstimation={hasEstimation}
         estimationFailed={estimationFailed}
         slowRequest={slowRequest}
@@ -331,7 +346,7 @@ const Estimation = ({
           )
         }
       />
-      {isSmartAccountAndNotDeployed ? (
+      {isSmartAccountAndNotDeployed && !isAmbireV1AndNetworkNotSupported ? (
         <Alert
           type="info"
           title={t('Note')}
