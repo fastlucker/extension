@@ -113,4 +113,4 @@ const DAppPermissions: FC<{ isSmall: boolean }> = ({ isSmall }) => {
   )
 }
 
-export default DAppPermissions
+export default React.memo(DAppPermissions)

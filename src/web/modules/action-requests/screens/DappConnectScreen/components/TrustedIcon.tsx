@@ -25,4 +25,4 @@ const TrustedIcon = () => {
   )
 }
 
-export default TrustedIcon
+export default React.memo(TrustedIcon)

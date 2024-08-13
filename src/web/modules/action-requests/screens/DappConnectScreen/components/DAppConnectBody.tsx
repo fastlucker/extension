@@ -46,4 +46,4 @@ const DAppConnectBody: FC<{ isSmall: boolean }> = ({ isSmall }) => {
   )
 }
 
-export default DAppConnectBody
+export default React.memo(DAppConnectBody)

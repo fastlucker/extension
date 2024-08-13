@@ -101,4 +101,4 @@ const DAppConnectHeader: FC<Props> = ({ origin, name = 'Unknown dApp', icon, isS
   )
 }
 
-export default DAppConnectHeader
+export default React.memo(DAppConnectHeader)
