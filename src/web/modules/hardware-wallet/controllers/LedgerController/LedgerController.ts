@@ -93,6 +93,44 @@ class LedgerController implements ExternalSignerController {
   }
 
   /**
+   * This function is designed to handle the scenario where Ledger device loses
+   * connectivity during an operation. Without this method, if the Ledger device
+   * disconnects, the Ledger SDK hangs indefinitely because the promise
+   * associated with the operation never resolves or rejects.
+   */
+  static withDisconnectProtection = async <T>(operation: () => Promise<T>): Promise<T> => {
+    let listenerCbRef: (...args: Array<any>) => any = () => {}
+    const disconnectHandler =
+      (reject: (reason?: any) => void) =>
+      ({ device }: { device: HIDDevice }) => {
+        if (LedgerController.vendorId === device.vendorId) {
+          reject(new Error('Ledger device got disconnected.'))
+        }
+      }
+
+    try {
+      // Race the operation against a new Promise that rejects if a 'disconnect'
+      // event is emitted from the Ledger device. If the device disconnects
+      // before the operation completes, the new Promise rejects and the method
+      // returns, preventing the SDK from hanging. If the operation completes
+      // before the device disconnects, the result of the operation is returned.
+      const result = await Promise.race<T>([
+        operation(),
+        new Promise((_, reject) => {
+          listenerCbRef = disconnectHandler(reject)
+          navigator.hid.addEventListener('disconnect', listenerCbRef)
+        })
+      ])
+
+      return result
+    } finally {
+      // In either case, the 'disconnect' event listener should be removed
+      // after the operation to clean up resources.
+      if (listenerCbRef) navigator.hid.removeEventListener('disconnect', listenerCbRef)
+    }
+  }
+
+  /**
    * The Ledger device requires a new SDK instance (session) every time the
    * device is connected (after being disconnected). This method checks if there
    * is an existing SDK instance and creates a new one if needed.
@@ -216,44 +254,6 @@ class LedgerController implements ExternalSignerController {
 
   async cleanUpListener({ device }: { device: HIDDevice }) {
     if (device.vendorId === LedgerController.vendorId) await this.cleanUp()
-  }
-
-  /**
-   * This function is designed to handle the scenario where Ledger device loses
-   * connectivity during an operation. Without this method, if the Ledger device
-   * disconnects, the Ledger SDK hangs indefinitely because the promise
-   * associated with the operation never resolves or rejects.
-   */
-  static withDisconnectProtection = async <T>(operation: () => Promise<T>): Promise<T> => {
-    let listenerCbRef: (...args: Array<any>) => any = () => {}
-    const disconnectHandler =
-      (reject: (reason?: any) => void) =>
-      ({ device }: { device: HIDDevice }) => {
-        if (LedgerController.vendorId === device.vendorId) {
-          reject(new Error('Ledger device got disconnected.'))
-        }
-      }
-
-    try {
-      // Race the operation against a new Promise that rejects if a 'disconnect'
-      // event is emitted from the Ledger device. If the device disconnects
-      // before the operation completes, the new Promise rejects and the method
-      // returns, preventing the SDK from hanging. If the operation completes
-      // before the device disconnects, the result of the operation is returned.
-      const result = await Promise.race<T>([
-        operation(),
-        new Promise((_, reject) => {
-          listenerCbRef = disconnectHandler(reject)
-          navigator.hid.addEventListener('disconnect', listenerCbRef)
-        })
-      ])
-
-      return result
-    } finally {
-      // In either case, the 'disconnect' event listener should be removed
-      // after the operation to clean up resources.
-      if (listenerCbRef) navigator.hid.removeEventListener('disconnect', listenerCbRef)
-    }
   }
 }
 
