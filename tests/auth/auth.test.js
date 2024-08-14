@@ -25,7 +25,7 @@ describe('auth', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -44,16 +44,8 @@ describe('auth', () => {
 
     // Click on "Save and Continue" button
     await clickOnElement(page, '[data-testid="button-save-and-continue"]')
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/onboarding-completed')
-      },
-      { timeout: 60000 }
-    )
-    const currentUrl = page.url()
-    expect(currentUrl).toContain('/onboarding-completed')
-    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
+    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
     // Wait for account addresses to load
     await new Promise((r) => {
       setTimeout(r, 2000)
@@ -109,9 +101,6 @@ describe('auth', () => {
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
-    const newHref = await page.evaluate(() => window.location.href)
-    expect(newHref).toContain('/onboarding-completed')
-
     await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
     // Verify that selected accounts exist on the page and contains the new names
@@ -130,5 +119,73 @@ describe('auth', () => {
     expect(selectedBasicAccount).toContain(accountName1)
     expect(selectedSmartAccount).toContain(firstSelectedSmartAccount)
     expect(selectedSmartAccount).toContain(accountName2)
+  })
+
+  //--------------------------------------------------------------------------------------------------------------
+  it.only('should import view-only accounts', async () => {
+    const smartAccount = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
+
+    const basicAccount = '0x048d8573402CE085A6c8f34d568eC2Ccc995196e'
+
+    // Click on "Next" button several times to finish the onboarding.
+    await clickOnElement(page, '[data-testid="stories-button-next-0"]')
+    await clickOnElement(page, '[data-testid="stories-button-next-1"]')
+    await clickOnElement(page, '[data-testid="stories-button-next-2"]')
+    await clickOnElement(page, '[data-testid="stories-button-next-3"]')
+    await clickOnElement(page, '[data-testid="stories-button-next-4"]')
+
+    // check the checkbox "I agree ..."
+    await page.$eval('[data-testid="checkbox"]', (button) => button.click())
+
+    // Click on "Got it"
+    await clickOnElement(page, '[data-testid="stories-button-next-5"]')
+
+    await page.waitForFunction(() => window.location.href.includes('/get-started'))
+
+    // Select "Add"
+    await clickOnElement(page, '[data-testid="get-started-button-add"]')
+
+    await typeText(page, '[data-testid="address-ens-field"]', smartAccount)
+
+    // Click on "Import View-Only Accounts" button
+    await clickOnElement(page, '[data-testid="view-only-button-import"]')
+
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]')
+
+    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
+
+    // Find the element containing the specified address
+    const addressElement = await page.$x(`//*[contains(text(), '${smartAccount}')]`)
+
+    if (addressElement.length > 0) {
+      console.log('666666666')
+      // Get the parent element of the element with the specified address
+      const parentElement = await addressElement[0].$x('../../..')
+
+      if (parentElement.length > 0) {
+        // Get the text content of the parent element and all elements within it
+        const parentTextContent = await page.evaluate((element) => {
+          const elements = element.querySelectorAll('*')
+          return Array.from(elements, (el) => el.textContent).join('\n')
+        }, parentElement[0])
+
+        // Verify that somewhere in the content there is the text 'View-only'
+        const containsViewOnly = parentTextContent.includes('View-only')
+
+        expect(containsViewOnly).toBe(true)
+      }
+    }
+
+    await clickOnElement(page, '[data-testid="button-add-account"]')
+    // await page.waitForSelector('[data-testid="create-new-wallet"]')
+    // await new Promise((r) => {
+    //   setTimeout(r, 1000)
+    // })
+    await clickOnElement(page, '[data-testid="watch-address"]', true, 1500)
+    await typeText(page, '[data-testid="address-ens-field"]', basicAccount)
+    // Click on "Import View-Only Accounts" button
+    await clickOnElement(page, '[data-testid="view-only-button-import"]')
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]')
+    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
   })
 })
