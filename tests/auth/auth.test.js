@@ -25,7 +25,7 @@ describe('auth', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -158,7 +158,6 @@ describe('auth', () => {
     const addressElement = await page.$x(`//*[contains(text(), '${smartAccount}')]`)
 
     if (addressElement.length > 0) {
-      console.log('666666666')
       // Get the parent element of the element with the specified address
       const parentElement = await addressElement[0].$x('../../..')
 
