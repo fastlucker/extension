@@ -122,7 +122,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('should import view-only accounts', async () => {
+  it('should import view-only accounts', async () => {
     const smartAccount = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 
     const basicAccount = '0x048d8573402CE085A6c8f34d568eC2Ccc995196e'
