@@ -21,13 +21,22 @@ export interface AccountPortfolio {
   collections: CollectionResultInterface[]
   totalAmount: number
   isAllReady: boolean
+  portfolioNonces: { [networkId: string]: bigint }
+  tokenAmounts: {
+    latestAmount: bigint
+    pendingAmount: bigint
+    address: string
+    networkId: string
+  }[]
 }
 
 const DEFAULT_ACCOUNT_PORTFOLIO = {
   tokens: [],
   collections: [],
   totalAmount: 0,
-  isAllReady: false
+  isAllReady: false,
+  portfolioNonces: {},
+  tokenAmounts: []
 }
 
 const PortfolioControllerStateContext = createContext<{

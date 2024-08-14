@@ -22,6 +22,7 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import colors from '@common/styles/colors'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import PendingBadge from './PendingBadge'
 
 import TokenDetails from '../TokenDetails'
@@ -36,7 +37,7 @@ const TokenItem = ({
   tokenPreferences: CustomToken[]
   testID?: string
 }) => {
-  const { claimWalletRewards } = usePortfolioControllerState()
+  const { claimWalletRewards, accountPortfolio } = usePortfolioControllerState()
   const {
     symbol,
     address,
@@ -46,6 +47,7 @@ const TokenItem = ({
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const { accounts, selectedAccount } = useAccountsControllerState()
+  const activityState = useActivityControllerState()
 
   const { styles, theme } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -62,29 +64,38 @@ const TokenItem = ({
     [accounts, selectedAccount]
   )
 
-  // By design we should simulate only for SA on the DashboardScreen
-  const isPending = useMemo(() => {
-    if (!isSmartAccount(account)) return false
-
-    return token.amountPostSimulation !== undefined && token.amountPostSimulation !== token.amount
-  }, [account, token.amount, token.amountPostSimulation])
+  // TODO: useMemo
+  const pendingLastKnownNonce = accountPortfolio?.portfolioNonces[token.networkId]
+  const activityNonce = activityState?.lastKnownNonce[token.networkId]
+  // TODO: Should exclude Gas tank tokens for pending-to-be-signed and pending-to-be-confirmed badges.
+  const tokenAmounts = accountPortfolio?.tokenAmounts.find(
+    (tokenAmount) =>
+      tokenAmount.address === token.address && tokenAmount.networkId === token.networkId
+  )
 
   const {
     balanceFormatted,
     balance,
-    pendingBalance,
-    pendingBalanceFormatted,
-    pendingBalanceUSDFormatted,
     priceUSDFormatted,
     balanceUSDFormatted,
     isVesting,
     networkData,
     isRewards,
-    balanceChange,
-    simAmount,
+    pendingBalance,
+    pendingBalanceFormatted,
+    pendingBalanceUSDFormatted,
+    pendingToBeSigned,
+    pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getTokenDetails(token, networks)
+  } = getTokenDetails(token, networks, activityNonce, pendingLastKnownNonce, tokenAmounts)
+
+  // By design we should simulate only for SA on the DashboardScreen
+  const isPending = useMemo(() => {
+    if (!isSmartAccount(account)) return false
+
+    return !!pendingBalance
+  }, [account, token.amount, token.amountPostSimulation])
 
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
 
@@ -185,17 +196,17 @@ const TokenItem = ({
         {isPending && (
           <View style={[{ marginLeft: SPACING_2XL + SPACING_TY }, spacings.mtSm]}>
             <View>
-              {simAmount !== 0n && (
+              {pendingToBeSigned && (
                 <PendingBadge
-                  amount={simAmount}
-                  amountFormatted={balanceChange}
+                  amount={pendingToBeSigned}
+                  amountFormatted={pendingToBeSignedFormatted}
                   label="Pending transaction signature"
                   backgroundColor={colors.lightBrown}
                   textColor={theme.warningText}
                   Icon={CartIcon}
                 />
               )}
-              {pendingToBeConfirmed !== 0n && (
+              {pendingToBeConfirmed && (
                 <PendingBadge
                   amount={pendingToBeConfirmed}
                   amountFormatted={pendingToBeConfirmedFormatted}
