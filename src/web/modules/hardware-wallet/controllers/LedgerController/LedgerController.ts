@@ -152,47 +152,49 @@ class LedgerController implements ExternalSignerController {
   }
 
   async retrieveAddresses(paths: string[]) {
-    await this.#initSDKSessionIfNeeded()
+    return LedgerController.withDisconnectProtection(async () => {
+      await this.#initSDKSessionIfNeeded()
 
-    if (!this.walletSDK) {
-      throw new Error(normalizeLedgerMessage()) // no message, indicating no connection
-    }
-
-    const keys: string[] = []
-    let latestGetAddressError: Error | undefined
-    for (let i = 0; i < paths.length; i++) {
-      try {
-        // Purposely await in loop to avoid sending multiple requests at once.
-        // Send them 1 by 1, the Ledger device can't handle them in parallel,
-        // it throws a "device busy" error.
-        // eslint-disable-next-line no-await-in-loop
-        const key = await withLedgerTimeoutProtection(() =>
-          this.walletSDK!.getAddress(
-            paths[i],
-            false, // no need to show on display
-            false // no need for the chain code
-          )
-        )
-
-        if (key) keys.push(key.address)
-      } catch (e: any) {
-        latestGetAddressError = e
+      if (!this.walletSDK) {
+        throw new Error(normalizeLedgerMessage()) // no message, indicating no connection
       }
-    }
 
-    // Corner-case: if user interacts with Ambire, then interacts with another
-    // wallet app (installed on the computer or a web app) and then comes back
-    // to Ambire, the Ledger device might not respond to all requests. Therefore
-    // we might receive only some of the keys, but not all of them.
-    // To reproduce: 1. Plug in and unlock Ledger, open Ambire, import accounts;
-    // 2. Now switch to Ledger Live and connect (My Ledger); 3. Switch back to
-    // Ambire and try importing accounts again.
-    const notAllKeysGotRetrieved = keys.length !== paths.length
-    if (notAllKeysGotRetrieved) {
-      throw new Error(normalizeLedgerMessage(latestGetAddressError?.message))
-    }
+      const keys: string[] = []
+      let latestGetAddressError: Error | undefined
+      for (let i = 0; i < paths.length; i++) {
+        try {
+          // Purposely await in loop to avoid sending multiple requests at once.
+          // Send them 1 by 1, the Ledger device can't handle them in parallel,
+          // it throws a "device busy" error.
+          // eslint-disable-next-line no-await-in-loop
+          const key = await withLedgerTimeoutProtection(() =>
+            this.walletSDK!.getAddress(
+              paths[i],
+              false, // no need to show on display
+              false // no need for the chain code
+            )
+          )
 
-    return keys
+          if (key) keys.push(key.address)
+        } catch (e: any) {
+          latestGetAddressError = e
+        }
+      }
+
+      // Corner-case: if user interacts with Ambire, then interacts with another
+      // wallet app (installed on the computer or a web app) and then comes back
+      // to Ambire, the Ledger device might not respond to all requests. Therefore
+      // we might receive only some of the keys, but not all of them.
+      // To reproduce: 1. Plug in and unlock Ledger, open Ambire, import accounts;
+      // 2. Now switch to Ledger Live and connect (My Ledger); 3. Switch back to
+      // Ambire and try importing accounts again.
+      const notAllKeysGotRetrieved = keys.length !== paths.length
+      if (notAllKeysGotRetrieved) {
+        throw new Error(normalizeLedgerMessage(latestGetAddressError?.message))
+      }
+
+      return keys
+    })
   }
 
   cleanUp = async () => {
@@ -214,6 +216,44 @@ class LedgerController implements ExternalSignerController {
 
   async cleanUpListener({ device }: { device: HIDDevice }) {
     if (device.vendorId === LedgerController.vendorId) await this.cleanUp()
+  }
+
+  /**
+   * This function is designed to handle the scenario where Ledger device loses
+   * connectivity during an operation. Without this method, if the Ledger device
+   * disconnects, the Ledger SDK hangs indefinitely because the promise
+   * associated with the operation never resolves or rejects.
+   */
+  static withDisconnectProtection = async <T>(operation: () => Promise<T>): Promise<T> => {
+    let listenerCbRef: (...args: Array<any>) => any = () => {}
+    const disconnectHandler =
+      (reject: (reason?: any) => void) =>
+      ({ device }: { device: HIDDevice }) => {
+        if (LedgerController.vendorId === device.vendorId) {
+          reject(new Error('Ledger device got disconnected.'))
+        }
+      }
+
+    try {
+      // Race the operation against a new Promise that rejects if a 'disconnect'
+      // event is emitted from the Ledger device. If the device disconnects
+      // before the operation completes, the new Promise rejects and the method
+      // returns, preventing the SDK from hanging. If the operation completes
+      // before the device disconnects, the result of the operation is returned.
+      const result = await Promise.race<T>([
+        operation(),
+        new Promise((_, reject) => {
+          listenerCbRef = disconnectHandler(reject)
+          navigator.hid.addEventListener('disconnect', listenerCbRef)
+        })
+      ])
+
+      return result
+    } finally {
+      // In either case, the 'disconnect' event listener should be removed
+      // after the operation to clean up resources.
+      if (listenerCbRef) navigator.hid.removeEventListener('disconnect', listenerCbRef)
+    }
   }
 }
 
