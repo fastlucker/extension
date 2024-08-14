@@ -3,14 +3,13 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
-import {
-  normalizeLedgerMessage,
-  withLedgerTimeoutProtection
-} from '@ambire-common/libs/ledger/ledger'
+import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { ledgerUSBVendorId } from '@ledgerhq/devices'
 import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
+
+const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
 
 class LedgerController implements ExternalSignerController {
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
@@ -131,6 +130,24 @@ class LedgerController implements ExternalSignerController {
   }
 
   /**
+   * Handles the scenario where Ledger device hangs indefinitely during an
+   * operation. Happens in some cases when the Ledger device gets connected to
+   * Ambire, then another app is accessing the Ledger device and then user comes
+   * back to Ambire (without unplug-plugging the Ledger).
+   */
+  static withTimeoutProtection = async <T>(operation: () => Promise<T>): Promise<T> => {
+    const timeout = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        const message =
+          'Could not connect to your Ledger device for an extended period. Please close any other apps that may be accessing your Ledger device (including wallet apps on your computer and web apps). Ensure your Ledger is responsive. Unplug and plug it again.'
+        reject(new Error(message))
+      }, TIMEOUT_FOR_RETRIEVING_FROM_LEDGER)
+    })
+
+    return Promise.race([operation(), timeout])
+  }
+
+  /**
    * The Ledger device requires a new SDK instance (session) every time the
    * device is connected (after being disconnected). This method checks if there
    * is an existing SDK instance and creates a new one if needed.
@@ -205,7 +222,7 @@ class LedgerController implements ExternalSignerController {
           // Send them 1 by 1, the Ledger device can't handle them in parallel,
           // it throws a "device busy" error.
           // eslint-disable-next-line no-await-in-loop
-          const key = await withLedgerTimeoutProtection(() =>
+          const key = await LedgerController.withTimeoutProtection(() =>
             this.walletSDK!.getAddress(
               paths[i],
               false, // no need to show on display
@@ -245,8 +262,16 @@ class LedgerController implements ExternalSignerController {
     navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
 
     try {
-      // Might fail if the transport was already closed, which is fine.
-      await this.transport?.close()
+      // Might hang! If user interacts with Ambire, then interacts with another
+      // wallet app (installed on the computer or a web app) and then comes back
+      // to Ambire, closing the current transport hangs indefinitely.
+      await Promise.race([
+        // Might fail if the transport was already closed, which is fine.
+        this.transport?.close(),
+        new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Close timeout')), 3000)
+        })
+      ])
     } finally {
       this.transport = null
     }
