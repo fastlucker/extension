@@ -3,7 +3,10 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
-import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
+import {
+  normalizeLedgerMessage,
+  withLedgerTimeoutProtection
+} from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { ledgerUSBVendorId } from '@ledgerhq/devices'
 import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
@@ -146,6 +149,50 @@ class LedgerController implements ExternalSignerController {
     } catch (error: any) {
       throw new Error(normalizeLedgerMessage(error?.message))
     }
+  }
+
+  async retrieveAddresses(paths: string[]) {
+    await this.#initSDKSessionIfNeeded()
+
+    if (!this.walletSDK) {
+      throw new Error(normalizeLedgerMessage()) // no message, indicating no connection
+    }
+
+    const keys: string[] = []
+    let latestGetAddressError: Error | undefined
+    for (let i = 0; i < paths.length; i++) {
+      try {
+        // Purposely await in loop to avoid sending multiple requests at once.
+        // Send them 1 by 1, the Ledger device can't handle them in parallel,
+        // it throws a "device busy" error.
+        // eslint-disable-next-line no-await-in-loop
+        const key = await withLedgerTimeoutProtection(() =>
+          this.walletSDK!.getAddress(
+            paths[i],
+            false, // no need to show on display
+            false // no need for the chain code
+          )
+        )
+
+        if (key) keys.push(key.address)
+      } catch (e: any) {
+        latestGetAddressError = e
+      }
+    }
+
+    // Corner-case: if user interacts with Ambire, then interacts with another
+    // wallet app (installed on the computer or a web app) and then comes back
+    // to Ambire, the Ledger device might not respond to all requests. Therefore
+    // we might receive only some of the keys, but not all of them.
+    // To reproduce: 1. Plug in and unlock Ledger, open Ambire, import accounts;
+    // 2. Now switch to Ledger Live and connect (My Ledger); 3. Switch back to
+    // Ambire and try importing accounts again.
+    const notAllKeysGotRetrieved = keys.length !== paths.length
+    if (notAllKeysGotRetrieved) {
+      throw new Error(normalizeLedgerMessage(latestGetAddressError?.message))
+    }
+
+    return keys
   }
 
   cleanUp = async () => {
