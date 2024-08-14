@@ -269,7 +269,8 @@ class LedgerController implements ExternalSignerController {
         // Might fail if the transport was already closed, which is fine.
         this.transport?.close(),
         new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Close timeout')), 3000)
+          const message = normalizeLedgerMessage('No response received from the Ledger device.')
+          setTimeout(() => reject(message), 3000)
         })
       ])
     } finally {
