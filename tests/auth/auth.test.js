@@ -154,37 +154,33 @@ describe('auth', () => {
 
     await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
-    // Find the element containing the specified address
-    const addressElement = await page.$x(`//*[contains(text(), '${smartAccount}')]`)
+    await page.waitForSelector('[data-testid="address"]')
+    // Verify that added accounts exist on the page and contains 'View-only'
+    let selectedBasicAccount = await page.$eval('[data-testid="account"]', (el) => el.innerText)
 
-    if (addressElement.length > 0) {
-      // Get the parent element of the element with the specified address
-      const parentElement = await addressElement[0].$x('../../..')
-
-      if (parentElement.length > 0) {
-        // Get the text content of the parent element and all elements within it
-        const parentTextContent = await page.evaluate((element) => {
-          const elements = element.querySelectorAll('*')
-          return Array.from(elements, (el) => el.textContent).join('\n')
-        }, parentElement[0])
-
-        // Verify that somewhere in the content there is the text 'View-only'
-        const containsViewOnly = parentTextContent.includes('View-only')
-
-        expect(containsViewOnly).toBe(true)
-      }
-    }
+    expect(selectedBasicAccount).toContain(smartAccount)
+    expect(selectedBasicAccount).toContain('View-only')
 
     await clickOnElement(page, '[data-testid="button-add-account"]')
-    // await page.waitForSelector('[data-testid="create-new-wallet"]')
-    // await new Promise((r) => {
-    //   setTimeout(r, 1000)
-    // })
+
     await clickOnElement(page, '[data-testid="watch-address"]', true, 1500)
     await typeText(page, '[data-testid="address-ens-field"]', basicAccount)
     // Click on "Import View-Only Accounts" button
     await clickOnElement(page, '[data-testid="view-only-button-import"]')
     await clickOnElement(page, '[data-testid="button-save-and-continue"]')
     await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
+
+    // Verify that added accounts exist on the page and contains 'View-only'
+    selectedBasicAccount = await page.$$eval('[data-testid="account"]', (el) => el[0].innerText)
+
+    const selectedSmartAccount = await page.$$eval(
+      '[data-testid="account"]',
+      (el) => el[1].innerText
+    )
+
+    expect(selectedBasicAccount).toContain(smartAccount)
+    expect(selectedBasicAccount).toContain('View-only')
+    expect(selectedSmartAccount).toContain(basicAccount)
+    expect(selectedSmartAccount).toContain('View-only')
   })
 })
