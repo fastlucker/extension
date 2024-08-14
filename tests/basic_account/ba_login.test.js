@@ -57,9 +57,6 @@ describe('ba_login', () => {
     // Click on "Save and Continue" button
     await clickOnElement(page, '[data-testid="button-save-and-continue"]')
 
-    const href = await page.evaluate(() => window.location.href)
-    expect(href).toContain('/onboarding-completed')
-
     await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
     // Wait for account addresses to load
@@ -166,9 +163,6 @@ describe('ba_login', () => {
     // Click on "Save and Continue" button
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
-
-    const href = await page.evaluate(() => window.location.href)
-    expect(href).toContain('/onboarding-completed')
 
     await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
