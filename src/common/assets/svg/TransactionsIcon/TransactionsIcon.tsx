@@ -19,4 +19,4 @@ const TransactionsIcon: FC<SvgProps> = ({
   )
 }
 
-export default TransactionsIcon
+export default React.memo(TransactionsIcon)
