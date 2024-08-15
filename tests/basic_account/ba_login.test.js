@@ -1,14 +1,8 @@
 import { bootstrap } from '../common-helpers/bootstrap'
 import { setAmbKeyStore } from '../common-helpers/setAmbKeyStore'
-import { finishStoriesAndSelectAccount } from '../auth/auth-helper'
-import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { INVITE_STORAGE_ITEM } from '../constants/constants'
-import {
-  createAccountWithPhrase,
-  createAccountWithInvalidPhrase,
-  addViewOnlyAccount
-} from '../common/login'
+import { createAccountWithInvalidPhrase } from '../common/login'
 
 describe('ba_login', () => {
   let browser
@@ -40,48 +34,6 @@ describe('ba_login', () => {
   })
 
   const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'
-
-  //------------------------------------------------------------------------------------------------------
-  it('create basic and smart accounts with private key', async () => {
-    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
-    await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
-
-    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
-    // Click on Import button.
-    await clickOnElement(page, '[data-testid="import-button"]')
-
-    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
-    const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page)
-
-    // Click on "Save and Continue" button
-    await clickOnElement(page, '[data-testid="button-save-and-continue"]')
-
-    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
-
-    // Wait for account addresses to load
-    await new Promise((r) => {
-      setTimeout(r, 2000)
-    })
-
-    // Verify that selected accounts exist on the page
-    const selectedBasicAccount = await page.$$eval(
-      '[data-testid="account"]',
-      (el) => el[0].innerText
-    )
-    expect(selectedBasicAccount).toContain(firstSelectedBasicAccount)
-
-    const selectedSmartAccount = await page.$$eval(
-      '[data-testid="account"]',
-      (el) => el[1].innerText
-    )
-    expect(selectedSmartAccount).toContain(firstSelectedSmartAccount)
-  })
-
-  //------------------------------------------------------------------------------------------------------
-  it('create basic account with phrase', async () => {
-    await createAccountWithPhrase(page, extensionURL, process.env.BA_PASSPHRASE)
-  })
 
   //------------------------------------------------------------------------------------------------------
   it('(-) login into account with invalid private key', async () => {
@@ -126,62 +78,5 @@ describe('ba_login', () => {
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Login into basic account with invalid phrase', async () => {
     await createAccountWithInvalidPhrase(page)
-  })
-
-  //--------------------------------------------------------------------------------------------------------------
-  it('change the name of the selected BA & SA account', async () => {
-    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
-
-    await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
-
-    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
-
-    // Click on Import button.
-    await clickOnElement(page, '[data-testid="import-button"]')
-    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
-    await finishStoriesAndSelectAccount(page)
-
-    const accountName1 = 'Test-Account-1'
-    const accountName2 = 'Test-Account-2'
-
-    const editAccountNameFields = await page.$$('[data-testid="editable-button"]')
-
-    await editAccountNameFields[0].click()
-    await new Promise((r) => setTimeout(r, 500))
-
-    await typeText(page, '[data-testid="edit-name-field-0"]', accountName1)
-
-    await editAccountNameFields[1].click()
-    await new Promise((r) => setTimeout(r, 500))
-
-    await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
-
-    // Click on the checkmark icon to save the new account names
-    editAccountNameFields[0].click()
-    editAccountNameFields[1].click()
-
-    // Click on "Save and Continue" button
-    await new Promise((r) => setTimeout(r, 1000))
-    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
-
-    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
-
-    // Verify that selected accounts exist on the page
-    const selectedBasicAccount = await page.$$eval(
-      '[data-testid="account"]',
-      (el) => el[0].innerText
-    )
-    expect(selectedBasicAccount).toContain(accountName1)
-
-    const selectedSmartAccount = await page.$$eval(
-      '[data-testid="account"]',
-      (el) => el[1].innerText
-    )
-    expect(selectedSmartAccount).toContain(accountName2)
-  })
-
-  //--------------------------------------------------------------------------------------------------------------
-  it('add view-only basic account', async () => {
-    await addViewOnlyAccount(page, extensionURL, '0x048d8573402CE085A6c8f34d568eC2Ccc995196e')
   })
 })

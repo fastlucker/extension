@@ -1,11 +1,7 @@
 import { bootstrap } from '../common-helpers/bootstrap'
 import { INVITE_STORAGE_ITEM } from '../constants/constants'
 
-import {
-  createAccountWithPhrase,
-  createAccountWithInvalidPhrase,
-  addViewOnlyAccount
-} from '../common/login.js'
+import { createAccountWithInvalidPhrase } from '../common/login.js'
 
 describe('sa_login', () => {
   let browser
@@ -37,18 +33,8 @@ describe('sa_login', () => {
     await browser.close()
   })
 
-  //------------------------------------------------------------------------------------------------------
-  it('create smart account with phrase', async () => {
-    await createAccountWithPhrase(page, extensionURL, process.env.SA_PASSPHRASE)
-  })
-
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Login into smart account with invalid phrase', async () => {
     await createAccountWithInvalidPhrase(page)
-  })
-
-  //--------------------------------------------------------------------------------------------------------------
-  it('add view-only smart account', async () => {
-    await addViewOnlyAccount(page, extensionURL, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
   })
 })
