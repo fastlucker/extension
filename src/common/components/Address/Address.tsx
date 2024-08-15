@@ -40,6 +40,7 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
   }, [accountPortfolio?.tokens, address])
 
   const hardcodedTokenSymbol = HUMANIZER_META.knownAddresses[address.toLowerCase()]?.token?.symbol
+  const hardcodedName = HUMANIZER_META.knownAddresses[address.toLowerCase()]?.name
   let tokenLabel = ''
 
   if (tokenInPortfolio) {
@@ -56,7 +57,8 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
     zeroAddressLabel ||
     contact?.name ||
     account?.preferences?.label ||
-    tokenLabel
+    tokenLabel ||
+    hardcodedName
   )
     return (
       <BaseAddress address={checksummedAddress} {...rest}>
@@ -64,7 +66,8 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
           zeroAddressLabel ||
           contact?.name ||
           account?.preferences?.label ||
-          tokenLabel}
+          tokenLabel ||
+          hardcodedName}
       </BaseAddress>
     )
 
