@@ -90,7 +90,6 @@ const DAppConnectHeader: FC<Props> = ({ origin, name = 'Unknown dApp', icon, isS
       </View>
       <Text
         style={[!isSmall && spacings.mbMi, textStyles.center, common.fullWidth]}
-        numberOfLines={3}
         fontSize={isSmall ? 18 : 20}
         weight="semiBold"
       >
