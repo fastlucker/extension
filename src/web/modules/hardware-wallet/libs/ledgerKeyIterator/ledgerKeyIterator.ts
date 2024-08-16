@@ -32,22 +32,17 @@ class LedgerKeyIterator implements KeyIteratorInterface {
   ) {
     if (!this.controller) throw new Error(MISSING_CONTROLLER_MSG)
 
-    const keys: string[] = []
-
+    const pathsOfAddressesToRetrieve: string[] = []
     // eslint-disable-next-line no-restricted-syntax
     for (const { from, to } of fromToArr) {
       if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
         throw new Error(INVALID_PARAMS_MSG)
 
-      const pathsOfAddressesToRetrieve = []
-      for (let i = from; i <= to; i++) {
+      for (let i = from; i <= to; i++)
         pathsOfAddressesToRetrieve.push(getHdPathFromTemplate(hdPathTemplate, i))
-      }
-      // eslint-disable-next-line no-await-in-loop
-      const addresses = await this.controller.retrieveAddresses(pathsOfAddressesToRetrieve)
-      keys.push(...addresses)
     }
 
+    const keys = await this.controller.retrieveAddresses(pathsOfAddressesToRetrieve)
     return keys
   }
 }
