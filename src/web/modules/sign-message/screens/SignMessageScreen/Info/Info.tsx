@@ -102,13 +102,6 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
           </View>
         </Text>
       )}
-      {!isViewOnly && (
-        <Alert
-          size={maxWidthSize('xl') ? 'md' : 'sm'}
-          type="warning"
-          text={t('Please, read the entire message before signing it.')}
-        />
-      )}
     </View>
   )
 }

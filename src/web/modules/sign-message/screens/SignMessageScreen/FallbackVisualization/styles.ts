@@ -7,22 +7,17 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  standalone: ViewStyle
   header: ViewStyle
   headerText: TextStyle
-  tabs: ViewStyle
-  tab: ViewStyle
+  toggleButton: ViewStyle
   activeTab: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    tabs: {
-      ...flexbox.directionRow,
-      ...flexbox.alignCenter,
-      ...spacings.mbTy
-    },
-    tab: {
+    toggleButton: {
+      position: 'absolute',
+      alignSelf: 'flex-end',
       width: 96,
       ...flexbox.alignCenter,
       ...spacings.pvTy,

@@ -16,7 +16,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow
     },
     leftSideContainer: {
-      flexBasis: '40%',
+      flexBasis: '35%',
       justifyContent: 'flex-start',
       height: '100%'
     },

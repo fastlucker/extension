@@ -17,7 +17,6 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import textStyles from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
@@ -33,7 +32,6 @@ import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
-import MessageSummary from '@web/modules/sign-message/components/MessageSummary'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
 import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
@@ -95,25 +93,21 @@ const SignMessageScreen = () => {
 
   const visualizeHumanized = useMemo(
     () =>
-      signMessageState.humanReadable !== null &&
+      signMessageState.humanReadable?.fullVisualization &&
       network &&
       signMessageState.messageToSign?.content.kind,
     [network, signMessageState.humanReadable, signMessageState.messageToSign?.content?.kind]
   )
 
   const isScrollToBottomForced = useMemo(
-    () =>
-      signMessageState.messageToSign?.content.kind === 'typedMessage' &&
-      typeof hasReachedBottom === 'boolean' &&
-      !hasReachedBottom &&
-      !visualizeHumanized,
-    [hasReachedBottom, signMessageState.messageToSign?.content.kind, visualizeHumanized]
+    () => typeof hasReachedBottom === 'boolean' && !hasReachedBottom && !visualizeHumanized,
+    [hasReachedBottom, visualizeHumanized]
   )
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShouldShowFallback(true)
-    }, 1500)
+    }, 500)
     return () => clearTimeout(timer)
   })
 
@@ -308,7 +302,7 @@ const SignMessageScreen = () => {
                       {t('Warning: ')}
                     </Text>
                     <Text fontSize={maxWidthSize('xl') ? 16 : 12} appearance="warningText">
-                      {t('Please red the whole message')}
+                      {t('Please read the whole message')}
                     </Text>
                   </>
                 ) : (
@@ -318,6 +312,7 @@ const SignMessageScreen = () => {
             />
             <FallbackVisualization
               setHasReachedBottom={setHasReachedBottom}
+              hasReachedBottom={hasReachedBottom}
               messageToSign={signMessageState.messageToSign}
             />
             {isViewOnly && (
