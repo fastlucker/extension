@@ -20,7 +20,6 @@ interface Props {
   isViewOnly: boolean
   rbfDetected: boolean
   bundlerFailure: boolean
-  isAmbireV1AndNetworkNotSupported: boolean
 }
 
 const Warnings: FC<Props> = ({
@@ -29,8 +28,7 @@ const Warnings: FC<Props> = ({
   slowRequest,
   isViewOnly,
   rbfDetected,
-  bundlerFailure,
-  isAmbireV1AndNetworkNotSupported
+  bundlerFailure
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
@@ -45,18 +43,6 @@ const Warnings: FC<Props> = ({
   }, [signAccountOpState?.gasUsedTooHighAgreed, dispatch])
 
   if (!signAccountOpState) return null
-
-  if (isAmbireV1AndNetworkNotSupported)
-    return (
-      <View>
-        <Alert
-          type="error"
-          title={t(
-            'Ambire v1 accounts are not supported on this network. To interact with this network, please use an Ambire v2 Smart Account or a Basic Account. You can still use v1 accounts on any network that is natively integrated with the Ambire web and mobile wallets.'
-          )}
-        />
-      </View>
-    )
 
   return (
     <View style={styles.container}>
