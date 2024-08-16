@@ -59,7 +59,7 @@ const AccountsOnPageList = ({
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(!!subType)
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(!!subType && subType !== 'private-key')
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -307,7 +307,7 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {!isAccountAdderEmpty && (
+        {!isAccountAdderEmpty && subType !== 'private-key' && (
           <View
             style={[spacings.mbLg, flexbox.alignStart, flexbox.alignSelfStart]}
             {...(!!hideEmptyAccounts && onlySmartAccountsVisible
