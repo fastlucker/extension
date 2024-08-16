@@ -6,10 +6,15 @@ import { StyleSheet, View } from 'react-native'
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
+import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
+import ExpandableCard from '@common/components/ExpandableCard'
+import HumanizedVisualization from '@common/components/HumanizedVisualization'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
@@ -34,6 +39,8 @@ import FallbackVisualization from '@web/modules/sign-message/screens/SignMessage
 import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
 import { getUiType } from '@web/utils/uiType'
 
+import getStyles from './styles'
+
 const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
@@ -48,6 +55,8 @@ const SignMessageScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
   const actionState = useActionsControllerState()
+  const { styles } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
 
   const signMessageAction = useMemo(() => {
     if (actionState.currentAction?.type !== 'signMessage') return undefined
@@ -242,55 +251,86 @@ const SignMessageScreen = () => {
         handleClose={() => setIsChooseSignerShown(false)}
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
-        <View style={flexbox.flex1}>
-          <Text weight="medium" fontSize={20} style={[spacings.mbLg, textStyles.center]}>
-            {t('Sign message')}
-          </Text>
-          <Info
-            kindOfMessage={signMessageState.messageToSign?.content.kind}
-            isViewOnly={isViewOnly}
-          />
-          {visualizeHumanized &&
-          // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
-          signMessageState.humanReadable &&
-          signMessageState.messageToSign?.content.kind ? (
-            <MessageSummary
-              message={signMessageState.humanReadable}
-              networkId={network?.id}
-              kind={signMessageState.messageToSign?.content.kind}
+        <View style={styles.container}>
+          <View style={styles.leftSideContainer}>
+            <Text weight="medium" fontSize={20} style={[spacings.mbLg]}>
+              {t('Details')}
+            </Text>
+
+            <Info
+              kindOfMessage={signMessageState.messageToSign?.content.kind}
+              isViewOnly={isViewOnly}
             />
-          ) : shouldShowFallback ? (
+
+            {/* @TODO test with ledger */}
+            {/* {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
+              <HardwareWalletSigningModal
+                keyType={signMessageState.signingKeyType}
+                isVisible={signStatus === 'LOADING'}
+              />
+            )}
+            {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
+              <LedgerConnectModal
+                isVisible={!isLedgerConnected}
+                handleOnConnect={handleDismissLedgerConnectModal}
+                handleClose={handleDismissLedgerConnectModal}
+                displayOptionToAuthorize={false}
+              />
+            )} */}
+          </View>
+          <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
+          <View style={flexbox.flex1}>
+            <Text weight="medium" fontSize={20} style={[spacings.mbLg]}>
+              {t('Sign message')}
+            </Text>
+
+            {/* @TODO different component might be more suitable */}
+            <ExpandableCard
+              style={spacings.mbMd}
+              hasArrow={false}
+              content={
+                visualizeHumanized &&
+                // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
+                signMessageState.humanReadable &&
+                signMessageState.messageToSign?.content.kind ? (
+                  <HumanizedVisualization
+                    data={signMessageState.humanReadable.fullVisualization}
+                    networkId={network?.id || 'ethereum'}
+                  />
+                ) : shouldShowFallback ? (
+                  <>
+                    <ErrorOutlineIcon width={24} height={24} />
+                    <Text
+                      fontSize={maxWidthSize('xl') ? 16 : 12}
+                      appearance="warningText"
+                      weight="semiBold"
+                    >
+                      {t('Warning: ')}
+                    </Text>
+                    <Text fontSize={maxWidthSize('xl') ? 16 : 12} appearance="warningText">
+                      {t('Please red the whole message')}
+                    </Text>
+                  </>
+                ) : (
+                  <SkeletonLoader width="100%" height={48} />
+                )
+              }
+            />
             <FallbackVisualization
               setHasReachedBottom={setHasReachedBottom}
               messageToSign={signMessageState.messageToSign}
-              standalone
             />
-          ) : (
-            <SkeletonLoader width="100%" height={48} />
-          )}
-          {isViewOnly && (
-            <NoKeysToSignAlert
-              style={{
-                ...flexbox.alignSelfCenter,
-                marginTop: 'auto',
-                maxWidth: 600
-              }}
-            />
-          )}
-          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
-            <HardwareWalletSigningModal
-              keyType={signMessageState.signingKeyType}
-              isVisible={signStatus === 'LOADING'}
-            />
-          )}
-          {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
-            <LedgerConnectModal
-              isVisible={!isLedgerConnected}
-              handleOnConnect={handleDismissLedgerConnectModal}
-              handleClose={handleDismissLedgerConnectModal}
-              displayOptionToAuthorize={false}
-            />
-          )}
+            {isViewOnly && (
+              <NoKeysToSignAlert
+                style={{
+                  ...flexbox.alignSelfCenter,
+                  marginTop: 'auto',
+                  maxWidth: 600,
+                  ...spacings.mtMd
+                }}
+              />
+            )}
+          </View>
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

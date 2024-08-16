@@ -17,11 +17,6 @@ interface Style {
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    standalone: {
-      ...spacings.pvSm,
-      ...spacings.ph,
-      borderWidth: 1
-    },
     tabs: {
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
@@ -45,7 +40,10 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       borderColor: theme.primaryBorder,
       ...flexbox.flex1,
-      minHeight: 200
+      minHeight: 200,
+      ...spacings.pvSm,
+      ...spacings.ph,
+      borderWidth: 1
     },
     header: {
       ...spacings.mb,

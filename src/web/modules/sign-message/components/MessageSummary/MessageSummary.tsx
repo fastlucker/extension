@@ -16,24 +16,15 @@ interface Props {
   networkId?: NetworkId
 }
 
-const MessageSummary = ({ message, networkId, kind }: Props) => {
-  const { styles } = useTheme(getStyles)
-  const isTypedMessage = kind === 'typedMessage'
-
+const MessageSummary = ({ message, networkId }: Props) => {
   return (
     <ExpandableCard
-      enableExpand={isTypedMessage}
-      hasArrow={isTypedMessage}
+      hasArrow={false}
       content={
         <HumanizedVisualization
           data={message.fullVisualization}
           networkId={networkId || 'ethereum'}
         />
-      }
-      expandedContent={
-        <View style={[styles.rawMessage]}>
-          <FallbackVisualization messageToSign={message} />
-        </View>
       }
     />
   )

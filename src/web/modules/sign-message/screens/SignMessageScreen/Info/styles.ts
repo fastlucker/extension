@@ -7,22 +7,14 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Style {
   container: ViewStyle
   image: ImageStyle
-  content: ViewStyle
   kindOfMessage: ViewStyle
   kindOfMessageText: TextStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    container: { ...flexbox.alignCenter, width: '100%' },
-    image: { width: 50, height: 50, ...spacings.mbSm },
-    content: {
-      ...flexbox.directionRow,
-      ...flexbox.justifyCenter,
-      width: '100%',
-      ...flexbox.alignCenter,
-      position: 'relative'
-    },
+    container: { ...flexbox.alignStart, width: '100%' },
+    image: { width: 50, height: 50, ...spacings.mrSm },
     kindOfMessage: {
       backgroundColor: theme.infoBackground,
       borderColor: theme.infoDecorative,
