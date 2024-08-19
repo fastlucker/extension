@@ -59,7 +59,13 @@ const AccountsOnPageList = ({
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(!!subType && subType !== 'private-key')
+  // By default, hide empty accounts when user imports a SEED. That's because of
+  // the assumption users are less likely to be degens and might get confused by
+  // seeing many empty accounts. However, when interacting with hardware wallets,
+  // the assumption is that users are more advanced and might want to see all
+  // accounts. Side note: irrelevant for private key imports, as they are always
+  // importing only one (Basic) account and this option is hidden in this case.
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(subType === 'seed')
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
