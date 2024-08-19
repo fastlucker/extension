@@ -129,7 +129,7 @@ const useAddressInput = ({
   useEffect(() => {
     const trimmedAddress = fieldValue.trim()
 
-    const domainRegex = /^[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,})$/
+    const domainRegex = /^[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,})+/
     const canBeEnsOrUd = domainRegex.test(trimmedAddress)
 
     if (!trimmedAddress || !canBeEnsOrUd) {
