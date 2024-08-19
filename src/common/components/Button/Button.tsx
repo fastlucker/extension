@@ -104,7 +104,7 @@ const Button = ({
       info: [],
       success: []
     }),
-    [theme.errorBackground, theme.primary, theme.primaryLight, theme.secondaryBackground]
+    [theme.errorBackground, theme.primary, theme.primaryLight, theme.infoBackground]
   )
 
   const [bind, animatedStyle] = useMultiHover({
