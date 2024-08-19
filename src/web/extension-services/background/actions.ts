@@ -38,7 +38,10 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: { privKeyOrSeed: string }
+  params: { privKeyOrSeed: string; shouldPersist?: boolean }
+}
+type MainControllerAccountAdderInitFromDefaultSeedPhraseAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE'
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -76,11 +79,12 @@ type MainControllerAddAccounts = {
     })[]
   }
 }
-type MainControllerAddSeedPhraseAccounts = {
-  type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT'
-  params: {
-    seed: string
-  }
+type CreateNewSeedPhraseAndAddFirstSmartAccount = {
+  type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT'
+  params: { seed: string }
+}
+type AddNextSmartAccountFromDefaultSeedPhraseAction = {
+  type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE'
 }
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
@@ -141,6 +145,7 @@ type MainControllerBuildTransferUserRequest = {
     amount: string
     selectedToken: TokenResult
     recipientAddress: string
+    executionType: 'queue' | 'open'
   }
 }
 type MainControllerRemoveUserRequestAction = {
@@ -161,7 +166,7 @@ type MainControllerResolveAccountOpAction = {
 }
 type MainControllerRejectAccountOpAction = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
-  params: { err: string; actionId: AccountOpAction['id'] }
+  params: { err: string; actionId: AccountOpAction['id']; shouldOpenNextAction: boolean }
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
@@ -262,8 +267,8 @@ type MainControllerSignAccountOpUpdateAction = {
     gasUsedTooHighAgreed?: boolean
   }
 }
-type MainControllerSignAccountOpSignAction = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
+type MainControllerHandleSignAndBroadcastAccountOp = {
+  type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
 type KeystoreControllerAddSecretAction = {
@@ -283,6 +288,10 @@ type KeystoreControllerResetErrorStateAction = {
 type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
   params: { secret: string; newSecret: string }
+}
+type KeystoreControllerAddSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_ADD_SEED'
+  params: { seed: string }
 }
 type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
@@ -353,7 +362,7 @@ type ActionsControllerAddToActionsQueue = {
 }
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
-  params: { id: ActionFromActionsQueue['id'] }
+  params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
 }
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
@@ -415,6 +424,14 @@ type SetOnboardingStateAction = {
   type: 'SET_ONBOARDING_STATE'
   params: { version: string; viewedAt: number }
 }
+type SetIsPinnedAction = {
+  type: 'SET_IS_PINNED'
+  params: { isPinned: boolean }
+}
+type SetIsSetupCompleteAction = {
+  type: 'SET_IS_SETUP_COMPLETE'
+  params: { isSetupComplete: boolean }
+}
 
 type AutoLockControllerSetLastActiveTimeAction = {
   type: 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME'
@@ -440,6 +457,7 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerAccountAdderInitFromDefaultSeedPhraseAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
@@ -454,7 +472,8 @@ export type Action =
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
-  | MainControllerAddSeedPhraseAccounts
+  | CreateNewSeedPhraseAndAddFirstSmartAccount
+  | AddNextSmartAccountFromDefaultSeedPhraseAction
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
@@ -474,7 +493,7 @@ export type Action =
   | MainControllerSignAccountOpInitAction
   | MainControllerSignAccountOpDestroyAction
   | MainControllerSignAccountOpUpdateMainDepsAction
-  | MainControllerSignAccountOpSignAction
+  | MainControllerHandleSignAndBroadcastAccountOp
   | MainControllerSignAccountOpUpdateAction
   | MainControllerReloadSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
@@ -486,6 +505,7 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
+  | KeystoreControllerAddSeedAction
   | KeystoreControllerChangePasswordFromRecoveryAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
@@ -513,6 +533,8 @@ export type Action =
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
   | SetOnboardingStateAction
+  | SetIsPinnedAction
+  | SetIsSetupCompleteAction
   | AutoLockControllerSetLastActiveTimeAction
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction

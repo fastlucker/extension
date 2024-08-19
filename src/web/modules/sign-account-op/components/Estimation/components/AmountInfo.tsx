@@ -3,8 +3,32 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import Text from '@common/components/Text'
+import { Props as TextProps } from '@common/components/Text/Text'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
+
+const AmountInfoWrapper = ({ children }: { children: React.ReactNode | React.ReactNode[] }) => (
+  <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
+    {children}
+  </View>
+)
+
+const AmountInfoText = ({
+  children,
+  ...props
+}: TextProps & { children: React.ReactNode | React.ReactNode[] }) => (
+  <Text fontSize={16} weight="medium" {...props}>
+    {children}
+  </Text>
+)
+
+const AmountInfoLabel = ({
+  children,
+  ...props
+}: TextProps & { children: React.ReactNode | React.ReactNode[] }) => (
+  <Text fontSize={16} weight="medium" {...props}>
+    {children}:
+  </Text>
+)
 
 const AmountInfo = ({
   label,
@@ -18,17 +42,17 @@ const AmountInfo = ({
   const { t } = useTranslation()
 
   return (
-    <View>
-      <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-        <Text fontSize={16} weight="medium">
-          {t(label)}:{' '}
-        </Text>
-        <Text selectable fontSize={16} weight="medium">
-          {formatDecimals(parseFloat(amountFormatted))} {symbol}
-        </Text>
-      </View>
-    </View>
+    <AmountInfoWrapper>
+      <AmountInfoLabel>{t(label)}</AmountInfoLabel>
+      <AmountInfoText selectable>
+        {amountFormatted} {symbol}
+      </AmountInfoText>
+    </AmountInfoWrapper>
   )
 }
+
+AmountInfo.Wrapper = AmountInfoWrapper
+AmountInfo.Label = AmountInfoLabel
+AmountInfo.Text = AmountInfoText
 
 export default AmountInfo

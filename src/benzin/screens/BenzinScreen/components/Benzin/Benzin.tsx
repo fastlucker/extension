@@ -2,7 +2,6 @@ import { randomBytes } from 'ethers'
 import React, { useMemo } from 'react'
 import { ImageBackground, ScrollView, View } from 'react-native'
 
-import { extraNetworks, networks as constantNetworks } from '@ambire-common/consts/networks'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -12,12 +11,12 @@ import Header from '@benzin/screens/BenzinScreen/components/Header'
 import Steps from '@benzin/screens/BenzinScreen/components/Steps'
 import useBenzin from '@benzin/screens/BenzinScreen/hooks/useBenzin'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '../../styles'
@@ -26,11 +25,35 @@ import getStyles from './styles'
 const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
-  const { networks: stateNetworks } = useNetworksControllerState()
-  const networks = useMemo(
-    () => stateNetworks ?? [...constantNetworks, ...extraNetworks],
-    [stateNetworks]
-  )
+
+  const summary = useMemo(() => {
+    const calls = state?.stepsState?.calls
+    if (!calls) return []
+
+    return calls.map((call, i) => (
+      <TransactionSummary
+        key={call.data + randomBytes(6)}
+        style={i !== calls.length! - 1 ? spacings.mbSm : {}}
+        call={call}
+        networkId={state?.network!.id}
+        rightIcon={
+          <OpenIcon
+            width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+            height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+          />
+        }
+        onRightIconPress={state?.handleOpenExplorer}
+        size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
+      />
+    ))
+  }, [state?.stepsState?.calls, state?.network, state?.handleOpenExplorer])
+
+  if (state && !state?.isInitialized)
+    return (
+      <View style={[spacings.pv, spacings.ph, flexbox.center, flexbox.flex1]}>
+        <Spinner />
+      </View>
+    )
 
   if (!state || !state.network)
     return (
@@ -41,7 +64,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
         <Text fontSize={16}>
           Invalid url params. Make sure{' '}
           <Text fontSize={16} weight="medium">
-            networkId and txnId/userOpHash
+            chainId and txnId/userOpHash
           </Text>{' '}
           are provided.
         </Text>
@@ -60,29 +83,6 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
     showCopyBtn,
     showOpenExplorerBtn
   } = state
-
-  const calls = stepsState.calls
-  const summary = useMemo(() => {
-    if (!calls) return []
-
-    return calls.map((call, i) => (
-      <TransactionSummary
-        key={call.data + randomBytes(6)}
-        style={i !== calls.length! - 1 ? spacings.mbSm : {}}
-        call={call}
-        networkId={network!.id}
-        rightIcon={
-          <OpenIcon
-            width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-            height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-          />
-        }
-        onRightIconPress={handleOpenExplorer}
-        size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
-        networks={networks}
-      />
-    ))
-  }, [calls, handleOpenExplorer, network, networks])
 
   return (
     <ImageBackground

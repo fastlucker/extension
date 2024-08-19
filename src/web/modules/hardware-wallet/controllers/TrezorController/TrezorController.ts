@@ -14,8 +14,8 @@ export type {
 } from '@trezor/connect-webextension'
 
 const TREZOR_CONNECT_MANIFEST = {
-  email: 'contactus@ambire.com',
-  appUrl: 'https://wallet.ambire.com' // TODO: extension url?
+  email: 'wallet@ambire.com',
+  appUrl: 'https://wallet.ambire.com'
 }
 
 class TrezorController implements ExternalSignerController {

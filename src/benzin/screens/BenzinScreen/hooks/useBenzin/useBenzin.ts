@@ -1,18 +1,19 @@
-import { JsonRpcProvider } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
-import { extraNetworks, networks as constantNetworks } from '@ambire-common/consts/networks'
+import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { getRpcProvider } from '@ambire-common/services/provider'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
+import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+
+import useBenzinGetNetwork from './useBenzinGetNetwork'
+import useBenzinGetProvider from './useBenzinGetProvider'
 
 const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
   // remove deadlines from humanizer
@@ -29,7 +30,7 @@ const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
 const emittedErrors: ErrorRef[] = []
 const mockEmitError = (e: ErrorRef) => emittedErrors.push(e)
 const standardOptions = {
-  fetch: window.fetch.bind(window),
+  fetch: window.fetch.bind(window) as any,
   emitError: mockEmitError,
   storage,
   parser: parseHumanizer
@@ -39,34 +40,46 @@ interface Props {
   onOpenExplorer?: () => void
 }
 
+const getParams = (search?: string) => {
+  const params = new URLSearchParams(search)
+
+  return {
+    txnId: params.get('txnId') ?? null,
+    userOpHash: params.get('userOpHash') ?? null,
+    isRenderedInternally: typeof params.get('isInternal') === 'string',
+    chainId: params.get('chainId'),
+    networkId: params.get('networkId')
+  }
+}
+
+const getChainId = (networkId: string | null, paramsChainId: string | null) => {
+  if (paramsChainId) return paramsChainId
+
+  const chainIdDerivedFromNetworkId = constantNetworks.find(
+    (network) => network.id === networkId
+  )?.chainId
+
+  if (!chainIdDerivedFromNetworkId) return null
+
+  return String(chainIdDerivedFromNetworkId)
+}
+
 const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const { addToast } = useToast()
   const route = useRoute()
-  const { networks: settingsNetworks } = useNetworksControllerState()
-  const params = new URLSearchParams(route?.search)
-  const txnId = params.get('txnId') ?? null
-  const userOpHash = params.get('userOpHash') ?? null
-  const isRenderedInternally = typeof params.get('isInternal') === 'string'
-  const networkId = params.get('networkId')
-  const networks = settingsNetworks ?? [...constantNetworks, ...extraNetworks]
-  const network = networks.find((n) => n.id === networkId)
+  const {
+    txnId,
+    userOpHash,
+    isRenderedInternally,
+    chainId: paramChainId,
+    networkId
+  } = getParams(route?.search)
 
-  const [provider, setProvider] = useState<JsonRpcProvider | null>(null)
+  const chainId = getChainId(networkId, paramChainId)
+  const { network, isNetworkLoading } = useBenzinGetNetwork({ chainId })
+  const { provider } = useBenzinGetProvider({ network })
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
-
-  useEffect(() => {
-    if (!network?.rpcUrls) return
-
-    setProvider(getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl))
-
-    return () => {
-      setProvider((prev) => {
-        prev?.destroy()
-
-        return null
-      })
-    }
-  }, [network?.rpcUrls, network?.chainId, network?.selectedRpcUrl])
+  const isInitialized = !isNetworkLoading
 
   const stepsState = useSteps({
     txnId,
@@ -81,10 +94,12 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     try {
       let address = window.location.href
 
-      if (isRenderedInternally) {
-        address = `https://benzin.ambire.com/?networkId=${networkId}${
-          stepsState.txnId ? `&txnId=${stepsState.txnId}` : ''
-        }${userOpHash ? `&userOpHash=${userOpHash}` : ''}`
+      if (chainId) {
+        address = `https://benzin.ambire.com/${getBenzinUrlParams({
+          chainId,
+          txnId: stepsState.txnId,
+          userOpHash
+        })}`
       }
 
       await setStringAsync(address)
@@ -92,10 +107,10 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
       addToast('Error copying to clipboard', { type: 'error' })
     }
     addToast('Copied to clipboard!')
-  }, [addToast, isRenderedInternally, userOpHash, networkId, stepsState.txnId])
+  }, [addToast, chainId, stepsState.txnId, userOpHash])
 
   const handleOpenExplorer = useCallback(async () => {
-    if (!network) return
+    if (!network?.explorerUrl) return
 
     const link = stepsState.txnId
       ? `${network.explorerUrl}/tx/${stepsState.txnId}`
@@ -113,8 +128,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     if (!network) return true
 
     const isRejected = stepsState.userOpStatusData.status === 'rejected'
-    const isCustom = !network.hasRelayer
-    return !isCustom && !isRejected
+    return !isRejected
   }, [network, stepsState.userOpStatusData])
 
   const showOpenExplorerBtn = useMemo(() => {
@@ -124,7 +138,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     return !isRejected
   }, [network, stepsState.userOpStatusData])
 
-  if (!networkId || (!txnId && !userOpHash)) return null
+  if (!chainId || (!txnId && !userOpHash)) return null
 
   return {
     activeStep,
@@ -136,7 +150,8 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     userOpHash,
     isRenderedInternally,
     showCopyBtn,
-    showOpenExplorerBtn
+    showOpenExplorerBtn,
+    isInitialized
   }
 }
 

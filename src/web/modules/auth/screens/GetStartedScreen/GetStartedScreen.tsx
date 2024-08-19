@@ -55,11 +55,21 @@ const GetStartedScreen = () => {
   const { dispatch } = useBackgroundService()
 
   const state = useWalletStateController()
+
+  const resetIsSetupCompleteIfNeeded = useCallback(() => {
+    if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED && !state.isPinned && state.isSetupComplete) {
+      dispatch({ type: 'SET_IS_SETUP_COMPLETE', params: { isSetupComplete: false } })
+    }
+  }, [authStatus, dispatch, state.isPinned, state.isSetupComplete])
+
   useEffect(() => {
     if (authStatus === AUTH_STATUS.AUTHENTICATED) {
       navigate(ROUTES.dashboard)
+      return
     }
-  }, [authStatus, navigate])
+
+    resetIsSetupCompleteIfNeeded()
+  }, [authStatus, navigate, resetIsSetupCompleteIfNeeded])
 
   useEffect(() => {
     if (state.onboardingState) {
@@ -103,7 +113,7 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
-    [navigate, keystoreState]
+    [navigate, keystoreState, openHotWalletModal]
   )
 
   const handleSetStoriesCompleted = () => {

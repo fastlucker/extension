@@ -9,6 +9,7 @@ import { callsHumanizer, HUMANIZER_META_KEY } from '@ambire-common/libs/humanize
 import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { humanizerMetaParsing } from '@ambire-common/libs/humanizer/parsers/humanizerMetaParsing'
 import { randomId } from '@ambire-common/libs/humanizer/utils'
+import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -96,8 +97,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         [
           {
             type: 'token',
-            value: submittedAccountOp.gasFeePayment?.amount,
-            address: submittedAccountOp.gasFeePayment?.inToken,
+            value: submittedAccountOp.gasFeePayment?.amount || 0n,
+            address: submittedAccountOp.gasFeePayment?.inToken || '',
             id: randomId()
           }
         ],
@@ -114,20 +115,15 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   ])
 
   const handleOpenExplorer = useCallback(async () => {
-    const networkId = network.id
+    const chainId = Number(network.chainId)
 
-    if (!networkId || !submittedAccountOp.txnId) throw new Error('Invalid networkId or txnId')
+    if (!chainId || !submittedAccountOp.txnId) throw new Error('Invalid chainId or txnId')
 
-    let link = `https://benzin.ambire.com/?txnId=${
-      submittedAccountOp.txnId
-    }&networkId=${networkId}${
-      submittedAccountOp.userOpHash ? `&userOpHash=${submittedAccountOp.userOpHash}` : ''
-    }`
-
-    // if the network is a not a predefined one, benzina will not work so we open the block explorer
-    if (!network.predefined) {
-      link = `${network.explorerUrl}/tx/${submittedAccountOp.txnId}`
-    }
+    let link = `https://benzin.ambire.com/${getBenzinUrlParams({
+      txnId: submittedAccountOp.txnId,
+      chainId,
+      userOpHash: submittedAccountOp.userOpHash
+    })}`
 
     // in the rare case of a bug where we've failed to find the txnId
     // for an userOpHash, the userOpHash and the txnId will be the same.
@@ -138,7 +134,10 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         submittedAccountOp.userOpHash === submittedAccountOp.txnId &&
         !network.predefined)
     ) {
-      link = `https://benzin.ambire.com/?networkId=${networkId}&userOpHash=${submittedAccountOp.userOpHash}`
+      link = `https://benzin.ambire.com/${getBenzinUrlParams({
+        chainId,
+        userOpHash: submittedAccountOp.userOpHash
+      })}`
     }
 
     try {
@@ -147,12 +146,11 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
   }, [
-    addToast,
-    network.id,
-    network.explorerUrl,
+    network.chainId,
     network.predefined,
+    submittedAccountOp.txnId,
     submittedAccountOp.userOpHash,
-    submittedAccountOp.txnId
+    addToast
   ])
 
   return calls.length ? (
@@ -174,7 +172,6 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           }
           onRightIconPress={handleOpenExplorer}
           isHistory
-          networks={networks}
         />
       ))}
       {submittedAccountOp.status !== AccountOpStatus.Rejected &&

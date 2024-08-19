@@ -1,16 +1,14 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 
-import {
-  typeText,
-  clickOnElement,
-  selectMaticToken,
-  triggerTransaction,
-  checkForSignMessageWindow,
-  selectFeeToken,
-  signTransaction,
-  confirmTransactionStatus,
-  checkBalanceOfToken
-} from '../functions.js'
+import { clickOnElement } from '../common-helpers/clickOnElement'
+import { typeText } from '../common-helpers/typeText'
+import { selectMaticToken } from '../common-helpers/selectMaticToken'
+import { triggerTransaction } from '../common-helpers/triggerTransaction'
+import { checkForSignMessageWindow } from '../common-helpers/checkForSignMessageWindow'
+import { selectFeeToken } from '../common-helpers/selectFeeToken'
+import { signTransaction } from '../common-helpers/signTransaction'
+import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
+import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
@@ -57,7 +55,7 @@ export async function makeValidTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="transfer-button-send"]'
+    '[data-testid="transfer-button-confirm"]'
   )
 
   if (shouldStopBeforeSign) return

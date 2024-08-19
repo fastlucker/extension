@@ -1,15 +1,13 @@
-import {
-  typeText,
-  clickOnElement,
-  bootstrapWithStorage,
-  saParams,
-  selectMaticToken,
-  triggerTransaction,
-  signTransaction,
-  confirmTransactionStatus,
-  selectFeeToken,
-  checkBalanceOfToken
-} from '../functions'
+import { clickOnElement } from '../common-helpers/clickOnElement'
+import { typeText } from '../common-helpers/typeText'
+import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
+import { selectMaticToken } from '../common-helpers/selectMaticToken'
+import { saParams } from '../constants/constants'
+import { triggerTransaction } from '../common-helpers/triggerTransaction'
+import { signTransaction } from '../common-helpers/signTransaction'
+import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
+import { selectFeeToken } from '../common-helpers/selectFeeToken'
+import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
@@ -34,7 +32,7 @@ async function handleTransaction(page, extensionURL, browser, feeToken) {
     page,
     extensionURL,
     browser,
-    '[data-testid="transfer-button-send"]'
+    '[data-testid="transfer-button-confirm"]'
   )
 
   if (feeToken) {
@@ -141,7 +139,7 @@ describe('sa_features', () => {
     await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
     await prepareTransaction(page, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C', '0.0001')
 
-    const elementToClick = await page.waitForSelector('[data-testid="transfer-button-send"]')
+    const elementToClick = await page.waitForSelector('[data-testid="transfer-button-confirm"]')
     await elementToClick.click()
 
     const newTarget = await browser.waitForTarget((target) =>
@@ -169,7 +167,7 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="transfer-button-send"]:not([disabled])'
+      '[data-testid="transfer-button-confirm"]:not([disabled])'
     )
     await actionWindowPage.waitForFunction(
       (text1, text2) => {
@@ -203,7 +201,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
+  it('4337 transaction. Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
     // Check if ETH in optimism are under 0.00000001
     await checkBalanceOfToken(
       page,
@@ -211,7 +209,7 @@ describe('sa_features', () => {
       0.00000001
     )
 
-    // Click on Matic (not Gas Tank token)
+    // Click on ETH (not Gas Tank token)
     await clickOnElement(
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]'
@@ -266,7 +264,7 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="transfer-button-send"]'
+      '[data-testid="transfer-button-confirm"]'
     )
 
     // Check if select fee token is visible and select the token

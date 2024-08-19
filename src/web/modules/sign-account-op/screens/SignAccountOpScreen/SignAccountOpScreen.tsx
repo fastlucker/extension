@@ -49,10 +49,16 @@ const SignAccountOpScreen = () => {
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
-    () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
-    [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
+    () =>
+      signAccountOpState?.isInitialized &&
+      !!signAccountOpState?.gasPrices &&
+      !signAccountOpState.estimation?.error,
+    [
+      signAccountOpState?.estimation?.error,
+      signAccountOpState?.gasPrices,
+      signAccountOpState?.isInitialized
+    ]
   )
-  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
   useEffect(() => {
     // Ensures user can re-open the modal, if previously being closed, e.g.
@@ -67,18 +73,19 @@ const SignAccountOpScreen = () => {
   }, [isChooseSignerShown, prevIsChooseSignerShown, signAccountOpState?.errors.length])
 
   const isSignLoading =
-    signAccountOpState?.status?.type === SigningStatus.InProgress ||
-    signAccountOpState?.status?.type === SigningStatus.Done ||
-    mainState.statuses.broadcastSignedAccountOp === 'LOADING'
+    mainState.statuses.signAccountOp !== 'INITIAL' ||
+    mainState.statuses.broadcastSignedAccountOp !== 'INITIAL'
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!hasEstimation) {
+      // set the request to slow if the state is not init (no estimation)
+      // or the gas prices haven't been fetched
+      if (!signAccountOpState?.isInitialized || !signAccountOpState?.gasPrices) {
         setSlowRequest(true)
       }
     }, 5000)
 
-    if (hasEstimation) {
+    if (signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices) {
       clearTimeout(timeout)
       setSlowRequest(false)
     }
@@ -86,7 +93,7 @@ const SignAccountOpScreen = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [hasEstimation, slowRequest])
+  }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
@@ -110,7 +117,6 @@ const SignAccountOpScreen = () => {
       signAccountOpState &&
       signAccountOpState.estimation &&
       hasEstimation && // this includes gas prices as well, we need it
-      !estimationFailed &&
       !didTraceCall
     ) {
       setDidTraceCall(true)
@@ -121,7 +127,7 @@ const SignAccountOpScreen = () => {
         }
       })
     }
-  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, estimationFailed, dispatch])
+  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, dispatch])
 
   useEffect(() => {
     if (!accountOpAction) return
@@ -150,7 +156,8 @@ const SignAccountOpScreen = () => {
       type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
       params: {
         err: 'User rejected the transaction request.',
-        actionId: accountOpAction.id
+        actionId: accountOpAction.id,
+        shouldOpenNextAction: true
       }
     })
   }, [dispatch, accountOpAction])
@@ -179,23 +186,30 @@ const SignAccountOpScreen = () => {
     setDidTriggerSigning(false)
   }, [])
 
-  const handleSign = useCallback(() => {
-    setDidTriggerSigning(true)
-    if (isAtLeastOneOfTheKeysInvolvedLedger && !isLedgerConnected) return
+  const handleSign = useCallback(
+    (_chosenSigningKeyType?: string) => {
+      setDidTriggerSigning(true)
+      const isAtLeastOneOfTheCurrentKeysInvolvedLedger = _chosenSigningKeyType
+        ? _chosenSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
+        : isAtLeastOneOfTheKeysInvolvedLedger
+      if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) return
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
-    })
-  }, [dispatch, isAtLeastOneOfTheKeysInvolvedLedger, isLedgerConnected])
+      dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP' })
+    },
+    [dispatch, isAtLeastOneOfTheKeysInvolvedLedger, feePayerKeyType, isLedgerConnected]
+  )
 
   const handleChangeSigningKey = useCallback(
-    (signingKeyAddr: string, _signingKeyType: string) => {
+    (signingKeyAddr: string, _chosenSigningKeyType: string) => {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-        params: { signingKeyAddr, signingKeyType: _signingKeyType }
+        params: { signingKeyAddr, signingKeyType: _chosenSigningKeyType }
       })
 
-      handleSign()
+      // Explicitly pass the currently selected signing key type, because
+      // the signing key type in the state might not be updated yet,
+      // and Sign Account Op controller assigns a default signing upfront
+      handleSign(_chosenSigningKeyType)
     },
     [dispatch, handleSign]
   )
@@ -215,6 +229,11 @@ const SignAccountOpScreen = () => {
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
     [signAccountOpState?.accountKeyStoreKeys]
   )
+
+  // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
+  // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
+  const notReadyToSignButAlsoNotDone =
+    !signAccountOpState?.readyToSign && signAccountOpState?.status?.type !== SigningStatus.Done
 
   if (mainState.signAccOpInitError) {
     return (
@@ -238,7 +257,12 @@ const SignAccountOpScreen = () => {
             onAddToCart={handleAddToCart}
             isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
             isSignLoading={isSignLoading}
-            readyToSign={!!signAccountOpState && signAccountOpState.readyToSign}
+            isSignDisabled={
+              isViewOnly ||
+              isSignLoading ||
+              notReadyToSignButAlsoNotDone ||
+              !signAccountOpState.readyToSign
+            }
             isViewOnly={isViewOnly}
             onSign={onSignButtonClick}
           />
@@ -268,7 +292,7 @@ const SignAccountOpScreen = () => {
             <Estimation
               signAccountOpState={signAccountOpState}
               disabled={isSignLoading}
-              hasEstimation={!!hasEstimation && !!signAccountOpState}
+              hasEstimation={!!hasEstimation}
               slowRequest={slowRequest}
               isViewOnly={isViewOnly}
             />

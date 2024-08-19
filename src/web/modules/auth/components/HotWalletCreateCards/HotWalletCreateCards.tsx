@@ -6,6 +6,7 @@ import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
 import SeedPhraseRecoveryIcon from '@common/assets/svg/SeedPhraseRecoveryIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
 
 interface Props {
@@ -15,7 +16,7 @@ interface Props {
 
 const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) => {
   const { t } = useTranslation()
-
+  const { hasKeystoreDefaultSeed } = useKeystoreControllerState()
   return (
     <View style={[flexbox.directionRow]}>
       <Card
@@ -43,9 +44,10 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
         icon={SeedPhraseRecoveryIcon}
         buttonText={t('Proceed')}
         onPress={handleSeedPress}
+        isDisabled={!!hasKeystoreDefaultSeed}
       />
     </View>
   )
 }
 
-export default HotWalletCreateCards
+export default React.memo(HotWalletCreateCards)

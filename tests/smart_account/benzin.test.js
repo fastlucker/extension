@@ -1,10 +1,14 @@
+// eslint-disable-next-line import/no-unresolved
+const { getBenzinUrlParams } = require('@benzin/screens/BenzinScreen/utils/url')
 const puppeteer = require('puppeteer')
+
+const POLYGON_CHAIN_ID = 137n
 
 describe.skip('Standalone Benzin tests', () => {
   let browser
   let page
-  let transactionID
-  let networkID
+  let txnId
+  let chainId
 
   beforeAll(async () => {
     browser = await puppeteer.launch({
@@ -17,16 +21,22 @@ describe.skip('Standalone Benzin tests', () => {
   })
 
   afterAll(async () => {
-    // await browser.close()
+    await browser.close()
   })
 
   it('Check visible elements in valid transfer. Send MATIC on Polygon', async () => {
-    transactionID = '0x6c906981d2b0cf8fd200ecee54f1c8e6aceda720281c6c5865c5b88447122386'
-    networkID = 'polygon'
+    txnId = '0x6c906981d2b0cf8fd200ecee54f1c8e6aceda720281c6c5865c5b88447122386'
+    chainId = POLYGON_CHAIN_ID
 
-    await page.goto(`http://localhost:19006/?networkId=${networkID}&txnId=${transactionID}`, {
-      waitUntil: 'networkidle0'
-    })
+    await page.goto(
+      `http://localhost:19006/${getBenzinUrlParams({
+        chainId,
+        txnId
+      })}`,
+      {
+        waitUntil: 'networkidle0'
+      }
+    )
     // Array of strings that are in  step "Signed"
     const stringsInSignedStep = [
       'Signed',
@@ -37,7 +47,7 @@ describe.skip('Standalone Benzin tests', () => {
       'Sender',
       '0x339d346173Af02df312ab0a6fD6520DE0E101Ac0',
       'Transaction ID',
-      transactionID
+      txnId
     ]
     // Array of strings that are in step "Transaction Details"
     const stringsInProgressStep = [
@@ -83,7 +93,7 @@ describe.skip('Standalone Benzin tests', () => {
 
     // Check if network name exist on the page
     const networkName = await page.$eval('[data-testid="network-name"]', (el) => el.textContent)
-    expect(networkName.toLowerCase()).toContain(networkID.toLowerCase())
+    expect(networkName.toLowerCase()).toContain('polygon')
 
     // Check text in step "Signed"
     const foundInSignedStep = await checkStringsInElement(
@@ -115,12 +125,18 @@ describe.skip('Standalone Benzin tests', () => {
 
   //---------------------------------------------------------------------------------------------
   it('Check visible elements in valid batched transaction. Send MATIC and USDC on Polygon', async () => {
-    transactionID = '0xde91488e02b9ab4a251439e3d73eee3fbebc3ba8542c90ee2a6f91fd98339e4f'
-    networkID = 'polygon'
+    txnId = '0xde91488e02b9ab4a251439e3d73eee3fbebc3ba8542c90ee2a6f91fd98339e4f'
+    chainId = POLYGON_CHAIN_ID
 
-    await page.goto(`http://localhost:19006/?networkId=${networkID}&txnId=${transactionID}`, {
-      waitUntil: 'networkidle0'
-    })
+    await page.goto(
+      `http://localhost:19006/${getBenzinUrlParams({
+        chainId,
+        txnId
+      })}`,
+      {
+        waitUntil: 'networkidle0'
+      }
+    )
 
     // Array of strings that are in  step "Signed"
     const stringsInSignedStep = [
@@ -134,7 +150,7 @@ describe.skip('Standalone Benzin tests', () => {
       'Originated from',
       '0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e',
       'Transaction ID',
-      transactionID
+      txnId
     ]
     // Array of strings that are in step "Transaction Details"
     const stringsInProgressStep = [
@@ -186,7 +202,7 @@ describe.skip('Standalone Benzin tests', () => {
 
     // Check if network name exist on the page
     const networkName = await page.$eval('[data-testid="network-name"]', (el) => el.textContent)
-    expect(networkName.toLowerCase()).toContain(networkID.toLowerCase())
+    expect(networkName.toLowerCase()).toContain('polygon')
 
     // Check text in step "Signed"
     const foundInSignedStep = await checkStringsInElement(

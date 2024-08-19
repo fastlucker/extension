@@ -15,6 +15,7 @@ import { getUiType } from '@web/utils/uiType'
 import DAppFooter from '../components/DAppFooter'
 import DashboardOverview from '../components/DashboardOverview'
 import DashboardPages from '../components/DashboardPages'
+import PinExtension from '../components/PinExtension'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
@@ -93,6 +94,7 @@ const DashboardScreen = () => {
         </View>
         {!!isPopup && <DAppFooter />}
       </View>
+      <PinExtension />
     </>
   )
 }
