@@ -1,6 +1,10 @@
 import { clickOnElement } from '../common-helpers/clickOnElement'
 
-export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
+export async function finishStoriesAndSelectAccount(
+  page,
+  shouldClickOnAccounts,
+  shouldSelectSmartAccount = true
+) {
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
@@ -18,14 +22,16 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
     },
     shouldClickOnAccounts
   )
-  const firstSelectedSmartAccount = await page.$$eval(
-    '[data-testid="add-account"]',
-    (element, shouldClick) => {
-      if (shouldClick) element[1].click()
-      return element[1].textContent
-    },
-    shouldClickOnAccounts
-  )
+  const firstSelectedSmartAccount = shouldSelectSmartAccount
+    ? await page.$$eval(
+        '[data-testid="add-account"]',
+        (element, shouldClick) => {
+          if (shouldClick) element[1].click()
+          return element[1].textContent
+        },
+        shouldClickOnAccounts
+      )
+    : null
 
   await Promise.all([
     // Click on Import Accounts button

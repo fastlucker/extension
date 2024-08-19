@@ -29,7 +29,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import basic and smart accounts from a private key', async () => {
+  it('should import basic account from private key', async () => {
     await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
@@ -40,7 +40,10 @@ describe('auth', () => {
 
     // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page)
+      await finishStoriesAndSelectAccount(page, undefined, false)
+
+    // Since v4.31.0, Ambire does NOT retrieve smart accounts from private keys.
+    expect(firstSelectedSmartAccount).toBeNull()
 
     // Click on "Save and Continue" button
     await clickOnElement(page, '[data-testid="button-save-and-continue"]')
@@ -57,12 +60,6 @@ describe('auth', () => {
       (el) => el[0].innerText
     )
     expect(selectedBasicAccount).toContain(firstSelectedBasicAccount)
-
-    const selectedSmartAccount = await page.$$eval(
-      '[data-testid="account"]',
-      (el) => el[1].innerText
-    )
-    expect(selectedSmartAccount).toContain(firstSelectedSmartAccount)
   })
 
   //--------------------------------------------------------------------------------------------------------------
