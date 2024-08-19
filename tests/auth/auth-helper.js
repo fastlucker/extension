@@ -42,3 +42,24 @@ export async function finishStoriesAndSelectAccount(
   expect(currentUrl).toContain('/account-personalize')
   return { firstSelectedBasicAccount, firstSelectedSmartAccount }
 }
+
+export async function typeSeedWords(page, passphraseWords) {
+  const wordArray = passphraseWords.split(' ')
+
+  for (let i = 0; i < wordArray.length; i++) {
+    const wordToType = wordArray[i]
+
+    // Type the word into the input field using page.type
+    const inputSelector = `[placeholder="Word ${i + 1}"]`
+    // eslint-disable-next-line no-await-in-loop
+    await page.type(inputSelector, wordToType)
+  }
+}
+
+export async function expectImportButtonToBeDisabled(page) {
+  const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+    return button.getAttribute('aria-disabled')
+  })
+
+  expect(isButtonDisabled).toBe('true')
+}

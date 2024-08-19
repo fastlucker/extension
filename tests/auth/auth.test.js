@@ -2,7 +2,11 @@ import { INVITE_STORAGE_ITEM } from '../constants/constants'
 import { bootstrap } from '../common-helpers/bootstrap'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
-import { finishStoriesAndSelectAccount } from './auth-helper'
+import {
+  finishStoriesAndSelectAccount,
+  typeSeedWords,
+  expectImportButtonToBeDisabled
+} from './auth-helper'
 import { setAmbKeyStore } from '../common-helpers/setAmbKeyStore'
 
 describe('auth', () => {
@@ -63,17 +67,21 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import basic and smart accounts from a seed phrase and personalize them', async () => {
-    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
-    await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
+  it.only('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
+    await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
+    await page.waitForSelector('[placeholder="Word 1"]')
 
-    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
+    await typeSeedWords(page, process.env.SEED)
+
     // Click on Import button.
     await clickOnElement(page, '[data-testid="import-button"]')
 
+    await new Promise((r) => setTimeout(r, 500)) // so that the modal appears
+    await clickOnElement(page, '[data-testid="do-not-save-seed-button"]')
+
     // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page)
+      await finishStoriesAndSelectAccount(page, true)
 
     const accountName1 = 'Test-Account-1'
     const accountName2 = 'Test-Account-2'
@@ -187,26 +195,6 @@ describe('auth', () => {
 
     await page.waitForSelector('[placeholder="Word 1"]')
 
-    // This function types words in the passphrase fields and checks if the button is disabled.
-    async function typeWordsAndCheckButton(passphraseWords) {
-      const wordArray = passphraseWords.split(' ')
-
-      for (let i = 0; i < wordArray.length; i++) {
-        const wordToType = wordArray[i]
-
-        // Type the word into the input field using page.type
-        const inputSelector = `[placeholder="Word ${i + 1}"]`
-        await page.type(inputSelector, wordToType)
-      }
-
-      // Check whether button is disabled
-      const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
-        return button.getAttribute('aria-disabled')
-      })
-
-      expect(isButtonDisabled).toBe('true')
-    }
-
     // This function waits until an error message appears on the page.
     async function waitUntilError(validateMessage) {
       await page.waitForFunction(
@@ -221,12 +209,14 @@ describe('auth', () => {
 
     // Try to login with empty phrase fields
     let passphraseWords = ''
-    await typeWordsAndCheckButton(passphraseWords)
+    await typeSeedWords(page, passphraseWords)
+    await expectImportButtonToBeDisabled(page)
 
     // Test cases with different phrases keys
     passphraseWords =
       '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000'
-    await typeWordsAndCheckButton(passphraseWords)
+    await typeSeedWords(page, passphraseWords)
+    await expectImportButtonToBeDisabled(page)
 
     const errorMessage = 'Invalid Seed Phrase. Please review every field carefully.'
     // Wait until the error message appears on the page
@@ -242,7 +232,8 @@ describe('auth', () => {
 
     passphraseWords =
       'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
-    await typeWordsAndCheckButton(passphraseWords)
+    await typeSeedWords(page, passphraseWords)
+    await expectImportButtonToBeDisabled(page)
     // Wait until the error message appears on the page
     await waitUntilError(errorMessage)
   })
