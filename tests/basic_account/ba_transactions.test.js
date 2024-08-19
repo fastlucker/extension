@@ -1,4 +1,5 @@
-import { bootstrapWithStorage, baParams } from '../functions.js'
+import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
+import { baParams } from '../constants/constants'
 
 import {
   makeValidTransaction,

@@ -31,6 +31,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     contentHeader: {
       ...flexbox.alignCenter,
+      ...flexbox.flex1,
       backgroundColor: theme.tertiaryBackground
     },
     contentBody: {

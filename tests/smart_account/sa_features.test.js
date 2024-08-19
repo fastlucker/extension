@@ -1,15 +1,13 @@
-import {
-  typeText,
-  clickOnElement,
-  bootstrapWithStorage,
-  saParams,
-  selectMaticToken,
-  triggerTransaction,
-  signTransaction,
-  confirmTransactionStatus,
-  selectFeeToken,
-  checkBalanceOfToken
-} from '../functions'
+import { clickOnElement } from '../common-helpers/clickOnElement'
+import { typeText } from '../common-helpers/typeText'
+import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
+import { selectMaticToken } from '../common-helpers/selectMaticToken'
+import { saParams } from '../constants/constants'
+import { triggerTransaction } from '../common-helpers/triggerTransaction'
+import { signTransaction } from '../common-helpers/signTransaction'
+import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
+import { selectFeeToken } from '../common-helpers/selectFeeToken'
+import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
@@ -203,7 +201,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
+  it('4337 transaction. Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
     // Check if ETH in optimism are under 0.00000001
     await checkBalanceOfToken(
       page,
@@ -211,7 +209,7 @@ describe('sa_features', () => {
       0.00000001
     )
 
-    // Click on Matic (not Gas Tank token)
+    // Click on ETH (not Gas Tank token)
     await clickOnElement(
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]'
