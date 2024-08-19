@@ -21,20 +21,23 @@ const formatDecimals = (value?: number, type?: 'value' | 'amount' | 'price') => 
   if (value === 0) return `${getPrefix(withDollarPrefix)}0.00`
   if (!value || Number.isNaN(value)) return `${getPrefix(withDollarPrefix)}-`
 
+  // The absolute value is used to determine the number of decimals and
+  // then the actual value is formatted with the determined number of decimals.
+  const absoluteValue = Math.abs(value)
   const indexOfFirstNonZero = getIndexOfFirstNonZeroInDecimals(value)
 
-  let decimals = value >= 1 ? DEFAULT_DECIMALS : indexOfFirstNonZero + DEFAULT_DECIMALS
+  let decimals = absoluteValue >= 1 ? DEFAULT_DECIMALS : indexOfFirstNonZero + DEFAULT_DECIMALS
 
-  if ((type === 'value' && value > 10) || (type === 'amount' && value > 100)) {
+  if ((type === 'value' && absoluteValue > 10) || (type === 'amount' && absoluteValue > 100)) {
     decimals = 0
   }
 
-  if (type === 'value' && value < 0.01 && value > 0) {
+  if (type === 'value' && absoluteValue < 0.01 && absoluteValue > 0) {
     withDollarPrefix = false
     return '<$0.01'
   }
 
-  if (type === 'amount' && value < 0.00001 && value > 0) {
+  if (type === 'amount' && absoluteValue < 0.00001 && absoluteValue > 0) {
     return '<0.00001'
   }
 
