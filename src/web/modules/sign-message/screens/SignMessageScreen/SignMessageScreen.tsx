@@ -309,21 +309,21 @@ const SignMessageScreen = () => {
                 }}
               />
             )}
-          {/* @TODO test with ledger */}
+          </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
-              <HardwareWalletSigningModal
-                keyType={signMessageState.signingKeyType}
-                isVisible={signStatus === 'LOADING'}
-              />
-            )}
-            {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
-              <LedgerConnectModal
-                isVisible={!isLedgerConnected}
-                handleOnConnect={handleDismissLedgerConnectModal}
-                handleClose={handleDismissLedgerConnectModal}
-                displayOptionToAuthorize={false}
-              />
-            )}
+            <HardwareWalletSigningModal
+              keyType={signMessageState.signingKeyType}
+              isVisible={signStatus === 'LOADING'}
+            />
+          )}
+          {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
+            <LedgerConnectModal
+              isVisible={!isLedgerConnected}
+              handleOnConnect={handleDismissLedgerConnectModal}
+              handleClose={handleDismissLedgerConnectModal}
+              displayOptionToAuthorize={false}
+            />
+          )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
