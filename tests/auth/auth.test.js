@@ -67,7 +67,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
+  it('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
     await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
     await page.waitForSelector('[placeholder="Word 1"]')
 
