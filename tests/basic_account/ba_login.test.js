@@ -45,7 +45,7 @@ describe('ba_login', () => {
   const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'
 
   //------------------------------------------------------------------------------------------------------
-  it('create basic and smart accounts with private key', async () => {
+  it('create basic account with private key', async () => {
     await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
@@ -53,9 +53,13 @@ describe('ba_login', () => {
 
     // Click on Import button.
     await clickOnElement(page, '[data-testid="import-button"]')
-    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
-    const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page)
+    // This function will complete the onboarding stories and will select and retrieve first basic account.
+    // Since v4.31.0, Ambire does NOT retrieve smart accounts from private keys.
+    const { firstSelectedBasicAccount } = await finishStoriesAndSelectAccount(
+      page,
+      undefined,
+      false
+    )
 
     // Click on "Save and Continue" button
     await clickOnElement(page, '[data-testid="button-save-and-continue"]')
@@ -85,7 +89,7 @@ describe('ba_login', () => {
       '[data-testid="account"]',
       (el) => el[1].innerText
     )
-    expect(selectedSmartAccount).toContain(firstSelectedSmartAccount)
+    expect(selectedSmartAccount).toBeFalsy()
   })
 
   //------------------------------------------------------------------------------------------------------
