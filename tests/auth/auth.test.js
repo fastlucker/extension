@@ -183,4 +183,110 @@ describe('auth', () => {
     expect(selectedSmartAccount).toContain(basicAccount)
     expect(selectedSmartAccount).toContain('View-only')
   })
+
+  //--------------------------------------------------------------------------------------------------------------
+  it('should not allow importing an invalid seed phrase', async () => {
+    await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
+
+    await page.waitForSelector('[placeholder="Word 1"]')
+
+    // This function types words in the passphrase fields and checks if the button is disabled.
+    async function typeWordsAndCheckButton(passphraseWords) {
+      const wordArray = passphraseWords.split(' ')
+
+      for (let i = 0; i < wordArray.length; i++) {
+        const wordToType = wordArray[i]
+
+        // Type the word into the input field using page.type
+        const inputSelector = `[placeholder="Word ${i + 1}"]`
+        await page.type(inputSelector, wordToType)
+      }
+
+      // Check whether button is disabled
+      const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+        return button.getAttribute('aria-disabled')
+      })
+
+      expect(isButtonDisabled).toBe('true')
+    }
+
+    // This function waits until an error message appears on the page.
+    async function waitUntilError(validateMessage) {
+      await page.waitForFunction(
+        (text) => {
+          const element = document.querySelector('body')
+          return element && element.textContent.includes(text)
+        },
+        { timeout: 60000 },
+        validateMessage
+      )
+    }
+
+    // Try to login with empty phrase fields
+    let passphraseWords = ''
+    await typeWordsAndCheckButton(passphraseWords)
+
+    // Test cases with different phrases keys
+    passphraseWords =
+      '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000'
+    await typeWordsAndCheckButton(passphraseWords)
+
+    const errorMessage = 'Invalid Seed Phrase. Please review every field carefully.'
+    // Wait until the error message appears on the page
+    await waitUntilError(errorMessage)
+
+    // Clear the passphrase fields before write the new phrase
+    const wordArray = passphraseWords.split(' ')
+    for (let i = 0; i < wordArray.length; i++) {
+      const inputSelector = `[placeholder="Word ${i + 1}"]`
+      await page.click(inputSelector, { clickCount: 3 }) // Select all content
+      await page.keyboard.press('Backspace') // Delete the selected content
+    }
+
+    passphraseWords =
+      'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
+    await typeWordsAndCheckButton(passphraseWords)
+    // Wait until the error message appears on the page
+    await waitUntilError(errorMessage)
+  })
+  //------------------------------------------------------------------------------------------------------
+  it('should not allow importing an invalid private key', async () => {
+    const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'
+    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
+
+    const typeTextAndCheckValidity = async (privateKey) => {
+      await typeText(page, enterSeedPhraseField, privateKey, { delay: 10 })
+
+      // Check whether text "Invalid private key." exists on the page
+      await page.$$eval('div[dir="auto"]', (element) => {
+        return element.find((item) => item.textContent === 'Invalid private key.').textContent
+      })
+
+      // Check whether button is disabled
+      const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+        return button.getAttribute('aria-disabled')
+      })
+
+      expect(isButtonDisabled).toBe('true')
+    }
+
+    // Test cases with different private keys
+    await typeTextAndCheckValidity(
+      '0000000000000000000000000000000000000000000000000000000000000000'
+    )
+    await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
+
+    await typeTextAndCheckValidity('', 'Test 2')
+    await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
+
+    await typeTextAndCheckValidity(
+      '00390ce7b96835258b010e25f9196bf4ddbff575b7c102546e9e40780118018'
+    )
+    await new Promise((r) => setTimeout(r, 1000))
+    await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
+
+    await typeTextAndCheckValidity(
+      '03#90ce7b96835258b019e25f9196bf4ddbff575b7c102546e9e40780118018'
+    )
+  })
 })
