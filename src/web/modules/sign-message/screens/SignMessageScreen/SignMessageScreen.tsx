@@ -251,10 +251,7 @@ const SignMessageScreen = () => {
               {t('Details')}
             </Text>
 
-            <Info
-              kindOfMessage={signMessageState.messageToSign?.content.kind}
-              isViewOnly={isViewOnly}
-            />
+            <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
@@ -307,6 +304,7 @@ const SignMessageScreen = () => {
                   maxWidth: 600,
                   ...spacings.mtMd
                 }}
+                requestType="message"
               />
             )}
           </View>

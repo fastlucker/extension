@@ -14,9 +14,10 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 interface Props {
   style?: ViewStyle
+  requestType?: string
 }
 
-const NoKeysToSignAlert: FC<Props> = ({ style }) => {
+const NoKeysToSignAlert: FC<Props> = ({ style, requestType = 'transaction' }) => {
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { keys } = useKeystoreControllerState()
   const { keyPreferences } = useSettingsControllerState()
@@ -34,7 +35,7 @@ const NoKeysToSignAlert: FC<Props> = ({ style }) => {
     <View style={style}>
       <Alert
         type="error"
-        title={t('No keys available to sign this transaction.')}
+        title={t(`No keys available to sign this ${requestType}.`)}
         customIcon={() => <NoKeysIcon color={theme.secondaryText} />}
         buttonProps={{
           onPress: () => openBottomSheet(),

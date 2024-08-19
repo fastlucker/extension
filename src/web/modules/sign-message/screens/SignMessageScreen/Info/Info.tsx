@@ -19,10 +19,9 @@ import getStyles from './styles'
 
 interface Props {
   kindOfMessage?: 'typedMessage' | 'message'
-  isViewOnly?: boolean
 }
 
-const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
+const Info: FC<Props> = ({ kindOfMessage }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
