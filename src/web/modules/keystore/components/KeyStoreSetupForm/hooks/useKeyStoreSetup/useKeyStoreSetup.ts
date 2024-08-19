@@ -59,7 +59,8 @@ const useKeyStoreSetup = () => {
     formState,
     control,
     password,
-    handleKeystoreSetup
+    handleKeystoreSetup,
+    hasPasswordSecret: state.hasPasswordSecret
   }
 }
 

@@ -1,4 +1,5 @@
-import { typeText, clickOnElement } from '../functions'
+import { typeText } from '../common-helpers/typeText'
+import { clickOnElement } from '../common-helpers/clickOnElement'
 
 //--------------------------------------------------------------------------------------------------------------
 export async function changePassword(page, extensionURL) {

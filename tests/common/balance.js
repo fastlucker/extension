@@ -1,4 +1,4 @@
-import { clickOnElement } from '../functions'
+import { clickOnElement } from '../common-helpers/clickOnElement'
 
 //--------------------------------------------------------------------------------------------------------------
 export async function checkBalanceInAccount(page) {
