@@ -312,7 +312,7 @@ const SignMessageScreen = () => {
             />
             <FallbackVisualization
               setHasReachedBottom={setHasReachedBottom}
-              hasReachedBottom={hasReachedBottom}
+              hasReachedBottom={!!hasReachedBottom}
               messageToSign={signMessageState.messageToSign}
             />
             {isViewOnly && (
