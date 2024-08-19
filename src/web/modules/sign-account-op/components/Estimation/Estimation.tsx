@@ -106,7 +106,7 @@ const Estimation = ({
   ])
 
   useEffect(() => {
-    if (!hasEstimation || estimationFailed) return
+    if (!hasEstimation) return
 
     const isInitialValueSet = !!payValue
     const canPayFeeAfterNotBeingAbleToPayInitially =
@@ -118,7 +118,6 @@ const Estimation = ({
     payValue,
     setFeeOption,
     hasEstimation,
-    estimationFailed,
     defaultFeeOption.value,
     defaultFeeOption,
     signAccountOpState?.account.addr
@@ -227,17 +226,12 @@ const Estimation = ({
     [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
-  if (
-    !signAccountOpState ||
-    (!estimationFailed && !payValue) ||
-    (!hasEstimation && !estimationFailed)
-  ) {
+  if (!signAccountOpState || !hasEstimation || !payValue) {
     return (
       <EstimationWrapper>
         <EstimationSkeleton />
         <Warnings
           hasEstimation={hasEstimation}
-          estimationFailed={estimationFailed}
           slowRequest={slowRequest}
           isViewOnly={isViewOnly}
           rbfDetected={false}
@@ -249,7 +243,7 @@ const Estimation = ({
 
   return (
     <EstimationWrapper>
-      {!!hasEstimation && !estimationFailed && (
+      {!!hasEstimation && (
         <>
           {isSmartAccount(signAccountOpState.account) && (
             <SectionedSelect
@@ -332,7 +326,6 @@ const Estimation = ({
       )}
       <Warnings
         hasEstimation={hasEstimation}
-        estimationFailed={estimationFailed}
         slowRequest={slowRequest}
         isViewOnly={isViewOnly}
         rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}

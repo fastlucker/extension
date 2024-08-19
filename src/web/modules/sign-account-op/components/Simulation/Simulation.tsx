@@ -144,7 +144,9 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     simulationErrorMsg,
     pendingTokens.length,
     shouldShowLoader,
-    signAccountOpState?.isInitialized
+    signAccountOpState?.isInitialized,
+    pendingReceiveCollection.length,
+    pendingSendCollection.length
   ])
 
   useEffect(() => {

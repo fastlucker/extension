@@ -59,7 +59,6 @@ const SignAccountOpScreen = () => {
       signAccountOpState?.isInitialized
     ]
   )
-  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
   useEffect(() => {
     // Ensures user can re-open the modal, if previously being closed, e.g.
@@ -79,12 +78,14 @@ const SignAccountOpScreen = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!hasEstimation) {
+      // set the request to slow if the state is not init (no estimation)
+      // or the gas prices haven't been fetched
+      if (!signAccountOpState?.isInitialized || !signAccountOpState?.gasPrices) {
         setSlowRequest(true)
       }
     }, 5000)
 
-    if (hasEstimation) {
+    if (signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices) {
       clearTimeout(timeout)
       setSlowRequest(false)
     }
@@ -92,7 +93,7 @@ const SignAccountOpScreen = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [hasEstimation, slowRequest])
+  }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
@@ -116,7 +117,6 @@ const SignAccountOpScreen = () => {
       signAccountOpState &&
       signAccountOpState.estimation &&
       hasEstimation && // this includes gas prices as well, we need it
-      !estimationFailed &&
       !didTraceCall
     ) {
       setDidTraceCall(true)
@@ -127,7 +127,7 @@ const SignAccountOpScreen = () => {
         }
       })
     }
-  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, estimationFailed, dispatch])
+  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, dispatch])
 
   useEffect(() => {
     if (!accountOpAction) return
@@ -292,7 +292,7 @@ const SignAccountOpScreen = () => {
             <Estimation
               signAccountOpState={signAccountOpState}
               disabled={isSignLoading}
-              hasEstimation={!!hasEstimation && !!signAccountOpState}
+              hasEstimation={!!hasEstimation}
               slowRequest={slowRequest}
               isViewOnly={isViewOnly}
             />

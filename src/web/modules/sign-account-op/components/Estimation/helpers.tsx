@@ -110,6 +110,10 @@ const getDefaultFeeOption = (
   if (payOptionsPaidByEOA.length > 0 && !payOptionsPaidByEOA[0].disabled)
     return payOptionsPaidByEOA[0]
 
+  // if there's nothing to cover the fee, select a disabled option
+  if (payOptionsPaidByUsOrGasTank.length) return payOptionsPaidByUsOrGasTank[0]
+  if (payOptionsPaidByEOA.length) return payOptionsPaidByEOA[0]
+
   return NO_FEE_OPTIONS as FeeOption
 }
 
