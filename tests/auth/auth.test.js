@@ -86,21 +86,15 @@ describe('auth', () => {
     const accountName1 = 'Test-Account-1'
     const accountName2 = 'Test-Account-2'
 
-    const editAccountNameFields = await page.$$('[data-testid="editable-button"]')
-
-    await editAccountNameFields[0].click()
-    await new Promise((r) => setTimeout(r, 500))
-
+    await clickOnElement(page, '[data-testid="edit-btn-for-edit-name-field-0"]')
     await typeText(page, '[data-testid="edit-name-field-0"]', accountName1)
 
-    await editAccountNameFields[1].click()
-    await new Promise((r) => setTimeout(r, 500))
-
+    await clickOnElement(page, '[data-testid="edit-btn-for-edit-name-field-1"]')
     await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
 
     // Click on the checkmark icon to save the new account names
-    editAccountNameFields[0].click()
-    editAccountNameFields[1].click()
+    await clickOnElement(page, '[data-testid="edit-btn-for-edit-name-field-0"]')
+    await clickOnElement(page, '[data-testid="edit-btn-for-edit-name-field-1"]')
 
     // Click on "Save and Continue" button
     await new Promise((r) => setTimeout(r, 1000))
