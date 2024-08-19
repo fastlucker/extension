@@ -21,7 +21,7 @@ describe.skip('Standalone Benzin tests', () => {
   })
 
   afterAll(async () => {
-    // await browser.close()
+    await browser.close()
   })
 
   it('Check visible elements in valid transfer. Send MATIC on Polygon', async () => {
