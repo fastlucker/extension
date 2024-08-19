@@ -1,3 +1,5 @@
+import { formatUnits } from 'ethers'
+
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import {
   FeeSpeed,
@@ -9,6 +11,26 @@ import PayOption from './components/PayOption'
 import { NO_FEE_OPTIONS } from './consts'
 import { FeeOption } from './types'
 
+const sortBasedOnUSDValue = (a: FeePaymentOption, b: FeePaymentOption) => {
+  const aPrice = a.token.priceIn?.[0].price
+  const bPrice = b.token.priceIn?.[0].price
+
+  if (!aPrice || !bPrice) return 0
+  const aBalance = formatUnits(a.availableAmount, a.token.decimals)
+  const bBalance = formatUnits(b.availableAmount, b.token.decimals)
+  const aValue = parseFloat(aBalance) * aPrice
+  const bValue = parseFloat(bBalance) * bPrice
+
+  if (aValue > bValue) return -1
+  if (aValue < bValue) return 1
+  return 0
+}
+
+/**
+ * Sorts fee options by the following criteria:
+ * - Gas tank options first
+ * - USD value
+ */
 const sortFeeOptions = (
   a: FeePaymentOption,
   b: FeePaymentOption,
@@ -36,6 +58,12 @@ const sortFeeOptions = (
   if (!aCanCoverFee && bCanCoverFee) return 1
   if (a.token.flags.onGasTank && !b.token.flags.onGasTank) return -1
   if (!a.token.flags.onGasTank && b.token.flags.onGasTank) return 1
+  if (a.token.flags.onGasTank && b.token.flags.onGasTank) {
+    return sortBasedOnUSDValue(a, b)
+  }
+  if (!a.token.flags.onGasTank && !b.token.flags.onGasTank) {
+    return sortBasedOnUSDValue(a, b)
+  }
   return 0
 }
 
@@ -81,6 +109,10 @@ const getDefaultFeeOption = (
 
   if (payOptionsPaidByEOA.length > 0 && !payOptionsPaidByEOA[0].disabled)
     return payOptionsPaidByEOA[0]
+
+  // if there's nothing to cover the fee, select a disabled option
+  if (payOptionsPaidByUsOrGasTank.length) return payOptionsPaidByUsOrGasTank[0]
+  if (payOptionsPaidByEOA.length) return payOptionsPaidByEOA[0]
 
   return NO_FEE_OPTIONS as FeeOption
 }

@@ -33,8 +33,7 @@ const Estimation = ({
   disabled,
   hasEstimation,
   slowRequest,
-  isViewOnly,
-  isAmbireV1AndNetworkNotSupported
+  isViewOnly
 }: Props) => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
@@ -44,24 +43,22 @@ const Estimation = ({
   const { accountStates } = useAccountsControllerState()
 
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
-    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation || estimationFailed)
-      return []
+    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
 
     return signAccountOpState.availableFeeOptions
       .filter((feeOption) => feeOption.paidBy === signAccountOpState.accountOp.accountAddr)
       .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
-  }, [estimationFailed, hasEstimation, signAccountOpState])
+  }, [hasEstimation, signAccountOpState])
 
   const payOptionsPaidByEOA = useMemo(() => {
-    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation || estimationFailed)
-      return []
+    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
 
     return signAccountOpState.availableFeeOptions
       .filter((feeOption) => feeOption.paidBy !== signAccountOpState.accountOp.accountAddr)
       .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
-  }, [estimationFailed, hasEstimation, signAccountOpState])
+  }, [hasEstimation, signAccountOpState])
 
   const defaultFeeOption = useMemo(
     () => getDefaultFeeOption(payOptionsPaidByUsOrGasTank, payOptionsPaidByEOA),
@@ -109,22 +106,21 @@ const Estimation = ({
   ])
 
   useEffect(() => {
-    if (!hasEstimation || estimationFailed) return
+    if (!hasEstimation) return
 
     const isInitialValueSet = !!payValue
-    const isPayValueOutdated =
+    const canPayFeeAfterNotBeingAbleToPayInitially =
       payValue?.value === NO_FEE_OPTIONS.value && defaultFeeOption.value !== NO_FEE_OPTIONS.value
-
-    if (!isInitialValueSet || isPayValueOutdated) {
+    if (!isInitialValueSet || canPayFeeAfterNotBeingAbleToPayInitially) {
       setFeeOption(defaultFeeOption)
     }
   }, [
     payValue,
     setFeeOption,
     hasEstimation,
-    estimationFailed,
     defaultFeeOption.value,
-    defaultFeeOption
+    defaultFeeOption,
+    signAccountOpState?.account.addr
   ])
 
   const feeSpeeds = useMemo(() => {
@@ -230,21 +226,16 @@ const Estimation = ({
     [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
-  if (
-    !signAccountOpState ||
-    (!isAmbireV1AndNetworkNotSupported && ((!hasEstimation && !estimationFailed) || !payValue))
-  ) {
+  if (!signAccountOpState || !hasEstimation || !payValue) {
     return (
       <EstimationWrapper>
         <EstimationSkeleton />
         <Warnings
           hasEstimation={hasEstimation}
-          estimationFailed={estimationFailed}
           slowRequest={slowRequest}
           isViewOnly={isViewOnly}
           rbfDetected={false}
           bundlerFailure={false}
-          isAmbireV1AndNetworkNotSupported={false}
         />
       </EstimationWrapper>
     )
@@ -252,7 +243,7 @@ const Estimation = ({
 
   return (
     <EstimationWrapper>
-      {!!hasEstimation && !estimationFailed && (
+      {!!hasEstimation && (
         <>
           {isSmartAccount(signAccountOpState.account) && (
             <SectionedSelect
@@ -268,7 +259,7 @@ const Estimation = ({
                 (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
                 defaultFeeOption.label === NO_FEE_OPTIONS.label
               }
-              defaultValue={payValue}
+              defaultValue={payValue ?? undefined}
               withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
               stickySectionHeadersEnabled
             />
@@ -334,9 +325,7 @@ const Estimation = ({
         </>
       )}
       <Warnings
-        isAmbireV1AndNetworkNotSupported={isAmbireV1AndNetworkNotSupported}
         hasEstimation={hasEstimation}
-        estimationFailed={estimationFailed}
         slowRequest={slowRequest}
         isViewOnly={isViewOnly}
         rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
@@ -346,7 +335,7 @@ const Estimation = ({
           )
         }
       />
-      {isSmartAccountAndNotDeployed && !isAmbireV1AndNetworkNotSupported ? (
+      {isSmartAccountAndNotDeployed && !estimationFailed ? (
         <Alert
           type="info"
           title={t('Note')}
