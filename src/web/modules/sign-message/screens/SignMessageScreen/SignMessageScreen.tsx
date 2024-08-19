@@ -255,22 +255,6 @@ const SignMessageScreen = () => {
               kindOfMessage={signMessageState.messageToSign?.content.kind}
               isViewOnly={isViewOnly}
             />
-
-            {/* @TODO test with ledger */}
-            {/* {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
-              <HardwareWalletSigningModal
-                keyType={signMessageState.signingKeyType}
-                isVisible={signStatus === 'LOADING'}
-              />
-            )}
-            {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
-              <LedgerConnectModal
-                isVisible={!isLedgerConnected}
-                handleOnConnect={handleDismissLedgerConnectModal}
-                handleClose={handleDismissLedgerConnectModal}
-                displayOptionToAuthorize={false}
-              />
-            )} */}
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
@@ -325,7 +309,21 @@ const SignMessageScreen = () => {
                 }}
               />
             )}
-          </View>
+          {/* @TODO test with ledger */}
+          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
+              <HardwareWalletSigningModal
+                keyType={signMessageState.signingKeyType}
+                isVisible={signStatus === 'LOADING'}
+              />
+            )}
+            {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
+              <LedgerConnectModal
+                isVisible={!isLedgerConnected}
+                handleOnConnect={handleDismissLedgerConnectModal}
+                handleClose={handleDismissLedgerConnectModal}
+                displayOptionToAuthorize={false}
+              />
+            )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
