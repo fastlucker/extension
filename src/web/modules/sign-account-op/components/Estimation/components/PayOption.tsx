@@ -30,17 +30,17 @@ const PayOption = ({
 
   const iconSize = 24
 
-  const account = useMemo(
+  const paidByAccountData = useMemo(
     () => accounts.find((a) => a.addr === feeOption.paidBy),
     [accounts, feeOption.paidBy]
   )
 
   const formattedAmount = useMemo(() => {
     return formatDecimals(
-      Number(formatUnits(feeOption.token.amount, feeOption.token.decimals)),
+      Number(formatUnits(feeOption.availableAmount, feeOption.token.decimals)),
       'amount'
     )
-  }, [feeOption.token.amount, feeOption.token.decimals])
+  }, [feeOption.availableAmount, feeOption.token.decimals])
 
   const feeTokenNetworkName = useMemo(() => {
     if (feeOption.token.flags.onGasTank) {
@@ -53,10 +53,10 @@ const PayOption = ({
   const isPaidByAnotherAccount = feeOption.paidBy !== selectedAccount
 
   const paidByLabel = useMemo(() => {
-    return accounts.find((a) => a.addr === feeOption.paidBy)?.preferences.label
-  }, [accounts, feeOption.paidBy])
+    return paidByAccountData?.preferences.label
+  }, [paidByAccountData?.preferences.label])
 
-  if (!account) return null
+  if (!paidByAccountData) return null
 
   return (
     <View
