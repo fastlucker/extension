@@ -124,7 +124,7 @@ const Editable: FC<Props> = ({
           setIsEditing(true)
         }}
         style={[spacings.mlTy]}
-        testID="editable-button"
+        testID={`edit-btn-for-${testID}`}
       >
         {({ hovered }: any) => (
           <>
