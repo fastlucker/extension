@@ -10,7 +10,6 @@ interface Style {
   header: ViewStyle
   headerText: TextStyle
   toggleButton: ViewStyle
-  activeTab: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -26,19 +25,13 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       borderColor: theme.secondaryBorder
     },
-    activeTab: {
-      backgroundColor: theme.secondaryBackground,
-      borderColor: theme.primaryBorder
-    },
     container: {
       ...common.borderRadiusPrimary,
       backgroundColor: theme.secondaryBackground,
-      borderColor: theme.primaryBorder,
       ...flexbox.flex1,
       minHeight: 200,
       ...spacings.pvSm,
-      ...spacings.ph,
-      borderWidth: 1
+      ...spacings.ph
     },
     header: {
       ...spacings.mb,
