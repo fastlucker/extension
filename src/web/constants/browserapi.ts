@@ -38,4 +38,13 @@ const getFirefoxVersion = () => {
   }
 }
 
-export { engine, isExtension, browser, getFirefoxVersion }
+const isOpera = () => {
+  try {
+    const userAgent = navigator.userAgent
+    return userAgent.includes('Opera') || userAgent.includes('OPR')
+  } catch (error) {
+    return false
+  }
+}
+
+export { engine, isExtension, browser, getFirefoxVersion, isOpera }
