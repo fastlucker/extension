@@ -74,7 +74,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   useEffect((): void => {
     const feeTokenAddress = submittedAccountOp.gasFeePayment?.inToken
     const networkId: NetworkId =
-      submittedAccountOp.gasFeePayment?.networkId ||
+      submittedAccountOp.gasFeePayment?.feeTokenNetworkId ||
       // the rest is support for legacy data (no networkId recorded for the fee)
       (feeTokenAddress === ZeroAddress && submittedAccountOp.networkId) ||
       gasTankFeeTokens.find((constFeeToken: any) => constFeeToken.address === feeTokenAddress)
@@ -109,7 +109,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   }, [
     networks,
     submittedAccountOp.networkId,
-    submittedAccountOp?.gasFeePayment?.networkId,
+    submittedAccountOp?.gasFeePayment?.feeTokenNetworkId,
     submittedAccountOp.gasFeePayment?.amount,
     submittedAccountOp.gasFeePayment?.inToken,
     addToast
