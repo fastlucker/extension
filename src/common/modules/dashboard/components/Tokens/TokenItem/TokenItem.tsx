@@ -64,18 +64,19 @@ const TokenItem = ({
     [accounts, selectedAccount]
   )
 
-  // TODO: useMemo
   const pendingLastKnownNonce = accountPortfolio?.portfolioNonces[token.networkId]
   const activityNonce = activityState?.lastKnownNonce[token.networkId]
-  // TODO: Should exclude Gas tank tokens for pending-to-be-signed and pending-to-be-confirmed badges.
   const tokenAmounts = accountPortfolio?.tokenAmounts.find(
     (tokenAmount) =>
-      tokenAmount.address === token.address && tokenAmount.networkId === token.networkId
+      tokenAmount.address === token.address &&
+      tokenAmount.networkId === token.networkId &&
+      !token.flags.onGasTank
   )
 
   const {
     balanceFormatted,
     balance,
+    balanceLatestFormatted,
     priceUSDFormatted,
     balanceUSDFormatted,
     isVesting,
@@ -227,7 +228,7 @@ const TokenItem = ({
                 weight="number_bold"
                 numberOfLines={1}
               >
-                {balanceFormatted}
+                {balanceLatestFormatted}
               </Text>
               <Text
                 selectable

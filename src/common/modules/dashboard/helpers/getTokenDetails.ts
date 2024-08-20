@@ -17,10 +17,6 @@ const getPendingAmounts = (
   activityNonce?: bigint,
   portfolioNonce?: bigint
 ) => {
-  // TODO: TBD — when there’s an on-chain to-be-confirmed delta, the representation of Spendable and On-Chain amounts on the Dashboard seems unclear.
-  //  In other scenarios, we display the token balance (pending amount, aka Spendable), On-Chain amount, and the corresponding badge.
-  //  However, in this case, the Spendable and On-Chain amounts are identical, resulting in no visual distinction.
-  //  We should discuss it from UX point of view the best way to handle this.
   const onChainToBeConfirmedDelta = pendingAmount - latestAmount
 
   // There is no Pending state changes
@@ -100,8 +96,10 @@ const getTokenDetails = (
   const isVesting = rewardsType === 'wallet-vesting'
   const networkData = networks.find(({ id }) => networkId === id)
   const amountish = BigInt(amount)
+  const amountishLatest = BigInt(tokenAmаount?.latestAmount || 0n)
 
   const balance = parseFloat(formatUnits(amountish, decimals))
+  const balanceLatest = parseFloat(formatUnits(amountishLatest, decimals))
   const priceUSD = priceIn.find(
     ({ baseCurrency }: { baseCurrency: string }) => baseCurrency.toLowerCase() === 'usd'
   )?.price
@@ -124,6 +122,7 @@ const getTokenDetails = (
   return {
     balance,
     balanceFormatted: formatDecimals(balance, 'amount'),
+    balanceLatest,
     priceUSD,
     priceUSDFormatted: formatDecimals(priceUSD, 'price'),
     balanceUSD,
