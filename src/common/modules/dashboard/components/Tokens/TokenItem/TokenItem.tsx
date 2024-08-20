@@ -22,10 +22,13 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 import TokenDetails from '../TokenDetails'
 import PendingBadge from './PendingBadge'
 import getStyles from './styles'
+
+const { isPopup } = getUiType()
 
 const TokenItem = ({
   token,
@@ -92,11 +95,9 @@ const TokenItem = ({
     claimWalletRewards(token)
   }, [token, claimWalletRewards])
 
-
   const sendVestingTransaction = useCallback(() => {
     claimEarlySupportersVesting(token)
   }, [token, claimEarlySupportersVesting])
-
 
   return (
     <AnimatedPressable
@@ -153,7 +154,8 @@ const TokenItem = ({
                   <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
                     <Text weight="regular" shouldScale={false} fontSize={12}>
                       {!!isRewards && t('Claimable rewards')}
-                      {!!isVesting && t('Claimable early supporters vestings')}
+                      {!!isVesting && !isPopup && t('Claimable early supporters vestings')}
+                      {!!isVesting && isPopup && t('Claimable vestings')}
                       {!isRewards && !isVesting && t('on')}{' '}
                     </Text>
                     <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
@@ -173,7 +175,7 @@ const TokenItem = ({
                   />
                 )}
 
-              {!!isVesting && (
+                {!!isVesting && (
                   <Button
                     style={spacings.ml}
                     size="small"
