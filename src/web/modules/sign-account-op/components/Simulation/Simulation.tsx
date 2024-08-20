@@ -2,6 +2,7 @@ import { isHexString } from 'ethers'
 import React, { FC, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Network } from '@ambire-common/interfaces/network'
 import Address from '@common/components/Address'
 import Alert from '@common/components/Alert'
@@ -24,10 +25,12 @@ import getStyles from './styles'
 
 interface Props {
   network?: Network
-  hasEstimation: boolean
+  // marks whether the estimation has been done regardless
+  // of whether the estimation returned an error or not
+  isEstimationComplete: boolean
 }
 
-const Simulation: FC<Props> = ({ network, hasEstimation }) => {
+const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
@@ -89,12 +92,12 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   )
 
   const isReloading = useMemo(
-    () => initialSimulationLoaded && !hasEstimation,
-    [hasEstimation, initialSimulationLoaded]
+    () => initialSimulationLoaded && !isEstimationComplete,
+    [isEstimationComplete, initialSimulationLoaded]
   )
 
   const simulationErrorMsg = useMemo(() => {
-    if (portfolioStatePending?.isLoading || !initialSimulationLoaded) return ''
+    if (portfolioStatePending?.isLoading && !initialSimulationLoaded) return ''
 
     if (portfolioStatePending?.criticalError) {
       if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
@@ -137,11 +140,10 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     useMemo(() => {
       if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
-      if (simulationErrorMsg) {
-        if (signAccountOpState?.errors.length) return 'error-handled-elsewhere'
+      if (signAccountOpState.status?.type === SigningStatus.EstimationError)
+        return 'error-handled-elsewhere'
 
-        return 'error'
-      }
+      if (simulationErrorMsg) return 'error'
 
       return pendingSendCollection.length || pendingReceiveCollection.length || pendingTokens.length
         ? 'changes'
@@ -149,7 +151,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     }, [
       shouldShowLoader,
       signAccountOpState?.isInitialized,
-      signAccountOpState?.errors.length,
+      signAccountOpState?.status,
       simulationErrorMsg,
       pendingSendCollection.length,
       pendingReceiveCollection.length,
