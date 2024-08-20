@@ -14,7 +14,7 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: { ...flexbox.alignStart, width: '100%' },
-    image: { width: 50, height: 50, ...spacings.mrSm },
+    image: { width: 48, height: 48, ...spacings.mrSm },
     kindOfMessage: {
       backgroundColor: theme.infoBackground,
       borderColor: theme.infoDecorative,

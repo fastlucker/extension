@@ -259,8 +259,8 @@ const SignMessageScreen = () => {
               {t('Sign message')}
             </Text>
 
-            {/* @TODO different component might be more suitable */}
             <ExpandableCard
+              enableExpand={false}
               style={spacings.mbMd}
               hasArrow={false}
               content={

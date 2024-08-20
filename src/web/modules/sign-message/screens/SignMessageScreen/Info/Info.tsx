@@ -5,7 +5,6 @@ import { Image, View } from 'react-native'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
-import Alert from '@common/components/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -79,7 +78,7 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
               explorerNetworkId={messageToSign.networkId}
             />
             <Text fontSize={16} appearance="secondaryText">
-              {t('Will verify your this')}
+              {t('Will verify this signature')}
             </Text>
           </>
         )}
