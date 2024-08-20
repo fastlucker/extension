@@ -229,7 +229,7 @@ const Estimation = ({
   if (!signAccountOpState || !hasEstimation || !payValue) {
     return (
       <EstimationWrapper>
-        <EstimationSkeleton />
+        {!estimationFailed && <EstimationSkeleton />}
         <Warnings
           hasEstimation={hasEstimation}
           slowRequest={slowRequest}
