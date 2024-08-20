@@ -18,19 +18,10 @@ type Props = {
   onSign: () => void
   isSignLoading: boolean
   isSignDisabled: boolean
-  isViewOnly: boolean
   isEOA: boolean
 }
 
-const Footer = ({
-  onReject,
-  onAddToCart,
-  onSign,
-  isSignLoading,
-  isSignDisabled,
-  isViewOnly,
-  isEOA
-}: Props) => {
+const Footer = ({ onReject, onAddToCart, onSign, isSignLoading, isSignDisabled, isEOA }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
 
@@ -58,7 +49,7 @@ const Footer = ({
             accentColor={theme.primary}
             text={t('Queue and Sign Later')}
             onPress={onAddToCart}
-            disabled={isSignLoading || isViewOnly}
+            disabled={isSignDisabled}
             hasBottomSpacing={false}
             style={spacings.mr}
             size="large"
