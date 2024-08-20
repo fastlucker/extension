@@ -15,7 +15,6 @@ import getStyles from './styles'
 
 interface Props {
   hasEstimation: boolean
-  estimationFailed: boolean
   slowRequest: boolean
   isViewOnly: boolean
   rbfDetected: boolean
@@ -24,7 +23,6 @@ interface Props {
 
 const Warnings: FC<Props> = ({
   hasEstimation,
-  estimationFailed,
   slowRequest,
   isViewOnly,
   rbfDetected,
@@ -55,7 +53,7 @@ const Warnings: FC<Props> = ({
         </View>
       )}
 
-      {!!hasEstimation && !estimationFailed && bundlerFailure && (
+      {!!hasEstimation && bundlerFailure && (
         <View style={spacings.ptTy}>
           <Alert
             type="warning"
@@ -66,26 +64,23 @@ const Warnings: FC<Props> = ({
         </View>
       )}
 
-      {!!hasEstimation &&
-        !estimationFailed &&
-        signAccountOpState.gasUsedTooHigh &&
-        !signAccountOpState?.errors.length && (
-          <View style={spacings.ptTy}>
-            <Alert
-              type="warning"
-              title="Estimation for this request is enormously high (more than 10 million gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
-            />
-            <Checkbox
-              value={signAccountOpState.gasUsedTooHighAgreed}
-              onValueChange={onGasUsedTooHighAgreed}
-              style={spacings.mtSm}
-            >
-              <Text fontSize={14} onPress={onGasUsedTooHighAgreed}>
-                {t('I understand the risks')}
-              </Text>
-            </Checkbox>
-          </View>
-        )}
+      {!!hasEstimation && signAccountOpState.gasUsedTooHigh && !signAccountOpState?.errors.length && (
+        <View style={spacings.ptTy}>
+          <Alert
+            type="warning"
+            title="Estimation for this request is enormously high (more than 10 million gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
+          />
+          <Checkbox
+            value={signAccountOpState.gasUsedTooHighAgreed}
+            onValueChange={onGasUsedTooHighAgreed}
+            style={spacings.mtSm}
+          >
+            <Text fontSize={14} onPress={onGasUsedTooHighAgreed}>
+              {t('I understand the risks')}
+            </Text>
+          </Checkbox>
+        </View>
+      )}
 
       {!hasEstimation && !!slowRequest && !signAccountOpState?.errors.length ? (
         <View style={spacings.ptTy}>

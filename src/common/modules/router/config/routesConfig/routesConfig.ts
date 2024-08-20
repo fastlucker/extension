@@ -248,10 +248,6 @@ const routesConfig: {
       default: i18n.t('Swap')
     })
   },
-  [ROUTES.onboardingCompleted]: {
-    route: ROUTES.onboardingCompleted,
-    title: ''
-  },
   [ROUTES.backup]: {
     route: ROUTES.backup,
     title: ''

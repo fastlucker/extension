@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ScrollView, View, ViewStyle } from 'react-native'
 
 import { SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Text from '@common/components/Text'
@@ -22,6 +23,14 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
 
+  const dAppName = useMemo(() => {
+    if (signedMessage.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) {
+      return 'Entry Point Authorization'
+    }
+
+    return signedMessage.dapp?.name || 'Unknown dApp'
+  }, [signedMessage.dapp?.name, signedMessage.fromActionId])
+
   return (
     <ExpandableCard
       arrowPosition="right"
@@ -29,13 +38,16 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
       content={
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <View style={[flexbox.alignCenter, flexbox.directionRow, flexbox.flex1]}>
-            <ManifestImage
-              uri={signedMessage?.dapp?.icon || ''}
-              size={32}
-              fallback={() => <ManifestFallbackIcon />}
-            />
-            <Text style={spacings.plTy} fontSize={16} weight="semiBold">
-              {signedMessage.dapp?.name || 'Unknown dApp'}
+            {signedMessage.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID && (
+              <ManifestImage
+                uri={signedMessage?.dapp?.icon || ''}
+                size={32}
+                fallback={() => <ManifestFallbackIcon />}
+                containerStyle={spacings.mrTy}
+              />
+            )}
+            <Text fontSize={16} weight="semiBold">
+              {dAppName}
             </Text>
           </View>
           <View style={flexbox.flex1}>

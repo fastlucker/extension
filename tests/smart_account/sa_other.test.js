@@ -1,8 +1,13 @@
-import { bootstrapWithStorage, saParams } from '../functions.js'
+import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
+import { saParams } from '../constants/constants'
+
 import { changePassword, addContactInAddressBook } from '../common/other.js'
 
 describe('sa_other', () => {
-  let browser, page, recorder, extensionURL
+  let browser
+  let page
+  let recorder
+  let extensionURL
 
   beforeEach(async () => {
     ;({ browser, page, recorder, extensionURL } = await bootstrapWithStorage('sa_other', saParams))

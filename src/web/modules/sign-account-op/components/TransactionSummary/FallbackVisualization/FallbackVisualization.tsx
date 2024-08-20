@@ -30,23 +30,27 @@ const FallbackVisualization: FC<Props> = ({ call, sizeMultiplierSize, textSize }
         }
       ]}
     >
-      <Text
-        fontSize={textSize}
-        appearance="successText"
-        weight="semiBold"
-        style={{ maxWidth: '100%' }}
-      >
-        {t(' Interacting with (to): ')}
-      </Text>
-      <Text
-        fontSize={textSize}
-        appearance="secondaryText"
-        weight="regular"
-        style={{ maxWidth: '100%' }}
-        selectable
-      >
-        {` ${call.to} `}
-      </Text>
+      {call.to && (
+        <>
+          <Text
+            fontSize={textSize}
+            appearance="successText"
+            weight="semiBold"
+            style={{ maxWidth: '100%' }}
+          >
+            {t(' Interacting with (to): ')}
+          </Text>
+          <Text
+            fontSize={textSize}
+            appearance="secondaryText"
+            weight="regular"
+            style={{ maxWidth: '100%' }}
+            selectable
+          >
+            {` ${call.to} `}
+          </Text>
+        </>
+      )}
       <Text
         fontSize={textSize}
         appearance="successText"

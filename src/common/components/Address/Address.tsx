@@ -1,4 +1,4 @@
-import { getAddress } from 'ethers'
+import { getAddress, ZeroAddress } from 'ethers'
 import React, { FC, useMemo } from 'react'
 
 import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
@@ -34,26 +34,40 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
   }, [accountsState?.accounts, checksummedAddress])
   const tokenInPortfolio = useMemo(() => {
     if (!accountPortfolio?.tokens) return undefined
-    return accountPortfolio.tokens.find((t) => t.address.toLowerCase() === address.toLowerCase())
-  }, [accountPortfolio?.tokens, checksummedAddress])
+    return accountPortfolio.tokens.find(
+      (token) => token.address.toLowerCase() === address.toLowerCase()
+    )
+  }, [accountPortfolio?.tokens, address])
 
-  const isRecipientHumanizerKnownTokenOrSmartContract = !!HUMANIZER_META.knownAddresses[address.toLowerCase()]?.isSC 
+  const hardcodedTokenSymbol = HUMANIZER_META.knownAddresses[address.toLowerCase()]?.token?.symbol
+  const hardcodedName = HUMANIZER_META.knownAddresses[address.toLowerCase()]?.name
   let tokenLabel = ''
-          
+
   if (tokenInPortfolio) {
     tokenLabel = `Token ${tokenInPortfolio?.symbol} Contract`
-  } else if (isRecipientHumanizerKnownTokenOrSmartContract) {
-    const humanizerToken = HUMANIZER_META?.knownAddresses[address.toLowerCase()]?.token
-    tokenLabel = t(`Token ${humanizerToken?.symbol} Contract`)
+  } else if (hardcodedTokenSymbol) {
+    tokenLabel = t(`Token ${hardcodedTokenSymbol} Contract`)
   }
 
   const contact = contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())
-
+  const zeroAddressLabel = address === ZeroAddress && 'Zero Address'
   // highestPriorityAlias and account labels are of higher priority than domains
-  if (highestPriorityAlias || contact?.name || account?.preferences?.label || tokenLabel)
+  if (
+    highestPriorityAlias ||
+    zeroAddressLabel ||
+    contact?.name ||
+    account?.preferences?.label ||
+    tokenLabel ||
+    hardcodedName
+  )
     return (
       <BaseAddress address={checksummedAddress} {...rest}>
-        {highestPriorityAlias || contact?.name || account?.preferences?.label || tokenLabel}
+        {highestPriorityAlias ||
+          zeroAddressLabel ||
+          contact?.name ||
+          account?.preferences?.label ||
+          tokenLabel ||
+          hardcodedName}
       </BaseAddress>
     )
 

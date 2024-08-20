@@ -8,7 +8,6 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
@@ -23,24 +22,22 @@ const PayOption = ({
   disabledReason?: string
 }) => {
   const { t } = useTranslation()
-  const { maxWidthSize } = useWindowSize()
-  const isXl = maxWidthSize('xl')
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
 
   const iconSize = 24
 
-  const account = useMemo(
+  const paidByAccountData = useMemo(
     () => accounts.find((a) => a.addr === feeOption.paidBy),
     [accounts, feeOption.paidBy]
   )
 
   const formattedAmount = useMemo(() => {
     return formatDecimals(
-      Number(formatUnits(feeOption.token.amount, feeOption.token.decimals)),
+      Number(formatUnits(feeOption.availableAmount, feeOption.token.decimals)),
       'amount'
     )
-  }, [feeOption.token.amount, feeOption.token.decimals])
+  }, [feeOption.availableAmount, feeOption.token.decimals])
 
   const feeTokenNetworkName = useMemo(() => {
     if (feeOption.token.flags.onGasTank) {
@@ -53,10 +50,10 @@ const PayOption = ({
   const isPaidByAnotherAccount = feeOption.paidBy !== selectedAccount
 
   const paidByLabel = useMemo(() => {
-    return accounts.find((a) => a.addr === feeOption.paidBy)?.preferences.label
-  }, [accounts, feeOption.paidBy])
+    return paidByAccountData?.preferences.label
+  }, [paidByAccountData?.preferences.label])
 
-  if (!account) return null
+  if (!paidByAccountData) return null
 
   return (
     <View
@@ -68,17 +65,7 @@ const PayOption = ({
         }
       ]}
     >
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.alignCenter,
-          spacings.mrTy,
-          {
-            flexGrow: 1,
-            flexShrink: 1
-          }
-        ]}
-      >
+      <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
         <TokenIcon
           containerStyle={{
             width: iconSize,
@@ -93,36 +80,20 @@ const PayOption = ({
           skeletonAppearance="secondaryBackground"
         />
 
-        <View style={[flexbox.flex1, isXl ? spacings.mlTy : spacings.mlMi]}>
+        <View style={[flexbox.flex1, spacings.mlTy]}>
           <Text weight="semiBold" fontSize={12} numberOfLines={1}>
-            {formattedAmount} {feeOption.token.symbol}{' '}
-            <Text weight="semiBold" fontSize={10}>
-              ({t('Available')})
-            </Text>
+            {formattedAmount} {feeOption.token.symbol} <Text fontSize={12}>{t('on ')}</Text>
+            <Text fontSize={12}>{feeTokenNetworkName}</Text>
           </Text>
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <Text
-              weight="medium"
-              fontSize={10}
-              numberOfLines={1}
-              appearance={disabledReason ? 'errorText' : 'secondaryText'}
-            >
-              {disabledReason || t('Fee token')}
+          {disabledReason && (
+            <Text weight="medium" fontSize={10} numberOfLines={1} appearance="errorText">
+              {disabledReason}
             </Text>
-            <Text
-              weight="medium"
-              fontSize={10}
-              numberOfLines={1}
-              appearance="secondaryText"
-              style={spacings.mlMi}
-            >
-              ({feeTokenNetworkName})
-            </Text>
-          </View>
+          )}
         </View>
       </View>
       {isPaidByAnotherAccount && (
-        <View style={[flexbox.flex1, flexbox.alignEnd]}>
+        <View style={[flexbox.alignEnd]}>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <Avatar size={16} pfp={feeOption.paidBy} style={spacings.prTy} />
             <Text fontSize={10} weight="semiBold" numberOfLines={1}>
