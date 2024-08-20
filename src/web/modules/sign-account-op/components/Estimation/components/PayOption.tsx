@@ -8,7 +8,6 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
@@ -23,8 +22,6 @@ const PayOption = ({
   disabledReason?: string
 }) => {
   const { t } = useTranslation()
-  const { maxWidthSize } = useWindowSize()
-  const isXl = maxWidthSize('xl')
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
 
@@ -83,7 +80,7 @@ const PayOption = ({
           skeletonAppearance="secondaryBackground"
         />
 
-        <View style={[flexbox.flex1, isXl ? spacings.mlTy : spacings.mlMi]}>
+        <View style={[flexbox.flex1, spacings.mlTy]}>
           <Text weight="semiBold" fontSize={12} numberOfLines={1}>
             {formattedAmount} {feeOption.token.symbol} <Text fontSize={12}>{t('on ')}</Text>
             <Text fontSize={12}>{feeTokenNetworkName}</Text>
