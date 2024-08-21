@@ -75,8 +75,8 @@ const getDummyFeeOptions = (
 ): (FeePaymentOption & { dummy: boolean })[] => {
   const feeOptions = []
   const networkGasTankFeeTokens = gasTankFeeTokens.filter((token) => token.networkId === networkId)
-
-  for (let i = 0; i < 4; i++) {
+  const limit = networkGasTankFeeTokens.length < 4 ? networkGasTankFeeTokens.length : 4
+  for (let i = 0; i < limit; i++) {
     const token = networkGasTankFeeTokens[i]
     const shouldPushAsGasTankToken = i < 2
     // Push 2 tokens as gas tank tokens and 2 as regular ERC20 tokens
