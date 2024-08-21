@@ -7,7 +7,7 @@ import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings from '@common/styles/spacings'
+import { SPACING_LG } from '@common/styles/spacings'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -24,8 +24,7 @@ const DappConnectScreen = () => {
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
-  const { minWidthSize } = useWindowSize()
-  const isSmall = minWidthSize('l')
+  const { minHeightSize } = useWindowSize()
 
   const dappAction = useMemo(() => {
     if (state.currentAction?.type !== 'dappRequest') return undefined
@@ -59,6 +58,13 @@ const DappConnectScreen = () => {
     })
   }, [dappAction, dispatch])
 
+  const responsiveSizeMultiplier = useMemo(() => {
+    if (minHeightSize('s')) return 0.75
+    if (minHeightSize('m')) return 0.85
+
+    return 1
+  }, [minHeightSize])
+
   return (
     <TabLayoutContainer
       width="full"
@@ -78,19 +84,22 @@ const DappConnectScreen = () => {
         style={[
           styles.container,
           {
-            width: isSmall ? 420 : 454
+            paddingVertical: SPACING_LG * responsiveSizeMultiplier,
+            width: responsiveSizeMultiplier * 454
           }
         ]}
       >
-        <AmbireLogoHorizontal style={spacings.mbLg} />
+        <AmbireLogoHorizontal
+          style={{ marginBottom: SPACING_LG * responsiveSizeMultiplier, minHeight: 28 }}
+        />
         <View style={styles.content}>
           <DAppConnectHeader
-            isSmall={isSmall}
             name={userRequest?.session?.name}
             origin={userRequest?.session?.origin}
             icon={userRequest?.session?.icon}
+            responsiveSizeMultiplier={responsiveSizeMultiplier}
           />
-          <DAppConnectBody isSmall={isSmall} />
+          <DAppConnectBody responsiveSizeMultiplier={responsiveSizeMultiplier} />
         </View>
       </View>
     </TabLayoutContainer>
