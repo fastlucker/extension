@@ -6,7 +6,8 @@ import { Dapp, DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings, { SPACING_SM, SPACING_XL } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import textStyles from '@common/styles/utils/text'
 import ManifestImage from '@web/components/ManifestImage'
@@ -16,13 +17,19 @@ import getStyles from '../styles'
 import TrustedIcon from './TrustedIcon'
 
 type Props = Partial<DappProviderRequest['session']> & {
-  isSmall: boolean
+  responsiveSizeMultiplier: number
 }
 
-const DAppConnectHeader: FC<Props> = ({ origin, name = 'Unknown dApp', icon, isSmall }) => {
+const DAppConnectHeader: FC<Props> = ({
+  origin,
+  name = 'Unknown dApp',
+  icon,
+  responsiveSizeMultiplier
+}) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const { state } = useDappsControllerState()
+  const { minHeightSize } = useWindowSize()
   // When the user connects to a dApp, the dApp is added to the list of dApps.
   // If we don't use the initial list of dApps to determine if a dApp is trusted,
   // the dApp will be marked as trusted for a split second before the window closes.
@@ -43,34 +50,35 @@ const DAppConnectHeader: FC<Props> = ({ origin, name = 'Unknown dApp', icon, isS
   }, [hostname, initialDappsList])
 
   const spacingsStyle = useMemo(() => {
-    if (!isSmall)
-      return {
-        ...spacings.phXl,
-        ...spacings.pvXl
-      }
-
     return {
-      ...spacings.phXl,
-      ...spacings.pvLg
+      paddingHorizontal: SPACING_XL * responsiveSizeMultiplier,
+      paddingVertical: SPACING_XL * responsiveSizeMultiplier
     }
-  }, [isSmall])
+  }, [responsiveSizeMultiplier])
 
   return (
     <View style={[styles.contentHeader, spacingsStyle]}>
       <Text
         weight="medium"
-        fontSize={isSmall ? 18 : 20}
-        style={isSmall ? spacings.mbLg : spacings.mbXl}
+        fontSize={responsiveSizeMultiplier * 20}
+        style={{
+          marginBottom: SPACING_XL * responsiveSizeMultiplier
+        }}
       >
         {t('Connection requested')}
       </Text>
       <View>
         <ManifestImage
           uri={icon}
-          size={isSmall ? 48 : 56}
-          containerStyle={isSmall ? spacings.mbTy : spacings.mbSm}
+          size={responsiveSizeMultiplier * 56}
+          containerStyle={{
+            marginBottom: SPACING_SM * responsiveSizeMultiplier
+          }}
           fallback={() => (
-            <ManifestFallbackIcon width={isSmall ? 48 : 56} height={isSmall ? 48 : 56} />
+            <ManifestFallbackIcon
+              width={responsiveSizeMultiplier * 56}
+              height={responsiveSizeMultiplier * 56}
+            />
           )}
         />
 
@@ -89,13 +97,17 @@ const DAppConnectHeader: FC<Props> = ({ origin, name = 'Unknown dApp', icon, isS
         )}
       </View>
       <Text
-        style={[!isSmall && spacings.mbMi, textStyles.center, common.fullWidth]}
-        fontSize={isSmall ? 18 : 20}
+        style={[!minHeightSize('m') && spacings.mbMi, textStyles.center, common.fullWidth]}
+        fontSize={responsiveSizeMultiplier * 20}
         weight="semiBold"
       >
         {name}
       </Text>
-      <Text style={textStyles.center} fontSize={14} appearance="secondaryText">
+      <Text
+        style={textStyles.center}
+        fontSize={14 * responsiveSizeMultiplier}
+        appearance="secondaryText"
+      >
         {hostname}
       </Text>
     </View>

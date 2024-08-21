@@ -1,6 +1,6 @@
 import { useLayoutEffect, useState } from 'react'
 
-import { breakpointsByWindowWidth } from './breakpoints'
+import { breakpointsByWindowHeight, breakpointsByWindowWidth } from './breakpoints'
 import { WindowSizeProps } from './types'
 
 const useWindowSize = (): WindowSizeProps => {
@@ -44,10 +44,19 @@ const useWindowSize = (): WindowSizeProps => {
     return breakpointsByWindowWidth[size] > dimensions.width
   }
 
+  const minHeightSize: WindowSizeProps['minHeightSize'] = (size) => {
+    if (typeof size === 'number') {
+      return size > dimensions.height
+    }
+
+    return breakpointsByWindowHeight[size] > dimensions.height
+  }
+
   return {
     ...dimensions,
     minWidthSize,
-    maxWidthSize
+    maxWidthSize,
+    minHeightSize
   }
 }
 
