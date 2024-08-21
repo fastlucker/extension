@@ -312,7 +312,6 @@ const SignAccountOpScreen = () => {
               notReadyToSignButAlsoNotDone ||
               !signAccountOpState.readyToSign
             }
-            isViewOnly={isViewOnly}
             onSign={onSignButtonClick}
           />
         }
