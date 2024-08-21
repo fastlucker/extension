@@ -86,14 +86,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     const tokenNetwork = networks.filter((n: Network) => n.id === networkId)[0]
 
     const feeTokenAmount = submittedAccountOp.gasFeePayment?.amount
-    if (!feeTokenAddress || !tokenNetwork || !feeTokenAmount) {
-      console.error({
-        message: 'Some fee token data is missing',
-        data: { feeTokenAddress, tokenNetwork, feeTokenAmount }
-      })
-      addToast('We had problem finding fee payment info', { type: 'error' })
-      return
-    }
+    if (!feeTokenAddress || !tokenNetwork || !feeTokenAmount) return
 
     resolveAssetInfo(feeTokenAddress, tokenNetwork, ({ tokenInfo }) => {
       if (!tokenInfo || !submittedAccountOp.gasFeePayment?.amount) return
