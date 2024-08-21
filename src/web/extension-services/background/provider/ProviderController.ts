@@ -299,6 +299,10 @@ export class ProviderController {
     }
   }
 
+  walletShowCallsStatus = async (data: any) => {
+    // TODO: open a modal with information about the transaction
+  }
+
   @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
     ({ request, mainCtrl }: { request: ProviderRequest; mainCtrl: MainController }) => {
