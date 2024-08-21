@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
+import BottomSheet from '@common/components/BottomSheet'
+import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -39,6 +43,7 @@ const SignAccountOpScreen = () => {
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
+  const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -47,6 +52,12 @@ const SignAccountOpScreen = () => {
   const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
+  const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
+  const {
+    ref: warningAgreementModalRef,
+    open: openWarningAgreementModal,
+    close: closeWarningAgreementModal
+  } = useModalize()
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () =>
@@ -214,7 +225,20 @@ const SignAccountOpScreen = () => {
     [dispatch, handleSign]
   )
 
+  const warningToPromptBeforeSign = useMemo(() => {
+    return signAccountOpState?.warnings.find(
+      (warning) => warning.promptBeforeSign && !acknowledgedWarnings.includes(warning.id)
+    )
+  }, [acknowledgedWarnings, signAccountOpState?.warnings])
+
   const onSignButtonClick = () => {
+    if (!signAccountOpState) return
+
+    if (warningToPromptBeforeSign) {
+      openWarningAgreementModal()
+      return
+    }
+
     // If the account has only one signer, we don't need to show the select signer overlay,
     // and we will sign the transaction with the only one available signer (it is set by default in the controller).
     if (signAccountOpState?.accountKeyStoreKeys.length === 1) {
@@ -224,6 +248,14 @@ const SignAccountOpScreen = () => {
 
     setIsChooseSignerShown(true)
   }
+
+  const acknowledgeWarning = useCallback(() => {
+    if (!warningToPromptBeforeSign) return
+
+    setAcknowledgedWarnings((prev) => [...prev, warningToPromptBeforeSign.id])
+    closeWarningAgreementModal()
+    handleSign()
+  }, [warningToPromptBeforeSign, closeWarningAgreementModal, handleSign])
 
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
@@ -245,6 +277,23 @@ const SignAccountOpScreen = () => {
 
   return (
     <>
+      <BottomSheet
+        id="dual-choice"
+        closeBottomSheet={closeWarningAgreementModal}
+        sheetRef={warningAgreementModalRef}
+        style={styles.warningsModal}
+      >
+        {warningToPromptBeforeSign && (
+          <DualChoiceWarningModal
+            title={t(warningToPromptBeforeSign.title)}
+            description={t(warningToPromptBeforeSign.text)}
+            primaryButtonText={t('Proceed')}
+            secondaryButtonText={t('Cancel')}
+            onPrimaryButtonPress={acknowledgeWarning}
+            onSecondaryButtonPress={closeWarningAgreementModal}
+          />
+        )}
+      </BottomSheet>
       <SafetyChecksOverlay
         shouldBeVisible={!signAccountOpState?.estimation || !signAccountOpState?.isInitialized}
       />

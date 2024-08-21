@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -40,6 +40,10 @@ const Warnings: FC<Props> = ({
     })
   }, [signAccountOpState?.gasUsedTooHighAgreed, dispatch])
 
+  const warnings = useMemo(() => {
+    return signAccountOpState?.warnings.filter((warning) => warning.displayBeforeSign)
+  }, [signAccountOpState?.warnings])
+
   if (!signAccountOpState) return null
 
   return (
@@ -52,6 +56,13 @@ const Warnings: FC<Props> = ({
           />
         </View>
       )}
+
+      {!signAccountOpState?.errors.length &&
+        signAccountOpState.isInitialized &&
+        warnings &&
+        warnings.map((warning) => (
+          <Alert key={warning.id} type="warning" text={warning.text} title={warning.title} />
+        ))}
 
       {!!hasEstimation && bundlerFailure && (
         <View style={spacings.ptTy}>
