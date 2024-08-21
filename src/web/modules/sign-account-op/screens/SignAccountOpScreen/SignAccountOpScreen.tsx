@@ -73,8 +73,8 @@ const SignAccountOpScreen = () => {
   }, [isChooseSignerShown, prevIsChooseSignerShown, signAccountOpState?.errors.length])
 
   const isSignLoading =
-    mainState.statuses.signAccountOp !== 'INITIAL' ||
-    mainState.statuses.broadcastSignedAccountOp !== 'INITIAL'
+    signAccountOpState?.status?.type === SigningStatus.InProgress ||
+    signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -263,7 +263,6 @@ const SignAccountOpScreen = () => {
               notReadyToSignButAlsoNotDone ||
               !signAccountOpState.readyToSign
             }
-            isViewOnly={isViewOnly}
             onSign={onSignButtonClick}
           />
         }
@@ -280,7 +279,10 @@ const SignAccountOpScreen = () => {
         <TabLayoutWrapperMainContent scrollEnabled={false}>
           <View style={styles.container}>
             <View style={styles.leftSideContainer}>
-              <Simulation network={network} hasEstimation={!!hasEstimation && !!network} />
+              <Simulation
+                network={network}
+                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+              />
               <PendingTransactions
                 callsToVisualize={
                   signAccountOpState?.humanReadable || signAccountOpState?.accountOp?.calls || []

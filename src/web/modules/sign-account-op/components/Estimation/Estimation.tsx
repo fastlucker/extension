@@ -4,7 +4,7 @@ import { View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
@@ -25,7 +25,7 @@ import AmountInfo from './components/AmountInfo'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import EstimationWrapper from './components/EstimationWrapper'
 import { NO_FEE_OPTIONS } from './consts'
-import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
+import { getDefaultFeeOption, getDummyFeeOptions, mapFeeOptions, sortFeeOptions } from './helpers'
 import { FeeOption, Props } from './types'
 
 const Estimation = ({
@@ -41,15 +41,27 @@ const Estimation = ({
   const { theme } = useTheme()
   const { minWidthSize } = useWindowSize()
   const { accountStates } = useAccountsControllerState()
+  const isSmartAccount = getIsSmartAccount(signAccountOpState?.account)
 
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
+
+    // No need to sort and filter if it's not a smart account
+    if (!isSmartAccount) {
+      return [
+        signAccountOpState.availableFeeOptions[0],
+        ...getDummyFeeOptions(
+          signAccountOpState.accountOp.networkId,
+          signAccountOpState.account.addr
+        )
+      ].map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
+    }
 
     return signAccountOpState.availableFeeOptions
       .filter((feeOption) => feeOption.paidBy === signAccountOpState.accountOp.accountAddr)
       .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
-  }, [hasEstimation, signAccountOpState])
+  }, [hasEstimation, isSmartAccount, signAccountOpState])
 
   const payOptionsPaidByEOA = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
@@ -89,8 +101,7 @@ const Estimation = ({
   )
 
   const isSmartAccountAndNotDeployed = useMemo(() => {
-    if (!isSmartAccount(signAccountOpState?.account) || !signAccountOpState?.accountOp?.accountAddr)
-      return false
+    if (!isSmartAccount || !signAccountOpState?.accountOp?.accountAddr) return false
 
     const accountState =
       accountStates[signAccountOpState?.accountOp.accountAddr][
@@ -100,7 +111,7 @@ const Estimation = ({
     return !accountState?.isDeployed
   }, [
     accountStates,
-    signAccountOpState?.account,
+    isSmartAccount,
     signAccountOpState?.accountOp.accountAddr,
     signAccountOpState?.accountOp.networkId
   ])
@@ -229,7 +240,7 @@ const Estimation = ({
   if (!signAccountOpState || !hasEstimation || !payValue) {
     return (
       <EstimationWrapper>
-        <EstimationSkeleton />
+        {!estimationFailed && <EstimationSkeleton />}
         <Warnings
           hasEstimation={hasEstimation}
           slowRequest={slowRequest}
@@ -245,25 +256,23 @@ const Estimation = ({
     <EstimationWrapper>
       {!!hasEstimation && (
         <>
-          {isSmartAccount(signAccountOpState.account) && (
-            <SectionedSelect
-              setValue={setFeeOption}
-              testID="fee-option-select"
-              label={t('Pay fee with')}
-              sections={feeOptionSelectSections}
-              renderSectionHeader={renderFeeOptionSectionHeader}
-              containerStyle={isFeePaidByEOA ? spacings.mbTy : spacings.mb}
-              value={payValue || NO_FEE_OPTIONS}
-              disabled={
-                disabled ||
-                (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
-                defaultFeeOption.label === NO_FEE_OPTIONS.label
-              }
-              defaultValue={payValue ?? undefined}
-              withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
-              stickySectionHeadersEnabled
-            />
-          )}
+          <SectionedSelect
+            setValue={setFeeOption}
+            testID="fee-option-select"
+            label={t('Pay fee with')}
+            sections={feeOptionSelectSections}
+            renderSectionHeader={renderFeeOptionSectionHeader}
+            containerStyle={isFeePaidByEOA ? spacings.mbTy : spacings.mb}
+            value={payValue || NO_FEE_OPTIONS}
+            disabled={
+              disabled ||
+              (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
+              defaultFeeOption.label === NO_FEE_OPTIONS.label
+            }
+            defaultValue={payValue ?? undefined}
+            withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
+            stickySectionHeadersEnabled
+          />
           {isFeePaidByEOA && (
             <Alert
               size="sm"

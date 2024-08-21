@@ -95,7 +95,7 @@ const ViewOnlyScreen = () => {
   )
 
   const handleFormSubmit = useCallback(async () => {
-    const accountsToAddPromises = accounts.map(async (account) => {
+    const accountsToAddPromises = accounts.map(async (account, i) => {
       const address = getAddressFromAddressState(account)
       // Use `fetchCaught` because the endpoint could return 404 if the account
       // is not found, which should not throw an error
@@ -140,7 +140,7 @@ const ViewOnlyScreen = () => {
         // account.fieldValue is the domain name if it's an ENS/UD address
         domainName,
         preferences: {
-          label: domainName || getDefaultAccountPreferences(addr, accountsState.accounts).label,
+          label: domainName || getDefaultAccountPreferences(addr, accountsState.accounts, i).label,
           pfp: addr
         }
       }
