@@ -1,10 +1,12 @@
 import { formatUnits } from 'ethers'
 
+import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import {
   FeeSpeed,
   SignAccountOpController
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Network } from '@ambire-common/interfaces/network'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 
 import PayOption from './components/PayOption'
@@ -67,24 +69,67 @@ const sortFeeOptions = (
   return 0
 }
 
+const getDummyFeeOptions = (
+  networkId: Network['id'],
+  accountAddr: string
+): (FeePaymentOption & { dummy: boolean })[] => {
+  const feeOptions = []
+  const networkGasTankFeeTokens = gasTankFeeTokens.filter((token) => token.networkId === networkId)
+
+  for (let i = 0; i < 4; i++) {
+    const token = networkGasTankFeeTokens[i]
+    const shouldPushAsGasTankToken = i < 2
+    // Push 2 tokens as gas tank tokens and 2 as regular ERC20 tokens
+    feeOptions.push({
+      dummy: true,
+      addedNative: 0n,
+      availableAmount: 0n,
+      gasUsed: 0n,
+      paidBy: accountAddr,
+      token: {
+        networkId,
+        decimals: token.decimals,
+        symbol: token.symbol.toUpperCase(),
+        address: token.address,
+        amount: 0n,
+        flags: {
+          onGasTank: shouldPushAsGasTankToken,
+          canTopUpGasTank: false,
+          isFeeToken: true,
+          rewardsType: null
+        },
+        priceIn: []
+      }
+    })
+  }
+
+  return feeOptions
+}
+
 const mapFeeOptions = (
-  feeOption: FeePaymentOption,
+  feeOption: FeePaymentOption & { dummy?: boolean },
   signAccountOpState: SignAccountOpController
 ) => {
+  let disabledReason: string | undefined
   const gasTankKey = feeOption.token.flags.onGasTank ? 'gasTank' : ''
-
+  const speedCoverage: FeeSpeed[] = []
   const id = getFeeSpeedIdentifier(
     feeOption,
     signAccountOpState.accountOp.accountAddr,
     signAccountOpState.rbfAccountOps[feeOption.paidBy]
   )
-  const speedCoverage: FeeSpeed[] = []
-  signAccountOpState.feeSpeeds[id].forEach((speed) => {
+
+  signAccountOpState.feeSpeeds[id]?.forEach((speed) => {
     if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
   })
 
-  const isDisabled = !speedCoverage.includes(FeeSpeed.Slow)
-  const disabledReason = isDisabled ? 'Insufficient amount' : undefined
+  if (!speedCoverage.includes(FeeSpeed.Slow)) {
+    disabledReason = 'Insufficient amount'
+  }
+
+  if (feeOption.dummy) {
+    disabledReason = 'Only available on Smart Accounts'
+  }
 
   return {
     value:
@@ -95,7 +140,7 @@ const mapFeeOptions = (
     label: <PayOption feeOption={feeOption} disabledReason={disabledReason} />,
     paidBy: feeOption.paidBy,
     token: feeOption.token,
-    disabled: isDisabled,
+    disabled: !!disabledReason,
     speedCoverage
   }
 }
@@ -117,4 +162,4 @@ const getDefaultFeeOption = (
   return NO_FEE_OPTIONS as FeeOption
 }
 
-export { sortFeeOptions, mapFeeOptions, getDefaultFeeOption }
+export { sortFeeOptions, mapFeeOptions, getDefaultFeeOption, getDummyFeeOptions }
