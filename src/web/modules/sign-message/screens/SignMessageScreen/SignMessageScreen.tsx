@@ -250,27 +250,8 @@ const SignMessageScreen = () => {
             <Text weight="medium" fontSize={20} style={[spacings.mbLg]}>
               {t('Details')}
             </Text>
+
             <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
-            {isViewOnly && (
-              <View
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignContent: 'flex-end'
-                }}
-              >
-                <NoKeysToSignAlert
-                  style={{
-                    ...flexbox.alignSelfCenter,
-                    maxWidth: 600,
-                    alignSelf: 'flex-end',
-                    ...spacings.mh
-                  }}
-                  requestType="message"
-                />
-              </View>
-            )}
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
@@ -317,6 +298,17 @@ const SignMessageScreen = () => {
               hasReachedBottom={!!hasReachedBottom}
               messageToSign={signMessageState.messageToSign}
             />
+            {isViewOnly && (
+              <NoKeysToSignAlert
+                style={{
+                  ...flexbox.alignSelfCenter,
+                  marginTop: 'auto',
+                  maxWidth: 600,
+                  ...spacings.mtMd
+                }}
+                requestType="message"
+              />
+            )}
           </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
