@@ -48,6 +48,12 @@ const AccountPersonalizeScreen = () => {
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
   useEffect(() => {
+    if (accountsState.accounts.length && !newAccounts.length) {
+      navigate('/')
+    }
+  }, [accountsState.accounts.length, navigate, newAccounts.length])
+
+  useEffect(() => {
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
   }, [dispatch])
 
