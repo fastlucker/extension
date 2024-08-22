@@ -243,6 +243,12 @@ const SignAccountOpScreen = () => {
     )
   }
 
+  console.log({
+    signAccountOpState,
+    isSignLoading,
+    isViewOnly
+  })
+
   return (
     <>
       <SafetyChecksOverlay
@@ -255,7 +261,9 @@ const SignAccountOpScreen = () => {
           <Footer
             onReject={handleRejectAccountOp}
             onAddToCart={handleAddToCart}
-            isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
+            isAddToCartDisplayed={
+              !!signAccountOpState && isSmartAccount(signAccountOpState.account)
+            }
             isSignLoading={isSignLoading}
             isSignDisabled={
               isViewOnly ||
@@ -263,6 +271,9 @@ const SignAccountOpScreen = () => {
               notReadyToSignButAlsoNotDone ||
               !signAccountOpState.readyToSign
             }
+            // Allow view only accounts to add to cart even if the txn is not ready to sign
+            // because they can't sign it anyway
+            isAddToCartDisabled={isSignLoading || (!signAccountOpState?.readyToSign && !isViewOnly)}
             onSign={onSignButtonClick}
           />
         }
