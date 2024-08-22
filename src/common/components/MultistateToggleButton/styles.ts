@@ -31,6 +31,7 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       color: theme.primaryText,
       shadowColor: theme.tertiaryText,
+      ...spacings.phTy,
       shadowRadius: 4
     }
   })

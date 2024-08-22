@@ -46,7 +46,6 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
 
   return (
     <View style={[styles.container, maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd]}>
-      {renderMessageTypeBadge}
       {(!messageToSign || messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
         <>
           <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
@@ -65,6 +64,7 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
             </View>
           </View>
           <NetworkBadge style={spacings.mbMd} networkId={messageToSign?.networkId} withOnPrefix />
+          {renderMessageTypeBadge}
         </>
       )}
       {messageToSign?.content?.kind === 'typedMessage' &&

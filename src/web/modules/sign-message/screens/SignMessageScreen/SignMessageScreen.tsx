@@ -245,20 +245,15 @@ const SignMessageScreen = () => {
         handleClose={() => setIsChooseSignerShown(false)}
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
+        <Text weight="medium" fontSize={24} style={[spacings.mbLg]}>
+          {t('Sign message')}
+        </Text>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
-            <Text weight="medium" fontSize={20} style={[spacings.mbLg]}>
-              {t('Details')}
-            </Text>
-
             <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
-            <Text weight="medium" fontSize={20} style={[spacings.mbLg]}>
-              {t('Sign message')}
-            </Text>
-
             <ExpandableCard
               enableExpand={false}
               style={spacings.mbMd}
