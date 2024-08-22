@@ -293,16 +293,20 @@ const SignMessageScreen = () => {
                   />
                 ) : shouldShowFallback ? (
                   <>
-                    <ErrorOutlineIcon width={24} height={24} />
-                    <Text
-                      fontSize={maxWidthSize('xl') ? 16 : 12}
-                      appearance="warningText"
-                      weight="semiBold"
-                    >
-                      {t('Warning: ')}
-                    </Text>
+                    <View style={spacings.mrTy}>
+                      <ErrorOutlineIcon width={24} height={24} />
+                    </View>
                     <Text fontSize={maxWidthSize('xl') ? 16 : 12} appearance="warningText">
-                      {t('Please read the whole message')}
+                      <Text
+                        fontSize={maxWidthSize('xl') ? 16 : 12}
+                        appearance="warningText"
+                        weight="semiBold"
+                      >
+                        {t('Warning: ')}
+                      </Text>
+                      {t(
+                        'We are unable to translate this message, please read the whole parsed version'
+                      )}
                     </Text>
                   </>
                 ) : (
