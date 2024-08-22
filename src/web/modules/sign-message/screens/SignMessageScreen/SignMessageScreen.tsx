@@ -304,13 +304,11 @@ const SignMessageScreen = () => {
                       >
                         {t('Warning: ')}
                       </Text>
-                      {t(
-                        'We are unable to translate this message, please read the whole parsed version'
-                      )}
+                      {t('Please read the whole message as we are unable to translate it!')}
                     </Text>
                   </>
                 ) : (
-                  <SkeletonLoader width="100%" height={48} />
+                  <SkeletonLoader width="100%" height={25} />
                 )
               }
             />

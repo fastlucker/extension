@@ -1,10 +1,11 @@
 import { FC, memo, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NativeScrollEvent, Pressable, ScrollView, View } from 'react-native'
+import { NativeScrollEvent, ScrollView, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { isValidAddress } from '@ambire-common/services/address'
 import Address from '@common/components/Address'
+import MultistateToggleButton from '@common/components/MultistateToggleButton'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -84,14 +85,13 @@ const FallbackVisualization: FC<{
         </Text>
       </ScrollView>
       {content.kind === 'typedMessage' && (
-        <Pressable
-          onPress={() => setShowRawTypedMessage(!showRawTypedMessage)}
-          style={[styles.toggleButton]}
-        >
-          <Text fontSize={14} appearance={showRawTypedMessage ? 'primaryText' : 'secondaryText'}>
-            {t(showRawTypedMessage ? 'Raw' : 'Parsed')}
-          </Text>
-        </Pressable>
+        <MultistateToggleButton
+          style={styles.toggleButton}
+          states={[
+            { text: 'Parsed', callback: () => setShowRawTypedMessage(false) },
+            { text: 'Raw', callback: () => setShowRawTypedMessage(true) }
+          ]}
+        />
       )}
     </View>
   )
