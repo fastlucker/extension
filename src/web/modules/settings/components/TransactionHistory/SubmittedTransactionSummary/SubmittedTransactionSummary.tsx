@@ -203,7 +203,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
               <Text fontSize={14} appearance="secondaryText" weight="semiBold">
                 {t('Block Explorer')}:{' '}
               </Text>
-              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy} selectable>
                 {new URL(network.explorerUrl).hostname}
               </Text>
             </View>
