@@ -243,12 +243,6 @@ const SignAccountOpScreen = () => {
     )
   }
 
-  console.log({
-    signAccountOpState,
-    isSignLoading,
-    isViewOnly
-  })
-
   return (
     <>
       <SafetyChecksOverlay
