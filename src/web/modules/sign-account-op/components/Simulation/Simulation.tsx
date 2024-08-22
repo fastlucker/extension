@@ -2,6 +2,7 @@ import { isHexString } from 'ethers'
 import React, { FC, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Network } from '@ambire-common/interfaces/network'
 import Address from '@common/components/Address'
 import Alert from '@common/components/Alert'
@@ -24,10 +25,12 @@ import getStyles from './styles'
 
 interface Props {
   network?: Network
-  hasEstimation: boolean
+  // marks whether the estimation has been done regardless
+  // of whether the estimation returned an error or not
+  isEstimationComplete: boolean
 }
 
-const Simulation: FC<Props> = ({ network, hasEstimation }) => {
+const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
@@ -89,12 +92,12 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   )
 
   const isReloading = useMemo(
-    () => initialSimulationLoaded && !hasEstimation,
-    [hasEstimation, initialSimulationLoaded]
+    () => initialSimulationLoaded && !isEstimationComplete,
+    [isEstimationComplete, initialSimulationLoaded]
   )
 
   const simulationErrorMsg = useMemo(() => {
-    if (portfolioStatePending?.isLoading || !initialSimulationLoaded) return ''
+    if (portfolioStatePending?.isLoading && !initialSimulationLoaded) return ''
 
     if (portfolioStatePending?.criticalError) {
       if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
@@ -133,19 +136,27 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     ]
   )
 
-  const simulationView: 'no-changes' | 'changes' | 'error' | null = useMemo(() => {
-    if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
+  const simulationView: 'no-changes' | 'changes' | 'error' | 'error-handled-elsewhere' | null =
+    useMemo(() => {
+      if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
-    if (simulationErrorMsg) return 'error'
-    return pendingSendCollection.length || pendingReceiveCollection.length || pendingTokens.length
-      ? 'changes'
-      : 'no-changes'
-  }, [
-    simulationErrorMsg,
-    pendingTokens.length,
-    shouldShowLoader,
-    signAccountOpState?.isInitialized
-  ])
+      if (signAccountOpState.status?.type === SigningStatus.EstimationError)
+        return 'error-handled-elsewhere'
+
+      if (simulationErrorMsg) return 'error'
+
+      return pendingSendCollection.length || pendingReceiveCollection.length || pendingTokens.length
+        ? 'changes'
+        : 'no-changes'
+    }, [
+      shouldShowLoader,
+      signAccountOpState?.isInitialized,
+      signAccountOpState?.status,
+      simulationErrorMsg,
+      pendingSendCollection.length,
+      pendingReceiveCollection.length,
+      pendingTokens.length
+    ])
 
   useEffect(() => {
     if (simulationView && !initialSimulationLoaded) {
@@ -276,30 +287,33 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
         </View>
       )}
 
+      {simulationView === 'error-handled-elsewhere' && (
+        <Alert
+          type="info"
+          title={t('The simulation could not be completed because of the transaction error.')}
+        />
+      )}
+
       {simulationView === 'error' && (
-        <View>
-          <Alert
-            type="error"
-            title={`We were unable to simulate the transaction: ${simulationErrorMsg}`}
-          />
-        </View>
+        <Alert
+          type="error"
+          title={`We were unable to simulate the transaction: ${simulationErrorMsg}`}
+        />
       )}
       {simulationView === 'no-changes' && (
-        <View>
-          <Alert
-            type="info"
-            isTypeLabelHidden
-            title={
-              <Trans>
-                No token balance changes detected. Please{' '}
-                <Text appearance="infoText" weight="semiBold">
-                  carefully
-                </Text>{' '}
-                review the transaction preview below.
-              </Trans>
-            }
-          />
-        </View>
+        <Alert
+          type="info"
+          isTypeLabelHidden
+          title={
+            <Trans>
+              No token balance changes detected. Please{' '}
+              <Text appearance="infoText" weight="semiBold">
+                carefully
+              </Text>{' '}
+              review the transaction preview below.
+            </Trans>
+          }
+        />
       )}
       {shouldShowLoader && <SimulationSkeleton />}
     </View>

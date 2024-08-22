@@ -5,6 +5,8 @@ import { useModalize } from 'react-native-modalize'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import CartIcon from '@common/assets/svg/CartIcon'
+import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -13,19 +15,20 @@ import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import CartIcon from '@common/assets/svg/CartIcon'
-import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
-import colors from '@common/styles/colors'
-import PendingBadge from './PendingBadge'
+import { getUiType } from '@web/utils/uiType'
 
 import TokenDetails from '../TokenDetails'
+import PendingBadge from './PendingBadge'
 import getStyles from './styles'
+
+const { isPopup } = getUiType()
 
 const TokenItem = ({
   token,
@@ -36,7 +39,7 @@ const TokenItem = ({
   tokenPreferences: CustomToken[]
   testID?: string
 }) => {
-  const { claimWalletRewards } = usePortfolioControllerState()
+  const { claimWalletRewards, claimEarlySupportersVesting } = usePortfolioControllerState()
   const {
     symbol,
     address,
@@ -91,6 +94,10 @@ const TokenItem = ({
   const sendClaimTransaction = useCallback(() => {
     claimWalletRewards(token)
   }, [token, claimWalletRewards])
+
+  const sendVestingTransaction = useCallback(() => {
+    claimEarlySupportersVesting(token)
+  }, [token, claimEarlySupportersVesting])
 
   return (
     <AnimatedPressable
@@ -147,7 +154,8 @@ const TokenItem = ({
                   <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
                     <Text weight="regular" shouldScale={false} fontSize={12}>
                       {!!isRewards && t('Claimable rewards')}
-                      {!!isVesting && t('Claimable early supporters vestings')}
+                      {!!isVesting && !isPopup && t('Claimable early supporters vestings')}
+                      {!!isVesting && isPopup && t('Claimable vestings')}
                       {!isRewards && !isVesting && t('on')}{' '}
                     </Text>
                     <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
@@ -164,6 +172,17 @@ const TokenItem = ({
                     type="secondary"
                     text={t('Claim')}
                     onPress={sendClaimTransaction}
+                  />
+                )}
+
+                {!!isVesting && (
+                  <Button
+                    style={spacings.ml}
+                    size="small"
+                    hasBottomSpacing={false}
+                    type="secondary"
+                    text={t('Claim')}
+                    onPress={sendVestingTransaction}
                   />
                 )}
               </View>

@@ -39,15 +39,14 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
     )
   }, [accountPortfolio?.tokens, address])
 
-  const isRecipientHumanizerKnownTokenOrSmartContract =
-    !!HUMANIZER_META.knownAddresses[address.toLowerCase()]?.isSC
+  const hardcodedTokenSymbol = HUMANIZER_META.knownAddresses[address.toLowerCase()]?.token?.symbol
+  const hardcodedName = HUMANIZER_META.knownAddresses[address.toLowerCase()]?.name
   let tokenLabel = ''
 
   if (tokenInPortfolio) {
     tokenLabel = `Token ${tokenInPortfolio?.symbol} Contract`
-  } else if (isRecipientHumanizerKnownTokenOrSmartContract) {
-    const humanizerToken = HUMANIZER_META?.knownAddresses[address.toLowerCase()]?.token
-    tokenLabel = t(`Token ${humanizerToken?.symbol} Contract`)
+  } else if (hardcodedTokenSymbol) {
+    tokenLabel = t(`Token ${hardcodedTokenSymbol} Contract`)
   }
 
   const contact = contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())
@@ -58,7 +57,8 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
     zeroAddressLabel ||
     contact?.name ||
     account?.preferences?.label ||
-    tokenLabel
+    tokenLabel ||
+    hardcodedName
   )
     return (
       <BaseAddress address={checksummedAddress} {...rest}>
@@ -66,7 +66,8 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
           zeroAddressLabel ||
           contact?.name ||
           account?.preferences?.label ||
-          tokenLabel}
+          tokenLabel ||
+          hardcodedName}
       </BaseAddress>
     )
 

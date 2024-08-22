@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
@@ -49,10 +49,16 @@ const SignAccountOpScreen = () => {
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
-    () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
-    [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
+    () =>
+      signAccountOpState?.isInitialized &&
+      !!signAccountOpState?.gasPrices &&
+      !signAccountOpState.estimation?.error,
+    [
+      signAccountOpState?.estimation?.error,
+      signAccountOpState?.gasPrices,
+      signAccountOpState?.isInitialized
+    ]
   )
-  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
   useEffect(() => {
     // Ensures user can re-open the modal, if previously being closed, e.g.
@@ -67,17 +73,19 @@ const SignAccountOpScreen = () => {
   }, [isChooseSignerShown, prevIsChooseSignerShown, signAccountOpState?.errors.length])
 
   const isSignLoading =
-    mainState.statuses.signAccountOp !== 'INITIAL' ||
-    mainState.statuses.broadcastSignedAccountOp !== 'INITIAL'
+    signAccountOpState?.status?.type === SigningStatus.InProgress ||
+    signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!hasEstimation) {
+      // set the request to slow if the state is not init (no estimation)
+      // or the gas prices haven't been fetched
+      if (!signAccountOpState?.isInitialized || !signAccountOpState?.gasPrices) {
         setSlowRequest(true)
       }
     }, 5000)
 
-    if (hasEstimation) {
+    if (signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices) {
       clearTimeout(timeout)
       setSlowRequest(false)
     }
@@ -85,7 +93,7 @@ const SignAccountOpScreen = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [hasEstimation, slowRequest])
+  }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
@@ -109,7 +117,6 @@ const SignAccountOpScreen = () => {
       signAccountOpState &&
       signAccountOpState.estimation &&
       hasEstimation && // this includes gas prices as well, we need it
-      !estimationFailed &&
       !didTraceCall
     ) {
       setDidTraceCall(true)
@@ -120,7 +127,7 @@ const SignAccountOpScreen = () => {
         }
       })
     }
-  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, estimationFailed, dispatch])
+  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, dispatch])
 
   useEffect(() => {
     if (!accountOpAction) return
@@ -222,13 +229,7 @@ const SignAccountOpScreen = () => {
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
     [signAccountOpState?.accountKeyStoreKeys]
   )
-  const isAmbireV1AndNetworkNotSupported = useMemo(() => {
-    const isAmbireV1 = isAmbireV1LinkedAccount(signAccountOpState?.account?.creation?.factoryAddr)
 
-    if (!isAmbireV1) return false
-
-    return isAmbireV1 && !network?.hasRelayer
-  }, [network?.hasRelayer, signAccountOpState?.account?.creation?.factoryAddr])
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
   const notReadyToSignButAlsoNotDone =
@@ -254,19 +255,14 @@ const SignAccountOpScreen = () => {
           <Footer
             onReject={handleRejectAccountOp}
             onAddToCart={handleAddToCart}
-            isEOA={
-              !signAccountOpState ||
-              !isSmartAccount(signAccountOpState.account) ||
-              isAmbireV1AndNetworkNotSupported
-            }
+            isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
             isSignLoading={isSignLoading}
             isSignDisabled={
               isViewOnly ||
               isSignLoading ||
               notReadyToSignButAlsoNotDone ||
-              isAmbireV1AndNetworkNotSupported
+              !signAccountOpState.readyToSign
             }
-            isViewOnly={isViewOnly}
             onSign={onSignButtonClick}
           />
         }
@@ -283,7 +279,10 @@ const SignAccountOpScreen = () => {
         <TabLayoutWrapperMainContent scrollEnabled={false}>
           <View style={styles.container}>
             <View style={styles.leftSideContainer}>
-              <Simulation network={network} hasEstimation={!!hasEstimation && !!network} />
+              <Simulation
+                network={network}
+                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+              />
               <PendingTransactions
                 callsToVisualize={
                   signAccountOpState?.humanReadable || signAccountOpState?.accountOp?.calls || []
@@ -295,10 +294,9 @@ const SignAccountOpScreen = () => {
             <Estimation
               signAccountOpState={signAccountOpState}
               disabled={isSignLoading}
-              hasEstimation={!!hasEstimation && !!signAccountOpState}
+              hasEstimation={!!hasEstimation}
               slowRequest={slowRequest}
               isViewOnly={isViewOnly}
-              isAmbireV1AndNetworkNotSupported={isAmbireV1AndNetworkNotSupported}
             />
 
             <SignAccountOpHardwareWalletSigningModal
