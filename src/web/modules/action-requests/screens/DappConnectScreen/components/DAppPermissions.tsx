@@ -8,24 +8,34 @@ import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import Text, { Props as TextProps } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_LG, SPACING_MD } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 const dAppPermissionWrapperContext = createContext({
-  isSmall: false
+  responsiveSizeMultiplier: 1
 })
 
 const DAppPermissionWrapper = ({
   children,
-  isSmall
+  responsiveSizeMultiplier
 }: {
   children: React.ReactNode
-  isSmall: boolean
+  responsiveSizeMultiplier: number
 }) => {
-  const contextValue = useMemo(() => ({ isSmall }), [isSmall])
+  const contextValue = useMemo(() => ({ responsiveSizeMultiplier }), [responsiveSizeMultiplier])
+
   return (
     <dAppPermissionWrapperContext.Provider value={contextValue}>
-      <View style={[flexbox.directionRow, spacings.mbMd]}>{children}</View>
+      <View
+        style={[
+          flexbox.directionRow,
+          {
+            marginBottom: SPACING_MD * responsiveSizeMultiplier
+          }
+        ]}
+      >
+        {children}
+      </View>
     </dAppPermissionWrapperContext.Provider>
   )
 }
@@ -37,13 +47,13 @@ const DAppPermissionIcon = ({
   children: React.ReactNode
   backgroundColor: ColorValue | string
 }) => {
-  const { isSmall } = useContext(dAppPermissionWrapperContext)
+  const { responsiveSizeMultiplier } = useContext(dAppPermissionWrapperContext)
   return (
     <View
       style={{
         backgroundColor,
-        width: isSmall ? 24 : 32,
-        height: isSmall ? 24 : 32,
+        width: responsiveSizeMultiplier * 32,
+        height: responsiveSizeMultiplier * 32,
         ...flexbox.center,
         ...spacings.mrTy,
         borderRadius: 25
@@ -55,26 +65,32 @@ const DAppPermissionIcon = ({
 }
 
 const DAppPermissionText = ({ children, ...rest }: { children: React.ReactNode } & TextProps) => {
-  const { isSmall } = useContext(dAppPermissionWrapperContext)
+  const { responsiveSizeMultiplier } = useContext(dAppPermissionWrapperContext)
 
   return (
-    <Text appearance="secondaryText" fontSize={isSmall ? 14 : 16} {...rest}>
+    <Text appearance="secondaryText" fontSize={responsiveSizeMultiplier * 16} {...rest}>
       {children}
     </Text>
   )
 }
 
-const DAppPermissions: FC<{ isSmall: boolean }> = ({ isSmall }) => {
+const DAppPermissions: FC<{ responsiveSizeMultiplier: number }> = ({
+  responsiveSizeMultiplier
+}) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
 
   return (
-    <View style={isSmall ? spacings.mb : spacings.mbLg}>
-      <DAppPermissionWrapper isSmall={isSmall}>
+    <View
+      style={{
+        marginBottom: SPACING_LG * responsiveSizeMultiplier
+      }}
+    >
+      <DAppPermissionWrapper responsiveSizeMultiplier={responsiveSizeMultiplier}>
         <DAppPermissionIcon backgroundColor={colors.lightAzureBlue}>
           <VisibilityIcon
-            width={isSmall ? 20 : 24}
-            height={isSmall ? 20 : 24}
+            width={responsiveSizeMultiplier * 24}
+            height={responsiveSizeMultiplier * 24}
             color={colors.azureBlue}
           />
         </DAppPermissionIcon>
@@ -83,11 +99,11 @@ const DAppPermissions: FC<{ isSmall: boolean }> = ({ isSmall }) => {
           <DAppPermissionText weight="medium">{t('see your addresses')}</DAppPermissionText>
         </DAppPermissionText>
       </DAppPermissionWrapper>
-      <DAppPermissionWrapper isSmall={isSmall}>
+      <DAppPermissionWrapper responsiveSizeMultiplier={responsiveSizeMultiplier}>
         <DAppPermissionIcon backgroundColor={theme.infoBackground}>
           <TransactionsIcon
-            width={isSmall ? 14 : 18}
-            height={isSmall ? 14 : 18}
+            width={responsiveSizeMultiplier * 18}
+            height={responsiveSizeMultiplier * 18}
             color={theme.infoDecorative}
           />
         </DAppPermissionIcon>
@@ -96,11 +112,11 @@ const DAppPermissions: FC<{ isSmall: boolean }> = ({ isSmall }) => {
           <DAppPermissionText weight="medium">{t('propose transactions')}</DAppPermissionText>
         </DAppPermissionText>
       </DAppPermissionWrapper>
-      <DAppPermissionWrapper isSmall={isSmall}>
+      <DAppPermissionWrapper responsiveSizeMultiplier={responsiveSizeMultiplier}>
         <DAppPermissionIcon backgroundColor={theme.errorBackground}>
           <CloseIcon
-            width={isSmall ? 10 : 14}
-            height={isSmall ? 10 : 14}
+            width={responsiveSizeMultiplier * 14}
+            height={responsiveSizeMultiplier * 14}
             color={theme.errorDecorative}
           />
         </DAppPermissionIcon>

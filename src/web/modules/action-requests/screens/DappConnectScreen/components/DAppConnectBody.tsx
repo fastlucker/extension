@@ -4,39 +4,34 @@ import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
+import { SPACING_LG, SPACING_XL } from '@common/styles/spacings'
 
 import getStyles from '../styles'
 import DAppPermissions from './DAppPermissions'
 
-const DAppConnectBody: FC<{ isSmall: boolean }> = ({ isSmall }) => {
+const DAppConnectBody: FC<{ responsiveSizeMultiplier: number }> = ({
+  responsiveSizeMultiplier
+}) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
 
   const spacingsStyle = useMemo(() => {
-    if (!isSmall)
-      return {
-        ...spacings.phXl,
-        ...spacings.pvXl,
-        ...spacings.pbLg
-      }
-
     return {
-      ...spacings.phXl,
-      ...spacings.pvLg,
-      ...spacings.pbMd
+      paddingHorizontal: SPACING_XL * responsiveSizeMultiplier,
+      paddingTop: SPACING_XL * responsiveSizeMultiplier,
+      paddingBottom: SPACING_LG * responsiveSizeMultiplier
     }
-  }, [isSmall])
+  }, [responsiveSizeMultiplier])
 
   return (
     <View style={[styles.contentBody, spacingsStyle]}>
-      <DAppPermissions isSmall={isSmall} />
+      <DAppPermissions responsiveSizeMultiplier={responsiveSizeMultiplier} />
       <Text
         style={{
           opacity: 0.64,
           marginHorizontal: 'auto'
         }}
-        fontSize={14}
+        fontSize={14 * responsiveSizeMultiplier}
         weight="medium"
         appearance="tertiaryText"
       >

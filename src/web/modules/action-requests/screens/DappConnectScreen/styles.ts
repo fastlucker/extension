@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_SM } from '@common/styles/spacings'
+import { SPACING_SM } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -16,7 +16,6 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Styles>({
     container: {
       ...flexbox.alignCenter,
-      ...spacings.pvLg,
       marginHorizontal: 'auto'
     },
     content: {
