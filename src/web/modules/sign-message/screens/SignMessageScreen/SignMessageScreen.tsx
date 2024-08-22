@@ -301,12 +301,10 @@ const SignMessageScreen = () => {
             {isViewOnly && (
               <NoKeysToSignAlert
                 style={{
-                  ...flexbox.alignSelfCenter,
-                  marginTop: 'auto',
-                  maxWidth: 600,
+                  width: '100%',
                   ...spacings.mtMd
                 }}
-                requestType="message"
+                isTransaction={false}
               />
             )}
           </View>
