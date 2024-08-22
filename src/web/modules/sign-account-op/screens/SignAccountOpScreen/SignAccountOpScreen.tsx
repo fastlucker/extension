@@ -236,6 +236,12 @@ const SignAccountOpScreen = () => {
 
     if (warningToPromptBeforeSign) {
       openWarningAgreementModal()
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+        params: {
+          status: SigningStatus.InProgress
+        }
+      })
       return
     }
 
@@ -251,11 +257,28 @@ const SignAccountOpScreen = () => {
 
   const acknowledgeWarning = useCallback(() => {
     if (!warningToPromptBeforeSign) return
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+      params: {
+        status: SigningStatus.ReadyToSign
+      }
+    })
 
     setAcknowledgedWarnings((prev) => [...prev, warningToPromptBeforeSign.id])
     closeWarningAgreementModal()
     handleSign()
-  }, [warningToPromptBeforeSign, closeWarningAgreementModal, handleSign])
+  }, [warningToPromptBeforeSign, dispatch, closeWarningAgreementModal, handleSign])
+
+  const dismissWarning = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+      params: {
+        status: SigningStatus.ReadyToSign
+      }
+    })
+
+    closeWarningAgreementModal()
+  }, [dispatch, closeWarningAgreementModal])
 
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
@@ -290,7 +313,7 @@ const SignAccountOpScreen = () => {
             primaryButtonText={t('Proceed')}
             secondaryButtonText={t('Cancel')}
             onPrimaryButtonPress={acknowledgeWarning}
-            onSecondaryButtonPress={closeWarningAgreementModal}
+            onSecondaryButtonPress={dismissWarning}
           />
         )}
       </BottomSheet>
