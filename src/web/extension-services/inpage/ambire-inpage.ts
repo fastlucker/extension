@@ -93,21 +93,29 @@ const foundDappRpcUrls: string[] = []
     if (typeof resource === 'object') {
       // Avoid reading the body from the original fetch request, as the Request object has a 'bodyUsed' property that prevents multiple reads of the body.
       // To work around this, clone the original Request, read the body from the clone, and leave the original request intact for the webpage to read
-      const reqClone = (resource as Request).clone()
-      if ((resource as Request)?.body) {
-        if (reqClone.body) {
-          fetchURL = reqClone.url
-          fetchBody = await new Response(reqClone.body).text()
-        }
-      } else {
-        try {
-          // In Firefox, reqClone.body is not present in the object.
-          // It needs to be retrieved asynchronously via the .json() func
-          const body = await reqClone.json()
-          fetchURL = reqClone.url
-          fetchBody = body
-        } catch (error) {
-          // silent fail
+      let reqClone: Request | undefined
+
+      try {
+        reqClone = (resource as Request).clone()
+      } catch (error) {
+        // silent fail
+      }
+      if (reqClone) {
+        if ((resource as Request)?.body) {
+          if (reqClone.body) {
+            fetchURL = reqClone.url
+            fetchBody = await new Response(reqClone.body).text()
+          }
+        } else {
+          try {
+            // In Firefox, reqClone.body is not present in the object.
+            // It needs to be retrieved asynchronously via the .json() func
+            const body = await reqClone.json()
+            fetchURL = reqClone.url
+            fetchBody = body
+          } catch (error) {
+            // silent fail
+          }
         }
       }
     }

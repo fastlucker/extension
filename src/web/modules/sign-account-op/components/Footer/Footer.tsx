@@ -18,16 +18,25 @@ type Props = {
   onSign: () => void
   isSignLoading: boolean
   isSignDisabled: boolean
-  isEOA: boolean
+  isAddToCartDisplayed: boolean
+  isAddToCartDisabled: boolean
 }
 
-const Footer = ({ onReject, onAddToCart, onSign, isSignLoading, isSignDisabled, isEOA }: Props) => {
+const Footer = ({
+  onReject,
+  onAddToCart,
+  onSign,
+  isSignLoading,
+  isSignDisabled,
+  isAddToCartDisplayed,
+  isAddToCartDisabled
+}: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
-      <View style={[isEOA && flexbox.flex1, flexbox.alignStart]}>
+      <View style={[!isAddToCartDisplayed && flexbox.flex1, flexbox.alignStart]}>
         <Button
           type="danger"
           text={t('Reject')}
@@ -41,15 +50,17 @@ const Footer = ({ onReject, onAddToCart, onSign, isSignLoading, isSignDisabled, 
         </Button>
       </View>
       <ActionsPagination />
-      <View style={[flexbox.directionRow, isEOA && flexbox.flex1, flexbox.justifyEnd]}>
-        {!isEOA && (
+      <View
+        style={[flexbox.directionRow, !isAddToCartDisplayed && flexbox.flex1, flexbox.justifyEnd]}
+      >
+        {isAddToCartDisplayed && (
           <Button
             testID="queue-and-sign-later-button"
             type="outline"
             accentColor={theme.primary}
             text={t('Queue and Sign Later')}
             onPress={onAddToCart}
-            disabled={isSignDisabled}
+            disabled={isAddToCartDisabled}
             hasBottomSpacing={false}
             style={spacings.mr}
             size="large"
