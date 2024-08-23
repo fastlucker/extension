@@ -15,7 +15,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
-import Option from './Option/Option'
+import Option from '../Option'
 import getStyles from './styles'
 
 interface Props {
@@ -51,7 +51,7 @@ const NetworkBottomSheet = ({
       </View>
       <Option
         renderIcon={<SettingsIcon width={27} height={27} color={theme.secondaryText} />}
-        text="Go to Network Settings"
+        title="Go to Network Settings"
         onPress={() => {
           try {
             navigate(`${WEB_ROUTES.networksSettings}?networkId=${selectedNetworkId}`)
@@ -62,7 +62,7 @@ const NetworkBottomSheet = ({
       />
       <Option
         renderIcon={<OpenIcon width={20} height={20} color={theme.secondaryText} />}
-        text="Open current account in block explorer"
+        title="Open current account in block explorer"
         onPress={() => {
           openBlockExplorer(networkData?.explorerUrl)
         }}
