@@ -68,16 +68,18 @@ const useAddressInput = ({
           .then((newUDAddress: string) => {
             udAddress = newUDAddress
 
-            if (udAddress) {
-              dispatch({
-                type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
-                params: {
-                  address: udAddress,
-                  name: fieldValue,
-                  type: 'ud'
-                }
-              })
-            }
+            // Don't save the resolved UD address because it won't be used anywhere for now
+            // https://github.com/AmbireTech/ambire-app/issues/2681#issuecomment-2299460748
+            // if (udAddress) {
+            //   dispatch({
+            //     type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
+            //     params: {
+            //       address: udAddress,
+            //       name: fieldValue,
+            //       type: 'ud'
+            //     }
+            //   })
+            // }
           })
           .catch(() => {
             udAddress = ''
@@ -129,7 +131,7 @@ const useAddressInput = ({
   useEffect(() => {
     const trimmedAddress = fieldValue.trim()
 
-    const domainRegex = /^[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,})$/
+    const domainRegex = /^[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,})+/
     const canBeEnsOrUd = domainRegex.test(trimmedAddress)
 
     if (!trimmedAddress || !canBeEnsOrUd) {

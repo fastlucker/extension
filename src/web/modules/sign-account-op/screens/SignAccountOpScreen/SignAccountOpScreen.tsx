@@ -49,10 +49,16 @@ const SignAccountOpScreen = () => {
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
-    () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
-    [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
+    () =>
+      signAccountOpState?.isInitialized &&
+      !!signAccountOpState?.gasPrices &&
+      !signAccountOpState.estimation?.error,
+    [
+      signAccountOpState?.estimation?.error,
+      signAccountOpState?.gasPrices,
+      signAccountOpState?.isInitialized
+    ]
   )
-  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
   useEffect(() => {
     // Ensures user can re-open the modal, if previously being closed, e.g.
@@ -67,17 +73,19 @@ const SignAccountOpScreen = () => {
   }, [isChooseSignerShown, prevIsChooseSignerShown, signAccountOpState?.errors.length])
 
   const isSignLoading =
-    mainState.statuses.signAccountOp !== 'INITIAL' ||
-    mainState.statuses.broadcastSignedAccountOp !== 'INITIAL'
+    signAccountOpState?.status?.type === SigningStatus.InProgress ||
+    signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!hasEstimation) {
+      // set the request to slow if the state is not init (no estimation)
+      // or the gas prices haven't been fetched
+      if (!signAccountOpState?.isInitialized || !signAccountOpState?.gasPrices) {
         setSlowRequest(true)
       }
     }, 5000)
 
-    if (hasEstimation) {
+    if (signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices) {
       clearTimeout(timeout)
       setSlowRequest(false)
     }
@@ -85,7 +93,7 @@ const SignAccountOpScreen = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [hasEstimation, slowRequest])
+  }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
@@ -109,7 +117,6 @@ const SignAccountOpScreen = () => {
       signAccountOpState &&
       signAccountOpState.estimation &&
       hasEstimation && // this includes gas prices as well, we need it
-      !estimationFailed &&
       !didTraceCall
     ) {
       setDidTraceCall(true)
@@ -120,7 +127,7 @@ const SignAccountOpScreen = () => {
         }
       })
     }
-  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, estimationFailed, dispatch])
+  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, dispatch])
 
   useEffect(() => {
     if (!accountOpAction) return
@@ -248,10 +255,19 @@ const SignAccountOpScreen = () => {
           <Footer
             onReject={handleRejectAccountOp}
             onAddToCart={handleAddToCart}
-            isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
+            isAddToCartDisplayed={
+              !!signAccountOpState && isSmartAccount(signAccountOpState.account)
+            }
             isSignLoading={isSignLoading}
-            isSignDisabled={isViewOnly || isSignLoading || notReadyToSignButAlsoNotDone}
-            isViewOnly={isViewOnly}
+            isSignDisabled={
+              isViewOnly ||
+              isSignLoading ||
+              notReadyToSignButAlsoNotDone ||
+              !signAccountOpState.readyToSign
+            }
+            // Allow view only accounts to add to cart even if the txn is not ready to sign
+            // because they can't sign it anyway
+            isAddToCartDisabled={isSignLoading || (!signAccountOpState?.readyToSign && !isViewOnly)}
             onSign={onSignButtonClick}
           />
         }
@@ -268,7 +284,10 @@ const SignAccountOpScreen = () => {
         <TabLayoutWrapperMainContent scrollEnabled={false}>
           <View style={styles.container}>
             <View style={styles.leftSideContainer}>
-              <Simulation network={network} hasEstimation={!!hasEstimation && !!network} />
+              <Simulation
+                network={network}
+                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+              />
               <PendingTransactions
                 callsToVisualize={
                   signAccountOpState?.humanReadable || signAccountOpState?.accountOp?.calls || []
@@ -280,7 +299,7 @@ const SignAccountOpScreen = () => {
             <Estimation
               signAccountOpState={signAccountOpState}
               disabled={isSignLoading}
-              hasEstimation={!!hasEstimation && !!signAccountOpState}
+              hasEstimation={!!hasEstimation}
               slowRequest={slowRequest}
               isViewOnly={isViewOnly}
             />

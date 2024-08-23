@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { formatUnits } from 'ethers'
+import { formatUnits, ZeroAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, ViewStyle } from 'react-native'
 
+import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
-import { callsHumanizer, HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
-import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { humanizerMetaParsing } from '@ambire-common/libs/humanizer/parsers/humanizerMetaParsing'
-import { randomId } from '@ambire-common/libs/humanizer/utils'
+import { callsHumanizer } from '@ambire-common/libs/humanizer'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
@@ -44,9 +45,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
 
   const [humanizedCalls, setHumanizedCalls] = useState<IrCall[]>([])
   const [humanizerError, setHumanizerError] = useState(null)
-  const [submittedAccountOpFee, setSubmittedAccountOpFee] = useState<HumanizerVisualization | null>(
-    null
-  )
+  const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
 
   const network = useMemo(
     () => networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
@@ -72,46 +71,41 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     return humanizedCalls
   }, [humanizedCalls, humanizerError, submittedAccountOp.calls])
 
-  const feeFormattedValue = useMemo(() => {
-    if (!submittedAccountOpFee || !submittedAccountOp.gasFeePayment?.amount) return null
+  useEffect((): void => {
+    const feeTokenAddress = submittedAccountOp.gasFeePayment?.inToken
+    const networkId: NetworkId =
+      submittedAccountOp.gasFeePayment?.feeTokenNetworkId ||
+      // the rest is support for legacy data (no networkId recorded for the fee)
+      (feeTokenAddress === ZeroAddress && submittedAccountOp.networkId) ||
+      gasTankFeeTokens.find((constFeeToken: any) => constFeeToken.address === feeTokenAddress)
+        ?.networkId ||
+      submittedAccountOp.networkId
 
-    const fee = parseFloat(
-      formatUnits(
-        submittedAccountOpFee!.value || submittedAccountOp.gasFeePayment!.amount,
-        submittedAccountOpFee?.humanizerMeta?.token?.decimals
-      )
-    )
-    return `${formatDecimals(fee)} ${submittedAccountOpFee?.humanizerMeta?.token?.symbol}`
-  }, [submittedAccountOp.gasFeePayment, submittedAccountOpFee])
+    // did is used to avoid tokenNetwork being Network | undefined
+    // the assumption is that we cant pay the fee with token on network that is not present
+    const tokenNetwork = networks.filter((n: Network) => n.id === networkId)[0]
 
-  useEffect(() => {
-    ;(async () => {
-      const meta = await storage.get(HUMANIZER_META_KEY, {})
-      // @TODO should be replaced with something outside the humanizer lib
-      const res = humanizerMetaParsing(
-        {
-          humanizerMeta: meta,
-          accountAddr: submittedAccountOp.accountAddr,
-          networkId: submittedAccountOp.networkId
-        },
-        [
-          {
-            type: 'token',
-            value: submittedAccountOp.gasFeePayment?.amount,
-            address: submittedAccountOp.gasFeePayment?.inToken,
-            id: randomId()
-          }
-        ],
-        { network }
-      )
-      setSubmittedAccountOpFee(res?.[0]?.[0])
-    })()
+    const feeTokenAmount = submittedAccountOp.gasFeePayment?.amount
+    if (!feeTokenAddress || !tokenNetwork || !feeTokenAmount) return
+
+    resolveAssetInfo(feeTokenAddress, tokenNetwork, ({ tokenInfo }) => {
+      if (!tokenInfo || !submittedAccountOp.gasFeePayment?.amount) return
+
+      const fee = parseFloat(formatUnits(feeTokenAmount, tokenInfo.decimals))
+      console.log(`${formatDecimals(fee)} ${tokenInfo.symbol}`, feeTokenAddress)
+
+      setFeeFormattedValue(`${formatDecimals(fee)} ${tokenInfo.symbol}`)
+    }).catch((e) => {
+      console.error(e)
+      addToast('We had a problem fetching fee token data', { type: 'error' })
+    })
   }, [
-    submittedAccountOp.accountAddr,
+    networks,
+    submittedAccountOp.networkId,
+    submittedAccountOp?.gasFeePayment?.feeTokenNetworkId,
     submittedAccountOp.gasFeePayment?.amount,
     submittedAccountOp.gasFeePayment?.inToken,
-    submittedAccountOp.networkId,
-    network
+    addToast
   ])
 
   const handleOpenExplorer = useCallback(async () => {
@@ -172,7 +166,6 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           }
           onRightIconPress={handleOpenExplorer}
           isHistory
-          networks={networks}
         />
       ))}
       {submittedAccountOp.status !== AccountOpStatus.Rejected &&
@@ -210,7 +203,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
               <Text fontSize={14} appearance="secondaryText" weight="semiBold">
                 {t('Block Explorer')}:{' '}
               </Text>
-              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy} selectable>
                 {new URL(network.explorerUrl).hostname}
               </Text>
             </View>

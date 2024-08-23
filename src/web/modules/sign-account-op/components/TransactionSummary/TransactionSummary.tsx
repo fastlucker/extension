@@ -2,7 +2,7 @@ import { formatUnits } from 'ethers'
 import React, { ReactNode, useCallback } from 'react'
 import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
@@ -27,7 +27,6 @@ interface Props {
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
   testID?: string
-  networks: Network[]
 }
 
 const sizeMultiplier = {
@@ -44,8 +43,7 @@ const TransactionSummary = ({
   onRightIconPress,
   size = 'lg',
   isHistory,
-  testID,
-  networks
+  testID
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
@@ -85,7 +83,6 @@ const TransactionSummary = ({
               networkId={networkId}
               isHistory={isHistory}
               testID={testID}
-              networks={networks}
             />
           ) : (
             <FallbackVisualization
@@ -121,12 +118,14 @@ const TransactionSummary = ({
             paddingVertical: SPACING_TY * sizeMultiplier[size]
           }}
         >
-          <Text selectable fontSize={12} style={styles.bodyText}>
-            <Text fontSize={12} style={styles.bodyText} weight="regular">
-              {t('Interacting with (to): ')}
+          {call.to && (
+            <Text selectable fontSize={12} style={styles.bodyText}>
+              <Text fontSize={12} style={styles.bodyText} weight="regular">
+                {t('Interacting with (to): ')}
+              </Text>
+              {call.to}
             </Text>
-            {call.to}
-          </Text>
+          )}
           <Text selectable fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Value to be sent (value): ')}

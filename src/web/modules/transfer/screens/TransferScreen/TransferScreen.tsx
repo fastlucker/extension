@@ -6,6 +6,7 @@ import { useModalize } from 'react-native-modalize'
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
+import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import CartIcon from '@common/assets/svg/CartIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
@@ -66,9 +67,16 @@ const TransferScreen = () => {
   const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
+  const hasOpenedActionWindow = useMemo(
+    () => actionsState.currentAction || actionsState.actionWindow.id,
+    [actionsState.currentAction, actionsState.actionWindow.id]
+  )
+
   const transactionUserRequests = useMemo(() => {
-    return userRequests.filter((r) => r.action.kind === 'calls')
-  }, [userRequests])
+    return userRequests.filter(
+      (r) => r.action.kind === 'calls' && r.meta.accountAddr === selectedAccount
+    )
+  }, [selectedAccount, userRequests])
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -97,7 +105,7 @@ const TransferScreen = () => {
     if (isOffline) return t("You're offline")
     if (isTopUp) return t('Top Up')
 
-    if (actionsState.currentAction || !isSmartAccount) return t('Send')
+    if (hasOpenedActionWindow || !isSmartAccount) return t('Send')
 
     let numOfRequests = transactionUserRequests.length
     if (isFormValid && !addressInputState.validation.isError) {
@@ -114,11 +122,11 @@ const TransferScreen = () => {
     isOffline,
     isTopUp,
     transactionUserRequests,
-    actionsState,
     addressInputState.validation.isError,
     isFormValid,
     isFormEmpty,
     isSmartAccount,
+    hasOpenedActionWindow,
     t
   ])
 
@@ -128,7 +136,9 @@ const TransferScreen = () => {
 
     const isTransferFormValid = isFormValid && !addressInputState.validation.isError
 
-    if (transactionUserRequests.length && !actionsState.currentAction) {
+    if (!isSmartAccount) return !isTransferFormValid
+
+    if (transactionUserRequests.length && !hasOpenedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
     return !isTransferFormValid
@@ -138,8 +148,9 @@ const TransferScreen = () => {
     isFormValid,
     isOffline,
     isTopUp,
+    isSmartAccount,
     transactionUserRequests.length,
-    actionsState.currentAction
+    hasOpenedActionWindow
   ])
 
   const onBack = useCallback(() => {
@@ -171,7 +182,18 @@ const TransferScreen = () => {
         const firstAccountOpAction = actionsState.visibleActionsQueue
           .reverse()
           .find((a) => a.type === 'accountOp')
-        if (!firstAccountOpAction) return
+        if (!firstAccountOpAction) {
+          const entryPointAction = actionsState.visibleActionsQueue.find(
+            (a) => a.id.toString() === ENTRY_POINT_AUTHORIZATION_REQUEST_ID
+          )
+          if (entryPointAction) {
+            dispatch({
+              type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
+              params: { actionId: ENTRY_POINT_AUTHORIZATION_REQUEST_ID }
+            })
+          }
+          return
+        }
         dispatch({
           type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
           params: { actionId: firstAccountOpAction?.id }
@@ -220,7 +242,7 @@ const TransferScreen = () => {
               >
                 <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
                   <CartIcon color={theme.primary} />
-                  {!!transactionUserRequests.length && !actionsState.currentAction && (
+                  {!!transactionUserRequests.length && !hasOpenedActionWindow && (
                     <Text
                       fontSize={16}
                       weight="medium"

@@ -1,4 +1,5 @@
-import { bootstrapWithStorage, saParams } from '../functions.js'
+import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
+import { saParams } from '../constants/constants'
 
 import {
   makeValidTransaction,
@@ -6,7 +7,7 @@ import {
   sendFundsGreaterThanBalance,
   sendFundsToSmartContract,
   signMessage
-} from '../common/transactions.js'
+} from '../common/transactions'
 
 describe('sa_transactions', () => {
   let browser

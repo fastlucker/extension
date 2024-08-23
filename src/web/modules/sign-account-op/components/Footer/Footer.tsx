@@ -18,8 +18,8 @@ type Props = {
   onSign: () => void
   isSignLoading: boolean
   isSignDisabled: boolean
-  isViewOnly: boolean
-  isEOA: boolean
+  isAddToCartDisplayed: boolean
+  isAddToCartDisabled: boolean
 }
 
 const Footer = ({
@@ -28,15 +28,15 @@ const Footer = ({
   onSign,
   isSignLoading,
   isSignDisabled,
-  isViewOnly,
-  isEOA
+  isAddToCartDisplayed,
+  isAddToCartDisabled
 }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
-      <View style={[isEOA && flexbox.flex1, flexbox.alignStart]}>
+      <View style={[!isAddToCartDisplayed && flexbox.flex1, flexbox.alignStart]}>
         <Button
           type="danger"
           text={t('Reject')}
@@ -50,15 +50,17 @@ const Footer = ({
         </Button>
       </View>
       <ActionsPagination />
-      <View style={[flexbox.directionRow, isEOA && flexbox.flex1, flexbox.justifyEnd]}>
-        {!isEOA && (
+      <View
+        style={[flexbox.directionRow, !isAddToCartDisplayed && flexbox.flex1, flexbox.justifyEnd]}
+      >
+        {isAddToCartDisplayed && (
           <Button
             testID="queue-and-sign-later-button"
             type="outline"
             accentColor={theme.primary}
             text={t('Queue and Sign Later')}
             onPress={onAddToCart}
-            disabled={isSignLoading || isViewOnly}
+            disabled={isAddToCartDisabled}
             hasBottomSpacing={false}
             style={spacings.mr}
             size="large"

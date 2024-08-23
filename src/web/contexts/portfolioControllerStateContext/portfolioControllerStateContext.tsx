@@ -9,12 +9,15 @@ import {
   TokenResult as TokenResultInterface
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
-import { buildClaimWalletRequest } from '@ambire-common/libs/transfer/userRequest'
+import {
+  buildClaimWalletRequest,
+  buildMintVestingRequest
+} from '@ambire-common/libs/transfer/userRequest'
 import useConnectivity from '@common/hooks/useConnectivity'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
-import useActionsControllerState from '@web/hooks/useActionsControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -48,6 +51,7 @@ const PortfolioControllerStateContext = createContext<{
   removeTokenPreferences: (token: CustomToken) => void
   checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
   claimWalletRewards: (token: TokenResultInterface) => void
+  claimEarlySupportersVesting: (token: TokenResultInterface) => void
   resetAccountPortfolioLocalState: () => void
 }>({
   accountPortfolio: DEFAULT_ACCOUNT_PORTFOLIO,
@@ -58,6 +62,7 @@ const PortfolioControllerStateContext = createContext<{
   removeTokenPreferences: () => {},
   checkToken: () => {},
   claimWalletRewards: () => {},
+  claimEarlySupportersVesting: () => {},
   resetAccountPortfolioLocalState: () => {}
 })
 
@@ -224,6 +229,28 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     },
     [dispatch, account, accountsState.selectedAccount, state.latest]
   )
+
+  const claimEarlySupportersVesting = useCallback(
+    (token: TokenResultInterface) => {
+      if (!accountsState.selectedAccount || !account) return
+
+      const addrVestingData =
+        state.latest[accountsState.selectedAccount].rewards?.result?.addrVestingData
+
+      if (!addrVestingData) return
+      const userRequest: UserRequest = buildMintVestingRequest({
+        selectedAccount: accountsState.selectedAccount,
+        selectedToken: token,
+        addrVestingData
+      })
+      dispatch({
+        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+        params: userRequest
+      })
+    },
+    [dispatch, account, accountsState.selectedAccount, state.latest]
+  )
+
   return (
     <PortfolioControllerStateContext.Provider
       value={useMemo(
@@ -236,6 +263,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           checkToken,
           getTemporaryTokens,
           claimWalletRewards,
+          claimEarlySupportersVesting,
           resetAccountPortfolioLocalState
         }),
         [
@@ -247,6 +275,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           checkToken,
           getTemporaryTokens,
           claimWalletRewards,
+          claimEarlySupportersVesting,
           resetAccountPortfolioLocalState
         ]
       )}

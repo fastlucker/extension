@@ -6,6 +6,7 @@ import { isWeb } from '@common/config/env'
 import useDebounce from '@common/hooks/useDebounce'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import DefaultWalletControl from '@common/modules/dashboard/components/DefaultWalletControl'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
@@ -15,6 +16,7 @@ import { getUiType } from '@web/utils/uiType'
 import DAppFooter from '../components/DAppFooter'
 import DashboardOverview from '../components/DashboardOverview'
 import DashboardPages from '../components/DashboardPages'
+import PinExtension from '../components/PinExtension'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
@@ -93,6 +95,8 @@ const DashboardScreen = () => {
         </View>
         {!!isPopup && <DAppFooter />}
       </View>
+      <PinExtension />
+      <DefaultWalletControl />
     </>
   )
 }

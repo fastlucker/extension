@@ -9,7 +9,7 @@ const { isTab } = getUiType()
 
 const Row = ({ title, text, noMb }: { title: string; text: string; noMb?: boolean }) => (
   <View
-    testID='collectible-row'
+    testID="collectible-row"
     style={[
       flexbox.directionRow,
       flexbox.alignCenter,
@@ -20,7 +20,7 @@ const Row = ({ title, text, noMb }: { title: string; text: string; noMb?: boolea
     <Text fontSize={isTab ? 14 : 12} appearance="primaryText" weight="medium">
       {title}
     </Text>
-    <Text fontSize={isTab ? 14 : 12} appearance="secondaryText">
+    <Text selectable fontSize={isTab ? 14 : 12} appearance="secondaryText">
       {text}
     </Text>
   </View>

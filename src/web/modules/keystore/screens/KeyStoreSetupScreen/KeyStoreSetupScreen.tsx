@@ -106,7 +106,8 @@ const KeyStoreSetupScreen = () => {
             disabled={
               keyStoreSetup.formState.isSubmitting ||
               keyStoreSetup.isKeystoreSetupLoading ||
-              !keyStoreSetup.formState.isValid
+              !keyStoreSetup.formState.isValid ||
+              keyStoreSetup.hasPasswordSecret
             }
             text={
               keyStoreSetup.formState.isSubmitting || keyStoreSetup.isKeystoreSetupLoading
