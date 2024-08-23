@@ -10,6 +10,7 @@ interface Props {
   signingKeyType?: AccountOp['signingKeyType']
   feePayerKeyType?: Key['type']
   broadcastSignedAccountOpStatus: MainController['statuses']['broadcastSignedAccountOp']
+  hasWarningToPromptBeforeSign: boolean
   signAccountOpStatusType?: SigningStatus
 }
 
@@ -17,7 +18,8 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   signingKeyType,
   feePayerKeyType,
   broadcastSignedAccountOpStatus,
-  signAccountOpStatusType
+  signAccountOpStatusType,
+  hasWarningToPromptBeforeSign
 }: Props) => {
   const shouldRender = useMemo(() => {
     const isAtLeastOneOfTheKeysInvolvedExternal =
@@ -28,6 +30,8 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   }, [signingKeyType, feePayerKeyType])
 
   const shouldBeVisible = useMemo(() => {
+    if (hasWarningToPromptBeforeSign) return false
+
     const isCurrentlyBroadcastingWithExternalKey =
       broadcastSignedAccountOpStatus === 'LOADING' &&
       !!feePayerKeyType &&
@@ -38,7 +42,13 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
       signingKeyType !== 'internal'
 
     return isCurrentlyBroadcastingWithExternalKey || isCurrentlySigningWithExternalKey
-  }, [broadcastSignedAccountOpStatus, feePayerKeyType, signAccountOpStatusType, signingKeyType])
+  }, [
+    broadcastSignedAccountOpStatus,
+    feePayerKeyType,
+    hasWarningToPromptBeforeSign,
+    signAccountOpStatusType,
+    signingKeyType
+  ])
 
   const currentlyInvolvedSignOrBroadcastKeyType = useMemo(
     () => (signAccountOpStatusType === SigningStatus.InProgress ? signingKeyType : feePayerKeyType),

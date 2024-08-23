@@ -379,6 +379,7 @@ const SignAccountOpScreen = () => {
             <SignAccountOpHardwareWalletSigningModal
               signingKeyType={signingKeyType}
               feePayerKeyType={feePayerKeyType}
+              hasWarningToPromptBeforeSign={!!warningToPromptBeforeSign}
               broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
               signAccountOpStatusType={signAccountOpState?.status?.type}
             />
