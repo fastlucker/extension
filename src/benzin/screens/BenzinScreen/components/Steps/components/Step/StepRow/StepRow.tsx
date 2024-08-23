@@ -35,6 +35,7 @@ const StepRow: FC<StepRowProps> = ({ label, value, isValueSmall, error }) => (
         error ? 'errorText' : IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'secondaryText' : 'primaryText'
       }
       fontSize={!isValueSmall || !IS_MOBILE_UP_BENZIN_BREAKPOINT ? 14 : 12}
+      selectable
     >
       {value === 'loading' ? <Spinner style={{ width: 18, height: 18 }} /> : value}
     </Text>
