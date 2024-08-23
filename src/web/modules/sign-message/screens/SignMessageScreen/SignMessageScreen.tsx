@@ -82,10 +82,16 @@ const SignMessageScreen = () => {
   )
 
   const network = useMemo(
-    () => networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
-    [networks, signMessageState.messageToSign?.networkId]
+    () =>
+      networks.find((n) => {
+        return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
+          signMessageState.messageToSign?.content.domain.chainId
+          ? n.chainId.toLocaleString() ===
+              signMessageState.messageToSign?.content.domain.chainId.toLocaleString()
+          : n.id === signMessageState.messageToSign?.networkId
+      }),
+    [networks, signMessageState.messageToSign]
   )
-
   const isViewOnly = useMemo(
     () => selectedAccountKeyStoreKeys.length === 0,
     [selectedAccountKeyStoreKeys.length]
