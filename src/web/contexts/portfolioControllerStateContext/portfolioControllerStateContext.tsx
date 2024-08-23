@@ -21,7 +21,7 @@ export interface AccountPortfolio {
   collections: CollectionResultInterface[]
   totalAmount: number
   isAllReady: boolean
-  portfolioNonces: { [networkId: string]: bigint }
+  simulationNonces: { [networkId: string]: bigint }
   tokenAmounts: {
     latestAmount: bigint
     pendingAmount: bigint
@@ -35,7 +35,7 @@ const DEFAULT_ACCOUNT_PORTFOLIO = {
   collections: [],
   totalAmount: 0,
   isAllReady: false,
-  portfolioNonces: {},
+  simulationNonces: {},
   tokenAmounts: []
 }
 

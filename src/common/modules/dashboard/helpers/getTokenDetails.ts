@@ -2,6 +2,7 @@ import { formatUnits } from 'ethers'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { calculatePendingAmounts } from '@ambire-common/libs/portfolio/pendingAmountsHelper'
 import formatDecimals from '@common/utils/formatDecimals'
 
 // TODO: Determining the token's pending state (pending-to-be-signed or pending-to-be-confirmed) is quite complex,
@@ -72,6 +73,31 @@ const getPendingAmounts = (
 
   return result
 }
+
+const formatPendingAmounts = (pendingAmounts, decimals) => {
+  return {
+    ...pendingAmounts,
+    pendingBalanceFormatted: formatDecimals(pendingAmounts.pendingBalance, 'amount'),
+    pendingBalanceUSDFormatted: formatDecimals(pendingAmounts.pendingBalanceUSD, 'value'),
+    ...(pendingAmounts.pendingToBeSigned
+      ? {
+          pendingToBeSignedFormatted: formatDecimals(
+            parseFloat(formatUnits(pendingAmounts.pendingToBeSigned, decimals)),
+            'amount'
+          )
+        }
+      : {}),
+    ...(pendingAmounts.pendingToBeConfirmed
+      ? {
+          pendingToBeConfirmedFormatted: formatDecimals(
+            parseFloat(formatUnits(pendingAmounts.pendingToBeConfirmed, decimals)),
+            'amount'
+          )
+        }
+      : {})
+  }
+}
+
 const getTokenDetails = (
   {
     flags: { rewardsType },
@@ -105,9 +131,9 @@ const getTokenDetails = (
   )?.price
   const balanceUSD = priceUSD ? balance * priceUSD : undefined
 
-  const pendingAmounts =
-    tokenAmаount?.latestAmount && tokenAmаount?.pendingAmount
-      ? getPendingAmounts(
+  const pendingAmounts = tokenAmаount?.address
+    ? formatPendingAmounts(
+        calculatePendingAmounts(
           tokenAmаount?.latestAmount,
           tokenAmаount?.pendingAmount,
           priceUSD!,
@@ -116,13 +142,15 @@ const getTokenDetails = (
           simulationAmount,
           lastKnownActivityNonce,
           lastKnownPortfolioNonce
-        )
-      : {}
+        ),
+        decimals
+      )
+    : {}
 
   return {
     balance,
     balanceFormatted: formatDecimals(balance, 'amount'),
-    balanceLatest,
+    balanceLatestFormatted: formatDecimals(balanceLatest, 'amount'),
     priceUSD,
     priceUSDFormatted: formatDecimals(priceUSD, 'price'),
     balanceUSD,

@@ -64,7 +64,7 @@ const TokenItem = ({
     [accounts, selectedAccount]
   )
 
-  const pendingLastKnownNonce = accountPortfolio?.portfolioNonces[token.networkId]
+  const pendingLastKnownNonce = accountPortfolio?.simulationNonces[token.networkId]
   const activityNonce = activityState?.lastKnownNonce[token.networkId]
   const tokenAmounts = accountPortfolio?.tokenAmounts.find(
     (tokenAmount) =>
