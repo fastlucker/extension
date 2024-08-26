@@ -106,23 +106,23 @@ const Alert: FC<Props> = ({
               {text}
             </Text>
           )}
+          {buttonProps && (
+            <Button
+              style={{
+                alignSelf: 'flex-end',
+                ...spacings.mtTy
+              }}
+              textStyle={type === 'error' && { fontSize: 14 }}
+              size="small"
+              type="primary"
+              hasBottomSpacing={false}
+              text={buttonProps.text}
+              onPress={buttonProps.onPress}
+            />
+          )}
           {children}
         </View>
       </View>
-      {buttonProps && (
-        <Button
-          style={{
-            alignSelf: 'center',
-            ...spacings.mtTy
-          }}
-          textStyle={type === 'error' ? {} : { fontSize: 14 }}
-          size={type === 'error' ? 'regular' : 'small'}
-          type="primary"
-          hasBottomSpacing={false}
-          text={buttonProps.text}
-          onPress={buttonProps.onPress}
-        />
-      )}
     </View>
   )
 }
