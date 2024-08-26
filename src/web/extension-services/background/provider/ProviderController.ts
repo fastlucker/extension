@@ -7,7 +7,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import bundler from '@ambire-common/services/bundlers'
+import { isIdentifiedByTxn, pollTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { APP_VERSION } from '@common/config/env'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
@@ -120,26 +120,25 @@ export class ProviderController {
     const { session } = request
     const { requestRes } = cloneDeep(request)
 
-    if (requestRes?.hash) {
-      // @erc4337
-      // check if the request is erc4337
-      // if it is, the received requestRes?.hash is an userOperationHash
-      // Call the bundler to receive the transaction hash needed by the dapp
-      let hash = requestRes?.hash
-      if (requestRes?.isUserOp) {
-        const dappNetwork = this.getDappNetwork(session.origin)
-        const network = this.mainCtrl.networks.networks.filter(
-          (net) => net.id === dappNetwork.id
-        )[0]
-        hash = (await bundler.pollTxnHash(hash, network)).transactionHash
-        if (!hash) throw new Error('Transaction failed!')
-      }
+    if (requestRes?.submittedAccountOp) {
+      const dappNetwork = this.getDappNetwork(session.origin)
+      const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
+      const txnId = await pollTxnId(
+        requestRes.submittedAccountOp,
+        network,
+        this.mainCtrl.fetch,
+        this.mainCtrl.callRelayer
+      )
+      if (!txnId) throw new Error('Transaction failed!')
 
       // delay just for better UX
       // when the action-window is closed and the user views the dapp, we wait for the user
       // to see the actual update in the dapp's UI once the request is resolved.
-      await delayPromise(400)
-      return hash
+      //
+      // do this only if we don't have to fetch the txnId
+      if (isIdentifiedByTxn(requestRes.submittedAccountOp.identifiedBy)) await delayPromise(400)
+
+      return txnId
     }
 
     throw new Error('Transaction failed!')
