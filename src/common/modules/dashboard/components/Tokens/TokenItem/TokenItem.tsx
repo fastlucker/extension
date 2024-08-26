@@ -70,11 +70,15 @@ const TokenItem = ({
 
   const pendingLastKnownNonce = accountPortfolio!.simulationNonces[token.networkId]
   const activityNonce = activityState?.lastKnownNonce[token.networkId]
-  const tokenAmounts = accountPortfolio!.tokenAmounts.find(
-    (tokenAmount) =>
-      tokenAmount.address === token.address &&
-      tokenAmount.networkId === token.networkId &&
-      !token.flags.onGasTank
+  const tokenAmounts = useMemo(
+    () =>
+      accountPortfolio!.tokenAmounts.find(
+        (tokenAmount) =>
+          tokenAmount.address === token.address &&
+          tokenAmount.networkId === token.networkId &&
+          !token.flags.onGasTank
+      ),
+    [accountPortfolio!.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
   )
 
   const {
