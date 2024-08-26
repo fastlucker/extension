@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useModalize } from 'react-native-modalize'
 
@@ -35,13 +35,13 @@ const AddNetworkBottomSheet = ({ sheetRef, closeBottomSheet }: Props) => {
       </Text>
       <Option
         renderIcon={<ChainlistIcon width={23} height={32} color={theme.secondaryText} />}
-        title="Go to Chainlist"
-        text="Add any EVM network"
+        title={t('Go to Chainlist')}
+        text={t('Add any EVM network')}
         onPress={() => openInTab('https://chainlist.org/')}
       />
       <Option
         renderIcon={<SettingsIcon width={20} height={20} color={theme.secondaryText} />}
-        title="Go to Settings"
+        title={t('Go to Settings')}
         onPress={() => {
           navigate(WEB_ROUTES.networksSettings)
         }}
@@ -50,4 +50,4 @@ const AddNetworkBottomSheet = ({ sheetRef, closeBottomSheet }: Props) => {
   )
 }
 
-export default AddNetworkBottomSheet
+export default memo(AddNetworkBottomSheet)
