@@ -73,8 +73,10 @@ const TransferScreen = () => {
   )
 
   const transactionUserRequests = useMemo(() => {
-    return userRequests.filter((r) => r.action.kind === 'calls')
-  }, [userRequests])
+    return userRequests.filter(
+      (r) => r.action.kind === 'calls' && r.meta.accountAddr === selectedAccount
+    )
+  }, [selectedAccount, userRequests])
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {

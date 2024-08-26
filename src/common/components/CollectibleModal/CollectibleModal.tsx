@@ -42,7 +42,6 @@ const CollectibleModal = ({
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
-  const renderFallbackImage = !selectedCollectible?.image
   const { networks } = useNetworksControllerState()
 
   const ModalInner = useCallback(() => {
@@ -87,6 +86,7 @@ const CollectibleModal = ({
             weight="medium"
             style={[spacings.mrMi]}
             numberOfLines={1}
+            selectable
           >
             {name || 'Unknown Name'}
           </Text>
@@ -134,9 +134,9 @@ const CollectibleModal = ({
     )
   }, [
     networks,
-    renderFallbackImage,
     selectedCollectible,
     styles.image,
+    styles.imageContainer,
     t,
     theme.primaryBackground,
     theme.primaryText,
