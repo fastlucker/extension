@@ -23,7 +23,7 @@ const getStyles = (theme: ThemeProps) =>
     element: {
       fontSize: 14,
       ...spacings.pvMi,
-      ...spacings.phMi,
+      ...spacings.phTy,
       color: theme.secondaryText,
       borderRadius: BORDER_RADIUS_PRIMARY
     },
@@ -31,7 +31,6 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       color: theme.primaryText,
       shadowColor: theme.tertiaryText,
-      ...spacings.phTy,
       shadowRadius: 4
     }
   })

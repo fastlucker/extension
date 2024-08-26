@@ -255,7 +255,7 @@ const SignMessageScreen = () => {
           {t('Sign message')}
         </Text>
         <View style={styles.container}>
-          <View style={styles.leftSideContainer}>
+          <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
             <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />

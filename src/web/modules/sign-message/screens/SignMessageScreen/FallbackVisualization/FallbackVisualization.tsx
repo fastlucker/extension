@@ -10,6 +10,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { getMessageAsText, simplifyTypedMessage } from '@common/utils/messageToString'
 
 import getStyles from './styles'
@@ -72,9 +73,9 @@ const FallbackVisualization: FC<{
             JSON.stringify(content, null, 4)}
           {content.kind === 'typedMessage' &&
             !showRawTypedMessage &&
-            simplifyTypedMessage(content.message).map((i) => (
-              <div key={JSON.stringify(i)}>
-                <Text style={i.type === 'key' ? { fontWeight: 'bold' } : {}}>
+            simplifyTypedMessage(content.message).map((i, index: number) => (
+              <div style={index < 2 ? { maxWidth: '75%' } : {}} key={JSON.stringify(i)}>
+                <Text style={[i.type === 'key' && { fontWeight: 'bold' }]}>
                   {'    '.repeat(i.n)}
                   {isValidAddress(i.value) ? <Address address={i.value} /> : i.value}
                 </Text>

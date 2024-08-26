@@ -35,7 +35,7 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
           style={styles.kindOfMessageText}
           numberOfLines={1}
         >
-          {kindOfMessage === 'typedMessage' ? 'EIP-712 ' : 'Standard '}
+          {t(kindOfMessage === 'typedMessage' ? 'EIP-712' : 'Standard')}
           {t('Type')}
         </Text>
         <InfoIcon width={18} height={18} color={theme.infoDecorative as string} />
@@ -48,8 +48,8 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
     <View style={[styles.container, maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd]}>
       {(!messageToSign || messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
         <>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
-            <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
+          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd, flexbox.wrap]}>
+            <Image source={{ uri: dapp?.icon }} style={[styles.image]} resizeMode="contain" />
             <View>
               <Text
                 fontSize={maxWidthSize('xl') ? 20 : 16}
