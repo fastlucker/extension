@@ -200,8 +200,6 @@ handleRegisterScripts()
 
   const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
   const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
-  // TODO: We previously discussed pausing the interval if there's a BroadcastedButNotConfirmed AccOp,
-  // but with the current implementation, it seems this pause is no longer necessary.
   async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
