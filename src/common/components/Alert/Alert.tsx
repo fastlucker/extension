@@ -59,6 +59,7 @@ const Alert: FC<Props> = ({
       style={[
         !isSmall ? spacings.ph : spacings.phSm,
         !isSmall ? spacings.pv : spacings.pvSm,
+        flexbox.directionRow,
         common.borderRadiusPrimary,
         {
           borderWidth: 1,
@@ -68,60 +69,58 @@ const Alert: FC<Props> = ({
         style
       ]}
     >
-      <View style={flexbox.directionRow}>
-        <View style={[!isSmall && spacings.mr, !!isSmall && spacings.mrTy]}>
-          {CustomIcon ? (
-            <CustomIcon />
-          ) : (
-            <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
-          )}
-        </View>
+      <View style={[!isSmall && spacings.mr, !!isSmall && spacings.mrTy]}>
+        {CustomIcon ? (
+          <CustomIcon />
+        ) : (
+          <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
+        )}
+      </View>
 
-        <View style={flexbox.flex1}>
-          {!!title && (
-            <Text style={text ? spacings.mbTy : {}}>
-              {!isTypeLabelHidden && (
-                <Text
-                  selectable
-                  appearance={`${type}Text`}
-                  fontSize={fontSize}
-                  weight={titleWeight || 'semiBold'}
-                  style={{ textTransform: 'capitalize' }}
-                >
-                  {type}:{' '}
-                </Text>
-              )}
+      <View style={flexbox.flex1}>
+        {!!title && (
+          <Text style={text ? spacings.mbTy : {}}>
+            {!isTypeLabelHidden && (
               <Text
                 selectable
                 appearance={`${type}Text`}
                 fontSize={fontSize}
                 weight={titleWeight || 'semiBold'}
+                style={{ textTransform: 'capitalize' }}
               >
-                {title}
+                {type}:{' '}
               </Text>
+            )}
+            <Text
+              selectable
+              appearance={`${type}Text`}
+              fontSize={fontSize}
+              weight={titleWeight || 'semiBold'}
+            >
+              {title}
             </Text>
-          )}
-          {!!text && (
-            <Text selectable fontSize={fontSize - 2} weight="regular" appearance={`${type}Text`}>
-              {text}
-            </Text>
-          )}
-          {buttonProps && (
-            <Button
-              style={{
-                alignSelf: 'flex-end',
-                ...spacings.mtTy
-              }}
-              textStyle={type === 'error' && { fontSize: 14 }}
-              size="small"
-              type="primary"
-              hasBottomSpacing={false}
-              text={buttonProps.text}
-              onPress={buttonProps.onPress}
-            />
-          )}
-          {children}
-        </View>
+          </Text>
+        )}
+        {!!text && (
+          <Text selectable fontSize={fontSize - 2} weight="regular" appearance={`${type}Text`}>
+            {text}
+          </Text>
+        )}
+        {buttonProps && (
+          <Button
+            style={{
+              alignSelf: 'flex-end',
+              ...spacings.mtTy
+            }}
+            textStyle={type === 'error' && { fontSize: 14 }}
+            size="small"
+            type="primary"
+            hasBottomSpacing={false}
+            text={buttonProps.text}
+            onPress={buttonProps.onPress}
+          />
+        )}
+        {children}
       </View>
     </View>
   )
