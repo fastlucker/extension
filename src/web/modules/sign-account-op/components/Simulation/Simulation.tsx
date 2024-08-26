@@ -290,7 +290,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
       {simulationView === 'error-handled-elsewhere' && (
         <Alert
           type="info"
-          title={t('The simulation could not be completed because of the transaction error.')}
+          title={t('The simulation could not be completed because of the transaction problem.')}
         />
       )}
 
