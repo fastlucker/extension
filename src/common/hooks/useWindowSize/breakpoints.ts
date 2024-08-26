@@ -10,4 +10,14 @@ const breakpointsByWindowWidth = {
   xxxl: 1900
 }
 
-export { breakpointsByWindowWidth }
+const breakpointsByWindowHeight = {
+  xs: 500,
+  s: 600,
+  m: 700,
+  l: 800,
+  xl: 900,
+  xxl: 1000,
+  xxxl: 1100
+}
+
+export { breakpointsByWindowWidth, breakpointsByWindowHeight }
