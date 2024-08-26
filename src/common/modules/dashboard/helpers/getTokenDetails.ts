@@ -8,7 +8,9 @@ import {
 } from '@ambire-common/libs/portfolio/pendingAmountsHelper'
 import formatDecimals from '@common/utils/formatDecimals'
 
-const formatPendingAmounts = (pendingAmounts: PendingAmounts, decimals: number) => {
+const formatPendingAmounts = (pendingAmounts: PendingAmounts | undefined, decimals: number) => {
+  if (!pendingAmounts) return undefined
+
   return {
     ...pendingAmounts,
     pendingBalanceFormatted: formatDecimals(pendingAmounts.pendingBalance, 'amount'),
@@ -43,14 +45,14 @@ const getTokenDetails = (
     simulationAmount
   }: TokenResult,
   networks: Network[],
-  lastKnownActivityNonce?: bigint,
-  lastKnownPortfolioNonce?: bigint,
   tokenAmounts?: {
     latestAmount: bigint
     pendingAmount: bigint
     address: string
     networkId: string
-  }
+  },
+  lastKnownActivityNonce?: bigint,
+  lastKnownPortfolioNonce?: bigint
 ) => {
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'
@@ -65,24 +67,21 @@ const getTokenDetails = (
   )?.price
   const balanceUSD = priceUSD ? balance * priceUSD : undefined
 
-  let pendingAmountsFormatted = {}
-
-  if (tokenAmounts?.address) {
-    const pendingAmounts = calculatePendingAmounts(
-      tokenAmounts?.latestAmount,
-      tokenAmounts?.pendingAmount,
-      priceUSD!,
-      decimals,
-      amountPostSimulation,
-      simulationAmount,
-      lastKnownActivityNonce,
-      lastKnownPortfolioNonce
-    )
-
-    if (pendingAmounts) {
-      pendingAmountsFormatted = formatPendingAmounts(pendingAmounts, decimals)
-    }
-  }
+  const pendingAmountsFormatted = formatPendingAmounts(
+    tokenAmounts?.latestAmount
+      ? calculatePendingAmounts(
+          tokenAmounts?.latestAmount,
+          tokenAmounts?.pendingAmount,
+          priceUSD!,
+          decimals,
+          amountPostSimulation,
+          simulationAmount,
+          lastKnownActivityNonce,
+          lastKnownPortfolioNonce
+        )
+      : undefined,
+    decimals
+  )
 
   return {
     balance,

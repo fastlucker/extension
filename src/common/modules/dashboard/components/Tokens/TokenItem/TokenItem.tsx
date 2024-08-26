@@ -40,7 +40,8 @@ const TokenItem = ({
   tokenPreferences: CustomToken[]
   testID?: string
 }) => {
-  const { accountPortfolio, claimWalletRewards, claimEarlySupportersVesting } = usePortfolioControllerState()
+  const { accountPortfolio, claimWalletRewards, claimEarlySupportersVesting } =
+    usePortfolioControllerState()
   const {
     symbol,
     address,
@@ -67,9 +68,9 @@ const TokenItem = ({
     [accounts, selectedAccount]
   )
 
-  const pendingLastKnownNonce = accountPortfolio?.simulationNonces[token.networkId]
+  const pendingLastKnownNonce = accountPortfolio!.simulationNonces[token.networkId]
   const activityNonce = activityState?.lastKnownNonce[token.networkId]
-  const tokenAmounts = accountPortfolio?.tokenAmounts.find(
+  const tokenAmounts = accountPortfolio!.tokenAmounts.find(
     (tokenAmount) =>
       tokenAmount.address === token.address &&
       tokenAmount.networkId === token.networkId &&
@@ -85,6 +86,7 @@ const TokenItem = ({
     isVesting,
     networkData,
     isRewards,
+    isPending: hasPendingBadges,
     pendingBalance,
     pendingBalanceFormatted,
     pendingBalanceUSDFormatted,
@@ -92,13 +94,13 @@ const TokenItem = ({
     pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getTokenDetails(token, networks, activityNonce, pendingLastKnownNonce, tokenAmounts)
+  } = getTokenDetails(token, networks, tokenAmounts, activityNonce, pendingLastKnownNonce)
 
-  // By design we should simulate only for SA on the DashboardScreen
+  // By design, we should simulate only for SA on the DashboardScreen
   const isPending = useMemo(() => {
     if (!isSmartAccount(account)) return false
 
-    return !!pendingBalance
+    return !!hasPendingBadges
   }, [account, token.amount, token.amountPostSimulation])
 
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
@@ -216,7 +218,7 @@ const TokenItem = ({
         {isPending && (
           <View style={[{ marginLeft: SPACING_2XL + SPACING_TY }, spacings.mtSm]}>
             <View>
-              {pendingToBeSigned && (
+              {!!pendingToBeSigned && !!pendingToBeSignedFormatted && (
                 <PendingBadge
                   amount={pendingToBeSigned}
                   amountFormatted={pendingToBeSignedFormatted}
@@ -226,7 +228,7 @@ const TokenItem = ({
                   Icon={CartIcon}
                 />
               )}
-              {pendingToBeConfirmed && (
+              {!!pendingToBeConfirmed && !!pendingToBeConfirmedFormatted && (
                 <PendingBadge
                   amount={pendingToBeConfirmed}
                   amountFormatted={pendingToBeConfirmedFormatted}
