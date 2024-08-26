@@ -335,64 +335,6 @@ const Estimation = ({
       {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
       {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
       {/* </View> */}
-      {isFeePaidByEOA && (
-        <Alert
-          size="sm"
-          text={t(
-            'You’ve opt in to pay the transaction with Basic account, the signing process would require 2 signatures - one by the smart account and one by the Basic account, that would broadcast the transaction.'
-          )}
-          style={spacings.mbSm}
-        />
-      )}
-      {feeSpeeds.length > 0 && (
-        <View style={[spacings.mbMd]}>
-          <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
-            {t('Transaction speed')}
-          </Text>
-          <View
-            style={[
-              flexbox.wrap,
-              flexbox.flex1,
-              flexbox.directionRow,
-              disabled && { opacity: 0.6 },
-              minWidthSize('xxl') && { margin: -SPACING_MI }
-            ]}
-          >
-            {feeSpeeds.map((fee) => (
-              <Fee
-                disabled={disabled || fee.disabled}
-                key={fee.amount + fee.type}
-                label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
-                type={fee.type}
-                amountUsd={parseFloat(fee.amountUsd)}
-                onPress={onFeeSelect}
-                isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
-              />
-            ))}
-            {/* TODO: <CustomFee onPress={() => {}} /> */}
-          </View>
-        </View>
-      )}
-      {!!selectedFee && !!payValue && (
-        <AmountInfo
-          label="Fee"
-          amountFormatted={formatDecimals(parseFloat(selectedFee.amountFormatted))}
-          symbol={payValue.token?.symbol}
-        />
-      )}
-      {!!signAccountOpState.gasSavedUSD && (
-        <AmountInfo.Wrapper>
-          <AmountInfo.Label appearance="primary">{t('Gas Tank saves you')}</AmountInfo.Label>
-          <AmountInfo.Text appearance="primary" selectable>
-            {formatDecimals(signAccountOpState.gasSavedUSD, 'price')} USD
-          </AmountInfo.Text>
-        </AmountInfo.Wrapper>
-      )}
-      {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
-      {/* <View style={styles.gasTankContainer}> */}
-      {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
-      {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
-      {/* </View> */}
       <Warnings
         hasEstimation={hasEstimation}
         slowRequest={slowRequest}
