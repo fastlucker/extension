@@ -241,7 +241,7 @@ const Estimation = ({
     return (
       <EstimationWrapper>
         {!estimationFailed && <EstimationSkeleton />}
-        {estimationFailed && signAccountOpState?.errors.length && (
+        {estimationFailed && (
           <Alert
             type="info"
             title={t('The estimation could not be completed because of the transaction problem.')}
