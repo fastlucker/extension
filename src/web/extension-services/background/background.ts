@@ -637,8 +637,8 @@ handleRegisterScripts()
               case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
                 return await mainCtrl.networks.setNetworkToAddOrUpdate(null)
               }
-              case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
-                return await mainCtrl.settings.addKeyPreferences(params)
+              case 'KEYSTORE_CONTROLLER_UPDATE_KEY_PREFERENCES': {
+                return await mainCtrl.keystore.updateKeyPreferences(params)
               }
               case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
                 return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
