@@ -75,7 +75,7 @@ const getTokenDetails = (
   const balanceUSD = priceUSD ? balance * priceUSD : undefined
 
   const pendingAmountsFormatted = formatPendingAmounts(
-    tokenAmounts?.latestAmount
+    tokenAmounts?.address
       ? calculatePendingAmounts(
           tokenAmounts?.latestAmount,
           tokenAmounts?.pendingAmount,
