@@ -47,6 +47,7 @@ const SignAccountOpScreen = () => {
   const { networks } = useNetworksControllerState()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const [isLedgerConnectModalVisible, setIsLedgerConnectModalVisible] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
@@ -84,6 +85,7 @@ const SignAccountOpScreen = () => {
 
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
+    signAccountOpState?.status?.type === SigningStatus.UpdatesPaused ||
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
@@ -206,8 +208,8 @@ const SignAccountOpScreen = () => {
   )
 
   const handleDismissLedgerConnectModal = useCallback(() => {
-    updateControllerSigningStatus(SigningStatus.ReadyToSign)
-  }, [updateControllerSigningStatus])
+    setIsLedgerConnectModalVisible(false)
+  }, [])
 
   const warningToPromptBeforeSign = useMemo(
     () =>
@@ -226,13 +228,13 @@ const SignAccountOpScreen = () => {
         : isAtLeastOneOfTheKeysInvolvedLedger
 
       if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) {
-        updateControllerSigningStatus(SigningStatus.InProgress)
+        setIsLedgerConnectModalVisible(true)
         return
       }
 
       if (warningToPromptBeforeSign) {
         openWarningAgreementModal()
-        updateControllerSigningStatus(SigningStatus.InProgress)
+        updateControllerSigningStatus(SigningStatus.UpdatesPaused)
         return
       }
       dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP' })
@@ -278,11 +280,10 @@ const SignAccountOpScreen = () => {
 
   const acknowledgeWarning = useCallback(() => {
     if (!warningToPromptBeforeSign) return
-    updateControllerSigningStatus(SigningStatus.ReadyToSign)
 
     setAcknowledgedWarnings((prev) => [...prev, warningToPromptBeforeSign.id])
     closeWarningAgreementModal()
-  }, [warningToPromptBeforeSign, updateControllerSigningStatus, closeWarningAgreementModal])
+  }, [warningToPromptBeforeSign, closeWarningAgreementModal])
 
   useEffect(() => {
     // If the warning to prompt is acknowledged, proceed with the sign
@@ -292,6 +293,12 @@ const SignAccountOpScreen = () => {
       handleSign()
     }
   }, [handleSign, prevWarningToPromptBeforeSign, warningToPromptBeforeSign])
+
+  useEffect(() => {
+    if (isLedgerConnectModalVisible && isLedgerConnected) {
+      handleDismissLedgerConnectModal()
+    }
+  }, [handleDismissLedgerConnectModal, isLedgerConnectModalVisible, isLedgerConnected])
 
   const dismissWarning = useCallback(() => {
     updateControllerSigningStatus(SigningStatus.ReadyToSign)
@@ -303,6 +310,26 @@ const SignAccountOpScreen = () => {
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
     [signAccountOpState?.accountKeyStoreKeys]
   )
+
+  const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
+    useMemo(() => {
+      if (isAtLeastOneOfTheKeysInvolvedLedger && !isLedgerConnected) return 'ledger-connect'
+      if (warningToPromptBeforeSign) return 'warnings'
+
+      const isAtLeastOneOfTheKeysInvolvedExternal =
+        (!!signingKeyType && signingKeyType !== 'internal') ||
+        (!!feePayerKeyType && feePayerKeyType !== 'internal')
+
+      if (isAtLeastOneOfTheKeysInvolvedExternal) return 'hw-sign'
+
+      return null
+    }, [
+      feePayerKeyType,
+      isAtLeastOneOfTheKeysInvolvedLedger,
+      isLedgerConnected,
+      signingKeyType,
+      warningToPromptBeforeSign
+    ])
 
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
@@ -319,23 +346,25 @@ const SignAccountOpScreen = () => {
 
   return (
     <>
-      <BottomSheet
-        id="dual-choice"
-        closeBottomSheet={dismissWarning}
-        sheetRef={warningAgreementModalRef}
-        style={styles.warningsModal}
-      >
-        {warningToPromptBeforeSign && (
-          <DualChoiceWarningModal
-            title={t(warningToPromptBeforeSign.title)}
-            description={t(warningToPromptBeforeSign.text)}
-            primaryButtonText={t('Proceed')}
-            secondaryButtonText={t('Cancel')}
-            onPrimaryButtonPress={acknowledgeWarning}
-            onSecondaryButtonPress={dismissWarning}
-          />
-        )}
-      </BottomSheet>
+      {renderedButNotNecessarilyVisibleModal === 'warnings' && (
+        <BottomSheet
+          id="dual-choice"
+          closeBottomSheet={dismissWarning}
+          sheetRef={warningAgreementModalRef}
+          style={styles.warningsModal}
+        >
+          {warningToPromptBeforeSign && (
+            <DualChoiceWarningModal
+              title={t(warningToPromptBeforeSign.title)}
+              description={t(warningToPromptBeforeSign.text)}
+              primaryButtonText={t('Proceed')}
+              secondaryButtonText={t('Cancel')}
+              onPrimaryButtonPress={acknowledgeWarning}
+              onSecondaryButtonPress={dismissWarning}
+            />
+          )}
+        </BottomSheet>
+      )}
       <SafetyChecksOverlay
         shouldBeVisible={!signAccountOpState?.estimation || !signAccountOpState?.isInitialized}
       />
@@ -395,22 +424,23 @@ const SignAccountOpScreen = () => {
               isViewOnly={isViewOnly}
             />
 
-            <SignAccountOpHardwareWalletSigningModal
-              signingKeyType={signingKeyType}
-              feePayerKeyType={feePayerKeyType}
-              hasWarningToPromptBeforeSign={!!warningToPromptBeforeSign}
-              broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
-              signAccountOpStatusType={signAccountOpState?.status?.type}
-            />
-            {isAtLeastOneOfTheKeysInvolvedLedger &&
-              signAccountOpState?.status?.type === SigningStatus.InProgress && (
-                <LedgerConnectModal
-                  isVisible={!isLedgerConnected}
-                  handleOnConnect={handleDismissLedgerConnectModal}
-                  handleClose={handleDismissLedgerConnectModal}
-                  displayOptionToAuthorize={false}
-                />
-              )}
+            {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
+              <SignAccountOpHardwareWalletSigningModal
+                signingKeyType={signingKeyType}
+                feePayerKeyType={feePayerKeyType}
+                hasWarningToPromptBeforeSign={!!warningToPromptBeforeSign}
+                broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
+                signAccountOpStatusType={signAccountOpState?.status?.type}
+              />
+            )}
+
+            {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
+              <LedgerConnectModal
+                isVisible={isLedgerConnectModalVisible}
+                handleClose={handleDismissLedgerConnectModal}
+                displayOptionToAuthorize={false}
+              />
+            )}
           </View>
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>

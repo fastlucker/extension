@@ -21,17 +21,8 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   signAccountOpStatusType,
   hasWarningToPromptBeforeSign
 }: Props) => {
-  const shouldRender = useMemo(() => {
-    const isAtLeastOneOfTheKeysInvolvedExternal =
-      (!!signingKeyType && signingKeyType !== 'internal') ||
-      (!!feePayerKeyType && feePayerKeyType !== 'internal')
-
-    return isAtLeastOneOfTheKeysInvolvedExternal
-  }, [signingKeyType, feePayerKeyType])
-
   const shouldBeVisible = useMemo(() => {
-    if (hasWarningToPromptBeforeSign || signAccountOpStatusType !== SigningStatus.InProgress)
-      return false
+    if (hasWarningToPromptBeforeSign) return false
 
     const isCurrentlyBroadcastingWithExternalKey =
       broadcastSignedAccountOpStatus === 'LOADING' &&
@@ -56,7 +47,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
     [feePayerKeyType, signAccountOpStatusType, signingKeyType]
   )
 
-  if (!shouldRender || !currentlyInvolvedSignOrBroadcastKeyType) return null
+  if (!currentlyInvolvedSignOrBroadcastKeyType) return null
 
   return (
     <HardwareWalletSigningModal
