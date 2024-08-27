@@ -224,7 +224,7 @@ export class ProviderController {
     this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
-        chain: toBeHex(network.chainId),
+        chain: `0x${network.chainId.toString(16)}`,
         networkVersion: `${network.chainId}`
       },
       origin
@@ -285,7 +285,7 @@ export class ProviderController {
     this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
-        chain: toBeHex(network.chainId),
+        chain: `0x${network.chainId.toString(16)}`,
         networkVersion: `${network.chainId}`
       },
       origin
