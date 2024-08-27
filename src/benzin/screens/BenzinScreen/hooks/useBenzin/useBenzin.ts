@@ -140,13 +140,14 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   }, [network, stepsState.finalizedStatus?.status])
 
   const showOpenExplorerBtn = useMemo(() => {
-    if (!network) return true
+    if (!network) return false
+    if (relayerId && !stepsState.txnId) return false
 
     const isRejected = stepsState.finalizedStatus?.status === 'rejected'
     return !isRejected
-  }, [network, stepsState.finalizedStatus?.status])
+  }, [network, stepsState.finalizedStatus?.status, relayerId, stepsState.txnId])
 
-  if (!chainId || (!txnId && !userOpHash)) return null
+  if (!chainId || (!txnId && !userOpHash && !relayerId)) return null
 
   return {
     activeStep,

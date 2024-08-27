@@ -15,7 +15,11 @@ import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
 import { Storage } from '@ambire-common/interfaces/storage'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import {
+  AccountOpIdentifiedBy,
+  fetchTxnId,
+  isIdentifiedByTxn
+} from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
@@ -30,9 +34,7 @@ import { isExtension } from '@web/constants/browserapi'
 import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
-const REFETCH_TXN_TIME = 4000 // 4 seconds
-const REFETCH_RECEIPT_TIME = 5000 // 5 seconds
-const REFETCH_USER_OP = 3000 // 3 seconds
+const REFETCH_TIME = 4000 // 4 seconds
 
 interface Props {
   txnId: string | null
@@ -105,7 +107,7 @@ const useSteps = ({
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
   })
-  const [refetchUserOpStatusCounter, setRefetchUserOpStatusCounter] = useState<number>(0)
+  const [refetchTxnIdCounter, setRefetchTxnIdCounter] = useState<number>(0)
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
@@ -135,16 +137,12 @@ const useSteps = ({
           setActiveStep('finalized')
           return
         }
-        if (result.status === 'not_found') {
-          if (refetchUserOpStatusCounter > 10) {
-            setFinalizedStatus({ status: 'dropped' })
-            setActiveStep('finalized')
-            return
-          }
 
+        if (result.status === 'not_found') {
           setTimeout(() => {
-            setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
-          }, REFETCH_USER_OP)
+            setRefetchTxnIdCounter(refetchTxnIdCounter + 1)
+          }, REFETCH_TIME)
+          return
         }
 
         const resultTxnId = result.txnId as string
@@ -153,10 +151,15 @@ const useSteps = ({
           setActiveStep('in-progress')
           setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.id)
         }
+
+        // if there's no txn and receipt, keep searching
+        if (!txn && !receiptAlreadyFetched) {
+          setTimeout(() => {
+            setRefetchTxnIdCounter(refetchTxnIdCounter + 1)
+          }, REFETCH_TIME)
+        }
       })
-      .catch((e) => {
-        console.log(e)
-      })
+      .catch((e) => e)
   }, [
     network,
     identifiedBy,
@@ -164,7 +167,7 @@ const useSteps = ({
     standardOptions.callRelayer,
     txnId,
     setActiveStep,
-    refetchUserOpStatusCounter,
+    refetchTxnIdCounter,
     foundTxnId,
     relayerId,
     userOpHash,
@@ -180,23 +183,25 @@ const useSteps = ({
       .getTransaction(foundTxnId)
       .then((fetchedTxn: null | TransactionResponse) => {
         if (!fetchedTxn) {
-          // try to refetch 10 times; if it fails, mark it as dropped
-          if (refetchTxnCounter < 10) {
-            setTimeout(() => {
-              setRefetchTxnCounter(refetchTxnCounter + 1)
-            }, REFETCH_TXN_TIME)
+          // if is EOA broadcast and we can't fetch the txn 15 times,
+          // declare the txn dropped
+          if (isIdentifiedByTxn(identifiedBy) && refetchTxnCounter >= 15) {
+            setFinalizedStatus({ status: 'dropped' })
+            setActiveStep('finalized')
             return
           }
 
-          setFinalizedStatus({ status: 'dropped' })
-          setActiveStep('finalized')
+          // start a refetch
+          setTimeout(() => {
+            setRefetchTxnCounter(refetchTxnCounter + 1)
+          }, REFETCH_TIME)
           return
         }
 
         setTxn(fetchedTxn)
       })
       .catch(() => null)
-  }, [foundTxnId, txn, refetchTxnCounter, setActiveStep, provider])
+  }, [foundTxnId, txn, refetchTxnCounter, setActiveStep, provider, identifiedBy])
 
   useEffect(() => {
     if (receiptAlreadyFetched || !foundTxnId || !provider) return
@@ -207,10 +212,7 @@ const useSteps = ({
         if (!receipt) {
           // if there is a txn but no receipt, it means it is pending
           if (txn) {
-            setTimeout(
-              () => setRefetchReceiptCounter(refetchReceiptCounter + 1),
-              REFETCH_RECEIPT_TIME
-            )
+            setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), REFETCH_TIME)
             setFinalizedStatus({ status: 'fetching' })
             setActiveStep('in-progress')
             return
