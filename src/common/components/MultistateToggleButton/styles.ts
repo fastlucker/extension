@@ -3,6 +3,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
@@ -14,7 +15,7 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...spacings.mrSm,
-      flexDirection: 'row',
+      ...flexbox.directionRow,
       ...spacings.phTy,
       ...spacings.pvTy,
       borderRadius: BORDER_RADIUS_PRIMARY * 2,

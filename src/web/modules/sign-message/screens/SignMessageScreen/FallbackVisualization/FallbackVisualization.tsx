@@ -1,4 +1,4 @@
-import { FC, memo, useEffect, useState } from 'react'
+import { FC, memo, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, ScrollView, View } from 'react-native'
 
@@ -10,7 +10,6 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import { getMessageAsText, simplifyTypedMessage } from '@common/utils/messageToString'
 
 import getStyles from './styles'
@@ -31,6 +30,13 @@ const FallbackVisualization: FC<{
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
   const [showRawTypedMessage, setShowRawTypedMessage] = useState(false)
+  const statesForMultistateButton = useMemo(
+    () => [
+      { text: 'Parsed', callback: () => setShowRawTypedMessage(false) },
+      { text: 'Raw', callback: () => setShowRawTypedMessage(true) }
+    ],
+    []
+  )
   useEffect(() => {
     if (!messageToSign || !containerHeight || !contentHeight) return
     const isScrollNotVisible = contentHeight < containerHeight
@@ -86,13 +92,7 @@ const FallbackVisualization: FC<{
         </Text>
       </ScrollView>
       {content.kind === 'typedMessage' && (
-        <MultistateToggleButton
-          style={styles.toggleButton}
-          states={[
-            { text: 'Parsed', callback: () => setShowRawTypedMessage(false) },
-            { text: 'Raw', callback: () => setShowRawTypedMessage(true) }
-          ]}
-        />
+        <MultistateToggleButton style={styles.toggleButton} states={statesForMultistateButton} />
       )}
     </View>
   )
