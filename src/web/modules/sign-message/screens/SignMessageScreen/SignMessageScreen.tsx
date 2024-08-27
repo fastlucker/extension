@@ -6,13 +6,17 @@ import { StyleSheet, View } from 'react-native'
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
+import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
+import ExpandableCard from '@common/components/ExpandableCard'
+import HumanizedVisualization from '@common/components/HumanizedVisualization'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import textStyles from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
@@ -28,11 +32,12 @@ import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
-import MessageSummary from '@web/modules/sign-message/components/MessageSummary'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
 import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
 import { getUiType } from '@web/utils/uiType'
+
+import getStyles from './styles'
 
 const SignMessageScreen = () => {
   const { t } = useTranslation()
@@ -48,6 +53,8 @@ const SignMessageScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
   const actionState = useActionsControllerState()
+  const { styles } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
 
   const signMessageAction = useMemo(() => {
     if (actionState.currentAction?.type !== 'signMessage') return undefined
@@ -75,10 +82,16 @@ const SignMessageScreen = () => {
   )
 
   const network = useMemo(
-    () => networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
-    [networks, signMessageState.messageToSign?.networkId]
+    () =>
+      networks.find((n) => {
+        return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
+          signMessageState.messageToSign?.content.domain.chainId
+          ? n.chainId.toLocaleString() ===
+              signMessageState.messageToSign?.content.domain.chainId.toLocaleString()
+          : n.id === signMessageState.messageToSign?.networkId
+      }),
+    [networks, signMessageState.messageToSign]
   )
-
   const isViewOnly = useMemo(
     () => selectedAccountKeyStoreKeys.length === 0,
     [selectedAccountKeyStoreKeys.length]
@@ -86,25 +99,21 @@ const SignMessageScreen = () => {
 
   const visualizeHumanized = useMemo(
     () =>
-      signMessageState.humanReadable !== null &&
+      signMessageState.humanReadable?.fullVisualization &&
       network &&
       signMessageState.messageToSign?.content.kind,
     [network, signMessageState.humanReadable, signMessageState.messageToSign?.content?.kind]
   )
 
   const isScrollToBottomForced = useMemo(
-    () =>
-      signMessageState.messageToSign?.content.kind === 'typedMessage' &&
-      typeof hasReachedBottom === 'boolean' &&
-      !hasReachedBottom &&
-      !visualizeHumanized,
-    [hasReachedBottom, signMessageState.messageToSign?.content.kind, visualizeHumanized]
+    () => typeof hasReachedBottom === 'boolean' && !hasReachedBottom && !visualizeHumanized,
+    [hasReachedBottom, visualizeHumanized]
   )
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShouldShowFallback(true)
-    }, 1500)
+    }, 500)
     return () => clearTimeout(timer)
   })
 
@@ -242,41 +251,64 @@ const SignMessageScreen = () => {
         handleClose={() => setIsChooseSignerShown(false)}
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
-        <View style={flexbox.flex1}>
-          <Text weight="medium" fontSize={20} style={[spacings.mbLg, textStyles.center]}>
-            {t('Sign message')}
-          </Text>
-          <Info
-            kindOfMessage={signMessageState.messageToSign?.content.kind}
-            isViewOnly={isViewOnly}
-          />
-          {visualizeHumanized &&
-          // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
-          signMessageState.humanReadable &&
-          signMessageState.messageToSign?.content.kind ? (
-            <MessageSummary
-              message={signMessageState.humanReadable}
-              networkId={network?.id}
-              kind={signMessageState.messageToSign?.content.kind}
+        <Text weight="medium" fontSize={24} style={[spacings.mbLg]}>
+          {t('Sign message')}
+        </Text>
+        <View style={styles.container}>
+          <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
+            <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
+          </View>
+          <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
+          <View style={flexbox.flex1}>
+            <ExpandableCard
+              enableExpand={false}
+              style={spacings.mbMd}
+              hasArrow={false}
+              content={
+                visualizeHumanized &&
+                // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
+                signMessageState.humanReadable &&
+                signMessageState.messageToSign?.content.kind ? (
+                  <HumanizedVisualization
+                    data={signMessageState.humanReadable.fullVisualization}
+                    networkId={network?.id || 'ethereum'}
+                  />
+                ) : shouldShowFallback ? (
+                  <>
+                    <View style={spacings.mrTy}>
+                      <ErrorOutlineIcon width={24} height={24} />
+                    </View>
+                    <Text fontSize={maxWidthSize('xl') ? 16 : 12} appearance="warningText">
+                      <Text
+                        fontSize={maxWidthSize('xl') ? 16 : 12}
+                        appearance="warningText"
+                        weight="semiBold"
+                      >
+                        {t('Warning: ')}
+                      </Text>
+                      {t('Please read the whole message as we are unable to translate it!')}
+                    </Text>
+                  </>
+                ) : (
+                  <SkeletonLoader width="100%" height={25} />
+                )
+              }
             />
-          ) : shouldShowFallback ? (
             <FallbackVisualization
               setHasReachedBottom={setHasReachedBottom}
+              hasReachedBottom={!!hasReachedBottom}
               messageToSign={signMessageState.messageToSign}
-              standalone
             />
-          ) : (
-            <SkeletonLoader width="100%" height={48} />
-          )}
-          {isViewOnly && (
-            <NoKeysToSignAlert
-              style={{
-                ...flexbox.alignSelfCenter,
-                marginTop: 'auto',
-                maxWidth: 600
-              }}
-            />
-          )}
+            {isViewOnly && (
+              <NoKeysToSignAlert
+                style={{
+                  width: '100%',
+                  ...spacings.mtMd
+                }}
+                isTransaction={false}
+              />
+            )}
+          </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
               keyType={signMessageState.signingKeyType}

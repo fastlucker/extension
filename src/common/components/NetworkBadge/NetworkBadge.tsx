@@ -1,6 +1,6 @@
 import React, { FC, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import Text from '@common/components/Text'
@@ -15,9 +15,10 @@ import NetworkIcon from '../NetworkIcon'
 interface Props {
   networkId?: Network['id']
   withOnPrefix?: boolean
+  style?: ViewStyle
 }
 
-const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix }) => {
+const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix, style }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
@@ -37,7 +38,8 @@ const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix }) => {
         ...spacings.prTy,
         ...spacings.pvMi,
         borderRadius: BORDER_RADIUS_PRIMARY,
-        backgroundColor: theme.secondaryBackground
+        backgroundColor: theme.secondaryBackground,
+        ...style
       }}
     >
       <Text fontSize={16} weight="medium" appearance="secondaryText">
