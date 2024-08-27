@@ -10,11 +10,13 @@ import getStyles from '@web/modules/networks/components/NetworkBottomSheet/style
 
 const Option = ({
   renderIcon,
+  title,
   text,
   onPress
 }: {
   renderIcon: React.ReactNode
-  text: string
+  title: string
+  text?: string
   onPress: () => void
 }) => {
   const { styles, theme } = useTheme(getStyles)
@@ -58,8 +60,13 @@ const Option = ({
           {renderIcon}
         </View>
         <Text fontSize={16} weight="medium">
-          {text}
+          {title}
         </Text>
+        {!!text && (
+          <Text style={spacings.mlTy} fontSize={14} appearance="secondaryText">
+            {text}
+          </Text>
+        )}
       </View>
       <Animated.View
         style={{

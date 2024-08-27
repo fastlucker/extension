@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -15,7 +16,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
-import Option from './Option/Option'
+import Option from '../Option'
 import getStyles from './styles'
 
 interface Props {
@@ -31,6 +32,7 @@ const NetworkBottomSheet = ({
   selectedNetworkId,
   openBlockExplorer
 }: Props) => {
+  const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { theme, styles } = useTheme(getStyles)
@@ -46,23 +48,23 @@ const NetworkBottomSheet = ({
       <View style={[styles.item, spacings.pvSm, spacings.mb3Xl]}>
         {!!selectedNetworkId && <NetworkIcon size={32} id={selectedNetworkId} />}
         <Text fontSize={16} weight="medium" style={spacings.mlMi}>
-          {networkData?.name || 'Unknown Network'}
+          {networkData?.name || t('Unknown Network')}
         </Text>
       </View>
       <Option
         renderIcon={<SettingsIcon width={27} height={27} color={theme.secondaryText} />}
-        text="Go to Network Settings"
+        title={t('Go to Network Settings')}
         onPress={() => {
           try {
             navigate(`${WEB_ROUTES.networksSettings}?networkId=${selectedNetworkId}`)
           } catch {
-            addToast('Failed to open network settings.', { type: 'error' })
+            addToast(t('Failed to open network settings.'), { type: 'error' })
           }
         }}
       />
       <Option
         renderIcon={<OpenIcon width={20} height={20} color={theme.secondaryText} />}
-        text="Open current account in block explorer"
+        title={t('Open current account in block explorer')}
         onPress={() => {
           openBlockExplorer(networkData?.explorerUrl)
         }}
@@ -71,4 +73,4 @@ const NetworkBottomSheet = ({
   )
 }
 
-export default NetworkBottomSheet
+export default memo(NetworkBottomSheet)
