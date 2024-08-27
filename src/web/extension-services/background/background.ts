@@ -36,6 +36,7 @@ import { notificationManager } from '@web/extension-services/background/webapi/n
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -693,20 +694,21 @@ handleRegisterScripts()
                       accountKeys.map(({ addr, index }, i) => ({
                         addr,
                         type: keyType,
-                        label:
+                        label: `${
+                          HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountAdder.type as Key['type']]
+                        } ${
                           getExistingKeyLabel(
                             mainCtrl.keystore.keys,
                             addr,
                             mainCtrl.accountAdder.type as Key['type']
                           ) ||
                           getDefaultKeyLabel(
-                            mainCtrl.keystore.keys.filter(
-                              (key) =>
-                                account.associatedKeys.includes(key.addr) &&
-                                key.type === (mainCtrl.accountAdder.type as Key['type'])
+                            mainCtrl.keystore.keys.filter((key) =>
+                              account.associatedKeys.includes(key.addr)
                             ),
                             i
-                          ),
+                          )
+                        }`,
                         dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
                         meta: {
                           deviceId: deviceIds[keyType],
