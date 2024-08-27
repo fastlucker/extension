@@ -49,7 +49,6 @@ const SignAccountOpScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
-  const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
@@ -193,21 +192,60 @@ const SignAccountOpScreen = () => {
   const feePayerKeyType = mainState.feePayerKey?.type
   const isAtLeastOneOfTheKeysInvolvedLedger =
     signingKeyType === 'ledger' || feePayerKeyType === 'ledger'
+
+  const updateControllerSigningStatus = useCallback(
+    (status: SigningStatus) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+        params: {
+          status
+        }
+      })
+    },
+    [dispatch]
+  )
+
   const handleDismissLedgerConnectModal = useCallback(() => {
-    setDidTriggerSigning(false)
-  }, [])
+    updateControllerSigningStatus(SigningStatus.ReadyToSign)
+  }, [updateControllerSigningStatus])
+
+  const warningToPromptBeforeSign = useMemo(
+    () =>
+      signAccountOpState?.warnings.find(
+        (warning) => warning.promptBeforeSign && !acknowledgedWarnings.includes(warning.id)
+      ),
+    [acknowledgedWarnings, signAccountOpState?.warnings]
+  )
+
+  const prevWarningToPromptBeforeSign = usePrevious(warningToPromptBeforeSign)
 
   const handleSign = useCallback(
     (_chosenSigningKeyType?: string) => {
-      setDidTriggerSigning(true)
       const isAtLeastOneOfTheCurrentKeysInvolvedLedger = _chosenSigningKeyType
         ? _chosenSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
         : isAtLeastOneOfTheKeysInvolvedLedger
-      if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) return
 
+      if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) {
+        updateControllerSigningStatus(SigningStatus.InProgress)
+        return
+      }
+
+      if (warningToPromptBeforeSign) {
+        openWarningAgreementModal()
+        updateControllerSigningStatus(SigningStatus.InProgress)
+        return
+      }
       dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP' })
     },
-    [dispatch, isAtLeastOneOfTheKeysInvolvedLedger, feePayerKeyType, isLedgerConnected]
+    [
+      dispatch,
+      feePayerKeyType,
+      isAtLeastOneOfTheKeysInvolvedLedger,
+      isLedgerConnected,
+      openWarningAgreementModal,
+      updateControllerSigningStatus,
+      warningToPromptBeforeSign
+    ]
   )
 
   const handleChangeSigningKey = useCallback(
@@ -225,25 +263,8 @@ const SignAccountOpScreen = () => {
     [dispatch, handleSign]
   )
 
-  const warningToPromptBeforeSign = useMemo(() => {
-    return signAccountOpState?.warnings.find(
-      (warning) => warning.promptBeforeSign && !acknowledgedWarnings.includes(warning.id)
-    )
-  }, [acknowledgedWarnings, signAccountOpState?.warnings])
-
-  const onSignButtonClick = () => {
+  const onSignButtonClick = useCallback(() => {
     if (!signAccountOpState) return
-
-    if (warningToPromptBeforeSign) {
-      openWarningAgreementModal()
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
-        params: {
-          status: SigningStatus.InProgress
-        }
-      })
-      return
-    }
 
     // If the account has only one signer, we don't need to show the select signer overlay,
     // and we will sign the transaction with the only one available signer (it is set by default in the controller).
@@ -253,32 +274,30 @@ const SignAccountOpScreen = () => {
     }
 
     setIsChooseSignerShown(true)
-  }
+  }, [signAccountOpState, handleSign])
 
   const acknowledgeWarning = useCallback(() => {
     if (!warningToPromptBeforeSign) return
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
-      params: {
-        status: SigningStatus.ReadyToSign
-      }
-    })
+    updateControllerSigningStatus(SigningStatus.ReadyToSign)
 
     setAcknowledgedWarnings((prev) => [...prev, warningToPromptBeforeSign.id])
     closeWarningAgreementModal()
-    handleSign()
-  }, [warningToPromptBeforeSign, dispatch, closeWarningAgreementModal, handleSign])
+  }, [warningToPromptBeforeSign, updateControllerSigningStatus, closeWarningAgreementModal])
+
+  useEffect(() => {
+    // If the warning to prompt is acknowledged, proceed with the sign
+    // This must happen in a useEffect because warningToPromptBeforeSign needs
+    // to be recalculated after the warning is acknowledged.
+    if (prevWarningToPromptBeforeSign && !warningToPromptBeforeSign) {
+      handleSign()
+    }
+  }, [handleSign, prevWarningToPromptBeforeSign, warningToPromptBeforeSign])
 
   const dismissWarning = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
-      params: {
-        status: SigningStatus.ReadyToSign
-      }
-    })
+    updateControllerSigningStatus(SigningStatus.ReadyToSign)
 
     closeWarningAgreementModal()
-  }, [dispatch, closeWarningAgreementModal])
+  }, [updateControllerSigningStatus, closeWarningAgreementModal])
 
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
@@ -302,7 +321,7 @@ const SignAccountOpScreen = () => {
     <>
       <BottomSheet
         id="dual-choice"
-        closeBottomSheet={closeWarningAgreementModal}
+        closeBottomSheet={dismissWarning}
         sheetRef={warningAgreementModalRef}
         style={styles.warningsModal}
       >
@@ -383,14 +402,15 @@ const SignAccountOpScreen = () => {
               broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
               signAccountOpStatusType={signAccountOpState?.status?.type}
             />
-            {isAtLeastOneOfTheKeysInvolvedLedger && didTriggerSigning && (
-              <LedgerConnectModal
-                isVisible={!isLedgerConnected}
-                handleOnConnect={handleDismissLedgerConnectModal}
-                handleClose={handleDismissLedgerConnectModal}
-                displayOptionToAuthorize={false}
-              />
-            )}
+            {isAtLeastOneOfTheKeysInvolvedLedger &&
+              signAccountOpState?.status?.type === SigningStatus.InProgress && (
+                <LedgerConnectModal
+                  isVisible={!isLedgerConnected}
+                  handleOnConnect={handleDismissLedgerConnectModal}
+                  handleClose={handleDismissLedgerConnectModal}
+                  displayOptionToAuthorize={false}
+                />
+              )}
           </View>
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>

@@ -30,7 +30,8 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   }, [signingKeyType, feePayerKeyType])
 
   const shouldBeVisible = useMemo(() => {
-    if (hasWarningToPromptBeforeSign) return false
+    if (hasWarningToPromptBeforeSign || signAccountOpStatusType !== SigningStatus.InProgress)
+      return false
 
     const isCurrentlyBroadcastingWithExternalKey =
       broadcastSignedAccountOpStatus === 'LOADING' &&
