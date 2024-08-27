@@ -122,11 +122,13 @@ const flowContext = flow
     if (requestType && (!condition || !condition(props))) {
       // eslint-disable-next-line no-param-reassign
       props.requestRes = await new Promise((resolve, reject) => {
-        mainCtrl.buildUserRequestFromDAppRequest(request, {
-          resolve,
-          reject,
-          session: request.session
-        })
+        mainCtrl
+          .buildUserRequestFromDAppRequest(request, {
+            resolve,
+            reject,
+            session: request.session
+          })
+          .catch((error) => reject(error))
       })
     }
 
