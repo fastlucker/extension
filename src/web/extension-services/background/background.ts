@@ -17,7 +17,7 @@ import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import { getDefaultKeyLabel } from '@ambire-common/libs/keys/keys'
+import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -689,10 +689,24 @@ handleRegisterScripts()
                   }
 
                   const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                    ({ accountKeys }) =>
-                      accountKeys.map(({ addr, index }) => ({
+                    ({ account, accountKeys }) =>
+                      accountKeys.map(({ addr, index }, i) => ({
                         addr,
                         type: keyType,
+                        label:
+                          getExistingKeyLabel(
+                            mainCtrl.keystore.keys,
+                            addr,
+                            mainCtrl.accountAdder.type as Key['type']
+                          ) ||
+                          getDefaultKeyLabel(
+                            mainCtrl.keystore.keys.filter(
+                              (key) =>
+                                account.associatedKeys.includes(key.addr) &&
+                                key.type === (mainCtrl.accountAdder.type as Key['type'])
+                            ),
+                            i
+                          ),
                         dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
                         meta: {
                           deviceId: deviceIds[keyType],
@@ -708,36 +722,9 @@ handleRegisterScripts()
                   readyToAddKeys.external = readyToAddExternalKeys
                 }
 
-                const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ account, accountKeys }) =>
-                    accountKeys
-                      .filter(({ addr }) => {
-                        const hasPreferences = mainCtrl.settings.keyPreferences.some(
-                          (pref) =>
-                            pref.addr === addr &&
-                            pref.type === (mainCtrl.accountAdder.type as Key['type'])
-                        )
-
-                        // Skip keys that already have preferences. Otherwise,
-                        // the preferences would get reset to default.
-                        return !hasPreferences
-                      })
-                      .map(({ addr }, i: number) => ({
-                        addr,
-                        type: mainCtrl.accountAdder.type as Key['type'],
-                        label: getDefaultKeyLabel(
-                          mainCtrl.keystore.keys.filter((key) =>
-                            account.associatedKeys.includes(key.addr)
-                          ),
-                          i
-                        )
-                      }))
-                )
-
                 return await mainCtrl.accountAdder.addAccounts(
                   mainCtrl.accountAdder.selectedAccounts,
-                  readyToAddKeys,
-                  readyToAddKeyPreferences
+                  readyToAddKeys
                 )
               }
               case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
