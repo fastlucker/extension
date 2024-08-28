@@ -68,7 +68,7 @@ const TokenItem = ({
     [accounts, selectedAccount]
   )
 
-  const pendingLastKnownNonce = accountPortfolio!.simulationNonces[token.networkId]
+  const pendingLastKnownNonce = accountPortfolio.simulationNonces[token.networkId]
   const activityNonce = activityState?.lastKnownNonce[token.networkId]
   const tokenAmounts = useMemo(
     () =>

@@ -40,7 +40,7 @@ const DEFAULT_ACCOUNT_PORTFOLIO = {
 }
 
 const PortfolioControllerStateContext = createContext<{
-  accountPortfolio: AccountPortfolio | null
+  accountPortfolio: AccountPortfolio
   state: PortfolioController
   startedLoadingAtTimestamp: null | number
   getTemporaryTokens: (networkId: NetworkId, tokenId: CustomToken['address']) => void
