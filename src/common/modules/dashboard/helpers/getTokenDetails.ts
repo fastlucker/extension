@@ -8,11 +8,11 @@ import { PendingAmounts, FormattedPendingAmounts } from '@ambire-common/libs/por
 import formatDecimals from '@common/utils/formatDecimals'
 
 const formatPendingAmounts = (
-  pendingAmounts: PendingAmounts | undefined,
+  pendingAmounts: PendingAmounts | null,
   decimals: number,
   priceUSD: number
-): FormattedPendingAmounts | undefined => {
-  if (!pendingAmounts) return undefined
+): FormattedPendingAmounts | null => {
+  if (!pendingAmounts) return null
 
   const pendingBalance = parseFloat(formatUnits(pendingAmounts.pendingBalance, decimals))
   const pendingBalanceUSD = priceUSD && pendingBalance ? pendingBalance * priceUSD : undefined
@@ -86,7 +86,7 @@ const getTokenDetails = (
           lastKnownActivityNonce,
           lastKnownPortfolioNonce
         )
-      : undefined,
+      : null,
     decimals,
     priceUSD!
   )
