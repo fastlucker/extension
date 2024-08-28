@@ -793,6 +793,8 @@ handleRegisterScripts()
 
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
                 return mainCtrl?.signAccountOp?.update(params)
+              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+                return mainCtrl?.signAccountOp?.updateStatus(params.status)
               case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
                 return await mainCtrl.handleSignAndBroadcastAccountOp()
               }
@@ -1140,7 +1142,7 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
   // It makes Puppeteer tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
   if (process.env.IS_TESTING === 'true') return
-  chrome.runtime.setUninstallURL('https://www.ambire.com/uninstall')
+  browser.runtime.setUninstallURL('https://www.ambire.com/uninstall')
   if (reason === 'install') {
     setTimeout(() => {
       const extensionURL = browser.runtime.getURL('tab.html')

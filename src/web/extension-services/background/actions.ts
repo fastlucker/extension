@@ -4,7 +4,7 @@ import {
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
-import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key, KeyPreferences } from '@ambire-common/interfaces/keystore'
@@ -270,6 +270,12 @@ type MainControllerSignAccountOpUpdateAction = {
     gasUsedTooHighAgreed?: boolean
   }
 }
+type MainControllerSignAccountOpUpdateStatus = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+  params: {
+    status: SigningStatus
+  }
+}
 type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
@@ -498,6 +504,7 @@ export type Action =
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerHandleSignAndBroadcastAccountOp
   | MainControllerSignAccountOpUpdateAction
+  | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken

@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import useDebounce from '@common/hooks/useDebounce'
 import { browser } from '@web/constants/browserapi'
 
 import LedgerController from '../../controllers/LedgerController'
 
 const useLedger = () => {
   const [isLedgerConnected, setIsLedgerConnected] = useState(false)
+  // Ledger SDK is weird and sometimes sends conflicting updates about the device connection status.
+  // One such example is when no app is open on the device and the user opens an app. Then the device
+  // goes through Connected --> Disconnected --> Connected states in quick succession.
+  const debouncedIsLedgerConnected = useDebounce({ value: isLedgerConnected, delay: 500 })
 
   const onConnect = async ({ device }: { device: HIDDevice }) => {
     if (device.vendorId === LedgerController.vendorId) setIsLedgerConnected(true)
@@ -47,7 +52,11 @@ const useLedger = () => {
     await LedgerController.grantDevicePermissionIfNeeded()
   }, [])
 
-  return { requestLedgerDeviceAccess, isLedgerConnected, setIsLedgerConnected }
+  return {
+    requestLedgerDeviceAccess,
+    isLedgerConnected: debouncedIsLedgerConnected,
+    setIsLedgerConnected
+  }
 }
 
 export default useLedger
