@@ -2,43 +2,45 @@ import { formatUnits } from 'ethers'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import {
-  calculatePendingAmounts,
-  PendingAmounts
-} from '@ambire-common/libs/portfolio/pendingAmountsHelper'
+import { calculatePendingAmounts } from '@ambire-common/libs/portfolio/pendingAmountsHelper'
+import { PendingAmounts, FormattedPendingAmounts } from '@ambire-common/libs/portfolio/interfaces'
+
 import formatDecimals from '@common/utils/formatDecimals'
 
 const formatPendingAmounts = (
   pendingAmounts: PendingAmounts | undefined,
   decimals: number,
   priceUSD: number
-) => {
+): FormattedPendingAmounts | undefined => {
   if (!pendingAmounts) return undefined
 
   const pendingBalance = parseFloat(formatUnits(pendingAmounts.pendingBalance, decimals))
   const pendingBalanceUSD = priceUSD && pendingBalance ? pendingBalance * priceUSD : undefined
 
-  return {
+  const formattedAmounts: FormattedPendingAmounts = {
     ...pendingAmounts,
-    pendingBalanceFormatted: formatDecimals(pendingBalance, 'amount'),
-    pendingBalanceUSDFormatted: formatDecimals(pendingBalanceUSD, 'value'),
-    ...(pendingAmounts.pendingToBeSigned
-      ? {
-          pendingToBeSignedFormatted: formatDecimals(
-            parseFloat(formatUnits(pendingAmounts.pendingToBeSigned, decimals)),
-            'amount'
-          )
-        }
-      : {}),
-    ...(pendingAmounts.pendingToBeConfirmed
-      ? {
-          pendingToBeConfirmedFormatted: formatDecimals(
-            parseFloat(formatUnits(pendingAmounts.pendingToBeConfirmed, decimals)),
-            'amount'
-          )
-        }
-      : {})
+    pendingBalanceFormatted: formatDecimals(pendingBalance, 'amount')
   }
+
+  if (pendingBalanceUSD) {
+    formattedAmounts.pendingBalanceUSDFormatted = formatDecimals(pendingBalanceUSD, 'value')
+  }
+
+  if (pendingAmounts.pendingToBeSigned) {
+    formattedAmounts.pendingToBeSignedFormatted = formatDecimals(
+      parseFloat(formatUnits(pendingAmounts.pendingToBeSigned, decimals)),
+      'amount'
+    )
+  }
+
+  if (pendingAmounts.pendingToBeConfirmed) {
+    formattedAmounts.pendingToBeConfirmedFormatted = formatDecimals(
+      parseFloat(formatUnits(pendingAmounts.pendingToBeConfirmed, decimals)),
+      'amount'
+    )
+  }
+
+  return formattedAmounts
 }
 
 const getTokenDetails = (
