@@ -219,10 +219,8 @@ const SignAccountOpScreen = () => {
     [acknowledgedWarnings, signAccountOpState?.warnings]
   )
 
-  const prevWarningToPromptBeforeSign = usePrevious(warningToPromptBeforeSign)
-
   const handleSign = useCallback(
-    (_chosenSigningKeyType?: string) => {
+    (_chosenSigningKeyType?: string, _warningAccepted?: boolean) => {
       const isAtLeastOneOfTheCurrentKeysInvolvedLedger = _chosenSigningKeyType
         ? _chosenSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
         : isAtLeastOneOfTheKeysInvolvedLedger
@@ -232,7 +230,7 @@ const SignAccountOpScreen = () => {
         return
       }
 
-      if (warningToPromptBeforeSign) {
+      if (warningToPromptBeforeSign && !_warningAccepted) {
         openWarningAgreementModal()
         updateControllerSigningStatus(SigningStatus.UpdatesPaused)
         return
@@ -283,16 +281,8 @@ const SignAccountOpScreen = () => {
 
     setAcknowledgedWarnings((prev) => [...prev, warningToPromptBeforeSign.id])
     closeWarningAgreementModal()
-  }, [warningToPromptBeforeSign, closeWarningAgreementModal])
-
-  useEffect(() => {
-    // If the warning to prompt is acknowledged, proceed with the sign
-    // This must happen in a useEffect because warningToPromptBeforeSign needs
-    // to be recalculated after the warning is acknowledged.
-    if (prevWarningToPromptBeforeSign && !warningToPromptBeforeSign) {
-      handleSign()
-    }
-  }, [handleSign, prevWarningToPromptBeforeSign, warningToPromptBeforeSign])
+    handleSign(undefined, true)
+  }, [warningToPromptBeforeSign, closeWarningAgreementModal, handleSign])
 
   useEffect(() => {
     if (isLedgerConnectModalVisible && isLedgerConnected) {
@@ -428,7 +418,6 @@ const SignAccountOpScreen = () => {
               <SignAccountOpHardwareWalletSigningModal
                 signingKeyType={signingKeyType}
                 feePayerKeyType={feePayerKeyType}
-                hasWarningToPromptBeforeSign={!!warningToPromptBeforeSign}
                 broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
                 signAccountOpStatusType={signAccountOpState?.status?.type}
               />

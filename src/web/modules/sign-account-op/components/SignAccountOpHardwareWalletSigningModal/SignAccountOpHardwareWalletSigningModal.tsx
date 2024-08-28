@@ -10,7 +10,6 @@ interface Props {
   signingKeyType?: AccountOp['signingKeyType']
   feePayerKeyType?: Key['type']
   broadcastSignedAccountOpStatus: MainController['statuses']['broadcastSignedAccountOp']
-  hasWarningToPromptBeforeSign: boolean
   signAccountOpStatusType?: SigningStatus
 }
 
@@ -18,11 +17,11 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   signingKeyType,
   feePayerKeyType,
   broadcastSignedAccountOpStatus,
-  signAccountOpStatusType,
-  hasWarningToPromptBeforeSign
+  signAccountOpStatusType
 }: Props) => {
   const shouldBeVisible = useMemo(() => {
-    if (hasWarningToPromptBeforeSign) return false
+    // we're not signing or broadcasting on paused updates
+    if (signAccountOpStatusType === SigningStatus.UpdatesPaused) return false
 
     const isCurrentlyBroadcastingWithExternalKey =
       broadcastSignedAccountOpStatus === 'LOADING' &&
@@ -34,13 +33,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
       signingKeyType !== 'internal'
 
     return isCurrentlyBroadcastingWithExternalKey || isCurrentlySigningWithExternalKey
-  }, [
-    broadcastSignedAccountOpStatus,
-    feePayerKeyType,
-    hasWarningToPromptBeforeSign,
-    signAccountOpStatusType,
-    signingKeyType
-  ])
+  }, [broadcastSignedAccountOpStatus, feePayerKeyType, signAccountOpStatusType, signingKeyType])
 
   const currentlyInvolvedSignOrBroadcastKeyType = useMemo(
     () => (signAccountOpStatusType === SigningStatus.InProgress ? signingKeyType : feePayerKeyType),
