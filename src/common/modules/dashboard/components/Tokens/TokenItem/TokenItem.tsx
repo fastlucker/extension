@@ -72,13 +72,13 @@ const TokenItem = ({
   const activityNonce = activityState?.lastKnownNonce[token.networkId]
   const tokenAmounts = useMemo(
     () =>
-      accountPortfolio!.tokenAmounts.find(
+      accountPortfolio.tokenAmounts.find(
         (tokenAmount) =>
           tokenAmount.address === token.address &&
           tokenAmount.networkId === token.networkId &&
           !token.flags.onGasTank
       ),
-    [accountPortfolio!.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
+    [accountPortfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
   )
 
   const {
@@ -105,7 +105,7 @@ const TokenItem = ({
     if (!isSmartAccount(account)) return false
 
     return !!hasPendingBadges
-  }, [account, token.amount, token.amountPostSimulation])
+  }, [account, hasPendingBadges])
 
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
 
@@ -139,7 +139,7 @@ const TokenItem = ({
         <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
           <View style={[flexboxStyles.directionRow, { flex: 1.5 }]}>
             <View style={[spacings.mr, flexboxStyles.justifyCenter]}>
-              {!!isRewards || !!isVesting ? (
+              {isRewards || isVesting ? (
                 <View style={styles.tokenButtonIconWrapper}>
                   <RewardsIcon width={40} height={40} />
                 </View>
@@ -171,18 +171,18 @@ const TokenItem = ({
                   </Text>
                   <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
                     <Text weight="regular" shouldScale={false} fontSize={12}>
-                      {!!isRewards && t('Claimable rewards')}
-                      {!!isVesting && !isPopup && t('Claimable early supporters vestings')}
-                      {!!isVesting && isPopup && t('Claimable vestings')}
+                      {isRewards && t('Claimable rewards')}
+                      {isVesting && !isPopup && t('Claimable early supporters vestings')}
+                      {isVesting && isPopup && t('Claimable vestings')}
                       {!isRewards && !isVesting && t('on')}{' '}
                     </Text>
                     <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
-                      {!!onGasTank && t('Gas Tank')}
+                      {onGasTank && t('Gas Tank')}
                       {!onGasTank && !isRewards && !isVesting && networkData?.name}
                     </Text>
                   </View>
                 </View>
-                {!!isRewards && (
+                {isRewards && (
                   <Button
                     style={spacings.ml}
                     size="small"
@@ -193,7 +193,7 @@ const TokenItem = ({
                   />
                 )}
 
-                {!!isVesting && (
+                {isVesting && (
                   <Button
                     style={spacings.ml}
                     size="small"
