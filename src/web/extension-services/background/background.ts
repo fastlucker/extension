@@ -804,6 +804,8 @@ handleRegisterScripts()
 
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
                 return mainCtrl?.signAccountOp?.update(params)
+              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+                return mainCtrl?.signAccountOp?.updateStatus(params.status)
               case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
                 return await mainCtrl.handleSignAndBroadcastAccountOp()
               }

@@ -10,7 +10,7 @@ import { iconColors } from '@common/styles/themeConfig'
 
 import getStyles from './styles'
 
-interface Props {
+export interface Props {
   title: string | ReactNode
   description: string | ReactNode
   Icon?: React.FC<SvgProps>
