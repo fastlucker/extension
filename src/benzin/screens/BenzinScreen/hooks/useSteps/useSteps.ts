@@ -31,6 +31,7 @@ import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScree
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 import { isExtension } from '@web/constants/browserapi'
 
+import { getBenzinUrlParams } from '../../utils/url'
 import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
@@ -70,19 +71,28 @@ const setUrlToTxnId = (
   transactionHash: string,
   userOpHash: string | null,
   relayerId: string | null,
-  network: string
+  chainId: bigint
 ) => {
   const splitUrl = (window.location.href || '').split('?')
   const search = splitUrl[1]
   const searchParams = new URLSearchParams(search)
   const isInternal = typeof searchParams.get('isInternal') === 'string'
 
+  const getIdentifiedBy = () => {
+    if (relayerId) return { id: relayerId } as AccountOpIdentifiedBy
+    if (userOpHash) return { userOpHash }
+    return 'txnId'
+  }
+
   window.history.pushState(
     null,
     '',
-    `${splitUrl[0]}?txnId=${transactionHash}${userOpHash ? `&userOpHash=${userOpHash}` : ''}${
-      relayerId ? `&relayerId=${relayerId}` : ''
-    }&networkId=${network}${isInternal ? '&isInternal' : ''}`
+    `${splitUrl[0]}${getBenzinUrlParams({
+      chainId,
+      txnId: transactionHash,
+      identifiedBy: getIdentifiedBy(),
+      isInternal
+    })}`
   )
 }
 
@@ -125,6 +135,8 @@ const useSteps = ({
   const receiptAlreadyFetched = useMemo(() => !!txnReceipt.blockNumber, [txnReceipt.blockNumber])
 
   useEffect(() => {
+    let timeout: any
+
     if (!network || (!userOpHash && !relayerId) || txn || receiptAlreadyFetched) return
 
     fetchTxnId({ identifiedBy, txnId }, network, standardOptions.fetch, standardOptions.callRelayer)
@@ -139,7 +151,7 @@ const useSteps = ({
         }
 
         if (result.status === 'not_found') {
-          setTimeout(() => {
+          timeout = setTimeout(() => {
             setRefetchTxnIdCounter(refetchTxnIdCounter + 1)
           }, REFETCH_TIME)
           return
@@ -149,17 +161,21 @@ const useSteps = ({
         if (resultTxnId !== foundTxnId) {
           setFoundTxnId(resultTxnId)
           setActiveStep('in-progress')
-          setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.id)
+          setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.chainId)
         }
 
         // if there's no txn and receipt, keep searching
         if (!txn && !receiptAlreadyFetched) {
-          setTimeout(() => {
+          timeout = setTimeout(() => {
             setRefetchTxnIdCounter(refetchTxnIdCounter + 1)
           }, REFETCH_TIME)
         }
       })
       .catch((e) => e)
+
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
   }, [
     network,
     identifiedBy,
@@ -177,6 +193,8 @@ const useSteps = ({
 
   // find the transaction
   useEffect(() => {
+    let timeout: any
+
     if (txn || !foundTxnId || !provider) return
 
     provider
@@ -192,7 +210,7 @@ const useSteps = ({
           }
 
           // start a refetch
-          setTimeout(() => {
+          timeout = setTimeout(() => {
             setRefetchTxnCounter(refetchTxnCounter + 1)
           }, REFETCH_TIME)
           return
@@ -201,9 +219,14 @@ const useSteps = ({
         setTxn(fetchedTxn)
       })
       .catch(() => null)
+
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
   }, [foundTxnId, txn, refetchTxnCounter, setActiveStep, provider, identifiedBy])
 
   useEffect(() => {
+    let timeout: any
     if (receiptAlreadyFetched || !foundTxnId || !provider) return
 
     provider
@@ -212,7 +235,10 @@ const useSteps = ({
         if (!receipt) {
           // if there is a txn but no receipt, it means it is pending
           if (txn) {
-            setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), REFETCH_TIME)
+            timeout = setTimeout(
+              () => setRefetchReceiptCounter(refetchReceiptCounter + 1),
+              REFETCH_TIME
+            )
             setFinalizedStatus({ status: 'fetching' })
             setActiveStep('in-progress')
             return
@@ -262,6 +288,10 @@ const useSteps = ({
         setActiveStep('finalized')
       })
       .catch(() => null)
+
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
   }, [
     foundTxnId,
     receiptAlreadyFetched,

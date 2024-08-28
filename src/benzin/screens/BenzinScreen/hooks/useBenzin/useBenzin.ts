@@ -4,6 +4,7 @@ import { Linking } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { AccountOpIdentifiedBy } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
@@ -97,6 +98,12 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     provider
   })
 
+  const identifiedBy = useMemo(() => {
+    if (relayerId) return { id: relayerId } as AccountOpIdentifiedBy
+    if (userOpHash) return { userOpHash }
+    return 'txnId'
+  }, [relayerId, userOpHash])
+
   const handleCopyText = useCallback(async () => {
     try {
       let address = window.location.href
@@ -105,8 +112,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
         address = `https://benzin.ambire.com/${getBenzinUrlParams({
           chainId,
           txnId: stepsState.txnId,
-          userOpHash,
-          relayerId
+          identifiedBy
         })}`
       }
 

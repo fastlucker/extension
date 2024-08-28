@@ -2,12 +2,6 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
-import {
-  getFetchedUserOpHash,
-  getRelayerId,
-  isIdentifiedByRelayer,
-  isIdentifiedByUserOpHash
-} from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
@@ -84,12 +78,7 @@ const SortHat = () => {
             chainId: benzinAction.userRequest.meta?.chainId,
             isInternal: true,
             txnId: benzinAction.userRequest.meta?.txnId, // can be undefined
-            userOpHash: isIdentifiedByUserOpHash(benzinAction.userRequest.meta?.identifiedBy)
-              ? getFetchedUserOpHash(benzinAction.userRequest.meta?.identifiedBy)
-              : undefined,
-            relayerId: isIdentifiedByRelayer(benzinAction.userRequest.meta?.identifiedBy)
-              ? getRelayerId(benzinAction.userRequest.meta?.identifiedBy)
-              : undefined
+            identifiedBy: benzinAction.userRequest.meta?.identifiedBy
           })
         return navigate(link)
       }

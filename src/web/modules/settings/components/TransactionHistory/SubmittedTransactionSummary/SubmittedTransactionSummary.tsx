@@ -6,13 +6,7 @@ import { View, ViewStyle } from 'react-native'
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
-import {
-  getFetchedUserOpHash,
-  getRelayerId,
-  isIdentifiedByRelayer,
-  isIdentifiedByUserOpHash,
-  SubmittedAccountOp
-} from '@ambire-common/libs/accountOp/submittedAccountOp'
+import { SubmittedAccountOp } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
@@ -122,12 +116,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     const link = `https://benzin.ambire.com/${getBenzinUrlParams({
       txnId: submittedAccountOp.txnId,
       chainId,
-      userOpHash: isIdentifiedByUserOpHash(submittedAccountOp.identifiedBy)
-        ? getFetchedUserOpHash(submittedAccountOp.identifiedBy)
-        : undefined,
-      relayerId: isIdentifiedByRelayer(submittedAccountOp.identifiedBy)
-        ? getRelayerId(submittedAccountOp.identifiedBy)
-        : undefined
+      identifiedBy: submittedAccountOp.identifiedBy
     })}`
 
     try {
