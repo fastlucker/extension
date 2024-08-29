@@ -28,8 +28,12 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
   // Ideally, the meta should be all in there for external keys,
   // but just in case, add fallbacks (that should never happen)
   const metaDetails = useMemo(() => {
-    if (type === 'internal')
-      return [
+    if (type === 'internal') {
+      const internalKeyDetails: {
+        key: string
+        value: string
+        [key: string]: any
+      }[] = [
         {
           key: t('Address'),
           value: addr,
@@ -42,7 +46,22 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
         }
       ]
 
-    return [
+      if (meta?.timestamp && new Date(meta.timestamp).toString() !== 'Invalid Date') {
+        internalKeyDetails.push({
+          key: t('Added on'),
+          value: `${new Date(meta.timestamp).toLocaleDateString()} (${new Date(
+            meta.timestamp
+          ).toLocaleTimeString()})`
+        })
+      }
+      return internalKeyDetails
+    }
+
+    const externalKeyDetails: {
+      key: string
+      value: string
+      [key: string]: any
+    }[] = [
       {
         key: t('Device'),
         value: type ? HARDWARE_WALLET_DEVICE_NAMES[type] || type : '-'
@@ -74,6 +93,17 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
           : ''
       }
     ]
+
+    if (meta?.timestamp && new Date(meta.timestamp).toString() !== 'Invalid Date') {
+      externalKeyDetails.push({
+        key: t('Added on'),
+        value: `${new Date(meta.timestamp).toLocaleDateString()} (${new Date(
+          meta.timestamp
+        ).toLocaleTimeString()})`
+      })
+    }
+
+    return externalKeyDetails
   }, [
     type,
     t,
@@ -81,6 +111,7 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
     meta?.deviceId,
     meta?.hdPathTemplate,
     meta?.index,
+    meta?.timestamp,
     dedicatedToOneSA,
     addr
   ])
@@ -103,4 +134,4 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
   )
 }
 
-export default AccountKeyDetails
+export default React.memo(AccountKeyDetails)

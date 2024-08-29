@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
-import { DEFAULT_KEY_LABEL_PATTERN } from '@ambire-common/libs/keys/keys'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -28,17 +27,7 @@ const AccountKeys: FC<Props> = ({ associatedKeys, importedAccountKeys, setCurren
   const accountKeys: AccountKeyType[] = [
     ...importedAccountKeys
       .map((key) => ({ isImported: true, ...key }))
-      .sort((a, b) => {
-        const matchA = a.label?.match(DEFAULT_KEY_LABEL_PATTERN)
-        const matchB = b.label?.match(DEFAULT_KEY_LABEL_PATTERN)
-
-        if (matchA && matchB) return +matchA[1] - +matchB[1]
-        if (matchA) return -1
-        if (matchB) return 1
-
-        // fallback to alphabetical comparison
-        return (a.label || '').localeCompare(b.label || '')
-      }),
+      .sort((a, b) => a.meta.timestamp - b.meta.timestamp),
     ...notImportedAccountKeys.map((keyAddr) => ({
       isImported: false,
       addr: keyAddr,
