@@ -52,7 +52,9 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
             {dapp?.icon ? (
               <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
             ) : (
-              <DAppsIcon style={styles.image} />
+              <View style={styles.fallbackIcon}>
+                <DAppsIcon style={{ width: '100%', height: '100%' }} />
+              </View>
             )}
             <View style={flexbox.flex1}>
               <Text
