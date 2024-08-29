@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 
 import { SPACING } from '@common/styles/spacings'
-import { browser, engine } from '@web/constants/browserapi'
+import { browser, engine, isSafari } from '@web/constants/browserapi'
 import { IS_WINDOWS } from '@web/constants/common'
 import {
   MIN_NOTIFICATION_WINDOW_HEIGHT,
@@ -57,7 +57,10 @@ const createFullScreenWindow = async (url: string) => {
   let screenWidth = 0
   let screenHeight = 0
 
-  if (engine === 'webkit') {
+  if (isSafari()) {
+    screenWidth = getScreenWidth(NOTIFICATION_WINDOW_WIDTH)
+    screenHeight = getScreenHeight(NOTIFICATION_WINDOW_HEIGHT)
+  } else if (engine === 'webkit') {
     const displayInfo = await chrome.system.display.getInfo()
     screenWidth = getScreenWidth(displayInfo?.[0]?.workArea?.width)
     screenHeight = getScreenHeight(displayInfo?.[0]?.workArea?.height)

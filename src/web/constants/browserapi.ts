@@ -47,4 +47,12 @@ const isOpera = () => {
   }
 }
 
-export { engine, isExtension, browser, getFirefoxVersion, isOpera }
+const isSafari = () => {
+  try {
+    return navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
+  } catch (error) {
+    return false
+  }
+}
+
+export { engine, isExtension, browser, getFirefoxVersion, isOpera, isSafari }
