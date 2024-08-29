@@ -84,13 +84,13 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
         )}
 
       {(!messageToSign || messageToSign.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
-        <Text style={text.center}>
+        <Text style={[text.center, spacings.mtMd]}>
           <View style={spacings.mb}>
             <Text fontSize={maxWidthSize('xl') ? 20 : 16} appearance="secondaryText">
               {t('Entry point authorization on ')}
-              <NetworkBadge networkId={messageToSign?.networkId} />
             </Text>
           </View>
+          <NetworkBadge style={spacings.mb} networkId={messageToSign?.networkId} />
           <View>
             <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
               {t(
