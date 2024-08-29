@@ -11,7 +11,6 @@ import useTheme from '@common/hooks/useTheme'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
 
@@ -19,7 +18,6 @@ const AccountKeysButton = () => {
   const { theme, styles } = useTheme(getStyles)
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { keys } = useKeystoreControllerState()
-  const { keyPreferences } = useSettingsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'borderColor',
@@ -51,7 +49,6 @@ const AccountKeysButton = () => {
         // Cast to Account to resolve TS warn, the ref enhances Account, so it's safe
         isSmartAccount={isSmartAccount(account as Account)}
         associatedKeys={associatedKeys}
-        keyPreferences={keyPreferences}
         importedAccountKeys={importedAccountKeys}
         closeBottomSheet={closeBottomSheet}
       />

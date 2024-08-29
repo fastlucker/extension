@@ -112,7 +112,7 @@ const Alert: FC<Props> = ({
               alignSelf: 'flex-end',
               ...spacings.mtTy
             }}
-            textStyle={{ fontSize: 12 }}
+            textStyle={type === 'error' && { fontSize: 14 }}
             size="small"
             type="primary"
             hasBottomSpacing={false}

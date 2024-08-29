@@ -25,7 +25,7 @@ import useLedger from '../../hooks/useLedger'
 type Props = {
   isVisible: boolean
   handleClose?: () => void
-  handleOnConnect: () => void
+  handleOnConnect?: () => void
   /**
    * The WebHID API allows the authorization to happen only in the extension
    * foreground and on a new tab (not in an action window).
@@ -58,7 +58,7 @@ const LedgerConnectModal = ({
     try {
       await requestLedgerDeviceAccess()
 
-      handleOnConnect()
+      if (handleOnConnect) handleOnConnect()
     } catch (error: any) {
       addToast(error.message, { type: 'error' })
     } finally {
