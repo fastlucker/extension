@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, View } from 'react-native'
+import { Image, Linking, View } from 'react-native'
 
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
@@ -12,13 +12,16 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import text from '@common/styles/utils/text'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 
 import getStyles from './styles'
 
 interface Props {
   kindOfMessage?: 'typedMessage' | 'message'
+}
+
+const linkToSupportPage = () => {
+  Linking.openURL('https://help.ambire.com/hc/en-us').catch(console.log)
 }
 
 const Info: FC<Props> = ({ kindOfMessage }) => {
@@ -90,21 +93,35 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
         )}
 
       {(!messageToSign || messageToSign.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
-        <Text style={[text.center, spacings.mtMd]}>
-          <View style={spacings.mb}>
-            <Text fontSize={maxWidthSize('xl') ? 20 : 16} appearance="secondaryText">
-              {t('Entry point authorization on ')}
+        <>
+          <Text
+            style={spacings.mbMd}
+            fontSize={maxWidthSize('xl') ? 24 : 20}
+            appearance="primaryText"
+          >
+            {t('Entry point authorization')}
+          </Text>
+          <NetworkBadge withOnPrefix style={spacings.mbMd} networkId={messageToSign?.networkId} />
+          <Text
+            style={spacings.mbMd}
+            fontSize={maxWidthSize('xl') ? 16 : 14}
+            appearance="secondaryText"
+          >
+            {t(
+              'This is your first smart account transaction. In order to proceed, you must grant privileges to a smart contract called "Entry point". The Entry point is responsible for safely executing smart account transactions. This is a normal procedure and we ask all our smart account users to grant these privileges'
+            )}
+          </Text>
+          <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
+            {t(' If you still have any doubts, ')}
+            <Text
+              fontSize={maxWidthSize('xl') ? 16 : 14}
+              style={{ color: theme.primary, textDecorationLine: 'underline' }}
+              onPress={linkToSupportPage}
+            >
+              {t('please contact support.')}
             </Text>
-          </View>
-          <NetworkBadge style={spacings.mb} networkId={messageToSign?.networkId} />
-          <View>
-            <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
-              {t(
-                'This is your first smart account transaction. In order to proceed, you must grant privileges to a smart contract called "Entry point". The Entry point is responsible for safely executing smart account transactions. This is a normal procedure and we ask all our smart account users to grant these privileges. If you still have any doubts, please contact support'
-              )}
-            </Text>
-          </View>
-        </Text>
+          </Text>
+        </>
       )}
     </View>
   )
