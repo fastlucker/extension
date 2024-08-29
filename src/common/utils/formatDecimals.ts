@@ -86,10 +86,11 @@ const formatDecimals = (value?: number, type?: 'value' | 'amount' | 'price') => 
   // The absolute value is used to determine the number of decimals and
   // then the actual value is formatted with the determined number of decimals.
   const absoluteValue = Math.abs(value)
+  const sign = value < 0 ? '-' : ''
 
   if (type === 'value') {
     if (absoluteValue < 0.01) {
-      return '<$0.01'
+      return `${sign}<$0.01`
     }
     if (absoluteValue >= 0.01 && absoluteValue < 1) {
       return formatNumber(value, withDollarPrefix, DEFAULT_DECIMALS, type)
@@ -101,7 +102,7 @@ const formatDecimals = (value?: number, type?: 'value' | 'amount' | 'price') => 
 
   if (type === 'amount') {
     if (absoluteValue < 0.00001) {
-      return '<0.00001'
+      return `${sign}<0.00001`
     }
 
     if (absoluteValue > 100) {
