@@ -4,6 +4,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { Session } from '@ambire-common/classes/session'
 import { DappsController } from '@ambire-common/controllers/dapps/dapps'
 import { Dapp } from '@ambire-common/interfaces/dapp'
+import { isValidURL } from '@ambire-common/services/validations'
 import { getCurrentTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
@@ -39,7 +40,7 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
 
     if (dapp) {
       setCurrentDapp(dapp)
-    } else if (currentSession.name && currentSession.icon) {
+    } else if (currentSession.name && currentSession.origin && isValidURL(currentSession.origin)) {
       setCurrentDapp({
         url: currentSession.origin,
         name: currentSession.name,

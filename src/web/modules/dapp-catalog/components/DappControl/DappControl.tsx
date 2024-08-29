@@ -57,6 +57,7 @@ const DappControl = ({
     [dapp?.url]
   )
 
+  console.log('dapp icon', dapp?.icon)
   return (
     <View>
       <View style={styles.titleWrapper}>
@@ -68,11 +69,7 @@ const DappControl = ({
       <View style={styles.border}>
         {dapp ? (
           <View style={styles.currentDApp}>
-            <ManifestImage
-              uri={dapp.icon || ''}
-              size={32}
-              fallback={() => <ManifestFallbackIcon />}
-            />
+            <ManifestImage uri={dapp.icon} size={32} fallback={() => <ManifestFallbackIcon />} />
             <View style={[spacings.mlMi, flexbox.flex1]}>
               <View style={[flexbox.directionRow, flexbox.flex1]}>
                 <Text fontSize={12} weight="medium" numberOfLines={1} style={spacings.mrTy}>
