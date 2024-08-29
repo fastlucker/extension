@@ -1,3 +1,5 @@
+type FormatType = 'value' | 'price' | 'amount' | 'default'
+
 const DEFAULT_DECIMALS = 2
 const DECIMAL_RULES = {
   value: {
@@ -8,9 +10,12 @@ const DECIMAL_RULES = {
   },
   amount: {
     min: 2
+  },
+  default: {
+    min: 0
   }
 }
-const TYPES_WITH_DOLLAR_PREFIX = ['value', 'price']
+const TYPES_WITH_DOLLAR_PREFIX: FormatType[] = ['value', 'price']
 
 /**
  * Removes trailing zeros from a decimal string.
@@ -38,7 +43,7 @@ const removeTrailingZeros = (decimalStr: string, minDecimals: number = 0) => {
   return result
 }
 
-const getIndexOfFirstNonZeroInDecimals = (value: number) => {
+const getIndexOfFirstNonZeroInDecimals = (value: number, type: FormatType) => {
   // Fixes scientific notation when converting to string
   const decimalValue = value.toFixed(value < 1 ? 16 : 2)
   const valueString = decimalValue.toString()
@@ -47,7 +52,7 @@ const getIndexOfFirstNonZeroInDecimals = (value: number) => {
   const decimals = valueString.slice(indexOfDot + 1)
   const indexOfFirstNonZero = decimals.split('').findIndex((char) => char !== '0')
 
-  return indexOfFirstNonZero === -1 ? decimals.length : indexOfFirstNonZero
+  return indexOfFirstNonZero === -1 ? DECIMAL_RULES[type].min : indexOfFirstNonZero + 1
 }
 
 const getPrefix = (widthDollarPrefix: boolean) => (widthDollarPrefix ? '$' : '')
@@ -56,7 +61,7 @@ const formatNumber = (
   value: number,
   withDollarPrefix: boolean,
   decimals: number,
-  type?: 'value' | 'amount' | 'price'
+  type: FormatType
 ) => {
   const stringValue = value.toFixed(16)
   const [integer, decimal] = stringValue.split('.')
@@ -73,7 +78,7 @@ const formatNumber = (
 
 // A function that formats a number to a string with a specific number of decimals.
 // Based on the passed type it will add a dollar sign prefix.
-const formatDecimals = (value?: number, type?: 'value' | 'amount' | 'price') => {
+const formatDecimals = (value: number | undefined = undefined, type: FormatType = 'default') => {
   const withDollarPrefix = TYPES_WITH_DOLLAR_PREFIX.includes(type || '')
 
   if (value === 0) {
@@ -110,9 +115,9 @@ const formatDecimals = (value?: number, type?: 'value' | 'amount' | 'price') => 
     }
   }
 
-  const indexOfFirstNonZero = getIndexOfFirstNonZeroInDecimals(value)
+  const indexOfFirstNonZero = getIndexOfFirstNonZeroInDecimals(value, type)
   // Find the first non-zero character in the decimals and display one more decimal than that
-  const decimals = absoluteValue >= 1 ? DEFAULT_DECIMALS : indexOfFirstNonZero + DEFAULT_DECIMALS
+  const decimals = absoluteValue >= 1 ? DEFAULT_DECIMALS : indexOfFirstNonZero + 1
 
   return formatNumber(value, withDollarPrefix, decimals, type)
 }
