@@ -17,7 +17,7 @@ import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import { getDefaultKeyLabel } from '@ambire-common/libs/keys/keys'
+import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -36,6 +36,7 @@ import { notificationManager } from '@web/extension-services/background/webapi/n
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -636,8 +637,8 @@ handleRegisterScripts()
               case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
                 return await mainCtrl.networks.setNetworkToAddOrUpdate(null)
               }
-              case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
-                return await mainCtrl.settings.addKeyPreferences(params)
+              case 'KEYSTORE_CONTROLLER_UPDATE_KEY_PREFERENCES': {
+                return await mainCtrl.keystore.updateKeyPreferences(params)
               }
               case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
                 return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
@@ -696,10 +697,25 @@ handleRegisterScripts()
                   }
 
                   const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                    ({ accountKeys }) =>
-                      accountKeys.map(({ addr, index }) => ({
+                    ({ account, accountKeys }) =>
+                      accountKeys.map(({ addr, index }, i) => ({
                         addr,
                         type: keyType,
+                        label: `${
+                          HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountAdder.type as Key['type']]
+                        } ${
+                          getExistingKeyLabel(
+                            mainCtrl.keystore.keys,
+                            addr,
+                            mainCtrl.accountAdder.type as Key['type']
+                          ) ||
+                          getDefaultKeyLabel(
+                            mainCtrl.keystore.keys.filter((key) =>
+                              account.associatedKeys.includes(key.addr)
+                            ),
+                            i
+                          )
+                        }`,
                         dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
                         meta: {
                           deviceId: deviceIds[keyType],
@@ -715,36 +731,9 @@ handleRegisterScripts()
                   readyToAddKeys.external = readyToAddExternalKeys
                 }
 
-                const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ account, accountKeys }) =>
-                    accountKeys
-                      .filter(({ addr }) => {
-                        const hasPreferences = mainCtrl.settings.keyPreferences.some(
-                          (pref) =>
-                            pref.addr === addr &&
-                            pref.type === (mainCtrl.accountAdder.type as Key['type'])
-                        )
-
-                        // Skip keys that already have preferences. Otherwise,
-                        // the preferences would get reset to default.
-                        return !hasPreferences
-                      })
-                      .map(({ addr }, i: number) => ({
-                        addr,
-                        type: mainCtrl.accountAdder.type as Key['type'],
-                        label: getDefaultKeyLabel(
-                          mainCtrl.keystore.keys.filter((key) =>
-                            account.associatedKeys.includes(key.addr)
-                          ),
-                          i
-                        )
-                      }))
-                )
-
                 return await mainCtrl.accountAdder.addAccounts(
                   mainCtrl.accountAdder.selectedAccounts,
-                  readyToAddKeys,
-                  readyToAddKeyPreferences
+                  readyToAddKeys
                 )
               }
               case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {

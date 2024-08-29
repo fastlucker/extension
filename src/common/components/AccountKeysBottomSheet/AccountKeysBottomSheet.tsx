@@ -2,7 +2,6 @@ import React, { FC, useState } from 'react'
 import { Modalize } from 'react-native-modalize'
 
 import { Key } from '@ambire-common/interfaces/keystore'
-import { KeyPreferences } from '@ambire-common/interfaces/settings'
 import { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import BottomSheet from '@common/components/BottomSheet'
 
@@ -13,7 +12,6 @@ import AddAccountKeys from './AddAccountKeys'
 interface Props {
   sheetRef: React.RefObject<Modalize>
   associatedKeys: string[]
-  keyPreferences: KeyPreferences
   importedAccountKeys: Key[]
   closeBottomSheet: () => void
   isSmartAccount: boolean
@@ -22,7 +20,6 @@ interface Props {
 const AccountKeysBottomSheet: FC<Props> = ({
   sheetRef,
   associatedKeys,
-  keyPreferences,
   importedAccountKeys,
   closeBottomSheet,
   isSmartAccount
@@ -42,7 +39,6 @@ const AccountKeysBottomSheet: FC<Props> = ({
         <>
           <AccountKeys
             associatedKeys={associatedKeys}
-            keyPreferences={keyPreferences}
             importedAccountKeys={importedAccountKeys}
             setCurrentKeyDetails={setCurrentKeyDetails}
           />
@@ -58,4 +54,4 @@ const AccountKeysBottomSheet: FC<Props> = ({
   )
 }
 
-export default AccountKeysBottomSheet
+export default React.memo(AccountKeysBottomSheet)
