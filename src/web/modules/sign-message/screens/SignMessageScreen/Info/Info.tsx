@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
+import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
 import NetworkBadge from '@common/components/NetworkBadge'
@@ -35,8 +36,7 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
           style={styles.kindOfMessageText}
           numberOfLines={1}
         >
-          {t(kindOfMessage === 'typedMessage' ? 'EIP-712' : 'Standard')}
-          {t('Type')}
+          {t(kindOfMessage === 'typedMessage' ? 'EIP-712' : 'Standard')} {t('Type')}
         </Text>
         <InfoIcon width={18} height={18} color={theme.infoDecorative as string} />
       </View>
@@ -49,8 +49,12 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
       {(!messageToSign || messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
         <>
           <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd, flexbox.wrap]}>
-            <Image source={{ uri: dapp?.icon }} style={[styles.image]} resizeMode="contain" />
-            <View>
+            {dapp?.icon ? (
+              <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
+            ) : (
+              <DAppsIcon style={styles.image} />
+            )}
+            <View style={flexbox.flex1}>
               <Text
                 fontSize={maxWidthSize('xl') ? 20 : 16}
                 appearance="secondaryText"
