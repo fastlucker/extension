@@ -31,6 +31,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Account from '@web/modules/account-adder/components/Account'
+import SelectDerivation from '@web/modules/account-adder/components/SelectDerivation'
 import {
   AccountAdderIntroStepsProvider,
   BasicAccountIntroId
@@ -315,7 +316,12 @@ const AccountsOnPageList = ({
 
         {!isAccountAdderEmpty && subType !== 'private-key' && (
           <View
-            style={[spacings.mbLg, flexbox.alignStart, flexbox.alignSelfStart]}
+            style={[
+              spacings.mbLg,
+              flexbox.directionRow,
+              flexbox.justifySpaceBetween,
+              { width: '100%' }
+            ]}
             {...(!!hideEmptyAccounts && onlySmartAccountsVisible
               ? {
                   nativeID: BasicAccountIntroId
@@ -329,6 +335,7 @@ const AccountsOnPageList = ({
               labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
               style={flexbox.alignSelfStart}
             />
+            <SelectDerivation />
           </View>
         )}
         <ScrollableWrapper
