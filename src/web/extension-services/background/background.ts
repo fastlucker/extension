@@ -663,6 +663,13 @@ handleRegisterScripts()
                   networks: mainCtrl.networks.networks,
                   providers: mainCtrl.providers.providers
                 })
+              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
+                return mainCtrl.accountAdder.setHDPathTemplate({
+                  path: params.hdPathTemplate,
+                  networks: mainCtrl.networks.networks,
+                  providers: mainCtrl.providers.providers
+                })
+              }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
                 const readyToAddKeys: ReadyToAddKeys = {
                   internal: [],
