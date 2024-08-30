@@ -191,7 +191,7 @@ export async function makeSwap(
 
   // Check if select fee token is visible and select the token
   if (feeToken) {
-    await selectFeeToken(newPage, feeToken)
+    await selectFeeToken(updatedPage, feeToken)
   }
 
   if (shouldStopBeforeSign) {

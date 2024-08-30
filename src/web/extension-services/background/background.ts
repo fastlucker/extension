@@ -17,7 +17,7 @@ import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import { getDefaultKeyLabel } from '@ambire-common/libs/keys/keys'
+import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -36,6 +36,7 @@ import { notificationManager } from '@web/extension-services/background/webapi/n
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -210,6 +211,25 @@ handleRegisterScripts()
       : INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
 
     async function updatePortfolio() {
+      const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
+
+      // Postpone the portfolio update for the next interval
+      // if we have broadcasted but not yet confirmed acc op.
+      // Here's why:
+      // 1. On the Dashboard, we show a pending-to-be-confirmed token badge
+      //    if an acc op has been broadcasted but is still unconfirmed.
+      // 2. To display the expected balance change, we calculate it from the portfolio's pending simulation state.
+      // 3. When we sign and broadcast the acc op, we remove it from the Main controller.
+      // 4. If we trigger a portfolio update at this point, we will lose the pending simulation state.
+      // 5. Therefore, to ensure the badge is displayed, we pause the portfolio update temporarily.
+      //    Once the acc op is confirmed or failed, the portfolio interval will resume as normal.
+      // 6. Gotcha: If the user forcefully updates the portfolio, we will also lose the simulation.
+      //    However, this is not a frequent case, and we can make a compromise here.
+      if (hasBroadcastedButNotConfirmed) {
+        backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+        return
+      }
+
       await mainCtrl.updateSelectedAccountPortfolio()
 
       backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
@@ -636,8 +656,8 @@ handleRegisterScripts()
               case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
                 return await mainCtrl.networks.setNetworkToAddOrUpdate(null)
               }
-              case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
-                return await mainCtrl.settings.addKeyPreferences(params)
+              case 'KEYSTORE_CONTROLLER_UPDATE_KEY_PREFERENCES': {
+                return await mainCtrl.keystore.updateKeyPreferences(params)
               }
               case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
                 return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
@@ -689,10 +709,25 @@ handleRegisterScripts()
                   }
 
                   const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                    ({ accountKeys }) =>
-                      accountKeys.map(({ addr, index }) => ({
+                    ({ account, accountKeys }) =>
+                      accountKeys.map(({ addr, index }, i) => ({
                         addr,
                         type: keyType,
+                        label: `${
+                          HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountAdder.type as Key['type']]
+                        } ${
+                          getExistingKeyLabel(
+                            mainCtrl.keystore.keys,
+                            addr,
+                            mainCtrl.accountAdder.type as Key['type']
+                          ) ||
+                          getDefaultKeyLabel(
+                            mainCtrl.keystore.keys.filter((key) =>
+                              account.associatedKeys.includes(key.addr)
+                            ),
+                            i
+                          )
+                        }`,
                         dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
                         meta: {
                           deviceId: deviceIds[keyType],
@@ -708,36 +743,9 @@ handleRegisterScripts()
                   readyToAddKeys.external = readyToAddExternalKeys
                 }
 
-                const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ account, accountKeys }) =>
-                    accountKeys
-                      .filter(({ addr }) => {
-                        const hasPreferences = mainCtrl.settings.keyPreferences.some(
-                          (pref) =>
-                            pref.addr === addr &&
-                            pref.type === (mainCtrl.accountAdder.type as Key['type'])
-                        )
-
-                        // Skip keys that already have preferences. Otherwise,
-                        // the preferences would get reset to default.
-                        return !hasPreferences
-                      })
-                      .map(({ addr }, i: number) => ({
-                        addr,
-                        type: mainCtrl.accountAdder.type as Key['type'],
-                        label: getDefaultKeyLabel(
-                          mainCtrl.keystore.keys.filter((key) =>
-                            account.associatedKeys.includes(key.addr)
-                          ),
-                          i
-                        )
-                      }))
-                )
-
                 return await mainCtrl.accountAdder.addAccounts(
                   mainCtrl.accountAdder.selectedAccounts,
-                  readyToAddKeys,
-                  readyToAddKeyPreferences
+                  readyToAddKeys
                 )
               }
               case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
@@ -804,6 +812,8 @@ handleRegisterScripts()
 
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
                 return mainCtrl?.signAccountOp?.update(params)
+              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+                return mainCtrl?.signAccountOp?.updateStatus(params.status)
               case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
                 return await mainCtrl.handleSignAndBroadcastAccountOp()
               }

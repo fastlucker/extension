@@ -7,7 +7,15 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import { isIdentifiedByTxn, pollTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import {
+  AccountOpIdentifiedBy,
+  getAccountOpIdentifier,
+  isIdentifiedByTxn,
+  pollTxnId
+} from '@ambire-common/libs/accountOp/submittedAccountOp'
+import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
+import bundler from '@ambire-common/services/bundlers'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
@@ -230,6 +238,91 @@ export class ProviderController {
     )
 
     return null
+  }
+
+  // explain to the dapp what features the wallet has for the selected account
+  walletGetCapabilities = async (data: any) => {
+    if (!this.mainCtrl.dapps.hasPermission(data.session.origin) || !this.isUnlocked) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    if (!data.params || !data.params.length) {
+      throw ethErrors.rpc.invalidParams('params is required but got []')
+    }
+
+    const accountAddr = data.params[0]
+    const state = this.mainCtrl.accounts.accountStates[accountAddr]
+    if (!state) {
+      throw ethErrors.rpc.invalidParams(`account with address ${accountAddr} does not exist`)
+    }
+
+    const capabilities: any = {}
+    this.mainCtrl.networks.networks.forEach((network) => {
+      capabilities[toBeHex(network.chainId)] = {
+        atomicBatch: {
+          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+        }
+      }
+    })
+    return capabilities
+  }
+
+  @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
+  walletSendCalls = async (data: any) => {
+    if (data.requestRes && data.requestRes.submittedAccountOp) {
+      return getAccountOpIdentifier(
+        data.requestRes.submittedAccountOp.identifiedBy,
+        data.requestRes.submittedAccountOp.txnId
+      )
+    }
+
+    throw new Error('Transaction failed!')
+  }
+
+  walletGetCallsStatus = async (data: any) => {
+    if (!data.params || !data.params.length) {
+      throw ethErrors.rpc.invalidParams('params is required but got []')
+    }
+
+    const id = data.params[0]
+    if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
+
+    const splitInTwo = id.split(':')
+    if (splitInTwo.length !== 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
+
+    const type = splitInTwo[0]
+    const identifier = splitInTwo[1]
+    let identifiedBy: AccountOpIdentifiedBy
+    if (type === 'Transaction') identifiedBy = 'txnId'
+    else if (type === 'UserOperation') identifiedBy = { userOpHash: identifier }
+    else identifiedBy = { id: identifier }
+
+    const dappNetwork = this.getDappNetwork(data.session.origin)
+    const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
+    const txnId = await pollTxnId(
+      { identifiedBy, txnId: identifier },
+      network,
+      this.mainCtrl.fetch,
+      this.mainCtrl.callRelayer
+    )
+    if (!txnId) throw new Error('Transaction failed!')
+
+    const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
+    const receipt = await provider.getTransactionReceipt(txnId)
+    if (!receipt) {
+      return {
+        status: 'PENDING'
+      }
+    }
+
+    return {
+      status: 'CONFIRMED',
+      receipts: [receipt]
+    }
+  }
+
+  walletShowCallsStatus = async (data: any) => {
+    // TODO: open a modal with information about the transaction
   }
 
   @Reflect.metadata('ACTION_REQUEST', [

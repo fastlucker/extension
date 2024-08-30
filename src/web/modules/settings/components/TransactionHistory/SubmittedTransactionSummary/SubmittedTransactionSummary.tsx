@@ -24,7 +24,6 @@ import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import getStyles from './styles'
@@ -38,7 +37,6 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { accounts } = useAccountsControllerState()
-  const settingsState = useSettingsControllerState()
   const { networks } = useNetworksControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
@@ -63,7 +61,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       (err: any) => setHumanizerError(err),
       { noAsyncOperations: true, network }
     )
-  }, [submittedAccountOp, keystoreState.keys, accounts, settingsState.keyPreferences, network])
+  }, [submittedAccountOp, keystoreState.keys, accounts, network])
 
   const calls = useMemo(() => {
     if (humanizerError) return submittedAccountOp.calls

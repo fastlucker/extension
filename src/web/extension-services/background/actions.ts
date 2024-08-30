@@ -4,12 +4,11 @@ import {
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
-import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
-import { Key } from '@ambire-common/interfaces/keystore'
+import { Key, KeyPreferences } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
-import { KeyPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -122,9 +121,13 @@ type SettingsControllerResetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE'
 }
 
-type MainControllerSettingsAddKeyPreferences = {
-  type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
-  params: KeyPreferences
+type KeystoreControllerUpdateKeyPreferencesAction = {
+  type: 'KEYSTORE_CONTROLLER_UPDATE_KEY_PREFERENCES'
+  params: {
+    addr: Key['addr']
+    type: Key['type']
+    preferences: KeyPreferences
+  }[]
 }
 
 type MainControllerUpdateNetworkAction = {
@@ -265,6 +268,12 @@ type MainControllerSignAccountOpUpdateAction = {
     signingKeyAddr?: string
     signingKeyType?: string
     gasUsedTooHighAgreed?: boolean
+  }
+}
+type MainControllerSignAccountOpUpdateStatus = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+  params: {
+    status: SigningStatus
   }
 }
 type MainControllerHandleSignAndBroadcastAccountOp = {
@@ -467,7 +476,7 @@ export type Action =
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork
   | MainControllerRemoveNetwork
-  | MainControllerSettingsAddKeyPreferences
+  | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
@@ -495,6 +504,7 @@ export type Action =
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerHandleSignAndBroadcastAccountOp
   | MainControllerSignAccountOpUpdateAction
+  | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken

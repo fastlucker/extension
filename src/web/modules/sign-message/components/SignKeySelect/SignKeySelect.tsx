@@ -10,7 +10,6 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import { Portal } from '@gorhom/portal'
 import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
 
@@ -31,7 +30,6 @@ const SigningKeySelect = ({
 }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
-  const settingsCtrl = useSettingsControllerState()
   const { keys } = useKeystoreControllerState()
 
   if (!isVisible) return null
@@ -52,9 +50,6 @@ const SigningKeySelect = ({
         </Text>
         <View>
           {selectedAccountKeyStoreKeys.map((key, i) => {
-            const { label } =
-              settingsCtrl.keyPreferences.find((x) => x.addr === key.addr && x.type === key.type) ||
-              {}
             const isImported = keys.some((k) => k.addr === key.addr && k.type === key.type)
 
             return (
@@ -70,7 +65,7 @@ const SigningKeySelect = ({
                   addr={key.addr}
                   type={key.type}
                   dedicatedToOneSA={key.dedicatedToOneSA}
-                  label={label || `Key ${i + 1}`}
+                  label={key.label || `Key ${i + 1}`}
                   isLast={i === selectedAccountKeyStoreKeys.length - 1}
                   isImported={isImported}
                   enableEditing={false}

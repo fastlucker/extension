@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
-import { KeyPreferences } from '@ambire-common/interfaces/settings'
 import { DEFAULT_KEY_LABEL_PATTERN } from '@ambire-common/libs/keys/keys'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import Text from '@common/components/Text'
@@ -13,17 +12,11 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 
 interface Props {
   associatedKeys: string[]
-  keyPreferences: KeyPreferences
   importedAccountKeys: Key[]
   setCurrentKeyDetails: Dispatch<SetStateAction<AccountKeyType | null>>
 }
 
-const AccountKeys: FC<Props> = ({
-  associatedKeys,
-  importedAccountKeys,
-  keyPreferences,
-  setCurrentKeyDetails
-}) => {
+const AccountKeys: FC<Props> = ({ associatedKeys, importedAccountKeys, setCurrentKeyDetails }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
 
@@ -34,14 +27,7 @@ const AccountKeys: FC<Props> = ({
 
   const accountKeys: AccountKeyType[] = [
     ...importedAccountKeys
-      .map((key) => ({
-        isImported: true,
-        addr: key.addr,
-        type: key.type,
-        label: keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)?.label,
-        dedicatedToOneSA: key.dedicatedToOneSA,
-        meta: key.meta
-      }))
+      .map((key) => ({ isImported: true, ...key }))
       .sort((a, b) => {
         const matchA = a.label?.match(DEFAULT_KEY_LABEL_PATTERN)
         const matchB = b.label?.match(DEFAULT_KEY_LABEL_PATTERN)
@@ -99,4 +85,4 @@ const AccountKeys: FC<Props> = ({
   )
 }
 
-export default AccountKeys
+export default React.memo(AccountKeys)

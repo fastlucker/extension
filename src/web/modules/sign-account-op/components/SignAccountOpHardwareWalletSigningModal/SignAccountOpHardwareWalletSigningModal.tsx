@@ -19,15 +19,10 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   broadcastSignedAccountOpStatus,
   signAccountOpStatusType
 }: Props) => {
-  const shouldRender = useMemo(() => {
-    const isAtLeastOneOfTheKeysInvolvedExternal =
-      (!!signingKeyType && signingKeyType !== 'internal') ||
-      (!!feePayerKeyType && feePayerKeyType !== 'internal')
-
-    return isAtLeastOneOfTheKeysInvolvedExternal
-  }, [signingKeyType, feePayerKeyType])
-
   const shouldBeVisible = useMemo(() => {
+    // we're not signing or broadcasting on paused updates
+    if (signAccountOpStatusType === SigningStatus.UpdatesPaused) return false
+
     const isCurrentlyBroadcastingWithExternalKey =
       broadcastSignedAccountOpStatus === 'LOADING' &&
       !!feePayerKeyType &&
@@ -45,7 +40,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
     [feePayerKeyType, signAccountOpStatusType, signingKeyType]
   )
 
-  if (!shouldRender || !currentlyInvolvedSignOrBroadcastKeyType) return null
+  if (!currentlyInvolvedSignOrBroadcastKeyType) return null
 
   return (
     <HardwareWalletSigningModal

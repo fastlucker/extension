@@ -6,7 +6,9 @@ import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   CollectionResult as CollectionResultInterface,
-  TokenResult as TokenResultInterface
+  TokenResult as TokenResultInterface,
+  NetworkNonces as NetworkNoncesInterface,
+  TokenAmount as TokenAmountInterface
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
 import {
@@ -24,17 +26,21 @@ export interface AccountPortfolio {
   collections: CollectionResultInterface[]
   totalAmount: number
   isAllReady: boolean
+  simulationNonces: NetworkNoncesInterface
+  tokenAmounts: TokenAmountInterface[]
 }
 
 const DEFAULT_ACCOUNT_PORTFOLIO = {
   tokens: [],
   collections: [],
   totalAmount: 0,
-  isAllReady: false
+  isAllReady: false,
+  simulationNonces: {},
+  tokenAmounts: []
 }
 
 const PortfolioControllerStateContext = createContext<{
-  accountPortfolio: AccountPortfolio | null
+  accountPortfolio: AccountPortfolio
   state: PortfolioController
   startedLoadingAtTimestamp: null | number
   getTemporaryTokens: (networkId: NetworkId, tokenId: CustomToken['address']) => void
