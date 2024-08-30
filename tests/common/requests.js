@@ -40,45 +40,47 @@ function getBackgroundRequestsByType(requests) {
 async function monitorRequests(
   client,
   requestInducingFunction,
-  { maxTimeBetweenRequests, throttleRequestsByMs } = {
-    maxTimeBetweenRequests: 1000,
-    throttleRequestsByMs: 0
-  }
+  { maxTimeBetweenRequests = 2000, throttleRequestsByMs = 0 } = {}
 ) {
   const httpRequests = []
   let lastRequestTime = null
 
+  // Enable Fetch domain for request interception
   await client.send('Fetch.enable', {
-    patterns: [
-      {
-        urlPattern: '*',
-        requestStage: 'Response'
-      }
-    ]
+    patterns: [{ urlPattern: '*', requestStage: 'Response' }]
   })
 
-  client.on('Fetch.requestPaused', async ({ requestId, request }) => {
+  const onRequestPaused = async ({ requestId, request }) => {
     httpRequests.push(request.url)
+
+    // Synchronize updates to lastRequestTime to avoid race conditions
     lastRequestTime = Date.now()
 
-    if (throttleRequestsByMs) await wait(throttleRequestsByMs)
+    if (throttleRequestsByMs) {
+      await wait(throttleRequestsByMs)
+    }
 
-    await client.send('Fetch.continueRequest', {
-      requestId
-    })
-  })
-
-  await requestInducingFunction()
-
-  while (
-    !lastRequestTime ||
-    Date.now() - lastRequestTime < maxTimeBetweenRequests + throttleRequestsByMs
-  ) {
-    // eslint-disable-next-line no-await-in-loop
-    await wait(300)
+    await client.send('Fetch.continueRequest', { requestId })
   }
 
-  await client.off('Fetch.requestPaused')
+  // Start listening to the request events
+  client.on('Fetch.requestPaused', onRequestPaused)
+
+  try {
+    // Trigger the function that induces requests
+    await requestInducingFunction()
+
+    // Poll until no more requests are detected within the specified time frame
+    while (
+      !lastRequestTime ||
+      Date.now() - lastRequestTime < maxTimeBetweenRequests + throttleRequestsByMs
+    ) {
+      await wait(maxTimeBetweenRequests) // Polling interval
+    }
+  } finally {
+    // Ensure cleanup happens in case of error
+    client.off('Fetch.requestPaused', onRequestPaused)
+  }
 
   return httpRequests
 }
