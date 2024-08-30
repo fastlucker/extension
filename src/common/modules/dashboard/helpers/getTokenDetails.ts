@@ -2,7 +2,46 @@ import { formatUnits } from 'ethers'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { calculatePendingAmounts } from '@ambire-common/libs/portfolio/pendingAmountsHelper'
+import { PendingAmounts, FormattedPendingAmounts } from '@ambire-common/libs/portfolio/interfaces'
+
 import formatDecimals from '@common/utils/formatDecimals'
+
+const formatPendingAmounts = (
+  pendingAmounts: PendingAmounts | null,
+  decimals: number,
+  priceUSD: number
+): FormattedPendingAmounts | null => {
+  if (!pendingAmounts) return null
+
+  const pendingBalance = parseFloat(formatUnits(pendingAmounts.pendingBalance, decimals))
+  const pendingBalanceUSD = priceUSD && pendingBalance ? pendingBalance * priceUSD : undefined
+
+  const formattedAmounts: FormattedPendingAmounts = {
+    ...pendingAmounts,
+    pendingBalanceFormatted: formatDecimals(pendingBalance, 'amount')
+  }
+
+  if (pendingBalanceUSD) {
+    formattedAmounts.pendingBalanceUSDFormatted = formatDecimals(pendingBalanceUSD, 'value')
+  }
+
+  if (pendingAmounts.pendingToBeSigned) {
+    formattedAmounts.pendingToBeSignedFormatted = formatDecimals(
+      parseFloat(formatUnits(pendingAmounts.pendingToBeSigned, decimals)),
+      'amount'
+    )
+  }
+
+  if (pendingAmounts.pendingToBeConfirmed) {
+    formattedAmounts.pendingToBeConfirmedFormatted = formatDecimals(
+      parseFloat(formatUnits(pendingAmounts.pendingToBeConfirmed, decimals)),
+      'amount'
+    )
+  }
+
+  return formattedAmounts
+}
 
 const getTokenDetails = (
   {
@@ -14,46 +53,56 @@ const getTokenDetails = (
     amountPostSimulation,
     simulationAmount
   }: TokenResult,
-  networks: Network[]
+  networks: Network[],
+  tokenAmounts?: {
+    latestAmount: bigint
+    pendingAmount: bigint
+    address: string
+    networkId: string
+  },
+  lastKnownActivityNonce?: bigint,
+  lastKnownPortfolioNonce?: bigint
 ) => {
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'
   const networkData = networks.find(({ id }) => networkId === id)
   const amountish = BigInt(amount)
-  const isPending = typeof amountPostSimulation === 'bigint' && amountPostSimulation !== amountish
-  const simAmount = simulationAmount || 0n
+  const amountishLatest = BigInt(tokenAmounts?.latestAmount || 0n)
 
   const balance = parseFloat(formatUnits(amountish, decimals))
-  const pendingBalance = isPending
-    ? parseFloat(formatUnits(amountPostSimulation, decimals))
-    : parseFloat('0')
+  const balanceLatest = parseFloat(formatUnits(amountishLatest, decimals))
   const priceUSD = priceIn.find(
     ({ baseCurrency }: { baseCurrency: string }) => baseCurrency.toLowerCase() === 'usd'
   )?.price
   const balanceUSD = priceUSD ? balance * priceUSD : undefined
-  const pendingBalanceUSD = priceUSD && isPending ? pendingBalance * priceUSD : undefined
+
+  const pendingAmountsFormatted = formatPendingAmounts(
+    tokenAmounts?.address
+      ? calculatePendingAmounts(
+          tokenAmounts?.latestAmount,
+          tokenAmounts?.pendingAmount,
+          amountPostSimulation,
+          simulationAmount,
+          lastKnownActivityNonce,
+          lastKnownPortfolioNonce
+        )
+      : null,
+    decimals,
+    priceUSD!
+  )
 
   return {
     balance,
     balanceFormatted: formatDecimals(balance, 'amount'),
-    pendingBalance,
-    pendingBalanceFormatted: formatDecimals(pendingBalance, 'amount'),
+    balanceLatestFormatted: formatDecimals(balanceLatest, 'amount'),
     priceUSD,
     priceUSDFormatted: formatDecimals(priceUSD, 'price'),
     balanceUSD,
     balanceUSDFormatted: formatDecimals(balanceUSD, 'value'),
-    pendingBalanceUSDFormatted: formatDecimals(pendingBalanceUSD, 'value'),
     networkData,
     isRewards,
     isVesting,
-    balanceChange: formatDecimals(parseFloat(formatUnits(simAmount, decimals)), 'amount'),
-    simAmount,
-    // The UI badge logic is already implemented for the next two properties,
-    // but the implementation for determining the pending-to-be-confirmed amount is still not done.
-    // Once we figure out how we want to do it, we just need to pass the amount here.
-    // @link: https://github.com/AmbireTech/ambire-app/issues/2162#issuecomment-2191731436
-    pendingToBeConfirmed: 0n,
-    pendingToBeConfirmedFormatted: formatDecimals(parseFloat(formatUnits(0n, decimals)), 'amount')
+    ...pendingAmountsFormatted
   }
 }
 

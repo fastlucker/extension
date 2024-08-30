@@ -14,7 +14,6 @@ import useMainControllerState from '@web/hooks/useMainControllerState/useMainCon
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
@@ -40,7 +39,6 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const actionsState = useActionsControllerState()
   const activityState = useActivityControllerState()
   const { state: portfolioState } = usePortfolioControllerState()
-  const settingsState = useSettingsControllerState()
   const emailVaultState = useEmailVaultControllerState()
   const { state: dappsState } = useDappsControllerState()
   const addressBookState = useAddressBookControllerState()
@@ -88,10 +86,6 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(activityState).length,
     [activityState]
   )
-  const hasSettingsState: boolean = useMemo(
-    () => !!Object.keys(settingsState).length,
-    [settingsState]
-  )
   const hasEmailVaultState: boolean = useMemo(
     () => !!Object.keys(emailVaultState).length && !!emailVaultState?.isReady,
     [emailVaultState]
@@ -133,7 +127,6 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasActionsState &&
       hasPortfolioState &&
       hasActivityState &&
-      hasSettingsState &&
       hasEmailVaultState &&
       hasDappsState &&
       hasDomainsState &&
@@ -157,7 +150,6 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasActionsState,
     hasPortfolioState,
     hasActivityState,
-    hasSettingsState,
     hasEmailVaultState,
     hasDappsState,
     areControllerStatesLoaded,

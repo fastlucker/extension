@@ -10,7 +10,6 @@ import Alert from '@common/components/Alert'
 import useTheme from '@common/hooks/useTheme'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 interface Props {
   style?: ViewStyle
@@ -20,7 +19,6 @@ interface Props {
 const NoKeysToSignAlert: FC<Props> = ({ style, isTransaction = true }) => {
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { keys } = useKeystoreControllerState()
-  const { keyPreferences } = useSettingsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -50,7 +48,6 @@ const NoKeysToSignAlert: FC<Props> = ({ style, isTransaction = true }) => {
         isSmartAccount={isSmartAccount(account)}
         sheetRef={sheetRef}
         associatedKeys={associatedKeys}
-        keyPreferences={keyPreferences}
         importedAccountKeys={importedAccountKeys}
         closeBottomSheet={closeBottomSheet}
       />
