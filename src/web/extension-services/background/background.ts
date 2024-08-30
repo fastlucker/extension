@@ -16,6 +16,7 @@ import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keys
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -31,7 +32,6 @@ import { WalletStateController } from '@web/extension-services/background/contro
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
-import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
@@ -112,7 +112,8 @@ handleRegisterScripts()
   const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
   setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
 
-  await updateHumanizerMetaInStorage(storage)
+  // @TODO test
+  await storage.remove(HUMANIZER_META_KEY)
 
   const backgroundState: {
     isUnlocked: boolean

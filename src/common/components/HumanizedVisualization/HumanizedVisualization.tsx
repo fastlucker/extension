@@ -70,12 +70,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'address' && item.address) {
           return (
             <View key={key} style={{ marginRight }}>
-              <Address
-                fontSize={textSize}
-                address={item.address}
-                highestPriorityAlias={item?.humanizerMeta?.name}
-                explorerNetworkId={networkId}
-              />
+              <Address fontSize={textSize} address={item.address} explorerNetworkId={networkId} />
             </View>
           )
         }
