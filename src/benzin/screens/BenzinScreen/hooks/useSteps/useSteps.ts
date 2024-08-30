@@ -7,7 +7,7 @@ import {
   TransactionReceipt,
   TransactionResponse
 } from 'ethers'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
@@ -15,12 +15,14 @@ import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
 import { Storage } from '@ambire-common/interfaces/storage'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import {
+  AccountOpIdentifiedBy,
+  fetchTxnId,
+  isIdentifiedByTxn
+} from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
-import { getExplorerId } from '@ambire-common/libs/userOperation/userOperation'
-import { Bundler } from '@ambire-common/services/bundlers/bundler'
-import { fetchUserOp } from '@ambire-common/services/explorers/jiffyscan'
 import {
   handleOps070,
   handleOpsInterface
@@ -29,20 +31,21 @@ import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScree
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 import { isExtension } from '@web/constants/browserapi'
 
+import { getBenzinUrlParams } from '../../utils/url'
 import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
-const REFETCH_TXN_TIME = 4000 // 4 seconds
-const REFETCH_RECEIPT_TIME = 5000 // 5 seconds
-const REFETCH_USER_OP = 3000 // 3 seconds
+const REFETCH_TIME = 4000 // 4 seconds
 
 interface Props {
   txnId: string | null
   userOpHash: string | null
+  relayerId: string | null
   network: Network | null
   standardOptions: {
     storage: Storage
     fetch: Fetch
+    callRelayer: any
     emitError: (e: ErrorRef) => number
     parser: Function
   }
@@ -57,7 +60,6 @@ export interface StepsData {
   cost: null | string
   calls: IrCall[] | null
   pendingTime: number
-  userOpStatusData: { status: null | string; txnId: null | string }
   txnId: string | null
   from: string | null
   originatedFrom: string | null
@@ -65,24 +67,39 @@ export interface StepsData {
 
 // if the transaction hash is found, we make the top url the real txn id
 // because user operation hashes are not reliable long term
-const setUrlToTxnId = (transactionHash: string, userOpHash: string, network: string) => {
+const setUrlToTxnId = (
+  transactionHash: string,
+  userOpHash: string | null,
+  relayerId: string | null,
+  chainId: bigint
+) => {
   const splitUrl = (window.location.href || '').split('?')
   const search = splitUrl[1]
   const searchParams = new URLSearchParams(search)
   const isInternal = typeof searchParams.get('isInternal') === 'string'
 
+  const getIdentifiedBy = (): AccountOpIdentifiedBy => {
+    if (relayerId) return { type: 'Relayer', identifier: relayerId }
+    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    return { type: 'Transaction', identifier: transactionHash }
+  }
+
   window.history.pushState(
     null,
     '',
-    `${splitUrl[0]}?txnId=${transactionHash}&userOpHash=${userOpHash}&networkId=${network}${
-      isInternal ? '&isInternal' : ''
-    }`
+    `${splitUrl[0]}${getBenzinUrlParams({
+      chainId,
+      txnId: transactionHash,
+      identifiedBy: getIdentifiedBy(),
+      isInternal
+    })}`
   )
 }
 
 const useSteps = ({
   txnId,
   userOpHash,
+  relayerId,
   network,
   standardOptions,
   setActiveStep,
@@ -90,13 +107,6 @@ const useSteps = ({
 }: Props): StepsData => {
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
-  const [userOpStatusData, setUserOpStatusData] = useState<{
-    status: null | string
-    txnId: null | string
-  }>({
-    status: null,
-    txnId: null
-  })
   const [txnReceipt, setTxnReceipt] = useState<{
     actualGasCost: null | BigInt
     from: null | string
@@ -107,140 +117,127 @@ const useSteps = ({
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
   })
-  const [refetchUserOpStatusCounter, setRefetchUserOpStatusCounter] = useState<number>(0)
+  const [refetchTxnIdCounter, setRefetchTxnIdCounter] = useState<number>(0)
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
   const [calls, setCalls] = useState<null | IrCall[]>(null)
   const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
+  const [foundTxnId, setFoundTxnId] = useState<null | string>(txnId)
 
-  // if we have a userOpHash only, try to find the txnId
+  const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
+    if (relayerId) return { type: 'Relayer', identifier: relayerId }
+    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    return { type: 'Transaction', identifier: txnId as string }
+  }, [relayerId, userOpHash, txnId])
+
+  const receiptAlreadyFetched = useMemo(() => !!txnReceipt.blockNumber, [txnReceipt.blockNumber])
+
   useEffect(() => {
-    if (!userOpHash || txnId || userOpStatusData.status || !network) return
+    let timeout: any
 
-    // implement the bundler fetch here, why not
-    // and only listen for txIds
-    let bundlerSuccess = false
-    Bundler.getStatusAndTxnId(userOpHash, network)
-      .then((bundlerResult) => {
-        if (bundlerResult.status === 'rejected') {
-          setUserOpStatusData({ status: 'rejected', txnId: null })
+    if (!network || (!userOpHash && !relayerId) || txn || receiptAlreadyFetched) return
+
+    fetchTxnId(identifiedBy, network, standardOptions.fetch, standardOptions.callRelayer)
+      .then((result) => {
+        if (result.status === 'rejected') {
           setFinalizedStatus({
             status: 'rejected',
             reason: 'Bundler has rejected the user operation'
           })
           setActiveStep('finalized')
-          bundlerSuccess = true
           return
         }
 
-        if (bundlerResult.transactionHash && !userOpStatusData.txnId) {
-          setUserOpStatusData({
-            status: 'submitted',
-            txnId: bundlerResult.transactionHash
-          })
+        if (result.status === 'not_found') {
+          timeout = setTimeout(() => {
+            setRefetchTxnIdCounter(refetchTxnIdCounter + 1)
+          }, REFETCH_TIME)
+          return
+        }
+
+        const resultTxnId = result.txnId as string
+        if (resultTxnId !== foundTxnId) {
+          setFoundTxnId(resultTxnId)
           setActiveStep('in-progress')
-          setUrlToTxnId(bundlerResult.transactionHash, userOpHash, network.id)
-          bundlerSuccess = true
+          setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.chainId)
+        }
+
+        // if there's no txn and receipt, keep searching
+        if (!txn && !receiptAlreadyFetched) {
+          timeout = setTimeout(() => {
+            setRefetchTxnIdCounter(refetchTxnIdCounter + 1)
+          }, REFETCH_TIME)
         }
       })
       .catch((e) => e)
-      .finally(() => {
-        if (bundlerSuccess) return
 
-        // jiffy scan fetch
-        fetchUserOp(userOpHash, standardOptions.fetch, getExplorerId(network))
-          .then((reqRes: any) => {
-            if (reqRes.status !== 200) {
-              setTimeout(() => {
-                setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
-              }, REFETCH_USER_OP)
-            }
-
-            reqRes.json().then((data: any) => {
-              const userOps = data.userOps
-              if (!userOps.length) {
-                // if we can't find it in the next 2 minutes, we drop it
-                if (refetchUserOpStatusCounter > 10 && !userOpStatusData.txnId) {
-                  setFinalizedStatus({ status: 'dropped' })
-                  setActiveStep('finalized')
-                  setUserOpStatusData({ status: 'not_found', txnId: null })
-                  return
-                }
-
-                setTimeout(() => {
-                  setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
-                }, REFETCH_USER_OP)
-                return
-              }
-
-              const foundUserOp = userOps[0]
-              if (foundUserOp.transactionHash && !userOpStatusData.txnId) {
-                setUserOpStatusData({
-                  status: 'submitted',
-                  txnId: foundUserOp.transactionHash
-                })
-                setActiveStep('in-progress')
-                setUrlToTxnId(foundUserOp.transactionHash, userOpHash, network.id)
-              } else {
-                // without timeout as it takes some time for the jiffyscan call
-                setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
-              }
-            })
-          })
-          .catch((e) => e)
-      })
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
   }, [
-    userOpHash,
-    standardOptions,
-    refetchUserOpStatusCounter,
     network,
-    setActiveStep,
+    identifiedBy,
+    standardOptions.fetch,
+    standardOptions.callRelayer,
     txnId,
-    userOpStatusData
+    setActiveStep,
+    refetchTxnIdCounter,
+    foundTxnId,
+    relayerId,
+    userOpHash,
+    txn,
+    receiptAlreadyFetched
   ])
 
   // find the transaction
   useEffect(() => {
-    if (txn || (!txnId && !userOpStatusData.txnId) || !provider) return
+    let timeout: any
 
-    const finalTxnId = userOpStatusData.txnId ?? txnId
+    if (txn || !foundTxnId || !provider) return
+
     provider
-      .getTransaction(finalTxnId!)
+      .getTransaction(foundTxnId)
       .then((fetchedTxn: null | TransactionResponse) => {
         if (!fetchedTxn) {
-          // try to refetch 10 times; if it fails, mark it as dropped
-          if (refetchTxnCounter < 10) {
-            setTimeout(() => {
-              setRefetchTxnCounter(refetchTxnCounter + 1)
-            }, REFETCH_TXN_TIME)
+          // if is EOA broadcast and we can't fetch the txn 15 times,
+          // declare the txn dropped
+          if (isIdentifiedByTxn(identifiedBy) && refetchTxnCounter >= 15) {
+            setFinalizedStatus({ status: 'dropped' })
+            setActiveStep('finalized')
             return
           }
 
-          setFinalizedStatus({ status: 'dropped' })
-          setActiveStep('finalized')
+          // start a refetch
+          timeout = setTimeout(() => {
+            setRefetchTxnCounter(refetchTxnCounter + 1)
+          }, REFETCH_TIME)
           return
         }
 
         setTxn(fetchedTxn)
       })
       .catch(() => null)
-  }, [txnId, userOpStatusData, txn, refetchTxnCounter, setActiveStep, provider])
+
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
+  }, [foundTxnId, txn, refetchTxnCounter, setActiveStep, provider, identifiedBy])
 
   useEffect(() => {
-    if (txnReceipt.blockNumber || (!txnId && !userOpStatusData.txnId) || !provider) return
+    let timeout: any
+    if (receiptAlreadyFetched || !foundTxnId || !provider) return
 
-    const finalTxnId = userOpStatusData.txnId ?? txnId
     provider
-      .getTransactionReceipt(finalTxnId!)
+      .getTransactionReceipt(foundTxnId)
       .then((receipt: null | TransactionReceipt) => {
         if (!receipt) {
           // if there is a txn but no receipt, it means it is pending
           if (txn) {
-            setTimeout(
+            timeout = setTimeout(
               () => setRefetchReceiptCounter(refetchReceiptCounter + 1),
-              REFETCH_RECEIPT_TIME
+              REFETCH_TIME
             )
             setFinalizedStatus({ status: 'fetching' })
             setActiveStep('in-progress')
@@ -291,14 +288,17 @@ const useSteps = ({
         setActiveStep('finalized')
       })
       .catch(() => null)
+
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
   }, [
-    txnId,
-    txnReceipt,
+    foundTxnId,
+    receiptAlreadyFetched,
     txn,
     refetchReceiptCounter,
     setActiveStep,
     userOpHash,
-    userOpStatusData.txnId,
     provider
   ])
 
@@ -347,7 +347,7 @@ const useSteps = ({
 
   // calculate pending time
   useEffect(() => {
-    if (!txn || txnReceipt.blockNumber || !provider || !network) return
+    if (!txn || receiptAlreadyFetched || !provider || !network) return
 
     provider
       .getBlock('latest', true)
@@ -372,7 +372,7 @@ const useSteps = ({
         }
       })
       .catch(() => null)
-  }, [txn, txnReceipt, provider, network])
+  }, [txn, receiptAlreadyFetched, provider, network])
 
   // get block
   useEffect(() => {
@@ -389,7 +389,7 @@ const useSteps = ({
   useEffect(() => {
     if (!network) return
 
-    getNativePrice(network, fetch)
+    getNativePrice(network, fetch as any)
       .then((fetchedPrice) => setNativePrice(parseFloat(fetchedPrice.toFixed(2))))
       .catch(() => setNativePrice(0))
   }, [network])
@@ -541,8 +541,7 @@ const useSteps = ({
     cost,
     calls,
     pendingTime,
-    userOpStatusData,
-    txnId: userOpStatusData.txnId ?? txnId,
+    txnId: foundTxnId,
     from: txnReceipt.from,
     originatedFrom: txnReceipt.originatedFrom
   }

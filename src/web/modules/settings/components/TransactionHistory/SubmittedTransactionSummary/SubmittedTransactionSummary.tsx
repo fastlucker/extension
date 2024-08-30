@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, ViewStyle } from 'react-native'
 
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
-import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
+import { SubmittedAccountOp } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
@@ -54,7 +54,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     callsHumanizer(
       submittedAccountOp,
       storage,
-      window.fetch.bind(window),
+      window.fetch.bind(window) as any,
       (calls) => {
         setHumanizedCalls(calls)
       },
@@ -111,39 +111,18 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
 
     if (!chainId || !submittedAccountOp.txnId) throw new Error('Invalid chainId or txnId')
 
-    let link = `https://benzin.ambire.com/${getBenzinUrlParams({
+    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
       txnId: submittedAccountOp.txnId,
       chainId,
-      userOpHash: submittedAccountOp.userOpHash
+      identifiedBy: submittedAccountOp.identifiedBy
     })}`
-
-    // in the rare case of a bug where we've failed to find the txnId
-    // for an userOpHash, the userOpHash and the txnId will be the same.
-    // In that case, open benzina only with the userOpHash
-    if (
-      !submittedAccountOp.txnId ||
-      (submittedAccountOp.userOpHash &&
-        submittedAccountOp.userOpHash === submittedAccountOp.txnId &&
-        !network.predefined)
-    ) {
-      link = `https://benzin.ambire.com/${getBenzinUrlParams({
-        chainId,
-        userOpHash: submittedAccountOp.userOpHash
-      })}`
-    }
 
     try {
       await createTab(link)
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
-  }, [
-    network.chainId,
-    network.predefined,
-    submittedAccountOp.txnId,
-    submittedAccountOp.userOpHash,
-    addToast
-  ])
+  }, [network.chainId, submittedAccountOp.txnId, submittedAccountOp.identifiedBy, addToast])
 
   return calls.length ? (
     <View style={[styles.container, style]}>
