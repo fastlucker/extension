@@ -260,9 +260,18 @@ const SignMessageScreen = () => {
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
+            {isViewOnly && (
+              <NoKeysToSignAlert
+                style={{
+                  width: '100%',
+                  ...spacings.mb
+                }}
+                isTransaction={false}
+              />
+            )}
             <ExpandableCard
               enableExpand={false}
-              style={spacings.mbMd}
+              style={spacings.mbTy}
               hasArrow={false}
               content={
                 visualizeHumanized &&
@@ -299,15 +308,6 @@ const SignMessageScreen = () => {
               hasReachedBottom={!!hasReachedBottom}
               messageToSign={signMessageState.messageToSign}
             />
-            {isViewOnly && (
-              <NoKeysToSignAlert
-                style={{
-                  width: '100%',
-                  ...spacings.mtMd
-                }}
-                isTransaction={false}
-              />
-            )}
           </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
