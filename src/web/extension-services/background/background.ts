@@ -16,7 +16,6 @@ import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keys
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -113,7 +112,8 @@ handleRegisterScripts()
   setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
 
   // @TODO test
-  await storage.remove(HUMANIZER_META_KEY)
+  // used in older versions for persisting learnt data for humanizer
+  await storage.remove('HumanizerMetaV2')
 
   const backgroundState: {
     isUnlocked: boolean
