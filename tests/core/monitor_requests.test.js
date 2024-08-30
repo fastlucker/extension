@@ -25,8 +25,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     await browser.close()
   })
 
-  // TODO: Let's figure out why this tests stop working.
-  it.skip('portfolio and account state reload', async () => {
+  it('portfolio and account state reload', async () => {
     const httpRequests = await monitorRequests(serviceWorker.client, async () => {
       await clickOnElement(page, '[data-testid="refresh-button"]')
     })
