@@ -177,7 +177,7 @@ const DevicePasswordRecoverySettingsScreen = () => {
           title={t('How it works')}
           titleWeight="semiBold"
           text={t(
-            'This is a recovery mechanism for your local device password via email. Please note that it doesn’t upload any keys, and it is not an account recovery mechanism. \nIt is just an alternative way of unlocking your extension on this device in case you forget your password.'
+            "This is a recovery mechanism for your local device password via email. Please note that it doesn't upload any keys, and it is not an account recovery mechanism. \nIt is just an alternative way of unlocking your extension on this device in case you forget your password."
           )}
         />
       </View>
