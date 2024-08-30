@@ -43,9 +43,10 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     [networks, submittedAccountOp.networkId]
   )
 
-  const calls = useMemo(() => {
-    return humanizeAccountOp(submittedAccountOp, { network })
-  }, [submittedAccountOp, network])
+  const calls = useMemo(
+    () => humanizeAccountOp(submittedAccountOp, { network }),
+    [submittedAccountOp, network]
+  )
 
   useEffect((): void => {
     const feeTokenAddress = submittedAccountOp.gasFeePayment?.inToken

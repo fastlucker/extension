@@ -16,7 +16,7 @@ import { RELAYER_URL } from '@env'
 import useBenzinGetNetwork from './useBenzinGetNetwork'
 import useBenzinGetProvider from './useBenzinGetProvider'
 
-const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
+const parseHumanizer = (humanizedCalls: IrCall[]) => {
   // remove deadlines from humanizer
   const finalParsedCalls = humanizedCalls.map((call) => {
     const localCall = { ...call }
@@ -26,7 +26,7 @@ const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
     localCall.warnings = call.warnings?.filter((warn) => warn.content !== 'Unknown address')
     return localCall
   })
-  setCalls(finalParsedCalls)
+  return finalParsedCalls
 }
 const fetch = window.fetch.bind(window) as any
 const standardOptions = {

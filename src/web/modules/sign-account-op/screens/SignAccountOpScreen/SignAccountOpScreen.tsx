@@ -180,10 +180,11 @@ const SignAccountOpScreen = () => {
     window.close()
   }, [])
 
-  const humanizedCalls: IrCall[] | null = useMemo(() => {
-    if (signAccountOpState?.accountOp) return humanizeAccountOp(signAccountOpState.accountOp, {})
-    return null
-  }, [signAccountOpState?.accountOp])
+  const humanizedCalls: IrCall[] | null = useMemo(
+    () =>
+      signAccountOpState?.accountOp ? humanizeAccountOp(signAccountOpState.accountOp, {}) : null,
+    [signAccountOpState?.accountOp]
+  )
 
   useEffect(() => {
     const destroy = () => {

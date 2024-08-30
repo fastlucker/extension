@@ -515,8 +515,7 @@ const useSteps = ({
         accountOpToExecuteBefore: null
       }
       const irCalls = humanizeAccountOp(accountOp, { network })
-      const result = standardOptions.parser(irCalls)
-      return result
+      return standardOptions.parser(irCalls)
     }
   }, [network, txnReceipt, txn, userOpHash, standardOptions, userOp])
 
