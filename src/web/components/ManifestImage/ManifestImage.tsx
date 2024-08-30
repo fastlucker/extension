@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Image, ImageStyle, View, ViewStyle } from 'react-native'
 
 import SkeletonLoader from '@common/components/SkeletonLoader'
@@ -52,6 +52,13 @@ const ManifestImage = ({
   }, [currentUri.index, uris])
 
   const onLoadEnd = useCallback(() => setIsLoading(false), [])
+
+  useEffect(() => {
+    if (!uris.length && !uri) {
+      setIsLoading(false)
+      setHasError(true)
+    }
+  }, [uri, uris.length])
 
   return (
     <View

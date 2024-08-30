@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, ViewStyle } from 'react-native'
 
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
-import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
+import { SubmittedAccountOp } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
@@ -24,7 +24,6 @@ import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import getStyles from './styles'
@@ -38,7 +37,6 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { accounts } = useAccountsControllerState()
-  const settingsState = useSettingsControllerState()
   const { networks } = useNetworksControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
@@ -56,14 +54,14 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     callsHumanizer(
       submittedAccountOp,
       storage,
-      window.fetch.bind(window),
+      window.fetch.bind(window) as any,
       (calls) => {
         setHumanizedCalls(calls)
       },
       (err: any) => setHumanizerError(err),
       { noAsyncOperations: true, network }
     )
-  }, [submittedAccountOp, keystoreState.keys, accounts, settingsState.keyPreferences, network])
+  }, [submittedAccountOp, keystoreState.keys, accounts, network])
 
   const calls = useMemo(() => {
     if (humanizerError) return submittedAccountOp.calls
@@ -113,39 +111,18 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
 
     if (!chainId || !submittedAccountOp.txnId) throw new Error('Invalid chainId or txnId')
 
-    let link = `https://benzin.ambire.com/${getBenzinUrlParams({
+    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
       txnId: submittedAccountOp.txnId,
       chainId,
-      userOpHash: submittedAccountOp.userOpHash
+      identifiedBy: submittedAccountOp.identifiedBy
     })}`
-
-    // in the rare case of a bug where we've failed to find the txnId
-    // for an userOpHash, the userOpHash and the txnId will be the same.
-    // In that case, open benzina only with the userOpHash
-    if (
-      !submittedAccountOp.txnId ||
-      (submittedAccountOp.userOpHash &&
-        submittedAccountOp.userOpHash === submittedAccountOp.txnId &&
-        !network.predefined)
-    ) {
-      link = `https://benzin.ambire.com/${getBenzinUrlParams({
-        chainId,
-        userOpHash: submittedAccountOp.userOpHash
-      })}`
-    }
 
     try {
       await createTab(link)
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
-  }, [
-    network.chainId,
-    network.predefined,
-    submittedAccountOp.txnId,
-    submittedAccountOp.userOpHash,
-    addToast
-  ])
+  }, [network.chainId, submittedAccountOp.txnId, submittedAccountOp.identifiedBy, addToast])
 
   return calls.length ? (
     <View style={[styles.container, style]}>
