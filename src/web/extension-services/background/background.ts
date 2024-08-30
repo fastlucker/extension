@@ -580,29 +580,32 @@ handleRegisterScripts()
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
+                // TODO: That's the default. Figure out a mechanism to update it
+                // for the stored keystore default seed if changed.
+                const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
                 const keyIterator = new KeyIterator(params.privKeyOrSeed)
                 if (keyIterator.subType === 'seed' && params.shouldPersist) {
-                  await mainCtrl.keystore.addSeed(params.privKeyOrSeed)
+                  await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
                 }
 
                 mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                  hdPathTemplate
                 })
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-                const seed = await mainCtrl.keystore.getDefaultSeed()
+                const keystoreDefaultSeed = await mainCtrl.keystore.getDefaultSeed()
 
-                if (!seed) return
-                const keyIterator = new KeyIterator(seed)
+                if (!keystoreDefaultSeed) return
+                const keyIterator = new KeyIterator(keystoreDefaultSeed.seed)
                 mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: 5,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                  hdPathTemplate: keystoreDefaultSeed.hdPathTemplate
                 })
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
@@ -725,7 +728,10 @@ handleRegisterScripts()
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
               case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-                await mainCtrl.importSmartAccountFromDefaultSeed(params.seed)
+                await mainCtrl.importSmartAccountFromDefaultSeed({
+                  seed: params.seed,
+                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                })
                 break
               }
               case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
@@ -910,8 +916,6 @@ handleRegisterScripts()
                   params.newSecret,
                   params.secret
                 )
-              case 'KEYSTORE_CONTROLLER_ADD_SEED':
-                return await mainCtrl.keystore.addSeed(params.seed)
               case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
                 // In the case we change the user's device password through the recovery process,
                 // we don't know the old password, which is why we send only the new password.
