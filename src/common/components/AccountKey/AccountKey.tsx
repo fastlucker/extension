@@ -88,12 +88,12 @@ const AccountKey: React.FC<Props> = ({
 
   const editKeyLabel = (newLabel: string) => {
     dispatch({
-      type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
+      type: 'KEYSTORE_CONTROLLER_UPDATE_KEY_PREFERENCES',
       params: [
         {
           addr,
           type: type || 'internal',
-          label: newLabel
+          preferences: { label: newLabel }
         }
       ]
     })

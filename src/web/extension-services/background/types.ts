@@ -12,7 +12,6 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { NetworksController } from '@ambire-common/controllers/networks/networks'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
-import { SettingsController } from '@ambire-common/controllers/settings/settings'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
@@ -33,7 +32,6 @@ export const controllersNestedInMainMapping = {
   transfer: TransferController,
   dapps: DappsController,
   actions: ActionsController,
-  settings: SettingsController,
   addressBook: AddressBookController,
   domains: DomainsController,
   invite: InviteController
