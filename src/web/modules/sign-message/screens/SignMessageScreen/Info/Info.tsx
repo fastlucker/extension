@@ -64,11 +64,12 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
                 fontSize={maxWidthSize('xl') ? 20 : 16}
                 appearance="secondaryText"
                 weight="semiBold"
+                style={spacings.mrMi}
               >
                 {dapp?.name || t('The dApp')}
               </Text>
               <Text fontSize={maxWidthSize('xl') ? 20 : 16} appearance="secondaryText">
-                {t(' is requesting your signature ')}
+                {t('is requesting your signature ')}
               </Text>
             </View>
           </View>
@@ -97,7 +98,8 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
           <Text
             style={spacings.mbMd}
             fontSize={maxWidthSize('xl') ? 24 : 20}
-            appearance="primaryText"
+            appearance="secondaryText"
+            weight="medium"
           >
             {t('Entry point authorization')}
           </Text>
@@ -112,13 +114,13 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
             )}
           </Text>
           <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
-            {t(' If you still have any doubts, ')}
+            {t('If you still have any doubts, please ')}
             <Text
               fontSize={maxWidthSize('xl') ? 16 : 14}
               style={{ color: theme.primary, textDecorationLine: 'underline' }}
               onPress={linkToSupportPage}
             >
-              {t('please contact support.')}
+              {t('contact support.')}
             </Text>
           </Text>
         </>
