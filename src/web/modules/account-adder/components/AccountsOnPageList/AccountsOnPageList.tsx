@@ -335,6 +335,8 @@ const AccountsOnPageList = ({
               labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
               style={flexbox.alignSelfStart}
             />
+            {/* TODO: Temporarily disable for Trezor */}
+            {/* TODO: Disable during loading */}
             <SelectDerivation />
           </View>
         )}
