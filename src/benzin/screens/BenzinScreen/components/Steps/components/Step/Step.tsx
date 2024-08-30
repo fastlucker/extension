@@ -11,6 +11,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
+import StatusExplanation from './StatusExplanation'
 import StepRow from './StepRow'
 import { StepRowProps as StepRowInterface } from './StepRow/StepRow'
 import getStyles from './styles'
@@ -138,14 +139,17 @@ const Step: FC<StepProps> = ({
         ]}
       >
         {!!title && (
-          <Text
-            appearance={getTitleAppearance()}
-            fontSize={16}
-            weight="medium"
-            style={[styles.title, titleStyle]}
-          >
-            {title === 'fetching' ? 'Confirmed' : title}
-          </Text>
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <Text
+              appearance={getTitleAppearance()}
+              fontSize={16}
+              weight="medium"
+              style={[styles.title, titleStyle]}
+            >
+              {title === 'fetching' ? 'Confirmed' : title}
+            </Text>
+            <StatusExplanation status={finalizedStatus?.status} stepName={stepName} />
+          </View>
         )}
         {children}
         {!!rows && rows.map((row) => <StepRow {...row} key={row.label} />)}
