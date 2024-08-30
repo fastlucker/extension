@@ -12,7 +12,7 @@ import {
   ImportStatus
 } from '@ambire-common/interfaces/account'
 import Alert from '@common/components/Alert'
-import Badge from '@common/components/Badge'
+import BadgeWithPreset from '@common/components/BadgeWithPreset'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Pagination from '@common/components/Pagination'
@@ -252,7 +252,7 @@ const AccountsOnPageList = ({
                 {t(`Linked Smart Account (found on page ${state.page})`)}
               </Text>
               <View style={flexbox.alignStart}>
-                <Badge type="info" withIcon text="linked" />
+                <BadgeWithPreset preset="linked" />
               </View>
             </View>
             <View style={[flexbox.directionRow, flexbox.alignEnd]}>

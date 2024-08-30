@@ -7,6 +7,7 @@ import { Network } from '@ambire-common/interfaces/network'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Badge from '@common/components/Badge'
+import BadgeWithPreset from '@common/components/BadgeWithPreset'
 import Checkbox from '@common/components/Checkbox'
 import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -117,11 +118,9 @@ const Account = ({
               )}
             </View>
             {type === 'basic' ? (
-              <Badge
+              <BadgeWithPreset
                 withRightSpacing
-                withIcon
-                text={t('Basic Account')}
-                type="warning"
+                preset="basic-account"
                 {...(shouldAddIntroStepsIds
                   ? {
                       nativeID: BasicAccountIntroId
@@ -129,11 +128,9 @@ const Account = ({
                   : {})}
               />
             ) : (
-              <Badge
+              <BadgeWithPreset
                 withRightSpacing
-                withIcon
-                text={t('Smart Account')}
-                type="success"
+                preset="smart-account"
                 {...(shouldAddIntroStepsIds
                   ? {
                       nativeID: SmartAccountIntroId
@@ -141,11 +138,9 @@ const Account = ({
                   : {})}
               />
             )}
-            {type === 'linked' && (
-              <Badge withRightSpacing withIcon text={t('linked')} type="info" />
-            )}
+            {type === 'linked' && <BadgeWithPreset preset="linked" withRightSpacing />}
             {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
-              <Badge withRightSpacing withIcon text={t('Ambire v1')} type="info" />
+              <BadgeWithPreset preset="ambire-v1" withRightSpacing />
             )}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
@@ -173,7 +168,7 @@ const Account = ({
                 })}
               </View>
             )}
-            {!!unused && <Badge withIcon text={t('unused')} />}
+            {!!unused && <Badge text={t('unused')} />}
           </View>
         </View>
       </View>
