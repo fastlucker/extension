@@ -24,7 +24,6 @@ import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import getStyles from './styles'
@@ -38,7 +37,6 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { accounts } = useAccountsControllerState()
-  const settingsState = useSettingsControllerState()
   const { networks } = useNetworksControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
@@ -63,7 +61,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       (err: any) => setHumanizerError(err),
       { noAsyncOperations: true, network }
     )
-  }, [submittedAccountOp, keystoreState.keys, accounts, settingsState.keyPreferences, network])
+  }, [submittedAccountOp, keystoreState.keys, accounts, network])
 
   const calls = useMemo(() => {
     if (humanizerError) return submittedAccountOp.calls
@@ -86,14 +84,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     const tokenNetwork = networks.filter((n: Network) => n.id === networkId)[0]
 
     const feeTokenAmount = submittedAccountOp.gasFeePayment?.amount
-    if (!feeTokenAddress || !tokenNetwork || !feeTokenAmount) {
-      console.error({
-        message: 'Some fee token data is missing',
-        data: { feeTokenAddress, tokenNetwork, feeTokenAmount }
-      })
-      addToast('We had problem finding fee payment info', { type: 'error' })
-      return
-    }
+    if (!feeTokenAddress || !tokenNetwork || !feeTokenAmount) return
 
     resolveAssetInfo(feeTokenAddress, tokenNetwork, ({ tokenInfo }) => {
       if (!tokenInfo || !submittedAccountOp.gasFeePayment?.amount) return
@@ -210,7 +201,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
               <Text fontSize={14} appearance="secondaryText" weight="semiBold">
                 {t('Block Explorer')}:{' '}
               </Text>
-              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy} selectable>
                 {new URL(network.explorerUrl).hostname}
               </Text>
             </View>

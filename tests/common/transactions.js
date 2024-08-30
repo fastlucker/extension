@@ -68,6 +68,47 @@ export async function makeValidTransaction(
   await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
 }
 
+async function selectTokenInUni(page, tokenId, search) {
+  if (search) {
+    await typeText(page, '[data-testid="explore-search-input"]', search)
+  }
+  await clickOnElement(page, `[data-testid="${tokenId}"]`)
+
+  // Wait until the menu is closed
+  await page.waitForSelector(`[data-testid="${tokenId}"]`, {
+    hidden: true
+  })
+}
+
+async function prepareSwapLegacy(page) {
+  // Change the network to Polygon
+  await clickOnElement(page, '[data-testid="chain-selector-logo"]')
+  await clickOnElement(page, '[data-testid="Polygon-selector"]')
+
+  // If this web3 status indicator is not disabled, it means that the connection was successful.
+  await page.waitForSelector('[data-testid="web3-status-connected"]:not([disabled])')
+
+  // Select USDT and USDC tokens for swap
+  await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
+
+  await selectTokenInUni(page, 'common-base-USDT')
+
+  // Click on 'Select token' and select 'USDC' token
+  await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
+
+  await selectTokenInUni(page, 'common-base-USDC')
+}
+
+async function prepareSwap(page) {
+  await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
+
+  await selectTokenInUni(page, 'token-option-137-USDC', 'USDC')
+
+  await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
+
+  await selectTokenInUni(page, 'token-option-137-USDT', 'USDT')
+}
+
 //--------------------------------------------------------------------------------------------------------------
 export async function makeSwap(
   page,
@@ -115,30 +156,25 @@ export async function makeSwap(
 
   await actionWindowDapReqRecorder.stop()
 
-  // Change the network to Polygon
-  await clickOnElement(page, '[data-testid="chain-selector-logo"]')
-  await clickOnElement(page, '[data-testid="Polygon-selector"]')
+  // Uniswap occasionally displays its old non chain-agnostic UI.
+  // To ensure compatibility, we need to handle both the new and old versions.
+  let shouldRunLegacyFlow = true
 
-  // If this web3 status indicator is not disabled, it means that the connection was successful.
-  await page.waitForSelector('[data-testid="web3-status-connected"]:not([disabled])')
+  try {
+    await page.waitForSelector('[data-testid="chain-selector-logo"]', {
+      visible: true,
+      timeout: 3000
+    })
+  } catch {
+    shouldRunLegacyFlow = false
+  }
 
-  // Select USDT and USDC tokens for swap
-  await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
+  if (shouldRunLegacyFlow) {
+    await prepareSwapLegacy(page)
+  } else {
+    await prepareSwap(page)
+  }
 
-  await clickOnElement(page, '[data-testid="common-base-USDT"]')
-
-  await page.waitForSelector('[data-testid="common-base-USDT"]', {
-    hidden: true
-  })
-
-  // Click on 'Select token' and select 'USDC' token
-  await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
-
-  await clickOnElement(page, '[data-testid="common-base-USDC"]')
-  // wait until element is not displayed
-  await page.waitForSelector('[data-testid="common-base-USDC"]', {
-    hidden: true
-  })
   await typeText(page, '#swap-currency-output', '0.0001')
   await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
 
@@ -155,7 +191,7 @@ export async function makeSwap(
 
   // Check if select fee token is visible and select the token
   if (feeToken) {
-    await selectFeeToken(newPage, feeToken)
+    await selectFeeToken(updatedPage, feeToken)
   }
 
   if (shouldStopBeforeSign) {

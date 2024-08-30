@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { JsonRpcProvider } from 'ethers'
+import { setStringAsync } from 'expo-clipboard'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -9,6 +10,7 @@ import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
 import { isValidURL } from '@ambire-common/services/validations'
+import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -23,6 +25,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import {
   getAreDefaultsChanged,
@@ -55,9 +58,22 @@ export const RpcSelectorItem = React.memo(
     onPress,
     onRemove
   }: RpcSelectorItemType) => {
+    const { t } = useTranslation()
+    const { addToast } = useToast()
     const { styles, theme } = useTheme(getStyles)
     const [hovered, setHovered] = useState(false)
-    const { t } = useTranslation()
+    const [bindCopyIconAnim, copyIconAnimStyle] = useHover({
+      preset: 'opacity'
+    })
+
+    const handleCopy = useCallback(async () => {
+      try {
+        await setStringAsync(url)
+        addToast(t('Copied to clipboard!'), { timeout: 2500 })
+      } catch (error) {
+        addToast(t('Failed to copy to clipboard'), { type: 'error' })
+      }
+    }, [addToast, t, url])
 
     return (
       <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
@@ -82,16 +98,30 @@ export const RpcSelectorItem = React.memo(
           >
             {selectedRpcUrl === url && <View style={styles.radioSelectedInner} />}
           </View>
-          <Text
-            fontSize={14}
-            appearance={selectedRpcUrl === url ? 'primaryText' : 'secondaryText'}
-            numberOfLines={1}
-            style={flexbox.flex1}
-          >
-            {url}
-          </Text>
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <Text
+              fontSize={14}
+              appearance={selectedRpcUrl === url ? 'primaryText' : 'secondaryText'}
+              numberOfLines={1}
+              style={flexbox.flex1}
+            >
+              {url}
+            </Text>
+            <AnimatedPressable
+              onPress={handleCopy}
+              style={[spacings.mlMi, copyIconAnimStyle]}
+              {...bindCopyIconAnim}
+            >
+              <CopyIcon width={16} height={16} />
+            </AnimatedPressable>
+          </View>
           {!!shouldShowRemove && !!hovered && (
-            <Pressable onPress={() => !!onRemove && onRemove(url)}>
+            <Pressable
+              style={{
+                marginLeft: 'auto'
+              }}
+              onPress={() => !!onRemove && onRemove(url)}
+            >
               {({ hovered: removeButtonHovered }: any) => (
                 <Text
                   fontSize={12}

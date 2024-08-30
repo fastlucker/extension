@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
+import BottomSheet from '@common/components/BottomSheet'
+import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -39,14 +43,21 @@ const SignAccountOpScreen = () => {
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
+  const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const [isLedgerConnectModalVisible, setIsLedgerConnectModalVisible] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
-  const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
+  const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
+  const {
+    ref: warningAgreementModalRef,
+    open: openWarningAgreementModal,
+    close: closeWarningAgreementModal
+  } = useModalize()
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () =>
@@ -74,6 +85,7 @@ const SignAccountOpScreen = () => {
 
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
+    signAccountOpState?.status?.type === SigningStatus.UpdatesPaused ||
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
@@ -182,21 +194,58 @@ const SignAccountOpScreen = () => {
   const feePayerKeyType = mainState.feePayerKey?.type
   const isAtLeastOneOfTheKeysInvolvedLedger =
     signingKeyType === 'ledger' || feePayerKeyType === 'ledger'
+
+  const updateControllerSigningStatus = useCallback(
+    (status: SigningStatus) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+        params: {
+          status
+        }
+      })
+    },
+    [dispatch]
+  )
+
   const handleDismissLedgerConnectModal = useCallback(() => {
-    setDidTriggerSigning(false)
+    setIsLedgerConnectModalVisible(false)
   }, [])
 
+  const warningToPromptBeforeSign = useMemo(
+    () =>
+      signAccountOpState?.warnings.find(
+        (warning) => warning.promptBeforeSign && !acknowledgedWarnings.includes(warning.id)
+      ),
+    [acknowledgedWarnings, signAccountOpState?.warnings]
+  )
+
   const handleSign = useCallback(
-    (_chosenSigningKeyType?: string) => {
-      setDidTriggerSigning(true)
+    (_chosenSigningKeyType?: string, _warningAccepted?: boolean) => {
       const isAtLeastOneOfTheCurrentKeysInvolvedLedger = _chosenSigningKeyType
         ? _chosenSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
         : isAtLeastOneOfTheKeysInvolvedLedger
-      if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) return
 
+      if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) {
+        setIsLedgerConnectModalVisible(true)
+        return
+      }
+
+      if (warningToPromptBeforeSign && !_warningAccepted) {
+        openWarningAgreementModal()
+        updateControllerSigningStatus(SigningStatus.UpdatesPaused)
+        return
+      }
       dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP' })
     },
-    [dispatch, isAtLeastOneOfTheKeysInvolvedLedger, feePayerKeyType, isLedgerConnected]
+    [
+      dispatch,
+      feePayerKeyType,
+      isAtLeastOneOfTheKeysInvolvedLedger,
+      isLedgerConnected,
+      openWarningAgreementModal,
+      updateControllerSigningStatus,
+      warningToPromptBeforeSign
+    ]
   )
 
   const handleChangeSigningKey = useCallback(
@@ -214,7 +263,9 @@ const SignAccountOpScreen = () => {
     [dispatch, handleSign]
   )
 
-  const onSignButtonClick = () => {
+  const onSignButtonClick = useCallback(() => {
+    if (!signAccountOpState) return
+
     // If the account has only one signer, we don't need to show the select signer overlay,
     // and we will sign the transaction with the only one available signer (it is set by default in the controller).
     if (signAccountOpState?.accountKeyStoreKeys.length === 1) {
@@ -223,12 +274,52 @@ const SignAccountOpScreen = () => {
     }
 
     setIsChooseSignerShown(true)
-  }
+  }, [signAccountOpState, handleSign])
+
+  const acknowledgeWarning = useCallback(() => {
+    if (!warningToPromptBeforeSign) return
+
+    setAcknowledgedWarnings((prev) => [...prev, warningToPromptBeforeSign.id])
+    closeWarningAgreementModal()
+    handleSign(undefined, true)
+  }, [warningToPromptBeforeSign, closeWarningAgreementModal, handleSign])
+
+  useEffect(() => {
+    if (isLedgerConnectModalVisible && isLedgerConnected) {
+      handleDismissLedgerConnectModal()
+    }
+  }, [handleDismissLedgerConnectModal, isLedgerConnectModalVisible, isLedgerConnected])
+
+  const dismissWarning = useCallback(() => {
+    updateControllerSigningStatus(SigningStatus.ReadyToSign)
+
+    closeWarningAgreementModal()
+  }, [updateControllerSigningStatus, closeWarningAgreementModal])
 
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
     [signAccountOpState?.accountKeyStoreKeys]
   )
+
+  const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
+    useMemo(() => {
+      if (isAtLeastOneOfTheKeysInvolvedLedger && !isLedgerConnected) return 'ledger-connect'
+      if (warningToPromptBeforeSign) return 'warnings'
+
+      const isAtLeastOneOfTheKeysInvolvedExternal =
+        (!!signingKeyType && signingKeyType !== 'internal') ||
+        (!!feePayerKeyType && feePayerKeyType !== 'internal')
+
+      if (isAtLeastOneOfTheKeysInvolvedExternal) return 'hw-sign'
+
+      return null
+    }, [
+      feePayerKeyType,
+      isAtLeastOneOfTheKeysInvolvedLedger,
+      isLedgerConnected,
+      signingKeyType,
+      warningToPromptBeforeSign
+    ])
 
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
@@ -245,6 +336,25 @@ const SignAccountOpScreen = () => {
 
   return (
     <>
+      {renderedButNotNecessarilyVisibleModal === 'warnings' && (
+        <BottomSheet
+          id="dual-choice"
+          closeBottomSheet={dismissWarning}
+          sheetRef={warningAgreementModalRef}
+          style={styles.warningsModal}
+        >
+          {warningToPromptBeforeSign && (
+            <DualChoiceWarningModal
+              title={t(warningToPromptBeforeSign.title)}
+              description={t(warningToPromptBeforeSign.text)}
+              primaryButtonText={t('Proceed')}
+              secondaryButtonText={t('Cancel')}
+              onPrimaryButtonPress={acknowledgeWarning}
+              onSecondaryButtonPress={dismissWarning}
+            />
+          )}
+        </BottomSheet>
+      )}
       <SafetyChecksOverlay
         shouldBeVisible={!signAccountOpState?.estimation || !signAccountOpState?.isInitialized}
       />
@@ -255,7 +365,9 @@ const SignAccountOpScreen = () => {
           <Footer
             onReject={handleRejectAccountOp}
             onAddToCart={handleAddToCart}
-            isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
+            isAddToCartDisplayed={
+              !!signAccountOpState && isSmartAccount(signAccountOpState.account)
+            }
             isSignLoading={isSignLoading}
             isSignDisabled={
               isViewOnly ||
@@ -263,6 +375,9 @@ const SignAccountOpScreen = () => {
               notReadyToSignButAlsoNotDone ||
               !signAccountOpState.readyToSign
             }
+            // Allow view only accounts to add to cart even if the txn is not ready to sign
+            // because they can't sign it anyway
+            isAddToCartDisabled={isSignLoading || (!signAccountOpState?.readyToSign && !isViewOnly)}
             onSign={onSignButtonClick}
           />
         }
@@ -299,16 +414,18 @@ const SignAccountOpScreen = () => {
               isViewOnly={isViewOnly}
             />
 
-            <SignAccountOpHardwareWalletSigningModal
-              signingKeyType={signingKeyType}
-              feePayerKeyType={feePayerKeyType}
-              broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
-              signAccountOpStatusType={signAccountOpState?.status?.type}
-            />
-            {isAtLeastOneOfTheKeysInvolvedLedger && didTriggerSigning && (
+            {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
+              <SignAccountOpHardwareWalletSigningModal
+                signingKeyType={signingKeyType}
+                feePayerKeyType={feePayerKeyType}
+                broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
+                signAccountOpStatusType={signAccountOpState?.status?.type}
+              />
+            )}
+
+            {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
               <LedgerConnectModal
-                isVisible={!isLedgerConnected}
-                handleOnConnect={handleDismissLedgerConnectModal}
+                isVisible={isLedgerConnectModalVisible}
                 handleClose={handleDismissLedgerConnectModal}
                 displayOptionToAuthorize={false}
               />

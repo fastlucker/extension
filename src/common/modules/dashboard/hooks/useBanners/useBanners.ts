@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { AccountId } from '@ambire-common/interfaces/account'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
@@ -10,7 +10,6 @@ import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useWalletStateController from '@web/hooks/useWalletStateController'
 
 const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount: AccountId | null) =>
   banners.filter((banner) => {
@@ -40,37 +39,8 @@ export default function useBanners(): BannerInterface[] {
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
 
-  const [innerBanners, setInnerBanners] = useState<BannerInterface[]>([])
-  const walletState = useWalletStateController()
-
-  useEffect(() => {
-    if (!walletState.isDefaultWallet) {
-      setInnerBanners((prev) => {
-        return [
-          ...prev,
-          {
-            id: 'switch-default-wallet',
-            type: 'warning',
-            title: 'Ambire Wallet is not your default wallet',
-            text: 'Another wallet is set as default browser wallet for connecting with dApps. You can switch it to Ambire Wallet.',
-            actions: [
-              {
-                label: 'Switch',
-                actionName: 'switch-default-wallet',
-                meta: {}
-              }
-            ]
-          }
-        ]
-      })
-    } else {
-      setInnerBanners((prev) => prev.filter((b) => b.id !== 'switch-default-wallet'))
-    }
-  }, [walletState.isDefaultWallet])
-
   const allBanners = useMemo(() => {
     return [
-      ...innerBanners,
       ...state.banners,
       ...actionBanners,
       // Don't display portfolio banners when offline
@@ -82,7 +52,6 @@ export default function useBanners(): BannerInterface[] {
       ...getCurrentAccountBanners(emailVaultBanners, selectedAccount)
     ]
   }, [
-    innerBanners,
     state.banners,
     actionBanners,
     debouncedIsOffline,

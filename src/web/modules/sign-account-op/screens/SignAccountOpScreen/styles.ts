@@ -7,6 +7,7 @@ interface Style {
   container: ViewStyle
   leftSideContainer: ViewStyle
   separator: ViewStyle
+  warningsModal: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -23,6 +24,13 @@ const getStyles = (theme: ThemeProps) =>
     separator: {
       width: 1,
       backgroundColor: theme.secondaryBorder
+    },
+    warningsModal: {
+      width: 492,
+      backgroundColor: theme.primaryBackground,
+      paddingHorizontal: 0,
+      paddingVertical: 0,
+      overflow: 'hidden'
     }
   })
 
