@@ -98,11 +98,11 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     provider
   })
 
-  const identifiedBy = useMemo(() => {
-    if (relayerId) return { id: relayerId } as AccountOpIdentifiedBy
-    if (userOpHash) return { userOpHash }
-    return 'txnId'
-  }, [relayerId, userOpHash])
+  const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
+    if (relayerId) return { type: 'Relayer', identifier: relayerId }
+    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    return { type: 'Transaction', identifier: txnId as string }
+  }, [relayerId, userOpHash, txnId])
 
   const handleCopyText = useCallback(async () => {
     try {
@@ -121,7 +121,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
       addToast('Error copying to clipboard', { type: 'error' })
     }
     addToast('Copied to clipboard!')
-  }, [addToast, chainId, stepsState.txnId, userOpHash, relayerId])
+  }, [addToast, chainId, stepsState.txnId, identifiedBy])
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network?.explorerUrl) return

@@ -1,7 +1,5 @@
 import {
   AccountOpIdentifiedBy,
-  getFetchedUserOpHash,
-  getRelayerId,
   isIdentifiedByRelayer,
   isIdentifiedByUserOpHash
 } from '@ambire-common/libs/accountOp/submittedAccountOp'
@@ -18,12 +16,10 @@ const getBenzinUrlParams = ({
   isInternal?: boolean
 }): string => {
   const userOpHash =
-    identifiedBy && isIdentifiedByUserOpHash(identifiedBy)
-      ? getFetchedUserOpHash(identifiedBy)
-      : undefined
+    identifiedBy && isIdentifiedByUserOpHash(identifiedBy) ? identifiedBy.identifier : undefined
 
   const relayerId =
-    identifiedBy && isIdentifiedByRelayer(identifiedBy) ? getRelayerId(identifiedBy) : undefined
+    identifiedBy && isIdentifiedByRelayer(identifiedBy) ? identifiedBy.identifier : undefined
 
   return `?chainId=${String(chainId)}${txnId ? `&txnId=${txnId}` : ''}${
     userOpHash ? `&userOpHash=${userOpHash}` : ''

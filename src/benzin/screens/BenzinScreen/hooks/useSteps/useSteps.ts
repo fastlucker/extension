@@ -78,10 +78,10 @@ const setUrlToTxnId = (
   const searchParams = new URLSearchParams(search)
   const isInternal = typeof searchParams.get('isInternal') === 'string'
 
-  const getIdentifiedBy = () => {
-    if (relayerId) return { id: relayerId } as AccountOpIdentifiedBy
-    if (userOpHash) return { userOpHash }
-    return 'txnId'
+  const getIdentifiedBy = (): AccountOpIdentifiedBy => {
+    if (relayerId) return { type: 'Relayer', identifier: relayerId }
+    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    return { type: 'Transaction', identifier: transactionHash }
   }
 
   window.history.pushState(
@@ -126,11 +126,11 @@ const useSteps = ({
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
   const [foundTxnId, setFoundTxnId] = useState<null | string>(txnId)
 
-  const identifiedBy = useMemo(() => {
-    if (relayerId) return { id: relayerId } as AccountOpIdentifiedBy
-    if (userOpHash) return { userOpHash }
-    return 'txnId'
-  }, [relayerId, userOpHash])
+  const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
+    if (relayerId) return { type: 'Relayer', identifier: relayerId }
+    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    return { type: 'Transaction', identifier: txnId as string }
+  }, [relayerId, userOpHash, txnId])
 
   const receiptAlreadyFetched = useMemo(() => !!txnReceipt.blockNumber, [txnReceipt.blockNumber])
 
@@ -139,7 +139,7 @@ const useSteps = ({
 
     if (!network || (!userOpHash && !relayerId) || txn || receiptAlreadyFetched) return
 
-    fetchTxnId({ identifiedBy, txnId }, network, standardOptions.fetch, standardOptions.callRelayer)
+    fetchTxnId(identifiedBy, network, standardOptions.fetch, standardOptions.callRelayer)
       .then((result) => {
         if (result.status === 'rejected') {
           setFinalizedStatus({

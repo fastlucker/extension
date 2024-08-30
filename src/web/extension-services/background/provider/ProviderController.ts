@@ -9,12 +9,10 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import {
   AccountOpIdentifiedBy,
-  getAccountOpIdentifier,
+  fetchTxnId,
   isIdentifiedByTxn,
   pollTxnId
 } from '@ambire-common/libs/accountOp/submittedAccountOp'
-import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
-import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import { delayPromise } from '@common/utils/promises'
@@ -132,7 +130,7 @@ export class ProviderController {
       const dappNetwork = this.getDappNetwork(session.origin)
       const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
       const txnId = await pollTxnId(
-        requestRes.submittedAccountOp,
+        requestRes.submittedAccountOp.identifiedBy,
         network,
         this.mainCtrl.fetch,
         this.mainCtrl.callRelayer
@@ -270,10 +268,8 @@ export class ProviderController {
   @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
   walletSendCalls = async (data: any) => {
     if (data.requestRes && data.requestRes.submittedAccountOp) {
-      return getAccountOpIdentifier(
-        data.requestRes.submittedAccountOp.identifiedBy,
-        data.requestRes.submittedAccountOp.txnId
-      )
+      const identifiedBy = data.requestRes.submittedAccountOp.identifiedBy
+      return `${identifiedBy.type}:${identifiedBy.identifier}`
     }
 
     throw new Error('Transaction failed!')
@@ -292,21 +288,26 @@ export class ProviderController {
 
     const type = splitInTwo[0]
     const identifier = splitInTwo[1]
-    let identifiedBy: AccountOpIdentifiedBy
-    if (type === 'Transaction') identifiedBy = 'txnId'
-    else if (type === 'UserOperation') identifiedBy = { userOpHash: identifier }
-    else identifiedBy = { id: identifier }
+    const identifiedBy: AccountOpIdentifiedBy = {
+      type,
+      identifier
+    }
 
     const dappNetwork = this.getDappNetwork(data.session.origin)
     const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
-    const txnId = await pollTxnId(
-      { identifiedBy, txnId: identifier },
+    const txnIdData = await fetchTxnId(
+      identifiedBy,
       network,
       this.mainCtrl.fetch,
       this.mainCtrl.callRelayer
     )
-    if (!txnId) throw new Error('Transaction failed!')
+    if (txnIdData.status !== 'success') {
+      return {
+        status: 'PENDING'
+      }
+    }
 
+    const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
     const receipt = await provider.getTransactionReceipt(txnId)
     if (!receipt) {
