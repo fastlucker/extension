@@ -1,19 +1,9 @@
 import { clickOnElement } from './clickOnElement'
+import { completeOnboardingSteps } from './completeOnboardingSteps'
 import { typeText } from './typeText'
 
 export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
-  // Click on "Next" button several times to finish the onboarding.
-  await clickOnElement(page, '[data-testid="stories-button-next-0"]')
-  await clickOnElement(page, '[data-testid="stories-button-next-1"]')
-  await clickOnElement(page, '[data-testid="stories-button-next-2"]')
-  await clickOnElement(page, '[data-testid="stories-button-next-3"]')
-  await clickOnElement(page, '[data-testid="stories-button-next-4"]')
-
-  // check the checkbox "I agree ..."
-  await page.$eval('[data-testid="checkbox"]', (button) => button.click())
-
-  // Click on "Got it"
-  await clickOnElement(page, '[data-testid="stories-button-next-5"]')
+  await completeOnboardingSteps(page)
 
   await page.waitForFunction(() => window.location.href.includes('/get-started'))
   // Click on "Import" button

@@ -30,5 +30,8 @@ const parseEnvVariables = (envVariables, prefix) => {
   return params
 }
 
+// TODO: UPPER CASE
 export const baParams = parseEnvVariables(loadedEnvVariables, 'BA')
 export const saParams = parseEnvVariables(loadedEnvVariables, 'SA')
+export const baPrivateKey = loadedEnvVariables.BA_PRIVATE_KEY
+export const seed = loadedEnvVariables.SEED

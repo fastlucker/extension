@@ -1,4 +1,4 @@
-import { clickOnElement } from '../common-helpers/clickOnElement'
+import { clickOnElement } from '../../common-helpers/clickOnElement'
 
 export async function finishStoriesAndSelectAccount(
   page,

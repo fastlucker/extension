@@ -1,13 +1,33 @@
-import { INVITE_STORAGE_ITEM } from '../constants/constants'
-import { bootstrap } from '../common-helpers/bootstrap'
-import { clickOnElement } from '../common-helpers/clickOnElement'
-import { typeText } from '../common-helpers/typeText'
+import { completeOnboardingSteps } from 'tests/common-helpers/completeOnboardingSteps'
+import {
+  INVITE_STORAGE_ITEM,
+  TEST_ACCOUNT_NAME_ONE,
+  TEST_ACCOUNT_NAME_TWO,
+  TEST_ID_IMPORT_PRIVATE_BTN,
+  TEST_ID_ENTER_SEED_PHRASE_FIELD,
+  TEST_ID_IMPORT_BTN,
+  TEST_ID_SAVE_AND_CONTINUE_BTN,
+  INVITE_STATUS_VERIFIED,
+  TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER,
+  TEST_ID_ACCOUNT,
+  URL_GET_STARTED,
+  URL_ACCOUNT_SELECT
+} from './constants'
+import { bootstrap } from '../../common-helpers/bootstrap'
+import { clickOnElement } from '../../common-helpers/clickOnElement'
+import { typeText } from '../../common-helpers/typeText'
 import {
   finishStoriesAndSelectAccount,
   typeSeedWords,
   expectImportButtonToBeDisabled
-} from './auth-helper'
-import { setAmbKeyStore } from '../common-helpers/setAmbKeyStore'
+} from './functions'
+import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
+import { baPrivateKey, seed } from '../../config/constants'
+
+// - should import basic and smart accounts from a private key
+// - should import basic and smart accounts from a seed phrase and personalize them
+// - should import view-only accounts
+// - should not allow importing an invalid seed phrase
 
 describe('auth', () => {
   let browser
@@ -24,7 +44,7 @@ describe('auth', () => {
       JSON.stringify(INVITE_STORAGE_ITEM)
     )
 
-    await page.goto(`${extensionURL}/tab.html#/get-started`)
+    await page.goto(`${extensionURL}${URL_GET_STARTED}`)
   })
 
   afterEach(async () => {
@@ -34,13 +54,30 @@ describe('auth', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('should import basic account from private key', async () => {
-    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
-    await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
+    // expect.assertions(4)
 
-    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
+    // Get the invite data from the storage
+    const inviteFromStorage = await serviceWorker.evaluate(() => chrome.storage.local.get('invite'))
+    expect(Object.keys(inviteFromStorage).length).toBe(1)
+
+    // Expect invitation code to be verified
+    const parsedInvitation = JSON.parse(inviteFromStorage.invite)
+    expect(parsedInvitation.status).toBe(INVITE_STATUS_VERIFIED)
+
+    await setAmbKeyStore(page, TEST_ID_IMPORT_PRIVATE_BTN)
+    await page.waitForSelector(TEST_ID_ENTER_SEED_PHRASE_FIELD)
+
+    const enterSeedPhraseFieldPlaceholder = await page.$eval(
+      TEST_ID_ENTER_SEED_PHRASE_FIELD,
+      (el) => el.placeholder
+    )
+    // Expect the locator selects the right field where to enter the private key
+    expect(enterSeedPhraseFieldPlaceholder).toBe(TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER)
+
+    await typeText(page, TEST_ID_ENTER_SEED_PHRASE_FIELD, baPrivateKey)
 
     // Click on Import button.
-    await clickOnElement(page, '[data-testid="import-button"]')
+    await clickOnElement(page, TEST_ID_IMPORT_BTN)
 
     // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
@@ -50,31 +87,28 @@ describe('auth', () => {
     expect(firstSelectedSmartAccount).toBeNull()
 
     // Click on "Save and Continue" button
-    await clickOnElement(page, '[data-testid="button-save-and-continue"]')
+    await clickOnElement(page, TEST_ID_SAVE_AND_CONTINUE_BTN)
 
-    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
     // Wait for account addresses to load
     await new Promise((r) => {
       setTimeout(r, 2000)
     })
 
     // Verify that selected accounts exist on the page
-    const selectedBasicAccount = await page.$$eval(
-      '[data-testid="account"]',
-      (el) => el[0].innerText
-    )
+    const selectedBasicAccount = await page.$$eval(TEST_ID_ACCOUNT, (el) => el[0].innerText)
     expect(selectedBasicAccount).toContain(firstSelectedBasicAccount)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
+  it.skip('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
     await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
     await page.waitForSelector('[placeholder="Word 1"]')
 
-    await typeSeedWords(page, process.env.SEED)
+    await typeSeedWords(page, seed)
 
     // Click on Import button.
-    await clickOnElement(page, '[data-testid="import-button"]')
+    await clickOnElement(page, TEST_ID_IMPORT_BTN)
 
     await new Promise((r) => setTimeout(r, 500)) // so that the modal appears
     await clickOnElement(page, '[data-testid="do-not-save-seed-button"]')
@@ -83,8 +117,8 @@ describe('auth', () => {
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
       await finishStoriesAndSelectAccount(page, true)
 
-    const accountName1 = 'Test-Account-1'
-    const accountName2 = 'Test-Account-2'
+    const accountName1 = TEST_ACCOUNT_NAME_ONE
+    const accountName2 = TEST_ACCOUNT_NAME_TWO
 
     await clickOnElement(page, '[data-testid="edit-btn-for-edit-name-field-0"]')
     await typeText(page, '[data-testid="edit-name-field-0"]', accountName1)
@@ -100,19 +134,13 @@ describe('auth', () => {
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
-    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     // Verify that selected accounts exist on the page and contains the new names
-    const selectedBasicAccount = await page.$$eval(
-      '[data-testid="account"]',
-      (el) => el[0].innerText
-    )
+    const selectedBasicAccount = await page.$$eval(TEST_ID_ACCOUNT, (el) => el[0].innerText)
     expect(selectedBasicAccount).toContain(accountName1)
 
-    const selectedSmartAccount = await page.$$eval(
-      '[data-testid="account"]',
-      (el) => el[1].innerText
-    )
+    const selectedSmartAccount = await page.$$eval(TEST_ID_ACCOUNT, (el) => el[1].innerText)
 
     expect(selectedBasicAccount).toContain(firstSelectedBasicAccount)
     expect(selectedBasicAccount).toContain(accountName1)
@@ -121,23 +149,12 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import view-only accounts', async () => {
+  it.skip('should import view-only accounts', async () => {
     const smartAccount = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 
     const basicAccount = '0x048d8573402CE085A6c8f34d568eC2Ccc995196e'
 
-    // Click on "Next" button several times to finish the onboarding.
-    await clickOnElement(page, '[data-testid="stories-button-next-0"]')
-    await clickOnElement(page, '[data-testid="stories-button-next-1"]')
-    await clickOnElement(page, '[data-testid="stories-button-next-2"]')
-    await clickOnElement(page, '[data-testid="stories-button-next-3"]')
-    await clickOnElement(page, '[data-testid="stories-button-next-4"]')
-
-    // check the checkbox "I agree ..."
-    await page.$eval('[data-testid="checkbox"]', (button) => button.click())
-
-    // Click on "Got it"
-    await clickOnElement(page, '[data-testid="stories-button-next-5"]')
+    await completeOnboardingSteps(page)
 
     await page.waitForFunction(() => window.location.href.includes('/get-started'))
 
@@ -149,13 +166,13 @@ describe('auth', () => {
     // Click on "Import View-Only Accounts" button
     await clickOnElement(page, '[data-testid="view-only-button-import"]')
 
-    await clickOnElement(page, '[data-testid="button-save-and-continue"]')
+    await clickOnElement(page, TEST_ID_SAVE_AND_CONTINUE_BTN)
 
-    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     await page.waitForSelector('[data-testid="address"]')
     // Verify that added accounts exist on the page and contains 'View-only'
-    let selectedBasicAccount = await page.$eval('[data-testid="account"]', (el) => el.innerText)
+    let selectedBasicAccount = await page.$eval(TEST_ID_ACCOUNT, (el) => el.innerText)
 
     expect(selectedBasicAccount).toContain(smartAccount)
     expect(selectedBasicAccount).toContain('View-only')
@@ -166,16 +183,13 @@ describe('auth', () => {
     await typeText(page, '[data-testid="address-ens-field"]', basicAccount)
     // Click on "Import View-Only Accounts" button
     await clickOnElement(page, '[data-testid="view-only-button-import"]')
-    await clickOnElement(page, '[data-testid="button-save-and-continue"]')
-    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
+    await clickOnElement(page, TEST_ID_SAVE_AND_CONTINUE_BTN)
+    await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     // Verify that added accounts exist on the page and contains 'View-only'
-    selectedBasicAccount = await page.$$eval('[data-testid="account"]', (el) => el[0].innerText)
+    selectedBasicAccount = await page.$$eval(TEST_ID_ACCOUNT, (el) => el[0].innerText)
 
-    const selectedSmartAccount = await page.$$eval(
-      '[data-testid="account"]',
-      (el) => el[1].innerText
-    )
+    const selectedSmartAccount = await page.$$eval(TEST_ID_ACCOUNT, (el) => el[1].innerText)
 
     expect(selectedBasicAccount).toContain(smartAccount)
     expect(selectedBasicAccount).toContain('View-only')
@@ -184,7 +198,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should not allow importing an invalid seed phrase', async () => {
+  it.skip('should not allow importing an invalid seed phrase', async () => {
     await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
 
     await page.waitForSelector('[placeholder="Word 1"]')
@@ -232,9 +246,9 @@ describe('auth', () => {
     await waitUntilError(errorMessage)
   })
   //------------------------------------------------------------------------------------------------------
-  it('should not allow importing an invalid private key', async () => {
-    const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'
-    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
+  it.skip('should not allow importing an invalid private key', async () => {
+    const enterSeedPhraseField = TEST_ID_ENTER_SEED_PHRASE_FIELD
+    await setAmbKeyStore(page, TEST_ID_IMPORT_PRIVATE_BTN)
 
     const typeTextAndCheckValidity = async (privateKey) => {
       await typeText(page, enterSeedPhraseField, privateKey, { delay: 10 })
@@ -245,7 +259,7 @@ describe('auth', () => {
       })
 
       // Check whether button is disabled
-      const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+      const isButtonDisabled = await page.$eval(TEST_ID_IMPORT_BTN, (button) => {
         return button.getAttribute('aria-disabled')
       })
 

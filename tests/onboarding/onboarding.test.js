@@ -1,4 +1,5 @@
-import { clickOnElement } from '../common-helpers/clickOnElement'
+import { completeOnboardingSteps } from '../common-helpers/completeOnboardingSteps'
+// import { clickOnElement } from '../common-helpers/clickOnElement'
 import { bootstrap } from '../common-helpers/bootstrap'
 import { INVITE_STORAGE_ITEM } from '../constants/constants'
 
@@ -30,18 +31,7 @@ describe('Onboarding', () => {
     await browser.close()
   })
   it('should pass through the onboarding steps and agree with the terms', async () => {
-    // Click on "Next" button several times to finish the onboarding.
-    await clickOnElement(page, '[data-testid="stories-button-next-0"]')
-    await clickOnElement(page, '[data-testid="stories-button-next-1"]')
-    await clickOnElement(page, '[data-testid="stories-button-next-2"]')
-    await clickOnElement(page, '[data-testid="stories-button-next-3"]')
-    await clickOnElement(page, '[data-testid="stories-button-next-4"]')
-
-    // check the checkbox "I agree ..."
-    await clickOnElement(page, '[data-testid="checkbox"]')
-
-    // Click on "Got it"
-    await clickOnElement(page, '[data-testid="stories-button-next-5"]')
+    await completeOnboardingSteps(page)
 
     const href = await page.evaluate(() => window.location.href)
     expect(href).toContain('/get-started')

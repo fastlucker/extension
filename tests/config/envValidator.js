@@ -27,7 +27,9 @@ const REQUIRED_ENV_VARIABLES = [
   'SA_PREVIOUSHINTS',
   'SA_SELECTED_ACCOUNT',
   'SA_TERMSTATE',
-  'SA_TOKEN_ITEMS'
+  'SA_TOKEN_ITEMS',
+  'BA_PRIVATE_KEY',
+  'SEED'
 ]
 
 export const validateEnvVariables = (envVariables) => {
