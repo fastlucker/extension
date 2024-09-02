@@ -16,17 +16,16 @@ interface Props {
 const SubmittedOn = ({ submittedAccountOp }: Props) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
+  const date = new Date(submittedAccountOp.timestamp)
 
   return (
     <View style={styles.footerItem}>
       <Text fontSize={14} appearance="secondaryText" weight="semiBold">
         {t('Submitted on')}:{' '}
       </Text>
-      {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
+      {new Date(date).toString() !== 'Invalid Date' && (
         <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-          {`${new Date(submittedAccountOp.timestamp).toLocaleDateString()} (${new Date(
-            submittedAccountOp.timestamp
-          ).toLocaleTimeString()})`}
+          {`${new Date(date).toLocaleDateString()} (${new Date(date).toLocaleTimeString()})`}
         </Text>
       )}
     </View>
