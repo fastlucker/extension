@@ -38,6 +38,8 @@ import {
 } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
+import styles from './styles'
+
 const AccountsOnPageList = ({
   state,
   setPage,
@@ -386,7 +388,7 @@ const AccountsOnPageList = ({
           )}
           {state.accountsLoading ? (
             <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
-              <Spinner style={{ width: 28, height: 28 }} />
+              <Spinner style={styles.spinner} />
             </View>
           ) : (
             Object.keys(slots).map((key, i) => {
