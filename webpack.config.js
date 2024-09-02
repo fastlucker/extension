@@ -14,8 +14,36 @@ const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
 module.exports = async function (env, argv) {
+  // style.css output file for WEB_ENGINE: GECKO
+  function processStyleGecko(content) {
+    const style = content.toString()
+    // Firefox extensions max window height is 600px
+    // so IF min-height is changed above 600, this needs to be put back
+    // style = style.replace('min-height: 730px;', 'min-height: 600px;')
+
+    return style
+  }
+
+  const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
+  const templatePath = (fileName = '') => path.join(__dirname, './src/web', fileName)
+  const templatePaths = {
+    get: templatePath,
+    folder: templatePath(),
+    indexHtml: templatePath('index.html'),
+    manifest: templatePath('manifest.json'),
+    serveJson: templatePath('serve.json'),
+    favicon: templatePath('favicon.ico')
+  }
+  locations.template = templatePaths
+
+  const config = await createExpoWebpackConfigAsync(env, argv)
+
   function processManifest(content) {
     const manifest = JSON.parse(content.toString())
+    if (config.mode === 'development') {
+      manifest.name = 'Ambire Wallet Dev'
+    }
+
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
 
@@ -69,30 +97,6 @@ module.exports = async function (env, argv) {
     const manifestJSON = JSON.stringify(manifest, null, 2)
     return manifestJSON
   }
-
-  // style.css output file for WEB_ENGINE: GECKO
-  function processStyleGecko(content) {
-    const style = content.toString()
-    // Firefox extensions max window height is 600px
-    // so IF min-height is changed above 600, this needs to be put back
-    // style = style.replace('min-height: 730px;', 'min-height: 600px;')
-
-    return style
-  }
-
-  const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
-  const templatePath = (fileName = '') => path.join(__dirname, './src/web', fileName)
-  const templatePaths = {
-    get: templatePath,
-    folder: templatePath(),
-    indexHtml: templatePath('index.html'),
-    manifest: templatePath('manifest.json'),
-    serveJson: templatePath('serve.json'),
-    favicon: templatePath('favicon.ico')
-  }
-  locations.template = templatePaths
-
-  const config = await createExpoWebpackConfigAsync(env, argv)
 
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
   config.resolve.alias.dns = 'dns-js'

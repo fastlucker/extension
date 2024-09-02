@@ -493,6 +493,11 @@ credentials.json
 /webkit-dev
 /webkit-prod
 
+# Safari project
+/ambire-extension-project
+/ambire-extension-project-prod
+
+
 # Extension(web) build output folders for gecko browsers
 /gecko-dev
 /gecko-prod

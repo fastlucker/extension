@@ -2,6 +2,8 @@
 
 import { browser } from '@web/constants/browserapi'
 
+import { closeCurrentWindow } from './window'
+
 const createTab = async (url): Promise<number | undefined> => {
   const tab = await browser.tabs.create({ active: true, url })
 
@@ -26,17 +28,9 @@ const getCurrentTab = async (): Promise<Tabs.Tab> => {
 
 export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
   const tab = await browser.tabs.create({ active: true, url })
-  if (needClose) window.close()
+  if (needClose) closeCurrentWindow()
 
   return tab
-}
-
-const getCurrentWindow = async (): Promise<number | undefined> => {
-  const { id } = await browser.windows.getCurrent({
-    windowTypes: ['popup']
-  } as Windows.GetInfo)
-
-  return id
 }
 
 const openInternalPageInTab = (route?: string, useWebapi = true) => {
@@ -47,4 +41,4 @@ const openInternalPageInTab = (route?: string, useWebapi = true) => {
   }
 }
 
-export { createTab, openIndexPage, getCurrentWindow, getCurrentTab, openInternalPageInTab }
+export { createTab, openIndexPage, getCurrentTab, openInternalPageInTab }

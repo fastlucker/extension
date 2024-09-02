@@ -143,9 +143,24 @@ const focus = async (windowId: number) => {
   await chrome.windows.update(windowId, { focused: true })
 }
 
+const closeCurrentWindow = async () => {
+  if (isSafari()) {
+    try {
+      const win: any = await chrome.windows.getCurrent()
+      await chrome.windows.remove(win.id)
+    } catch (error) {
+      // silent fail
+    }
+  } else {
+    window.close()
+  }
+}
+
 export default {
   open,
   focus,
   remove,
   event
 }
+
+export { closeCurrentWindow }
