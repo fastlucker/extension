@@ -49,7 +49,6 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
-import { createNotification, CreateNotificationType } from '../inpage/services/notification'
 import { handleRegisterScripts } from './handlers/handleScripting'
 
 function saveTimestamp() {
@@ -193,11 +192,7 @@ handleRegisterScripts()
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    notificationManager: {
-      createNotification: (props: CreateNotificationType) => {
-        mainCtrl.dapps.broadcastDappSessionEvent('notification', props)
-      }
-    }
+    notificationManager
   })
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -17,6 +17,7 @@ import { getRpcProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
+import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
 import { RequestRes, Web3WalletPermission } from './types'
 
@@ -220,9 +221,9 @@ export class ProviderController {
     this.mainCtrl.dapps.updateDapp(origin, { chainId })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      this.mainCtrl.dapps.broadcastDappSessionEvent('notification', {
+      await notificationManager.create({
         title: 'Network added',
-        description: `Network switched to ${network.name} for ${name || origin}.`
+        message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
     this.mainCtrl.dapps.broadcastDappSessionEvent(
@@ -369,9 +370,9 @@ export class ProviderController {
     this.mainCtrl.dapps.updateDapp(origin, { chainId })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      this.mainCtrl.dapps.broadcastDappSessionEvent('notification', {
+      await notificationManager.create({
         title: 'Successfully switched network',
-        description: `Network switched to ${network.name} for ${name || origin}.`
+        message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
     this.mainCtrl.dapps.broadcastDappSessionEvent(
