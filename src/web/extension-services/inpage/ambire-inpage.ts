@@ -2,6 +2,7 @@
 import { nanoid } from 'nanoid'
 
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
+import { createNotification } from '@web/extension-services/inpage/services/notification'
 
 const ambireId = nanoid()
 
@@ -171,6 +172,7 @@ const ambireProvider = new Proxy(provider, {
   }
 })
 window.ambire = ambireProvider
+window.ambire.on('notification', createNotification)
 
 const announceEip6963Provider = (p: EthereumProvider) => {
   const info: EIP6963ProviderInfo = {

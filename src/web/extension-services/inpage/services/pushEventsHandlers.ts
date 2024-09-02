@@ -1,7 +1,8 @@
 // @ts-nocheck
 
 import { ethErrors } from 'eth-rpc-errors'
-import { toBeHex } from 'ethers'
+
+import { CreateNotificationType } from '@web/extension-services/inpage/services/notification'
 
 class PushEventHandlers {
   provider
@@ -71,10 +72,8 @@ class PushEventHandlers {
     }
   }
 
-  'ambire:chainChanged' = (network) => {
-    if (network && toBeHex(network?.chainId) !== this.provider.chainId?.toLowerCase()) {
-      this._emit('ambire:chainChanged', network)
-    }
+  notification = (notificationProps: CreateNotificationType) => {
+    this._emit('notification', notificationProps)
   }
 }
 
