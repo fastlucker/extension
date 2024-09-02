@@ -1,5 +1,5 @@
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
-import { baParams } from '../constants/constants'
+import { baParams } from '../config/constants'
 
 import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../common/balance.js'
 

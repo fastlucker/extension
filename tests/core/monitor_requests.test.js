@@ -2,7 +2,7 @@
 import { networks } from '@ambire-common/consts/networks'
 import { getBackgroundRequestsByType, monitorRequests } from '../common/requests.js'
 import { makeSwap, makeValidTransaction } from '../common/transactions.js'
-import { baParams } from '../constants/constants.js'
+import { baParams } from '../config/constants'
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 
