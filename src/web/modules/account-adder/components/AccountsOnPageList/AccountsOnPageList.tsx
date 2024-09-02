@@ -214,6 +214,20 @@ const AccountsOnPageList = ({
     [state.accountsLoading, state.accountsOnPage]
   )
 
+  const shouldDisplayHideEmptyAccountsToggle = !isAccountAdderEmpty && subType !== 'private-key'
+  const shouldDisplayChangeDerivation =
+    !isAccountAdderEmpty &&
+    (subType === 'seed' ||
+      // TODO: Disabled for Trezor, because the flow that retrieves accounts
+      // from the device as of v4.32.0 throws "forbidden key path" when
+      // accessing non-"BIP44 Standard" paths. Alternatively, this could be
+      // enabled in Trezor Suit (settings - safety checks), but even if enabled,
+      // 1) user must explicitly allow retrieving each address (that means 25
+      // clicks to retrieve accounts of the first 5 pages, blah) and 2) The
+      // Trezor device shows a scarry note: "Wrong address path for selected
+      // coin. Continue at your own risk!", which is pretty bad UX.
+      (keyType && ['ledger', 'lattice'].includes(keyType)))
+
   // Prevents the user from temporarily seeing (flashing) empty (error) states
   // while being navigated back (resetting the Account Adder state).
   if (!state.isInitialized) return null
@@ -314,7 +328,7 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {!isAccountAdderEmpty && subType !== 'private-key' && (
+        {(shouldDisplayHideEmptyAccountsToggle || shouldDisplayChangeDerivation) && (
           <View
             style={[
               spacings.mbLg,
@@ -328,16 +342,16 @@ const AccountsOnPageList = ({
                 }
               : {})}
           >
-            <Toggle
-              isOn={hideEmptyAccounts}
-              onToggle={() => setHideEmptyAccounts((p) => !p)}
-              label={t('Hide empty basic accounts')}
-              labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
-              style={flexbox.alignSelfStart}
-            />
-            {/* TODO: Temporarily disable for Trezor */}
-            {/* TODO: Disable during loading */}
-            <SelectDerivation />
+            {shouldDisplayHideEmptyAccountsToggle && (
+              <Toggle
+                isOn={hideEmptyAccounts}
+                onToggle={() => setHideEmptyAccounts((p) => !p)}
+                label={t('Hide empty basic accounts')}
+                labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
+                style={flexbox.alignSelfStart}
+              />
+            )}
+            {shouldDisplayChangeDerivation && <SelectDerivation />}
           </View>
         )}
         <ScrollableWrapper
