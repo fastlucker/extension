@@ -45,14 +45,15 @@ async function monitorRequests(
   const httpRequests = []
   let lastRequestTime = null
 
+  // Disable cache
+  await client.send('Network.setCacheDisabled', { cacheDisabled: true })
   // Enable Fetch domain for request interception
   await client.send('Fetch.enable', {
-    patterns: [{ urlPattern: '*', requestStage: 'Response' }]
+    patterns: [{ urlPattern: '*', requestStage: 'Request' }]
   })
 
   const onRequestPaused = async ({ requestId, request }) => {
     httpRequests.push(request.url)
-
     // Synchronize updates to lastRequestTime to avoid race conditions
     lastRequestTime = Date.now()
 
