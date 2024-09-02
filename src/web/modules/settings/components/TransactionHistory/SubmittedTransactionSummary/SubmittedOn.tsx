@@ -23,9 +23,9 @@ const SubmittedOn = ({ submittedAccountOp }: Props) => {
       <Text fontSize={14} appearance="secondaryText" weight="semiBold">
         {t('Submitted on')}:{' '}
       </Text>
-      {new Date(date).toString() !== 'Invalid Date' && (
+      {date.toString() !== 'Invalid Date' && (
         <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-          {`${new Date(date).toLocaleDateString()} (${new Date(date).toLocaleTimeString()})`}
+          {`${date.toLocaleDateString()} (${date.toLocaleTimeString()})`}
         </Text>
       )}
     </View>
