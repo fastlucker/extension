@@ -27,6 +27,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import getStyles from './styles'
+import SubmittedOn from './SubmittedOn'
 
 interface Props {
   submittedAccountOp: SubmittedAccountOp
@@ -164,18 +165,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
                 {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
               </Text>
             </View>
-            <View style={styles.footerItem}>
-              <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-                {t('Submitted on')}:{' '}
-              </Text>
-              {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
-                <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-                  {`${new Date(submittedAccountOp.timestamp).toLocaleDateString()} (${new Date(
-                    submittedAccountOp.timestamp
-                  ).toLocaleTimeString()})`}
-                </Text>
-              )}
-            </View>
+            <SubmittedOn submittedAccountOp={submittedAccountOp} />
             <View style={styles.footerItem}>
               <Text fontSize={14} appearance="secondaryText" weight="semiBold">
                 {t('Block Explorer')}:{' '}
@@ -193,6 +183,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
               Failed to send
             </Text>
           </View>
+          <SubmittedOn submittedAccountOp={submittedAccountOp} />
         </View>
       )}
       {submittedAccountOp.status === AccountOpStatus.BroadcastButStuck && (
@@ -202,6 +193,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
               Dropped or stuck in mempool with fee too low
             </Text>
           </View>
+          <SubmittedOn submittedAccountOp={submittedAccountOp} />
         </View>
       )}
       {submittedAccountOp.status === AccountOpStatus.UnknownButPastNonce && (
@@ -211,6 +203,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
               Replaced by fee (RBF)
             </Text>
           </View>
+          <SubmittedOn submittedAccountOp={submittedAccountOp} />
         </View>
       )}
     </View>
