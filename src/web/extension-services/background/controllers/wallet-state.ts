@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
-import { browser } from '@web/constants/browserapi'
+import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 import {
@@ -108,7 +108,7 @@ export class WalletStateController extends EventEmitter {
 
     this.#_onboardingState = await storage.get('onboardingState', undefined)
 
-    this.#isPinned = await storage.get('isPinned', false)
+    this.#isPinned = isSafari() || (await storage.get('isPinned', false))
     this.#initCheckIsPinned()
 
     this.#isSetupComplete = await storage.get('isSetupComplete', true)

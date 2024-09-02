@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { browser } from '@web/constants/browserapi'
+import { browser, isSafari } from '@web/constants/browserapi'
 
 import { closeCurrentWindow } from './window'
 
@@ -28,12 +28,14 @@ const getCurrentTab = async (): Promise<Tabs.Tab> => {
 
 export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
   const tab = await browser.tabs.create({ active: true, url })
-  if (needClose) closeCurrentWindow()
+  if (needClose) {
+    if (!isSafari()) await closeCurrentWindow()
+  }
 
   return tab
 }
 
-const openInternalPageInTab = (route?: string, useWebapi = true) => {
+const openInternalPageInTab = async (route?: string, useWebapi = true) => {
   if (useWebapi) {
     openInTab(`./tab.html${route ? `#/${route}` : ''}`)
   } else {

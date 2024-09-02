@@ -174,7 +174,7 @@ const Tokens = ({
 
           return 0
         }),
-    [tokens, networks, tokenPreferences, userHasNoBalance]
+    [tokens, networks, tokenPreferences, userHasNoBalance, accountPortfolio?.isAllReady]
   )
 
   const navigateToAddCustomToken = useCallback(() => {

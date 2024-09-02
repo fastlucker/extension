@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 
 import useRoute from '@common/hooks/useRoute'
@@ -7,8 +7,9 @@ import { openInternalPageInTab } from '@web/extension-services/background/webapi
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+const { isTab } = getUiType()
+
 const TabOnlyRoute = () => {
-  const isTab = getUiType().isTab
   const isActionWindow = getUiType().isActionWindow
   const { path, search } = useRoute()
   const state = useActionsControllerState()
@@ -16,12 +17,19 @@ const TabOnlyRoute = () => {
   // if the current window is action-window and there is a action request don't open
   // the route in tab because the dApp that requests the action request
   // will loose the session with the wallet and the action request response won't arrive
+
+  useEffect(() => {
+    if (!isTab && isExtension) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      openInternalPageInTab(`${path?.substring(1)}${search}`)
+    }
+  }, [path, search])
+
   if (isActionWindow && state.currentAction) {
     return <Outlet />
   }
 
   if (!isTab && isExtension) {
-    openInternalPageInTab(`${path?.substring(1)}${search}`)
     return <></>
   }
 
