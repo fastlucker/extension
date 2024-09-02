@@ -102,6 +102,11 @@ const DashboardOverview: FC<Props> = ({
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
+  const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
+    totalPortfolioAmount,
+    'price'
+  ).split('.')
+
   const networksWithCriticalErrors: string[] = useMemo(() => {
     if (
       !selectedAccount ||
@@ -247,8 +252,7 @@ const DashboardOverview: FC<Props> = ({
                           color={theme.primaryBackground}
                           selectable
                         >
-                          {t('$')}
-                          {formatDecimals(totalPortfolioAmount).split('.')[0]}
+                          {totalPortfolioAmountInteger}
                         </Text>
                         <Text
                           fontSize={20}
@@ -258,7 +262,7 @@ const DashboardOverview: FC<Props> = ({
                           selectable
                         >
                           {t('.')}
-                          {formatDecimals(totalPortfolioAmount).split('.')[1]}
+                          {totalPortfolioAmountDecimal}
                         </Text>
                       </Text>
                     </View>

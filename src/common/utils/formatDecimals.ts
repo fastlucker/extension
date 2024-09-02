@@ -67,7 +67,9 @@ const formatNumber = (
   const [integer, decimal] = stringValue.split('.')
   // Display the number with the determined number of decimals
   const decimalFormatted = decimal.slice(0, decimals)
-  const reconstructedStringValue = `${integer}.${decimalFormatted}`
+  // Add commas to the integer part of the number. E.g. 1000 -> 1,000
+  const integerFormatted = Number(integer).toLocaleString('en-US', { maximumFractionDigits: 0 })
+  const reconstructedStringValue = `${integerFormatted}.${decimalFormatted}`
   const stringValueWithoutTrailingZeros = removeTrailingZeros(
     reconstructedStringValue,
     type ? DECIMAL_RULES[type].min : undefined
