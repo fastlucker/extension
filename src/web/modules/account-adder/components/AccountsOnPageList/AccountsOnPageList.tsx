@@ -31,7 +31,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Account from '@web/modules/account-adder/components/Account'
-import SelectDerivation from '@web/modules/account-adder/components/SelectDerivation'
+import ChangeHdPath from '@web/modules/account-adder/components/ChangeHdPath'
 import {
   AccountAdderIntroStepsProvider,
   BasicAccountIntroId
@@ -215,7 +215,7 @@ const AccountsOnPageList = ({
   )
 
   const shouldDisplayHideEmptyAccountsToggle = !isAccountAdderEmpty && subType !== 'private-key'
-  const shouldDisplayChangeDerivation =
+  const shouldDisplayChangeHdPath =
     !isAccountAdderEmpty &&
     (subType === 'seed' ||
       // TODO: Disabled for Trezor, because the flow that retrieves accounts
@@ -328,7 +328,7 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {(shouldDisplayHideEmptyAccountsToggle || shouldDisplayChangeDerivation) && (
+        {(shouldDisplayHideEmptyAccountsToggle || shouldDisplayChangeHdPath) && (
           <View
             style={[
               spacings.mbLg,
@@ -351,7 +351,7 @@ const AccountsOnPageList = ({
                 style={flexbox.alignSelfStart}
               />
             )}
-            {shouldDisplayChangeDerivation && <SelectDerivation />}
+            {shouldDisplayChangeHdPath && <ChangeHdPath />}
           </View>
         )}
         <ScrollableWrapper

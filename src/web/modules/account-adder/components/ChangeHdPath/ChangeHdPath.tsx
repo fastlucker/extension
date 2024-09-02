@@ -8,7 +8,6 @@ import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
@@ -18,7 +17,7 @@ import styles from './styles'
 
 interface Props {}
 
-const SelectDerivation: React.FC<Props> = () => {
+const ChangeHdPath: React.FC<Props> = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { hdPathTemplate } = useAccountAdderControllerState()
@@ -68,4 +67,4 @@ const SelectDerivation: React.FC<Props> = () => {
   )
 }
 
-export default React.memo(SelectDerivation)
+export default React.memo(ChangeHdPath)
