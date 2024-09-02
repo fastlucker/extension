@@ -385,14 +385,7 @@ const AccountsOnPageList = ({
             </Trans>
           )}
           {state.accountsLoading ? (
-            <View
-              style={[
-                flexbox.alignCenter,
-                flexbox.flex1,
-                flexbox.alignCenter,
-                flexbox.justifyCenter
-              ]}
-            >
+            <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
               <Spinner style={{ width: 28, height: 28 }} />
             </View>
           ) : (
