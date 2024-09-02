@@ -37,7 +37,7 @@ const ChangeHdPath: React.FC<Props> = () => {
     [dispatch]
   )
 
-  if (!value) return null
+  if (!value) return null // should never happen
 
   return (
     <View style={[flexbox.directionRow, flexbox.center]}>
