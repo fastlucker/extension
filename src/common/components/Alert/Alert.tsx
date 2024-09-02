@@ -118,6 +118,7 @@ const Alert: FC<Props> = ({
             hasBottomSpacing={false}
             text={buttonProps.text}
             onPress={buttonProps.onPress}
+            {...buttonProps}
           />
         )}
         {children}
