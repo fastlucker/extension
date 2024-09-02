@@ -6,6 +6,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
 import AddIcon from '@common/assets/svg/AddIcon'
+import ChainlistIcon from '@common/assets/svg/ChainlistIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -20,6 +21,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import NetworkDetails from '@web/components/NetworkDetails'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
@@ -93,6 +95,10 @@ const NetworksSettingsScreen = () => {
     setSelectedNetworkId(id)
   }, [])
 
+  const navigateToChainlist = useCallback(async () => {
+    await openInTab('https://chainlist.org/', false)
+  }, [])
+
   return (
     <>
       <SettingsPageHeader title={t('Networks')} />
@@ -126,9 +132,19 @@ const NetworksSettingsScreen = () => {
           </ScrollableWrapper>
           <View style={spacings.pt}>
             <Button
+              type="primary"
+              size="small"
+              text={t('Add network from Chainlist')}
+              onPress={navigateToChainlist}
+              style={{ height: 48, ...spacings.mbTy }}
+              childrenPosition="left"
+            >
+              <ChainlistIcon width={20} height={20} color={theme.primary} style={spacings.mrTy} />
+            </Button>
+            <Button
               type="secondary"
               size="small"
-              text={t('Add custom network')}
+              text={t('Add network manually')}
               onPress={openBottomSheet as any}
               hasBottomSpacing={false}
               style={{ height: 48 }}
@@ -142,8 +158,8 @@ const NetworksSettingsScreen = () => {
         <View
           style={[
             { flex: 2 },
-            maxWidthSize('xl') ? spacings.pl3Xl : spacings.plXl,
-            maxWidthSize('xl') ? spacings.ml3Xl : spacings.mlXl,
+            maxWidthSize('xl') ? spacings.plXl : spacings.plLg,
+            maxWidthSize('xl') ? spacings.mlXl : spacings.mlLg,
             { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
           ]}
         >

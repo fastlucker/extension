@@ -40,6 +40,7 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.successDecorative
     },
     title: {
+      ...spacings.mrMi,
       ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb : spacings.mbSm),
       textTransform: 'capitalize',
       lineHeight: 18 // must be the same as font-size

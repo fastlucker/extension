@@ -4,12 +4,15 @@ import { Linking } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { AccountOpIdentifiedBy } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
+import { RELAYER_URL } from '@env'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 import useBenzinGetNetwork from './useBenzinGetNetwork'
@@ -29,8 +32,10 @@ const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
 }
 const emittedErrors: ErrorRef[] = []
 const mockEmitError = (e: ErrorRef) => emittedErrors.push(e)
+const fetch = window.fetch.bind(window) as any
 const standardOptions = {
-  fetch: window.fetch.bind(window) as any,
+  fetch,
+  callRelayer: relayerCall.bind({ url: RELAYER_URL, fetch }),
   emitError: mockEmitError,
   storage,
   parser: parseHumanizer
@@ -46,6 +51,7 @@ const getParams = (search?: string) => {
   return {
     txnId: params.get('txnId') ?? null,
     userOpHash: params.get('userOpHash') ?? null,
+    relayerId: params.get('relayerId') ?? null,
     isRenderedInternally: typeof params.get('isInternal') === 'string',
     chainId: params.get('chainId'),
     networkId: params.get('networkId')
@@ -70,6 +76,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const {
     txnId,
     userOpHash,
+    relayerId,
     isRenderedInternally,
     chainId: paramChainId,
     networkId
@@ -84,11 +91,18 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const stepsState = useSteps({
     txnId,
     userOpHash,
+    relayerId,
     network,
     standardOptions,
     setActiveStep,
     provider
   })
+
+  const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
+    if (relayerId) return { type: 'Relayer', identifier: relayerId }
+    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    return { type: 'Transaction', identifier: txnId as string }
+  }, [relayerId, userOpHash, txnId])
 
   const handleCopyText = useCallback(async () => {
     try {
@@ -98,7 +112,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
         address = `https://benzin.ambire.com/${getBenzinUrlParams({
           chainId,
           txnId: stepsState.txnId,
-          userOpHash
+          identifiedBy
         })}`
       }
 
@@ -107,7 +121,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
       addToast('Error copying to clipboard', { type: 'error' })
     }
     addToast('Copied to clipboard!')
-  }, [addToast, chainId, stepsState.txnId, userOpHash])
+  }, [addToast, chainId, stepsState.txnId, identifiedBy])
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network?.explorerUrl) return
@@ -127,18 +141,19 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const showCopyBtn = useMemo(() => {
     if (!network) return true
 
-    const isRejected = stepsState.userOpStatusData.status === 'rejected'
+    const isRejected = stepsState.finalizedStatus?.status === 'rejected'
     return !isRejected
-  }, [network, stepsState.userOpStatusData])
+  }, [network, stepsState.finalizedStatus?.status])
 
   const showOpenExplorerBtn = useMemo(() => {
-    if (!network) return true
+    if (!network) return false
+    if (relayerId && !stepsState.txnId) return false
 
-    const isRejected = stepsState.userOpStatusData.status === 'rejected'
+    const isRejected = stepsState.finalizedStatus?.status === 'rejected'
     return !isRejected
-  }, [network, stepsState.userOpStatusData])
+  }, [network, stepsState.finalizedStatus?.status, relayerId, stepsState.txnId])
 
-  if (!chainId || (!txnId && !userOpHash)) return null
+  if (!chainId || (!txnId && !userOpHash && !relayerId)) return null
 
   return {
     activeStep,
