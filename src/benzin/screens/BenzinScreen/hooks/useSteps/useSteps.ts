@@ -498,7 +498,6 @@ const useSteps = ({
 
   const calls: IrCall[] | null = useMemo(() => {
     if (userOpHash && !userOp) return null
-    if (calls) return null
 
     if (network && txnReceipt.from && txn) {
       setCost(formatEther(txnReceipt.actualGasCost!.toString()))

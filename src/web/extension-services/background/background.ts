@@ -111,7 +111,6 @@ handleRegisterScripts()
   const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
   setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
 
-  // @TODO test
   // used in older versions for persisting learnt data for humanizer
   await storage.remove('HumanizerMetaV2')
 
