@@ -129,15 +129,31 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [transferCtrl])
 
   useEffect(() => {
-    if (!transferCtrl || transferCtrl.selectedToken) return
-    const selectedTokenData = tokens.find(
-      (token) =>
-        token.address === selectedTokenFromUrl?.addr &&
-        token.networkId === selectedTokenFromUrl?.networkId
-    )
+    if (!transferCtrl) return
+
+    let selectedToken
+
+    // If a token is already selected, we should retrieve its latest value from tokens.
+    // This is important because the token amount is likely to change,
+    // especially when initiating a transfer or adding a new one to the queue.
+    // As a result, the token `amountPostSimulation` may differ, and we need to update the available token balance accordingly.
+    if (transferCtrl.selectedToken) {
+      selectedToken = tokens.find(
+        (token) =>
+          token.address === transferCtrl.selectedToken?.address &&
+          token.networkId === transferCtrl.selectedToken?.networkId
+      )
+    } else {
+      // If no token is selected, we try to select one based on the URL parameters
+      selectedToken = tokens.find(
+        (token) =>
+          token.address === selectedTokenFromUrl?.addr &&
+          token.networkId === selectedTokenFromUrl?.networkId
+      )
+    }
 
     transferCtrl.update({
-      selectedToken: selectedTokenData
+      selectedToken
     })
   }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.networkId, tokens, transferCtrl])
 
