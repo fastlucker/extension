@@ -1,12 +1,7 @@
 import crypto from 'crypto'
 import * as SDK from 'gridplus-sdk'
 
-import {
-  BIP44_STANDARD_DERIVATION_TEMPLATE,
-  HD_PATH_TEMPLATE_TYPE
-} from '@ambire-common/consts/derivation'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
-import wait from '@ambire-common/utils/wait'
 import { browser } from '@web/constants/browserapi'
 
 const LATTICE_APP_NAME = 'Ambire Wallet (browser)' // should be 6-23 characters
@@ -17,8 +12,6 @@ const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
 class LatticeController implements ExternalSignerController {
-  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
-
   walletSDK?: SDK.Client | null
 
   creds: any
@@ -31,7 +24,6 @@ class LatticeController implements ExternalSignerController {
   deviceModel = 'lattice1'
 
   constructor() {
-    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
     this._resetDefaults()
   }
 
@@ -51,10 +43,13 @@ class LatticeController implements ExternalSignerController {
   }
 
   async unlock(
-    _path?: string,
+    _path: string,
     _expectedKeyOnThisPath?: string,
     shouldOpenLatticeConnectorInTab = false
   ) {
+    // TODO: `_path` and `_expectedKeyOnThisPath` are not validated here,
+    // figure out if they should.
+
     if (this.isUnlocked()) {
       // Even if unlocked, reconnect to the Lattice to ensure the correct wallet.
       // Otherwise, if the user has changed the active wallet, errors get thrown.
@@ -97,7 +92,6 @@ class LatticeController implements ExternalSignerController {
     }
     this.deviceId = ''
     this.walletSDK = null
-    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
   async _openLatticeConnector(url: string, shouldOpenInTab: boolean) {

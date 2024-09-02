@@ -8,7 +8,6 @@ import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
@@ -18,10 +17,10 @@ import styles from './styles'
 
 interface Props {}
 
-const SelectDerivation: React.FC<Props> = () => {
+const ChangeHdPath: React.FC<Props> = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { hdPathTemplate } = useAccountAdderControllerState()
+  const { hdPathTemplate, accountsLoading } = useAccountAdderControllerState()
 
   const value = useMemo(
     () => DERIVATION_OPTIONS.find((o) => o.value === hdPathTemplate),
@@ -38,7 +37,7 @@ const SelectDerivation: React.FC<Props> = () => {
     [dispatch]
   )
 
-  if (!value) return null
+  if (!value) return null // should never happen
 
   return (
     <View style={[flexbox.directionRow, flexbox.center]}>
@@ -52,12 +51,13 @@ const SelectDerivation: React.FC<Props> = () => {
         dataSet={{
           tooltipId: 'hd-path-tooltip',
           tooltipContent: t(
-            "If you don't see the expected accounts, try changing the HD path to access different sets of addresses within this wallet."
+            "If you don't see the accounts you expect, try changing the HD path to access different sets of addresses within this wallet."
           )
         }}
       />
       <Tooltip id="hd-path-tooltip" />
       <Select
+        disabled={accountsLoading}
         setValue={handleChangeHdPath}
         containerStyle={styles.selectContainer}
         selectStyle={{ height: 40 }}
@@ -68,4 +68,4 @@ const SelectDerivation: React.FC<Props> = () => {
   )
 }
 
-export default React.memo(SelectDerivation)
+export default React.memo(ChangeHdPath)

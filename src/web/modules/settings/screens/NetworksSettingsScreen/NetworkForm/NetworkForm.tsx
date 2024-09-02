@@ -98,12 +98,11 @@ export const RpcSelectorItem = React.memo(
           >
             {selectedRpcUrl === url && <View style={styles.radioSelectedInner} />}
           </View>
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
             <Text
               fontSize={14}
               appearance={selectedRpcUrl === url ? 'primaryText' : 'secondaryText'}
               numberOfLines={1}
-              style={flexbox.flex1}
             >
               {url}
             </Text>
@@ -116,22 +115,19 @@ export const RpcSelectorItem = React.memo(
             </AnimatedPressable>
           </View>
           {!!shouldShowRemove && !!hovered && (
-            <Pressable
-              style={{
-                marginLeft: 'auto'
-              }}
-              onPress={() => !!onRemove && onRemove(url)}
-            >
-              {({ hovered: removeButtonHovered }: any) => (
-                <Text
-                  fontSize={12}
-                  underline
-                  color={removeButtonHovered ? theme.errorText : theme.errorDecorative}
-                >
-                  {t('Remove')}
-                </Text>
-              )}
-            </Pressable>
+            <View style={spacings.plLg}>
+              <Pressable onPress={() => !!onRemove && onRemove(url)}>
+                {({ hovered: removeButtonHovered }: any) => (
+                  <Text
+                    fontSize={12}
+                    underline
+                    color={removeButtonHovered ? theme.errorText : theme.errorDecorative}
+                  >
+                    {t('Remove')}
+                  </Text>
+                )}
+              </Pressable>
+            </View>
           )}
         </Pressable>
       </div>

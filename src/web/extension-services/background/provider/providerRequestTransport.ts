@@ -21,7 +21,11 @@ export enum RpcMethods {
   eth_gasPrice = 'eth_gasPrice',
   eth_getBlockByNumber = 'eth_getBlockByNumber',
   eth_getBalance = 'eth_getBalance',
-  eth_getTransactionByHash = 'eth_getTransactionByHash'
+  eth_getTransactionByHash = 'eth_getTransactionByHash',
+  wallet_getCapabilities = 'wallet_getCapabilities',
+  wallet_sendCalls = 'wallet_sendCalls',
+  wallet_getCallsStatus = 'wallet_getCallsStatus',
+  wallet_showCallsStatus = 'wallet_showCallsStatus'
 }
 
 export type RPCMethod = keyof typeof RpcMethods | string
