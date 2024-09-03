@@ -745,10 +745,7 @@ handleRegisterScripts()
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
               case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-                await mainCtrl.importSmartAccountFromDefaultSeed({
-                  seed: params.seed,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
-                })
+                await mainCtrl.importSmartAccountFromDefaultSeed(params.seed)
                 break
               }
               case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
