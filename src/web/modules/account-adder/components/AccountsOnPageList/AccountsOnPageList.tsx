@@ -219,7 +219,8 @@ const AccountsOnPageList = ({
   const shouldDisplayHideEmptyAccountsToggle = !isAccountAdderEmpty && subType !== 'private-key'
   const shouldDisplayChangeHdPath =
     !isAccountAdderEmpty &&
-    (subType === 'seed' ||
+    !!(
+      subType === 'seed' ||
       // TODO: Disabled for Trezor, because the flow that retrieves accounts
       // from the device as of v4.32.0 throws "forbidden key path" when
       // accessing non-"BIP44 Standard" paths. Alternatively, this could be
@@ -228,7 +229,8 @@ const AccountsOnPageList = ({
       // clicks to retrieve accounts of the first 5 pages, blah) and 2) The
       // Trezor device shows a scarry note: "Wrong address path for selected
       // coin. Continue at your own risk!", which is pretty bad UX.
-      (keyType && ['ledger', 'lattice'].includes(keyType)))
+      (keyType && ['ledger', 'lattice'].includes(keyType))
+    )
 
   // Prevents the user from temporarily seeing (flashing) empty (error) states
   // while being navigated back (resetting the Account Adder state).
