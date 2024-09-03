@@ -6,7 +6,8 @@ import {
   INVITE_STATUS_VERIFIED,
   TEST_ACCOUNT_NAME_ONE,
   TEST_ACCOUNT_NAME_TWO,
-  TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER
+  TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER,
+  INCORRECT_SEEDS
 } from './constants'
 import { bootstrap } from '../../common-helpers/bootstrap'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
@@ -14,7 +15,8 @@ import { typeText } from '../../common-helpers/typeText'
 import {
   finishStoriesAndSelectAccount,
   typeSeedWords,
-  expectImportButtonToBeDisabled
+  expectImportButtonToBeDisabled,
+  clearSeedWordsInputs
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { baPrivateKey, seed } from '../../config/constants'
@@ -41,7 +43,7 @@ describe('auth', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -220,14 +222,12 @@ describe('auth', () => {
     }
 
     // Try to login with empty phrase fields
-    let passphraseWords = ''
-    await typeSeedWords(page, passphraseWords)
+    await typeSeedWords(page, '')
     await expectImportButtonToBeDisabled(page)
 
-    // Test cases with different phrases keys
-    passphraseWords =
-      '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000'
-    await typeSeedWords(page, passphraseWords)
+    expect(INCORRECT_SEEDS.length).toBeGreaterThanOrEqual(2)
+
+    await typeSeedWords(page, INCORRECT_SEEDS[0])
     await expectImportButtonToBeDisabled(page)
 
     const errorMessage = 'Invalid Seed Phrase. Please review every field carefully.'
@@ -235,16 +235,9 @@ describe('auth', () => {
     await waitUntilError(errorMessage)
 
     // Clear the passphrase fields before write the new phrase
-    const wordArray = passphraseWords.split(' ')
-    for (let i = 0; i < wordArray.length; i++) {
-      const inputSelector = `[placeholder="Word ${i + 1}"]`
-      await page.click(inputSelector, { clickCount: 3 }) // Select all content
-      await page.keyboard.press('Backspace') // Delete the selected content
-    }
+    await clearSeedWordsInputs(page, INCORRECT_SEEDS[0])
 
-    passphraseWords =
-      'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
-    await typeSeedWords(page, passphraseWords)
+    await typeSeedWords(page, INCORRECT_SEEDS[1])
     await expectImportButtonToBeDisabled(page)
     // Wait until the error message appears on the page
     await waitUntilError(errorMessage)

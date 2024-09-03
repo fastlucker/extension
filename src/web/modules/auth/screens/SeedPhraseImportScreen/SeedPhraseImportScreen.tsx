@@ -333,6 +333,7 @@ const SeedPhraseImportScreen = () => {
                   rules={{ required: true }}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
+                      testID={`seed-phrase-field-${index + 1}`}
                       value={value}
                       editable
                       numberOfLines={1}

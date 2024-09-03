@@ -23,9 +23,9 @@ async function prepareTransaction(page, recipient, amount) {
   await page.waitForXPath(
     '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
   )
-  await page.waitForSelector('[data-testid="checkbox"]')
+  await page.waitForSelector(SELECTORS.checkbox)
   await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
-  await clickOnElement(page, '[data-testid="checkbox"]')
+  await clickOnElement(page, SELECTORS.checkbox)
   await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 }
 
@@ -256,10 +256,8 @@ describe('sa_features', () => {
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
     // Check the checkbox "I confirm this address is not a Binance wallets...."
-    const checkboxExists = await page.evaluate(
-      () => !!document.querySelector('[data-testid="checkbox"]')
-    )
-    if (checkboxExists) await clickOnElement(page, '[data-testid="checkbox"]')
+    const checkboxExists = await page.evaluate(() => !!document.querySelector(SELECTORS.checkbox))
+    if (checkboxExists) await clickOnElement(page, SELECTORS.checkbox)
 
     // Click on "Send" button and cofirm transaction
     const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(

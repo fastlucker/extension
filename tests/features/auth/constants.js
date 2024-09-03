@@ -13,3 +13,7 @@ export const TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER = 'Enter a private key'
 // URLs
 export const URL_GET_STARTED = '/tab.html#/get-started'
 export const URL_ACCOUNT_SELECT = '/tab.html#/account-select'
+export const INCORRECT_SEEDS = [
+  '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000',
+  'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
+]

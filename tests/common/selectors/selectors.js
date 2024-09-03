@@ -20,7 +20,11 @@ export const TEST_IDS = {
   viewOnlyBtnImport: 'view-only-button-import',
   address: 'address',
   buttonAddAccount: 'button-add-account',
-  watchAddress: 'watch-address'
+  watchAddress: 'watch-address',
+  checkbox: 'checkbox',
+  addAccount: 'add-account',
+  buttonImportAccount: 'button-import-account',
+  seedPhraseInputFieldDynamic: 'seed-phrase-field'
 }
 
 export const SELECTORS = Object.fromEntries(

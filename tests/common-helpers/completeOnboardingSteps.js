@@ -1,4 +1,5 @@
 import { clickOnElement } from './clickOnElement'
+import { SELECTORS } from '../common/selectors/selectors'
 
 export async function completeOnboardingSteps(page) {
   // Expect the current page to be "get-started"
@@ -13,7 +14,7 @@ export async function completeOnboardingSteps(page) {
   await clickOnElement(page, '[data-testid="stories-button-next-4"]')
 
   // check the checkbox "I agree ..."
-  await clickOnElement(page, '[data-testid="checkbox"]')
+  await clickOnElement(page, SELECTORS.checkbox)
 
   // Click on "Got it"
   await clickOnElement(page, '[data-testid="stories-button-next-5"]')
