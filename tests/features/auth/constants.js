@@ -13,10 +13,3 @@ export const TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER = 'Enter a private key'
 // URLs
 export const URL_GET_STARTED = '/tab.html#/get-started'
 export const URL_ACCOUNT_SELECT = '/tab.html#/account-select'
-
-// TEST IDs
-export const TEST_ID_ACCOUNT = 'account'
-export const TEST_ID_IMPORT_BTN = 'import-button'
-export const TEST_ID_IMPORT_PRIVATE_BTN = 'button-import-private-key'
-export const TEST_ID_SAVE_AND_CONTINUE_BTN = 'button-save-and-continue'
-export const TEST_ID_ENTER_SEED_PHRASE_FIELD = 'enter-seed-phrase-field'

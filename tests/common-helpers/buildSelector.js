@@ -1,1 +1,2 @@
-export const buildSelector = (testId) => `[data-testid="${testId}"]`
+export const buildSelector = (testId, index) =>
+  `[data-testid="${testId}${index !== undefined ? `-${index}` : ''}"]`
