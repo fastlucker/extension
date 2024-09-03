@@ -2,15 +2,18 @@ import * as Clipboard from 'expo-clipboard'
 import React, { useContext, useEffect } from 'react'
 import { Pressable, View } from 'react-native'
 
+import { DEFAULT_ACCOUNT_LABEL } from '@ambire-common/consts/account'
 import { Account as AccountInterface, ImportStatus } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
+import Avatar from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import Checkbox from '@common/components/Checkbox'
 import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -56,6 +59,7 @@ const Account = ({
   const { minWidthSize, maxWidthSize } = useWindowSize()
   const { addToast } = useToast()
   if (!account.addr) return null
+  const isLabelCustom = account.preferences.label !== DEFAULT_ACCOUNT_LABEL
 
   const toggleSelectedState = () => {
     if (isSelected) {
@@ -100,17 +104,43 @@ const Account = ({
         <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
-              <Text
-                testID="add-account"
-                fontSize={16}
-                appearance="primaryText"
-                style={spacings.mrMi}
-              >
-                {minWidthSize('m') && shortenAddress(account.addr, 16)}
-                {maxWidthSize('m') && minWidthSize('l') && shortenAddress(account.addr, 26)}
-                {maxWidthSize('l') && account.addr}
-              </Text>
-              {minWidthSize('l') && (
+              {isLabelCustom ? (
+                <>
+                  <Avatar pfp={account.preferences.pfp} size={24} />
+                  <Text
+                    fontSize={16}
+                    weight="medium"
+                    appearance="primaryText"
+                    style={spacings.mrTy}
+                  >
+                    {account.preferences.label}
+                  </Text>
+                  <Text
+                    testID="add-account"
+                    fontSize={14}
+                    appearance="secondaryText"
+                    style={spacings.mrMi}
+                    // @ts-ignore
+                    dataSet={{ tooltipId: account.addr }}
+                  >
+                    ({shortenAddress(account.addr, 16)})
+                  </Text>
+                  <Tooltip content={account.addr} id={account.addr} />
+                </>
+              ) : (
+                <Text
+                  testID="add-account"
+                  fontSize={16}
+                  appearance="primaryText"
+                  style={spacings.mrMi}
+                >
+                  {minWidthSize('m') && shortenAddress(account.addr, 16)}
+                  {maxWidthSize('m') && minWidthSize('l') && shortenAddress(account.addr, 26)}
+                  {maxWidthSize('l') && account.addr}
+                </Text>
+              )}
+
+              {(minWidthSize('l') || isLabelCustom) && (
                 <Pressable onPress={handleCopyAddress}>
                   <CopyIcon width={14} height={14} />
                 </Pressable>
