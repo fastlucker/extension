@@ -29,6 +29,7 @@ import { buildSelector } from '../../common-helpers/buildSelector'
 // - should import basic and smart accounts from a seed phrase and personalize them
 // - should import view-only accounts
 // - should not allow importing an invalid seed phrase
+
 const accountSelector = buildSelector(TEST_ID_ACCOUNT)
 const importBtnSelector = buildSelector(TEST_ID_IMPORT_BTN)
 const importPrivateBtnSelector = buildSelector(TEST_ID_IMPORT_PRIVATE_BTN)

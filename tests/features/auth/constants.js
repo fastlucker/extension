@@ -4,15 +4,15 @@ export const INVITE_STORAGE_ITEM = {
   verifiedCode: 'dummy-test-code'
 }
 
-// URLs
-export const URL_GET_STARTED = '/tab.html#/get-started'
-export const URL_ACCOUNT_SELECT = '/tab.html#/account-select'
-
 export const TEST_ACCOUNT_NAME_ONE = 'Test-Account-1'
 export const TEST_ACCOUNT_NAME_TWO = 'Test-Account-2'
 
 export const INVITE_STATUS_VERIFIED = 'VERIFIED'
 export const TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER = 'Enter a private key'
+
+// URLs
+export const URL_GET_STARTED = '/tab.html#/get-started'
+export const URL_ACCOUNT_SELECT = '/tab.html#/account-select'
 
 // TEST IDs
 export const TEST_ID_ACCOUNT = 'account'
