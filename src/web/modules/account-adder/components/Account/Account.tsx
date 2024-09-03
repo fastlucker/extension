@@ -2,7 +2,6 @@ import * as Clipboard from 'expo-clipboard'
 import React, { useContext, useEffect } from 'react'
 import { Pressable, View } from 'react-native'
 
-import { DEFAULT_ACCOUNT_LABEL } from '@ambire-common/consts/account'
 import { Account as AccountInterface, ImportStatus } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
@@ -59,7 +58,7 @@ const Account = ({
   const { minWidthSize, maxWidthSize } = useWindowSize()
   const { addToast } = useToast()
   if (!account.addr) return null
-  const isLabelCustom = account.preferences.label !== DEFAULT_ACCOUNT_LABEL
+  const isAccountImported = importStatus !== ImportStatus.NotImported
 
   const toggleSelectedState = () => {
     if (isSelected) {
@@ -104,7 +103,7 @@ const Account = ({
         <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
-              {isLabelCustom ? (
+              {isAccountImported ? (
                 <>
                   <Avatar pfp={account.preferences.pfp} size={24} />
                   <Text
@@ -140,7 +139,7 @@ const Account = ({
                 </Text>
               )}
 
-              {(minWidthSize('l') || isLabelCustom) && (
+              {(minWidthSize('l') || isAccountImported) && (
                 <Pressable onPress={handleCopyAddress}>
                   <CopyIcon width={14} height={14} />
                 </Pressable>
