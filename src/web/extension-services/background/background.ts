@@ -211,6 +211,25 @@ handleRegisterScripts()
       : INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
 
     async function updatePortfolio() {
+      const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
+
+      // Postpone the portfolio update for the next interval
+      // if we have broadcasted but not yet confirmed acc op.
+      // Here's why:
+      // 1. On the Dashboard, we show a pending-to-be-confirmed token badge
+      //    if an acc op has been broadcasted but is still unconfirmed.
+      // 2. To display the expected balance change, we calculate it from the portfolio's pending simulation state.
+      // 3. When we sign and broadcast the acc op, we remove it from the Main controller.
+      // 4. If we trigger a portfolio update at this point, we will lose the pending simulation state.
+      // 5. Therefore, to ensure the badge is displayed, we pause the portfolio update temporarily.
+      //    Once the acc op is confirmed or failed, the portfolio interval will resume as normal.
+      // 6. Gotcha: If the user forcefully updates the portfolio, we will also lose the simulation.
+      //    However, this is not a frequent case, and we can make a compromise here.
+      if (hasBroadcastedButNotConfirmed) {
+        backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+        return
+      }
+
       await mainCtrl.updateSelectedAccountPortfolio()
 
       backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()

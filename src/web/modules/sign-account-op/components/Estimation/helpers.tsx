@@ -14,8 +14,8 @@ import { NO_FEE_OPTIONS } from './consts'
 import { FeeOption } from './types'
 
 const sortBasedOnUSDValue = (a: FeePaymentOption, b: FeePaymentOption) => {
-  const aPrice = a.token.priceIn?.[0].price
-  const bPrice = b.token.priceIn?.[0].price
+  const aPrice = a.token.priceIn?.[0]?.price
+  const bPrice = b.token.priceIn?.[0]?.price
 
   if (!aPrice || !bPrice) return 0
   const aBalance = formatUnits(a.availableAmount, a.token.decimals)
@@ -44,7 +44,7 @@ const sortFeeOptions = (
     signAccountOpState.rbfAccountOps[a.paidBy]
   )
   const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
-  if (!aSlow) return -1
+  if (!aSlow) return 1
   const aCanCoverFee = a.availableAmount >= aSlow.amount
 
   const bId = getFeeSpeedIdentifier(
@@ -53,7 +53,7 @@ const sortFeeOptions = (
     signAccountOpState.rbfAccountOps[b.paidBy]
   )
   const bSlow = signAccountOpState.feeSpeeds[bId].find((speed) => speed.type === 'slow')
-  if (!bSlow) return 1
+  if (!bSlow) return -1
   const bCanCoverFee = b.availableAmount >= bSlow.amount
 
   if (aCanCoverFee && !bCanCoverFee) return -1

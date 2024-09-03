@@ -1,9 +1,9 @@
 import React, { FC, memo } from 'react'
 import { G, Path, Svg, SvgProps } from 'react-native-svg'
 
-const ChainlistIcon: FC<SvgProps> = ({ width, height }) => {
+const ChainlistIcon: FC<SvgProps> = ({ width, height, ...rest }) => {
   return (
-    <Svg width={width} height={height} viewBox="0 0 23.985 32">
+    <Svg width={width} height={height} viewBox="0 0 23.985 32" {...rest}>
       <G>
         <Path
           d="m3.8.021 12.044-.02c0 .007 8.1 8.233 8.136 8.363l.005 19.84a3.8 3.8 0 0 1-3.8 3.8H3.8A3.8 3.8 0 0 1 0 28.201V3.818A3.8 3.8 0 0 1 3.8.021Z"
