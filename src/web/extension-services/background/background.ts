@@ -736,7 +736,7 @@ handleRegisterScripts()
                           hdPathTemplate: mainCtrl.accountAdder
                             .hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
                           index,
-                          timestamp: new Date().getTime()
+                          createdAt: new Date().getTime()
                         }
                       }))
                   )

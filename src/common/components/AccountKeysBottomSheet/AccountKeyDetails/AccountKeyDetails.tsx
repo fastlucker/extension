@@ -46,11 +46,11 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
         }
       ]
 
-      if (meta?.timestamp && new Date(meta.timestamp).toString() !== 'Invalid Date') {
+      if (meta?.createdAt && new Date(meta.createdAt).toString() !== 'Invalid Date') {
         internalKeyDetails.push({
           key: t('Added on'),
-          value: `${new Date(meta.timestamp).toLocaleDateString()} (${new Date(
-            meta.timestamp
+          value: `${new Date(meta.createdAt).toLocaleDateString()} (${new Date(
+            meta.createdAt
           ).toLocaleTimeString()})`
         })
       }
@@ -94,11 +94,11 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
       }
     ]
 
-    if (meta?.timestamp && new Date(meta.timestamp).toString() !== 'Invalid Date') {
+    if (meta?.createdAt && new Date(meta.createdAt).toString() !== 'Invalid Date') {
       externalKeyDetails.push({
         key: t('Added on'),
-        value: `${new Date(meta.timestamp).toLocaleDateString()} (${new Date(
-          meta.timestamp
+        value: `${new Date(meta.createdAt).toLocaleDateString()} (${new Date(
+          meta.createdAt
         ).toLocaleTimeString()})`
       })
     }
@@ -111,7 +111,7 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
     meta?.deviceId,
     meta?.hdPathTemplate,
     meta?.index,
-    meta?.timestamp,
+    meta?.createdAt,
     dedicatedToOneSA,
     addr
   ])

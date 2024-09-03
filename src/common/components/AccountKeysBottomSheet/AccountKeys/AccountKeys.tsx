@@ -27,7 +27,16 @@ const AccountKeys: FC<Props> = ({ associatedKeys, importedAccountKeys, setCurren
   const accountKeys: AccountKeyType[] = [
     ...importedAccountKeys
       .map((key) => ({ isImported: true, ...key }))
-      .sort((a, b) => a.meta.timestamp - b.meta.timestamp),
+      .sort((a, b) => {
+        const aCreatedAt = a.meta?.createdAt
+        const bCreatedAt = b.meta?.createdAt
+
+        if (aCreatedAt === null && bCreatedAt === null) return 0
+        if (aCreatedAt === null) return -1
+        if (bCreatedAt === null) return 1
+
+        return aCreatedAt - bCreatedAt
+      }),
     ...notImportedAccountKeys.map((keyAddr) => ({
       isImported: false,
       addr: keyAddr,
