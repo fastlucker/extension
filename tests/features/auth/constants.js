@@ -15,8 +15,8 @@ export const INVITE_STATUS_VERIFIED = 'VERIFIED'
 export const TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER = 'Enter a private key'
 
 // TEST IDs
-export const TEST_ID_ACCOUNT = '[data-testid="account"]'
-export const TEST_ID_IMPORT_BTN = '[data-testid="import-button"]'
-export const TEST_ID_IMPORT_PRIVATE_BTN = '[data-testid="button-import-private-key"]'
-export const TEST_ID_SAVE_AND_CONTINUE_BTN = '[data-testid="button-save-and-continue"]'
-export const TEST_ID_ENTER_SEED_PHRASE_FIELD = '[data-testid="enter-seed-phrase-field"]'
+export const TEST_ID_ACCOUNT = 'account'
+export const TEST_ID_IMPORT_BTN = 'import-button'
+export const TEST_ID_IMPORT_PRIVATE_BTN = 'button-import-private-key'
+export const TEST_ID_SAVE_AND_CONTINUE_BTN = 'button-save-and-continue'
+export const TEST_ID_ENTER_SEED_PHRASE_FIELD = 'enter-seed-phrase-field'
