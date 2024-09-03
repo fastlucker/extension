@@ -25,8 +25,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     await browser.close()
   })
 
-  // TODO: Let's figure out why this tests stop working.
-  it.skip('portfolio and account state reload', async () => {
+  it('portfolio and account state reload', async () => {
     const httpRequests = await monitorRequests(serviceWorker.client, async () => {
       await clickOnElement(page, '[data-testid="refresh-button"]')
     })
@@ -39,9 +38,9 @@ describe('Monitor network requests and make sure only necessary requests are mad
       uncategorizedRequests
     } = getBackgroundRequestsByType(httpRequests)
 
-    expect(nativeTokenPriceRequests.length).toBe(networks.length)
-
-    expect(batchedErc20TokenPriceRequests.length).toBe(networks.length - 1)
+    // Expect no requests for prices. Portfolio should cache prices
+    expect(nativeTokenPriceRequests.length).toBe(0)
+    expect(batchedErc20TokenPriceRequests.length).toBe(0)
 
     expect(hintsRequests.length).toBe(networks.length)
 
