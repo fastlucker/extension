@@ -60,13 +60,13 @@ const DualChoiceWarningModal = ({
   secondaryButtonText,
   primaryButtonTestID,
   secondaryButtonTestID
-}: DualChoiceModalProps & { title: string; description: string }) => {
+}: Omit<DualChoiceModalProps, 'description'> & { title: string; description?: string }) => {
   const { theme } = useTheme()
   return (
     <Wrapper>
       <ContentWrapper>
         <TitleAndIcon style={spacings.mbXl} title={title} />
-        <Text text={description} />
+        {!!description && <Text text={description} />}
       </ContentWrapper>
       <ButtonWrapper>
         <Button
