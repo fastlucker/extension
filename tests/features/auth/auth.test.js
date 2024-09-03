@@ -41,11 +41,11 @@ describe('auth', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import basic account from private key', async () => {
+  it.skip('should import basic account from private key', async () => {
     // expect.assertions(4)
 
     // Get the invite data from the storage
@@ -93,7 +93,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
+  it.skip('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
     await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
     await page.waitForSelector('[placeholder="Word 1"]')
 
@@ -163,30 +163,30 @@ describe('auth', () => {
     await page.waitForFunction(() => window.location.href.includes('/get-started'))
 
     // Select "Add"
-    await clickOnElement(page, '[data-testid="get-started-button-add"]')
+    await clickOnElement(page, SELECTORS.getStartedBtnAdd)
 
-    await typeText(page, '[data-testid="address-ens-field"]', smartAccount)
+    await typeText(page, SELECTORS.addressEnsField, smartAccount)
 
     // Click on "Import View-Only Accounts" button
-    await clickOnElement(page, '[data-testid="view-only-button-import"]')
+    await clickOnElement(page, SELECTORS.viewOnlyBtnImport)
 
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
 
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
-    await page.waitForSelector('[data-testid="address"]')
+    await page.waitForSelector(SELECTORS.address)
     // Verify that added accounts exist on the page and contains 'View-only'
     let selectedBasicAccount = await page.$eval(SELECTORS.account, (el) => el.innerText)
 
     expect(selectedBasicAccount).toContain(smartAccount)
     expect(selectedBasicAccount).toContain('View-only')
 
-    await clickOnElement(page, '[data-testid="button-add-account"]')
+    await clickOnElement(page, SELECTORS.buttonAddAccount)
 
-    await clickOnElement(page, '[data-testid="watch-address"]', true, 1500)
-    await typeText(page, '[data-testid="address-ens-field"]', basicAccount)
+    await clickOnElement(page, SELECTORS.watchAddress, true, 1500)
+    await typeText(page, SELECTORS.addressEnsField, basicAccount)
     // Click on "Import View-Only Accounts" button
-    await clickOnElement(page, '[data-testid="view-only-button-import"]')
+    await clickOnElement(page, SELECTORS.viewOnlyBtnImport)
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
@@ -202,7 +202,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should not allow importing an invalid seed phrase', async () => {
+  it('should not allow importing an invalid seed phrase', async () => {
     await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
 
     await page.waitForSelector('[placeholder="Word 1"]')

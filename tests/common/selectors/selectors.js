@@ -14,7 +14,13 @@ export const TEST_IDS = {
   keystoreBtnCreate: 'keystore-button-create',
   keystoreBtnContinue: 'keystore-button-continue',
   editBtnForEditNameField: 'edit-btn-for-edit-name-field',
-  editFieldNameField: 'edit-name-field'
+  editFieldNameField: 'edit-name-field',
+  getStartedBtnAdd: 'get-started-button-add',
+  addressEnsField: 'address-ens-field',
+  viewOnlyBtnImport: 'view-only-button-import',
+  address: 'address',
+  buttonAddAccount: 'button-add-account',
+  watchAddress: 'watch-address'
 }
 
 export const SELECTORS = Object.fromEntries(

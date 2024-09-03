@@ -9,8 +9,10 @@ import { selectFeeToken } from '../common-helpers/selectFeeToken'
 import { signTransaction } from '../common-helpers/signTransaction'
 import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
+import { SELECTORS } from './selectors/selectors'
 
-const recipientField = '[data-testid="address-ens-field"]'
+// TODO: Fix this
+const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
 //--------------------------------------------------------------------------------------------------------------
 export async function makeValidTransaction(

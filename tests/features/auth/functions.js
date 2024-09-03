@@ -1,4 +1,5 @@
 import { clickOnElement } from '../../common-helpers/clickOnElement'
+import { SELECTORS } from '../../common/selectors/selectors'
 
 export async function finishStoriesAndSelectAccount(
   page,
@@ -57,7 +58,7 @@ export async function typeSeedWords(page, passphraseWords) {
 }
 
 export async function expectImportButtonToBeDisabled(page) {
-  const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+  const isButtonDisabled = await page.$eval(SELECTORS.importBtn, (button) => {
     return button.getAttribute('aria-disabled')
   })
 

@@ -8,8 +8,10 @@ import { signTransaction } from '../common-helpers/signTransaction'
 import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
 import { selectFeeToken } from '../common-helpers/selectFeeToken'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
+import { SELECTORS } from '../common/selectors/selectors'
 
-const recipientField = '[data-testid="address-ens-field"]'
+// TODO: Fix this
+const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
 
 // Helper functions for common operations
