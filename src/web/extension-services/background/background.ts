@@ -586,7 +586,7 @@ handleRegisterScripts()
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
                 const { walletSDK } = trezorCtrl
-                mainCtrl.accountAdder.init({
+                await mainCtrl.accountAdder.init({
                   keyIterator: new TrezorKeyIterator({ walletSDK }),
                   hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
                 })
@@ -607,7 +607,7 @@ handleRegisterScripts()
                   await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
                 }
 
-                mainCtrl.accountAdder.init({
+                await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
                   hdPathTemplate
@@ -621,7 +621,7 @@ handleRegisterScripts()
 
                 if (!keystoreDefaultSeed) return
                 const keyIterator = new KeyIterator(keystoreDefaultSeed.seed)
-                mainCtrl.accountAdder.init({
+                await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: 5,
                   hdPathTemplate: keystoreDefaultSeed.hdPathTemplate
