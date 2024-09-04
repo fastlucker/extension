@@ -493,7 +493,9 @@ credentials.json
 /webkit-dev
 /webkit-prod
 
-# Safari project
+# Extension(web) build output folders for the Safari browser
+/safari-dev
+/safari-prod
 /ambire-extension-project
 /ambire-extension-project-prod
 
