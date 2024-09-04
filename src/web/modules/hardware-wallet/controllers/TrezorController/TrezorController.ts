@@ -1,7 +1,3 @@
-import {
-  BIP44_STANDARD_DERIVATION_TEMPLATE,
-  HD_PATH_TEMPLATE_TYPE
-} from '@ambire-common/consts/derivation'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
@@ -21,8 +17,6 @@ const TREZOR_CONNECT_MANIFEST = {
 class TrezorController implements ExternalSignerController {
   type = 'trezor'
 
-  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
-
   unlockedPath: string = ''
 
   unlockedPathKeyAddr: string = ''
@@ -40,9 +34,6 @@ class TrezorController implements ExternalSignerController {
   initialLoadPromise
 
   constructor() {
-    // TODO: Handle different derivation
-    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
-
     this.walletSDK.on('DEVICE_EVENT', (event: any) => {
       if (event?.payload?.features?.model) {
         this.deviceModel = event.payload.features.model
@@ -82,15 +73,13 @@ class TrezorController implements ExternalSignerController {
     return this.unlockedPathKeyAddr === expectedKeyOnThisPath && this.unlockedPath === path
   }
 
-  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
-    const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
-
-    if (this.isUnlocked(pathToUnlock, expectedKeyOnThisPath)) {
+  async unlock(path: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
+    if (this.isUnlocked(path, expectedKeyOnThisPath)) {
       return 'ALREADY_UNLOCKED'
     }
 
     const response = await this.walletSDK.ethereumGetAddress({
-      path: pathToUnlock,
+      path,
       // Do not use this validation option, because if the expected key is not
       // on this path, the Trezor displays a not very user friendly error
       // "Addresses do not match" in the Trezor popup. That might cause

@@ -591,11 +591,7 @@ handleRegisterScripts()
                   hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
                 })
 
-                return await mainCtrl.accountAdder.setPage({
-                  page: 1,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
+                return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
                 return await mainCtrl.handleAccountAdderInitLattice(LatticeKeyIterator)
@@ -614,11 +610,7 @@ handleRegisterScripts()
                   hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
                 })
 
-                return await mainCtrl.accountAdder.setPage({
-                  page: 1,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
+                return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
@@ -632,11 +624,7 @@ handleRegisterScripts()
                   hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
                 })
 
-                return await mainCtrl.accountAdder.setPage({
-                  page: 1,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
+                return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
               case 'MAIN_CONTROLLER_TRACE_CALL': {
                 return await mainCtrl.traceCall(params.estimation)
@@ -678,11 +666,10 @@ handleRegisterScripts()
                 break
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
-                return await mainCtrl.accountAdder.setPage({
-                  ...params,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
+                return await mainCtrl.accountAdder.setPage(params)
+              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
+                return mainCtrl.accountAdder.setHDPathTemplate(params)
+              }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
                 const readyToAddKeys: ReadyToAddKeys = {
                   internal: [],
