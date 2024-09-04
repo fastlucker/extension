@@ -79,7 +79,7 @@ const Warnings: FC<Props> = ({
         <View style={spacings.ptTy}>
           <Alert
             type="warning"
-            title="Estimation for this request is enormously high (more than 10 million gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
+            title="Estimation for this request is enormously high (more than 25% of the block gas limit). The transaction may be invalid. Are you sure you want to proceed?"
           />
           <Checkbox
             value={signAccountOpState.gasUsedTooHighAgreed}
