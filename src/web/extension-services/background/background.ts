@@ -586,7 +586,7 @@ handleRegisterScripts()
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
                 const { walletSDK } = trezorCtrl
-                mainCtrl.accountAdder.init({
+                await mainCtrl.accountAdder.init({
                   keyIterator: new TrezorKeyIterator({ walletSDK }),
                   hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
                 })
@@ -599,29 +599,30 @@ handleRegisterScripts()
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
+                const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
                 const keyIterator = new KeyIterator(params.privKeyOrSeed)
                 if (keyIterator.subType === 'seed' && params.shouldPersist) {
-                  await mainCtrl.keystore.addSeed(params.privKeyOrSeed)
+                  await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
                 }
 
-                mainCtrl.accountAdder.init({
+                await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                  hdPathTemplate
                 })
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-                const seed = await mainCtrl.keystore.getDefaultSeed()
+                const keystoreDefaultSeed = await mainCtrl.keystore.getDefaultSeed()
 
-                if (!seed) return
-                const keyIterator = new KeyIterator(seed)
-                mainCtrl.accountAdder.init({
+                if (!keystoreDefaultSeed) return
+                const keyIterator = new KeyIterator(keystoreDefaultSeed.seed)
+                await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: 5,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                  hdPathTemplate: keystoreDefaultSeed.hdPathTemplate
                 })
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
@@ -929,8 +930,6 @@ handleRegisterScripts()
                   params.newSecret,
                   params.secret
                 )
-              case 'KEYSTORE_CONTROLLER_ADD_SEED':
-                return await mainCtrl.keystore.addSeed(params.seed)
               case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
                 // In the case we change the user's device password through the recovery process,
                 // we don't know the old password, which is why we send only the new password.
