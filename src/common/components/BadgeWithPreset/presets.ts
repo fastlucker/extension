@@ -5,28 +5,31 @@ const BADGE_PRESETS: { [preset in Preset]: BadgePreset } = {
     text: 'Smart Account',
     type: 'success',
     tooltipText:
-      'Smart accounts enable advanced features such as enhanced gas management, transaction batching, and upgradable security.'
+      'Smart Account includes many advanced security features, such as account recovery, paying transaction fees in stablecoins, performing multiple actions in one transaction (transaction batching), and more.'
   },
   'basic-account': {
     text: 'Basic Account',
     type: 'warning',
     tooltipText:
-      'Basic accounts grant access to basic features such as you experience with EOA (Metamask, Rabby)'
+      'Basic Accounts, also known as EOAs (Externally Owned Accounts), provide basic functionalities only.'
   },
   'view-only': {
     text: 'View Only',
     type: 'info',
-    tooltipText: 'View-only accounts are read-only and cannot execute transactions.'
+    tooltipText:
+      'The "View-only" account is imported without signer keys, meaning you can see its balances, connect it with dApps, simulate transactions, and more, but you cannot control it or sign transactions or messages.'
   },
   'ambire-v1': {
     text: 'Ambire v1',
     type: 'info',
-    tooltipText: '...'
+    tooltipText:
+      'Smart Accounts created with the Web or Mobile platforms of Ambire Wallet. You can sign transactions (single and batched ones), connect with dApps, and more, but cannot utilize all the features and functionalities of the Ambire Wallet extension.'
   },
   linked: {
     text: 'Linked',
     type: 'info',
-    tooltipText: '...'
+    tooltipText:
+      'Smart Accounts were initially created with a given signer key, but another signer key is authorized for that account on one or more of the supported networks.'
   }
 }
 
