@@ -1,5 +1,6 @@
 import React from 'react'
 import { View } from 'react-native'
+import { v4 as uuidv4 } from 'uuid'
 
 import InformationIcon from '@common/assets/svg/InformationIcon'
 import Text from '@common/components/Text'
@@ -42,6 +43,7 @@ const Badge = ({
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
   const { color, iconColor } = badgeTypes[type]
+  const tooltipId = uuidv4()
 
   return (
     <View
@@ -66,8 +68,8 @@ const Badge = ({
       </Text>
       {!!tooltipText && (
         <>
-          <InformationIcon data-tooltip-id={text} color={iconColor} width={14} height={14} />
-          <Tooltip id={text} content={tooltipText} />
+          <InformationIcon data-tooltip-id={tooltipId} color={iconColor} width={14} height={14} />
+          <Tooltip id={tooltipId} content={tooltipText} />
         </>
       )}
     </View>
