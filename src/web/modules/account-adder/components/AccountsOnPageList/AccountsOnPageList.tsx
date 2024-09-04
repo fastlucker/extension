@@ -12,7 +12,7 @@ import {
   ImportStatus
 } from '@ambire-common/interfaces/account'
 import Alert from '@common/components/Alert'
-import Badge from '@common/components/Badge'
+import BadgeWithPreset from '@common/components/BadgeWithPreset'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Pagination from '@common/components/Pagination'
@@ -27,6 +27,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -64,6 +65,7 @@ const AccountsOnPageList = ({
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
   const keystoreState = useKeystoreControllerState()
+  const accountAdderState = useAccountAdderControllerState()
   const [onlySmartAccountsVisible, setOnlySmartAccountsVisible] = useState(!!subType)
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
   const [containerHeight, setContainerHeight] = useState(0)
@@ -207,7 +209,9 @@ const AccountsOnPageList = ({
     }
 
     if (subType === 'seed') {
-      return t('Import Accounts from Seed Phrase')
+      return accountAdderState.isInitializedWithDefaultSeed
+        ? t('Import Accounts from Default Seed Phrase')
+        : t('Import Accounts from Seed Phrase')
     }
 
     if (subType === 'private-key') {
@@ -215,7 +219,7 @@ const AccountsOnPageList = ({
     }
 
     return t('Select Accounts To Import')
-  }, [keyType, subType, t])
+  }, [accountAdderState.isInitializedWithDefaultSeed, keyType, subType, t])
 
   // Empty means it's not loading and no accounts on the current page are derived.
   // Should rarely happen - if the deriving request gets cancelled on the device
@@ -303,7 +307,7 @@ const AccountsOnPageList = ({
                 {t(`Linked Smart Account (found on page ${state.page})`)}
               </Text>
               <View style={flexbox.alignStart}>
-                <Badge type="info" withIcon text="linked" />
+                <BadgeWithPreset preset="linked" />
               </View>
             </View>
             <View style={[flexbox.directionRow, flexbox.alignEnd]}>

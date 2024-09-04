@@ -1,15 +1,15 @@
-import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
   image: ImageStyle
   fallbackIcon: ImageStyle
-  kindOfMessage: ViewStyle
-  kindOfMessageText: TextStyle
+  verifyingContract: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -26,20 +26,14 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pvMi,
       ...spacings.phMi
     },
-    kindOfMessage: {
-      backgroundColor: theme.infoBackground,
-      borderColor: theme.infoDecorative,
-      borderWidth: 1,
-      borderRadius: 24,
-      width: 'auto',
-      height: 24,
-      ...flexbox.justifyCenter,
-      ...flexbox.directionRow,
-      ...flexbox.alignCenter,
-      ...spacings.pl,
-      ...spacings.prMi
-    },
-    kindOfMessageText: spacings.mr
+    verifyingContract: {
+      backgroundColor: theme.secondaryBackground,
+      borderRadius: BORDER_RADIUS_PRIMARY,
+      ...spacings.phSm,
+      ...spacings.pvSm,
+      ...flexbox.flex1,
+      ...common.fullWidth
+    }
   })
 
 export default getStyles

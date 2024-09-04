@@ -27,6 +27,7 @@ const MultistateToggleButton = ({ style, states }: Props) => {
           style={[styles.element, i === activeState && styles.activeElement]}
           onPress={() => switchState(callback, i)}
           key={text}
+          fontSize={14}
         >
           {t(text)}
         </Text>

@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { BrowserRouter } from 'react-router-dom'
 
-import Badge from '@common/components/Badge'
+import BadgeWithPreset from '@common/components/BadgeWithPreset'
 import Text from '@common/components/Text'
 import { ThemeProvider } from '@common/contexts/themeContext'
 import spacings from '@common/styles/spacings'
@@ -78,7 +78,7 @@ const STEPS = [
       <Step
         title="Smart Account"
         text="SA wallets include many security features such as account recovery and progressively upgraded security. In addition, you can pay for transactions in stablecoins, and do multiple actions in one transaction (transaction batching)."
-        titleRightChildren={<Badge text="Smart Account" type="success" />}
+        titleRightChildren={<BadgeWithPreset preset="smart-account" />}
       />
     )
   },
@@ -89,7 +89,7 @@ const STEPS = [
       <Step
         title="Basic Account"
         text="We use the term Basic Account to describe the EOAs (Externally Owned Accounts). Unlike Smart Accounts, which provides many functionalities, EOAs only give you basic ones."
-        titleRightChildren={<Badge text="Basic Account" type="warning" />}
+        titleRightChildren={<BadgeWithPreset preset="basic-account" />}
       />
     )
   }

@@ -346,7 +346,7 @@ const SignAccountOpScreen = () => {
           {warningToPromptBeforeSign && (
             <DualChoiceWarningModal
               title={t(warningToPromptBeforeSign.title)}
-              description={t(warningToPromptBeforeSign.text)}
+              description={t(warningToPromptBeforeSign.text || '')}
               primaryButtonText={t('Proceed')}
               secondaryButtonText={t('Cancel')}
               onPrimaryButtonPress={acknowledgeWarning}
