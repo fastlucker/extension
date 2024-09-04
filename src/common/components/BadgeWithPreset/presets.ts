@@ -14,7 +14,7 @@ const BADGE_PRESETS: { [preset in Preset]: BadgePreset } = {
       'Basic Accounts, also known as EOAs (Externally Owned Accounts), provide basic functionalities only.'
   },
   'view-only': {
-    text: 'View Only',
+    text: 'View-only',
     type: 'info',
     tooltipText:
       'The "View-only" account is imported without signer keys, meaning you can see its balances, connect it with dApps, simulate transactions, and more, but you cannot control it or sign transactions or messages.'
