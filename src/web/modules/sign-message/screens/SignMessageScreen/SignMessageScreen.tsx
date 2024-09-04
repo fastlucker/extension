@@ -9,14 +9,14 @@ import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRe
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
+import NetworkBadge from '@common/components/NetworkBadge'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings, { SPACING_MD } from '@common/styles/spacings'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
@@ -54,7 +54,7 @@ const SignMessageScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
   const actionState = useActionsControllerState()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
 
   const signMessageAction = useMemo(() => {
@@ -252,16 +252,7 @@ const SignMessageScreen = () => {
         handleClose={() => setIsChooseSignerShown(false)}
       />
       {isViewOnly && (
-        <View
-          style={{
-            ...common.shadowSecondary,
-            position: 'absolute',
-            right: 0,
-            bottom: SPACING_MD,
-            zIndex: 10,
-            borderRadius: BORDER_RADIUS_PRIMARY
-          }}
-        >
+        <View style={styles.noKeysToSignAlert}>
           <NoKeysToSignAlert
             style={{
               width: 640
@@ -271,12 +262,39 @@ const SignMessageScreen = () => {
         </View>
       )}
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
-        <Text weight="medium" fontSize={24} style={[spacings.mbLg]}>
-          {t('Sign message')}
-        </Text>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            flexbox.justifySpaceBetween,
+            spacings.mbLg
+          ]}
+        >
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <Text weight="medium" fontSize={24} style={[spacings.mrSm]}>
+              {t('Sign message')}
+            </Text>
+            <NetworkBadge
+              style={{ borderRadius: 25, ...spacings.pv0 }}
+              networkId={signMessageState.messageToSign?.networkId}
+              withOnPrefix
+            />
+          </View>
+          {/* @TODO: Replace with Badge; add size prop to badge; add tooltip  */}
+          <View style={styles.kindOfMessage}>
+            <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
+              {t(
+                signMessageState.messageToSign?.content.kind === 'typedMessage'
+                  ? 'EIP-712'
+                  : 'Standard'
+              )}{' '}
+              {t('Type')}
+            </Text>
+          </View>
+        </View>
         <View style={styles.container}>
           <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
-            <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
+            <Info />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
