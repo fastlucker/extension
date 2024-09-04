@@ -12,7 +12,7 @@ import {
   ImportStatus
 } from '@ambire-common/interfaces/account'
 import Alert from '@common/components/Alert'
-import Badge from '@common/components/Badge'
+import BadgeWithPreset from '@common/components/BadgeWithPreset'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Pagination from '@common/components/Pagination'
@@ -27,15 +27,19 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Account from '@web/modules/account-adder/components/Account'
+import ChangeHdPath from '@web/modules/account-adder/components/ChangeHdPath'
 import {
   AccountAdderIntroStepsProvider,
   BasicAccountIntroId
 } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
+
+import styles from './styles'
 
 const AccountsOnPageList = ({
   state,
@@ -55,6 +59,7 @@ const AccountsOnPageList = ({
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
   const keystoreState = useKeystoreControllerState()
+  const accountAdderState = useAccountAdderControllerState()
   const [onlySmartAccountsVisible, setOnlySmartAccountsVisible] = useState(!!subType)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
@@ -195,7 +200,9 @@ const AccountsOnPageList = ({
     }
 
     if (subType === 'seed') {
-      return t('Import Accounts from Seed Phrase')
+      return accountAdderState.isInitializedWithDefaultSeed
+        ? t('Import Accounts from Default Seed Phrase')
+        : t('Import Accounts from Seed Phrase')
     }
 
     if (subType === 'private-key') {
@@ -203,7 +210,7 @@ const AccountsOnPageList = ({
     }
 
     return t('Select Accounts To Import')
-  }, [keyType, subType, t])
+  }, [accountAdderState.isInitializedWithDefaultSeed, keyType, subType, t])
 
   // Empty means it's not loading and no accounts on the current page are derived.
   // Should rarely happen - if the deriving request gets cancelled on the device
@@ -212,6 +219,22 @@ const AccountsOnPageList = ({
     () => !state.accountsLoading && state.accountsOnPage.length === 0,
     [state.accountsLoading, state.accountsOnPage]
   )
+
+  const shouldDisplayHideEmptyAccountsToggle = !isAccountAdderEmpty && subType !== 'private-key'
+  const shouldDisplayChangeHdPath =
+    !isAccountAdderEmpty &&
+    !!(
+      subType === 'seed' ||
+      // TODO: Disabled for Trezor, because the flow that retrieves accounts
+      // from the device as of v4.32.0 throws "forbidden key path" when
+      // accessing non-"BIP44 Standard" paths. Alternatively, this could be
+      // enabled in Trezor Suit (settings - safety checks), but even if enabled,
+      // 1) user must explicitly allow retrieving each address (that means 25
+      // clicks to retrieve accounts of the first 5 pages, blah) and 2) The
+      // Trezor device shows a scarry note: "Wrong address path for selected
+      // coin. Continue at your own risk!", which is pretty bad UX.
+      (keyType && ['ledger', 'lattice'].includes(keyType))
+    )
 
   // Prevents the user from temporarily seeing (flashing) empty (error) states
   // while being navigated back (resetting the Account Adder state).
@@ -252,7 +275,7 @@ const AccountsOnPageList = ({
                 {t(`Linked Smart Account (found on page ${state.page})`)}
               </Text>
               <View style={flexbox.alignStart}>
-                <Badge type="info" withIcon text="linked" />
+                <BadgeWithPreset preset="linked" />
               </View>
             </View>
             <View style={[flexbox.directionRow, flexbox.alignEnd]}>
@@ -313,22 +336,30 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {!isAccountAdderEmpty && subType !== 'private-key' && (
+        {(shouldDisplayHideEmptyAccountsToggle || shouldDisplayChangeHdPath) && (
           <View
-            style={[spacings.mbLg, flexbox.alignStart, flexbox.alignSelfStart]}
+            style={[
+              spacings.mbLg,
+              flexbox.directionRow,
+              flexbox.justifySpaceBetween,
+              { width: '100%' }
+            ]}
             {...(!!hideEmptyAccounts && onlySmartAccountsVisible
               ? {
                   nativeID: BasicAccountIntroId
                 }
               : {})}
           >
-            <Toggle
-              isOn={hideEmptyAccounts}
-              onToggle={() => setHideEmptyAccounts((p) => !p)}
-              label={t('Hide empty basic accounts')}
-              labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
-              style={flexbox.alignSelfStart}
-            />
+            {shouldDisplayHideEmptyAccountsToggle && (
+              <Toggle
+                isOn={hideEmptyAccounts}
+                onToggle={() => setHideEmptyAccounts((p) => !p)}
+                label={t('Hide empty basic accounts')}
+                labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
+                style={flexbox.alignSelfStart}
+              />
+            )}
+            {shouldDisplayChangeHdPath && <ChangeHdPath />}
           </View>
         )}
         <ScrollableWrapper
@@ -362,15 +393,8 @@ const AccountsOnPageList = ({
             </Trans>
           )}
           {state.accountsLoading ? (
-            <View
-              style={[
-                flexbox.alignCenter,
-                flexbox.flex1,
-                flexbox.alignCenter,
-                flexbox.justifyCenter
-              ]}
-            >
-              <Spinner style={{ width: 28, height: 28 }} />
+            <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
+              <Spinner style={styles.spinner} />
             </View>
           ) : (
             Object.keys(slots).map((key, i) => {

@@ -1,3 +1,4 @@
+import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
   Action as ActionFromActionsQueue
@@ -66,6 +67,10 @@ type MainControllerAccountAdderSetPageAction = {
   params: {
     page: number
   }
+}
+type MainControllerAccountAdderSetHdPathTemplateAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE'
+  params: { hdPathTemplate: HD_PATH_TEMPLATE_TYPE }
 }
 type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
@@ -298,10 +303,6 @@ type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
   params: { secret: string; newSecret: string }
 }
-type KeystoreControllerAddSeedAction = {
-  type: 'KEYSTORE_CONTROLLER_ADD_SEED'
-  params: { seed: string }
-}
 type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
   params: { newSecret: string }
@@ -479,6 +480,7 @@ export type Action =
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
   | MainControllerAccountAdderSetPageAction
+  | MainControllerAccountAdderSetHdPathTemplateAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | CreateNewSeedPhraseAndAddFirstSmartAccount
@@ -515,7 +517,6 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
-  | KeystoreControllerAddSeedAction
   | KeystoreControllerChangePasswordFromRecoveryAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction

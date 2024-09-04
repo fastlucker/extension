@@ -37,6 +37,9 @@ const DashboardHeader = () => {
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
 
+  // Temporary measure because UX was found to be confusing
+  const ENABLE_MAXIMIZE = false
+
   if (!selectedAccountData) return null
 
   return (
@@ -53,7 +56,7 @@ const DashboardHeader = () => {
       >
         <AccountButton />
         <View style={styles.maximizeAndMenu}>
-          {!!isPopup && (
+          {(!!isPopup && ENABLE_MAXIMIZE) && (
             <Pressable
               onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}
               {...bindMaximizeAnim}
