@@ -57,8 +57,8 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
     zeroAddressLabel ||
     contact?.name ||
     account?.preferences?.label ||
-    tokenLabel ||
-    hardcodedName
+    hardcodedName ||
+    tokenLabel
   )
     return (
       <BaseAddress address={checksummedAddress} {...rest}>
@@ -66,8 +66,8 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
           zeroAddressLabel ||
           contact?.name ||
           account?.preferences?.label ||
-          tokenLabel ||
-          hardcodedName}
+          hardcodedName ||
+          tokenLabel}
       </BaseAddress>
     )
 
