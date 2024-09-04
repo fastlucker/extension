@@ -450,7 +450,9 @@ const AccountsOnPageList = ({
             )}
           </ScrollableWrapper>
           <AnimatedDownArrow
-            isVisible={typeof hasReachedBottom === 'boolean' && !hasReachedBottom}
+            isVisible={
+              typeof hasReachedBottom === 'boolean' && !hasReachedBottom && !state.accountsLoading
+            }
           />
         </View>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
