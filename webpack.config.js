@@ -13,6 +13,10 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
+const isWebkit = process.env.WEB_ENGINE.startsWith('webkit')
+const isGecko = process.env.WEB_ENGINE === 'gecko'
+const isSafari = process.env.WEB_ENGINE === 'webkit-safari'
+
 module.exports = async function (env, argv) {
   // style.css output file for WEB_ENGINE: GECKO
   function processStyleGecko(content) {
@@ -67,10 +71,9 @@ module.exports = async function (env, argv) {
 
     const csp = "frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
 
-    if (process.env.WEB_ENGINE === 'gecko') {
+    if (isGecko) {
       manifest.background = { scripts: ['background.js'] }
       manifest.host_permissions = [...manifest.host_permissions, '<all_urls>']
-      manifest.externally_connectable = undefined
       manifest.browser_specific_settings = {
         gecko: {
           id: 'wallet@ambire.com',
@@ -79,8 +82,12 @@ module.exports = async function (env, argv) {
       }
     }
 
+    if (isGecko || isSafari) {
+      manifest.externally_connectable = undefined
+    }
+
     const permissions = [...manifest.permissions, 'scripting', 'alarms']
-    if (process.env.WEB_ENGINE === 'webkit') permissions.push('system.display')
+    if (isWebkit && !isSafari) permissions.push('system.display')
     manifest.permissions = permissions
 
     manifest.content_security_policy = { extension_pages: csp }
@@ -90,7 +97,7 @@ module.exports = async function (env, argv) {
     // in Chrome Web Store and can't be changed.
     // {@link https://developer.chrome.com/extensions/manifest/key}
     // TODO: key not supported in gecko browsers
-    if (process.env.WEB_ENGINE === 'webkit') {
+    if (isWebkit) {
       manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
     }
 
@@ -111,7 +118,7 @@ module.exports = async function (env, argv) {
     'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts'
   }
 
-  if (process.env.WEB_ENGINE === 'gecko') {
+  if (isGecko) {
     config.entry['content-script-ambire-injection'] =
       './src/web/extension-services/content-script/content-script-ambire-injection.ts'
     config.entry['content-script-ethereum-injection'] =
@@ -168,7 +175,7 @@ module.exports = async function (env, argv) {
       from: './src/web/public/style.css',
       to: 'style.css',
       transform(content) {
-        if (process.env.WEB_ENGINE === 'gecko') {
+        if (isGecko) {
           return processStyleGecko(content)
         }
 
@@ -214,7 +221,7 @@ module.exports = async function (env, argv) {
     new CopyPlugin({ patterns: extensionCopyPatterns })
   ]
 
-  if (process.env.WEB_ENGINE === 'gecko') {
+  if (isGecko) {
     config.plugins.push(
       new AssetReplacePlugin({
         '#AMBIREINPAGE#': 'ambire-inpage',

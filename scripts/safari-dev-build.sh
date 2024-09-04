@@ -23,7 +23,7 @@ rm -rf ./ambire-extension-project
 mkdir ambire-extension-project
 chmod 777 ambire-extension-project
 
-WEB_ENGINE=webkit WEBPACK_BUILD_OUTPUT_PATH=safari-dev APP_ENV=development expo start --web &
+WEB_ENGINE=webkit-safari WEBPACK_BUILD_OUTPUT_PATH=safari-dev APP_ENV=development expo start --web &
 
 while [ ! -d "$SAFARI_DEV_DIR" ] || [ ! -f "$INDEX" ] || [ ! -f "$BACKGROUND" ]; do
     echo "Waiting for safari-dev build to complete..."

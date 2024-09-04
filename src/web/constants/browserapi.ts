@@ -4,7 +4,7 @@ let engine: 'webkit' | 'gecko' | null = null
 let isExtension: boolean = false
 
 try {
-  if (process.env.WEB_ENGINE === 'webkit') {
+  if (process.env.WEB_ENGINE?.startsWith('webkit')) {
     engine = 'webkit'
   }
 
@@ -12,7 +12,7 @@ try {
     engine = 'gecko'
   }
 
-  if (['webkit', 'gecko'].includes(process.env.WEB_ENGINE || '')) {
+  if (['webkit-safari', 'webkit', 'gecko'].includes(process.env.WEB_ENGINE || '')) {
     // eslint-disable-next-line
     browser = require('webextension-polyfill')
     // Code running in a Chrome extension (content script, background page, etc.)
