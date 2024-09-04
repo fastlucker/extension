@@ -24,6 +24,45 @@ class LatticeKeyIterator implements KeyIteratorInterface {
     this.walletSDK = walletSDK
   }
 
+  /**
+   * Determine if an HD path has a variable index internal to it.
+   * e.g. m/44'/60'/<account>'/0/0 -> true, while m/44'/60'/0'/0/<account> -> false
+   * This is just a hacky helper to avoid having to recursively call for non-ledger
+   * derivation paths. Ledger is SO ANNOYING TO SUPPORT.
+   */
+  #hdPathHasInternalVarIdx(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
+    const path = hdPathTemplate.split('/').slice(1)
+    for (let i = 0; i < path.length - 1; i++) {
+      if (path[i].indexOf('<account>') > -1) return true
+    }
+    return false
+  }
+
+  // Helper to fetch addresses recursively, one by one
+  async #fetchAddressesRecursively(
+    n: number,
+    i: number,
+    recursedAddresses: string[],
+    hdPathTemplate: HD_PATH_TEMPLATE_TYPE
+  ): Promise<string[]> {
+    if (n === 0) return recursedAddresses
+
+    const startPath = getHDPathIndices(hdPathTemplate, i)
+    const keyData = { startPath, n: 1 /* Always fetch one address at a time when recursing */ }
+    const addresses = await this.walletSDK.getAddresses(keyData)
+
+    if (addresses.length < 1) throw new Error('latticeKeyIterator: no addresses returned')
+
+    // Continue the recursion if needed
+    return this.#fetchAddressesRecursively(
+      n - 1,
+      i + 1,
+      // @ts-ignore TODO: figure out the corner cases when the SDK returns Buffer[]
+      recursedAddresses.concat(addresses),
+      hdPathTemplate
+    )
+  }
+
   async retrieve(
     fromToArr: { from: number; to: number }[],
     hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
@@ -37,18 +76,26 @@ class LatticeKeyIterator implements KeyIteratorInterface {
       if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
         throw new Error('latticeKeyIterator: invalid or missing arguments')
 
-      const keyData = {
-        startPath: getHDPathIndices(hdPathTemplate, from),
-        n: to - from + 1
-      }
+      const n = to - from + 1
 
-      // TODO: Figure out the corner cases when this returns Buffer[]
-      // eslint-disable-next-line no-await-in-loop
-      let res: string[] = await this.walletSDK.getAddresses(keyData)
-      // For some reason, the addresses incoming from the device are not
-      // checksumed, that's why manually checksum them here.
-      res = res?.map((addr) => getAddress(addr)) || []
-      keys.push(...res)
+      const shouldFetchRecursively = this.#hdPathHasInternalVarIdx(hdPathTemplate)
+      if (shouldFetchRecursively) {
+        // eslint-disable-next-line no-await-in-loop
+        const res = await this.#fetchAddressesRecursively(n, from, [], hdPathTemplate)
+        keys.push(...res.map((addr) => getAddress(addr)))
+      } else {
+        // Normal fetching without recursion
+        const startPath = getHDPathIndices(hdPathTemplate, from)
+        const keyData = { startPath, n }
+
+        // @ts-ignore TODO: figure out the corner cases when this returns Buffer[]
+        // eslint-disable-next-line no-await-in-loop
+        let res: string[] = await this.walletSDK.getAddresses(keyData)
+        // For some reason, the addresses incoming from the device are not
+        // checksumed, that's why manually checksum them here.
+        res = res?.map((addr) => getAddress(addr)) || []
+        keys.push(...res)
+      }
     }
 
     return keys

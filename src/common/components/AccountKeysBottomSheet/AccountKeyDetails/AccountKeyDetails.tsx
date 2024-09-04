@@ -56,7 +56,7 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
         value: meta?.deviceId || '-'
       },
       {
-        key: t('Derivation'),
+        key: t('HD Path'),
         value: meta?.hdPathTemplate
           ? getHdPathFromTemplate(meta?.hdPathTemplate, meta?.index)
           : '-',
