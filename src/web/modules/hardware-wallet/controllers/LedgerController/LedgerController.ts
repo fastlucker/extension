@@ -1,7 +1,3 @@
-import {
-  BIP44_LEDGER_DERIVATION_TEMPLATE,
-  HD_PATH_TEMPLATE_TYPE
-} from '@ambire-common/consts/derivation'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
@@ -12,8 +8,6 @@ import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
 
 class LedgerController implements ExternalSignerController {
-  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
-
   unlockedPath: string = ''
 
   unlockedPathKeyAddr: string = ''
@@ -37,8 +31,6 @@ class LedgerController implements ExternalSignerController {
     this.isWebHID = true
     this.transport = null
     this.walletSDK = null
-    // TODO: Handle different derivation
-    this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
 
     // When the `cleanUpListener` method gets passed to the navigator.hid listeners
     // the `this` context gets lost, so we need to bind it here. The `this` context
@@ -174,11 +166,10 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
-  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
-    const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
+  async unlock(path: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
     await this.#initSDKSessionIfNeeded()
 
-    if (this.isUnlocked(pathToUnlock, expectedKeyOnThisPath)) {
+    if (this.isUnlocked(path, expectedKeyOnThisPath)) {
       return 'ALREADY_UNLOCKED'
     }
 
@@ -194,10 +185,10 @@ class LedgerController implements ExternalSignerController {
 
     try {
       const response = await this.walletSDK.getAddress(
-        pathToUnlock,
+        path,
         false // prioritize having less steps for the user
       )
-      this.unlockedPath = pathToUnlock
+      this.unlockedPath = path
       this.unlockedPathKeyAddr = response.address
 
       return 'JUST_UNLOCKED'
