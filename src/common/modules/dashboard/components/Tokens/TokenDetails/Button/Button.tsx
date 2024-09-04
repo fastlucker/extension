@@ -21,7 +21,7 @@ interface Props {
   isTokenInfoLoading: boolean
   strokeWidth?: number
   isDisabled?: boolean
-  testID: string
+  testID?: string
 }
 
 const TokenDetailsButton: FC<Props> = ({
