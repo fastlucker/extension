@@ -1,8 +1,8 @@
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans } from 'react-i18next'
-import { Dimensions, Pressable, View } from 'react-native'
+import { Dimensions, NativeScrollEvent, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
@@ -39,7 +39,13 @@ import {
 } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
+import AnimatedDownArrow from './AnimatedDownArrow/AnimatedDownArrow'
 import styles from './styles'
+
+const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: NativeScrollEvent) => {
+  const paddingToBottom = 20
+  return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom
+}
 
 const AccountsOnPageList = ({
   state,
@@ -61,6 +67,9 @@ const AccountsOnPageList = ({
   const keystoreState = useKeystoreControllerState()
   const accountAdderState = useAccountAdderControllerState()
   const [onlySmartAccountsVisible, setOnlySmartAccountsVisible] = useState(!!subType)
+  const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [contentHeight, setContentHeight] = useState(0)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
@@ -220,6 +229,29 @@ const AccountsOnPageList = ({
     [state.accountsLoading, state.accountsOnPage]
   )
 
+  useEffect(() => {
+    if (
+      state.accountsLoading ||
+      contentHeight === containerHeight ||
+      !Object.keys(slots).length ||
+      disablePagination ||
+      !containerHeight ||
+      !contentHeight
+    )
+      return
+
+    const isScrollNotVisible = contentHeight <= containerHeight
+
+    if (setHasReachedBottom && !hasReachedBottom) setHasReachedBottom(isScrollNotVisible)
+  }, [
+    contentHeight,
+    containerHeight,
+    setHasReachedBottom,
+    hasReachedBottom,
+    state.accountsLoading,
+    disablePagination,
+    slots
+  ])
   const shouldDisplayHideEmptyAccountsToggle = !isAccountAdderEmpty && subType !== 'private-key'
   const shouldDisplayChangeHdPath =
     !isAccountAdderEmpty &&
@@ -362,54 +394,71 @@ const AccountsOnPageList = ({
             {shouldDisplayChangeHdPath && <ChangeHdPath />}
           </View>
         )}
-        <ScrollableWrapper
-          style={shouldEnablePagination && spacings.mbLg}
-          contentContainerStyle={{
-            flexGrow: 1
-          }}
-        >
-          {isAccountAdderEmpty && (
-            <Trans style={[spacings.mt, spacings.mbTy]}>
-              <Text appearance="errorText">
-                The process of retrieving accounts was cancelled or it failed.
-                {'\n\n'}
-                Please go back and start the account-adding process again. If the problem persists,
-                please{' '}
-                <Pressable
-                  onPress={async () => {
-                    try {
-                      await createTab('https://help.ambire.com/hc/en-us/requests/new')
-                    } catch {
-                      addToast("Couldn't open link", { type: 'error' })
-                    }
-                  }}
-                >
-                  <Text appearance="errorText" underline>
-                    {t('contact our support team')}
-                  </Text>
-                </Pressable>
-                .
-              </Text>
-            </Trans>
-          )}
-          {state.accountsLoading ? (
-            <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
-              <Spinner style={styles.spinner} />
-            </View>
-          ) : (
-            Object.keys(slots).map((key, i) => {
-              return (
-                <View key={key}>
-                  {getAccounts({
-                    accounts: slots[key],
-                    shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                    slotIndex: i
-                  })}
-                </View>
-              )
-            })
-          )}
-        </ScrollableWrapper>
+        <View style={flexbox.flex1}>
+          <ScrollableWrapper
+            style={shouldEnablePagination && spacings.mbLg}
+            contentContainerStyle={{
+              flexGrow: 1
+            }}
+            onScroll={(e) => {
+              if (isCloseToBottom(e.nativeEvent) && setHasReachedBottom) setHasReachedBottom(true)
+            }}
+            onLayout={(e) => {
+              setContainerHeight(e.nativeEvent.layout.height)
+            }}
+            onContentSizeChange={(_, height) => {
+              setContentHeight(height)
+            }}
+            scrollEventThrottle={400}
+          >
+            {isAccountAdderEmpty && (
+              <Trans style={[spacings.mt, spacings.mbTy]}>
+                <Text appearance="errorText">
+                  The process of retrieving accounts was cancelled or it failed.
+                  {'\n\n'}
+                  Please go back and start the account-adding process again. If the problem
+                  persists, please{' '}
+                  <Pressable
+                    onPress={async () => {
+                      try {
+                        await createTab('https://help.ambire.com/hc/en-us/requests/new')
+                      } catch {
+                        addToast("Couldn't open link", { type: 'error' })
+                      }
+                    }}
+                  >
+                    <Text appearance="errorText" underline>
+                      {t('contact our support team')}
+                    </Text>
+                  </Pressable>
+                  .
+                </Text>
+              </Trans>
+            )}
+            {state.accountsLoading ? (
+              <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
+                <Spinner style={styles.spinner} />
+              </View>
+            ) : (
+              Object.keys(slots).map((key, i) => {
+                return (
+                  <View key={key}>
+                    {getAccounts({
+                      accounts: slots[key],
+                      shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                      slotIndex: i
+                    })}
+                  </View>
+                )
+              })
+            )}
+          </ScrollableWrapper>
+          <AnimatedDownArrow
+            isVisible={
+              typeof hasReachedBottom === 'boolean' && !hasReachedBottom && !state.accountsLoading
+            }
+          />
+        </View>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <View
             style={[
