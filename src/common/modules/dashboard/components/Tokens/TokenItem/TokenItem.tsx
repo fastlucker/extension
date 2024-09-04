@@ -23,6 +23,7 @@ import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 
 import TokenDetails from '../TokenDetails'
 import PendingBadge from './PendingBadge'
@@ -39,7 +40,8 @@ const TokenItem = ({
   tokenPreferences: CustomToken[]
   testID?: string
 }) => {
-  const { claimWalletRewards, claimEarlySupportersVesting } = usePortfolioControllerState()
+  const { accountPortfolio, claimWalletRewards, claimEarlySupportersVesting } =
+    usePortfolioControllerState()
   const {
     symbol,
     address,
@@ -49,6 +51,7 @@ const TokenItem = ({
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const { accounts, selectedAccount } = useAccountsControllerState()
+  const activityState = useActivityControllerState()
 
   const { styles, theme } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -65,29 +68,44 @@ const TokenItem = ({
     [accounts, selectedAccount]
   )
 
-  // By design we should simulate only for SA on the DashboardScreen
-  const isPending = useMemo(() => {
-    if (!isSmartAccount(account)) return false
-
-    return token.amountPostSimulation !== undefined && token.amountPostSimulation !== token.amount
-  }, [account, token.amount, token.amountPostSimulation])
+  const pendingLastKnownNonce = accountPortfolio.simulationNonces[token.networkId]
+  const activityNonce = activityState?.lastKnownNonce[token.networkId]
+  const tokenAmounts = useMemo(
+    () =>
+      accountPortfolio.tokenAmounts.find(
+        (tokenAmount) =>
+          tokenAmount.address === token.address &&
+          tokenAmount.networkId === token.networkId &&
+          !token.flags.onGasTank
+      ),
+    [accountPortfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
+  )
 
   const {
     balanceFormatted,
     balance,
-    pendingBalance,
-    pendingBalanceFormatted,
-    pendingBalanceUSDFormatted,
+    balanceLatestFormatted,
     priceUSDFormatted,
     balanceUSDFormatted,
     isVesting,
     networkData,
     isRewards,
-    balanceChange,
-    simAmount,
+    isPending: hasPendingBadges,
+    pendingBalance,
+    pendingBalanceFormatted,
+    pendingBalanceUSDFormatted,
+    pendingToBeSigned,
+    pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getTokenDetails(token, networks)
+  } = getTokenDetails(token, networks, tokenAmounts, activityNonce, pendingLastKnownNonce)
+
+  // By design, we should simulate only for SA on the DashboardScreen
+  const isPending = useMemo(() => {
+    if (!isSmartAccount(account)) return false
+
+    return !!hasPendingBadges
+  }, [account, hasPendingBadges])
 
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
 
@@ -121,7 +139,7 @@ const TokenItem = ({
         <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
           <View style={[flexboxStyles.directionRow, { flex: 1.5 }]}>
             <View style={[spacings.mr, flexboxStyles.justifyCenter]}>
-              {!!isRewards || !!isVesting ? (
+              {isRewards || isVesting ? (
                 <View style={styles.tokenButtonIconWrapper}>
                   <RewardsIcon width={40} height={40} />
                 </View>
@@ -153,18 +171,18 @@ const TokenItem = ({
                   </Text>
                   <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
                     <Text weight="regular" shouldScale={false} fontSize={12}>
-                      {!!isRewards && t('Claimable rewards')}
-                      {!!isVesting && !isPopup && t('Claimable early supporters vestings')}
-                      {!!isVesting && isPopup && t('Claimable vestings')}
+                      {isRewards && t('Claimable rewards')}
+                      {isVesting && !isPopup && t('Claimable early supporters vestings')}
+                      {isVesting && isPopup && t('Claimable vestings')}
                       {!isRewards && !isVesting && t('on')}{' '}
                     </Text>
                     <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
-                      {!!onGasTank && t('Gas Tank')}
+                      {onGasTank && t('Gas Tank')}
                       {!onGasTank && !isRewards && !isVesting && networkData?.name}
                     </Text>
                   </View>
                 </View>
-                {!!isRewards && (
+                {isRewards && (
                   <Button
                     style={spacings.ml}
                     size="small"
@@ -175,7 +193,7 @@ const TokenItem = ({
                   />
                 )}
 
-                {!!isVesting && (
+                {isVesting && (
                   <Button
                     style={spacings.ml}
                     size="small"
@@ -204,17 +222,17 @@ const TokenItem = ({
         {isPending && (
           <View style={[{ marginLeft: SPACING_2XL + SPACING_TY }, spacings.mtSm]}>
             <View>
-              {simAmount !== 0n && (
+              {!!pendingToBeSigned && !!pendingToBeSignedFormatted && (
                 <PendingBadge
-                  amount={simAmount}
-                  amountFormatted={balanceChange}
+                  amount={pendingToBeSigned}
+                  amountFormatted={pendingToBeSignedFormatted}
                   label="Pending transaction signature"
                   backgroundColor={colors.lightBrown}
                   textColor={theme.warningText}
                   Icon={CartIcon}
                 />
               )}
-              {pendingToBeConfirmed !== 0n && (
+              {!!pendingToBeConfirmed && !!pendingToBeConfirmedFormatted && (
                 <PendingBadge
                   amount={pendingToBeConfirmed}
                   amountFormatted={pendingToBeConfirmedFormatted}
@@ -235,7 +253,7 @@ const TokenItem = ({
                 weight="number_bold"
                 numberOfLines={1}
               >
-                {balanceFormatted}
+                {balanceLatestFormatted}
               </Text>
               <Text
                 selectable

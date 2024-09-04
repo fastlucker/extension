@@ -78,8 +78,8 @@ const SortHat = () => {
           getBenzinUrlParams({
             chainId: benzinAction.userRequest.meta?.chainId,
             isInternal: true,
-            txnId: benzinAction.userRequest.meta?.txnId,
-            userOpHash: benzinAction.userRequest.meta?.userOpHash
+            txnId: benzinAction.userRequest.meta?.txnId, // can be undefined
+            identifiedBy: benzinAction.userRequest.meta?.identifiedBy
           })
         return navigate(link)
       }

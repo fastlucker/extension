@@ -1,4 +1,5 @@
 import { Session } from '@ambire-common/classes/session'
+import { SubmittedAccountOp } from '@ambire-common/libs/accountOp/submittedAccountOp'
 
 export type ProviderRequest<TMethod = string> = {
   method: TMethod
@@ -23,6 +24,7 @@ export type RequestRes = {
   hash?: string
   error?: string
   isUserOp?: boolean
+  submittedAccountOp?: SubmittedAccountOp
 }
 
 export type Web3WalletPermission = {

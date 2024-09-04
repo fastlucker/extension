@@ -15,7 +15,8 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_MD } from '@common/styles/spacings'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
@@ -250,6 +251,25 @@ const SignMessageScreen = () => {
         handleChooseSigningKey={handleSign}
         handleClose={() => setIsChooseSignerShown(false)}
       />
+      {isViewOnly && (
+        <View
+          style={{
+            ...common.shadowSecondary,
+            position: 'absolute',
+            right: 0,
+            bottom: SPACING_MD,
+            zIndex: 10,
+            borderRadius: BORDER_RADIUS_PRIMARY
+          }}
+        >
+          <NoKeysToSignAlert
+            style={{
+              width: 640
+            }}
+            isTransaction={false}
+          />
+        </View>
+      )}
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
         <Text weight="medium" fontSize={24} style={[spacings.mbLg]}>
           {t('Sign message')}
@@ -262,7 +282,7 @@ const SignMessageScreen = () => {
           <View style={flexbox.flex1}>
             <ExpandableCard
               enableExpand={false}
-              style={spacings.mbMd}
+              style={spacings.mbTy}
               hasArrow={false}
               content={
                 visualizeHumanized &&
@@ -299,15 +319,6 @@ const SignMessageScreen = () => {
               hasReachedBottom={!!hasReachedBottom}
               messageToSign={signMessageState.messageToSign}
             />
-            {isViewOnly && (
-              <NoKeysToSignAlert
-                style={{
-                  width: '100%',
-                  ...spacings.mtMd
-                }}
-                isTransaction={false}
-              />
-            )}
           </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
