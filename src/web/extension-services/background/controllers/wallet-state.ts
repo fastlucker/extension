@@ -36,7 +36,7 @@ export class WalletStateController extends EventEmitter {
       ;(async () => {
         await handleUnregisterAmbireInpageScript()
         await handleUnregisterEthereumInpageScript()
-        await handleRegisterScripts(true)
+        await handleRegisterScripts()
         await this.#reloadPageOnSwitchDefaultWallet()
       })()
     } else {

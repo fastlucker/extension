@@ -90,6 +90,9 @@ module.exports = async function (env, argv) {
     if (isWebkit && !isSafari) permissions.push('system.display')
     manifest.permissions = permissions
 
+    if (isSafari) {
+      manifest.permissions = manifest.permissions.filter((p) => p !== 'notifications')
+    }
     manifest.content_security_policy = { extension_pages: csp }
 
     // This value can be used to control the unique ID of an extension,
