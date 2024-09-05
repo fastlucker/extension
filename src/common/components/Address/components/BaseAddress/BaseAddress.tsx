@@ -69,7 +69,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
   }, [addToast, address, network, t])
 
   return (
-    <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+    <View style={[flexbox.alignCenter, flexbox.directionRow, flexbox.wrap]}>
       <Text fontSize={14} weight="medium" appearance="primaryText" selectable {...rest}>
         {children}
       </Text>

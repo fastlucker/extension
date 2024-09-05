@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET } from '@ambire-common/consts/derivation'
+import { ExternalKey, InternalKey } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
@@ -23,13 +24,18 @@ interface Props {
 const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const { type, meta, addr, dedicatedToOneSA } = details
+  const { type, addr, dedicatedToOneSA } = details
 
   // Ideally, the meta should be all in there for external keys,
   // but just in case, add fallbacks (that should never happen)
   const metaDetails = useMemo(() => {
-    if (type === 'internal')
-      return [
+    if (type === 'internal') {
+      const meta = details.meta as InternalKey['meta']
+      const internalKeyDetails: {
+        key: string
+        value: string
+        [key: string]: any
+      }[] = [
         {
           key: t('Address'),
           value: addr,
@@ -42,7 +48,23 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
         }
       ]
 
-    return [
+      if (meta?.createdAt && new Date(meta.createdAt).toString() !== 'Invalid Date') {
+        internalKeyDetails.push({
+          key: t('Added on'),
+          value: `${new Date(meta.createdAt).toLocaleDateString()} (${new Date(
+            meta.createdAt
+          ).toLocaleTimeString()})`
+        })
+      }
+      return internalKeyDetails
+    }
+
+    const meta = details.meta as ExternalKey['meta']
+    const externalKeyDetails: {
+      key: string
+      value: string
+      [key: string]: any
+    }[] = [
       {
         key: t('Device'),
         value: type ? HARDWARE_WALLET_DEVICE_NAMES[type] || type : '-'
@@ -56,10 +78,8 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
         value: meta?.deviceId || '-'
       },
       {
-        key: t('Derivation'),
-        value: meta?.hdPathTemplate
-          ? getHdPathFromTemplate(meta?.hdPathTemplate, meta?.index)
-          : '-',
+        key: t('HD Path'),
+        value: meta?.hdPathTemplate ? getHdPathFromTemplate(meta.hdPathTemplate, meta.index) : '-',
         tooltip: dedicatedToOneSA
           ? t(
               'Ambire derives a different key on your hardware wallet with an offset of {{offset}}, for security and privacy reasons. You may see {{addr}} when signing on your hardware device.',
@@ -74,16 +94,18 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
           : ''
       }
     ]
-  }, [
-    type,
-    t,
-    meta?.deviceModel,
-    meta?.deviceId,
-    meta?.hdPathTemplate,
-    meta?.index,
-    dedicatedToOneSA,
-    addr
-  ])
+
+    if (details.meta?.createdAt && new Date(details.meta.createdAt).toString() !== 'Invalid Date') {
+      externalKeyDetails.push({
+        key: t('Added on'),
+        value: `${new Date(details.meta.createdAt).toLocaleDateString()} (${new Date(
+          details.meta.createdAt
+        ).toLocaleTimeString()})`
+      })
+    }
+
+    return externalKeyDetails
+  }, [type, details.meta, t, dedicatedToOneSA, addr])
 
   return (
     <View>
@@ -103,4 +125,4 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
   )
 }
 
-export default AccountKeyDetails
+export default React.memo(AccountKeyDetails)

@@ -43,7 +43,11 @@ const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix, style }) => {
       }}
     >
       <Text fontSize={16} weight="medium" appearance="secondaryText">
-        {withOnPrefix ? 'on ' : ''}
+        {withOnPrefix ? (
+          <Text fontSize={16} weight="medium" appearance="tertiaryText">
+            on{' '}
+          </Text>
+        ) : null}
         {networkName || t('Unknown network')}
       </Text>
       <NetworkIcon style={{ backgroundColor: 'transparent' }} id={networkId} size={32} />
