@@ -557,6 +557,25 @@ handleRegisterScripts()
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
+
+      const timeSinceLastUpdate =
+        Date.now() - (backgroundState.portfolioLastUpdatedByIntervalAt || 0)
+      // Call portfolio update if the extension is inactive and 30 seconds have passed since the last update
+      // in order to have the latest data when the user opens the extension
+      // otherwise, the portfolio will be updated by the interval after 1 minute
+      // Also do not trigger update on every new port but only if there is only one port
+      if (
+        timeSinceLastUpdate > ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL / 2 &&
+        pm.ports.length === 1
+      ) {
+        try {
+          await mainCtrl.updateSelectedAccountPortfolio()
+          backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
+        } catch (error) {
+          console.error('Error during immediate portfolio update:', error)
+        }
+      }
+
       initPortfolioContinuousUpdate()
 
       // @ts-ignore
