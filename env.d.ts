@@ -7,6 +7,7 @@ declare module '@env' {
   export type EnvTypes = {
     RELAYER_URL: string
     VELCRO_URL: string
+    SOCKET_API_KEY: string
     SENTRY_DSN?: string
     ENVIRONMENT: string
     DEFAULT_INVITATION_CODE_DEV: string
@@ -78,4 +79,9 @@ declare module '@env' {
    * E2E tests can be run against both DEV and PROD environments.
    */
   export const IS_TESTING: string
+
+  /**
+   * Self-explanatory
+   */
+  export const SOCKET_API_KEY: EnvTypes['SOCKET_API_KEY']
 }

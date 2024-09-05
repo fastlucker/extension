@@ -21,9 +21,10 @@ import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/key
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import { Socket } from '@ambire-common/services/socket/api'
 import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
-import { RELAYER_URL, VELCRO_URL } from '@env'
+import { RELAYER_URL, SOCKET_API_KEY, VELCRO_URL } from '@env'
 import { browser } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -192,7 +193,8 @@ handleRegisterScripts()
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    notificationManager
+    notificationManager,
+    socket: new Socket(SOCKET_API_KEY)
   })
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
