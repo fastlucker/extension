@@ -67,7 +67,10 @@ const handleRegisterScripts = async (skipInjectingMessengerBridgeScript?: boolea
   }
 
   try {
-    await browser.scripting.registerContentScripts(scripts)
+    const registeredScripts = await browser.scripting.getRegisteredContentScripts()
+    if (!skipInjectingMessengerBridgeScript && !registeredScripts.length) {
+      await browser.scripting.registerContentScripts(scripts)
+    }
   } catch (err) {
     console.warn(`Failed to inject EthereumProvider: ${err}`)
   }
