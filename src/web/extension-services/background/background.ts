@@ -557,16 +557,20 @@ handleRegisterScripts()
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
+      const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
 
       const timeSinceLastUpdate =
         Date.now() - (backgroundState.portfolioLastUpdatedByIntervalAt || 0)
+
       // Call portfolio update if the extension is inactive and 30 seconds have passed since the last update
       // in order to have the latest data when the user opens the extension
       // otherwise, the portfolio will be updated by the interval after 1 minute
+      // and there is no broadcasted but not confirmed acc op, due to the fact that this will cost it being
+      // removed from the UI and we will lose the simulation
       // Also do not trigger update on every new port but only if there is only one port
       if (
         timeSinceLastUpdate > ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL / 2 &&
-        pm.ports.length === 1
+        pm.ports.length === 1 && !hasBroadcastedButNotConfirmed
       ) {
         try {
           await mainCtrl.updateSelectedAccountPortfolio()
