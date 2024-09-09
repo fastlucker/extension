@@ -16,6 +16,7 @@ import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keys
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -1089,6 +1090,7 @@ handleRegisterScripts()
 
   initPortfolioContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+  clearHumanizerMetaObjectFromStorage(storage)
 })()
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
