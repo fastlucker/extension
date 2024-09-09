@@ -6,11 +6,14 @@ import { Account as AccountInterface, ImportStatus } from '@ambire-common/interf
 import { Network } from '@ambire-common/interfaces/network'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
+import Avatar from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
+import BadgeWithPreset from '@common/components/BadgeWithPreset'
 import Checkbox from '@common/components/Checkbox'
 import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -56,6 +59,7 @@ const Account = ({
   const { minWidthSize, maxWidthSize } = useWindowSize()
   const { addToast } = useToast()
   if (!account.addr) return null
+  const isAccountImported = importStatus !== ImportStatus.NotImported
 
   const toggleSelectedState = () => {
     if (isSelected) {
@@ -100,28 +104,52 @@ const Account = ({
         <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
-              <Text
-                testID="add-account"
-                fontSize={16}
-                appearance="primaryText"
-                style={spacings.mrMi}
-              >
-                {minWidthSize('m') && shortenAddress(account.addr, 16)}
-                {maxWidthSize('m') && minWidthSize('l') && shortenAddress(account.addr, 26)}
-                {maxWidthSize('l') && account.addr}
-              </Text>
-              {minWidthSize('l') && (
+              {isAccountImported ? (
+                <>
+                  <Avatar pfp={account.preferences.pfp} size={24} />
+                  <Text
+                    fontSize={16}
+                    weight="medium"
+                    appearance="primaryText"
+                    style={spacings.mrTy}
+                  >
+                    {account.preferences.label}
+                  </Text>
+                  <Text
+                    testID="add-account"
+                    fontSize={14}
+                    appearance="secondaryText"
+                    style={spacings.mrMi}
+                    // @ts-ignore
+                    dataSet={{ tooltipId: account.addr }}
+                  >
+                    ({shortenAddress(account.addr, 16)})
+                  </Text>
+                  <Tooltip content={account.addr} id={account.addr} />
+                </>
+              ) : (
+                <Text
+                  testID="add-account"
+                  fontSize={16}
+                  appearance="primaryText"
+                  style={spacings.mrMi}
+                >
+                  {minWidthSize('m') && shortenAddress(account.addr, 16)}
+                  {maxWidthSize('m') && minWidthSize('l') && shortenAddress(account.addr, 26)}
+                  {maxWidthSize('l') && account.addr}
+                </Text>
+              )}
+
+              {(minWidthSize('l') || isAccountImported) && (
                 <Pressable onPress={handleCopyAddress}>
                   <CopyIcon width={14} height={14} />
                 </Pressable>
               )}
             </View>
             {type === 'basic' ? (
-              <Badge
+              <BadgeWithPreset
                 withRightSpacing
-                withIcon
-                text={t('Basic Account')}
-                type="warning"
+                preset="basic-account"
                 {...(shouldAddIntroStepsIds
                   ? {
                       nativeID: BasicAccountIntroId
@@ -129,11 +157,9 @@ const Account = ({
                   : {})}
               />
             ) : (
-              <Badge
+              <BadgeWithPreset
                 withRightSpacing
-                withIcon
-                text={t('Smart Account')}
-                type="success"
+                preset="smart-account"
                 {...(shouldAddIntroStepsIds
                   ? {
                       nativeID: SmartAccountIntroId
@@ -141,11 +167,9 @@ const Account = ({
                   : {})}
               />
             )}
-            {type === 'linked' && (
-              <Badge withRightSpacing withIcon text={t('linked')} type="info" />
-            )}
+            {type === 'linked' && <BadgeWithPreset preset="linked" withRightSpacing />}
             {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
-              <Badge withRightSpacing withIcon text={t('Ambire v1')} type="info" />
+              <BadgeWithPreset preset="ambire-v1" withRightSpacing />
             )}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
@@ -173,7 +197,7 @@ const Account = ({
                 })}
               </View>
             )}
-            {!!unused && <Badge withIcon text={t('unused')} />}
+            {!!unused && <Badge text={t('unused')} />}
           </View>
         </View>
       </View>

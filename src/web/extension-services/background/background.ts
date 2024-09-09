@@ -211,6 +211,25 @@ handleRegisterScripts()
       : INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
 
     async function updatePortfolio() {
+      const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
+
+      // Postpone the portfolio update for the next interval
+      // if we have broadcasted but not yet confirmed acc op.
+      // Here's why:
+      // 1. On the Dashboard, we show a pending-to-be-confirmed token badge
+      //    if an acc op has been broadcasted but is still unconfirmed.
+      // 2. To display the expected balance change, we calculate it from the portfolio's pending simulation state.
+      // 3. When we sign and broadcast the acc op, we remove it from the Main controller.
+      // 4. If we trigger a portfolio update at this point, we will lose the pending simulation state.
+      // 5. Therefore, to ensure the badge is displayed, we pause the portfolio update temporarily.
+      //    Once the acc op is confirmed or failed, the portfolio interval will resume as normal.
+      // 6. Gotcha: If the user forcefully updates the portfolio, we will also lose the simulation.
+      //    However, this is not a frequent case, and we can make a compromise here.
+      if (hasBroadcastedButNotConfirmed) {
+        backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
+        return
+      }
+
       await mainCtrl.updateSelectedAccountPortfolio()
 
       backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
@@ -567,16 +586,12 @@ handleRegisterScripts()
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
                 const { walletSDK } = trezorCtrl
-                mainCtrl.accountAdder.init({
+                await mainCtrl.accountAdder.init({
                   keyIterator: new TrezorKeyIterator({ walletSDK }),
                   hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
                 })
 
-                return await mainCtrl.accountAdder.setPage({
-                  page: 1,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
+                return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
                 return await mainCtrl.handleAccountAdderInitLattice(LatticeKeyIterator)
@@ -584,40 +599,33 @@ handleRegisterScripts()
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
+                const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
                 const keyIterator = new KeyIterator(params.privKeyOrSeed)
                 if (keyIterator.subType === 'seed' && params.shouldPersist) {
-                  await mainCtrl.keystore.addSeed(params.privKeyOrSeed)
+                  await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
                 }
 
-                mainCtrl.accountAdder.init({
+                await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                  hdPathTemplate
                 })
 
-                return await mainCtrl.accountAdder.setPage({
-                  page: 1,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
+                return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-                const seed = await mainCtrl.keystore.getDefaultSeed()
+                const keystoreDefaultSeed = await mainCtrl.keystore.getDefaultSeed()
 
-                if (!seed) return
-                const keyIterator = new KeyIterator(seed)
-                mainCtrl.accountAdder.init({
+                if (!keystoreDefaultSeed) return
+                const keyIterator = new KeyIterator(keystoreDefaultSeed.seed)
+                await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: 5,
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                  hdPathTemplate: keystoreDefaultSeed.hdPathTemplate
                 })
 
-                return await mainCtrl.accountAdder.setPage({
-                  page: 1,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
+                return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
               case 'MAIN_CONTROLLER_TRACE_CALL': {
                 return await mainCtrl.traceCall(params.estimation)
@@ -659,11 +667,10 @@ handleRegisterScripts()
                 break
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
-                return await mainCtrl.accountAdder.setPage({
-                  ...params,
-                  networks: mainCtrl.networks.networks,
-                  providers: mainCtrl.providers.providers
-                })
+                return await mainCtrl.accountAdder.setPage(params)
+              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
+                return mainCtrl.accountAdder.setHDPathTemplate(params)
+              }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
                 const readyToAddKeys: ReadyToAddKeys = {
                   internal: [],
@@ -716,7 +723,8 @@ handleRegisterScripts()
                           // always defined in the case of external keys
                           hdPathTemplate: mainCtrl.accountAdder
                             .hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                          index
+                          index,
+                          createdAt: new Date().getTime()
                         }
                       }))
                   )
@@ -923,8 +931,6 @@ handleRegisterScripts()
                   params.newSecret,
                   params.secret
                 )
-              case 'KEYSTORE_CONTROLLER_ADD_SEED':
-                return await mainCtrl.keystore.addSeed(params.seed)
               case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
                 // In the case we change the user's device password through the recovery process,
                 // we don't know the old password, which is why we send only the new password.

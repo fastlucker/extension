@@ -188,4 +188,4 @@ const AccountKey: React.FC<Props> = ({
   )
 }
 
-export default AccountKey
+export default React.memo(AccountKey)

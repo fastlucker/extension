@@ -1,23 +1,17 @@
 import React from 'react'
-import { View, ViewStyle } from 'react-native'
+import { View } from 'react-native'
+import { v4 as uuidv4 } from 'uuid'
 
 import InformationIcon from '@common/assets/svg/InformationIcon'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
-
-type Props = {
-  text: string
-  type?: 'info' | 'warning' | 'default' | 'success'
-  withIcon?: boolean
-  style?: ViewStyle
-  withRightSpacing?: boolean
-  nativeID?: string
-}
+import { Props } from './types'
 
 const getBadgeTypes = (theme: ThemeProps) => ({
   info: {
@@ -38,10 +32,18 @@ const getBadgeTypes = (theme: ThemeProps) => ({
   }
 })
 
-const Badge = ({ text, withIcon, withRightSpacing, type = 'default', style, nativeID }: Props) => {
+const Badge = ({
+  text,
+  tooltipText,
+  withRightSpacing,
+  type = 'default',
+  style,
+  nativeID
+}: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
   const { color, iconColor } = badgeTypes[type]
+  const tooltipId = uuidv4()
 
   return (
     <View
@@ -56,7 +58,7 @@ const Badge = ({ text, withIcon, withRightSpacing, type = 'default', style, nati
           height: 20
         },
         withRightSpacing && spacings.mrSm,
-        withIcon && spacings.prMi,
+        !!tooltipText && spacings.prMi,
         style
       ]}
       nativeID={nativeID}
@@ -64,7 +66,12 @@ const Badge = ({ text, withIcon, withRightSpacing, type = 'default', style, nati
       <Text weight="regular" fontSize={10} color={color} style={spacings.mrMi}>
         {text}
       </Text>
-      {withIcon && <InformationIcon color={iconColor} width={14} height={14} />}
+      {!!tooltipText && (
+        <>
+          <InformationIcon data-tooltip-id={tooltipId} color={iconColor} width={14} height={14} />
+          <Tooltip id={tooltipId} content={tooltipText} />
+        </>
+      )}
     </View>
   )
 }
