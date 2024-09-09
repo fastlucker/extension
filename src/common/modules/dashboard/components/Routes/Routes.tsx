@@ -35,8 +35,8 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       testID: 'dashboard-button-swap',
       icon: SwapIcon,
       label: t('Swap'),
-      route: 'https://app.uniswap.org/swap',
-      isExternal: true
+      route: WEB_ROUTES.swap,
+      isExternal: false
     },
     {
       testID: 'dashboard-button-bridge',
