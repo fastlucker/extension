@@ -2,7 +2,7 @@ import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
-import { selectMaticToken } from '../common-helpers/selectMaticToken'
+import { selectPolToken } from '../common-helpers/selectPolToken'
 import { triggerTransaction } from '../common-helpers/triggerTransaction'
 import { checkForSignMessageWindow } from '../common-helpers/checkForSignMessageWindow'
 import { selectFeeToken } from '../common-helpers/selectFeeToken'
@@ -23,7 +23,7 @@ export async function makeValidTransaction(
 ) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
-  // Check if MATIC on Gas Tank are under 0.01
+  // Check if POL on Gas Tank are under 0.01
   await checkBalanceOfToken(
     page,
     '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
@@ -33,7 +33,7 @@ export async function makeValidTransaction(
   await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 
   await page.waitForSelector('[data-testid="amount-field"]')
-  await selectMaticToken(page)
+  await selectPolToken(page)
   await typeText(page, '[data-testid="amount-field"]', '0.0001') // Type the amount
 
   // Type the address of the recipient
@@ -89,7 +89,7 @@ async function prepareSwapLegacy(page) {
   await page.waitForSelector('[data-testid="web3-status-connected"]:not([disabled])')
 
   // Select USDT and USDC tokens for swap
-  await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
+  await clickOnElement(page, 'xpath///span[contains(text(), "POL")]')
 
   await selectTokenInUni(page, 'common-base-USDT')
 
@@ -212,7 +212,7 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
   await page.waitForSelector('[data-testid="max-available-amount"]')
 
-  await selectMaticToken(page)
+  await selectPolToken(page)
 
   // Get the available balance
   const maxAvailableAmount = await page.evaluate(() => {
@@ -239,7 +239,7 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function sendFundsToSmartContract(page, extensionURL) {
-  // Check if MATIC on Polygon are under 0.0015
+  // Check if POL on Polygon are under 0.0015
   await checkBalanceOfToken(
     page,
     '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
@@ -248,7 +248,7 @@ export async function sendFundsToSmartContract(page, extensionURL) {
 
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
   await page.waitForSelector('[data-testid="max-available-amount"]')
-  await selectMaticToken(page)
+  await selectPolToken(page)
 
   // Type the amount
   await typeText(page, amountField, '0.0001')

@@ -1,6 +1,6 @@
 import { clickOnElement } from './clickOnElement'
 
-export async function selectMaticToken(page) {
+export async function selectPolToken(page) {
   await clickOnElement(page, '[data-testid="tokens-select"]')
   await clickOnElement(
     page,
