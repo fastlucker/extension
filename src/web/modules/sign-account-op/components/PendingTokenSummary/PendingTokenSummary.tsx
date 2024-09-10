@@ -6,7 +6,6 @@ import { NetworkId } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -74,8 +73,7 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
           tooltipId: `${amountToSendSign}token-summary-${tokenId}`
         }}
       >
-        {`${amountToSendSign}${formatDecimals(Math.abs(Number(amount)), 'precise')}`}
-        <Tooltip content={amount} id={`${amountToSendSign}token-summary-${tokenId}`} />
+        {`${amountToSendSign}${Math.abs(Number(amount))}`}
         <Text fontSize={16} weight="medium">
           {` ${token.symbol}`}
         </Text>
