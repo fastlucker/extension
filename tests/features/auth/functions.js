@@ -1,6 +1,7 @@
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
 import { buildSelector } from '../../common-helpers/buildSelector'
+import { typeText } from '../../common-helpers/typeText'
 
 export async function finishStoriesAndSelectAccount(
   page,
@@ -58,7 +59,7 @@ export async function typeSeedWords(page, passphraseWords) {
   }
 }
 
-export async function expectImportButtonToBeDisabled(page) {
+async function expectImportButtonToBeDisabled(page) {
   const isButtonDisabled = await page.$eval(SELECTORS.importBtn, (button) => {
     return button.getAttribute('aria-disabled')
   })
@@ -75,4 +76,58 @@ export async function clearSeedWordsInputs(page, passphraseWords) {
     // eslint-disable-next-line no-await-in-loop
     await page.keyboard.press('Backspace') // Delete the selected content
   }
+}
+
+// This function waits until an error message appears on the page.
+export async function waitUntilError(page, validateMessage) {
+  await page.waitForFunction(
+    (text) => {
+      const element = document.querySelector('body')
+      return element && element.textContent.includes(text)
+    },
+    { timeout: 60000 },
+    validateMessage
+  )
+}
+
+export async function typeSeedAndExpectImportButtonToBeDisabled(page, seedWords) {
+  await typeSeedWords(page, seedWords)
+  await expectImportButtonToBeDisabled(page)
+}
+
+export function buildSelectorsForDynamicTestId(testId, arrayOfIndexes) {
+  return arrayOfIndexes.map((index) => buildSelector(testId, index))
+}
+
+/* eslint-disable no-promise-executor-return */
+export async function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export async function checkTextAreaHasValidInputByGivenText(page, privateKey, selector, errorMsg) {
+  await typeText(page, selector, privateKey, { delay: 10 })
+
+  if (privateKey !== '') {
+    // Check whether text "errorMsg" exists on the page
+    const isDivContainsInvalidPrivKey = await page.$$eval(
+      'div[dir="auto"]',
+      (elements, errMsg) => {
+        return elements.some((item) => item.textContent === errMsg)
+      },
+      errorMsg
+    )
+
+    expect(isDivContainsInvalidPrivKey).toBe(true)
+  }
+
+  // Check whether button is disabled
+  const isButtonDisabled = await page.$eval(SELECTORS.importBtn, (button) => {
+    return button.getAttribute('aria-disabled')
+  })
+
+  expect(isButtonDisabled).toBe('true')
+
+  // Clear the TextArea
+  await page.click(selector, { clickCount: 3 })
+  await page.keyboard.press('Backspace')
 }

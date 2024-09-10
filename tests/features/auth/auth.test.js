@@ -4,10 +4,16 @@ import {
   URL_ACCOUNT_SELECT,
   INVITE_STORAGE_ITEM,
   INVITE_STATUS_VERIFIED,
-  TEST_ACCOUNT_NAME_ONE,
-  TEST_ACCOUNT_NAME_TWO,
+  TEST_ACCOUNT_NAMES,
   TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER,
-  INCORRECT_SEEDS
+  INVALID_SEEDS,
+  INVALID_SEED_PHRASE_ERROR_MSG,
+  ARRAY_TWO_INDEXES,
+  SMART_ACC_VIEW_ONLY_ADDRESS,
+  BASIC_ACC_VIEW_ONLY_ADDRESS,
+  VIEW_ONLY_LABEL,
+  INVALID_PRIV_KEYS,
+  INVALID_PRIVATE_KEY_ERROR_MSG
 } from './constants'
 import { bootstrap } from '../../common-helpers/bootstrap'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
@@ -15,8 +21,12 @@ import { typeText } from '../../common-helpers/typeText'
 import {
   finishStoriesAndSelectAccount,
   typeSeedWords,
-  expectImportButtonToBeDisabled,
-  clearSeedWordsInputs
+  clearSeedWordsInputs,
+  waitUntilError,
+  typeSeedAndExpectImportButtonToBeDisabled,
+  buildSelectorsForDynamicTestId,
+  wait,
+  checkTextAreaHasValidInputByGivenText
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { baPrivateKey, seed } from '../../config/constants'
@@ -46,8 +56,10 @@ describe('auth', () => {
     await browser.close()
   })
 
+  // TODO: Remove all skips from the tests
+
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import basic account from private key', async () => {
+  it('should import basic account from private key', async () => {
     // expect.assertions(4)
 
     // Get the invite data from the storage
@@ -85,9 +97,7 @@ describe('auth', () => {
 
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
     // Wait for account addresses to load
-    await new Promise((r) => {
-      setTimeout(r, 2000)
-    })
+    await wait(2000)
 
     // Verify that selected accounts exist on the page
     const selectedBasicAccount = await page.$$eval(SELECTORS.account, (el) => el[0].innerText)
@@ -95,16 +105,19 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
+  it('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
     await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
-    await page.waitForSelector('[placeholder="Word 1"]')
+
+    const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
+    await page.waitForSelector(firstSeedInputField)
 
     await typeSeedWords(page, seed)
 
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    await new Promise((r) => setTimeout(r, 500)) // so that the modal appears
+    // so that the modal appears
+    await wait(500)
 
     await clickOnElement(page, SELECTORS.doNotSaveSeedBtn)
 
@@ -112,19 +125,11 @@ describe('auth', () => {
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
       await finishStoriesAndSelectAccount(page, true)
 
-    const accountName1 = TEST_ACCOUNT_NAME_ONE
-    const accountName2 = TEST_ACCOUNT_NAME_TWO
-
-    const btnProceedSeedPhraseWithIndexZeroSelector = buildSelector(
-      TEST_IDS.editBtnForEditNameField,
-      0
-    )
-    const btnProceedSeedPhraseWithIndexOneSelector = buildSelector(
-      TEST_IDS.editBtnForEditNameField,
-      1
-    )
-    const editFieldNameFieldWithIndexZeroSelector = buildSelector(TEST_IDS.editFieldNameField, 0)
-    const editFieldNameFieldWithIndexOneSelector = buildSelector(TEST_IDS.editFieldNameField, 1)
+    const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
+    const [btnProceedSeedPhraseWithIndexZeroSelector, btnProceedSeedPhraseWithIndexOneSelector] =
+      buildSelectorsForDynamicTestId(TEST_IDS.editBtnForEditNameField, ARRAY_TWO_INDEXES)
+    const [editFieldNameFieldWithIndexZeroSelector, editFieldNameFieldWithIndexOneSelector] =
+      buildSelectorsForDynamicTestId(TEST_IDS.editFieldNameField, ARRAY_TWO_INDEXES)
 
     await clickOnElement(page, btnProceedSeedPhraseWithIndexZeroSelector)
     await typeText(page, editFieldNameFieldWithIndexZeroSelector, accountName1)
@@ -136,8 +141,9 @@ describe('auth', () => {
     await clickOnElement(page, btnProceedSeedPhraseWithIndexZeroSelector)
     await clickOnElement(page, btnProceedSeedPhraseWithIndexOneSelector)
 
+    await wait(1000)
+
     // Click on "Save and Continue" button
-    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
 
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
@@ -155,10 +161,9 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import view-only accounts', async () => {
-    const smartAccount = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
-
-    const basicAccount = '0x048d8573402CE085A6c8f34d568eC2Ccc995196e'
+  it('should import view-only accounts', async () => {
+    const smartAccount = SMART_ACC_VIEW_ONLY_ADDRESS
+    const basicAccount = BASIC_ACC_VIEW_ONLY_ADDRESS
 
     await completeOnboardingSteps(page)
 
@@ -177,11 +182,11 @@ describe('auth', () => {
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     await page.waitForSelector(SELECTORS.address)
-    // Verify that added accounts exist on the page and contains 'View-only'
+    // Verify that added accounts exist on the page and contains VIEW_ONLY_LABEL
     let selectedBasicAccount = await page.$eval(SELECTORS.account, (el) => el.innerText)
 
     expect(selectedBasicAccount).toContain(smartAccount)
-    expect(selectedBasicAccount).toContain('View-only')
+    expect(selectedBasicAccount).toContain(VIEW_ONLY_LABEL)
 
     await clickOnElement(page, SELECTORS.buttonAddAccount)
 
@@ -192,93 +197,55 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
-    // Verify that added accounts exist on the page and contains 'View-only'
+    // Verify that added accounts exist on the page and contains VIEW_ONLY_LABEL
     selectedBasicAccount = await page.$$eval(SELECTORS.account, (el) => el[0].innerText)
 
     const selectedSmartAccount = await page.$$eval(SELECTORS.account, (el) => el[1].innerText)
 
     expect(selectedBasicAccount).toContain(smartAccount)
-    expect(selectedBasicAccount).toContain('View-only')
+    expect(selectedBasicAccount).toContain(VIEW_ONLY_LABEL)
     expect(selectedSmartAccount).toContain(basicAccount)
-    expect(selectedSmartAccount).toContain('View-only')
+    expect(selectedSmartAccount).toContain(VIEW_ONLY_LABEL)
   })
 
   //--------------------------------------------------------------------------------------------------------------
   it('should not allow importing an invalid seed phrase', async () => {
     await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
 
-    await page.waitForSelector('[placeholder="Word 1"]')
-
-    // This function waits until an error message appears on the page.
-    async function waitUntilError(validateMessage) {
-      await page.waitForFunction(
-        (text) => {
-          const element = document.querySelector('body')
-          return element && element.textContent.includes(text)
-        },
-        { timeout: 60000 },
-        validateMessage
-      )
-    }
+    const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
+    await page.waitForSelector(firstSeedInputField)
 
     // Try to login with empty phrase fields
-    await typeSeedWords(page, '')
-    await expectImportButtonToBeDisabled(page)
+    await typeSeedAndExpectImportButtonToBeDisabled(page, '')
 
-    expect(INCORRECT_SEEDS.length).toBeGreaterThanOrEqual(2)
+    expect(INVALID_SEEDS.length).toBe(2)
 
-    await typeSeedWords(page, INCORRECT_SEEDS[0])
-    await expectImportButtonToBeDisabled(page)
-
-    const errorMessage = 'Invalid Seed Phrase. Please review every field carefully.'
+    // Type seed words from the first incorrect seed
+    await typeSeedAndExpectImportButtonToBeDisabled(page, INVALID_SEEDS[0])
     // Wait until the error message appears on the page
-    await waitUntilError(errorMessage)
+    await waitUntilError(page, INVALID_SEED_PHRASE_ERROR_MSG)
 
     // Clear the passphrase fields before write the new phrase
-    await clearSeedWordsInputs(page, INCORRECT_SEEDS[0])
+    await clearSeedWordsInputs(page, INVALID_SEEDS[0])
 
-    await typeSeedWords(page, INCORRECT_SEEDS[1])
-    await expectImportButtonToBeDisabled(page)
+    // Type seed words from the second incorrect seed
+    await typeSeedAndExpectImportButtonToBeDisabled(page, INVALID_SEEDS[1])
     // Wait until the error message appears on the page
-    await waitUntilError(errorMessage)
+    await waitUntilError(page, INVALID_SEED_PHRASE_ERROR_MSG)
   })
   //------------------------------------------------------------------------------------------------------
-  it.skip('should not allow importing an invalid private key', async () => {
+  it('should not allow importing an invalid private key', async () => {
     await setAmbKeyStore(page, SELECTORS.importPrivateBtn)
 
-    const typeTextAndCheckValidity = async (privateKey) => {
-      await typeText(page, SELECTORS.enterSeedPhraseField, privateKey, { delay: 10 })
-
-      // Check whether text "Invalid private key." exists on the page
-      await page.$$eval('div[dir="auto"]', (element) => {
-        return element.find((item) => item.textContent === 'Invalid private key.').textContent
-      })
-
-      // Check whether button is disabled
-      const isButtonDisabled = await page.$eval(SELECTORS.importBtn, (button) => {
-        return button.getAttribute('aria-disabled')
-      })
-
-      expect(isButtonDisabled).toBe('true')
+    // eslint-disable-next-line no-restricted-syntax
+    for (const privKey of INVALID_PRIV_KEYS) {
+      // eslint-disable-next-line no-await-in-loop
+      await checkTextAreaHasValidInputByGivenText(
+        page,
+        privKey,
+        SELECTORS.enterSeedPhraseField,
+        INVALID_PRIVATE_KEY_ERROR_MSG
+      )
     }
-
-    // Test cases with different private keys
-    await typeTextAndCheckValidity(
-      '0000000000000000000000000000000000000000000000000000000000000000'
-    )
-    await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
-
-    await typeTextAndCheckValidity('', 'Test 2')
-    await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
-
-    await typeTextAndCheckValidity(
-      '00390ce7b96835258b010e25f9196bf4ddbff575b7c102546e9e40780118018'
-    )
-    await new Promise((r) => setTimeout(r, 1000))
-    await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
-
-    await typeTextAndCheckValidity(
-      '03#90ce7b96835258b019e25f9196bf4ddbff575b7c102546e9e40780118018'
-    )
   })
 })
