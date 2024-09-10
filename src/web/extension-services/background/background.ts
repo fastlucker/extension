@@ -1090,7 +1090,7 @@ handleRegisterScripts()
 
   initPortfolioContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
-  clearHumanizerMetaObjectFromStorage(storage)
+  await clearHumanizerMetaObjectFromStorage(storage)
 })()
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
