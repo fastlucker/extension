@@ -501,6 +501,9 @@ credentials.json
 /benzin-dev
 /benzin-prod
 
+# All build output folders
+/build
+
 # Mobile injection provider
 /ios/EthereumProvider.js
 /android/app/src/main/assets/EthereumProvider.js
