@@ -6,10 +6,12 @@ import { NetworkId } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import formatDecimals from '@common/utils/formatDecimals'
+import { getTokenId } from '@web/utils/token'
 
 import getStyles from './styles'
 
@@ -21,6 +23,8 @@ interface Props {
 
 const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Props) => {
   const { styles } = useTheme(getStyles)
+  const tokenId = getTokenId(token)
+  const amount = formatUnits(token.simulationAmount!, token.decimals || 18)
 
   const priceInUsd = useMemo(() => {
     if (!token.decimals) return null
@@ -61,10 +65,17 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
           withNetworkIcon={false}
         />
       </View>
-      <Text selectable fontSize={16} weight="medium" color={amountToSendTextColor}>
-        {`${amountToSendSign}${formatDecimals(
-          Math.abs(Number(formatUnits(token.simulationAmount!, token.decimals || 18)))
-        )}`}
+      <Text
+        selectable
+        fontSize={16}
+        weight="medium"
+        color={amountToSendTextColor}
+        dataSet={{
+          tooltipId: `${amountToSendSign}token-summary-${tokenId}`
+        }}
+      >
+        {`${amountToSendSign}${formatDecimals(Math.abs(Number(amount)), 'precise')}`}
+        <Tooltip content={amount} id={`${amountToSendSign}token-summary-${tokenId}`} />
         <Text fontSize={16} weight="medium">
           {` ${token.symbol}`}
         </Text>

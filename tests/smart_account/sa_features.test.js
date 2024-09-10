@@ -1,7 +1,7 @@
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
-import { selectMaticToken } from '../common-helpers/selectMaticToken'
+import { selectPolToken } from '../common-helpers/selectPolToken'
 import { saParams } from '../constants/constants'
 import { triggerTransaction } from '../common-helpers/triggerTransaction'
 import { signTransaction } from '../common-helpers/signTransaction'
@@ -15,7 +15,7 @@ const amountField = '[data-testid="amount-field"]'
 // Helper functions for common operations
 async function prepareTransaction(page, recipient, amount) {
   await page.waitForSelector(amountField)
-  await selectMaticToken(page)
+  await selectPolToken(page)
   await typeText(page, amountField, amount)
   await typeText(page, recipientField, recipient)
   await page.waitForXPath(
@@ -64,8 +64,8 @@ describe('sa_features', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   // This test is skipped because Top up Gas Tank option is temporarily disabled.
-  it.skip('Top up gas tank with 0.0001 MATIC', async () => {
-    // Check if MATIC on Gas Tank are under 0.01
+  it.skip('Top up gas tank with 0.0001 POL', async () => {
+    // Check if POL on Gas Tank are under 0.01
     await checkBalanceOfToken(
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
@@ -85,13 +85,13 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000matic"]'
+      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]'
     )
   })
 
   //--------------------------------------------------------------------------------------------------------------
   it('Pay transaction fee with gas tank', async () => {
-    // Check if MATIC on Gas Tank are under 0.007
+    // Check if POL on Gas Tank are under 0.007
     await checkBalanceOfToken(
       page,
       '[data-testid="token-0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270-polygon-gastank"]',
@@ -109,8 +109,8 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Pay transaction fee with basic account. Send 0.0001 MATIC on Polygon', async () => {
-    // Check if MATIC on Polygon are under 0.0001
+  it('Pay transaction fee with basic account. Send 0.0001 POL on Polygon', async () => {
+    // Check if POL on Polygon are under 0.0001
     await checkBalanceOfToken(
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
@@ -123,13 +123,13 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000matic"]'
+      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]'
     )
   })
 
   //--------------------------------------------------------------------------------------------------------------
   it('Make batched transaction', async () => {
-    // Check if MATIC on Polygon are under 0.0015
+    // Check if POL on Polygon are under 0.0015
     await checkBalanceOfToken(
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
@@ -184,7 +184,7 @@ describe('sa_features', () => {
     )
     await selectFeeToken(
       actionWindowPage,
-      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000matic"]'
+      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]'
     )
     await signTransaction(actionWindowPage, transactionRecorder)
     await confirmTransactionStatus(actionWindowPage, 'polygon', 137, transactionRecorder)
@@ -285,13 +285,13 @@ describe('sa_features', () => {
       '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
       0.0000001
     )
-    // Check if MATIC on Polygon are under 0.0015
+    // Check if POL on Polygon are under 0.0015
     await checkBalanceOfToken(
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
       0.02
     )
-    // Check if MATIC on Gas Tank are under 0.007
+    // Check if POL on Gas Tank are under 0.007
     await checkBalanceOfToken(
       page,
       '[data-testid="token-0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270-polygon-gastank"]',

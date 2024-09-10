@@ -13,7 +13,8 @@
       "@common/*": ["src/common/*"],
       "@mobile/*": ["src/mobile/*"],
       "@web/*": ["src/web/*"],
-      "@benzin/*": ["src/benzin/*"]
+      "@benzin/*": ["src/benzin/*"],
+      "@legends/*": ["src/legends/*"],
     }
   },
   "exclude": [
@@ -26,6 +27,8 @@
     "gecko-prod",
     "benzin-dev",
     "benzin-prod",
+    "legends-dev",
+    "legends-prod",
     "coverage",
     ".expo",
     "babel.config.js",
