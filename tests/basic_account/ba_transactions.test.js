@@ -35,11 +35,11 @@ describe('ba_transactions', () => {
     await makeSwap(page, extensionURL, browser)
   })
 
-  it('(-) Sends MATIC tokens greater than the available balance', async () => {
+  it('(-) Sends POL tokens greater than the available balance', async () => {
     await sendFundsGreaterThanBalance(page, extensionURL)
   })
 
-  it('(-) Sends MATIC tokens to a smart contract', async () => {
+  it('(-) Sends POL tokens to a smart contract', async () => {
     await sendFundsToSmartContract(page, extensionURL)
   })
 

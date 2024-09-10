@@ -1,10 +1,9 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Linking, View } from 'react-native'
 
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Text from '@common/components/Text'
@@ -24,73 +23,52 @@ const linkToSupportPage = () => {
   Linking.openURL('https://help.ambire.com/hc/en-us').catch(console.log)
 }
 
-const Info: FC<Props> = ({ kindOfMessage }) => {
+const Info: FC<Props> = () => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
   const { dapp, messageToSign } = useSignMessageControllerState()
 
-  const renderMessageTypeBadge = useMemo(
-    () => (
-      <View style={[styles.kindOfMessage, spacings.mbMd]}>
-        <Text
-          fontSize={12}
-          color={theme.infoText}
-          style={styles.kindOfMessageText}
-          numberOfLines={1}
-        >
-          {t(kindOfMessage === 'typedMessage' ? 'EIP-712' : 'Standard')} {t('Type')}
-        </Text>
-        <InfoIcon width={18} height={18} color={theme.infoDecorative as string} />
-      </View>
-    ),
-    [kindOfMessage, styles, theme, t]
-  )
-
   return (
     <View style={[styles.container, maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd]}>
       {(!messageToSign || messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
-        <>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd, flexbox.wrap]}>
-            {dapp?.icon ? (
-              <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
-            ) : (
-              <View style={styles.fallbackIcon}>
-                <DAppsIcon style={{ width: '100%', height: '100%' }} />
-              </View>
-            )}
-            <View style={flexbox.flex1}>
-              <Text
-                fontSize={maxWidthSize('xl') ? 20 : 16}
-                appearance="secondaryText"
-                weight="semiBold"
-                style={spacings.mrMi}
-              >
-                {dapp?.name || t('The dApp')}
-              </Text>
-              <Text fontSize={maxWidthSize('xl') ? 20 : 16} appearance="secondaryText">
-                {t('is requesting your signature ')}
-              </Text>
+        <View style={spacings.mbMd}>
+          {dapp?.icon ? (
+            <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
+          ) : (
+            <View style={styles.fallbackIcon}>
+              <DAppsIcon style={{ width: '100%', height: '100%' }} />
             </View>
+          )}
+          <View style={[flexbox.flex1, spacings.ptSm]}>
+            <Text
+              fontSize={maxWidthSize('xl') ? 20 : 16}
+              appearance="secondaryText"
+              weight="semiBold"
+            >
+              {dapp?.name || t('The dApp')}
+            </Text>
+            <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
+              {t('is requesting your signature ')}
+            </Text>
           </View>
-          <NetworkBadge style={spacings.mbMd} networkId={messageToSign?.networkId} withOnPrefix />
-          {renderMessageTypeBadge}
-        </>
+        </View>
       )}
       {messageToSign?.content?.kind === 'typedMessage' &&
         messageToSign?.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID &&
         messageToSign?.content?.domain?.verifyingContract &&
         typeof messageToSign?.content?.domain?.verifyingContract === 'string' && (
-          <>
+          <View style={styles.verifyingContract}>
             <Address
-              fontSize={16}
+              fontSize={maxWidthSize('xl') ? 14 : 12}
+              style={{ maxWidth: '100%' }}
               address={messageToSign.content.domain.verifyingContract}
               explorerNetworkId={messageToSign.networkId}
             />
-            <Text fontSize={16} appearance="secondaryText">
+            <Text fontSize={12} appearance="secondaryText">
               {t('Will verify this signature')}
             </Text>
-          </>
+          </View>
         )}
 
       {(!messageToSign || messageToSign.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
