@@ -1,18 +1,26 @@
-type FormatType = 'value' | 'price' | 'amount' | 'default'
+type FormatType = 'value' | 'price' | 'amount' | 'default' | 'precise'
 
 const DEFAULT_DECIMALS = 2
 const DECIMAL_RULES = {
   value: {
-    min: 2
+    min: 2,
+    max: 2
   },
   price: {
-    min: 2
+    min: 2,
+    max: 2
   },
   amount: {
-    min: 2
+    min: 2,
+    max: 2
   },
   default: {
-    min: 0
+    min: 0,
+    max: 2
+  },
+  precise: {
+    min: 0,
+    max: 8
   }
 }
 const TYPES_WITH_DOLLAR_PREFIX: FormatType[] = ['value', 'price']
@@ -52,7 +60,7 @@ const getIndexOfFirstNonZeroInDecimals = (value: number, type: FormatType) => {
   const decimals = valueString.slice(indexOfDot + 1)
   const indexOfFirstNonZero = decimals.split('').findIndex((char) => char !== '0')
 
-  return indexOfFirstNonZero === -1 ? DECIMAL_RULES[type].min : indexOfFirstNonZero + 1
+  return indexOfFirstNonZero === -1 ? DECIMAL_RULES[type].min : indexOfFirstNonZero
 }
 
 const getPrefix = (widthDollarPrefix: boolean) => (widthDollarPrefix ? '$' : '')
@@ -118,8 +126,8 @@ const formatDecimals = (value: number | undefined = undefined, type: FormatType 
   }
 
   const indexOfFirstNonZero = getIndexOfFirstNonZeroInDecimals(value, type)
-  // Find the first non-zero character in the decimals and display one more decimal than that
-  const decimals = absoluteValue >= 1 ? DEFAULT_DECIMALS : indexOfFirstNonZero + 1
+
+  const decimals = indexOfFirstNonZero + DECIMAL_RULES[type].max
 
   return formatNumber(value, withDollarPrefix, decimals, type)
 }
