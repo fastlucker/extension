@@ -13,6 +13,7 @@ import KeyStoreSettingsIcon from '@common/assets/svg/KeyStoreSettingsIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import PasswordRecoverySettingsIcon from '@common/assets/svg/PasswordRecoverySettingsIcon'
+import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import SignedMessageIcon from '@common/assets/svg/SignedMessageIcon'
 import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -29,6 +30,12 @@ import SettingsLink from '@web/modules/settings/components/SettingsLink'
 import getStyles from './styles'
 
 export const SETTINGS_LINKS = [
+  {
+    key: 'general',
+    Icon: SettingsIcon,
+    label: 'General',
+    path: ROUTES.generalSettings
+  },
   {
     key: 'accounts',
     Icon: React.memo(AccountsIcon),
