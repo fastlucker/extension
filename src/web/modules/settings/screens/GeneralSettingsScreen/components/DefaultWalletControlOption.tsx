@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import DefaultWalletIcon from '@common/assets/svg/DefaultWalletIcon'
 import ControlOption from '@common/components/ControlOption'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -28,7 +29,7 @@ const DefaultWalletControlOption = () => {
       style={spacings.mbTy}
       title={t('Default wallet')}
       description={t('TODO')}
-      renderIcon={<></>}
+      renderIcon={<DefaultWalletIcon color={theme.primaryText} />}
     >
       <DefaultWalletToggle isOn={isDefaultWallet} onToggle={toggleIsDefaultWallet} />
     </ControlOption>
