@@ -573,7 +573,6 @@ handleRegisterScripts()
         (pm.ports.length === 1 && port.name === 'popup' ) && !hasBroadcastedButNotConfirmed
       ) {
         try {
-          console.log('updating account portfolio')
           await mainCtrl.updateSelectedAccountPortfolio()
           backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
         } catch (error) {
