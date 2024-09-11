@@ -13,19 +13,15 @@
       "@common/*": ["src/common/*"],
       "@mobile/*": ["src/mobile/*"],
       "@web/*": ["src/web/*"],
-      "@benzin/*": ["src/benzin/*"]
+      "@benzin/*": ["src/benzin/*"],
+      "@legends/*": ["src/legends/*"],
     }
   },
   "exclude": [
     "node_modules",
     "ios",
     "android",
-    "webkit-dev",
-    "webkit-prod",
-    "gecko-dev",
-    "gecko-prod",
-    "benzin-dev",
-    "benzin-prod",
+    "build",
     "coverage",
     ".expo",
     "babel.config.js",

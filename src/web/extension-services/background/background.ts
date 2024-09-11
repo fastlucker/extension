@@ -658,7 +658,7 @@ handleRegisterScripts()
                 return mainCtrl.accountAdder.selectAccount(params.account)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
-                return await mainCtrl.accountAdder.deselectAccount(params.account)
+                return mainCtrl.accountAdder.deselectAccount(params.account)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED': {
                 if (mainCtrl.accountAdder.isInitialized) {
@@ -669,7 +669,7 @@ handleRegisterScripts()
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
                 return await mainCtrl.accountAdder.setPage(params)
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
-                return mainCtrl.accountAdder.setHDPathTemplate(params)
+                return await mainCtrl.accountAdder.setHDPathTemplate(params)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
                 const readyToAddKeys: ReadyToAddKeys = {
@@ -723,7 +723,8 @@ handleRegisterScripts()
                           // always defined in the case of external keys
                           hdPathTemplate: mainCtrl.accountAdder
                             .hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                          index
+                          index,
+                          createdAt: new Date().getTime()
                         }
                       }))
                   )
