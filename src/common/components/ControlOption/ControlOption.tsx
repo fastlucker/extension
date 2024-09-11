@@ -34,7 +34,14 @@ const ControlOption: FC<Props> = ({ title, description, children, renderIcon, st
       ]}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {renderIcon}
+        <View
+          style={{
+            width: 24,
+            ...flexbox.center
+          }}
+        >
+          {renderIcon}
+        </View>
         <View style={spacings.ml}>
           <Text fontSize={16} weight="medium">
             {title}
