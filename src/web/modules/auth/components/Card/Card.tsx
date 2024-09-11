@@ -26,6 +26,7 @@ interface Props {
   isSecondary?: boolean
   iconProps?: SvgProps
   testID?: string
+  children?: React.ReactNode | React.ReactNode[]
 }
 
 const Card: React.FC<Props> = ({
@@ -39,7 +40,8 @@ const Card: React.FC<Props> = ({
   isDisabled,
   buttonText,
   isSecondary = false,
-  iconProps = {}
+  iconProps = {},
+  children
 }) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered, triggerHovered] = useCustomHover({
@@ -62,39 +64,52 @@ const Card: React.FC<Props> = ({
           borderWidth: 1
         },
         animStyle,
-        isDisabled && { opacity: 0.7 },
-        isDisabled &&
-          isWeb && {
-            // @ts-ignore cursor only works on web
-            cursor: 'not-allowed'
-          },
+        // isDisabled && { opacity: 0.7 },
+        // isDisabled &&
+        //   isWeb && {
+        //     // @ts-ignore cursor only works on web
+        //     cursor: 'not-allowed'
+        //   },
         style
       ]}
       {...bindAnim}
     >
-      {!!Icon && (
-        <View style={styles.iconWrapper}>
-          <Icon color={isHovered ? hoveredIconColor : theme.secondaryText} {...iconProps} />
-        </View>
-      )}
-      {!!title && (
-        <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={20}>
-          {t(title)}
-        </Text>
-      )}
-      {!!text && (
-        <Text
-          style={[spacings.mb, flexbox.flex1, textStyle]}
-          fontSize={14}
-          appearance="secondaryText"
-        >
-          <Trans>{text}</Trans>
-        </Text>
-      )}
+      <View
+        style={[
+          flexbox.flex1,
+          isDisabled && { opacity: 0.7 },
+          isDisabled &&
+            isWeb && {
+              // @ts-ignore cursor only works on web
+              cursor: 'not-allowed'
+            }
+        ]}
+      >
+        {!!Icon && (
+          <View style={styles.iconWrapper}>
+            <Icon color={isHovered ? hoveredIconColor : theme.secondaryText} {...iconProps} />
+          </View>
+        )}
+        {!!title && (
+          <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={20}>
+            {t(title)}
+          </Text>
+        )}
+        {!!text && (
+          <Text
+            style={[spacings.mb, flexbox.flex1, textStyle]}
+            fontSize={14}
+            appearance="secondaryText"
+          >
+            <Trans>{text}</Trans>
+          </Text>
+        )}
+      </View>
+      {children}
       {!!buttonText && (
         <Button
           testID={testID}
-          disabled={isDisabled}
+          // disabled={isDisabled}
           style={{ width: '100%' }}
           text={t(buttonText)}
           type={isSecondary ? 'secondary' : 'primary'}
