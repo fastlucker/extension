@@ -982,8 +982,7 @@ handleRegisterScripts()
               case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
                 return mainCtrl.domains.saveResolvedReverseLookup(params)
               case 'SET_IS_DEFAULT_WALLET': {
-                walletStateCtrl.isDefaultWallet = params.isDefaultWallet
-                break
+                return await walletStateCtrl.setDefaultWallet(params.isDefaultWallet)
               }
               case 'SET_ONBOARDING_STATE': {
                 walletStateCtrl.onboardingState = params
