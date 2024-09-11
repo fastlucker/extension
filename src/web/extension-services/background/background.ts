@@ -570,9 +570,10 @@ handleRegisterScripts()
       // Also do not trigger update on every new port but only if there is only one port
       if (
         timeSinceLastUpdate > ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL / 2 &&
-        pm.ports.length === 1 && !hasBroadcastedButNotConfirmed
+        (pm.ports.length === 1 && port.name === 'popup' ) && !hasBroadcastedButNotConfirmed
       ) {
         try {
+          console.log('updating account portfolio')
           await mainCtrl.updateSelectedAccountPortfolio()
           backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
         } catch (error) {
