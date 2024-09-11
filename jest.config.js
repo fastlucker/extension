@@ -11,14 +11,7 @@ module.exports = {
     // Mobile builds
     path.join('<rootDir>', 'android/'),
     path.join('<rootDir>', 'ios/'),
-    // Extension builds
-    path.join('<rootDir>', 'webkit-dev/'),
-    path.join('<rootDir>', 'webkit-prod/'),
-    path.join('<rootDir>', 'gecko-prod/'),
-    path.join('<rootDir>', 'gecko-dev/'),
-    // Benzin builds
-    path.join('<rootDir>', 'benzin-dev/'),
-    path.join('<rootDir>', 'benzin-prod/'),
+    // Extension, benzin and legends builds
     path.join('<rootDir>', 'build/'),
     // Misc
     path.join('<rootDir>', '\\.[^/]+'), // Matches any directory starting with a dot
