@@ -104,9 +104,15 @@ export async function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export async function checkTextAreaHasValidInputByGivenText(page, privateKey, selector, errorMsg) {
-  await typeText(page, selector, privateKey, { delay: 10 })
-
+export async function checkTextAreaHasValidInputByGivenText(
+  page,
+  privateKey,
+  selectorInputField,
+  selectorImportButton,
+  errorMsg
+) {
+  await typeText(page, selectorInputField, privateKey, { delay: 10 })
+  await wait(1000)
   if (privateKey !== '') {
     // Check whether text "errorMsg" exists on the page
     const isDivContainsInvalidPrivKey = await page.$$eval(
@@ -121,13 +127,13 @@ export async function checkTextAreaHasValidInputByGivenText(page, privateKey, se
   }
 
   // Check whether button is disabled
-  const isButtonDisabled = await page.$eval(SELECTORS.importBtn, (button) => {
+  const isButtonDisabled = await page.$eval(selectorImportButton, (button) => {
     return button.getAttribute('aria-disabled')
   })
 
   expect(isButtonDisabled).toBe('true')
 
   // Clear the TextArea
-  await page.click(selector, { clickCount: 3 })
+  await page.click(selectorInputField, { clickCount: 3 })
   await page.keyboard.press('Backspace')
 }

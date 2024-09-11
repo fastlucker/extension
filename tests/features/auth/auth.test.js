@@ -13,7 +13,11 @@ import {
   BASIC_ACC_VIEW_ONLY_ADDRESS,
   VIEW_ONLY_LABEL,
   INVALID_PRIV_KEYS,
-  INVALID_PRIVATE_KEY_ERROR_MSG
+  INVALID_PRIVATE_KEY_ERROR_MSG,
+  INVALID_ACC_ADDRESS,
+  INVALID_CHECKSUM_ERROR_MSG,
+  INVALID_ADDRESS_OR_UD_DOMAIN_ERROR_MSG,
+  SUCCESSFULLY_ADDED_2_ACCOUNTS_MSG
 } from './constants'
 import { bootstrap } from '../../common-helpers/bootstrap'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
@@ -56,12 +60,8 @@ describe('auth', () => {
     await browser.close()
   })
 
-  // TODO: Remove all skips from the tests
-
   //--------------------------------------------------------------------------------------------------------------
   it('should import basic account from private key', async () => {
-    // expect.assertions(4)
-
     // Get the invite data from the storage
     const inviteFromStorage = await serviceWorker.evaluate(() => chrome.storage.local.get('invite'))
     expect(Object.keys(inviteFromStorage).length).toBe(1)
@@ -172,7 +172,7 @@ describe('auth', () => {
     // Select "Add"
     await clickOnElement(page, SELECTORS.getStartedBtnAdd)
 
-    await typeText(page, SELECTORS.addressEnsField, smartAccount)
+    await typeText(page, buildSelector(TEST_IDS.viewOnlyAddressField, 0), smartAccount)
 
     // Click on "Import View-Only Accounts" button
     await clickOnElement(page, SELECTORS.viewOnlyBtnImport)
@@ -191,7 +191,7 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.buttonAddAccount)
 
     await clickOnElement(page, SELECTORS.watchAddress, true, 1500)
-    await typeText(page, SELECTORS.addressEnsField, basicAccount)
+    await typeText(page, buildSelector(TEST_IDS.viewOnlyAddressField, 0), basicAccount)
     // Click on "Import View-Only Accounts" button
     await clickOnElement(page, SELECTORS.viewOnlyBtnImport)
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
@@ -206,6 +206,82 @@ describe('auth', () => {
     expect(selectedBasicAccount).toContain(VIEW_ONLY_LABEL)
     expect(selectedSmartAccount).toContain(basicAccount)
     expect(selectedSmartAccount).toContain(VIEW_ONLY_LABEL)
+  })
+
+  //--------------------------------------------------------------------------------------------------------------
+  it('should import a couple of view-only accounts (at once) and personalize some of them', async () => {
+    const smartAccount = SMART_ACC_VIEW_ONLY_ADDRESS
+    const basicAccount = BASIC_ACC_VIEW_ONLY_ADDRESS
+
+    await completeOnboardingSteps(page)
+
+    await page.waitForFunction(() => window.location.href.includes('/get-started'))
+
+    // Select "Add"
+    await clickOnElement(page, SELECTORS.getStartedBtnAdd)
+
+    // Should not allow importing an invalid address
+    // Try to add account with empty string for an address
+    await checkTextAreaHasValidInputByGivenText(
+      page,
+      '',
+      buildSelector(TEST_IDS.viewOnlyAddressField, 0),
+      SELECTORS.viewOnlyBtnImport,
+      INVALID_ADDRESS_OR_UD_DOMAIN_ERROR_MSG
+    )
+
+    // Try to add account with invalid address
+    await checkTextAreaHasValidInputByGivenText(
+      page,
+      INVALID_ACC_ADDRESS,
+      buildSelector(TEST_IDS.viewOnlyAddressField, 0),
+      SELECTORS.viewOnlyBtnImport,
+      INVALID_CHECKSUM_ERROR_MSG
+    )
+
+    // Type the first address
+    await typeText(page, buildSelector(TEST_IDS.viewOnlyAddressField, 0), smartAccount)
+
+    // Click on "add one more address"
+    await clickOnElement(page, SELECTORS.addOneMoreAddress)
+
+    // Type the second address
+    await typeText(page, buildSelector(TEST_IDS.viewOnlyAddressField, 1), basicAccount)
+
+    // Click on Import button
+    await clickOnElement(page, SELECTORS.viewOnlyBtnImport)
+    await page.waitForNavigation({ waitUntil: 'load' })
+
+    const isSuccessfullyAddedTwoAccounts = await page.$$eval(
+      'div[dir="auto"]',
+      (elements, msg) => {
+        return elements.some((item) => item.textContent === msg)
+      },
+      SUCCESSFULLY_ADDED_2_ACCOUNTS_MSG
+    )
+
+    expect(isSuccessfullyAddedTwoAccounts).toBe(true)
+
+    // Personalize first account
+    await clickOnElement(page, buildSelector(TEST_IDS.editBtnForEditNameField, 0))
+    await typeText(page, buildSelector(TEST_IDS.editFieldNameField, 0), TEST_ACCOUNT_NAMES[0])
+    await clickOnElement(page, buildSelector(TEST_IDS.editBtnForEditNameField, 0))
+
+    // Click Save and continue btn
+    await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+    await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
+
+    const addedAccounts = await page.$$eval(SELECTORS.account, (elements) =>
+      elements.map((element) => element.innerText)
+    )
+    expect(addedAccounts.length).toBe(2)
+
+    const [firstAccount, secondAccount] = addedAccounts
+
+    expect(firstAccount).toContain(smartAccount)
+    expect(firstAccount).toContain(VIEW_ONLY_LABEL)
+    expect(secondAccount).toContain(basicAccount)
+    expect(secondAccount).toContain(VIEW_ONLY_LABEL)
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -244,6 +320,7 @@ describe('auth', () => {
         page,
         privKey,
         SELECTORS.enterSeedPhraseField,
+        SELECTORS.importBtn,
         INVALID_PRIVATE_KEY_ERROR_MSG
       )
     }
