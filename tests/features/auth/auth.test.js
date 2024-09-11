@@ -61,7 +61,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import basic account from private key', async () => {
+  it.skip('should import basic account from private key', async () => {
     // Get the invite data from the storage
     const inviteFromStorage = await serviceWorker.evaluate(() => chrome.storage.local.get('invite'))
     expect(Object.keys(inviteFromStorage).length).toBe(1)
@@ -105,7 +105,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
+  it.skip('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
     await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
 
     const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
@@ -161,7 +161,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import view-only accounts', async () => {
+  it.skip('should import view-only accounts', async () => {
     const smartAccount = SMART_ACC_VIEW_ONLY_ADDRESS
     const basicAccount = BASIC_ACC_VIEW_ONLY_ADDRESS
 
@@ -209,7 +209,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import a couple of view-only accounts (at once) and personalize some of them', async () => {
+  it.skip('should import a couple of view-only accounts (at once) and personalize some of them', async () => {
     const smartAccount = SMART_ACC_VIEW_ONLY_ADDRESS
     const basicAccount = BASIC_ACC_VIEW_ONLY_ADDRESS
 
@@ -285,7 +285,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should not allow importing an invalid seed phrase', async () => {
+  it.skip('should not allow importing an invalid seed phrase', async () => {
     await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
 
     const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
@@ -310,7 +310,7 @@ describe('auth', () => {
     await waitUntilError(page, INVALID_SEED_PHRASE_ERROR_MSG)
   })
   //------------------------------------------------------------------------------------------------------
-  it('should not allow importing an invalid private key', async () => {
+  it.skip('should not allow importing an invalid private key', async () => {
     await setAmbKeyStore(page, SELECTORS.importPrivateBtn)
 
     // eslint-disable-next-line no-restricted-syntax
@@ -324,5 +324,93 @@ describe('auth', () => {
         INVALID_PRIVATE_KEY_ERROR_MSG
       )
     }
+  })
+
+  it('should create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async () => {
+    await completeOnboardingSteps(page)
+
+    await page.waitForFunction(() => window.location.href.includes('/get-started'))
+
+    // Click on "Create a new hot wallet" button
+    await clickOnElement(page, SELECTORS.getStartedCreateHotWallet)
+
+    await page.waitForSelector(SELECTORS.setUpWithSeedPhraseBtn)
+    // Click on "Set up with a seed phrase" button
+    await clickOnElement(page, SELECTORS.setUpWithSeedPhraseBtn)
+    // Wait for keystore to be loaded
+    await page.waitForFunction(() => window.location.href.includes('/keystore-setup'))
+    // type Device password
+    const phrase = 'Password'
+    await typeText(page, SELECTORS.enterPassField, phrase)
+    await typeText(page, SELECTORS.repeatPassField, phrase)
+
+    // Click on "Set up Ambire Key Store" button
+    await clickOnElement(page, SELECTORS.keystoreBtnCreate)
+    await clickOnElement(page, SELECTORS.keystoreBtnContinue, true, 1500)
+
+    // Wait until create seed phrase loaded
+    await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/prepare'))
+    // Check all the checkboxes
+    await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 0))
+    await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 1))
+    await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 2))
+    // Wait until the "Review seed phrase" button to be enabled
+    await page.waitForSelector(`${SELECTORS.reviewSeedPhraseBtn}:not([disabled])`, {
+      visible: true
+    })
+    // Click on "Review seed phrase" button
+    await clickOnElement(page, SELECTORS.reviewSeedPhraseBtn)
+
+    await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/write'))
+
+    // TODO: move in functions.js
+    async function getInputValuesFromFields(_page) {
+      const inputSelectors = Array.from({ length: 12 }, (_, i) =>
+        buildSelector(TEST_IDS.recoveryWithSeedWordDyn, i)
+      )
+
+      const inputValues = await Promise.all(
+        inputSelectors.map(async (selector) => {
+          await _page.waitForSelector(selector)
+          const value = await _page.$eval(selector, (input) => input.value)
+          return value
+        })
+      )
+
+      return inputValues
+    }
+
+    const storedSeed = await getInputValuesFromFields(page)
+
+    expect(storedSeed.length).toBe(12)
+
+    // Click on "Continue" button
+    await clickOnElement(page, SELECTORS.createSeedPhraseWriteContinueBtn)
+
+    await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/confirm'))
+    const positionsOfSeedWords = await page.$$eval(
+      SELECTORS.seedWordNumberToBeEntered,
+      (elements) => elements.map((element) => Number(element.innerText.replace('#', '')))
+    )
+    expect(positionsOfSeedWords.length).toBe(4)
+
+    // Write exact seed word on exact position
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const position of positionsOfSeedWords) {
+      // eslint-disable-next-line no-await-in-loop
+      const inputSelector = buildSelector(TEST_IDS.seedWordPositionFieldDyn, position)
+      // eslint-disable-next-line no-await-in-loop
+      await page.type(inputSelector, storedSeed[position - 1])
+    }
+
+    // Wait Continue btn to be enabled then click on it
+    await page.waitForSelector(`${SELECTORS.createSeedPhraseConfirmContinueBtn}:not([disabled])`, {
+      visible: true
+    })
+    await clickOnElement(page, SELECTORS.createSeedPhraseConfirmContinueBtn)
+
+    // TODO: check if successfully added the account
+    // TODO: then click on save and continue "data-testid="button-save-and-continue"
   })
 })

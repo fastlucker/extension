@@ -230,6 +230,7 @@ const GetStartedScreen = () => {
                   onPress={() => handleAuthButtonPress('import-hot-wallet')}
                 />
                 <Card
+                  testID="get-started-create-hot-wallet"
                   title={t('Create a new\nhot wallet')}
                   text={t(
                     'Create a fresh hot wallet with modern features, including optional smart recovery.'

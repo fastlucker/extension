@@ -26,7 +26,16 @@ export const TEST_IDS = {
   checkbox: 'checkbox',
   addAccount: 'add-account',
   buttonImportAccount: 'button-import-account',
-  seedPhraseInputFieldDynamic: 'seed-phrase-field'
+  seedPhraseInputFieldDynamic: 'seed-phrase-field',
+  getStartedCreateHotWallet: 'get-started-create-hot-wallet',
+  setUpWithSeedPhraseBtn: 'set-up-with-seed-phrase-btn',
+  createSeedPrepareCheckboxDyn: 'create-seed-prepare-checkbox',
+  reviewSeedPhraseBtn: 'review-seed-phrase-btn',
+  recoveryWithSeedWordDyn: 'recovery-with-seed-word',
+  createSeedPhraseWriteContinueBtn: 'create-seed-phrase-write-continue-btn',
+  seedWordNumberToBeEntered: 'seed-word-number-to-be-entered',
+  seedWordPositionFieldDyn: 'seed-word-position-field',
+  createSeedPhraseConfirmContinueBtn: 'create-seed-phrase-confirm-continue-btn'
 }
 
 export const SELECTORS = Object.fromEntries(
