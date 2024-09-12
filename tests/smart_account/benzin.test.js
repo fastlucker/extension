@@ -24,7 +24,7 @@ describe.skip('Standalone Benzin tests', () => {
     await browser.close()
   })
 
-  it('Check visible elements in valid transfer. Send MATIC on Polygon', async () => {
+  it('Check visible elements in valid transfer. Send POL on Polygon', async () => {
     txnId = '0x6c906981d2b0cf8fd200ecee54f1c8e6aceda720281c6c5865c5b88447122386'
     chainId = POLYGON_CHAIN_ID
 
@@ -43,7 +43,7 @@ describe.skip('Standalone Benzin tests', () => {
       'Timestamp',
       'Jun 18, 2024, 1:15 PM',
       'Transaction fee',
-      '0.00073 MATIC ($0.00037)',
+      '0.00073 POL ($0.00037)',
       'Sender',
       '0x339d346173Af02df312ab0a6fD6520DE0E101Ac0',
       'Transaction ID',
@@ -54,7 +54,7 @@ describe.skip('Standalone Benzin tests', () => {
       'Transaction Details',
       'Send',
       '0.00010',
-      'MATIC',
+      'POL',
       'to',
       '0x66fE93c51726e6FD51668B0B0434ffcedD604d08'
     ]
@@ -124,7 +124,7 @@ describe.skip('Standalone Benzin tests', () => {
   })
 
   //---------------------------------------------------------------------------------------------
-  it('Check visible elements in valid batched transaction. Send MATIC and USDC on Polygon', async () => {
+  it('Check visible elements in valid batched transaction. Send POL and USDC on Polygon', async () => {
     txnId = '0xde91488e02b9ab4a251439e3d73eee3fbebc3ba8542c90ee2a6f91fd98339e4f'
     chainId = POLYGON_CHAIN_ID
 
@@ -144,7 +144,7 @@ describe.skip('Standalone Benzin tests', () => {
       'Timestamp',
       'Jul 19, 2024, 11:00 AM',
       'Transaction fee',
-      '0.0030 MATIC ($0.0015)',
+      '0.0030 POL ($0.0015)',
       'Sender',
       '0x6224438b995c2D49F696136B2cb3FcafB21bd1E7',
       'Originated from',
@@ -157,7 +157,7 @@ describe.skip('Standalone Benzin tests', () => {
       'Transaction Details',
       'Send',
       '0.00010',
-      'MATIC',
+      'POL',
       'to',
       '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C',
       'Send',
