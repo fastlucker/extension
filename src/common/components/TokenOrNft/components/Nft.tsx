@@ -1,5 +1,5 @@
 import React, { FC, memo, useCallback, useState } from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Network } from '@ambire-common/interfaces/network'
@@ -17,6 +17,7 @@ interface Props {
   address: string
   nftInfo: { name: string }
   hideSendNft?: boolean
+  style?: ViewStyle
 }
 
 const Nft: FC<Props> = ({
@@ -26,7 +27,8 @@ const Nft: FC<Props> = ({
   network,
   networks,
   nftInfo,
-  hideSendNft
+  hideSendNft,
+  style
 }) => {
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const [collectibleData, setCollectibleData] = useState<SelectedCollectible | null>(null)
@@ -40,7 +42,7 @@ const Nft: FC<Props> = ({
   )
 
   return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.wrap]}>
+    <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.wrap, style]}>
       <Collectible
         style={spacings.mhTy}
         size={36}

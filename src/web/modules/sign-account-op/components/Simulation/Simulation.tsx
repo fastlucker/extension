@@ -217,6 +217,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                             name
                           }}
                           hideSendNft
+                          style={spacings.mbMi}
                         />
                       )
                     })
@@ -262,6 +263,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                             name
                           }}
                           hideSendNft
+                          style={spacings.mbMi}
                         />
                       )
                     })
