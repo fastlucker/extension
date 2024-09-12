@@ -8,10 +8,6 @@ EXPO_DEV_PORT=19000
 
 
 cleanup() {
-  PID=$(lsof -t -i :$EXPO_DEV_PORT)
-  if [ -n "$PID" ]; then
-    kill $PID
-  fi
   pkill -P $$
   exit 0
 }

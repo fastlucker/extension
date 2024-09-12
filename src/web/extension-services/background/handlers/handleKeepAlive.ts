@@ -31,7 +31,7 @@ export const handleKeepAlive = () => {
       if (isFirstStart) {
         isFirstStart = false
         clearInterval(wakeup)
-        timer = 270 * SECONDS
+        timer = 170 * SECONDS
         wakeup = setInterval(Highlander, timer)
       }
     }
