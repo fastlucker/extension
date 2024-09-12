@@ -96,7 +96,7 @@ export async function typeSeedAndExpectImportButtonToBeDisabled(page, seedWords)
 }
 
 export function buildSelectorsForDynamicTestId(testId, arrayOfIndexes) {
-  return arrayOfIndexes.map((index) => buildSelector(testId, index))
+  return arrayOfIndexes.map((_, index) => buildSelector(testId, index))
 }
 
 /* eslint-disable no-promise-executor-return */
@@ -136,4 +136,54 @@ export async function checkTextAreaHasValidInputByGivenText(
   // Clear the TextArea
   await page.click(selectorInputField, { clickCount: 3 })
   await page.keyboard.press('Backspace')
+}
+
+export async function getInputValuesFromFields(_page) {
+  const inputSelectors = Array.from({ length: 12 }, (_, i) =>
+    buildSelector(TEST_IDS.recoveryWithSeedWordDyn, i)
+  )
+  const inputValues = await Promise.all(
+    inputSelectors.map(async (selector) => {
+      await _page.waitForSelector(selector)
+      const value = await _page.$eval(selector, (input) => input.value)
+      return value
+    })
+  )
+  return inputValues
+}
+
+export async function importNewSAFromDefaultSeed(page) {
+  // Click on account select button
+  await clickOnElement(page, SELECTORS.accountSelectBtn)
+  // Wait for dashboard screen to be loaded
+  await page.waitForFunction(() => window.location.href.includes('/account-select'))
+  // Click on "Add Account"
+  await clickOnElement(page, SELECTORS.buttonAddAccount)
+
+  await wait(500)
+  // Wait until "Import a new Smart Account from the default Seed Phrase" button loaded
+  await page.waitForSelector(SELECTORS.createNewWallet, { visible: true })
+  // Click on "Import a new Smart Account from the default Seed Phrase" button
+  await clickOnElement(page, SELECTORS.createNewWallet)
+  // TODO: create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them
+
+  await page.waitForNavigation({ waitUntil: 'load' })
+  // TODO: maybe this check is redundant
+  const isSuccAddedOneAcc = await page.$$eval(
+    'div[dir="auto"]',
+    (elements, msg) => {
+      return elements.some((item) => item.textContent === msg)
+    },
+    'Successfully added 1 account'
+  )
+  expect(isSuccAddedOneAcc).toBe(true)
+
+  const addedNewAccCount = await page.$$eval(
+    SELECTORS.personalizeAccount,
+    (elements) => elements.length
+  )
+  expect(addedNewAccCount).toBe(1)
+
+  // Click "Save and continue button"
+  await clickOnElement(page, SELECTORS.saveAndContinueBtn)
 }

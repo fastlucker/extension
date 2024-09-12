@@ -35,7 +35,11 @@ export const TEST_IDS = {
   createSeedPhraseWriteContinueBtn: 'create-seed-phrase-write-continue-btn',
   seedWordNumberToBeEntered: 'seed-word-number-to-be-entered',
   seedWordPositionFieldDyn: 'seed-word-position-field',
-  createSeedPhraseConfirmContinueBtn: 'create-seed-phrase-confirm-continue-btn'
+  createSeedPhraseConfirmContinueBtn: 'create-seed-phrase-confirm-continue-btn',
+  personalizeAccount: 'personalize-account',
+  pinExtensionCloseBtn: 'pin-extension-close-btn',
+  accountSelectBtn: 'account-select-btn',
+  createNewWallet: 'create-new-wallet'
 }
 
 export const SELECTORS = Object.fromEntries(

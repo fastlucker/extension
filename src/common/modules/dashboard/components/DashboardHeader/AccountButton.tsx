@@ -62,6 +62,7 @@ const AccountButton = () => {
   return (
     <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
       <AnimatedPressable
+        testID="account-select-btn"
         style={[
           styles.accountButton,
           {

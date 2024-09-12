@@ -5,7 +5,6 @@ export const INVITE_STORAGE_ITEM = {
 }
 
 export const TEST_ACCOUNT_NAMES = ['Test-Account-1', 'Test-Account-2']
-export const ARRAY_TWO_INDEXES = [0, 1]
 
 export const INVITE_STATUS_VERIFIED = 'VERIFIED'
 export const TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER = 'Enter a private key'

@@ -8,7 +8,6 @@ import {
   TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER,
   INVALID_SEEDS,
   INVALID_SEED_PHRASE_ERROR_MSG,
-  ARRAY_TWO_INDEXES,
   SMART_ACC_VIEW_ONLY_ADDRESS,
   BASIC_ACC_VIEW_ONLY_ADDRESS,
   VIEW_ONLY_LABEL,
@@ -22,6 +21,7 @@ import {
 import { bootstrap } from '../../common-helpers/bootstrap'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { typeText } from '../../common-helpers/typeText'
+import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExist'
 import {
   finishStoriesAndSelectAccount,
   typeSeedWords,
@@ -30,7 +30,9 @@ import {
   typeSeedAndExpectImportButtonToBeDisabled,
   buildSelectorsForDynamicTestId,
   wait,
-  checkTextAreaHasValidInputByGivenText
+  checkTextAreaHasValidInputByGivenText,
+  getInputValuesFromFields,
+  importNewSAFromDefaultSeed
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { baPrivateKey, seed } from '../../config/constants'
@@ -127,9 +129,9 @@ describe('auth', () => {
 
     const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
     const [btnProceedSeedPhraseWithIndexZeroSelector, btnProceedSeedPhraseWithIndexOneSelector] =
-      buildSelectorsForDynamicTestId(TEST_IDS.editBtnForEditNameField, ARRAY_TWO_INDEXES)
+      buildSelectorsForDynamicTestId(TEST_IDS.editBtnForEditNameField, TEST_ACCOUNT_NAMES)
     const [editFieldNameFieldWithIndexZeroSelector, editFieldNameFieldWithIndexOneSelector] =
-      buildSelectorsForDynamicTestId(TEST_IDS.editFieldNameField, ARRAY_TWO_INDEXES)
+      buildSelectorsForDynamicTestId(TEST_IDS.editFieldNameField, TEST_ACCOUNT_NAMES)
 
     await clickOnElement(page, btnProceedSeedPhraseWithIndexZeroSelector)
     await typeText(page, editFieldNameFieldWithIndexZeroSelector, accountName1)
@@ -329,11 +331,15 @@ describe('auth', () => {
   it('should create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async () => {
     await completeOnboardingSteps(page)
 
-    await page.waitForFunction(() => window.location.href.includes('/get-started'))
+    const isOnboardingStateKeyPresent = await checkStorageKeysExist(
+      serviceWorker,
+      'onboardingState'
+    )
+    expect(isOnboardingStateKeyPresent).toBe(true)
 
+    await page.waitForFunction(() => window.location.href.includes('/get-started'))
     // Click on "Create a new hot wallet" button
     await clickOnElement(page, SELECTORS.getStartedCreateHotWallet)
-
     await page.waitForSelector(SELECTORS.setUpWithSeedPhraseBtn)
     // Click on "Set up with a seed phrase" button
     await clickOnElement(page, SELECTORS.setUpWithSeedPhraseBtn)
@@ -343,10 +349,12 @@ describe('auth', () => {
     const phrase = 'Password'
     await typeText(page, SELECTORS.enterPassField, phrase)
     await typeText(page, SELECTORS.repeatPassField, phrase)
-
     // Click on "Set up Ambire Key Store" button
     await clickOnElement(page, SELECTORS.keystoreBtnCreate)
     await clickOnElement(page, SELECTORS.keystoreBtnContinue, true, 1500)
+
+    const isKeyStoreUidKeyPresent = await checkStorageKeysExist(serviceWorker, 'keyStoreUid')
+    expect(isKeyStoreUidKeyPresent).toBe(true)
 
     // Wait until create seed phrase loaded
     await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/prepare'))
@@ -360,42 +368,23 @@ describe('auth', () => {
     })
     // Click on "Review seed phrase" button
     await clickOnElement(page, SELECTORS.reviewSeedPhraseBtn)
-
     await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/write'))
 
-    // TODO: move in functions.js
-    async function getInputValuesFromFields(_page) {
-      const inputSelectors = Array.from({ length: 12 }, (_, i) =>
-        buildSelector(TEST_IDS.recoveryWithSeedWordDyn, i)
-      )
-
-      const inputValues = await Promise.all(
-        inputSelectors.map(async (selector) => {
-          await _page.waitForSelector(selector)
-          const value = await _page.$eval(selector, (input) => input.value)
-          return value
-        })
-      )
-
-      return inputValues
-    }
-
+    // Get seed values from all the input fields
     const storedSeed = await getInputValuesFromFields(page)
-
     expect(storedSeed.length).toBe(12)
-
     // Click on "Continue" button
     await clickOnElement(page, SELECTORS.createSeedPhraseWriteContinueBtn)
-
     await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/confirm'))
+
+    // Get the positions of the seed words
     const positionsOfSeedWords = await page.$$eval(
       SELECTORS.seedWordNumberToBeEntered,
       (elements) => elements.map((element) => Number(element.innerText.replace('#', '')))
     )
+
     expect(positionsOfSeedWords.length).toBe(4)
-
     // Write exact seed word on exact position
-
     // eslint-disable-next-line no-restricted-syntax
     for (const position of positionsOfSeedWords) {
       // eslint-disable-next-line no-await-in-loop
@@ -403,14 +392,62 @@ describe('auth', () => {
       // eslint-disable-next-line no-await-in-loop
       await page.type(inputSelector, storedSeed[position - 1])
     }
-
     // Wait Continue btn to be enabled then click on it
     await page.waitForSelector(`${SELECTORS.createSeedPhraseConfirmContinueBtn}:not([disabled])`, {
       visible: true
     })
     await clickOnElement(page, SELECTORS.createSeedPhraseConfirmContinueBtn)
+    await page.waitForNavigation({ waitUntil: 'load' })
+    // TODO: maybe this check is redundant
+    const isSuccessfullyAddedOneAccount = await page.$$eval(
+      'div[dir="auto"]',
+      (elements, msg) => {
+        return elements.some((item) => item.textContent === msg)
+      },
+      'Successfully added 1 account'
+    )
+    expect(isSuccessfullyAddedOneAccount).toBe(true)
 
-    // TODO: check if successfully added the account
-    // TODO: then click on save and continue "data-testid="button-save-and-continue"
+    const addedAccountsCount = await page.$$eval(
+      SELECTORS.personalizeAccount,
+      (elements) => elements.length
+    )
+    expect(addedAccountsCount).toBe(1)
+
+    const areKeysPresent = await checkStorageKeysExist(serviceWorker, [
+      'selectedAccount',
+      'accounts',
+      'keystoreSeeds'
+    ])
+    expect(areKeysPresent).toBe(true)
+
+    // Click "Save and continue button"
+    await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+
+    // Wait for dashboard screen to be loaded
+    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+    // Close Pin Ambire extension modal
+    await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
+
+    // Import one new SA from default seed
+    await importNewSAFromDefaultSeed(page)
+
+    await wait(2000)
+
+    // Wait for dashboard screen to be loaded
+    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
+    // Import one more new SA from default seed
+    await importNewSAFromDefaultSeed(page)
+
+    // Get accounts from storage
+    const importedAccounts = await serviceWorker.evaluate(() =>
+      chrome.storage.local.get('accounts')
+    )
+
+    const parsedImportedAccounts = JSON.parse(importedAccounts.accounts)
+
+    // Check if exact 3 accounts have been added
+    expect(parsedImportedAccounts.length).toBe(3)
   })
 })
