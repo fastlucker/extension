@@ -2,6 +2,7 @@ import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
 import { buildSelector } from '../../common-helpers/buildSelector'
 import { typeText } from '../../common-helpers/typeText'
+import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExist'
 
 export async function finishStoriesAndSelectAccount(
   page,
@@ -192,6 +193,103 @@ export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, newName) 
 
   // Personalize the account
   await personalizeAccountName(page, newName)
+
+  // Click "Save and continue button"
+  await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+}
+
+export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
+  // Click on "Create a new hot wallet" button
+  await clickOnElement(page, SELECTORS.getStartedCreateHotWallet)
+  await page.waitForSelector(SELECTORS.setUpWithSeedPhraseBtn)
+
+  // Click on "Set up with a seed phrase" button
+  await clickOnElement(page, SELECTORS.setUpWithSeedPhraseBtn)
+
+  // Wait for keystore to be loaded
+  await page.waitForFunction(() => window.location.href.includes('/keystore-setup'))
+
+  // type Device password
+  const phrase = 'Password'
+  await typeText(page, SELECTORS.enterPassField, phrase)
+  await typeText(page, SELECTORS.repeatPassField, phrase)
+
+  // Click on "Set up Ambire Key Store" button
+  await clickOnElement(page, SELECTORS.keystoreBtnCreate)
+  await clickOnElement(page, SELECTORS.keystoreBtnContinue, true, 1500)
+
+  const isKeyStoreUidKeyPresent = await checkStorageKeysExist(serviceWorker, 'keyStoreUid')
+  expect(isKeyStoreUidKeyPresent).toBe(true)
+
+  // Wait until create seed phrase loaded
+  await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/prepare'))
+
+  // Check all the checkboxes
+  await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 0))
+  await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 1))
+  await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 2))
+
+  // Wait until the "Review seed phrase" button to be enabled
+  await page.waitForSelector(`${SELECTORS.reviewSeedPhraseBtn}:not([disabled])`, {
+    visible: true
+  })
+  // Click on "Review seed phrase" button
+  await clickOnElement(page, SELECTORS.reviewSeedPhraseBtn)
+  await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/write'))
+
+  // Get seed values from all the input fields
+  const storedSeed = await getInputValuesFromFields(page)
+  expect(storedSeed.length).toBe(12)
+
+  // Click on "Continue" button
+  await clickOnElement(page, SELECTORS.createSeedPhraseWriteContinueBtn)
+  await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/confirm'))
+
+  // Get the positions of the seed words
+  const positionsOfSeedWords = await page.$$eval(SELECTORS.seedWordNumberToBeEntered, (elements) =>
+    elements.map((element) => Number(element.innerText.replace('#', '')))
+  )
+
+  expect(positionsOfSeedWords.length).toBe(4)
+
+  // Write exact seed word on exact position
+  // eslint-disable-next-line no-restricted-syntax
+  for (const position of positionsOfSeedWords) {
+    // eslint-disable-next-line no-await-in-loop
+    const inputSelector = buildSelector(TEST_IDS.seedWordPositionFieldDyn, position)
+    // eslint-disable-next-line no-await-in-loop
+    await page.type(inputSelector, storedSeed[position - 1])
+  }
+
+  // Wait Continue btn to be enabled then click on it
+  await page.waitForSelector(`${SELECTORS.createSeedPhraseConfirmContinueBtn}:not([disabled])`, {
+    visible: true
+  })
+  await clickOnElement(page, SELECTORS.createSeedPhraseConfirmContinueBtn)
+
+  await page.waitForNavigation({ waitUntil: 'load' })
+  // TODO: maybe this check is redundant
+  const isSuccessfullyAddedOneAccount = await page.$$eval(
+    'div[dir="auto"]',
+    (elements, msg) => {
+      return elements.some((item) => item.textContent === msg)
+    },
+    'Successfully added 1 account'
+  )
+  expect(isSuccessfullyAddedOneAccount).toBe(true)
+
+  const addedAccountsCount = await page.$$eval(
+    SELECTORS.personalizeAccount,
+    (elements) => elements.length
+  )
+  expect(addedAccountsCount).toBe(1)
+
+  const areKeysPresent = await checkStorageKeysExist(serviceWorker, [
+    'selectedAccount',
+    'accounts',
+    'keystoreSeeds'
+  ])
+  expect(areKeysPresent).toBe(true)
 
   // Click "Save and continue button"
   await clickOnElement(page, SELECTORS.saveAndContinueBtn)
