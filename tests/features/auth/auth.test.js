@@ -32,7 +32,8 @@ import {
   wait,
   checkTextAreaHasValidInputByGivenText,
   getInputValuesFromFields,
-  importNewSAFromDefaultSeed
+  importNewSAFromDefaultSeedAndPersonalizeIt,
+  personalizeAccountName
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { baPrivateKey, seed } from '../../config/constants'
@@ -63,7 +64,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import basic account from private key', async () => {
+  it('should import basic account from private key', async () => {
     // Get the invite data from the storage
     const inviteFromStorage = await serviceWorker.evaluate(() => chrome.storage.local.get('invite'))
     expect(Object.keys(inviteFromStorage).length).toBe(1)
@@ -107,7 +108,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
+  it('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
     await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
 
     const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
@@ -163,7 +164,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import view-only accounts', async () => {
+  it('should import view-only accounts', async () => {
     const smartAccount = SMART_ACC_VIEW_ONLY_ADDRESS
     const basicAccount = BASIC_ACC_VIEW_ONLY_ADDRESS
 
@@ -211,7 +212,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import a couple of view-only accounts (at once) and personalize some of them', async () => {
+  it('should import a couple of view-only accounts (at once) and personalize some of them', async () => {
     const smartAccount = SMART_ACC_VIEW_ONLY_ADDRESS
     const basicAccount = BASIC_ACC_VIEW_ONLY_ADDRESS
 
@@ -265,9 +266,7 @@ describe('auth', () => {
     expect(isSuccessfullyAddedTwoAccounts).toBe(true)
 
     // Personalize first account
-    await clickOnElement(page, buildSelector(TEST_IDS.editBtnForEditNameField, 0))
-    await typeText(page, buildSelector(TEST_IDS.editFieldNameField, 0), TEST_ACCOUNT_NAMES[0])
-    await clickOnElement(page, buildSelector(TEST_IDS.editBtnForEditNameField, 0))
+    await personalizeAccountName(page, TEST_ACCOUNT_NAMES[0], 0)
 
     // Click Save and continue btn
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
@@ -287,7 +286,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should not allow importing an invalid seed phrase', async () => {
+  it('should not allow importing an invalid seed phrase', async () => {
     await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
 
     const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
@@ -312,7 +311,7 @@ describe('auth', () => {
     await waitUntilError(page, INVALID_SEED_PHRASE_ERROR_MSG)
   })
   //------------------------------------------------------------------------------------------------------
-  it.skip('should not allow importing an invalid private key', async () => {
+  it('should not allow importing an invalid private key', async () => {
     await setAmbKeyStore(page, SELECTORS.importPrivateBtn)
 
     // eslint-disable-next-line no-restricted-syntax
@@ -338,17 +337,22 @@ describe('auth', () => {
     expect(isOnboardingStateKeyPresent).toBe(true)
 
     await page.waitForFunction(() => window.location.href.includes('/get-started'))
+
     // Click on "Create a new hot wallet" button
     await clickOnElement(page, SELECTORS.getStartedCreateHotWallet)
     await page.waitForSelector(SELECTORS.setUpWithSeedPhraseBtn)
+
     // Click on "Set up with a seed phrase" button
     await clickOnElement(page, SELECTORS.setUpWithSeedPhraseBtn)
+
     // Wait for keystore to be loaded
     await page.waitForFunction(() => window.location.href.includes('/keystore-setup'))
+
     // type Device password
     const phrase = 'Password'
     await typeText(page, SELECTORS.enterPassField, phrase)
     await typeText(page, SELECTORS.repeatPassField, phrase)
+
     // Click on "Set up Ambire Key Store" button
     await clickOnElement(page, SELECTORS.keystoreBtnCreate)
     await clickOnElement(page, SELECTORS.keystoreBtnContinue, true, 1500)
@@ -358,10 +362,12 @@ describe('auth', () => {
 
     // Wait until create seed phrase loaded
     await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/prepare'))
+
     // Check all the checkboxes
     await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 0))
     await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 1))
     await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 2))
+
     // Wait until the "Review seed phrase" button to be enabled
     await page.waitForSelector(`${SELECTORS.reviewSeedPhraseBtn}:not([disabled])`, {
       visible: true
@@ -373,6 +379,7 @@ describe('auth', () => {
     // Get seed values from all the input fields
     const storedSeed = await getInputValuesFromFields(page)
     expect(storedSeed.length).toBe(12)
+
     // Click on "Continue" button
     await clickOnElement(page, SELECTORS.createSeedPhraseWriteContinueBtn)
     await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/confirm'))
@@ -384,6 +391,7 @@ describe('auth', () => {
     )
 
     expect(positionsOfSeedWords.length).toBe(4)
+
     // Write exact seed word on exact position
     // eslint-disable-next-line no-restricted-syntax
     for (const position of positionsOfSeedWords) {
@@ -392,11 +400,13 @@ describe('auth', () => {
       // eslint-disable-next-line no-await-in-loop
       await page.type(inputSelector, storedSeed[position - 1])
     }
+
     // Wait Continue btn to be enabled then click on it
     await page.waitForSelector(`${SELECTORS.createSeedPhraseConfirmContinueBtn}:not([disabled])`, {
       visible: true
     })
     await clickOnElement(page, SELECTORS.createSeedPhraseConfirmContinueBtn)
+
     await page.waitForNavigation({ waitUntil: 'load' })
     // TODO: maybe this check is redundant
     const isSuccessfullyAddedOneAccount = await page.$$eval(
@@ -430,7 +440,7 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
 
     // Import one new SA from default seed
-    await importNewSAFromDefaultSeed(page)
+    await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[0])
 
     await wait(2000)
 
@@ -438,7 +448,7 @@ describe('auth', () => {
     await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
     // Import one more new SA from default seed
-    await importNewSAFromDefaultSeed(page)
+    await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[1])
 
     // Get accounts from storage
     const importedAccounts = await serviceWorker.evaluate(() =>
@@ -447,7 +457,7 @@ describe('auth', () => {
 
     const parsedImportedAccounts = JSON.parse(importedAccounts.accounts)
 
-    // Check if exact 3 accounts have been added
+    // Checks if exact 3 accounts have been added
     expect(parsedImportedAccounts.length).toBe(3)
   })
 })

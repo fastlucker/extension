@@ -152,7 +152,13 @@ export async function getInputValuesFromFields(_page) {
   return inputValues
 }
 
-export async function importNewSAFromDefaultSeed(page) {
+export async function personalizeAccountName(page, newName, accIndex = 0) {
+  await clickOnElement(page, buildSelector(TEST_IDS.editBtnForEditNameField, accIndex))
+  await typeText(page, buildSelector(TEST_IDS.editFieldNameField, accIndex), newName)
+  await clickOnElement(page, buildSelector(TEST_IDS.editBtnForEditNameField, accIndex))
+}
+
+export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, newName) {
   // Click on account select button
   await clickOnElement(page, SELECTORS.accountSelectBtn)
   // Wait for dashboard screen to be loaded
@@ -183,6 +189,9 @@ export async function importNewSAFromDefaultSeed(page) {
     (elements) => elements.length
   )
   expect(addedNewAccCount).toBe(1)
+
+  // Personalize the account
+  await personalizeAccountName(page, newName)
 
   // Click "Save and continue button"
   await clickOnElement(page, SELECTORS.saveAndContinueBtn)
