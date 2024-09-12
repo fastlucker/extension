@@ -82,6 +82,7 @@ const TokenOrNft: FC<Props> = ({
           networks={networks}
           tokenId={value}
           nftInfo={assetInfo.nftInfo}
+          hideSendNft
         />
       )}
       {(assetInfo?.tokenInfo || !isLoading) && !assetInfo.nftInfo && (

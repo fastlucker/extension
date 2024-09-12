@@ -4,12 +4,11 @@ import { View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Network } from '@ambire-common/interfaces/network'
-import Address from '@common/components/Address'
 import Alert from '@common/components/Alert'
-import Collectible from '@common/components/Collectible'
 import NetworkBadge from '@common/components/NetworkBadge'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
+import Nft from '@common/components/TokenOrNft/components/Nft'
 import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -204,29 +203,23 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                 })}
                 {pendingSendCollection
                   .map(({ name, postSimulation, address }) =>
-                    postSimulation?.sending?.map((itemId: bigint) => (
-                      <View
-                        key={address + itemId}
-                        style={[flexbox.directionRow, flexbox.wrap, spacings.mbMi]}
-                      >
-                        <Collectible
-                          style={spacings.mhTy}
-                          size={36}
-                          id={itemId}
-                          collectionData={{
-                            address,
-                            // if we have pendingSendCollection we also have network
-                            networkId: network!.id
-                          }}
+                    postSimulation?.sending?.map((itemId: bigint) => {
+                      if (!network) return null
+
+                      return (
+                        <Nft
+                          key={address + itemId}
+                          tokenId={itemId}
+                          network={network}
                           networks={networks}
-                        />
-                        <Address
                           address={address}
-                          highestPriorityAlias={`${name} #${itemId}`}
-                          explorerNetworkId={network?.id}
+                          nftInfo={{
+                            name
+                          }}
+                          hideSendNft
                         />
-                      </View>
-                    ))
+                      )
+                    })
                   )
                   .flat()}
               </ScrollableWrapper>
@@ -255,30 +248,23 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                 })}
                 {pendingReceiveCollection
                   .map(({ name, postSimulation, address }) =>
-                    postSimulation?.receiving?.map((itemId: bigint) => (
-                      <View
-                        key={address + itemId}
-                        style={[flexbox.directionRow, flexbox.wrap, spacings.mbMi]}
-                      >
-                        <Collectible
-                          style={spacings.mhTy}
-                          size={36}
-                          id={itemId}
-                          collectionData={{
-                            address,
-                            // if we have pendingSendCollection we also have network
-                            networkId: network!.id
-                          }}
+                    postSimulation?.receiving?.map((itemId: bigint) => {
+                      if (!network) return null
+
+                      return (
+                        <Nft
+                          key={address + itemId}
+                          tokenId={itemId}
+                          network={network}
                           networks={networks}
-                        />
-                        <Address
-                          // fontSize={textSize}
                           address={address}
-                          highestPriorityAlias={`${name} #${itemId}`}
-                          explorerNetworkId={network?.id}
+                          nftInfo={{
+                            name
+                          }}
+                          hideSendNft
                         />
-                      </View>
-                    ))
+                      )
+                    })
                   )
                   .flat()}
               </ScrollableWrapper>
