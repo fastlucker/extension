@@ -20,7 +20,9 @@ export async function checkAccountDetails(
 
   expectedAccountNames.forEach((expectedAccount, index) => {
     expect(addedAccounts[index]).toContain(expectedAccount)
-    expect(addedAccounts[index]).toContain(expectedAccountDetails[index])
+    if (expectedAccountDetails && expectedAccountDetails.length && expectedAccountDetails[index]) {
+      expect(addedAccounts[index]).toContain(expectedAccountDetails[index])
+    }
   })
 }
 

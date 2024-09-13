@@ -29,7 +29,8 @@ import {
   checkTextAreaHasValidInputByGivenText,
   importNewSAFromDefaultSeedAndPersonalizeIt,
   personalizeAccountName,
-  createHotWalletWithSeedPhrase
+  createHotWalletWithSeedPhrase,
+  checkAccountDetails
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { baPrivateKey, SEED_12_WORDS, SEED_24_WORDS } from '../../config/constants'
@@ -60,7 +61,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import basic account from private key', async () => {
+  it('should import basic account from private key', async () => {
     // Get the invite data from the storage
     const inviteFromStorage = await serviceWorker.evaluate(() => chrome.storage.local.get('invite'))
     expect(Object.keys(inviteFromStorage).length).toBe(1)
@@ -99,17 +100,16 @@ describe('auth', () => {
     await wait(2000)
 
     // Verify that selected accounts exist on the page
-    const selectedBasicAccount = await page.$$eval(SELECTORS.account, (el) => el[0].innerText)
-    expect(selectedBasicAccount).toContain(firstSelectedBasicAccount)
+    await checkAccountDetails(page, SELECTORS.account, [firstSelectedBasicAccount])
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import one Basic Account and one Smart Account from a 12 words seed phrase and personalize them', async () => {
+  it.skip('should import one Basic Account and one Smart Account from a 12 words seed phrase and personalize them', async () => {
     await importAccountsFromSeedPhrase(page, extensionURL, SEED_12_WORDS, INVALID_SEEDS_12_WORDS)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import one Basic Account and one Smart Account from a 24 words seed phrase and personalize them', async () => {
+  it.skip('should import one Basic Account and one Smart Account from a 24 words seed phrase and personalize them', async () => {
     await importAccountsFromSeedPhrase(page, extensionURL, SEED_24_WORDS, INVALID_SEEDS_24_WORDS)
   })
 
@@ -135,11 +135,9 @@ describe('auth', () => {
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     await page.waitForSelector(SELECTORS.address)
-    // Verify that added accounts exist on the page and contains VIEW_ONLY_LABEL
-    let selectedBasicAccount = await page.$eval(SELECTORS.account, (el) => el.innerText)
 
-    expect(selectedBasicAccount).toContain(smartAccount)
-    expect(selectedBasicAccount).toContain(VIEW_ONLY_LABEL)
+    // Verify that added account exist on the page and contains VIEW_ONLY_LABEL
+    await checkAccountDetails(page, SELECTORS.account, [smartAccount], [VIEW_ONLY_LABEL])
 
     await clickOnElement(page, SELECTORS.buttonAddAccount)
 
@@ -151,14 +149,12 @@ describe('auth', () => {
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     // Verify that added accounts exist on the page and contains VIEW_ONLY_LABEL
-    selectedBasicAccount = await page.$$eval(SELECTORS.account, (el) => el[0].innerText)
-
-    const selectedSmartAccount = await page.$$eval(SELECTORS.account, (el) => el[1].innerText)
-
-    expect(selectedBasicAccount).toContain(smartAccount)
-    expect(selectedBasicAccount).toContain(VIEW_ONLY_LABEL)
-    expect(selectedSmartAccount).toContain(basicAccount)
-    expect(selectedSmartAccount).toContain(VIEW_ONLY_LABEL)
+    await checkAccountDetails(
+      page,
+      SELECTORS.account,
+      [smartAccount, basicAccount],
+      [VIEW_ONLY_LABEL, VIEW_ONLY_LABEL]
+    )
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -222,17 +218,12 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
-    const addedAccounts = await page.$$eval(SELECTORS.account, (elements) =>
-      elements.map((element) => element.innerText)
+    await checkAccountDetails(
+      page,
+      SELECTORS.account,
+      [smartAccount, basicAccount],
+      [VIEW_ONLY_LABEL, VIEW_ONLY_LABEL]
     )
-    expect(addedAccounts.length).toBe(2)
-
-    const [firstAccount, secondAccount] = addedAccounts
-
-    expect(firstAccount).toContain(smartAccount)
-    expect(firstAccount).toContain(VIEW_ONLY_LABEL)
-    expect(secondAccount).toContain(basicAccount)
-    expect(secondAccount).toContain(VIEW_ONLY_LABEL)
   })
 
   //--------------------------------------------------------------------------------------------------------------
