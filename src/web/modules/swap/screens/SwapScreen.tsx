@@ -20,6 +20,7 @@ const SwapScreen = () => {
   const provider = new EthereumProvider()
 
   // TODO: More customization options available, see:
+  // https://docs.bungee.exchange/socket-plugin/customisation
   // https://sockettech.notion.site/Socket-PlugIn-Docs-b905871870e343c6833169ebbd356790#9909f2a61ea24637a2a1969a6944f56f
   const customize = {
     width: 440,
