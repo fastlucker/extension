@@ -80,6 +80,19 @@ describe('auth', () => {
     // Expect the locator selects the right field where to enter the private key
     expect(enterSeedPhraseFieldPlaceholder).toBe(TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER)
 
+    // Test with invalid keys first
+    // eslint-disable-next-line no-restricted-syntax
+    for (const privKey of INVALID_PRIV_KEYS) {
+      // eslint-disable-next-line no-await-in-loop
+      await checkTextAreaHasValidInputByGivenText(
+        page,
+        privKey,
+        SELECTORS.enterSeedPhraseField,
+        SELECTORS.importBtn,
+        INVALID_PRIVATE_KEY_ERROR_MSG
+      )
+    }
+
     await typeText(page, SELECTORS.enterSeedPhraseField, baPrivateKey)
 
     // Click on Import button.
@@ -226,22 +239,6 @@ describe('auth', () => {
     )
   })
 
-  //--------------------------------------------------------------------------------------------------------------
-  it.skip('should not allow importing an invalid private key', async () => {
-    await setAmbKeyStore(page, SELECTORS.importPrivateBtn)
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const privKey of INVALID_PRIV_KEYS) {
-      // eslint-disable-next-line no-await-in-loop
-      await checkTextAreaHasValidInputByGivenText(
-        page,
-        privKey,
-        SELECTORS.enterSeedPhraseField,
-        SELECTORS.importBtn,
-        INVALID_PRIVATE_KEY_ERROR_MSG
-      )
-    }
-  })
   //--------------------------------------------------------------------------------------------------------------
   it.skip('should create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async () => {
     await completeOnboardingSteps(page)

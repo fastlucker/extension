@@ -135,9 +135,20 @@ export async function checkTextAreaHasValidInputByGivenText(
   errorMsg
 ) {
   await typeText(page, selectorInputField, privateKey, { delay: 10 })
-  await wait(1000)
+
   if (privateKey !== '') {
-    // Check whether text "errorMsg" exists on the page
+    // Wait for the error message to appear if the private key is invalid
+    await page.waitForFunction(
+      (errMsg) => {
+        return Array.from(document.querySelectorAll('div[dir="auto"]')).some(
+          (item) => item.textContent === errMsg
+        )
+      },
+      {},
+      errorMsg
+    )
+
+    // Ensure the error message appears
     const isDivContainsInvalidPrivKey = await page.$$eval(
       'div[dir="auto"]',
       (elements, errMsg) => {
