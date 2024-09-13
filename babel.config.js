@@ -9,7 +9,8 @@ module.exports = function (api) {
     '@common': './src/common',
     '@mobile': './src/mobile',
     '@web': './src/web',
-    '@benzin': './src/benzin'
+    '@benzin': './src/benzin',
+    '@legends': './src/legends'
   }
 
   const config = {
@@ -95,7 +96,9 @@ module.exports = function (api) {
   }
 
   const isMobile =
-    !process.env.WEB_ENGINE && !process.env.WEBPACK_BUILD_OUTPUT_PATH?.includes('benzin')
+    !process.env.WEB_ENGINE &&
+    !process.env.WEBPACK_BUILD_OUTPUT_PATH?.includes('benzin') &&
+    !process.env.WEBPACK_BUILD_OUTPUT_PATH?.includes('legends')
 
   return isMobile ? mobileConfig : webConfig
 }

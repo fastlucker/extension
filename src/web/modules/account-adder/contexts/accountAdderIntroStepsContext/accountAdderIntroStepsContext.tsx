@@ -78,7 +78,9 @@ const STEPS = [
       <Step
         title="Smart Account"
         text="SA wallets include many security features such as account recovery and progressively upgraded security. In addition, you can pay for transactions in stablecoins, and do multiple actions in one transaction (transaction batching)."
-        titleRightChildren={<Badge text="Smart Account" type="success" />}
+        // WARNING: Don't use display badge tooltips, it will crash the extension because
+        // there is no portal host in the intro.js context
+        titleRightChildren={<Badge type="success" text="Smart Account" />}
       />
     )
   },
@@ -89,7 +91,9 @@ const STEPS = [
       <Step
         title="Basic Account"
         text="We use the term Basic Account to describe the EOAs (Externally Owned Accounts). Unlike Smart Accounts, which provides many functionalities, EOAs only give you basic ones."
-        titleRightChildren={<Badge text="Basic Account" type="warning" />}
+        // WARNING: Don't use display badge tooltips, it will crash the extension because
+        // there is no portal host in the intro.js context
+        titleRightChildren={<Badge type="warning" text="Basic Account" />}
       />
     )
   }

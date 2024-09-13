@@ -35,6 +35,7 @@ export interface Props extends TextProps {
   fontSize?: number
   color?: ColorValue
   shouldScale?: boolean
+  dataSet?: { [key: string]: string }
 }
 
 const textStyles: { [key in TextTypes]: TextStyle } = {

@@ -6,11 +6,13 @@ import { StyleSheet, View } from 'react-native'
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
+import { humanizeMessage } from '@ambire-common/libs/humanizer'
+import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
+import NetworkBadge from '@common/components/NetworkBadge'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
-import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -51,9 +53,8 @@ const SignMessageScreen = () => {
   const { isLedgerConnected } = useLedger()
   const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
-  const [shouldShowFallback, setShouldShowFallback] = useState(false)
   const actionState = useActionsControllerState()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
 
   const signMessageAction = useMemo(() => {
@@ -96,26 +97,24 @@ const SignMessageScreen = () => {
     () => selectedAccountKeyStoreKeys.length === 0,
     [selectedAccountKeyStoreKeys.length]
   )
+  const humanizedMessage: IrMessage | null = useMemo(() => {
+    return signMessageState?.messageToSign?.content?.kind === 'typedMessage'
+      ? humanizeMessage(signMessageState.messageToSign)
+      : signMessageState.messageToSign
+  }, [signMessageState])
 
   const visualizeHumanized = useMemo(
     () =>
-      signMessageState.humanReadable?.fullVisualization &&
+      humanizedMessage?.fullVisualization &&
       network &&
       signMessageState.messageToSign?.content.kind,
-    [network, signMessageState.humanReadable, signMessageState.messageToSign?.content?.kind]
+    [network, humanizedMessage, signMessageState.messageToSign?.content?.kind]
   )
 
   const isScrollToBottomForced = useMemo(
     () => typeof hasReachedBottom === 'boolean' && !hasReachedBottom && !visualizeHumanized,
     [hasReachedBottom, visualizeHumanized]
   )
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShouldShowFallback(true)
-    }, 500)
-    return () => clearTimeout(timer)
-  })
 
   useEffect(() => {
     if (!userRequest || !signMessageAction) return
@@ -200,12 +199,12 @@ const SignMessageScreen = () => {
   )
 
   const resolveButtonText = useMemo(() => {
-    if (isScrollToBottomForced && shouldShowFallback) return t('Read the message')
+    if (isScrollToBottomForced) return t('Read the message')
 
     if (signStatus === 'LOADING') return t('Signing...')
 
     return t('Sign')
-  }, [isScrollToBottomForced, shouldShowFallback, signStatus, t])
+  }, [isScrollToBottomForced, signStatus, t])
 
   const handleDismissLedgerConnectModal = useCallback(() => {
     setDidTriggerSigning(false)
@@ -231,14 +230,7 @@ const SignMessageScreen = () => {
           onReject={handleReject}
           onResolve={handleSign}
           resolveButtonText={resolveButtonText}
-          resolveDisabled={
-            signStatus === 'LOADING' ||
-            isScrollToBottomForced ||
-            isViewOnly ||
-            (!visualizeHumanized &&
-              !shouldShowFallback &&
-              signMessageState.messageToSign?.content.kind === 'typedMessage')
-          }
+          resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
           resolveButtonTestID="button-sign"
         />
       }
@@ -250,30 +242,67 @@ const SignMessageScreen = () => {
         handleChooseSigningKey={handleSign}
         handleClose={() => setIsChooseSignerShown(false)}
       />
+      {isViewOnly && (
+        <View style={styles.noKeysToSignAlert}>
+          <NoKeysToSignAlert
+            style={{
+              width: 640
+            }}
+            isTransaction={false}
+          />
+        </View>
+      )}
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
-        <Text weight="medium" fontSize={24} style={[spacings.mbLg]}>
-          {t('Sign message')}
-        </Text>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            flexbox.justifySpaceBetween,
+            spacings.mbLg
+          ]}
+        >
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <Text weight="medium" fontSize={24} style={[spacings.mrSm]}>
+              {t('Sign message')}
+            </Text>
+            <NetworkBadge
+              style={{ borderRadius: 25, ...spacings.pv0 }}
+              networkId={signMessageState.messageToSign?.networkId}
+              withOnPrefix
+            />
+          </View>
+          {/* @TODO: Replace with Badge; add size prop to badge; add tooltip  */}
+          <View style={styles.kindOfMessage}>
+            <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
+              {t(
+                signMessageState.messageToSign?.content.kind === 'typedMessage'
+                  ? 'EIP-712'
+                  : 'Standard'
+              )}{' '}
+              {t('Type')}
+            </Text>
+          </View>
+        </View>
         <View style={styles.container}>
           <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
-            <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
+            <Info />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
             <ExpandableCard
               enableExpand={false}
-              style={spacings.mbMd}
+              style={spacings.mbTy}
               hasArrow={false}
               content={
                 visualizeHumanized &&
                 // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
-                signMessageState.humanReadable &&
+                humanizedMessage?.fullVisualization &&
                 signMessageState.messageToSign?.content.kind ? (
                   <HumanizedVisualization
-                    data={signMessageState.humanReadable.fullVisualization}
+                    data={humanizedMessage.fullVisualization}
                     networkId={network?.id || 'ethereum'}
                   />
-                ) : shouldShowFallback ? (
+                ) : (
                   <>
                     <View style={spacings.mrTy}>
                       <ErrorOutlineIcon width={24} height={24} />
@@ -289,8 +318,6 @@ const SignMessageScreen = () => {
                       {t('Please read the whole message as we are unable to translate it!')}
                     </Text>
                   </>
-                ) : (
-                  <SkeletonLoader width="100%" height={25} />
                 )
               }
             />
@@ -299,15 +326,6 @@ const SignMessageScreen = () => {
               hasReachedBottom={!!hasReachedBottom}
               messageToSign={signMessageState.messageToSign}
             />
-            {isViewOnly && (
-              <NoKeysToSignAlert
-                style={{
-                  width: '100%',
-                  ...spacings.mtMd
-                }}
-                isTransaction={false}
-              />
-            )}
           </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal

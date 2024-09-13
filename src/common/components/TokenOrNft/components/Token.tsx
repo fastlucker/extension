@@ -10,7 +10,6 @@ import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 
 interface Props {
   amount: bigint
@@ -55,7 +54,7 @@ const InnerToken: FC<Props> = ({
             </Text>
           ) : (
             <>
-              {formatDecimals(Number(formatUnits(amount, tokenInfo?.decimals || 0)))}{' '}
+              {Number(formatUnits(amount, tokenInfo?.decimals || 0))}{' '}
               {!tokenInfo?.decimals && (
                 <Text
                   fontSize={textSize}

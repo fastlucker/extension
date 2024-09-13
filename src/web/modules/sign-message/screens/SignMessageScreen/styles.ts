@@ -1,12 +1,16 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import spacings, { SPACING_MD } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
   leftSideContainer: ViewStyle
   separator: ViewStyle
+  noKeysToSignAlert: ViewStyle
+  kindOfMessage: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -23,6 +27,26 @@ const getStyles = (theme: ThemeProps) =>
     separator: {
       width: 1,
       backgroundColor: theme.secondaryBorder
+    },
+    noKeysToSignAlert: {
+      ...common.shadowSecondary,
+      position: 'absolute',
+      right: 0,
+      bottom: SPACING_MD,
+      zIndex: 10,
+      borderRadius: BORDER_RADIUS_PRIMARY
+    },
+    kindOfMessage: {
+      backgroundColor: theme.infoBackground,
+      borderColor: theme.infoDecorative,
+      borderWidth: 1,
+      borderRadius: 24,
+      width: 'auto',
+      height: 24,
+      ...flexbox.justifyCenter,
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...spacings.ph
     }
   })
 

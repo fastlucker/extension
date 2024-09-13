@@ -19,6 +19,7 @@ import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
+import Tooltip from '@common/components/Tooltip'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
@@ -33,6 +34,7 @@ import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import { getTokenId } from '@web/utils/token'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
@@ -66,6 +68,7 @@ const TokenDetails = ({
   const canToToppedUp = token?.flags.canTopUpGasTank
   const selectedAccountData = accounts.find((acc) => acc.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
+  const tokenId = token ? getTokenId(token) : ''
 
   const actions = useMemo(
     () => [
@@ -210,6 +213,7 @@ const TokenDetails = ({
       isGasTankOrRewardsToken,
       isAmountZero,
       canToToppedUp,
+      isSmartAccount,
       hasTokenInfo,
       navigate,
       networks,
@@ -251,7 +255,7 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [t, token?.address, token?.networkId, networks, addToast])
+  }, [t, token?.address, token?.networkId, networks, addToast, isOffline])
 
   const handleHideToken = () => {
     if (!token) return
@@ -295,7 +299,8 @@ const TokenDetails = ({
     balanceUSDFormatted,
     isRewards,
     isVesting,
-    networkData
+    networkData,
+    balance
   } = getTokenDetails(token, networks)
 
   return (
@@ -347,9 +352,11 @@ const TokenDetails = ({
               fontSize={16}
               weight="number_bold"
               numberOfLines={1}
+              dataSet={{ tooltipId: `${tokenId}-details-balance` }}
             >
               {balanceFormatted} {symbol}
             </Text>
+            <Tooltip content={String(balance)} id={`${tokenId}-details-balance`} />
             <Text
               selectable
               style={spacings.mrMi}

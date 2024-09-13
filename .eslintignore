@@ -1,12 +1,7 @@
 node_modules
 ios
 android
-webkit-dev
-webkit-prod
-gecko-dev
-gecko-prod
-benzin-dev
-benzin-prod
+build
 recorder
 coverage
 .expo

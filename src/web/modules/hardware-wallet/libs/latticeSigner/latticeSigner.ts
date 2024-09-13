@@ -43,7 +43,7 @@ class LatticeSigner implements KeystoreSigner {
     // that user sees feedback (the "sending signing request" modal) that
     // something is about to happen
     await wait(1000)
-    await this.controller.unlock()
+    await this.controller.unlock(this.key.meta.hdPathTemplate, this.key.addr)
 
     if (!this.controller.walletSDK)
       throw new Error(
