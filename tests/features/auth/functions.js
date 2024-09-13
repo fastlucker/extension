@@ -3,6 +3,26 @@ import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
 import { buildSelector } from '../../common-helpers/buildSelector'
 import { typeText } from '../../common-helpers/typeText'
 import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExist'
+import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
+import { URL_ACCOUNT_SELECT, TEST_ACCOUNT_NAMES, INVALID_SEED_PHRASE_ERROR_MSG } from './constants'
+
+export async function checkAccountDetails(
+  page,
+  selector,
+  expectedAccountNames,
+  expectedAccountDetails
+) {
+  const addedAccounts = await page.$$eval(selector, (elements) =>
+    elements.map((element) => element.innerText)
+  )
+
+  expect(addedAccounts.length).toBe(expectedAccountNames.length)
+
+  expectedAccountNames.forEach((expectedAccount, index) => {
+    expect(addedAccounts[index]).toContain(expectedAccount)
+    expect(addedAccounts[index]).toContain(expectedAccountDetails[index])
+  })
+}
 
 export async function finishStoriesAndSelectAccount(
   page,
@@ -293,4 +313,89 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
 
   // Click "Save and continue button"
   await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+}
+
+async function testWithInvalidSeedPhrase(page, invalidSeeds) {
+  // Try to login with empty phrase fields
+  await typeSeedAndExpectImportButtonToBeDisabled(page, '')
+
+  expect(invalidSeeds.length).toBe(2)
+
+  const [firstInvalidSeed, secondInvalidSeed] = invalidSeeds
+
+  // Type seed words from the first incorrect seed
+  await typeSeedAndExpectImportButtonToBeDisabled(page, firstInvalidSeed)
+  // Wait until the error message appears on the page
+  await waitUntilError(page, INVALID_SEED_PHRASE_ERROR_MSG)
+
+  // Clear the passphrase fields before write the new phrase
+  await clearSeedWordsInputs(page, firstInvalidSeed)
+
+  // Type seed words from the second incorrect seed
+  await typeSeedAndExpectImportButtonToBeDisabled(page, secondInvalidSeed)
+  // Wait until the error message appears on the page
+  await waitUntilError(page, INVALID_SEED_PHRASE_ERROR_MSG)
+
+  // Clear the passphrase fields before write the new phrase
+  await clearSeedWordsInputs(page, secondInvalidSeed)
+}
+
+export async function importAccountsFromSeedPhrase(page, extensionURL, seed, invalidSeeds) {
+  await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
+
+  const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
+  await page.waitForSelector(firstSeedInputField)
+
+  if (seed.split(' ').length === 24) {
+    // Click on dropdown and select a "24 words seed phrase"
+    await clickOnElement(page, SELECTORS.selectSeedPhraseLength)
+
+    await clickOnElement(page, SELECTORS.option24WordsSeedPhrase)
+  }
+
+  await testWithInvalidSeedPhrase(page, invalidSeeds)
+
+  await typeSeedWords(page, seed)
+
+  // Click on Import button.
+  await clickOnElement(page, SELECTORS.importBtn)
+
+  // so that the modal appears
+  await wait(500)
+
+  await clickOnElement(page, SELECTORS.doNotSaveSeedBtn)
+
+  // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
+  const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
+    await finishStoriesAndSelectAccount(page, true)
+
+  const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
+  const [btnProceedSeedPhraseWithIndexZeroSelector, btnProceedSeedPhraseWithIndexOneSelector] =
+    buildSelectorsForDynamicTestId(TEST_IDS.editBtnForEditNameField, TEST_ACCOUNT_NAMES)
+  const [editFieldNameFieldWithIndexZeroSelector, editFieldNameFieldWithIndexOneSelector] =
+    buildSelectorsForDynamicTestId(TEST_IDS.editFieldNameField, TEST_ACCOUNT_NAMES)
+
+  await clickOnElement(page, btnProceedSeedPhraseWithIndexZeroSelector)
+  await typeText(page, editFieldNameFieldWithIndexZeroSelector, accountName1)
+
+  await clickOnElement(page, btnProceedSeedPhraseWithIndexOneSelector)
+  await typeText(page, editFieldNameFieldWithIndexOneSelector, accountName2)
+
+  // Click on the checkmark icon to save the new account names
+  await clickOnElement(page, btnProceedSeedPhraseWithIndexZeroSelector)
+  await clickOnElement(page, btnProceedSeedPhraseWithIndexOneSelector)
+
+  await wait(1000)
+
+  // Click on "Save and Continue" button
+  await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
+
+  await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
+
+  await checkAccountDetails(
+    page,
+    SELECTORS.account,
+    [accountName1, accountName2],
+    [firstSelectedBasicAccount, firstSelectedSmartAccount]
+  )
 }

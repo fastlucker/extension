@@ -16,9 +16,9 @@ const Option = React.memo(({ item }: { item: SelectValue }) => {
   // Otherwise, default to 'undefined', and letting Puppeteer to assert using alternative selectors.
   const testID = `option-${
     typeof item.label === 'string'
-      ? item.label.toLowerCase()
+      ? item.label.toLowerCase().replace(/\s+/g, '-')
       : typeof item.value === 'string'
-      ? item.value.toLowerCase()
+      ? item.value.toLowerCase().replace(/\s+/g, '-')
       : undefined
   }`
 

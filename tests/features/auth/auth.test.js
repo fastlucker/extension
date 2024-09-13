@@ -6,8 +6,8 @@ import {
   INVITE_STATUS_VERIFIED,
   TEST_ACCOUNT_NAMES,
   TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER,
-  INVALID_SEEDS,
-  INVALID_SEED_PHRASE_ERROR_MSG,
+  INVALID_SEEDS_12_WORDS,
+  INVALID_SEEDS_24_WORDS,
   SMART_ACC_VIEW_ONLY_ADDRESS,
   BASIC_ACC_VIEW_ONLY_ADDRESS,
   VIEW_ONLY_LABEL,
@@ -24,11 +24,7 @@ import { typeText } from '../../common-helpers/typeText'
 import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExist'
 import {
   finishStoriesAndSelectAccount,
-  typeSeedWords,
-  clearSeedWordsInputs,
-  waitUntilError,
-  typeSeedAndExpectImportButtonToBeDisabled,
-  buildSelectorsForDynamicTestId,
+  importAccountsFromSeedPhrase,
   wait,
   checkTextAreaHasValidInputByGivenText,
   importNewSAFromDefaultSeedAndPersonalizeIt,
@@ -36,7 +32,7 @@ import {
   createHotWalletWithSeedPhrase
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
-import { baPrivateKey, seed } from '../../config/constants'
+import { baPrivateKey, SEED_12_WORDS, SEED_24_WORDS } from '../../config/constants'
 import { buildSelector } from '../../common-helpers/buildSelector'
 import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
 
@@ -108,59 +104,13 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import one Basic Account and one Smart Account from a seed phrase and personalize them', async () => {
-    await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
+  it('should import one Basic Account and one Smart Account from a 12 words seed phrase and personalize them', async () => {
+    await importAccountsFromSeedPhrase(page, extensionURL, SEED_12_WORDS, INVALID_SEEDS_12_WORDS)
+  })
 
-    const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
-    await page.waitForSelector(firstSeedInputField)
-
-    await typeSeedWords(page, seed)
-
-    // Click on Import button.
-    await clickOnElement(page, SELECTORS.importBtn)
-
-    // so that the modal appears
-    await wait(500)
-
-    await clickOnElement(page, SELECTORS.doNotSaveSeedBtn)
-
-    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
-    const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page, true)
-
-    const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
-    const [btnProceedSeedPhraseWithIndexZeroSelector, btnProceedSeedPhraseWithIndexOneSelector] =
-      buildSelectorsForDynamicTestId(TEST_IDS.editBtnForEditNameField, TEST_ACCOUNT_NAMES)
-    const [editFieldNameFieldWithIndexZeroSelector, editFieldNameFieldWithIndexOneSelector] =
-      buildSelectorsForDynamicTestId(TEST_IDS.editFieldNameField, TEST_ACCOUNT_NAMES)
-
-    await clickOnElement(page, btnProceedSeedPhraseWithIndexZeroSelector)
-    await typeText(page, editFieldNameFieldWithIndexZeroSelector, accountName1)
-
-    await clickOnElement(page, btnProceedSeedPhraseWithIndexOneSelector)
-    await typeText(page, editFieldNameFieldWithIndexOneSelector, accountName2)
-
-    // Click on the checkmark icon to save the new account names
-    await clickOnElement(page, btnProceedSeedPhraseWithIndexZeroSelector)
-    await clickOnElement(page, btnProceedSeedPhraseWithIndexOneSelector)
-
-    await wait(1000)
-
-    // Click on "Save and Continue" button
-    await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
-
-    await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
-
-    // Verify that selected accounts exist on the page and contains the new names
-    const selectedBasicAccount = await page.$$eval(SELECTORS.account, (el) => el[0].innerText)
-    expect(selectedBasicAccount).toContain(accountName1)
-
-    const selectedSmartAccount = await page.$$eval(SELECTORS.account, (el) => el[1].innerText)
-
-    expect(selectedBasicAccount).toContain(firstSelectedBasicAccount)
-    expect(selectedBasicAccount).toContain(accountName1)
-    expect(selectedSmartAccount).toContain(firstSelectedSmartAccount)
-    expect(selectedSmartAccount).toContain(accountName2)
+  //--------------------------------------------------------------------------------------------------------------
+  it('should import one Basic Account and one Smart Account from a 24 words seed phrase and personalize them', async () => {
+    await importAccountsFromSeedPhrase(page, extensionURL, SEED_24_WORDS, INVALID_SEEDS_24_WORDS)
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -286,31 +236,6 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should not allow importing an invalid seed phrase', async () => {
-    await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
-
-    const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
-    await page.waitForSelector(firstSeedInputField)
-
-    // Try to login with empty phrase fields
-    await typeSeedAndExpectImportButtonToBeDisabled(page, '')
-
-    expect(INVALID_SEEDS.length).toBe(2)
-
-    // Type seed words from the first incorrect seed
-    await typeSeedAndExpectImportButtonToBeDisabled(page, INVALID_SEEDS[0])
-    // Wait until the error message appears on the page
-    await waitUntilError(page, INVALID_SEED_PHRASE_ERROR_MSG)
-
-    // Clear the passphrase fields before write the new phrase
-    await clearSeedWordsInputs(page, INVALID_SEEDS[0])
-
-    // Type seed words from the second incorrect seed
-    await typeSeedAndExpectImportButtonToBeDisabled(page, INVALID_SEEDS[1])
-    // Wait until the error message appears on the page
-    await waitUntilError(page, INVALID_SEED_PHRASE_ERROR_MSG)
-  })
-  //------------------------------------------------------------------------------------------------------
   it.skip('should not allow importing an invalid private key', async () => {
     await setAmbKeyStore(page, SELECTORS.importPrivateBtn)
 
@@ -326,8 +251,8 @@ describe('auth', () => {
       )
     }
   })
-  //------------------------------------------------------------------------------------------------------
-  it('should create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async () => {
+  //--------------------------------------------------------------------------------------------------------------
+  it.skip('should create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async () => {
     await completeOnboardingSteps(page)
 
     const isOnboardingStateKeyPresent = await checkStorageKeysExist(

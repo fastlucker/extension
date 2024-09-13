@@ -14,9 +14,14 @@ export const URL_GET_STARTED = '/tab.html#/get-started'
 export const URL_ACCOUNT_SELECT = '/tab.html#/account-select'
 
 // INVALID PRIV KEYS, SEEDS, ACCOUNT ADDRESSES
-export const INVALID_SEEDS = [
+export const INVALID_SEEDS_12_WORDS = [
   '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000',
   'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
+]
+
+export const INVALID_SEEDS_24_WORDS = [
+  '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000',
+  'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
 ]
 
 export const INVALID_PRIV_KEYS = [

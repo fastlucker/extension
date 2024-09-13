@@ -296,6 +296,7 @@ const SeedPhraseImportScreen = () => {
               control={control}
               render={({ field: { onChange, value } }) => (
                 <Select
+                  testID="select-seed-phrase-length"
                   setValue={(e) => {
                     updateFieldsLength(e.value as number)
                     onChange(e)

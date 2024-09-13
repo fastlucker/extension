@@ -39,7 +39,9 @@ export const TEST_IDS = {
   personalizeAccount: 'personalize-account',
   pinExtensionCloseBtn: 'pin-extension-close-btn',
   accountSelectBtn: 'account-select-btn',
-  createNewWallet: 'create-new-wallet'
+  createNewWallet: 'create-new-wallet',
+  selectSeedPhraseLength: 'select-seed-phrase-length',
+  option24WordsSeedPhrase: 'option-24-word-seed-phrase'
 }
 
 export const SELECTORS = Object.fromEntries(
