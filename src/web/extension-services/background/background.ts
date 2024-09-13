@@ -16,6 +16,7 @@ import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keys
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -33,7 +34,6 @@ import { handleRegisterScripts } from '@web/extension-services/background/handle
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
-import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
@@ -100,8 +100,6 @@ handleKeepAlive()
 
     await checkE2EStorage()
   }
-
-  await updateHumanizerMetaInStorage(storage)
 
   const backgroundState: {
     isUnlocked: boolean
@@ -559,7 +557,9 @@ handleKeepAlive()
       // Also do not trigger update on every new port but only if there is only one port
       if (
         timeSinceLastUpdate > ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL / 2 &&
-        (pm.ports.length === 1 && port.name === 'popup' ) && !hasBroadcastedButNotConfirmed
+        pm.ports.length === 1 &&
+        port.name === 'popup' &&
+        !hasBroadcastedButNotConfirmed
       ) {
         try {
           await mainCtrl.updateSelectedAccountPortfolio()
@@ -1091,6 +1091,7 @@ handleKeepAlive()
 
   initPortfolioContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+  await clearHumanizerMetaObjectFromStorage(storage)
 })()
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
