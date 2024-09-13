@@ -13,7 +13,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
-const isWebkit = process.env.WEB_ENGINE.startsWith('webkit')
+const isWebkit = process.env.WEB_ENGINE?.startsWith('webkit')
 const isGecko = process.env.WEB_ENGINE === 'gecko'
 const isSafari = process.env.WEB_ENGINE === 'webkit-safari'
 
