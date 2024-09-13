@@ -88,6 +88,23 @@ Browser extension (web app) for gecko browsers (tested on Firefox only)::
 yarn web:gecko
 ```
 
+Browser extension (web app) for the Safari browser (tested on Safari only)::
+
+```bash
+yarn web:safari
+```
+
+Two new folders will be created:
+
+1. /safari-dev (dev build folder)
+2. /ambire-extension-project (Xcode proj)
+   then in the Safari browser:
+3. Developer -> Developer settings...
+4. Check the option - Allow unsigned extensions
+5. Then the extension should be automatically added and pinned in the browser.
+
+NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
+
 ## Translations (Beta)
 
 To scan the project for translation labels and to update translations JSON files, run:
@@ -148,6 +165,17 @@ For gecko browsers (tested on Firefox only):
 ```bash
 yarn build:web:gecko
 ```
+
+For the Safari browser (tested on Safari only):
+
+```bash
+yarn build:web:safari
+```
+
+Two new folders will be created:
+
+1. /safari-prod (prod build folder)
+2. /ambire-extension-project-prod (Xcode proj)
 
 ## Versioning
 
