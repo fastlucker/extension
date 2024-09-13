@@ -10,17 +10,15 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
-import { Storage } from '@ambire-common/interfaces/storage'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import {
   AccountOpIdentifiedBy,
   fetchTxnId,
   isIdentifiedByTxn
 } from '@ambire-common/libs/accountOp/submittedAccountOp'
-import { callsHumanizer } from '@ambire-common/libs/humanizer'
+import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 import {
@@ -29,7 +27,6 @@ import {
 } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
-import { isExtension } from '@web/constants/browserapi'
 
 import { getBenzinUrlParams } from '../../utils/url'
 import { parseLogs } from './utils/parseLogs'
@@ -43,10 +40,8 @@ interface Props {
   relayerId: string | null
   network: Network | null
   standardOptions: {
-    storage: Storage
     fetch: Fetch
     callRelayer: any
-    emitError: (e: ErrorRef) => number
     parser: Function
   }
   setActiveStep: (step: ActiveStepType) => void
@@ -121,7 +116,6 @@ const useSteps = ({
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
-  const [calls, setCalls] = useState<null | IrCall[]>(null)
   const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
   const [foundTxnId, setFoundTxnId] = useState<null | string>(txnId)
@@ -502,9 +496,8 @@ const useSteps = ({
     }
   }, [network, txn, userOpHash, userOp])
 
-  useEffect(() => {
-    if (userOpHash && !userOp) return
-    if (calls) return
+  const calls: IrCall[] | null = useMemo(() => {
+    if (userOpHash && !userOp) return null
 
     if (network && txnReceipt.from && txn) {
       setCost(formatEther(txnReceipt.actualGasCost!.toString()))
@@ -520,19 +513,10 @@ const useSteps = ({
         gasFeePayment: null,
         accountOpToExecuteBefore: null
       }
-      callsHumanizer(
-        accountOp,
-        standardOptions.storage,
-        standardOptions.fetch,
-        (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
-        standardOptions.emitError,
-        { isExtension, noAsyncOperations: true, network }
-      ).catch((e) => {
-        if (!calls) setCalls([])
-        return e
-      })
+      const humanizedCalls = humanizeAccountOp(accountOp, { network })
+      return standardOptions.parser(humanizedCalls)
     }
-  }, [network, txnReceipt, txn, userOpHash, standardOptions, userOp, calls])
+  }, [network, txnReceipt, txn, userOpHash, standardOptions, userOp])
 
   return {
     nativePrice,
