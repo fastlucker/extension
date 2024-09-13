@@ -1,4 +1,5 @@
-import React from 'react'
+import { ethers } from 'ethers'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
@@ -9,15 +10,29 @@ import { SOCKET_API_KEY } from '@env'
 import { Bridge } from '@socket.tech/plugin'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
-import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
+import { ambireProvider } from '@web/extension-services/inpage/ambire-inpage'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useDappsControllerState from '@web/hooks/useDappsControllerState'
 
 const SwapScreen = () => {
   const { theme } = useTheme()
+  const [provider, setProvider] = useState<any | null>(null)
+  const { dispatch } = useBackgroundService()
+  const { state } = useDappsControllerState()
 
+  const chainId = useMemo(() => {
+    const dapp = state.dapps.find((d) => d.url === chrome.runtime.id)
+
+    return dapp?.chainId
+  }, [state.dapps])
   // TODO: The communication mechanism that we use to connect to a dapp won't
   // work out of the box with the Socket Bridge plugin. Need to alter a bit our
   // provider logic a bit.
-  const provider = new EthereumProvider()
+
+  useEffect(() => {
+    window.ambire = ambireProvider
+    setProvider(new ethers.BrowserProvider(window.ambire))
+  }, [])
 
   // TODO: More customization options available, see:
   // https://docs.bungee.exchange/socket-plugin/customisation
@@ -32,6 +47,16 @@ const SwapScreen = () => {
     fontFamily: FONT_FAMILIES.REGULAR
   }
 
+  const handleSourceNetworkChange = useCallback(
+    (network: any) => {
+      dispatch({
+        type: 'DAPP_CONTROLLER_UPDATE_DAPP',
+        params: { url: chrome.runtime.id, dapp: { chainId: network.chainId } }
+      })
+    },
+    [dispatch]
+  )
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -40,8 +65,16 @@ const SwapScreen = () => {
     >
       <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
         <View style={flexbox.alignSelfCenter}>
-          {/* TODO: To be discussed if we can wire us up for all our use cases */}
-          <Bridge customize={customize} provider={provider} API_KEY={SOCKET_API_KEY} />
+          {!!provider && !!chainId && (
+            <Bridge
+              customize={customize}
+              provider={provider}
+              API_KEY={SOCKET_API_KEY}
+              onSourceNetworkChange={handleSourceNetworkChange}
+              singleTxOnly={false}
+              defaultSourceNetwork={chainId}
+            />
+          )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

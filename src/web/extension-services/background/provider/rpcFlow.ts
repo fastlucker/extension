@@ -77,6 +77,17 @@ const flowContext = flow
     } = request
     const providerCtrl = new ProviderController(mainCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
+      if (origin.includes(chrome.runtime.id)) {
+        mainCtrl.dapps.addDapp({
+          name: 'ambire-extension',
+          url: chrome.runtime.id,
+          icon,
+          description: '',
+          favorite: false,
+          chainId: 1,
+          isConnected: true
+        })
+      }
       if (!mainCtrl.dapps.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing connect. Please wait.')
