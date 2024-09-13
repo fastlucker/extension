@@ -117,17 +117,17 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import one Basic Account and one Smart Account from a 12 words seed phrase and personalize them', async () => {
+  it('should import one Basic Account and one Smart Account from a 12 words seed phrase and personalize them', async () => {
     await importAccountsFromSeedPhrase(page, extensionURL, SEED_12_WORDS, INVALID_SEEDS_12_WORDS)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import one Basic Account and one Smart Account from a 24 words seed phrase and personalize them', async () => {
+  it('should import one Basic Account and one Smart Account from a 24 words seed phrase and personalize them', async () => {
     await importAccountsFromSeedPhrase(page, extensionURL, SEED_24_WORDS, INVALID_SEEDS_24_WORDS)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import view-only accounts', async () => {
+  it('should import view-only accounts', async () => {
     const smartAccount = SMART_ACC_VIEW_ONLY_ADDRESS
     const basicAccount = BASIC_ACC_VIEW_ONLY_ADDRESS
 
@@ -171,7 +171,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should import a couple of view-only accounts (at once) and personalize some of them', async () => {
+  it('should import a couple of view-only accounts (at once) and personalize some of them', async () => {
     const smartAccount = SMART_ACC_VIEW_ONLY_ADDRESS
     const basicAccount = BASIC_ACC_VIEW_ONLY_ADDRESS
 
@@ -240,7 +240,7 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('should create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async () => {
+  it('should create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async () => {
     await completeOnboardingSteps(page)
 
     const isOnboardingStateKeyPresent = await checkStorageKeysExist(
