@@ -27,10 +27,11 @@ const ICON_MAP: {
 export interface Props {
   title: string
   type: BannerType
-  text: string
+  text?: string
   children?: React.ReactElement | React.ReactElement[]
   renderButtons?: React.ReactNode | React.ReactNode[]
   CustomIcon?: React.FC<any>
+  style?: ViewStyle
 }
 
 const Button: FC<CommonButtonProps & { isReject?: boolean }> = ({ isReject, style, ...rest }) => {
@@ -58,7 +59,7 @@ const Button: FC<CommonButtonProps & { isReject?: boolean }> = ({ isReject, styl
 
 const { isTab } = getUiType()
 
-const Banner = ({ type, title, text, children, CustomIcon, renderButtons }: Props) => {
+const Banner = ({ type, title, text, children, CustomIcon, renderButtons, style }: Props) => {
   const { styles, theme } = useTheme(getStyles)
 
   const Icon = useMemo(() => {
@@ -68,9 +69,9 @@ const Banner = ({ type, title, text, children, CustomIcon, renderButtons }: Prop
   }, [CustomIcon, type])
 
   return (
-    <View style={[styles.container, { backgroundColor: theme[`${type}Background`] }]}>
+    <View style={[styles.container, { backgroundColor: theme[`${type}Background`] }, style]}>
       <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
-        <View style={[spacings.mrSm]}>
+        <View style={[spacings.mrSm, spacings.mtMi]}>
           <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
         </View>
 
