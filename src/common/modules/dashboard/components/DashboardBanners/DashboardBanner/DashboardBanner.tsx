@@ -3,11 +3,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import CartIcon from '@common/assets/svg/CartIcon'
-import ErrorIcon from '@common/assets/svg/ErrorIcon'
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
-import SuccessIcon from '@common/assets/svg/SuccessIcon'
-import WarningIcon from '@common/assets/svg/WarningIcon'
 import Banner from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
@@ -18,13 +14,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import RPCSelectBottomSheet from './RPCSelectBottomSheet'
 
 const ERROR_ACTIONS = ['reject-accountOp']
-
-const ICON_MAP = {
-  error: ErrorIcon,
-  warning: WarningIcon,
-  success: SuccessIcon,
-  info: InfoIcon
-}
 
 const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions = [] }) => {
   const { dispatch } = useBackgroundService()
@@ -37,8 +26,8 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
     if (category === 'pending-to-be-confirmed-acc-op') return PendingToBeConfirmedIcon
 
-    return ICON_MAP[type]
-  }, [type, category])
+    return null
+  }, [category])
 
   const withRpcUrlSelectBottomSheet = useMemo(
     () => !!actions.filter((a) => a.actionName === 'select-rpc-url').length,

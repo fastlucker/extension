@@ -21,7 +21,8 @@ const ICON_MAP: {
   error: ErrorIcon,
   warning: WarningIcon,
   success: SuccessIcon,
-  info: InfoIcon
+  info: InfoIcon,
+  info2: InfoIcon
 }
 
 export interface Props {
@@ -30,7 +31,7 @@ export interface Props {
   text?: string
   children?: React.ReactElement | React.ReactElement[]
   renderButtons?: React.ReactNode | React.ReactNode[]
-  CustomIcon?: React.FC<any>
+  CustomIcon?: React.FC<any> | null
   style?: ViewStyle
 }
 
@@ -39,7 +40,6 @@ const Button: FC<CommonButtonProps & { isReject?: boolean }> = ({ isReject, styl
 
   return (
     <CommonButton
-      {...rest}
       size="small"
       textUnderline={isReject}
       textStyle={isReject && { color: theme.errorDecorative }}
@@ -53,6 +53,7 @@ const Button: FC<CommonButtonProps & { isReject?: boolean }> = ({ isReject, styl
       hasBottomSpacing={false}
       type={isReject ? 'ghost' : 'primary'}
       submitOnEnter={false}
+      {...rest}
     />
   )
 }

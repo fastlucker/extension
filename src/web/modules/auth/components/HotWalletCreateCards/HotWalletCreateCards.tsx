@@ -39,6 +39,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
         >
           <Alert
             title=""
+            type="info"
             text="If you'd like to show interest in email-recoverable accounts, please vote here."
             style={spacings.mbSm}
           />
@@ -63,7 +64,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
         text={t(
           'If you are looking to import accounts from the web app (Ambire v1), please read this.'
         )}
-        type="info"
+        type="info2"
         renderButtons={
           <Banner.Button
             onPress={() =>
@@ -73,6 +74,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
               )
             }
             text={t('Read more')}
+            type="info2"
           />
         }
         style={{ width: 664 }}
