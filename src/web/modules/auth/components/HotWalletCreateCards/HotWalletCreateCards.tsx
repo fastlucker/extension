@@ -5,8 +5,10 @@ import { View } from 'react-native'
 import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
 import SeedPhraseRecoveryIcon from '@common/assets/svg/SeedPhraseRecoveryIcon'
 import Alert from '@common/components/Alert'
+import Banner from '@common/components/Banner'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
 
@@ -18,6 +20,7 @@ interface Props {
 const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) => {
   const { t } = useTranslation()
   const { hasKeystoreDefaultSeed } = useKeystoreControllerState()
+
   return (
     <View>
       <View style={[flexbox.directionRow, spacings.mbLg]}>
@@ -32,7 +35,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
           icon={EmailRecoveryIcon}
           buttonText={t('Show interest')}
           onPress={handleEmailPress}
-          isDisabled
+          isPartiallyDisabled
         >
           <Alert
             title=""
@@ -55,14 +58,24 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
           isDisabled={!!hasKeystoreDefaultSeed}
         />
       </View>
-      <Alert
+      <Banner
+        title="Ambire v1 accounts"
         text={t(
           'If you are looking to import accounts from the web app (Ambire v1), please read this.'
         )}
+        type="info"
+        renderButtons={
+          <Banner.Button
+            onPress={() =>
+              openInTab(
+                'https://help.ambire.com/hc/en-us/articles/15468208978332-How-to-add-your-v1-account-to-Ambire-Wallet-extension',
+                false
+              )
+            }
+            text={t('Read more')}
+          />
+        }
         style={{ width: 664 }}
-        buttonProps={{
-          text: t('Read more')
-        }}
       />
     </View>
   )

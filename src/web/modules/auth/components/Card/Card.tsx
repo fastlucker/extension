@@ -23,6 +23,7 @@ interface Props {
   onPress?: () => void
   buttonText?: string
   isDisabled?: boolean
+  isPartiallyDisabled?: boolean
   isSecondary?: boolean
   iconProps?: SvgProps
   testID?: string
@@ -38,6 +39,7 @@ const Card: React.FC<Props> = ({
   icon: Icon,
   onPress,
   isDisabled,
+  isPartiallyDisabled,
   buttonText,
   isSecondary = false,
   iconProps = {},
@@ -64,27 +66,17 @@ const Card: React.FC<Props> = ({
           borderWidth: 1
         },
         animStyle,
-        // isDisabled && { opacity: 0.7 },
-        // isDisabled &&
-        //   isWeb && {
-        //     // @ts-ignore cursor only works on web
-        //     cursor: 'not-allowed'
-        //   },
+        isDisabled && { opacity: 0.7 },
+        isDisabled &&
+          isWeb && {
+            // @ts-ignore cursor only works on web
+            cursor: 'not-allowed'
+          },
         style
       ]}
       {...bindAnim}
     >
-      <View
-        style={[
-          flexbox.flex1,
-          isDisabled && { opacity: 0.7 },
-          isDisabled &&
-            isWeb && {
-              // @ts-ignore cursor only works on web
-              cursor: 'not-allowed'
-            }
-        ]}
-      >
+      <View style={[flexbox.flex1, isPartiallyDisabled && { opacity: 0.7 }]}>
         {!!Icon && (
           <View style={styles.iconWrapper}>
             <Icon color={isHovered ? hoveredIconColor : theme.secondaryText} {...iconProps} />
@@ -109,7 +101,7 @@ const Card: React.FC<Props> = ({
       {!!buttonText && (
         <Button
           testID={testID}
-          // disabled={isDisabled}
+          disabled={isDisabled}
           style={{ width: '100%' }}
           text={t(buttonText)}
           type={isSecondary ? 'secondary' : 'primary'}
