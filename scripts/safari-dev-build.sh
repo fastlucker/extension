@@ -1,9 +1,11 @@
 #!/bin/bash
 
-SAFARI_DEV_DIR="/Applications/Ambire/ambire-mobile-wallet/build/safari-dev"
-SAFARI_XCODE_PROJECT="/Applications/Ambire/ambire-mobile-wallet/build/ambire-extension-project"
-INDEX="/Applications/Ambire/ambire-mobile-wallet/build/safari-dev/index.html"
-BACKGROUND="/Applications/Ambire/ambire-mobile-wallet/build/safari-dev/background.js"
+SCRIPTS_DIR="$(dirname "$(realpath "$0")")"
+PROJECT_ROOT="$(cd "$SCRIPTS_DIR"; while [ ! -f "README.md" ] && [ "$PWD" != "/" ]; do cd ..; done; pwd)"
+SAFARI_DEV_DIR="$PROJECT_ROOT/build/safari-dev"
+SAFARI_XCODE_PROJECT="$PROJECT_ROOT/build/ambire-extension-project"
+INDEX="$PROJECT_ROOT/build/safari-dev/index.html"
+BACKGROUND="$PROJECT_ROOT/build/safari-dev/background.js"
 EXPO_DEV_PORT=19000
 
 
@@ -29,17 +31,17 @@ done
 if [ -d "$SAFARI_DEV_DIR" ] && [ -f "$INDEX" ] && [ -f "$BACKGROUND" ]; then
   sleep 5
 
-  yes | xcrun -v "/Applications/Xcode.app/Contents/Developer/usr/bin/safari-web-extension-converter" "/Applications/Ambire/ambire-mobile-wallet/build/safari-dev" --app-name ambire-extension-project --project-location /Applications/Ambire/ambire-mobile-wallet/build --swift --force --no-prompt --no-open --macos-only
+  yes | xcrun -v "/Applications/Xcode.app/Contents/Developer/usr/bin/safari-web-extension-converter" "$PROJECT_ROOT/build/safari-dev" --app-name ambire-extension-project --project-location $PROJECT_ROOT/build --swift --force --no-prompt --no-open --macos-only
 
   while [ ! -d "$SAFARI_XCODE_PROJECT/ambire-extension-project.xcodeproj" ]; do
     echo "Waiting for Xcode project creation to complete..."
     sleep 5
   done
 
-  xcodebuild -project "/Applications/Ambire/ambire-mobile-wallet/build/ambire-extension-project/ambire-extension-project.xcodeproj" -configuration Debug build
-  fswatch -o /Applications/Ambire/ambire-mobile-wallet/build/safari-dev | while read; do
+  xcodebuild -project "$PROJECT_ROOT/build/ambire-extension-project/ambire-extension-project.xcodeproj" -configuration Debug build
+  fswatch -o $PROJECT_ROOT/build/safari-dev | while read; do
     echo "Changes detected. Rebuilding Xcode project..."
-    xcodebuild -project "/Applications/Ambire/ambire-mobile-wallet/build/ambire-extension-project/ambire-extension-project.xcodeproj" -configuration Debug build
+    xcodebuild -project "$PROJECT_ROOT/build/ambire-extension-project/ambire-extension-project.xcodeproj" -configuration Debug build
   done
 fi
 
