@@ -513,8 +513,8 @@ const useSteps = ({
         gasFeePayment: null,
         accountOpToExecuteBefore: null
       }
-      const irCalls = humanizeAccountOp(accountOp, { network })
-      return standardOptions.parser(irCalls)
+      const humanizedCalls = humanizeAccountOp(accountOp, { network })
+      return standardOptions.parser(humanizedCalls)
     }
   }, [network, txnReceipt, txn, userOpHash, standardOptions, userOp])
 
