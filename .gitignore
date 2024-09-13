@@ -489,24 +489,8 @@ android/keystores/*
 # EAS build credentials
 credentials.json
 
-# Extension(web) build output folders for webkit browsers
-/webkit-dev
-/webkit-prod
-
-# Extension(web) build output folders for the Safari browser
-/safari-dev
-/safari-prod
-/ambire-extension-project
-/ambire-extension-project-prod
-
-
-# Extension(web) build output folders for gecko browsers
-/gecko-dev
-/gecko-prod
-
-# Benzin(web) build output folders
-/benzin-dev
-/benzin-prod
+# All build output folders
+/build
 
 # Mobile injection provider
 /ios/EthereumProvider.js

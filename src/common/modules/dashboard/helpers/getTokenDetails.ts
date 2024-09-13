@@ -2,9 +2,9 @@ import { formatUnits } from 'ethers'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { FormattedPendingAmounts, PendingAmounts } from '@ambire-common/libs/portfolio/interfaces'
 import { calculatePendingAmounts } from '@ambire-common/libs/portfolio/pendingAmountsHelper'
-import { PendingAmounts, FormattedPendingAmounts } from '@ambire-common/libs/portfolio/interfaces'
-
+import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
 import formatDecimals from '@common/utils/formatDecimals'
 
 const formatPendingAmounts = (
@@ -14,16 +14,19 @@ const formatPendingAmounts = (
 ): FormattedPendingAmounts | null => {
   if (!pendingAmounts) return null
 
-  const pendingBalance = parseFloat(formatUnits(pendingAmounts.pendingBalance, decimals))
-  const pendingBalanceUSD = priceUSD && pendingBalance ? pendingBalance * priceUSD : undefined
-
+  const pendingBalance = formatUnits(pendingAmounts.pendingBalance, decimals)
+  const pendingBalanceUSD =
+    priceUSD && pendingAmounts.pendingBalance
+      ? safeTokenAmountAndNumberMultiplication(pendingAmounts.pendingBalance, decimals, priceUSD)
+      : undefined
   const formattedAmounts: FormattedPendingAmounts = {
     ...pendingAmounts,
-    pendingBalanceFormatted: formatDecimals(pendingBalance, 'amount')
+    pendingBalance,
+    pendingBalanceFormatted: formatDecimals(Number(pendingBalance), 'amount')
   }
 
   if (pendingBalanceUSD) {
-    formattedAmounts.pendingBalanceUSDFormatted = formatDecimals(pendingBalanceUSD, 'value')
+    formattedAmounts.pendingBalanceUSDFormatted = formatDecimals(Number(pendingBalanceUSD), 'value')
   }
 
   if (pendingAmounts.pendingToBeSigned) {
@@ -74,7 +77,9 @@ const getTokenDetails = (
   const priceUSD = priceIn.find(
     ({ baseCurrency }: { baseCurrency: string }) => baseCurrency.toLowerCase() === 'usd'
   )?.price
-  const balanceUSD = priceUSD ? balance * priceUSD : undefined
+  const balanceUSD = priceUSD
+    ? Number(safeTokenAmountAndNumberMultiplication(amountish, decimals, priceUSD))
+    : undefined
 
   const pendingAmountsFormatted = formatPendingAmounts(
     tokenAmounts?.address
@@ -91,6 +96,9 @@ const getTokenDetails = (
     priceUSD!
   )
 
+  // 1. This function will be moved to portfolioView.
+  // 2. balance, priceUSD and balanceUSD are numbers while values in pendingAmountsFormatted
+  // are strings. Please decide on the type of the values when refactoring.
   return {
     balance,
     balanceFormatted: formatDecimals(balance, 'amount'),

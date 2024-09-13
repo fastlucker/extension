@@ -546,6 +546,29 @@ handleKeepAlive()
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
+      const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
+
+      const timeSinceLastUpdate =
+        Date.now() - (backgroundState.portfolioLastUpdatedByIntervalAt || 0)
+
+      // Call portfolio update if the extension is inactive and 30 seconds have passed since the last update
+      // in order to have the latest data when the user opens the extension
+      // otherwise, the portfolio will be updated by the interval after 1 minute
+      // and there is no broadcasted but not confirmed acc op, due to the fact that this will cost it being
+      // removed from the UI and we will lose the simulation
+      // Also do not trigger update on every new port but only if there is only one port
+      if (
+        timeSinceLastUpdate > ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL / 2 &&
+        (pm.ports.length === 1 && port.name === 'popup' ) && !hasBroadcastedButNotConfirmed
+      ) {
+        try {
+          await mainCtrl.updateSelectedAccountPortfolio()
+          backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
+        } catch (error) {
+          console.error('Error during immediate portfolio update:', error)
+        }
+      }
+
       initPortfolioContinuousUpdate()
 
       // @ts-ignore
@@ -647,7 +670,7 @@ handleKeepAlive()
                 return mainCtrl.accountAdder.selectAccount(params.account)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
-                return await mainCtrl.accountAdder.deselectAccount(params.account)
+                return mainCtrl.accountAdder.deselectAccount(params.account)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED': {
                 if (mainCtrl.accountAdder.isInitialized) {
@@ -658,7 +681,7 @@ handleKeepAlive()
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
                 return await mainCtrl.accountAdder.setPage(params)
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
-                return mainCtrl.accountAdder.setHDPathTemplate(params)
+                return await mainCtrl.accountAdder.setHDPathTemplate(params)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
                 const readyToAddKeys: ReadyToAddKeys = {

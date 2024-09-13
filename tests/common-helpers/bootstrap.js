@@ -3,7 +3,7 @@ import { serviceWorkerLogger } from './serviceWorkerLogger'
 
 const puppeteer = require('puppeteer')
 
-const buildPath = process.env.WEBPACK_BUILD_OUTPUT_PATH || 'webkit-prod'
+const buildPath = `build/${process.env.WEBPACK_BUILD_OUTPUT_PATH || 'webkit-prod'}`
 
 const puppeteerArgs = [
   `--disable-extensions-except=${__dirname}/../../${buildPath}/`,

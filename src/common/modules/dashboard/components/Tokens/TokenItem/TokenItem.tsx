@@ -12,6 +12,7 @@ import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
@@ -19,11 +20,12 @@ import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
 
 import TokenDetails from '../TokenDetails'
 import PendingBadge from './PendingBadge'
@@ -62,6 +64,7 @@ const TokenItem = ({
       to: theme.secondaryBackground
     }
   })
+  const tokenId = getTokenId(token)
 
   const account = useMemo(
     () => accounts.find((acc) => acc.addr === selectedAccount),
@@ -166,9 +169,17 @@ const TokenItem = ({
                     fontSize={16}
                     weight="number_bold"
                     numberOfLines={1}
+                    // @ts-ignore
+                    dataSet={{
+                      tooltipId: `${tokenId}-balance`
+                    }}
                   >
                     {isPending ? pendingBalanceFormatted : balanceFormatted} {symbol}{' '}
                   </Text>
+                  <Tooltip
+                    content={String(isPending ? pendingBalance : balance)}
+                    id={`${tokenId}-balance`}
+                  />
                   <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
                     <Text weight="regular" shouldScale={false} fontSize={12}>
                       {isRewards && t('Claimable rewards')}
