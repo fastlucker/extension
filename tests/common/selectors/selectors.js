@@ -8,6 +8,7 @@ export const TEST_IDS = {
   enterSeedPhraseField: 'enter-seed-phrase-field',
   buttonProceedSeedPhrase: 'button-proceed-seed-phrase',
   doNotSaveSeedBtn: 'do-not-save-seed-button',
+  saveAsDefaultSeedBtn: 'save-seed-button',
   getStartedBtnImport: 'get-started-button-import',
   enterPassField: 'enter-pass-field',
   repeatPassField: 'repeat-pass-field',
@@ -41,7 +42,12 @@ export const TEST_IDS = {
   accountSelectBtn: 'account-select-btn',
   createNewWallet: 'create-new-wallet',
   selectSeedPhraseLength: 'select-seed-phrase-length',
-  option24WordsSeedPhrase: 'option-24-word-seed-phrase'
+  option24WordsSeedPhrase: 'option-24-word-seed-phrase',
+  selectChangeHdPath: 'select-change-hd-path',
+  optionBip44LedgerLive: 'option-bip44-ledger-live',
+  importExistingWallet: 'import-existing-wallet',
+  useDefaultSeedBtn: 'use-default-seed-btn',
+  optionLegacyLedgerMyEtherWalletMyCrypto: 'option-legacy-ledger-myetherwallet-mycrypto'
 }
 
 export const SELECTORS = Object.fromEntries(

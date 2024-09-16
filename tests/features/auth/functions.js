@@ -6,6 +6,11 @@ import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExis
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { URL_ACCOUNT_SELECT, TEST_ACCOUNT_NAMES, INVALID_SEED_PHRASE_ERROR_MSG } from './constants'
 
+/* eslint-disable no-promise-executor-return */
+export async function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export async function checkAccountDetails(
   page,
   selector,
@@ -39,6 +44,7 @@ export async function finishStoriesAndSelectAccount(
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector(SELECTORS.checkbox)
 
+  await wait(3000)
   // Select one Legacy account and one Smart account
   const firstSelectedBasicAccount = await page.$$eval(
     SELECTORS.addAccount,
@@ -120,11 +126,6 @@ export async function typeSeedAndExpectImportButtonToBeDisabled(page, seedWords)
 
 export function buildSelectorsForDynamicTestId(testId, arrayOfIndexes) {
   return arrayOfIndexes.map((_, index) => buildSelector(testId, index))
-}
-
-/* eslint-disable no-promise-executor-return */
-export async function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export async function checkTextAreaHasValidInputByGivenText(
@@ -376,7 +377,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   // so that the modal appears
   await wait(500)
 
-  await clickOnElement(page, SELECTORS.doNotSaveSeedBtn)
+  await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
 
   // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
   const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
@@ -411,4 +412,32 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
     [accountName1, accountName2],
     [firstSelectedBasicAccount, firstSelectedSmartAccount]
   )
+}
+
+export async function selectHdPathAndAddAccount(page, hdPAthSelector) {
+  await clickOnElement(page, SELECTORS.selectChangeHdPath)
+  // Select different HD path
+  await clickOnElement(page, hdPAthSelector)
+
+  await wait(2000)
+
+  await page.waitForSelector(SELECTORS.addAccount, { visible: true })
+
+  const accountsData = await page.evaluate((selector) => {
+    return Array.from(document.querySelectorAll(selector)).map((element) => element.textContent)
+  }, SELECTORS.addAccount)
+
+  expect(accountsData.length).toBeGreaterThan(0)
+
+  // Click on the first account from the list
+  await page.$eval(SELECTORS.addAccount, (element) => {
+    element.click()
+    return element.textContent
+  })
+
+  // Click on "Import account" button
+  await clickOnElement(page, SELECTORS.buttonImportAccount)
+
+  // Click on "Save and Continue" button
+  await clickOnElement(page, SELECTORS.saveAndContinueBtn)
 }

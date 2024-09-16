@@ -30,7 +30,9 @@ import {
   importNewSAFromDefaultSeedAndPersonalizeIt,
   personalizeAccountName,
   createHotWalletWithSeedPhrase,
-  checkAccountDetails
+  checkAccountDetails,
+  typeSeedWords,
+  selectHdPathAndAddAccount
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { baPrivateKey, SEED_12_WORDS, SEED_24_WORDS } from '../../config/constants'
@@ -279,5 +281,61 @@ describe('auth', () => {
 
     // Checks if exact 3 accounts have been added
     expect(parsedImportedAccounts.length).toBe(3)
+  })
+  //--------------------------------------------------------------------------------------------------------------
+  it('should importing account from different HD paths', async () => {
+    await setAmbKeyStore(page, SELECTORS.buttonProceedSeedPhrase)
+
+    const firstSeedInputField = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, 1)
+    await page.waitForSelector(firstSeedInputField)
+
+    await typeSeedWords(page, SEED_12_WORDS)
+
+    // Click on Import button.
+    await clickOnElement(page, SELECTORS.importBtn)
+
+    // so that the modal appears
+    await wait(500)
+
+    await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
+
+    await page.waitForFunction(() => window.location.href.includes('/account-adder'))
+    // Do the onboarding
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
+
+    // Select BIP 44 Ledger Live and select import account
+    await selectHdPathAndAddAccount(page, SELECTORS.optionBip44LedgerLive)
+
+    await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
+
+    // Click on account select button
+    await clickOnElement(page, SELECTORS.accountSelectBtn)
+
+    // Wait for dashboard screen to be loaded
+    await page.waitForFunction(() => window.location.href.includes('/account-select'))
+    // Click on "Add Account"
+    await clickOnElement(page, SELECTORS.buttonAddAccount)
+
+    await wait(1000)
+    // Click on "Import an existing hot wallet"
+    await clickOnElement(page, SELECTORS.importExistingWallet)
+
+    // Wait for "Seed phrase proceed"
+    await page.waitForSelector(SELECTORS.buttonProceedSeedPhrase, {
+      visible: true
+    })
+
+    // Click on "Seed phrase proceed"
+    await clickOnElement(page, SELECTORS.buttonProceedSeedPhrase)
+
+    await wait(1000)
+
+    // Click on"Use default seed"
+    await clickOnElement(page, SELECTORS.useDefaultSeedBtn)
+
+    await wait(2000)
+    // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
+    await selectHdPathAndAddAccount(page, SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto)
   })
 })

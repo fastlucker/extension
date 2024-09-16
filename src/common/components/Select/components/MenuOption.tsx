@@ -9,6 +9,16 @@ import flexbox from '@common/styles/utils/flexbox'
 import getStyles from '../styles'
 import { SelectValue } from '../types'
 
+const formatOptionString = (optionString: string): string => {
+  const formattedString = optionString
+    .toLowerCase()
+    .replace(/[()]/g, '')
+    .replace(/\s*,\s*/g, '-')
+    .replace(/\s+/g, '-')
+
+  return formattedString
+}
+
 const Option = React.memo(({ item }: { item: SelectValue }) => {
   const { styles } = useTheme(getStyles)
 
@@ -16,9 +26,9 @@ const Option = React.memo(({ item }: { item: SelectValue }) => {
   // Otherwise, default to 'undefined', and letting Puppeteer to assert using alternative selectors.
   const testID = `option-${
     typeof item.label === 'string'
-      ? item.label.toLowerCase().replace(/\s+/g, '-')
+      ? formatOptionString(item.label)
       : typeof item.value === 'string'
-      ? item.value.toLowerCase().replace(/\s+/g, '-')
+      ? formatOptionString(item.value)
       : undefined
   }`
 
