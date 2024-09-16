@@ -100,7 +100,7 @@ Two new folders will be created:
 2. /ambire-extension-project (Xcode proj)
    then in the Safari browser:
 3. Developer -> Developer settings...
-4. Check the option - Allow unsigned extensions
+4. Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
 5. Then the extension should be automatically added and pinned in the browser.
 
 NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
