@@ -101,110 +101,89 @@ const DevicePasswordChangeSettingsScreen = () => {
 
   return (
     <>
-      <View style={[flexbox.directionRow, flexbox.flex1]}>
-        <View style={{ flex: 1.5 }}>
-          <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
-            {t('Change Device Password')}
-          </Text>
-          <Controller
-            control={control}
-            rules={{ validate: isValidPassword }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <InputPassword
-                testID="enter-current-pass-field"
-                onBlur={onBlur}
-                placeholder={t('Enter current password')}
-                onChangeText={onChange}
-                isValid={isValidPassword(value)}
-                value={value}
-                error={
-                  errors.password &&
-                  (errors.password.message ||
-                    t('Please fill in at least 8 characters for password.'))
-                }
-                containerStyle={[spacings.mbTy]}
-                onSubmitEditing={handleChangeKeystorePassword}
-              />
-            )}
-            name="password"
-          />
-          <Controller
-            control={control}
-            rules={{ validate: isValidPassword }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <InputPassword
-                testID="enter-new-pass-field"
-                onBlur={onBlur}
-                placeholder={t('Enter new password')}
-                onChangeText={onChange}
-                isValid={isValidPassword(value)}
-                value={value}
-                error={
-                  errors.newPassword &&
-                  (t('Please fill in at least 8 characters for password.') as string)
-                }
-                containerStyle={[spacings.mbTy]}
-                onSubmitEditing={handleChangeKeystorePassword}
-              />
-            )}
-            name="newPassword"
-          />
-          <Controller
-            control={control}
-            rules={{
-              validate: (value) => newPassword === value
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                testID="repeat-new-pass-field"
-                onBlur={onBlur}
-                placeholder={t('Repeat new password')}
-                onChangeText={onChange}
-                value={value}
-                isValid={!!value && !errors.newPassword && newPassword === value}
-                validLabel={t('✅ The new passwords match, you are ready to continue')}
-                secureTextEntry
-                error={errors.confirmNewPassword && (t("The new passwords don't match.") as string)}
-                autoCorrect={false}
-                containerStyle={[spacings.mbXl]}
-                onSubmitEditing={handleChangeKeystorePassword}
-              />
-            )}
-            name="confirmNewPassword"
-          />
-          <Button
-            testID="change-device-pass-button"
-            style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
-            textStyle={{ fontSize: 14 }}
-            hasBottomSpacing={false}
-            // !== 'INITIAL' to prevent calling same func while the prev execution of that func sends it's status to the FE
-            disabled={state.statuses.changeKeystorePassword !== 'INITIAL' || !isValid}
-            text={
-              state.statuses.changeKeystorePassword === 'LOADING'
-                ? t('Loading...')
-                : t('Change Device Password')
-            }
-            onPress={handleChangeKeystorePassword}
-          />
-        </View>
-        <View
-          style={[
-            { flex: 1 },
-            maxWidthSize('xl') ? spacings.pl3Xl : spacings.plXl,
-            maxWidthSize('xl') ? spacings.ml3Xl : spacings.mlXl,
-            { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
-          ]}
-        >
-          <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
-            {t('Auto Lock Device')}
-          </Text>
-          <AutoLockOption time={AUTO_LOCK_TIMES.never} />
-          <AutoLockOption time={AUTO_LOCK_TIMES._7days} />
-          <AutoLockOption time={AUTO_LOCK_TIMES._1day} />
-          <AutoLockOption time={AUTO_LOCK_TIMES._8hours} />
-          <AutoLockOption time={AUTO_LOCK_TIMES._1hour} />
-          <AutoLockOption time={AUTO_LOCK_TIMES._10minutes} />
-        </View>
+      <View style={{ maxWidth: 440 }}>
+        <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
+          {t('Change Device Password')}
+        </Text>
+        <Controller
+          control={control}
+          rules={{ validate: isValidPassword }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <InputPassword
+              testID="enter-current-pass-field"
+              onBlur={onBlur}
+              placeholder={t('Enter current password')}
+              onChangeText={onChange}
+              isValid={isValidPassword(value)}
+              value={value}
+              error={
+                errors.password &&
+                (errors.password.message || t('Please fill in at least 8 characters for password.'))
+              }
+              containerStyle={[spacings.mbTy]}
+              onSubmitEditing={handleChangeKeystorePassword}
+            />
+          )}
+          name="password"
+        />
+        <Controller
+          control={control}
+          rules={{ validate: isValidPassword }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <InputPassword
+              testID="enter-new-pass-field"
+              onBlur={onBlur}
+              placeholder={t('Enter new password')}
+              onChangeText={onChange}
+              isValid={isValidPassword(value)}
+              value={value}
+              error={
+                errors.newPassword &&
+                (t('Please fill in at least 8 characters for password.') as string)
+              }
+              containerStyle={[spacings.mbTy]}
+              onSubmitEditing={handleChangeKeystorePassword}
+            />
+          )}
+          name="newPassword"
+        />
+        <Controller
+          control={control}
+          rules={{
+            validate: (value) => newPassword === value
+          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              testID="repeat-new-pass-field"
+              onBlur={onBlur}
+              placeholder={t('Repeat new password')}
+              onChangeText={onChange}
+              value={value}
+              isValid={!!value && !errors.newPassword && newPassword === value}
+              validLabel={t('✅ The new passwords match, you are ready to continue')}
+              secureTextEntry
+              error={errors.confirmNewPassword && (t("The new passwords don't match.") as string)}
+              autoCorrect={false}
+              containerStyle={[spacings.mbXl]}
+              onSubmitEditing={handleChangeKeystorePassword}
+            />
+          )}
+          name="confirmNewPassword"
+        />
+        <Button
+          testID="change-device-pass-button"
+          style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
+          textStyle={{ fontSize: 14 }}
+          hasBottomSpacing={false}
+          // !== 'INITIAL' to prevent calling same func while the prev execution of that func sends it's status to the FE
+          disabled={state.statuses.changeKeystorePassword !== 'INITIAL' || !isValid}
+          text={
+            state.statuses.changeKeystorePassword === 'LOADING'
+              ? t('Loading...')
+              : t('Change Device Password')
+          }
+          onPress={handleChangeKeystorePassword}
+        />
       </View>
       <BottomSheet
         id="device-password-success-modal"

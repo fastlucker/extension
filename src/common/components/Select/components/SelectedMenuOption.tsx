@@ -15,7 +15,7 @@ import { Option } from './MenuOption'
 
 type SelectedMenuOptionProps = Pick<
   SelectProps,
-  'disabled' | 'value' | 'placeholder' | 'selectStyle'
+  'disabled' | 'value' | 'placeholder' | 'selectStyle' | 'size'
 > & {
   isMenuOpen: boolean
   selectRef: React.RefObject<View>
@@ -29,7 +29,8 @@ const SelectedMenuOption: FC<SelectedMenuOptionProps> = ({
   toggleMenu,
   value,
   placeholder,
-  selectStyle
+  selectStyle,
+  size
 }) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -48,6 +49,7 @@ const SelectedMenuOption: FC<SelectedMenuOptionProps> = ({
         ref={selectRef}
         style={[
           styles.select,
+          size && styles[`${size}Select`],
           { borderColor: isMenuOpen ? theme.primary : theme.secondaryBorder },
           selectStyle
         ]}
