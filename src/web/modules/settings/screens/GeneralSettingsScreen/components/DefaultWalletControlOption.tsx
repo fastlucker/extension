@@ -28,7 +28,9 @@ const DefaultWalletControlOption = () => {
     <ControlOption
       style={spacings.mbTy}
       title={t('Default wallet')}
-      description={t('Set a timer, after which the Ambire Wallet will be automatically locked.')}
+      description={t(
+        'Ambire Wallet is set as your default browser wallet for connecting with dApps.'
+      )}
       renderIcon={<DefaultWalletIcon color={theme.primaryText} />}
     >
       <DefaultWalletToggle isOn={isDefaultWallet} onToggle={toggleIsDefaultWallet} />
