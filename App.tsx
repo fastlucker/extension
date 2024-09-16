@@ -19,9 +19,7 @@ const SUPPRESSED_WARNINGS = [
   // 2 <Routes > components are rendered in the tree at the same time to allow for lazy loading.
   'No routes matched location',
   'setNativeProps is deprecated. Please update props using React state instead.',
-  'Animated: `useNativeDriver` is not supported because the native animated module is missing. Falling back to JS-based animation.',
-  // False positive in accountAdderIntroStepsContext
-  'Warning: useLayoutEffect does nothing on the server'
+  'Animated: `useNativeDriver` is not supported because the native animated module is missing. Falling back to JS-based animation.'
 ]
 
 console.warn = function filterWarnings(msg, ...args) {

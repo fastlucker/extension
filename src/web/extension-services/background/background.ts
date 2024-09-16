@@ -16,6 +16,7 @@ import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keys
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -31,7 +32,6 @@ import { WalletStateController } from '@web/extension-services/background/contro
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
-import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
@@ -111,8 +111,6 @@ handleRegisterScripts()
   // miliseconds. This keeps the service worker alive.
   const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
   setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
-
-  await updateHumanizerMetaInStorage(storage)
 
   const backgroundState: {
     isUnlocked: boolean
@@ -557,6 +555,29 @@ handleRegisterScripts()
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
+      const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
+
+      const timeSinceLastUpdate =
+        Date.now() - (backgroundState.portfolioLastUpdatedByIntervalAt || 0)
+
+      // Call portfolio update if the extension is inactive and 30 seconds have passed since the last update
+      // in order to have the latest data when the user opens the extension
+      // otherwise, the portfolio will be updated by the interval after 1 minute
+      // and there is no broadcasted but not confirmed acc op, due to the fact that this will cost it being
+      // removed from the UI and we will lose the simulation
+      // Also do not trigger update on every new port but only if there is only one port
+      if (
+        timeSinceLastUpdate > ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL / 2 &&
+        (pm.ports.length === 1 && port.name === 'popup' ) && !hasBroadcastedButNotConfirmed
+      ) {
+        try {
+          await mainCtrl.updateSelectedAccountPortfolio()
+          backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
+        } catch (error) {
+          console.error('Error during immediate portfolio update:', error)
+        }
+      }
+
       initPortfolioContinuousUpdate()
 
       // @ts-ignore
@@ -658,7 +679,7 @@ handleRegisterScripts()
                 return mainCtrl.accountAdder.selectAccount(params.account)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
-                return await mainCtrl.accountAdder.deselectAccount(params.account)
+                return mainCtrl.accountAdder.deselectAccount(params.account)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED': {
                 if (mainCtrl.accountAdder.isInitialized) {
@@ -669,7 +690,7 @@ handleRegisterScripts()
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
                 return await mainCtrl.accountAdder.setPage(params)
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
-                return mainCtrl.accountAdder.setHDPathTemplate(params)
+                return await mainCtrl.accountAdder.setHDPathTemplate(params)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
                 const readyToAddKeys: ReadyToAddKeys = {
@@ -1079,6 +1100,7 @@ handleRegisterScripts()
 
   initPortfolioContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+  await clearHumanizerMetaObjectFromStorage(storage)
 })()
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
