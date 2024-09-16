@@ -1,8 +1,11 @@
 import React from 'react'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import formatDecimals from '@common/utils/formatDecimals'
 
 const Balance = () => {
   const { accountPortfolio } = usePortfolioControllerState()
+
+  const balance = formatDecimals(accountPortfolio.totalAmount, 'price')
 
   // There is no connected account
   if (!accountPortfolio.address) return <div />
@@ -13,8 +16,7 @@ const Balance = () => {
         <strong>Address</strong>: {accountPortfolio.address}
       </div>
       <div style={{ display: 'flex' }}>
-        <strong>Balance</strong>:{' '}
-        {accountPortfolio.isAllReady ? `$ ${accountPortfolio.totalAmount}` : 'Loading ...'}
+        <strong>Balance</strong>: {accountPortfolio.isAllReady ? `${balance}` : 'Loading ...'}
       </div>
     </div>
   )
