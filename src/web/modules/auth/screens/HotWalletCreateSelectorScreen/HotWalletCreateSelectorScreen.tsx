@@ -26,13 +26,13 @@ const HotWalletCreateSelectorScreen = () => {
   const { isReadyToStoreKeys } = useKeystoreControllerState()
 
   const onOptionPress = async (flow: 'email' | 'create-seed') => {
-    if (!isReadyToStoreKeys) {
-      navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
-      return
-    }
     if (flow === 'email') {
       await showEmailVaultInterest(accounts.length, addToast)
       // @TODO: Implement email vault
+      return
+    }
+    if (!isReadyToStoreKeys) {
+      navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
       return
     }
     if (flow === 'create-seed') {

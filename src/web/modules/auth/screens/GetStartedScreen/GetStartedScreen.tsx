@@ -102,12 +102,12 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.importHotWallet)
         return
       }
-      if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
-        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
-        return
-      }
       if (flow === 'email') {
         await showEmailVaultInterest(accounts.length, addToast)
+        return
+      }
+      if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
+        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
         return
       }
       if (flow === 'hw') {
