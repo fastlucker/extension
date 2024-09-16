@@ -15,6 +15,8 @@ import { AccountsController } from '@ambire-common/controllers/accounts/accounts
 import { RELAYER_URL, VELCRO_URL } from '@env'
 import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 
+// Both interfaces have been copied and slightly modified.
+// We'll see how the Legends feature evolves and decide how to reuse them.
 export interface AccountPortfolio {
   address: string | null
   tokens: TokenResultInterface[]
@@ -109,8 +111,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     await portfolioController.updateSelectedAccount(address, undefined, undefined, {
       forceUpdate: true
     })
-
-    console.log({ portfolioController })
 
     const newAccountPortfolio = calculateAccountPortfolio(
       address,
