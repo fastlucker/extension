@@ -34,11 +34,13 @@ export type SelectedCollectible = {
 const CollectibleModal = ({
   handleClose,
   modalRef,
-  selectedCollectible
+  selectedCollectible,
+  hideSendNft
 }: {
   handleClose: () => void
   modalRef: any
   selectedCollectible: SelectedCollectible
+  hideSendNft?: boolean
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -109,7 +111,7 @@ const CollectibleModal = ({
           style={[
             spacings.phSm,
             spacings.pvSm,
-            spacings.mbSm,
+            !hideSendNft && spacings.mbSm,
             {
               borderRadius: BORDER_RADIUS_PRIMARY,
               backgroundColor: theme.secondaryBackground,
@@ -122,17 +124,25 @@ const CollectibleModal = ({
           <Row title={t('Last Price')} text={lastPrice || '$-'} noMb />
         </View>
         {/* @TODO: Implement NFT transfer */}
-        <Button
-          disabled
-          childrenPosition="right"
-          text="Send"
-          style={{ width: '100%', ...spacings.mb0 }}
-        >
-          <SendIcon style={spacings.mlTy} color={theme.primaryBackground} width={26} height={26} />
-        </Button>
+        {!hideSendNft && (
+          <Button
+            disabled
+            childrenPosition="right"
+            text="Send"
+            style={{ width: '100%', ...spacings.mb0 }}
+          >
+            <SendIcon
+              style={spacings.mlTy}
+              color={theme.primaryBackground}
+              width={26}
+              height={26}
+            />
+          </Button>
+        )}
       </>
     )
   }, [
+    hideSendNft,
     networks,
     selectedCollectible,
     styles.image,

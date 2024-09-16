@@ -158,8 +158,7 @@ module.exports = async function (env, argv) {
 
   config.output = {
     // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod, /benzin-dev, /benzin-prod, /legends-dev, /legends-prod
-    // @TODO: Add build/ prefix before WEBPACK_BUILD_OUTPUT_PATH
-    path: path.resolve(__dirname, `${process.env.WEBPACK_BUILD_OUTPUT_PATH}`),
+    path: path.resolve(__dirname, `build/${process.env.WEBPACK_BUILD_OUTPUT_PATH}`),
     // Defaults to using 'auto', but this is causing problems in some environments
     // like in certain browsers, when building (and running) in extension context.
     publicPath: ''

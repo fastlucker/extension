@@ -6,6 +6,8 @@ import { useModalize } from 'react-native-modalize'
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
@@ -177,6 +179,12 @@ const SignAccountOpScreen = () => {
   const handleAddToCart = useCallback(() => {
     window.close()
   }, [])
+
+  const humanizedCalls: IrCall[] | null = useMemo(
+    () =>
+      signAccountOpState?.accountOp ? humanizeAccountOp(signAccountOpState.accountOp, {}) : null,
+    [signAccountOpState?.accountOp]
+  )
 
   useEffect(() => {
     const destroy = () => {
@@ -398,12 +406,7 @@ const SignAccountOpScreen = () => {
                 network={network}
                 isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
               />
-              <PendingTransactions
-                callsToVisualize={
-                  signAccountOpState?.humanReadable || signAccountOpState?.accountOp?.calls || []
-                }
-                network={network}
-              />
+              <PendingTransactions callsToVisualize={humanizedCalls || []} network={network} />
             </View>
             <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
             <Estimation

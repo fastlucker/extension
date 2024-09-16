@@ -3,7 +3,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { AccountOpIdentifiedBy } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
@@ -13,12 +12,11 @@ import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import { RELAYER_URL } from '@env'
-import { storage } from '@web/extension-services/background/webapi/storage'
 
 import useBenzinGetNetwork from './useBenzinGetNetwork'
 import useBenzinGetProvider from './useBenzinGetProvider'
 
-const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
+const parseHumanizer = (humanizedCalls: IrCall[]) => {
   // remove deadlines from humanizer
   const finalParsedCalls = humanizedCalls.map((call) => {
     const localCall = { ...call }
@@ -28,16 +26,12 @@ const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
     localCall.warnings = call.warnings?.filter((warn) => warn.content !== 'Unknown address')
     return localCall
   })
-  setCalls(finalParsedCalls)
+  return finalParsedCalls
 }
-const emittedErrors: ErrorRef[] = []
-const mockEmitError = (e: ErrorRef) => emittedErrors.push(e)
 const fetch = window.fetch.bind(window) as any
 const standardOptions = {
   fetch,
   callRelayer: relayerCall.bind({ url: RELAYER_URL, fetch }),
-  emitError: mockEmitError,
-  storage,
   parser: parseHumanizer
 }
 
