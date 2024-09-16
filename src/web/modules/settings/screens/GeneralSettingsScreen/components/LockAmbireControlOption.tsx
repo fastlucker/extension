@@ -27,7 +27,9 @@ const LockAmbireControlOption = () => {
     <ControlOption
       style={spacings.mbTy}
       title={t('Lock Ambire')}
-      description={t('Todo')}
+      description={t(
+        'Lock the Ambire Wallet extension, requiring your password the next time you use it.'
+      )}
       renderIcon={<LockIcon color={theme.primaryText} />}
     >
       <Button
@@ -36,7 +38,7 @@ const LockAmbireControlOption = () => {
         style={{
           width: 80
         }}
-        text="Lock"
+        text={t('Lock')}
         onPress={handleLockAmbire}
       />
     </ControlOption>

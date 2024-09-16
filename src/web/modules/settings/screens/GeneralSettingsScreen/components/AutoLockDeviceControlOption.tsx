@@ -54,7 +54,10 @@ const AutoLockDeviceControlOption = () => {
     <ControlOption
       style={spacings.mbTy}
       title={t('Auto lock device')}
-      description={t('Todo')}
+      description={t(
+        'Ambire Wallet is set as your default browser wallet for connecting with dApps.'
+      )}
+      readMoreLink="https://help.ambire.com/hc/en-us/articles/15915341165852"
       renderIcon={<LockWithTimerIcon color={theme.primaryText} />}
     >
       <Select
