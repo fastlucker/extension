@@ -97,7 +97,7 @@ yarn web:safari
 Two new folders will be created:
 
 1. /safari-dev (dev build folder)
-2. /ambire-extension-project (Xcode proj)
+2. /safari-xcode-project-dev (Xcode proj)
    then in the Safari browser:
 3. Developer -> Developer settings...
 4. Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
@@ -181,7 +181,7 @@ yarn build:web:safari
 Two new folders will be created:
 
 1. /safari-prod (prod build folder)
-2. /ambire-extension-project-prod (Xcode proj)
+2. /safari-xcode-project-prod (Xcode proj)
 
 ## Versioning
 
