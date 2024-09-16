@@ -105,6 +105,12 @@ Two new folders will be created:
 
 NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
 
+NOTE: The development script for Safari relies on the fswatch tool to automatically reload the Safari build when the development server is reloaded. If fswatch is not already installed on your system, you can install it using Homebrew with the following command:
+
+```bash
+brew install fswatch
+```
+
 ## Translations (Beta)
 
 To scan the project for translation labels and to update translations JSON files, run:
