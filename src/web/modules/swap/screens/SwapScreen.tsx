@@ -20,14 +20,9 @@ const SwapScreen = () => {
   const { dispatch } = useBackgroundService()
   const { state } = useDappsControllerState()
 
-  const chainId = useMemo(() => {
-    const dapp = state.dapps.find((d) => d.url === chrome.runtime.id)
-
-    return dapp?.chainId
+  const dapp = useMemo(() => {
+    return state.dapps.find((d) => d.url === chrome.runtime.id)
   }, [state.dapps])
-  // TODO: The communication mechanism that we use to connect to a dapp won't
-  // work out of the box with the Socket Bridge plugin. Need to alter a bit our
-  // provider logic a bit.
 
   useEffect(() => {
     window.ambire = ambireProvider
@@ -65,14 +60,14 @@ const SwapScreen = () => {
     >
       <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
         <View style={flexbox.alignSelfCenter}>
-          {!!provider && !!chainId && (
+          {!!provider && (
             <Bridge
               customize={customize}
               provider={provider}
               API_KEY={SOCKET_API_KEY}
               onSourceNetworkChange={handleSourceNetworkChange}
               singleTxOnly={false}
-              defaultSourceNetwork={chainId}
+              defaultSourceNetwork={dapp?.chainId || 1}
             />
           )}
         </View>
