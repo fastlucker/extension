@@ -77,7 +77,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mb
     },
     buttonContainerStylesSizeSmall: {
-      height: 40,
+      height: 36,
       ...spacings.pvMi,
       ...spacings.phSm,
       ...spacings.mbTy

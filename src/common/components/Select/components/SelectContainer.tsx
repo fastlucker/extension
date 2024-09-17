@@ -8,7 +8,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 
-import getStyles from '../styles'
+import getStyles, { DEFAULT_SELECT_SIZE } from '../styles'
 import { CommonSelectProps } from '../types'
 import useSelectInternal from '../useSelectInternal'
 import MenuContainer from './MenuContainer'
@@ -36,6 +36,7 @@ const SelectContainer: FC<Props> = ({
   toggleMenu,
   control,
   children,
+  size = DEFAULT_SELECT_SIZE,
   testID
 }) => {
   const { t } = useTranslation()
@@ -61,6 +62,7 @@ const SelectContainer: FC<Props> = ({
         value={value}
         placeholder={placeholder}
         selectStyle={selectStyle}
+        size={size}
       />
       {!!isMenuOpen && (
         <MenuContainer menuRef={menuRef} menuStyle={menuStyle} menuProps={menuProps}>

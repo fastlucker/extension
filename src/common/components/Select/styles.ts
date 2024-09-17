@@ -11,8 +11,12 @@ interface Style {
   selectContainer: ViewStyle
   selectBorderWrapper: ViewStyle
   select: ViewStyle
+  smSelect: ViewStyle
+  mdSelect: ViewStyle
   menuContainer: ViewStyle
   menuOption: ViewProps
+  smMenuOption: ViewStyle
+  mdMenuOption: ViewStyle
   searchContainerStyle: ViewProps
   searchTextInputStyle: ViewProps
   optionIcon: ImageStyle
@@ -21,7 +25,11 @@ interface Style {
   bottomSearchInputWrapperStyle: ViewStyle
 }
 
-export const MENU_OPTION_HEIGHT = 50
+export const DEFAULT_SELECT_SIZE = 'md'
+export const SELECT_SIZE_TO_HEIGHT = {
+  sm: 36,
+  md: 50
+}
 export const MAX_MENU_HEIGHT = 400
 
 const getStyles = (theme: ThemeProps) =>
@@ -38,14 +46,20 @@ const getStyles = (theme: ThemeProps) =>
     },
     select: {
       width: '100%',
-      height: 50,
       ...common.borderRadiusPrimary,
       backgroundColor: theme.secondaryBackground,
       borderWidth: 1,
       ...common.hidden,
       borderColor: 'transparent',
       ...flexbox.alignCenter,
-      ...flexbox.directionRow,
+      ...flexbox.directionRow
+    },
+    smSelect: {
+      height: SELECT_SIZE_TO_HEIGHT.sm,
+      ...spacings.phTy
+    },
+    mdSelect: {
+      height: SELECT_SIZE_TO_HEIGHT.md,
       ...spacings.ph
     },
     menuContainer: {
@@ -62,10 +76,16 @@ const getStyles = (theme: ThemeProps) =>
       zIndex: BOTTOM_SHEET_Z_INDEX + 1
     },
     menuOption: {
-      height: MENU_OPTION_HEIGHT,
-      ...spacings.ph,
       ...flexbox.directionRow,
       ...flexbox.alignCenter
+    },
+    smMenuOption: {
+      height: SELECT_SIZE_TO_HEIGHT.sm,
+      ...spacings.phTy
+    },
+    mdMenuOption: {
+      height: SELECT_SIZE_TO_HEIGHT.md,
+      ...spacings.ph
     },
     searchContainerStyle: {
       flexDirection: 'column-reverse',
