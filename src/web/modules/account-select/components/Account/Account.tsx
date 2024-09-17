@@ -16,6 +16,7 @@ import { useTranslation } from '@common/config/localization'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -166,14 +167,15 @@ const Account = ({
         text={t('Are you sure you want to remove this account?')}
         closeDialog={closeDialog}
       >
-        <DialogFooter>
+        <DialogFooter horizontalAlignment="justifyEnd">
+          <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
           <DialogButton
             disabled={isRemoveAccountLoading}
             text={t('Remove')}
             type="danger"
             onPress={removeAccount}
+            style={spacings.ml}
           />
-          <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
         </DialogFooter>
       </Dialog>
     </Pressable>
