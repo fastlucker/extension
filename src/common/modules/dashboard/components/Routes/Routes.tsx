@@ -34,16 +34,9 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
     {
       testID: 'dashboard-button-swap',
       icon: SwapIcon,
-      label: t('Swap'),
-      route: WEB_ROUTES.swap,
+      label: t('Swap & Bridge'),
+      route: WEB_ROUTES.swapAndBridge,
       isExternal: false
-    },
-    {
-      testID: 'dashboard-button-bridge',
-      icon: BridgeIcon,
-      label: t('Bridge'),
-      route: BRIDGE_URL,
-      isExternal: true
     },
     {
       testID: 'dashboard-button-dapps',

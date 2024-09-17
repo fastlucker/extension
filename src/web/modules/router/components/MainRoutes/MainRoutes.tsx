@@ -5,7 +5,6 @@ import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
-import { SwapControllerStateProvider } from '@web/contexts/swapControllerStateContext'
 import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
@@ -51,7 +50,7 @@ import TermsSettingsScreen from '@web/modules/settings/screens/TermsSettingsScre
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
-import SwapScreen from '@web/modules/swap/screens'
+import SwapAndBridgeScreen from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen'
 import Terms from '@web/modules/terms/screens/Terms'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
@@ -122,14 +121,7 @@ const MainRoutes = () => {
                   </TransferControllerStateProvider>
                 }
               />
-              <Route
-                path={WEB_ROUTES.swap}
-                element={
-                  <SwapControllerStateProvider>
-                    <SwapScreen />
-                  </SwapControllerStateProvider>
-                }
-              />
+              <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
               <Route element={<SettingsRoutesProvider />}>
                 <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
                 <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
