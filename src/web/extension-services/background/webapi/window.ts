@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 
 import { SPACING } from '@common/styles/spacings'
-import { browser, engine, isSafari } from '@web/constants/browserapi'
+import { browser, engine, isExtension, isSafari } from '@web/constants/browserapi'
 import { IS_WINDOWS } from '@web/constants/common'
 import {
   MIN_NOTIFICATION_WINDOW_HEIGHT,
@@ -12,14 +12,16 @@ import {
 
 const event = new EventEmitter()
 
-// if focus other windows, then reject the notification request
-browser.windows.onFocusChanged.addListener((winId: any) => {
-  event.emit('windowFocusChange', winId)
-})
+if (isExtension) {
+  // if focus other windows, then reject the notification request
+  browser.windows.onFocusChanged.addListener((winId: any) => {
+    event.emit('windowFocusChange', winId)
+  })
 
-browser.windows.onRemoved.addListener((winId: any) => {
-  event.emit('windowRemoved', winId)
-})
+  browser.windows.onRemoved.addListener((winId: any) => {
+    event.emit('windowRemoved', winId)
+  })
+}
 
 export const WINDOW_SIZE = {
   width: NOTIFICATION_WINDOW_WIDTH + (IS_WINDOWS ? 14 : 0), // idk why windows cut the width.
