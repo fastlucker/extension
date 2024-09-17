@@ -3,14 +3,21 @@ import React, { useCallback } from 'react'
 import useSelect from '@common/hooks/useSelect'
 
 import { MenuOption } from './components/MenuOption'
+import { DEFAULT_SELECT_SIZE, SELECT_SIZE_TO_HEIGHT } from './styles'
 import { SelectProps, SelectValue } from './types'
 
-type Props = Required<Pick<SelectProps, 'menuOptionHeight' | 'value'>> &
-  Pick<SelectProps, 'setValue'>
+type Props = Required<Pick<SelectProps, 'value'>> &
+  Pick<SelectProps, 'menuOptionHeight' | 'setValue' | 'size'>
 
-const useSelectInternal = ({ menuOptionHeight, setValue, value }: Props) => {
+const useSelectInternal = ({
+  menuOptionHeight,
+  setValue,
+  value,
+  size = DEFAULT_SELECT_SIZE
+}: Props) => {
   const useSelectReturnValue = useSelect()
   const { setIsMenuOpen, setSearch } = useSelectReturnValue
+  const optionHeight = menuOptionHeight || SELECT_SIZE_TO_HEIGHT[size]
 
   const handleOptionSelect = useCallback(
     (item: SelectValue) => {
@@ -29,20 +36,21 @@ const useSelectInternal = ({ menuOptionHeight, setValue, value }: Props) => {
         isSelected={item.value === value.value}
         onPress={handleOptionSelect}
         disabled={!!item?.disabled}
+        size={size}
       />
     ),
-    [value, menuOptionHeight, handleOptionSelect]
+    [menuOptionHeight, value.value, handleOptionSelect, size]
   )
 
   const keyExtractor = useCallback((item: SelectValue) => item.value.toString(), [])
 
   const getItemLayout = useCallback(
     (data: SelectValue[] | null | undefined, index: number) => ({
-      length: menuOptionHeight,
-      offset: menuOptionHeight * index,
+      length: optionHeight,
+      offset: optionHeight * index,
       index
     }),
-    [menuOptionHeight]
+    [optionHeight]
   )
 
   return {

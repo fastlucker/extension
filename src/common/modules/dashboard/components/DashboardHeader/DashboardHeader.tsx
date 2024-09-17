@@ -56,7 +56,7 @@ const DashboardHeader = () => {
       >
         <AccountButton />
         <View style={styles.maximizeAndMenu}>
-          {(!!isPopup && ENABLE_MAXIMIZE) && (
+          {!!isPopup && ENABLE_MAXIMIZE && (
             <Pressable
               onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}
               {...bindMaximizeAnim}
@@ -69,7 +69,7 @@ const DashboardHeader = () => {
           <Pressable
             style={{ ...spacings.mlLg, ...spacings.mrTy }}
             onPress={() =>
-              isPopup ? navigate(WEB_ROUTES.menu) : navigate(WEB_ROUTES.accountsSettings)
+              isPopup ? navigate(WEB_ROUTES.menu) : navigate(WEB_ROUTES.generalSettings)
             }
             {...bindBurgerAnim}
           >
