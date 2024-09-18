@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
+import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import SwapBridgeToggleIcon from '@common/assets/svg/SwapBridgeToggleIcon'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -10,13 +11,26 @@ import spacings from '@common/styles/spacings'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import getStyles from './styles'
 
 const SwapAndBridgeScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
+  const { accountPortfolio } = usePortfolioControllerState()
   const { t } = useTranslation()
+
+  // TODO: Wire-up with the UI
+  const fromTokenList = useMemo(
+    () =>
+      accountPortfolio?.tokens.filter((token) => {
+        const hasAmount = Number(getTokenAmount(token)) > 0
+
+        return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
+      }) || [],
+    [accountPortfolio?.tokens]
+  )
 
   return (
     <TabLayoutContainer
