@@ -20,6 +20,7 @@ type ButtonTypes =
   | 'error'
   | 'warning'
   | 'info'
+  | 'info2'
   | 'success'
 
 type ButtonSizes = 'regular' | 'small' | 'large'
@@ -38,6 +39,12 @@ export interface Props extends PressableProps {
   childrenPosition?: 'left' | 'right'
   testID?: string
   submitOnEnter?: boolean
+}
+
+const OPACITY_ANIMATION = {
+  property: 'opacity' as keyof ViewStyle,
+  from: 1,
+  to: 0.7
 }
 
 const Button = ({
@@ -91,18 +98,13 @@ const Button = ({
           to: theme.errorBackground
         }
       ],
-      outline: [],
-      ghost: [
-        {
-          property: 'opacity',
-          from: 1,
-          to: 0.7
-        }
-      ],
-      error: [],
-      warning: [],
-      info: [],
-      success: []
+      outline: [OPACITY_ANIMATION],
+      ghost: [OPACITY_ANIMATION],
+      error: [OPACITY_ANIMATION],
+      warning: [OPACITY_ANIMATION],
+      info: [OPACITY_ANIMATION],
+      info2: [OPACITY_ANIMATION],
+      success: [OPACITY_ANIMATION]
     }),
     [theme.errorBackground, theme.primary, theme.primaryLight, theme.infoBackground]
   )
@@ -130,6 +132,10 @@ const Button = ({
       backgroundColor: theme.infoText,
       borderWidth: 0
     },
+    info2: {
+      backgroundColor: theme.info2Text,
+      borderWidth: 0
+    },
     success: {
       backgroundColor: theme.successText,
       borderWidth: 0
@@ -151,6 +157,7 @@ const Button = ({
     error: styles.buttonTextPrimary,
     warning: styles.buttonTextPrimary,
     info: styles.buttonTextPrimary,
+    info2: styles.buttonTextPrimary,
     success: styles.buttonTextPrimary
   }
 

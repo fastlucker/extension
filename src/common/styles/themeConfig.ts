@@ -87,6 +87,19 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#F6F0FF'
   },
+  // Info 2
+  info2Text: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#0750A1'
+  },
+  info2Decorative: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#0079FF'
+  },
+  info2Background: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#0079FF14'
+  },
   // Warning
   warningText: {
     [THEME_TYPES.DARK]: colors.greenHaze,
@@ -134,14 +147,12 @@ export const iconColors = {
 export const lightOnlyRoutesOnMobile = []
 
 export const lightOnlyRoutesOnWeb = [
-  WEB_ROUTES.emailVault,
   WEB_ROUTES.keyStoreSetup,
   WEB_ROUTES.getStarted,
   WEB_ROUTES.terms,
   WEB_ROUTES.authEmailAccount,
   WEB_ROUTES.authEmailLogin,
   WEB_ROUTES.authEmailRegister,
-  WEB_ROUTES.onboarding,
   WEB_ROUTES.hardwareWalletSelect,
   WEB_ROUTES.hardwareWalletLedger,
   WEB_ROUTES.accountAdder,
