@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react'
 
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Spinner from '@common/components/Spinner'
 import { fetchCaught } from '@common/services/fetch'
 
-const getLeaderboard = async (skip?: number, limit?: number) => {
+const getLeaderboard = async (currentUser?: string) => {
   try {
-    const res = await fetchCaught('https://staging-relayer.ambire.com/legends/leaderboard')
+    const res = await fetchCaught(`https://staging-relayer.ambire.com/legends/leaderboard${currentUser &&`?identity=${currentUser}`}`)
     return res.body
   } catch {
     console.error('Error fetching leaderboard')
+    return { leaderboard: [], currentUser: { rank: 0, avatar: '', account: '', xp: 0 } }
   }
 }
 
@@ -19,29 +21,23 @@ const getBadge = (rank: number) => {
   return null
 }
 
-const currentUser = {
-  rank: 0,
-  avatar: 'https://randomuser.me/api/portraits/men/7.jpg',
-  account: '0x1819...yzab',
-  ens: 'currentuser.eth',
-  xp: 47500
-}
-
 interface LeaderboardProps {
   data: Array<{ rank: number; account: string; xp: number; avatar: string }>
   currentUser: { rank: number; account: string; xp: number; avatar: string }
 }
+const USER_ADDR = '0x7A3583A060528E8162F670C335450e11FFee5445'
 
 const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
-  const [sortBy, setSortBy] = useState<'xp' | 'earnings'>('xp')
   const [loading, setLoading] = useState(true)
   const [leaderboardData, setLeaderboardData] = useState([])
+  const [currentUser, setCurrentUser] = useState({ rank: 0, avatar: '', account: '', xp: 0 })
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const { leaderboard } = await getLeaderboard()
-        setLeaderboardData(leaderboard)
+        const { leaderboard, currentUser } = await getLeaderboard(USER_ADDR)
+        setLeaderboardData(leaderboard.slice(0, 100))
+        setCurrentUser(currentUser)
       } catch (error) {
         console.error('Failed to fetch leaderboard:', error)
       } finally {
@@ -52,9 +48,8 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
     fetchLeaderboard()
   }, [])
 
-  const combinedData = [...(leaderboardData || []), currentUser]
 
-  const sortedData = combinedData.sort((a, b) => b.xp - a.xp)
+  const sortedData = leaderboardData.sort((a, b) => b.xp - a.xp)
 
   let currentRank = 1
   sortedData.forEach((item, index) => {
@@ -70,19 +65,8 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
     (loading && <Spinner />) || (
       <div style={styles.container}>
         <h1 style={styles.title}>Leaderboard</h1>
-        <div style={styles.sortContainer}>
-          <span>Sort by: </span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'xp' | 'earnings')}
-            style={styles.picker}
-          >
-            <option value="xp">XP</option>
-            <option value="earnings">Earnings</option>
-          </select>
-        </div>
         <div>
-          {sortedData.slice(0, 100).map((item, index) => (
+          {sortedData.map((item, index) => (
             <div
               key={index}
               style={{
@@ -95,7 +79,7 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
                 {item.rank} {getBadge(item.rank)}
               </span>
               <img src={item.avatar} alt="avatar" style={styles.avatar} />
-              <span style={styles.cell}>{item.account}</span>
+              <span style={styles.cell}>{shortenAddress(item.account)}</span>
               <span style={styles.cell}>{item.xp}</span>
             </div>
           ))}
