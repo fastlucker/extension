@@ -13,61 +13,9 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
-function processManifest(content) {
-  const manifest = JSON.parse(content.toString())
-  // Maintain the same versioning between the web extension and the mobile app
-  manifest.version = appJSON.expo.version
-
-  // Directives to disallow a set of script-related privileges for a
-  // specific page. They prevent the browser extension being embedded or
-  // loaded as an <iframe /> in a potentially malicious website(s).
-  //   1. The "script-src" directive specifies valid sources for JavaScript.
-  //   This includes not only URLs loaded directly into <script> elements,
-  //   but also things like inline script event handlers (onclick) and XSLT
-  //   stylesheets which can trigger script execution. Must include at least
-  //   the 'self' keyword and may only contain secure sources.
-  //   'wasm-eval' needed, otherwise the GridPlus SDK fires errors
-  //   (GridPlus needs to allow inline Web Assembly (wasm))
-  //   2. The "object-src" directive may be required in some browsers that
-  //   support obsolete plugins and should be set to a secure source such as
-  //   'none' when needed. This may be necessary for browsers up until 2022.
-  //   3. The "frame-ancestors" directive specifies valid parents that may
-  //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
-  // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
-  // {@link https://web.dev/csp/}
-
-  const csp = "frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
-
-  if (process.env.WEB_ENGINE === 'gecko') {
-    manifest.background = { scripts: ['background.js'] }
-    manifest.host_permissions = [...manifest.host_permissions, '<all_urls>']
-    manifest.externally_connectable = undefined
-    manifest.browser_specific_settings = {
-      gecko: {
-        id: 'wallet@ambire.com',
-        strict_min_version: '115.0'
-      }
-    }
-  }
-
-  const permissions = [...manifest.permissions, 'scripting', 'alarms']
-  if (process.env.WEB_ENGINE === 'webkit') permissions.push('system.display')
-  manifest.permissions = permissions
-
-  manifest.content_security_policy = { extension_pages: csp }
-
-  // This value can be used to control the unique ID of an extension,
-  // when it is loaded during development. In prod, the ID is generated
-  // in Chrome Web Store and can't be changed.
-  // {@link https://developer.chrome.com/extensions/manifest/key}
-  // TODO: key not supported in gecko browsers
-  if (process.env.WEB_ENGINE === 'webkit') {
-    manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
-  }
-
-  const manifestJSON = JSON.stringify(manifest, null, 2)
-  return manifestJSON
-}
+const isWebkit = process.env.WEB_ENGINE?.startsWith('webkit')
+const isGecko = process.env.WEB_ENGINE === 'gecko'
+const isSafari = process.env.WEB_ENGINE === 'webkit-safari'
 
 // style.css output file for WEB_ENGINE: GECKO
 function processStyleGecko(content) {
@@ -82,8 +30,75 @@ function processStyleGecko(content) {
 module.exports = async function (env, argv) {
   const config = await createExpoWebpackConfigAsync(env, argv)
 
+  function processManifest(content) {
+    const manifest = JSON.parse(content.toString())
+    if (config.mode === 'development') {
+      manifest.name = 'Ambire Wallet Dev'
+    }
+    // Maintain the same versioning between the web extension and the mobile app
+    manifest.version = appJSON.expo.version
+
+    // Directives to disallow a set of script-related privileges for a
+    // specific page. They prevent the browser extension being embedded or
+    // loaded as an <iframe /> in a potentially malicious website(s).
+    //   1. The "script-src" directive specifies valid sources for JavaScript.
+    //   This includes not only URLs loaded directly into <script> elements,
+    //   but also things like inline script event handlers (onclick) and XSLT
+    //   stylesheets which can trigger script execution. Must include at least
+    //   the 'self' keyword and may only contain secure sources.
+    //   'wasm-eval' needed, otherwise the GridPlus SDK fires errors
+    //   (GridPlus needs to allow inline Web Assembly (wasm))
+    //   2. The "object-src" directive may be required in some browsers that
+    //   support obsolete plugins and should be set to a secure source such as
+    //   'none' when needed. This may be necessary for browsers up until 2022.
+    //   3. The "frame-ancestors" directive specifies valid parents that may
+    //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
+    // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
+    // {@link https://web.dev/csp/}
+
+    const csp = "frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+
+    if (isGecko) {
+      manifest.background = { scripts: ['background.js'] }
+      manifest.host_permissions = [...manifest.host_permissions, '<all_urls>']
+      manifest.browser_specific_settings = {
+        gecko: {
+          id: 'wallet@ambire.com',
+          strict_min_version: '115.0'
+        }
+      }
+    }
+
+    if (isGecko || isSafari) {
+      manifest.externally_connectable = undefined
+    }
+
+    const permissions = [...manifest.permissions, 'scripting', 'alarms']
+    if (isWebkit && !isSafari) permissions.push('system.display')
+    manifest.permissions = permissions
+
+    if (isSafari) {
+      manifest.permissions = manifest.permissions.filter((p) => p !== 'notifications')
+    }
+
+    manifest.content_security_policy = { extension_pages: csp }
+
+    // This value can be used to control the unique ID of an extension,
+    // when it is loaded during development. In prod, the ID is generated
+    // in Chrome Web Store and can't be changed.
+    // {@link https://developer.chrome.com/extensions/manifest/key}
+    // TODO: key not supported in gecko browsers
+    if (isWebkit) {
+      manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
+    }
+
+    const manifestJSON = JSON.stringify(manifest, null, 2)
+    return manifestJSON
+  }
+
   const outputPath = process.env.WEBPACK_BUILD_OUTPUT_PATH
-  const isExtension = outputPath.includes('webkit') || outputPath.includes('gecko')
+  const isExtension =
+    outputPath.includes('webkit') || outputPath.includes('gecko') || outputPath.includes('safari')
   const isBenzin = outputPath.includes('benzin')
   const isLegends = outputPath.includes('legends')
 
@@ -188,7 +203,7 @@ module.exports = async function (env, argv) {
       'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts'
     }
 
-    if (process.env.WEB_ENGINE === 'gecko') {
+    if (isGecko) {
       config.entry['content-script-ambire-injection'] =
         './src/web/extension-services/content-script/content-script-ambire-injection.ts'
       config.entry['content-script-ethereum-injection'] =
@@ -204,7 +219,7 @@ module.exports = async function (env, argv) {
         from: './src/web/public/style.css',
         to: 'style.css',
         transform(content) {
-          if (process.env.WEB_ENGINE === 'gecko') {
+          if (isGecko) {
             return processStyleGecko(content)
           }
 
@@ -250,7 +265,7 @@ module.exports = async function (env, argv) {
       new CopyPlugin({ patterns: extensionCopyPatterns })
     ]
 
-    if (process.env.WEB_ENGINE === 'gecko') {
+    if (isGecko) {
       config.plugins.push(
         new AssetReplacePlugin({
           '#AMBIREINPAGE#': 'ambire-inpage',

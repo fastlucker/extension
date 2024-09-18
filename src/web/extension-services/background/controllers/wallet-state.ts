@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
-import { browser } from '@web/constants/browserapi'
+import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 import {
@@ -26,26 +26,27 @@ export class WalletStateController extends EventEmitter {
     return this.#_isDefaultWallet
   }
 
-  set isDefaultWallet(newValue: boolean) {
+  async setDefaultWallet(newValue: boolean) {
     this.#_isDefaultWallet = newValue
     storage.set('isDefaultWallet', newValue)
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
+    const extensionUrl = chrome.runtime.getURL('')
+
+    // If the url of the current tab is the url of the extension, skip the reload
+    // Perhaps we should also skip the injection of the scripts
+    const skipReload = tab?.url?.startsWith(extensionUrl)
 
     if (newValue) {
       // if Ambire is the default wallet inject and reload the current tab
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      ;(async () => {
-        await handleUnregisterAmbireInpageScript()
-        await handleUnregisterEthereumInpageScript()
-        await handleRegisterScripts(true)
-        await this.#reloadPageOnSwitchDefaultWallet()
-      })()
+      await handleUnregisterAmbireInpageScript()
+      await handleUnregisterEthereumInpageScript()
+      await handleRegisterScripts()
+      if (!skipReload && tab?.id) await this.#reloadPageOnSwitchDefaultWallet(tab.id)
     } else {
-      ;(async () => {
-        // if Ambire is NOT the default wallet remove injection and reload the current tab
-        await handleUnregisterEthereumInpageScript()
-        await this.#reloadPageOnSwitchDefaultWallet()
-      })()
+      await handleUnregisterEthereumInpageScript()
+      if (!skipReload && tab?.id) await this.#reloadPageOnSwitchDefaultWallet(tab.id)
     }
+
     this.emitUpdate()
   }
 
@@ -108,7 +109,7 @@ export class WalletStateController extends EventEmitter {
 
     this.#_onboardingState = await storage.get('onboardingState', undefined)
 
-    this.#isPinned = await storage.get('isPinned', false)
+    this.#isPinned = isSafari() || (await storage.get('isPinned', false))
     this.#initCheckIsPinned()
 
     this.#isSetupComplete = await storage.get('isSetupComplete', true)
@@ -117,12 +118,10 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
-  async #reloadPageOnSwitchDefaultWallet() {
+  async #reloadPageOnSwitchDefaultWallet(tabId: number) {
     try {
-      const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
-      if (!tab || !tab?.id) return
       await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
+        target: { tabId },
         func: () => {
           window.location.reload()
         }

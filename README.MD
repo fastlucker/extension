@@ -88,6 +88,29 @@ Browser extension (web app) for gecko browsers (tested on Firefox only)::
 yarn web:gecko
 ```
 
+Browser extension (web app) for the Safari browser (tested on Safari only)::
+
+```bash
+yarn web:safari
+```
+
+Two new folders will be created:
+
+1. /safari-dev (dev build folder)
+2. /safari-xcode-project-dev (Xcode proj)
+   then in the Safari browser:
+3. Developer -> Developer settings...
+4. Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
+5. Then the extension should be automatically added and pinned in the browser.
+
+NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
+
+NOTE: The development script for Safari relies on the fswatch tool to automatically reload the Safari build when the development server is reloaded. If fswatch is not already installed on your system, you can install it using Homebrew with the following command:
+
+```bash
+brew install fswatch
+```
+
 ## Translations (Beta)
 
 To scan the project for translation labels and to update translations JSON files, run:
@@ -148,6 +171,17 @@ For gecko browsers (tested on Firefox only):
 ```bash
 yarn build:web:gecko
 ```
+
+For the Safari browser (tested on Safari only):
+
+```bash
+yarn build:web:safari
+```
+
+Two new folders will be created:
+
+1. /safari-prod (prod build folder)
+2. /safari-xcode-project-prod (Xcode proj)
 
 ## Versioning
 
