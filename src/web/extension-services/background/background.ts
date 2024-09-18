@@ -30,6 +30,8 @@ import { browser } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
+import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
+import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
@@ -49,14 +51,6 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
-
-import { handleRegisterScripts } from './handlers/handleScripting'
-
-function saveTimestamp() {
-  const timestamp = new Date().toISOString()
-
-  browser.storage.session.set({ timestamp })
-}
 
 function stateDebug(event: string, stateToLog: object) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
@@ -84,6 +78,7 @@ let mainCtrl: MainController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
+handleKeepAlive()
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
@@ -106,12 +101,6 @@ handleRegisterScripts()
 
     await checkE2EStorage()
   }
-
-  saveTimestamp()
-  // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
-  // miliseconds. This keeps the service worker alive.
-  const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
-  setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
 
   const backgroundState: {
     isUnlocked: boolean
@@ -570,7 +559,9 @@ handleRegisterScripts()
       // Also do not trigger update on every new port but only if there is only one port
       if (
         timeSinceLastUpdate > ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL / 2 &&
-        (pm.ports.length === 1 && port.name === 'popup' ) && !hasBroadcastedButNotConfirmed
+        pm.ports.length === 1 &&
+        port.name === 'popup' &&
+        !hasBroadcastedButNotConfirmed
       ) {
         try {
           await mainCtrl.updateSelectedAccountPortfolio()

@@ -4,6 +4,7 @@ import React, { createContext, useEffect, useMemo } from 'react'
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
+import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -45,7 +46,7 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
       state.currentAction?.type !== 'benzin'
     ) {
       dispatch({ type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW' })
-      window.close()
+      closeCurrentWindow()
     }
   }, [dispatch, state.currentAction?.type, state.actionWindow?.id, state.currentAction])
 

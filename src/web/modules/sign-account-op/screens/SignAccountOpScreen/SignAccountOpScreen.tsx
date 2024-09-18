@@ -21,6 +21,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -177,7 +178,7 @@ const SignAccountOpScreen = () => {
   }, [dispatch, accountOpAction])
 
   const handleAddToCart = useCallback(() => {
-    window.close()
+    closeCurrentWindow()
   }, [])
 
   const humanizedCalls: IrCall[] | null = useMemo(

@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { resolveENSDomain } from '@ambire-common/services/ensDomains'
 import { resolveUDomain } from '@ambire-common/services/unstoppableDomains'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-import useDebounce from '../useDebounce'
 import useToast from '../useToast'
 import getAddressInputValidation from './utils/validation'
 
@@ -31,15 +30,14 @@ const useAddressInput = ({
   const { addToast } = useToast()
   const fieldValueRef = useRef(addressState.fieldValue)
   const fieldValue = addressState.fieldValue
-  const debouncedFieldValue = useDebounce({
-    value: fieldValue,
-    delay: 300
+  const [debouncedValidation, setDebouncedValidation] = useState({
+    isError: true,
+    message: ''
   })
 
   const validation = useMemo(
     () =>
       getAddressInputValidation({
-        debouncedAddress: debouncedFieldValue,
         address: addressState.fieldValue,
         isRecipientDomainResolving: addressState.isDomainResolving,
         isValidEns: !!addressState.ensAddress,
@@ -48,7 +46,6 @@ const useAddressInput = ({
         overwriteValidLabel
       }),
     [
-      debouncedFieldValue,
       addressState.fieldValue,
       addressState.isDomainResolving,
       addressState.ensAddress,
@@ -129,6 +126,43 @@ const useAddressInput = ({
   )
 
   useEffect(() => {
+    const { isError, message: latestMessage } = validation
+    const { isError: debouncedIsError, message: debouncedMessage } = debouncedValidation
+
+    if (latestMessage === debouncedMessage) return
+
+    const shouldDebounce =
+      // Both validations are errors
+      isError === debouncedIsError &&
+      // There is no UD or ENS address
+      !addressState.ensAddress &&
+      !addressState.udAddress &&
+      // The message is not empty
+      latestMessage
+
+    // If debouncing is not required, instantly update
+    if (!shouldDebounce) {
+      setDebouncedValidation(validation)
+      return
+    }
+
+    const timeout = setTimeout(() => {
+      setDebouncedValidation(validation)
+    }, 500)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [
+    addressState.ensAddress,
+    addressState.udAddress,
+    debouncedValidation,
+    debouncedValidation.isError,
+    debouncedValidation.message,
+    validation
+  ])
+
+  useEffect(() => {
     const trimmedAddress = fieldValue.trim()
 
     const domainRegex = /^[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,})+/
@@ -165,7 +199,7 @@ const useAddressInput = ({
     if (!handleRevalidate) return
 
     handleRevalidate()
-  }, [handleRevalidate, validation])
+  }, [handleRevalidate, debouncedValidation])
 
   const reset = useCallback(() => {
     setAddressState({
@@ -179,23 +213,22 @@ const useAddressInput = ({
   const RHFValidate = useCallback(() => {
     // Disable the form if the address is not the same as the debounced address
     // This disables the submit button in the delay window
-    if (addressState?.fieldValue !== debouncedFieldValue) return false
+    if (validation.message !== debouncedValidation?.message) return false
     // Disable the form if there is an error
-    if (validation?.isError) return validation.message
+    if (debouncedValidation?.isError) return debouncedValidation.message
 
     if (addressState.isDomainResolving) return false
 
     return true
   }, [
-    addressState?.fieldValue,
     addressState.isDomainResolving,
-    debouncedFieldValue,
-    validation?.isError,
+    debouncedValidation?.isError,
+    debouncedValidation.message,
     validation.message
   ])
 
   return {
-    validation,
+    validation: debouncedValidation,
     RHFValidate,
     resetAddressInput: reset
   }
