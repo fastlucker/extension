@@ -15,7 +15,7 @@ const WalletConnect = () => {
   }, [updateAccountPortfolio])
 
   useEffect(() => {
-    if (window.ambire.isConnected() && window.ambire.selectedAddress) {
+    if (window.ambire?.isConnected() && window.ambire.selectedAddress) {
       updateAccountPortfolio(window.ambire.selectedAddress)
     }
   }, [updateAccountPortfolio])
@@ -24,7 +24,7 @@ const WalletConnect = () => {
   useEffect(() => {
     // The `accountsChanged` event is fired even when the account is changed or disconnected by the extension.
     // Because of this, we check later whether `isConnected` or not.
-    window.ambire.on('accountsChanged', async () => {
+    window.ambire?.on('accountsChanged', async () => {
       if (window.ambire.isConnected() && window.ambire.selectedAddress) {
         await connectAccount()
       } else {
@@ -39,7 +39,21 @@ const WalletConnect = () => {
   }, [connectAccount])
 
   // If it's connected, don't show the connect button
-  if (accountPortfolio.address) return <div />
+  if (accountPortfolio) return null
+
+  if (!window.ambire)
+    return (
+      <div>
+        The Ambire extension is not installed, and you cannot proceed with Legends.{' '}
+        <a
+          href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Get Ambire!
+        </a>
+      </div>
+    )
 
   return (
     <button type="button" onClick={connectAccount} style={{ display: 'flex' }}>

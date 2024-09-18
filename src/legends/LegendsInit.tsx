@@ -5,10 +5,16 @@ import { BrowserRouter } from 'react-router-dom'
 import { ToastProvider } from '@common/contexts/toastContext'
 import useFonts from '@common/hooks/useFonts'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
-
+import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 import Router from './modules/router/Router'
 
-const BenzinInit = () => {
+declare global {
+  interface Window {
+    ambire: EthereumProvider
+  }
+}
+
+const LegendsInit = () => {
   const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
   if (!fontsLoaded && !robotoFontsLoaded) return null
@@ -29,4 +35,4 @@ const BenzinInit = () => {
   )
 }
 
-export default BenzinInit
+export default LegendsInit
