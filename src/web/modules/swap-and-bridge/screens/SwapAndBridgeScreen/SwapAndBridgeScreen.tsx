@@ -45,6 +45,14 @@ const SwapAndBridgeScreen = () => {
   // 1. Fetch the `toTokenList`
   // 2. Update quote (TBD)
 
+  // TODO: Changing the FROM amount should:
+  // 1. Update quote
+
+  // TODO: Changing the TO amount should be disabled.
+
+  // TODO: Confirmation modal (warn) if the diff in dollar amount between the
+  // FROM and TO tokens is too high (therefore, user will lose money).
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
