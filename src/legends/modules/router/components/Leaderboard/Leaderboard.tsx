@@ -6,7 +6,11 @@ import { fetchCaught } from '@common/services/fetch'
 
 const getLeaderboard = async (currentUser?: string) => {
   try {
-    const res = await fetchCaught(`https://staging-relayer.ambire.com/legends/leaderboard${currentUser &&`?identity=${currentUser}`}`)
+    const res = await fetchCaught(
+      `https://staging-relayer.ambire.com/legends/leaderboard${
+        currentUser && `?identity=${currentUser}`
+      }`
+    )
     return res.body
   } catch {
     console.error('Error fetching leaderboard')
@@ -25,12 +29,17 @@ interface LeaderboardProps {
   data: Array<{ rank: number; account: string; xp: number; avatar: string }>
   currentUser: { rank: number; account: string; xp: number; avatar: string }
 }
-const USER_ADDR = '0x7A3583A060528E8162F670C335450e11FFee5445'
+const USER_ADDR = '0x676E327EC5f53aA22906363Ef741a9f8894E0ad1'
 
 const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
   const [loading, setLoading] = useState(true)
   const [leaderboardData, setLeaderboardData] = useState([])
-  const [currentUser, setCurrentUser] = useState({ rank: 0, avatar: '', account: '', xp: 0 })
+  const [userLeaderboardData, setCurrentUser] = useState({
+    rank: 0,
+    avatar: '',
+    account: '',
+    xp: 0
+  })
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -48,19 +57,15 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
     fetchLeaderboard()
   }, [])
 
-
-  const sortedData = leaderboardData.sort((a, b) => b.xp - a.xp)
-
-  let currentRank = 1
-  sortedData.forEach((item, index) => {
-    if (index > 0 && item.xp === sortedData[index - 1].xp) {
-      item.rank = sortedData[index - 1].rank
-    } else {
-      item.rank = currentRank
-    }
-    currentRank++
-  })
-
+  const sortedData = [
+    ...leaderboardData,
+    (!leaderboardData.find((user) => user.account === userLeaderboardData.account) &&
+      userLeaderboardData) ||
+      []
+  ]
+    .flat()
+    .sort((a, b) => b.xp - a.xp)
+  console.log(sortedData)
   return (
     (loading && <Spinner />) || (
       <div style={styles.container}>
@@ -72,7 +77,7 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
               style={{
                 ...styles.row,
                 ...(item.rank <= 3 ? styles.highlightRow : {}),
-                ...(item.account === currentUser.account ? styles.currentUserRow : {})
+                ...(item.account === userLeaderboardData.account ? styles.currentUserRow : {})
               }}
             >
               <span style={styles.cell}>
@@ -80,6 +85,7 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
               </span>
               <img src={item.avatar} alt="avatar" style={styles.avatar} />
               <span style={styles.cell}>{shortenAddress(item.account)}</span>
+              <span style={styles.cell}>{item.level}</span>
               <span style={styles.cell}>{item.xp}</span>
             </div>
           ))}
