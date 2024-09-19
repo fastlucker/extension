@@ -22,6 +22,8 @@ const SwapAndBridgeScreen = () => {
   const { t } = useTranslation()
 
   // TODO: Wire-up with the UI
+  // TODO: Disable tokens that are NOT supported
+  // (not in the `fromTokenList` of the SwapAndBridge controller)
   const fromTokenList = useMemo(
     () =>
       accountPortfolio?.tokens.filter((token) => {
@@ -31,6 +33,17 @@ const SwapAndBridgeScreen = () => {
       }) || [],
     [accountPortfolio?.tokens]
   )
+
+  // TODO: Changing the FROM token (and chain), should:
+  // 1. If the next FROM chain is different than the previous - fetch the `fromTokenList` and the `toTokenList`:
+  // 1. Update quote or reset the amount to 0 (TBD)
+
+  // TODO: Changing the TO token, should:
+  // 1. Update quote or reset the amount to 0 (TBD)
+
+  // TODO: Changing the TO chain, should:
+  // 1. Fetch the `toTokenList`
+  // 2. Update quote (TBD)
 
   return (
     <TabLayoutContainer
