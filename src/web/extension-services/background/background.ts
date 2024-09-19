@@ -822,6 +822,10 @@ handleKeepAlive()
                 return mainCtrl.initSignAccOp(params.actionId)
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
+
+              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE':
+                return mainCtrl.swapAndBridge.update(params)
+
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addOrUpdateAction(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':

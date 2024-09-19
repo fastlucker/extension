@@ -2,37 +2,36 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import SwapBridgeToggleIcon from '@common/assets/svg/SwapBridgeToggleIcon'
+import NumberInput from '@common/components/NumberInput'
 import Panel from '@common/components/Panel'
+import Select from '@common/components/Select'
 import Text from '@common/components/Text'
+import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import getStyles from './styles'
 
 const SwapAndBridgeScreen = () => {
   const { theme, styles } = useTheme(getStyles)
-  const { dispatch } = useBackgroundService()
-  const { accountPortfolio } = usePortfolioControllerState()
   const { t } = useTranslation()
+  const {
+    fromAmountValue,
+    onFromAmountChange,
+    fromTokenOptions,
+    fromTokenValue,
+    fromTokenAmountSelectDisabled,
+    handleChangeFromToken
+  } = useSwapAndBridgeFrom()
 
   // TODO: Wire-up with the UI
   // TODO: Disable tokens that are NOT supported
   // (not in the `fromTokenList` of the SwapAndBridge controller)
-  const fromTokenList = useMemo(
-    () =>
-      accountPortfolio?.tokens.filter((token) => {
-        const hasAmount = Number(getTokenAmount(token)) > 0
-
-        return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
-      }) || [],
-    [accountPortfolio?.tokens]
-  )
 
   // TODO: Changing the FROM token (and chain), should:
   // 1. If the next FROM chain is different than the previous - fetch the `fromTokenList` and the `toTokenList`:
@@ -66,7 +65,27 @@ const SwapAndBridgeScreen = () => {
               {t('Send')}
             </Text>
             <View style={styles.selectorContainer}>
-              <Text>0</Text>
+              <View style={flexbox.directionRow}>
+                <View style={flexbox.flex1}>
+                  <NumberInput
+                    value={fromAmountValue}
+                    onChangeText={onFromAmountChange}
+                    placeholder="0"
+                    borderless
+                    nativeInputStyle={{ fontFamily: FONT_FAMILIES.MEDIUM, fontSize: 20 }}
+                    disabled={fromTokenAmountSelectDisabled}
+                  />
+                </View>
+                <Select
+                  setValue={({ value }) => handleChangeFromToken(value as string)}
+                  options={fromTokenOptions}
+                  value={fromTokenValue}
+                  // disabled={disableForm}
+                  // containerStyle={styles.tokenSelect}
+                  testID="tokens-select"
+                  containerStyle={flexbox.flex1}
+                />
+              </View>
             </View>
           </View>
         </Panel>

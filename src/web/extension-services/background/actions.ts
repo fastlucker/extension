@@ -366,6 +366,15 @@ type DappsControllerRemoveDappAction = {
   params: Dapp['url']
 }
 
+type SwapAndBridgeControllerUpdateAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE'
+  params: {
+    fromAmount?: string
+    fromChainId?: bigint | number
+    fromSelectedToken?: TokenResult | null
+  }
+}
+
 type ActionsControllerAddToActionsQueue = {
   type: 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE'
   params: ActionFromActionsQueue
@@ -531,6 +540,7 @@ export type Action =
   | DappsControllerAddDappAction
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
+  | SwapAndBridgeControllerUpdateAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
