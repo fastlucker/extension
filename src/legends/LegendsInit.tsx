@@ -7,9 +7,9 @@ import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvide
 import Router from './modules/router/Router'
 
 declare global {
-    interface Window {
-        ambire: EthereumProvider
-    }
+  interface Window {
+    ambire: EthereumProvider
+  }
 }
 
 const LegendsInit = () => {
