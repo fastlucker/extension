@@ -3,9 +3,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter } from 'react-router-dom'
 
 import { ToastProvider } from '@common/contexts/toastContext'
-import useFonts from '@common/hooks/useFonts'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 
+import useFonts from './hooks/useFonts'
 import Router from './modules/router/Router'
 
 const BenzinInit = () => {

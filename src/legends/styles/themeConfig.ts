@@ -22,10 +22,10 @@ const colors = {
 }
 
 export type ThemeProps = {
-  [key in keyof typeof ThemeColors]: ColorValue
+  [key in keyof typeof LEGENDS_THEME]: ColorValue
 }
 
-const ThemeColors = {
+const LEGENDS_THEME = {
   primaryText: colors.mineShaft,
   secondaryText: colors.chicago,
   tertiaryText: colors.tapa,
@@ -46,4 +46,4 @@ const ThemeColors = {
   goldText: colors.pirateGold
 }
 
-export default ThemeColors
+export default LEGENDS_THEME
