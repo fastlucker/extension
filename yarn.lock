@@ -3180,10 +3180,20 @@
   resolved "https://registry.npmjs.org/@expo-google-fonts/poppins/-/poppins-0.2.2.tgz"
   integrity sha512-x0SzC8nWTC2pInIcBDiAuMJxhoglwqCGJYMM8ylI8HKDqBxMrfRTripB3xMGo6UtzROTcL+OX1w9nEcM5FK0PQ==
 
+"@expo-google-fonts/roboto-slab@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/roboto-slab/-/roboto-slab-0.2.3.tgz#5497f37224af3f75c20b4749c6c6bafdf37cc54d"
+  integrity sha512-CnjetZ1wG0Vp1gH63GvUMo1ly0Agd+9GsKro24oB2cqpPS6hKzKOnT0btsYfGUB2/DqngB5AN7e56F+XLf4MCg==
+
 "@expo-google-fonts/roboto@^0.2.3":
   version "0.2.3"
   resolved "https://registry.npmjs.org/@expo-google-fonts/roboto/-/roboto-0.2.3.tgz"
   integrity sha512-PF6S//ZYWeXfpYTwvY2oEe0d5RnqwR5KMsGjuTgg6y9p/CPK/IkWL+wsbkzjfd+Jck1Q1pRlWOoe5uz42sQFRg==
+
+"@expo-google-fonts/vollkorn@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/vollkorn/-/vollkorn-0.2.3.tgz#9e8bddc8aef924eabb41772ee1f18273074a4ee9"
+  integrity sha512-uMYZqReUm9m3VbJEsObPVqYizWiMAkB2H/YlU7MHwbIWhHBaP5evY4xFy9D+ljYY+UQahJ6uL86mIlgP6aOmyQ==
 
 "@expo/apple-utils@1.2.0":
   version "1.2.0"

@@ -6,6 +6,7 @@ import { ToastProvider } from '@common/contexts/toastContext'
 import useFonts from '@common/hooks/useFonts'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 
+import { ThemeProvider } from './contexts/themeContext'
 import Router from './modules/router/Router'
 
 const BenzinInit = () => {
@@ -17,12 +18,12 @@ const BenzinInit = () => {
     <BrowserRouter>
       <PortalProvider>
         <SafeAreaProvider>
-          {/* TODO: Theme provider is purposefully missing because the theme is not yet implemented and
-          the colours will most likely be different from the ones in themeConfig.ts */}
-          <ToastProvider>
-            <Router />
-            <PortalHost name="global" />
-          </ToastProvider>
+          <ThemeProvider>
+            <ToastProvider>
+              <Router />
+              <PortalHost name="global" />
+            </ToastProvider>
+          </ThemeProvider>
         </SafeAreaProvider>
       </PortalProvider>
     </BrowserRouter>
