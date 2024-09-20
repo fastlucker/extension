@@ -1,8 +1,8 @@
 import React, { createContext, useCallback, useMemo, useState } from 'react'
-// @ts-ignore
-import { RELAYER_URL } from '@env'
 import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import wait from '@ambire-common/utils/wait'
+
+const RELAYER_URL = 'https://staging-relayer.ambire.com'
 
 type PortfolioResponse = {
   amount?: number
