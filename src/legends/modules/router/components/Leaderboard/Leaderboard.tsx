@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Spinner from '@common/components/Spinner'
 import { fetchCaught } from '@common/services/fetch'
+import { FontAwesome5 } from '@expo/vector-icons'
 
 const getLeaderboard = async (currentUser?: string) => {
   try {
@@ -20,9 +20,9 @@ const getLeaderboard = async (currentUser?: string) => {
 }
 
 const getBadge = (rank: number) => {
-  if (rank === 1) return '🥇'
-  if (rank === 2) return '🥈'
-  if (rank === 3) return '🥉'
+  if (rank === 1) return <FontAwesome5 name="trophy" size={24} />
+  if (rank === 2) return <FontAwesome5 name="trophy" size={24} />
+  if (rank === 3) return <FontAwesome5 name="trophy" size={24} />
   return null
 }
 
@@ -66,51 +66,67 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
   ]
     .flat()
     .sort((a, b) => b.xp - a.xp)
+
   return (
     (loading && <Spinner />) || (
-      <ScrollView style={styles.container}>
-        <Text style={[styles.title]}>Leaderboard</Text>
-        <View>
+      <div style={styles.container}>
+        <h1 style={styles.title}>Leaderboard</h1>
+        <div style={styles.podium}>
+          <div style={{ ...styles.step, ...styles.second }}>
+            <div style={styles.position}>2</div>
+            <div style={styles.name}>John</div>
+          </div>
+          <div style={{ ...styles.step, ...styles.first }}>
+            <FontAwesome5 name="trophy" size={24} />
+            <img alt="avatar" style={styles.avatar} />
+            <div style={styles.position}>elmoto.eth</div>
+            <div style={styles.name}>19 349</div>
+          </div>
+          <div style={{ ...styles.step, ...styles.third }}>
+            <div style={styles.position}>0x66fE...04d08</div>
+            <div style={styles.name}>Sarah</div>
+          </div>
+        </div>
+        <div>
           {sortedData.map((item, index) => (
-            <View
+            <div
               key={index}
-              style={[
-                styles.row,
-                item.rank <= 3 && styles.highlightRow,
-                item.account === userLeaderboardData.account && styles.currentUserRow
-              ]}
+              style={{
+                ...styles.row,
+                ...(item.rank <= 3 ? styles.highlightRow : {}),
+                ...(item.account === userLeaderboardData.account ? styles.currentUserRow : {})
+              }}
             >
-              <Text style={styles.cell}>
+              <span style={styles.cell}>
                 {item.rank} {getBadge(item.rank)}
-              </Text>
-              <Image source={{ uri: item.avatar }} style={styles.avatar} />
-              <Text style={styles.cell}>{shortenAddress(item.account)}</Text>
-              <Text style={styles.cell}>{item.level}</Text>
-              <Text style={styles.cell}>{item.xp}</Text>
-            </View>
+              </span>
+              <img src={item.avatar} alt="avatar" style={styles.avatar} />
+              <span style={styles.cell}>{shortenAddress(item.account)}</span>
+              <span style={styles.cell}>{item.level}</span>
+              <span style={styles.cell}>{item.xp}</span>
+            </div>
           ))}
-        </View>
-      </ScrollView>
+        </div>
+      </div>
     )
   )
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
-    padding: 16,
+    padding: '16px',
     backgroundColor: '#fff'
   },
   title: {
-    fontSize: 24,
+    fontSize: '24px',
     fontWeight: 'bold',
-    marginBottom: 16
+    marginBottom: '16px'
   },
   row: {
-    flexDirection: 'row',
+    display: 'flex',
     alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc'
+    padding: '8px 0',
+    borderBottom: '1px solid #ccc'
   },
   highlightRow: {
     backgroundColor: '#f0f8ff'
@@ -118,17 +134,48 @@ const styles = StyleSheet.create({
   currentUserRow: {
     backgroundColor: '#e0ffe0', // Light green background for current user
     borderColor: '#00ff00', // Green border for current user
-    borderWidth: 2
+    borderWidth: '2px',
+    borderStyle: 'solid'
   },
   cell: {
     flex: 1,
     textAlign: 'center'
   },
   avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15
+    width: '30px',
+    height: '30px',
+    borderRadius: '15px'
+  },
+  podium: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    marginBottom: '16px'
+  },
+  step: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    margin: '0 8px'
+  },
+  first: {
+    order: 1
+  },
+  second: {
+    order: 2
+  },
+  third: {
+    order: 3
+  },
+  position: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    marginBottom: '8px'
+  },
+  name: {
+    fontSize: '18px',
+    fontWeight: 'normal'
   }
-})
+}
 
 export default LeaderboardContainer
