@@ -15,6 +15,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import HardwareWalletSelectorItem from '@web/modules/hardware-wallet/components/HardwareWalletSelectorItem'
 import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
@@ -52,7 +53,7 @@ const HardwareWalletReconnectScreen = () => {
     if (actionId)
       dispatch({ type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID', params: { actionId } })
 
-    window.close()
+    closeCurrentWindow()
   }, [dispatch, route])
 
   return (

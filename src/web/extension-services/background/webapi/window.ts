@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 
 import { SPACING } from '@common/styles/spacings'
-import { browser, engine } from '@web/constants/browserapi'
+import { browser, engine, isExtension, isSafari } from '@web/constants/browserapi'
 import { IS_WINDOWS } from '@web/constants/common'
 import {
   MIN_NOTIFICATION_WINDOW_HEIGHT,
@@ -12,14 +12,16 @@ import {
 
 const event = new EventEmitter()
 
-// if focus other windows, then reject the notification request
-browser.windows.onFocusChanged.addListener((winId: any) => {
-  event.emit('windowFocusChange', winId)
-})
+if (isExtension) {
+  // if focus other windows, then reject the notification request
+  browser.windows.onFocusChanged.addListener((winId: any) => {
+    event.emit('windowFocusChange', winId)
+  })
 
-browser.windows.onRemoved.addListener((winId: any) => {
-  event.emit('windowRemoved', winId)
-})
+  browser.windows.onRemoved.addListener((winId: any) => {
+    event.emit('windowRemoved', winId)
+  })
+}
 
 export const WINDOW_SIZE = {
   width: NOTIFICATION_WINDOW_WIDTH + (IS_WINDOWS ? 14 : 0), // idk why windows cut the width.
@@ -57,7 +59,10 @@ const createFullScreenWindow = async (url: string) => {
   let screenWidth = 0
   let screenHeight = 0
 
-  if (engine === 'webkit') {
+  if (isSafari()) {
+    screenWidth = getScreenWidth(NOTIFICATION_WINDOW_WIDTH)
+    screenHeight = getScreenHeight(NOTIFICATION_WINDOW_HEIGHT)
+  } else if (engine === 'webkit') {
     const displayInfo = await chrome.system.display.getInfo()
     screenWidth = getScreenWidth(displayInfo?.[0]?.workArea?.width)
     screenHeight = getScreenHeight(displayInfo?.[0]?.workArea?.height)
@@ -140,9 +145,24 @@ const focus = async (windowId: number) => {
   await chrome.windows.update(windowId, { focused: true })
 }
 
+const closeCurrentWindow = async () => {
+  if (isSafari()) {
+    try {
+      const win: any = await chrome.windows.getCurrent()
+      await chrome.windows.remove(win.id)
+    } catch (error) {
+      // silent fail
+    }
+  } else {
+    window.close()
+  }
+}
+
 export default {
   open,
   focus,
   remove,
   event
 }
+
+export { closeCurrentWindow }

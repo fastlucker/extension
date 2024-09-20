@@ -4,7 +4,6 @@ import { SectionList } from 'react-native'
 
 import EmptyListPlaceholder from './components/EmptyListPlaceholder'
 import SelectContainer from './components/SelectContainer'
-import { MENU_OPTION_HEIGHT } from './styles'
 import { SectionedSelectProps } from './types'
 import useSelectInternal from './useSelectInternal'
 
@@ -12,7 +11,7 @@ const SectionedSelect = ({
   setValue,
   value,
   sections,
-  menuOptionHeight = MENU_OPTION_HEIGHT,
+  menuOptionHeight,
   renderSectionHeader,
   SectionSeparatorComponent,
   stickySectionHeadersEnabled,
