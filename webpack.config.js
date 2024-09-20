@@ -79,6 +79,8 @@ module.exports = async function (env, argv) {
 
     if (isSafari) {
       manifest.permissions = manifest.permissions.filter((p) => p !== 'notifications')
+      manifest.description =
+        'Hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
     }
 
     manifest.content_security_policy = { extension_pages: csp }
@@ -179,6 +181,12 @@ module.exports = async function (env, argv) {
     publicPath: ''
   }
 
+  if (config.mode === 'production') {
+    config.output.assetModuleFilename = '[name].[ext]'
+    config.output.filename = '[name].js'
+    config.output.chunkFilename = '[id].js'
+  }
+
   // Environment specific configurations
   if (isExtension) {
     const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
@@ -277,6 +285,8 @@ module.exports = async function (env, argv) {
     if (config.mode === 'production') {
       // @TODO: The extension doesn't work with splitChunks out of the box, so disable it for now
       delete config.optimization.splitChunks
+      config.optimization.chunkIds = 'named' // Ensures same id for chunks across builds
+      config.optimization.moduleIds = 'named' // Ensures same id for modules across builds
     }
 
     return config

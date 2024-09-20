@@ -31,7 +31,7 @@ done
 if [ -d "$SAFARI_DEV_DIR" ] && [ -f "$INDEX" ] && [ -f "$BACKGROUND" ]; then
   sleep 5
 
-  yes | xcrun -v "/Applications/Xcode.app/Contents/Developer/usr/bin/safari-web-extension-converter" "$PROJECT_ROOT/build/safari-dev" --app-name safari-xcode-project-dev --project-location $PROJECT_ROOT/build --swift --force --no-prompt --no-open --macos-only
+  yes | xcrun -v "/Applications/Xcode.app/Contents/Developer/usr/bin/safari-web-extension-converter" "$PROJECT_ROOT/build/safari-dev" --app-name safari-xcode-project-dev --project-location $PROJECT_ROOT/build --swift --force --no-prompt --no-open --macos-only --bundle-identifier com.ambire.app.wallet.extension
 
   while [ ! -d "$SAFARI_XCODE_PROJECT/safari-xcode-project-dev.xcodeproj" ]; do
     echo "Waiting for Xcode project creation to complete..."
