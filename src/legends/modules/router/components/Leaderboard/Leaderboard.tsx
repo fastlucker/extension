@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Spinner from '@common/components/Spinner'
@@ -65,60 +66,51 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
   ]
     .flat()
     .sort((a, b) => b.xp - a.xp)
-  console.log(sortedData)
   return (
     (loading && <Spinner />) || (
-      <div style={styles.container}>
-        <h1 style={styles.title}>Leaderboard</h1>
-        <div>
+      <ScrollView style={styles.container}>
+        <Text style={[styles.title]}>Leaderboard</Text>
+        <View>
           {sortedData.map((item, index) => (
-            <div
+            <View
               key={index}
-              style={{
-                ...styles.row,
-                ...(item.rank <= 3 ? styles.highlightRow : {}),
-                ...(item.account === userLeaderboardData.account ? styles.currentUserRow : {})
-              }}
+              style={[
+                styles.row,
+                item.rank <= 3 && styles.highlightRow,
+                item.account === userLeaderboardData.account && styles.currentUserRow
+              ]}
             >
-              <span style={styles.cell}>
+              <Text style={styles.cell}>
                 {item.rank} {getBadge(item.rank)}
-              </span>
-              <img src={item.avatar} alt="avatar" style={styles.avatar} />
-              <span style={styles.cell}>{shortenAddress(item.account)}</span>
-              <span style={styles.cell}>{item.level}</span>
-              <span style={styles.cell}>{item.xp}</span>
-            </div>
+              </Text>
+              <Image source={{ uri: item.avatar }} style={styles.avatar} />
+              <Text style={styles.cell}>{shortenAddress(item.account)}</Text>
+              <Text style={styles.cell}>{item.level}</Text>
+              <Text style={styles.cell}>{item.xp}</Text>
+            </View>
           ))}
-        </div>
-      </div>
+        </View>
+      </ScrollView>
     )
   )
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
-    padding: '16px',
+    padding: 16,
     backgroundColor: '#fff'
   },
   title: {
-    fontSize: '24px',
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: '16px'
-  },
-  sortContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    marginBottom: '16px'
-  },
-  picker: {
-    height: '30px',
-    marginLeft: '8px'
+    marginBottom: 16
   },
   row: {
-    display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: '8px 0',
-    borderBottom: '1px solid #ccc'
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc'
   },
   highlightRow: {
     backgroundColor: '#f0f8ff'
@@ -126,17 +118,17 @@ const styles = {
   currentUserRow: {
     backgroundColor: '#e0ffe0', // Light green background for current user
     borderColor: '#00ff00', // Green border for current user
-    borderWidth: '2px'
+    borderWidth: 2
   },
   cell: {
     flex: 1,
     textAlign: 'center'
   },
   avatar: {
-    width: '30px',
-    height: '30px',
-    borderRadius: '15px'
+    width: 30,
+    height: 30,
+    borderRadius: 15
   }
-}
+})
 
 export default LeaderboardContainer
