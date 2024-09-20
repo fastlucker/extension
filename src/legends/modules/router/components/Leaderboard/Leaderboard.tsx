@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import shortenAddress from '@ambire-common/utils/shortenAddress'
-import Spinner from '@common/components/Spinner'
 import { fetchCaught } from '@common/services/fetch'
-import { FontAwesome5 } from '@expo/vector-icons'
 
 const getLeaderboard = async (currentUser?: string) => {
   try {
@@ -20,9 +18,9 @@ const getLeaderboard = async (currentUser?: string) => {
 }
 
 const getBadge = (rank: number) => {
-  if (rank === 1) return <FontAwesome5 name="trophy" size={24} />
-  if (rank === 2) return <FontAwesome5 name="trophy" size={24} />
-  if (rank === 3) return <FontAwesome5 name="trophy" size={24} />
+  if (rank === 1) return <div>sdad</div>
+  if (rank === 2) return <div>sdad</div>
+  if (rank === 3) return <div>sdad</div>
   return null
 }
 
@@ -68,7 +66,7 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
     .sort((a, b) => b.xp - a.xp)
 
   return (
-    (loading && <Spinner />) || (
+    (loading && <div>Spinner</div>) || (
       <div style={styles.container}>
         <h1 style={styles.title}>Leaderboard</h1>
         <div style={styles.podium}>
@@ -77,7 +75,6 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
             <div style={styles.name}>John</div>
           </div>
           <div style={{ ...styles.step, ...styles.first }}>
-            <FontAwesome5 name="trophy" size={24} />
             <img alt="avatar" style={styles.avatar} />
             <div style={styles.position}>elmoto.eth</div>
             <div style={styles.name}>19 349</div>
