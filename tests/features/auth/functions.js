@@ -441,3 +441,25 @@ export async function selectHdPathAndAddAccount(page, hdPAthSelector) {
   // Click on "Save and Continue" button
   await clickOnElement(page, SELECTORS.saveAndContinueBtn)
 }
+
+export async function interactWithTrezorConnectPage(trezorConnectPage) {
+  // Wait for the device name to be visible and click on it
+  const deviceNameSelector = 'button.list .wrapper .device-name'
+
+  await clickOnElement(trezorConnectPage, deviceNameSelector)
+
+  // Wait for the confirm button
+  await trezorConnectPage.waitForSelector(SELECTORS.trezorPermissionConfirmButton, {
+    visible: true
+  })
+  // Click on the first button with this selector
+  await trezorConnectPage.$$eval(SELECTORS.trezorPermissionConfirmButton, (el) => el[0].click())
+
+  // Wait for the export address confirmation button
+  await trezorConnectPage.waitForSelector(SELECTORS.trezorExportAddressConfirmButton, {
+    visible: true
+  })
+
+  // Click on the first button with this selector
+  await trezorConnectPage.$$eval(SELECTORS.trezorExportAddressConfirmButton, (el) => el[0].click())
+}

@@ -47,7 +47,11 @@ export const TEST_IDS = {
   optionBip44LedgerLive: 'option-bip44-ledger-live',
   importExistingWallet: 'import-existing-wallet',
   useDefaultSeedBtn: 'use-default-seed-btn',
-  optionLegacyLedgerMyEtherWalletMyCrypto: 'option-legacy-ledger-myetherwallet-mycrypto'
+  optionLegacyLedgerMyEtherWalletMyCrypto: 'option-legacy-ledger-myetherwallet-mycrypto',
+  getStartedButtonConnectHwWallet: 'get-started-button-connect-hw-wallet',
+  selectHwOptionTrezor: 'select-hw-option-trezor',
+  trezorPermissionConfirmButton: '@permissions/confirm-button',
+  trezorExportAddressConfirmButton: '@export-address/confirm-button'
 }
 
 export const SELECTORS = Object.fromEntries(

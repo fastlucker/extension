@@ -196,6 +196,7 @@ const GetStartedScreen = () => {
             >
               <View style={[flexbox.directionRow]}>
                 <Card
+                  testID="get-started-button-connect-hw-wallet"
                   title={t('Connect a\nHardware Wallet')}
                   text={t(
                     'Start using accounts secured by Trezor, Ledger, or another Hardware Wallet.'
