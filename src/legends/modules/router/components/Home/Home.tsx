@@ -2,18 +2,14 @@ import React from 'react'
 import Balance from '@legends/modules/router/components/Balance'
 import WalletConnect from '@legends/modules/router/components/WalletConnect'
 
+import Sidebar from '@legends/components/Sidebar'
+
 const Home = () => {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignSelf: 'center',
-        alignItems: 'center',
-        height: '100%'
-      }}
-    >
-      <WalletConnect />
-      <Balance />
+    <div>
+      <Sidebar />
+        <WalletConnect />
+        <Balance />
     </div>
   )
 }
