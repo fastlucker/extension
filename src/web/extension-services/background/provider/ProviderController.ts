@@ -18,6 +18,8 @@ import { APP_VERSION } from '@common/config/env'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
+import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
+import formatDecimals from '@common/utils/formatDecimals'
 
 import { RequestRes, Web3WalletPermission } from './types'
 
@@ -94,6 +96,29 @@ export class ProviderController {
     this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
+  }
+
+  getPortfolioBalance = async ({ session: { origin } }: DappProviderRequest) => {
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
+      return null
+    }
+
+    const hasSignAccOp = !!this.mainCtrl.actions?.visibleActionsQueue?.filter(
+      (action) => action.type === 'accountOp'
+    )
+
+    const portfolio = calculateAccountPortfolio(
+      this.mainCtrl.accounts.selectedAccount,
+      this.mainCtrl.portfolio,
+      undefined,
+      hasSignAccOp
+    )
+
+    return {
+      amount: portfolio.totalAmount,
+      amountFormatted: formatDecimals(portfolio.totalAmount, 'price'),
+      isReady: portfolio.isAllReady
+    }
   }
 
   @Reflect.metadata('SAFE', true)
