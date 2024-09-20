@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  ambire-safari-prod
+//  wallet
 //
 //  Created by Dev Labs on 20.09.24.
 //

@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  ambire-safari-prod
+//  wallet
 //
 //  Created by Dev Labs on 20.09.24.
 //
@@ -9,7 +9,7 @@ import Cocoa
 import SafariServices
 import WebKit
 
-let extensionBundleIdentifier = "com.yourCompany.ambire-safari-prod.Extension"
+let extensionBundleIdentifier = "com.ambire.app.wallet.Extension"
 
 class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHandler {
 

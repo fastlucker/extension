@@ -1,6 +1,6 @@
 //
 //  SafariWebExtensionHandler.swift
-//  ambire-safari-prod Extension
+//  wallet Extension
 //
 //  Created by Dev Labs on 20.09.24.
 //
