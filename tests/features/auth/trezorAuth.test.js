@@ -7,17 +7,29 @@ import {
   TEST_ACCOUNT_NAMES
 } from './constants'
 import { getController, setup, initTrezorConnect } from './trezorEmulator.setup'
-import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
+import { SELECTORS } from '../../common/selectors/selectors'
 import { completeOnboardingSteps } from '../../common-helpers/completeOnboardingSteps'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import {
   wait,
   finishStoriesAndSelectAccount,
-  buildSelectorsForDynamicTestId,
-  checkAccountDetails,
-  interactWithTrezorConnectPage
+  personalizeAccountName,
+  interactWithTrezorConnectPage,
+  checkAccountDetails
 } from './functions'
-import { typeText } from '../../common-helpers/typeText'
+
+const TREZOR_OPTIONS = {
+  version: '1-main',
+  model: 'T1B1',
+  mnemonic: 'mnemonic_12',
+  pin: '1234',
+  passphrase_protection: false,
+  label: 'Test Trezor Device',
+  settings: {
+    use_passphrase: false,
+    experimental_features: true
+  }
+}
 
 const controller = getController()
 
@@ -29,19 +41,7 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
   let serviceWorker
 
   beforeAll(async () => {
-    await setup(controller, {
-      version: '1-main',
-      model: 'T1B1',
-      mnemonic: 'mnemonic_12',
-      pin: '1234',
-      passphrase_protection: false,
-      label: 'Test Trezor Device',
-      settings: {
-        use_passphrase: false,
-        experimental_features: true
-      }
-    })
-
+    await setup(controller, TREZOR_OPTIONS)
     await initTrezorConnect(controller)
   })
 
@@ -98,7 +98,7 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
     // Wait for Trezor connect page to open
     const newTarget = await browser.waitForTarget(
       (target) => target.url().startsWith('https://connect.trezor.io/'),
-      { timeout: 5000 } // Increased timeout to account for network latency
+      { timeout: 5000 }
     )
 
     const trezorConnectPage = await newTarget.page()
@@ -112,33 +112,16 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
       await finishStoriesAndSelectAccount(page, true)
 
     const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
-    const [editButton1, editButton2] = buildSelectorsForDynamicTestId(
-      TEST_IDS.editBtnForEditNameField,
-      TEST_ACCOUNT_NAMES
-    )
-    const [editField1, editField2] = buildSelectorsForDynamicTestId(
-      TEST_IDS.editFieldNameField,
-      TEST_ACCOUNT_NAMES
-    )
-
-    // Edit account names
-    await clickOnElement(page, editButton1)
-    await typeText(page, editField1, accountName1)
-
-    await clickOnElement(page, editButton2)
-    await typeText(page, editField2, accountName2)
-
-    // Save account names by clicking checkmark buttons
-    await clickOnElement(page, editButton1)
-    await clickOnElement(page, editButton2)
+    await personalizeAccountName(page, accountName1, 0)
+    await personalizeAccountName(page, accountName2, 1)
 
     await wait(1000)
 
-    // Proceed by clicking the Save and Continue button
+    // Click on "Save and Continue" button
     await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
 
-    // Verify account selection page and check account details
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
+
     await checkAccountDetails(
       page,
       SELECTORS.account,

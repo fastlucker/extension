@@ -379,25 +379,12 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
 
   await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
 
-  // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
   const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
     await finishStoriesAndSelectAccount(page, true)
 
   const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
-  const [btnProceedSeedPhraseWithIndexZeroSelector, btnProceedSeedPhraseWithIndexOneSelector] =
-    buildSelectorsForDynamicTestId(TEST_IDS.editBtnForEditNameField, TEST_ACCOUNT_NAMES)
-  const [editFieldNameFieldWithIndexZeroSelector, editFieldNameFieldWithIndexOneSelector] =
-    buildSelectorsForDynamicTestId(TEST_IDS.editFieldNameField, TEST_ACCOUNT_NAMES)
-
-  await clickOnElement(page, btnProceedSeedPhraseWithIndexZeroSelector)
-  await typeText(page, editFieldNameFieldWithIndexZeroSelector, accountName1)
-
-  await clickOnElement(page, btnProceedSeedPhraseWithIndexOneSelector)
-  await typeText(page, editFieldNameFieldWithIndexOneSelector, accountName2)
-
-  // Click on the checkmark icon to save the new account names
-  await clickOnElement(page, btnProceedSeedPhraseWithIndexZeroSelector)
-  await clickOnElement(page, btnProceedSeedPhraseWithIndexOneSelector)
+  await personalizeAccountName(page, accountName1, 0)
+  await personalizeAccountName(page, accountName2, 1)
 
   await wait(1000)
 

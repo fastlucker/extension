@@ -65,6 +65,11 @@ const MNEMONICS = {
     'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
 }
 
+const TREZOR_CONNECT_MANIFEST = {
+  email: 'wallet@ambire.com',
+  appUrl: 'https://wallet.ambire.com'
+}
+
 const emulatorStartOpts = {
   version: '1-main',
   model: 'T1B1',
@@ -85,7 +90,7 @@ if (!firmware || !deviceModel) {
   throw new Error('Firmware and device model must be provided')
 }
 
-const getController = () => {
+export const getController = () => {
   TrezorUserEnvLink.on('disconnected', () => {
     console.error('TrezorUserEnvLink WS disconnected')
   })
@@ -93,7 +98,7 @@ const getController = () => {
   return TrezorUserEnvLink
 }
 
-const setup = async (trezorUserEnvLink, options) => {
+export const setup = async (trezorUserEnvLink, options) => {
   await trezorUserEnvLink.connect()
 
   if (!options) {
@@ -129,18 +134,20 @@ const setup = async (trezorUserEnvLink, options) => {
     }
   }
 
+  // eslint-disable-next-line no-param-reassign
   trezorUserEnvLink.state = options
 
   await trezorUserEnvLink.api.startBridge()
 }
 
-const initTrezorConnect = async (trezorUserEnvLink, options) => {
+export const initTrezorConnect = async (trezorUserEnvLink, options) => {
   TrezorConnect.removeAllListeners()
 
   TrezorConnect.on('device-connect', (device) => {
     if (!device.features) {
       throw new Error('Device features not available')
     }
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     const { major_version, minor_version, patch_version, internal_model, revision } =
       device.features
     console.log('Device connected: ', {
@@ -164,10 +171,7 @@ const initTrezorConnect = async (trezorUserEnvLink, options) => {
   })
 
   await TrezorConnect.init({
-    manifest: {
-      email: 'wallet@ambire.com',
-      appUrl: 'https://wallet.ambire.com'
-    },
+    manifest: TREZOR_CONNECT_MANIFEST,
     transports: ['BridgeTransport'],
     debug: false,
     popup: false,
@@ -175,10 +179,4 @@ const initTrezorConnect = async (trezorUserEnvLink, options) => {
     connectSrc: process.env.TREZOR_CONNECT_SRC,
     ...options
   })
-}
-
-module.exports = {
-  getController,
-  setup,
-  initTrezorConnect
 }
