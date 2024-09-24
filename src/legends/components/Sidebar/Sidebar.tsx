@@ -38,11 +38,13 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         <img className={styles.logo} src="/images/logo.png" alt="Ambire Legends" />
         <HighlightedLink
           image="/images/sidebar/spin-the-wheel.png"
-          onClick={() => {}}
           title="Daily Legend"
           text="Available Now"
-          buttonText="Spin the Wheel"
-        />
+        >
+          <button onClick={() => {}} type="button" className={styles.spinButton}>
+            Spin the Wheel
+          </button>
+        </HighlightedLink>
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
             <Link

@@ -12,12 +12,19 @@ const Socials = () => {
   return (
     <div className={styles.wrapper}>
       <HighlightedLink
-        onClick={() => {}}
         title="Ambire Discord Server"
         text="Join our Discord server for support and announcements."
-        buttonText="Join Discord"
-        buttonIcon={faDiscord}
-      />
+      >
+        <a
+          target="_blank"
+          href="https://www.ambire.com/discord"
+          className={styles.discordLink}
+          rel="noreferrer"
+        >
+          <FontAwesomeIcon icon={faDiscord} />
+          Join Discord
+        </a>
+      </HighlightedLink>
       <div className={styles.socials}>
         <a
           href="https://t.me/AmbireOfficial"

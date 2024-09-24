@@ -1,20 +1,15 @@
 import React, { FC } from 'react'
 
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
 import styles from './HighlightedLink.module.scss'
 
 type Props = {
   image?: string
   title: string
   text: string
-  buttonText: string
-  buttonIcon?: IconDefinition
-  onClick: () => void
+  children: React.ReactNode
 }
 
-const HighlightedLink: FC<Props> = ({ image, title, text, buttonText, buttonIcon, onClick }) => {
+const HighlightedLink: FC<Props> = ({ image, title, text, children }) => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.content}>
@@ -24,10 +19,7 @@ const HighlightedLink: FC<Props> = ({ image, title, text, buttonText, buttonIcon
           <p className={styles.text}>{text}</p>
         </div>
       </div>
-      <button className={styles.button} onClick={onClick} type="button">
-        {buttonIcon && <FontAwesomeIcon icon={buttonIcon} />}
-        {buttonText}
-      </button>
+      {children}
     </div>
   )
 }
