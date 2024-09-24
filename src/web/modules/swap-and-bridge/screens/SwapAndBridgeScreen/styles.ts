@@ -9,6 +9,7 @@ interface Style {
   selectorContainer: ViewStyle
   swapAndBridgeToggleButtonWrapper: ViewStyle
   swapAndBridgeToggleButton: ViewStyle
+  networkSelectorContainer: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -38,6 +39,14 @@ const getStyles = (theme: ThemeProps) =>
       shadowOffset: { width: 0, height: 3 },
       shadowColor: '#6000FF33',
       shadowRadius: 7
+    },
+    networkSelectorContainer: {
+      ...flexbox.directionRow,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.secondaryBorder,
+      ...spacings.pbTy,
+      ...spacings.mbSm,
+      ...spacings.phSm
     }
   })
 

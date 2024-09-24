@@ -20,11 +20,13 @@ const NO_TOKENS_ITEMS = [
 const useGetTokenSelectProps = ({
   tokens,
   token,
-  networks
+  networks,
+  skipNetwork
 }: {
   tokens: TokenResult[]
   token: string
   networks: Network[]
+  skipNetwork?: boolean
 }) => {
   let options: any = []
   let value = null
@@ -34,7 +36,7 @@ const useGetTokenSelectProps = ({
     value = NO_TOKENS_ITEMS[0]
     options = NO_TOKENS_ITEMS
   } else {
-    options = mapTokenOptions(tokens, networks)
+    options = mapTokenOptions(tokens, networks, skipNetwork)
     value = options.find((item: any) => item.value === token) || options[0]
     amountSelectDisabled = false
   }

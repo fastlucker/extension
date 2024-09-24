@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -13,6 +13,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import getStyles from './styles'
@@ -26,8 +27,14 @@ const SwapAndBridgeScreen = () => {
     fromTokenOptions,
     fromTokenValue,
     fromTokenAmountSelectDisabled,
-    handleChangeFromToken
+    handleChangeFromToken,
+    toNetworksOptions,
+    handleSetToNetworkValue,
+    toTokenOptions,
+    toTokenValue,
+    handleChangeToToken
   } = useSwapAndBridgeFrom()
+  const { toChainId } = useSwapAndBridgeControllerState()
 
   // TODO: Wire-up with the UI
   // TODO: Disable tokens that are NOT supported
@@ -61,7 +68,7 @@ const SwapAndBridgeScreen = () => {
       <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
         <Panel title={t('Swap & Bridge')} forceContainerSmallSpacings>
           <View>
-            <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
+            <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
               {t('Send')}
             </Text>
             <View style={styles.selectorContainer}>
@@ -72,8 +79,10 @@ const SwapAndBridgeScreen = () => {
                     onChangeText={onFromAmountChange}
                     placeholder="0"
                     borderless
+                    inputStyle={spacings.pl0}
                     nativeInputStyle={{ fontFamily: FONT_FAMILIES.MEDIUM, fontSize: 20 }}
                     disabled={fromTokenAmountSelectDisabled}
+                    containerStyle={spacings.mb0}
                   />
                 </View>
                 <Select
@@ -82,8 +91,9 @@ const SwapAndBridgeScreen = () => {
                   value={fromTokenValue}
                   // disabled={disableForm}
                   // containerStyle={styles.tokenSelect}
-                  testID="tokens-select"
-                  containerStyle={flexbox.flex1}
+                  testID="from-token-select"
+                  containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
+                  selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                 />
               </View>
             </View>
@@ -96,11 +106,50 @@ const SwapAndBridgeScreen = () => {
         </View>
         <Panel forceContainerSmallSpacings>
           <View>
-            <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
+            <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
               {t('Receive')}
             </Text>
-            <View style={styles.selectorContainer}>
-              <Text>0</Text>
+            <View style={[styles.selectorContainer, spacings.ph0, spacings.ptTy]}>
+              <View style={styles.networkSelectorContainer}>
+                <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+                  <Text fontSize={14} style={spacings.mrTy} appearance="secondaryText">
+                    {t('Network')}
+                  </Text>
+                  <Select
+                    setValue={handleSetToNetworkValue}
+                    containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
+                    size="sm"
+                    options={toNetworksOptions}
+                    value={toNetworksOptions.filter((opt) => opt.value === toChainId)[0]}
+                    selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+                  />
+                </View>
+                <View style={flexbox.flex1} />
+              </View>
+              <View style={[flexbox.directionRow, spacings.phSm]}>
+                <View style={flexbox.flex1}>
+                  <NumberInput
+                    value={fromAmountValue}
+                    onChangeText={onFromAmountChange}
+                    placeholder="0"
+                    borderless
+                    inputStyle={spacings.pl0}
+                    nativeInputStyle={{ fontFamily: FONT_FAMILIES.MEDIUM, fontSize: 20 }}
+                    disabled={fromTokenAmountSelectDisabled}
+                    containerStyle={spacings.mb0}
+                  />
+                </View>
+                <Select
+                  setValue={({ value }) => handleChangeToToken(value as string)}
+                  options={toTokenOptions}
+                  value={toTokenValue}
+                  // disabled={disableForm}
+                  // containerStyle={styles.tokenSelect}
+                  testID="to-token-select"
+                  containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
+                  selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+                />
+              </View>
             </View>
           </View>
         </Panel>

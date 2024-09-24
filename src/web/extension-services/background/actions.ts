@@ -372,6 +372,8 @@ type SwapAndBridgeControllerUpdateAction = {
     fromAmount?: string
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
+    toChainId?: bigint | number
+    toSelectedToken?: TokenResult | null
   }
 }
 
