@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
@@ -14,13 +14,20 @@ import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTok
 import { getTokenId } from '@web/utils/token'
 
 const useSwapAndBridgeFrom = () => {
-  const { fromAmount, fromSelectedToken, toSelectedToken, toChainId } =
+  const { fromAmount, fromSelectedToken, toSelectedTokenAddress, toTokenList } =
     useSwapAndBridgeControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { theme } = useTheme()
+
+  useEffect(() => {
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT'
+    })
+  }, [dispatch])
+
   const onFromAmountChange = useCallback(
     (value: string) => {
       setFromAmountValue(value)
@@ -47,7 +54,14 @@ const useSwapAndBridgeFrom = () => {
     value: fromTokenValue,
     amountSelectDisabled: fromTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: portfolioTokensList,
+    tokens: portfolioTokensList.map((t) => ({
+      address: t.address,
+      symbol: t.symbol,
+      networkId: t.networkId,
+      icon: '',
+      decimals: t.decimals,
+      flags: t.flags
+    })),
     token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
     networks
   })
@@ -66,34 +80,31 @@ const useSwapAndBridgeFrom = () => {
     [dispatch, portfolioTokensList]
   )
 
-  const toNetwork = useMemo(
-    () => networks.find((n) => Number(n.chainId) === toChainId),
-    [networks, toChainId]
-  )
-
   const {
     options: toTokenOptions,
     value: toTokenValue,
     amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: portfolioTokensList.filter((t) => t.networkId === toNetwork?.id),
-    token: toSelectedToken ? getTokenId(toSelectedToken) : '',
+    tokens: toTokenList.map((t) => ({
+      address: t.address,
+      symbol: t.symbol,
+      chainId: t.chainId,
+      icon: t.icon,
+      decimals: t.decimals
+    })),
+    token: toSelectedTokenAddress || '',
     networks,
     skipNetwork: true
   })
 
   const handleChangeToToken = useCallback(
     (value: string) => {
-      const tokenToSelect = portfolioTokensList.find(
-        (tokenRes: TokenResult) => getTokenId(tokenRes) === value
-      )
-
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
-        params: { toSelectedToken: tokenToSelect }
+        params: { toSelectedTokenAddress: value }
       })
     },
-    [dispatch, portfolioTokensList]
+    [dispatch]
   )
 
   const toNetworksOptions: SelectValue[] = useMemo(

@@ -823,6 +823,8 @@ handleKeepAlive()
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
 
+              case 'SWAP_AND_BRIDGE_CONTROLLER_INIT':
+                return mainCtrl.swapAndBridge.init()
               case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE':
                 return mainCtrl.swapAndBridge.update(params)
 

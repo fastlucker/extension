@@ -8,6 +8,8 @@ const getTokenDataFromId = (id: string) => {
 }
 
 const getTokenId = (token: TokenResult) => {
+  if (!token.networkId || !token.flags) return token.address
+
   const { onGasTank, rewardsType } = token.flags
 
   return `${token.address}.${token.networkId}.${token.symbol}.${String(onGasTank)}.${

@@ -15,6 +15,7 @@ import getStyles from './styles'
 
 interface Props extends Partial<ImageProps> {
   networkId?: string
+  chainId?: number
   address?: string
   containerStyle?: ViewStyle
   withContainer?: boolean
@@ -31,7 +32,9 @@ interface Props extends Partial<ImageProps> {
 
 const TokenIcon: React.FC<Props> = ({
   networkId = '',
+  chainId,
   address = '',
+  uri,
   withContainer = false,
   withNetworkIcon = true,
   containerWidth = 34,
@@ -52,19 +55,20 @@ const TokenIcon: React.FC<Props> = ({
   const network = useMemo(
     () =>
       networks
-        ? networks.find((net) => net.id === networkId)
+        ? networks.find((net) => net.id === networkId || Number(net.chainId) === chainId)
         : predefinedNetworks.find((net) => net.id === networkId),
-    [networkId, networks]
+    [networkId, chainId, networks]
   )
 
   const imageUrl = useMemo(() => {
+    if (uri) return uri
     if (!network || !network.platformId) {
       setHasError(true)
       return undefined
     }
     setHasError(false)
     return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
-  }, [address, network])
+  }, [address, network, uri])
 
   const allContainerStyle = useMemo(
     () => [
@@ -116,8 +120,8 @@ const TokenIcon: React.FC<Props> = ({
           withRect={withContainer}
           // A bit larger when they don't have a container,
           // because the SVG sizings are made with rectangle in mind
-          width={withContainer ? containerWidth : width * 1.3}
-          height={withContainer ? containerHeight : height * 1.3}
+          width={withContainer ? containerWidth : width}
+          height={withContainer ? containerHeight : height}
         />
       )}
       {networkId && withNetworkIcon ? (
