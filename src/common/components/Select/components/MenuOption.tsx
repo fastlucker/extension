@@ -7,7 +7,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from '../styles'
-import { SelectValue } from '../types'
+import { SelectProps, SelectValue } from '../types'
 
 const formatOptionString = (optionString: string): string => {
   const formattedString = optionString
@@ -59,13 +59,15 @@ const MenuOption = React.memo(
     height,
     isSelected,
     onPress,
-    disabled
+    disabled,
+    size
   }: {
     item: SelectValue
     height?: number
     isSelected: boolean
     onPress: (item: SelectValue) => void
     disabled?: boolean
+    size: SelectProps['size']
   }) => {
     const { theme, styles } = useTheme(getStyles)
 
@@ -79,6 +81,7 @@ const MenuOption = React.memo(
       <Pressable
         style={({ hovered }: any) => [
           styles.menuOption,
+          size && styles[`${size}MenuOption`],
           !!height && { height },
           isSelected && { backgroundColor: theme.tertiaryBackground },
           hovered && !disabled && { backgroundColor: theme.secondaryBackground },

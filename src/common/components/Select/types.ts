@@ -16,6 +16,7 @@ export type CommonSelectProps = {
   defaultValue?: {}
   placeholder?: string
   label?: string
+  size?: 'sm' | 'md'
   containerStyle?: ViewStyle
   selectStyle?: ViewStyle
   labelStyle?: TextStyle

@@ -9,6 +9,7 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
@@ -26,7 +27,7 @@ const SortHat = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      if (isActionWindow && !actionsState.currentAction) window.close()
+      if (isActionWindow && !actionsState.currentAction) closeCurrentWindow()
     }, 1500)
   }, [isActionWindow, actionsState.currentAction])
 

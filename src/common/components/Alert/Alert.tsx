@@ -19,7 +19,7 @@ interface Props {
   title?: string | React.ReactNode
   titleWeight?: TextWeight
   text?: string
-  type?: 'error' | 'warning' | 'success' | 'info'
+  type?: 'error' | 'warning' | 'success' | 'info' | 'info2'
   style?: ViewStyle
   children?: React.ReactNode
   size?: 'sm' | 'md'
@@ -32,7 +32,8 @@ const ICON_MAP = {
   error: ErrorIcon,
   warning: WarningIcon,
   success: SuccessIcon,
-  info: InfoIcon
+  info: InfoIcon,
+  info2: InfoIcon
 }
 
 const { isPopup } = getUiType()

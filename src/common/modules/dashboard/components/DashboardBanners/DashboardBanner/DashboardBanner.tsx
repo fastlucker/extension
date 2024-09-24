@@ -1,43 +1,21 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { FC, useCallback, useMemo } from 'react'
-import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
-import ErrorIcon from '@common/assets/svg/ErrorIcon'
-import InfoIcon from '@common/assets/svg/InfoIcon'
-import SuccessIcon from '@common/assets/svg/SuccessIcon'
-import WarningIcon from '@common/assets/svg/WarningIcon'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
-import Button from '@common/components/Button'
-import Text from '@common/components/Text'
+import Banner from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
-import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
-import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import { getUiType } from '@web/utils/uiType'
 
 import RPCSelectBottomSheet from './RPCSelectBottomSheet'
-import getStyles from './styles'
-
-const isTab = getUiType().isTab
 
 const ERROR_ACTIONS = ['reject-accountOp']
 
-const ICON_MAP = {
-  error: ErrorIcon,
-  warning: WarningIcon,
-  success: SuccessIcon,
-  info: InfoIcon
-}
-
 const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions = [] }) => {
-  const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
@@ -48,8 +26,8 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
     if (category === 'pending-to-be-confirmed-acc-op') return PendingToBeConfirmedIcon
 
-    return ICON_MAP[type]
-  }, [type, category])
+    return null
+  }, [category])
 
   const withRpcUrlSelectBottomSheet = useMemo(
     () => !!actions.filter((a) => a.actionName === 'select-rpc-url').length,
@@ -116,49 +94,32 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
     [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]
   )
 
+  const renderButtons = useMemo(
+    () =>
+      actions.map((action) => {
+        const isReject = ERROR_ACTIONS.includes(action.actionName)
+
+        return (
+          <Banner.Button
+            key={action.actionName}
+            isReject={isReject}
+            text={action.label}
+            onPress={() => handleActionPress(action)}
+          />
+        )
+      }),
+    [actions, handleActionPress]
+  )
+
   return (
-    <View style={[styles.container, { backgroundColor: theme[`${type}Background`] }]}>
-      <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
-        <View style={[spacings.mrSm]}>
-          <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
-        </View>
-
-        <View style={[flexbox.wrap, flexbox.flex1]}>
-          <Text appearance="primaryText" fontSize={isTab ? 16 : 14} weight="medium">
-            {title}
-          </Text>
-          <Text fontSize={isTab ? 14 : 12} weight="regular" appearance="secondaryText">
-            {text}
-          </Text>
-        </View>
-      </View>
-      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {actions.map((action) => {
-          const isReject = ERROR_ACTIONS.includes(action.actionName)
-
-          return (
-            <Button
-              key={action.actionName}
-              size="small"
-              text={action.label}
-              textUnderline={isReject}
-              textStyle={isReject && { color: theme.errorDecorative }}
-              style={[spacings.mlTy, spacings.ph, isReject && { borderWidth: 0 }, { minWidth: 80 }]}
-              hasBottomSpacing={false}
-              onPress={() => handleActionPress(action)}
-              type={isReject ? 'ghost' : 'primary'}
-              submitOnEnter={false}
-            />
-          )
-        })}
-      </View>
+    <Banner CustomIcon={Icon} title={title} type={type} text={text} renderButtons={renderButtons}>
       <RPCSelectBottomSheet
         actions={actions}
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
         isVisible={withRpcUrlSelectBottomSheet}
       />
-    </View>
+    </Banner>
   )
 }
 
