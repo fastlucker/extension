@@ -26,7 +26,6 @@ const NAVIGATION_LINKS = [
 ]
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
-  // Get the current page and make the corresponding link active
   const { pathname } = useLocation()
 
   return (
