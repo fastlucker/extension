@@ -1,8 +1,3 @@
-import '../../shim'
-
-import '../../global'
-import 'react-native-gesture-handler'
-import 'expo-asset'
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import LegendsInit from './LegendsInit'

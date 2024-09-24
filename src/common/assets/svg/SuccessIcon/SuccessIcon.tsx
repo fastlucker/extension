@@ -1,20 +1,14 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { G, Path, Svg, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-  withCirc?: boolean
-}
-
-const SuccessIcon = ({
+const SuccessIcon: FC<SvgProps & { withCirc?: boolean }> = ({
   width = 24,
   height = 24,
   color = colors.martinique,
   withCirc = true
-}: Props) => {
+}) => {
   return (
     <Svg width={width} height={height} viewBox="0 0 21.5 21.5">
       {withCirc ? (
