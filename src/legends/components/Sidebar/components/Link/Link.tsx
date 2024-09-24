@@ -18,7 +18,7 @@ const Link: FC<Props> = ({ to, text, icon, isActive }) => {
       <div className={styles.iconWrapper}>
         <FontAwesomeIcon size="lg" icon={icon} />
       </div>
-      {text}
+      <span>{text}</span>
     </RouterLink>
   )
 }
