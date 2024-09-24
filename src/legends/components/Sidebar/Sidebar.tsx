@@ -1,4 +1,5 @@
 import React, { FC } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons/faCircleUser'
@@ -25,6 +26,9 @@ const NAVIGATION_LINKS = [
 ]
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
+  // Get the current page and make the corresponding link active
+  const { pathname } = useLocation()
+
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
       <div className={styles.top}>
@@ -41,7 +45,13 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
-            <Link isActive={false} key={link.to} to={link.to} text={link.text} icon={link.icon} />
+            <Link
+              isActive={pathname === link.to}
+              key={link.to}
+              to={link.to}
+              text={link.text}
+              icon={link.icon}
+            />
           ))}
         </div>
       </div>

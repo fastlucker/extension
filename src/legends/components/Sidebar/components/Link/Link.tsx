@@ -14,12 +14,12 @@ type Props = {
 
 const Link: FC<Props> = ({ to, text, icon, isActive }) => {
   return (
-    <div className={`${styles.wrapper} ${isActive ? styles.active : ''}`}>
+    <RouterLink to={to} className={`${styles.wrapper} ${isActive ? styles.active : ''}`}>
       <div className={styles.iconWrapper}>
         <FontAwesomeIcon size="lg" icon={icon} />
       </div>
-      <RouterLink to={to}>{text}</RouterLink>
-    </div>
+      {text}
+    </RouterLink>
   )
 }
 
