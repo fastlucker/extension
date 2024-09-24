@@ -3,3 +3,34 @@
   width: 100%;
   margin: 0 auto;
 }
+
+@mixin on-mobile {
+  @media (max-width: 599px) {
+    @content;
+  }
+}
+
+// Generate responsive mixins for mobile, tablet, large tablet, small desktop, medium and large desktop.
+@mixin breakpoint-from($breakpoint) {
+  @if $breakpoint == tablet {
+    @media (min-width: 600px) {
+      @content;
+    }
+  } @else if $breakpoint == large-tablet {
+    @media (min-width: 900px) {
+      @content;
+    }
+  } @else if $breakpoint == small-desktop {
+    @media (min-width: 1200px) {
+      @content;
+    }
+  } @else if $breakpoint == medium-desktop {
+    @media (min-width: 1400px) {
+      @content;
+    }
+  } @else if $breakpoint == large-desktop {
+    @media (min-width: 1800px) {
+      @content;
+    }
+  }
+}
