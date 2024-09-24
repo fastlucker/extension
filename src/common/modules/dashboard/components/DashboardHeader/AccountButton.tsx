@@ -6,9 +6,10 @@ import { Animated, View } from 'react-native'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import AccountKeysButton from '@common/components/AccountKeysButton'
+import AccountKeyIcons from '@common/components/AccountKeyIcons'
 import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
+import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
@@ -28,6 +29,7 @@ const AccountButton = () => {
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
   const accountsState = useAccountsControllerState()
+  const { accounts } = useAccounts()
   const { ens, ud } = useReverseLookup({ address: accountsState.selectedAccount || '' })
   const [bindAddressAnim, addressAnimStyle] = useHover({
     preset: 'opacity'
@@ -59,6 +61,13 @@ const AccountButton = () => {
 
   if (!selectedAccountData) return null
 
+  const account = useMemo(
+    () => accounts.find((a) => a.addr === accountsState.selectedAccount),
+    [accounts, accountsState.selectedAccount]
+  )
+
+  if (!account) return null
+
   return (
     <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
       <AnimatedPressable
@@ -85,7 +94,8 @@ const AccountButton = () => {
             >
               {selectedAccountData.preferences.label}
             </Text>
-            <AccountKeysButton />
+
+            <AccountKeyIcons account={account} />
           </View>
           <Animated.View style={accountBtnAnimStyle}>
             <RightArrowIcon

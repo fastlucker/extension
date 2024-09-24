@@ -1,16 +1,12 @@
 import * as Clipboard from 'expo-clipboard'
-import React, { memo } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, View, ViewStyle } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
-import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
-import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
-import PrivateKeyMiniIcon from '@common/assets/svg/PrivateKeyMiniIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import TrezorMiniIcon from '@common/assets/svg/TrezorMiniIcon'
 import Badge from '@common/components/Badge'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
@@ -21,6 +17,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import { getUiType } from '@web/utils/uiType'
+
+import AccountKeyIcon from '../AccountKeyIcon'
 
 export type AccountKeyType = {
   isImported: boolean
@@ -40,14 +38,6 @@ type Props = AccountKeyType & {
 }
 
 const { isPopup } = getUiType()
-
-const KeyTypeIcon = memo(({ type }: { type: Key['type'] }) => {
-  if (type === 'lattice') return <LatticeMiniIcon width={24} height={24} />
-  if (type === 'trezor') return <TrezorMiniIcon width={24} height={24} />
-  if (type === 'ledger') return <LedgerMiniIcon width={24} height={24} />
-
-  return <PrivateKeyMiniIcon width={24} height={24} />
-})
 
 const AccountKey: React.FC<Props> = ({
   label,
@@ -120,7 +110,7 @@ const AccountKey: React.FC<Props> = ({
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         {isImported && (
           <View style={spacings.mrTy}>
-            <KeyTypeIcon type={type || 'internal'} />
+            <AccountKeyIcon type={type || 'internal'} />
           </View>
         )}
         <View style={isPopup ? { maxWidth: 350 } : {}}>

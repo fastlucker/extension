@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { isSmartAccount } from '@ambire-common/libs/account/account'
 import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
 import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Alert from '@common/components/Alert'
@@ -45,7 +44,6 @@ const NoKeysToSignAlert: FC<Props> = ({ style, isTransaction = true }) => {
         }}
       />
       <AccountKeysBottomSheet
-        isSmartAccount={isSmartAccount(account)}
         sheetRef={sheetRef}
         associatedKeys={associatedKeys}
         importedAccountKeys={importedAccountKeys}

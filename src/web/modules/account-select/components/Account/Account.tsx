@@ -6,6 +6,8 @@ import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import LogOutIcon from '@common/assets/svg/LogOutIcon'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
+import AccountKeyIcons from '@common/components/AccountKeyIcons'
+import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Avatar from '@common/components/Avatar'
 import Dialog from '@common/components/Dialog'
 import DialogButton from '@common/components/Dialog/DialogButton'
@@ -21,6 +23,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -33,13 +36,15 @@ const Account = ({
   onSelect,
   maxAccountAddrLength = 42,
   withSettings = true,
-  renderRightChildren
+  renderRightChildren,
+  isInSettings = false
 }: {
   account: AccountInterface
   onSelect?: (addr: string) => void
   maxAccountAddrLength?: number
   withSettings?: boolean
   renderRightChildren?: () => React.ReactNode
+  isInSettings?: boolean
 }) => {
   const { addr, preferences } = account
   const { t } = useTranslation()
@@ -59,7 +64,17 @@ const Account = ({
     forceHoveredStyle: addr === selectedAccount
   })
 
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { keys } = useKeystoreControllerState()
+  const associatedKeys = account?.associatedKeys || []
+  const importedAccountKeys = keys.filter(({ addr: keyAddr }) => associatedKeys.includes(keyAddr))
+
   const selectAccount = useCallback(() => {
+    if (isInSettings) {
+      openBottomSheet()
+      return
+    }
+
     if (selectedAccount !== addr) {
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
@@ -68,7 +83,7 @@ const Account = ({
     }
 
     onSelect && onSelect(addr)
-  }, [addr, dispatch, onSelect, selectedAccount])
+  }, [addr, dispatch, onSelect, selectedAccount, isInSettings, openBottomSheet])
 
   const removeAccount = useCallback(() => {
     dispatch({
@@ -141,6 +156,10 @@ const Account = ({
                 />
               )}
 
+              <View style={[spacings.mlMi]}>
+                <AccountKeyIcons account={account} />
+              </View>
+
               <AccountBadges accountData={account} />
             </View>
             <AccountAddress
@@ -155,6 +174,14 @@ const Account = ({
         </View>
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
           {renderRightChildren && renderRightChildren()}
+          {isInSettings && (
+            <AccountKeysBottomSheet
+              sheetRef={sheetRef}
+              associatedKeys={associatedKeys}
+              importedAccountKeys={importedAccountKeys}
+              closeBottomSheet={closeBottomSheet}
+            />
+          )}
           <Pressable onPress={promptRemoveAccount}>
             <LogOutIcon width={20} height={20} color={theme.secondaryText} />
           </Pressable>
