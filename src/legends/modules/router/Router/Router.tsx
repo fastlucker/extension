@@ -8,7 +8,8 @@ import Welcome from '@legends/modules/welcome/screens/Welcome'
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Welcome />
+    element: <Welcome />,
+    index: true
   },
   {
     path: '/legends',
