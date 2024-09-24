@@ -35,6 +35,11 @@ module.exports = async function (env, argv) {
     if (config.mode === 'development') {
       manifest.name = 'Ambire Wallet Dev'
     }
+    // Shorter for Safari on purpose (up to 100 characters allowed), all others allow up to 132 characters
+    manifest.description = isSafari
+      ? 'Hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+      : 'Secure and easy-to-use hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
 
@@ -79,8 +84,6 @@ module.exports = async function (env, argv) {
 
     if (isSafari) {
       manifest.permissions = manifest.permissions.filter((p) => p !== 'notifications')
-      manifest.description =
-        'Hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
     }
 
     manifest.content_security_policy = { extension_pages: csp }
