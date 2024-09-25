@@ -3,6 +3,12 @@ import { validateEnvVariables } from './envValidator'
 
 export const loadEnv = () => {
   try {
+    // Check if the environment is running in CI (GitHub Actions sets the CI environment variable)
+    if (process.env.CI) {
+      console.log('Running in CI environment, skipping .env file loading...')
+      return
+    }
+
     // Clear the dotenv cache to ensure fresh loading of environment variables
     delete require.cache[require.resolve('dotenv')]
 
