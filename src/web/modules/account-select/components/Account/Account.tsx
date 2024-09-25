@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
-import LogOutIcon from '@common/assets/svg/LogOutIcon'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import AccountKeyIcons from '@common/components/AccountKeyIcons'
@@ -12,6 +11,7 @@ import Avatar from '@common/components/Avatar'
 import Dialog from '@common/components/Dialog'
 import DialogButton from '@common/components/Dialog/DialogButton'
 import DialogFooter from '@common/components/Dialog/DialogFooter'
+import Dropdown from '@common/components/Dropdown'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -37,19 +37,20 @@ const Account = ({
   maxAccountAddrLength = 42,
   withSettings = true,
   renderRightChildren,
-  isInSettings = false
+  isSettings = false
 }: {
   account: AccountInterface
   onSelect?: (addr: string) => void
   maxAccountAddrLength?: number
   withSettings?: boolean
   renderRightChildren?: () => React.ReactNode
-  isInSettings?: boolean
+  isSettings?: boolean
 }) => {
   const { addr, preferences } = account
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
+  const [toggleDropdown, setToggleDropdown] = useState(0)
   const mainCtrlState = useMainControllerState()
   const { selectedAccount, statuses: accountsStatuses } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
@@ -61,7 +62,7 @@ const Account = ({
       from: theme.primaryBackground,
       to: theme.secondaryBackground
     },
-    forceHoveredStyle: addr === selectedAccount
+    forceHoveredStyle: !isSettings && addr === selectedAccount
   })
 
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -70,8 +71,8 @@ const Account = ({
   const importedAccountKeys = keys.filter(({ addr: keyAddr }) => associatedKeys.includes(keyAddr))
 
   const selectAccount = useCallback(() => {
-    if (isInSettings) {
-      openBottomSheet()
+    if (isSettings) {
+      setToggleDropdown(toggleDropdown + 1)
       return
     }
 
@@ -83,7 +84,7 @@ const Account = ({
     }
 
     onSelect && onSelect(addr)
-  }, [addr, dispatch, onSelect, selectedAccount, isInSettings, openBottomSheet])
+  }, [addr, dispatch, onSelect, selectedAccount, isSettings, toggleDropdown])
 
   const removeAccount = useCallback(() => {
     dispatch({
@@ -125,6 +126,17 @@ const Account = ({
       closeDialog()
     }
   }, [addToast, closeDialog, mainCtrlState.statuses.removeAccount, t])
+
+  const onDropdownSelect = (item: { label: string; value: string }) => {
+    if (item.value === 'remove') {
+      promptRemoveAccount()
+      return
+    }
+
+    if (item.value === 'keys') {
+      openBottomSheet()
+    }
+  }
 
   return (
     <Pressable
@@ -174,7 +186,7 @@ const Account = ({
         </View>
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
           {renderRightChildren && renderRightChildren()}
-          {isInSettings && (
+          {isSettings && (
             <AccountKeysBottomSheet
               sheetRef={sheetRef}
               associatedKeys={associatedKeys}
@@ -182,9 +194,16 @@ const Account = ({
               closeBottomSheet={closeBottomSheet}
             />
           )}
-          <Pressable onPress={promptRemoveAccount}>
-            <LogOutIcon width={20} height={20} color={theme.secondaryText} />
-          </Pressable>
+          {isSettings && (
+            <Dropdown
+              data={[
+                { label: 'Manage Keys', value: 'keys' },
+                { label: 'Remove Account', value: 'remove' }
+              ]}
+              onSelect={onDropdownSelect}
+              toggle={toggleDropdown}
+            />
+          )}
         </View>
       </Animated.View>
       <Dialog

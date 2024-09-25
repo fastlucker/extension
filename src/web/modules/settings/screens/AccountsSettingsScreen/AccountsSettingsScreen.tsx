@@ -58,7 +58,7 @@ const AccountsSettingsScreen = () => {
             key={account.addr}
             account={account}
             maxAccountAddrLength={shortenAccountAddr()}
-            isInSettings
+            isSettings
           />
         ))}
       </View>

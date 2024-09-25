@@ -6,6 +6,7 @@ import { Animated, View, ViewStyle } from 'react-native'
 import { Key } from '@ambire-common/interfaces/keystore'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
+import ExportIcon from '@common/assets/svg/ExportIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Badge from '@common/components/Badge'
 import Editable from '@common/components/Editable'
@@ -153,6 +154,9 @@ const AccountKey: React.FC<Props> = ({
             <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
           </AnimatedPressable>
         )}
+        <View style={spacings.mlTy}>
+          <ExportIcon width={20} height={20} color={theme.secondaryText} />
+        </View>
       </View>
       {isImported ? (
         handleOnKeyDetailsPress && (
