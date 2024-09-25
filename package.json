@@ -44,9 +44,9 @@
     "expo:install": "expo install",
     "eas:secret:list": "eas secret:list",
     "eas:secret:push": "eas secret:push --scope project --env-file .env",
-    "test:e2e:web:dev": "WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests/features/auth/trezorAuth.test.js",
-    "test:e2e:web:dev:mac": "docker-compose -f ./docker-compose-mac.yml up --force-recreate -d && WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests/features/auth/trezorAuth.test.js",
-    "test:e2e:web": "yarn build:web:webkit && jest test --config=./tests/jest.config.js",
+    "test:e2e:web:dev": "docker stop $(docker ps -a -q) && docker-compose -f ./docker-compose.yml up --force-recreate -d && WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests/features/auth/trezorAuth.test.js",
+    "test:e2e:web:dev:mac": "docker stop $(docker ps -a -q) && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d && WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests/features/auth/trezorAuth.test.js",
+    "test:e2e:web": "docker stop $(docker ps -a -q) && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d && yarn build:web:webkit && jest test --config=./tests/jest.config.js",
     "test": "jest --config=./jest.config.js",
     "postinstall": "patch-package"
   },
