@@ -5955,15 +5955,6 @@
     protobufjs "7.2.6"
     usb "^2.11.0"
 
-"@trezor/trezor-user-env-link@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@trezor/trezor-user-env-link/-/trezor-user-env-link-1.0.0.tgz#2fe8f8294b18befbc351bc5fac422c2e41165ed1"
-  integrity sha512-EY8wfoQHmYFCm2hrOExrksT/l6tpivflT+CQekBWoBwGJdEqv2GF8IRdQaepJZBLo/0L8pPHAt4dLYOGb89xGg==
-  dependencies:
-    "@trezor/utils" "9.0.7"
-    cross-fetch "^3.1.5"
-    ws "7.5.9"
-
 "@trezor/type-utils@1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@trezor/type-utils/-/type-utils-1.1.0.tgz#cbf65c188555565afe03b16e2ea1238e6fea5b71"
@@ -24372,11 +24363,6 @@ ws@7.4.6:
   version "7.4.6"
   resolved "https://registry.npmjs.org/ws/-/ws-7.4.6.tgz"
   integrity sha512-YmhHDO4MzaDLB+M9ym/mDA5z0naX8j7SIlT8f8z+I0VtzsRbekxEutHSme7NPS2qE8StCYQNUnfWdXta/Yu85A==
-
-ws@7.5.9, ws@^7, ws@^7.2.0, ws@^7.5.1:
-  version "7.5.9"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.9.tgz#54fa7db29f4c7cec68b1ddd3a89de099942bb591"
-  integrity sha512-F+P9Jil7UiSKSkppIiD94dN07AwvFixvLIj1Og1Rl9GGMuNipJnV9JzjD6XuqmAeiswGvUmNLjr5cFuXwNS77Q==
 
 ws@8.13.0, ws@^8.13.0:
   version "8.13.0"
