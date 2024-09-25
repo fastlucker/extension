@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Network } from '@ambire-common/interfaces/network'
+import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -24,15 +25,7 @@ const useGetTokenSelectProps = ({
   networks,
   skipNetwork
 }: {
-  tokens: {
-    address: TokenResult['address']
-    decimals: number
-    icon: string
-    symbol: string
-    chainId?: number
-    networkId?: string
-    flags?: TokenResult['flags']
-  }[]
+  tokens: SocketAPIToken[] | TokenResult[]
   token: string
   networks: Network[]
   skipNetwork?: boolean

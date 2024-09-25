@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -14,7 +15,7 @@ import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTok
 import { getTokenId } from '@web/utils/token'
 
 const useSwapAndBridgeFrom = () => {
-  const { fromAmount, fromSelectedToken, toSelectedTokenAddress, toTokenList } =
+  const { fromAmount, fromSelectedToken, toSelectedToken, toTokenList } =
     useSwapAndBridgeControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const { dispatch } = useBackgroundService()
@@ -54,14 +55,7 @@ const useSwapAndBridgeFrom = () => {
     value: fromTokenValue,
     amountSelectDisabled: fromTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: portfolioTokensList.map((t) => ({
-      address: t.address,
-      symbol: t.symbol,
-      networkId: t.networkId,
-      icon: '',
-      decimals: t.decimals,
-      flags: t.flags
-    })),
+    tokens: portfolioTokensList,
     token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
     networks
   })
@@ -85,26 +79,22 @@ const useSwapAndBridgeFrom = () => {
     value: toTokenValue,
     amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: toTokenList.map((t) => ({
-      address: t.address,
-      symbol: t.symbol,
-      chainId: t.chainId,
-      icon: t.icon,
-      decimals: t.decimals
-    })),
-    token: toSelectedTokenAddress || '',
+    tokens: toTokenList,
+    token: toSelectedToken ? getTokenId(toSelectedToken) : '',
     networks,
     skipNetwork: true
   })
 
   const handleChangeToToken = useCallback(
     (value: string) => {
+      const tokenToSelect = toTokenList.find((t: SocketAPIToken) => getTokenId(t) === value)
+
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
-        params: { toSelectedTokenAddress: value }
+        params: { toSelectedToken: tokenToSelect }
       })
     },
-    [dispatch]
+    [dispatch, toTokenList]
   )
 
   const toNetworksOptions: SelectValue[] = useMemo(

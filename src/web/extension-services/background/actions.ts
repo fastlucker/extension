@@ -10,6 +10,7 @@ import { Account, AccountPreferences, AccountStates } from '@ambire-common/inter
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key, KeyPreferences } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -376,7 +377,7 @@ type SwapAndBridgeControllerUpdateAction = {
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
-    toSelectedTokenAddress?: string | null
+    toSelectedToken?: SocketAPIToken | null
   }
 }
 

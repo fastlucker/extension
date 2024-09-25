@@ -96,8 +96,12 @@ module.exports = (_, argv) => {
     ],
     devtool: isDevelopment ? 'source-map' : false,
     devServer: {
+      historyApiFallback: true, // This ensures any route will serve index.html
       static: path.join(__dirname, LEGENDS_REACT_PUBLIC_PATH),
-      port: 3000
+      port: 3000,
+      hot: true,
+      liveReload: true,
+      watchFiles: ['src/legends/**/*', 'src/ambire-common/**/*']
     }
   }
 }
