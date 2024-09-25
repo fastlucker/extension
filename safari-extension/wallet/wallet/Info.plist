@@ -4,5 +4,9 @@
 <dict>
 	<key>SFSafariWebExtensionConverterVersion</key>
 	<string>15.4</string>
+	<key>CFBundleShortVersionString</key>
+	<string>4.35.0</string>
+	<key>CFBundleVersion</key>
+	<string>2</string>
 </dict>
 </plist>
