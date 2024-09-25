@@ -1,7 +1,92 @@
 @import '@legends/styles/base.scss';
 
 .wrapper {
+  position: absolute;
+  z-index: 3;
   background-color: $secondaryBackground;
-  width: 300px;
+  border-right: 1px solid $primaryBorder;
+  width: 16.25rem;
+  padding: 0 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   height: 100vh;
+  transition: left 0.3s, opacity 0.2s;
+
+  &:not(.open) {
+    left: -50%;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &.open {
+    left: 0;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .top {
+    position: relative;
+
+    .spinButton {
+      @include secondary-button;
+    }
+
+    .closeButton {
+      position: absolute;
+      top: 1rem;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      background-color: $tertiaryBackground;
+      border: 1px solid $primaryBorder;
+      border-radius: $primaryBorderRadius;
+      font-size: 1rem;
+      color: $secondaryText;
+      cursor: pointer;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 0.75rem;
+      width: 12.5rem;
+      height: auto;
+    }
+
+    .links {
+      padding-top: 2rem;
+    }
+  }
+
+  @include breakpoint-from(large-tablet) {
+    position: static;
+
+    &:not(.open) {
+      left: 0;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .top {
+      .closeButton {
+        display: none;
+      }
+    }
+  }
+
+  @media screen and (max-height: 750px) {
+    .top {
+      .logo {
+        width: 10rem;
+        height: auto;
+      }
+      .links {
+        padding-top: 1rem;
+      }
+    }
+  }
 }

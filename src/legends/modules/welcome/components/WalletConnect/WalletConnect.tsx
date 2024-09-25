@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 const WalletConnect = () => {
+  const navigate = useNavigate()
   const { accountPortfolio, updateAccountPortfolio } = usePortfolioControllerState()
 
   const requestAccounts = useCallback(async () => {
+    if (!window.ambire) return
     await window.ambire.request({
       method: 'eth_requestAccounts',
       params: []
@@ -12,6 +16,7 @@ const WalletConnect = () => {
   }, [])
 
   const getConnectedAccount = useCallback(async (): Promise<string | undefined> => {
+    if (!window.ambire) return
     const accounts = await window.ambire.request({
       method: 'eth_accounts',
       params: []
@@ -21,14 +26,13 @@ const WalletConnect = () => {
     return accounts[0]
   }, [])
 
-  // On load, try to get the already connected account and fetch its portfolio.
-  useEffect(() => {
-    ;(async () => {
-      const account = await getConnectedAccount()
-
-      if (account) updateAccountPortfolio(account)
-    })()
-  }, [updateAccountPortfolio])
+  const onConnect = useCallback(
+    (account: string) => {
+      updateAccountPortfolio(account)
+      navigate('/legends')
+    },
+    [navigate, updateAccountPortfolio]
+  )
 
   // On Account connect or change set the new Legends address and fetch its portfolio,
   // while on Account disconnect, we simply reload the Legends, which resets all the hooks state.
@@ -37,12 +41,18 @@ const WalletConnect = () => {
       const account = accounts[0]
 
       if (account) {
-        updateAccountPortfolio(account)
+        onConnect(account)
       } else {
         // If the account is disconnected, we simply reload Legends, as we don't persist any state in the storage.
         window.location.reload()
       }
     }
+
+    getConnectedAccount()
+      .then((account) => {
+        if (account) onConnect(account)
+      })
+      .catch(() => console.error('Error fetching connected account'))
 
     // The `accountsChanged` event is fired when the account is connected, changed or disconnected by the extension.
     window.ambire?.on('accountsChanged', onAccountsChanged)
@@ -50,7 +60,7 @@ const WalletConnect = () => {
     return () => {
       window.ambire.removeListener('accountsChanged', onAccountsChanged)
     }
-  }, [updateAccountPortfolio])
+  }, [getConnectedAccount, onConnect, updateAccountPortfolio])
 
   // If it's connected, don't show the connect button
   if (accountPortfolio) return null
