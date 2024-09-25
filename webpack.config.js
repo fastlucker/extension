@@ -16,6 +16,10 @@ const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 const isWebkit = process.env.WEB_ENGINE?.startsWith('webkit')
 const isGecko = process.env.WEB_ENGINE === 'gecko'
 const isSafari = process.env.WEB_ENGINE === 'webkit-safari'
+const outputPath = process.env.WEBPACK_BUILD_OUTPUT_PATH
+const isExtension =
+  outputPath.includes('webkit') || outputPath.includes('gecko') || outputPath.includes('safari')
+const isBenzin = outputPath.includes('benzin')
 
 // style.css output file for WEB_ENGINE: GECKO
 function processStyleGecko(content) {
@@ -97,12 +101,6 @@ module.exports = async function (env, argv) {
     const manifestJSON = JSON.stringify(manifest, null, 2)
     return manifestJSON
   }
-
-  const outputPath = process.env.WEBPACK_BUILD_OUTPUT_PATH
-  const isExtension =
-    outputPath.includes('webkit') || outputPath.includes('gecko') || outputPath.includes('safari')
-  const isBenzin = outputPath.includes('benzin')
-  const isLegends = outputPath.includes('legends')
 
   // Global configuration
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
@@ -323,46 +321,6 @@ module.exports = async function (env, argv) {
           },
           {
             from: './src/benzin/public/favicon.ico',
-            to: 'favicon.ico'
-          }
-        ]
-      })
-    ]
-
-    return config
-  }
-  if (isLegends) {
-    if (process.env.APP_ENV === 'development') {
-      config.optimization = { minimize: false }
-    } else {
-      delete config.optimization.splitChunks
-    }
-
-    config.entry = './src/legends/index.js'
-
-    config.plugins = [
-      ...defaultExpoConfigPlugins,
-      new NodePolyfillPlugin(),
-      new webpack.ProvidePlugin({
-        Buffer: ['buffer', 'Buffer'],
-        process: 'process'
-      }),
-      new CopyPlugin({
-        patterns: [
-          {
-            from: './src/web/assets',
-            to: 'assets'
-          },
-          {
-            from: './src/legends/public/style.css',
-            to: 'style.css'
-          },
-          {
-            from: './src/legends/public/index.html',
-            to: 'index.html'
-          },
-          {
-            from: './src/legends/public/favicon.ico',
             to: 'favicon.ico'
           }
         ]

@@ -1,0 +1,55 @@
+@mixin secondary-button {
+  background-color: $secondaryBackground;
+  border: 1px solid $secondaryBorder;
+  border-radius: $primaryBorderRadius;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  height: 2rem;
+  width: 100%;
+  text-transform: uppercase;
+  font-weight: 600;
+
+  svg {
+    font-size: 0.875rem;
+  }
+}
+@mixin container {
+  max-width: 60rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@mixin on-mobile {
+  @media (max-width: 599px) {
+    @content;
+  }
+}
+
+// Generate responsive mixins for mobile, tablet, large tablet, small desktop, medium and large desktop.
+@mixin breakpoint-from($breakpoint) {
+  @if $breakpoint == tablet {
+    @media (min-width: 600px) {
+      @content;
+    }
+  } @else if $breakpoint == large-tablet {
+    @media (min-width: 900px) {
+      @content;
+    }
+  } @else if $breakpoint == small-desktop {
+    @media (min-width: 1200px) {
+      @content;
+    }
+  } @else if $breakpoint == medium-desktop {
+    @media (min-width: 1400px) {
+      @content;
+    }
+  } @else if $breakpoint == large-desktop {
+    @media (min-width: 1800px) {
+      @content;
+    }
+  }
+}
