@@ -19,22 +19,39 @@ const NO_TOKENS_ITEMS = [
   }
 ]
 
+const LOADING_TOKEN_ITEMS = [
+  {
+    value: 'loading',
+    label: (
+      <Text weight="medium" fontSize={14}>
+        Fetching tokens...
+      </Text>
+    ),
+    icon: null
+  }
+]
+
 const useGetTokenSelectProps = ({
   tokens,
   token,
   networks,
+  isLoading,
   skipNetwork
 }: {
   tokens: SocketAPIToken[] | TokenResult[]
   token: string
   networks: Network[]
+  isLoading?: boolean
   skipNetwork?: boolean
 }) => {
   let options: any = []
   let value = null
   let amountSelectDisabled = true
 
-  if (tokens?.length === 0) {
+  if (isLoading) {
+    value = LOADING_TOKEN_ITEMS[0]
+    options = LOADING_TOKEN_ITEMS
+  } else if (tokens?.length === 0) {
     value = NO_TOKENS_ITEMS[0]
     options = NO_TOKENS_ITEMS
   } else {

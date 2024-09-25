@@ -378,6 +378,7 @@ type SwapAndBridgeControllerUpdateAction = {
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
     toSelectedToken?: SocketAPIToken | null
+    portfolioTokenList?: TokenResult[]
   }
 }
 

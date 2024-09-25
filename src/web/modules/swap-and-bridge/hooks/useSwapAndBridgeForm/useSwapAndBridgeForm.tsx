@@ -15,8 +15,14 @@ import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTok
 import { getTokenId } from '@web/utils/token'
 
 const useSwapAndBridgeFrom = () => {
-  const { fromAmount, fromSelectedToken, toSelectedToken, toTokenList } =
-    useSwapAndBridgeControllerState()
+  const {
+    fromAmount,
+    fromSelectedToken,
+    toSelectedToken,
+    portfolioTokenList,
+    toTokenList,
+    statuses
+  } = useSwapAndBridgeControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -40,29 +46,33 @@ const useSwapAndBridgeFrom = () => {
     [dispatch]
   )
 
-  const portfolioTokensList = useMemo(
-    () =>
-      accountPortfolio?.tokens.filter((token) => {
-        const hasAmount = Number(getTokenAmount(token)) > 0
+  useEffect(() => {
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
+      params: {
+        portfolioTokenList:
+          accountPortfolio?.tokens.filter((token) => {
+            const hasAmount = Number(getTokenAmount(token)) > 0
 
-        return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
-      }) || [],
-    [accountPortfolio?.tokens]
-  )
+            return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
+          }) || []
+      }
+    })
+  }, [accountPortfolio?.tokens, dispatch])
 
   const {
     options: fromTokenOptions,
     value: fromTokenValue,
     amountSelectDisabled: fromTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: portfolioTokensList,
+    tokens: portfolioTokenList,
     token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
     networks
   })
 
   const handleChangeFromToken = useCallback(
     (value: string) => {
-      const tokenToSelect = portfolioTokensList.find(
+      const tokenToSelect = portfolioTokenList.find(
         (tokenRes: TokenResult) => getTokenId(tokenRes) === value
       )
 
@@ -71,7 +81,7 @@ const useSwapAndBridgeFrom = () => {
         params: { fromSelectedToken: tokenToSelect }
       })
     },
-    [dispatch, portfolioTokensList]
+    [dispatch, portfolioTokenList]
   )
 
   const {
@@ -82,6 +92,7 @@ const useSwapAndBridgeFrom = () => {
     tokens: toTokenList,
     token: toSelectedToken ? getTokenId(toSelectedToken) : '',
     networks,
+    isLoading: !toTokenList.length && statuses.updateToTokenList !== 'INITIAL',
     skipNetwork: true
   })
 
