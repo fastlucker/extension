@@ -1,0 +1,141 @@
+# The Ambire relayer for all EVM chains. Responsible for managing on-chain
+# Identities (called "Ambire accounts") and relaying gasless transactions
+# to the Ethereum network. It is not intended to be blockchain-agnostic,
+# and it is Ethereum-specific.
+RELAYER_URL="https://relayer.ambire.com"
+# RELAYER_URL="https://staging-relayer.ambire.com"
+# RELAYER_URL="http://localhost:1934"
+APP_RELAYRLESS="false"
+
+# Ambire specific static constants, shared between all Ambire apps
+CONSTANTS_ENDPOINT="https://jason.ambire.com"
+
+# Integrated decentralized exchange (DEX) in Ambire that allows users to
+# buy, sell and swap crypto assets.
+SWAP_URL="https://sushiswap-interface-jfomtc62l-ambire.vercel.app/en/swap" # SushiSwap v2
+# SWAP_URL='https://sushiswap-interface-ten.vercel.app/swap' # SushiSwap v1
+
+# In blockchain terms, an RPC allows access to a server node on the specified
+# network and allows app to communicate and interact with that blockchain.
+RPC_URL_ETHEREUM="https://eth-mainnet.alchemyapi.io/v2/SBG22nxioGnHZCCFJ9C93SIN82e9TUHS"
+# RPC_URL_ETHEREUM="https://mainnet.infura.io/v3/3d22938fd7dd41b7af4197752f83e8a1"
+# RPC_URL_ETHEREUM="https://morning-wild-water.quiknode.pro/66011d2c6bdebc583cade5365086c8304c13366c"
+# RPC_URL_ETHEREUM="https://mainnet.infura.io/v3/d4319c39c4df452286d8bf6d10de28ae"
+RPC_URL_POLYGON="https://rpc.ankr.com/polygon" # temp - 5M per month and 170k per day
+RPC_URL_AVALANCHE="https://rpc.ankr.com/avalanche"
+RPC_URL_BNB_CHAIN="https://bsc-dataseed1.defibit.io"
+RPC_URL_FANTOM="https://rpc.ftm.tools"
+RPC_URL_MOONBEAM="https://rpc.api.moonbeam.network"
+RPC_URL_MOONRIVER="https://rpc.api.moonriver.moonbeam.network"
+RPC_URL_ARBITRUM="https://arb-mainnet.g.alchemy.com/v2/wBLFG9QR-n45keJvKjc4rrfp2F1sy1Cp"
+# RPC_URL_GNOSIS="https://rpc.xdaichain.com"
+RPC_URL_GNOSIS="https://rpc.ankr.com/gnosis"
+RPC_URL_KUCOIN="https://rpc-mainnet.kcc.network"
+RPC_URL_OPTIMISM="https://mainnet.optimism.io"
+RPC_URL_ANDROMEDA="https://andromeda.metis.io/?owner=1088"
+RPC_URL_CRONOS="https://evm-cronos.crypto.org"
+RPC_URL_AURORA="https://mainnet.aurora.dev"
+RPC_URL_ETHEREUM_POW="https://mainnet.ethereumpow.org"
+
+# The Zapper API provides DeFi related data, everything from liquidity
+# and prices on different AMMs to complex Defi protocol balances.
+ZAPPER_API_ENDPOINT="https://api.zapper.fi/v1"
+ZAPPER_API_KEY="96e0cc51-a62e-42ca-acee-910ea7d2a241"
+# Alternative to Zapper, developed by Ambire. Serves the same purpose.
+VELCRO_API_ENDPOINT="https://velcro.ambire.com/v1"
+
+# Ramp Network enables exchange of traditional currencies into cryptocurrencies
+RAMP_HOST_API_KEY="jfmvma5hxecxjht293qmbu7bc7jx3sc9tg48a2so"
+
+# Transak is a developer integration toolkit to let users buy / sell crypto
+TRANSAK_API_KEY_STAGING="325625ed-5a85-4131-ae50-ea7906332fb3"
+TRANSAK_API_KEY_PROD="85fdedd7-0077-4c6d-8499-52039c64353c"
+
+# Paytrie allows clients to exchange Canadian dollars (CAD) for stablecoins
+PAYTRIE_PARTNER_URL="https://app.paytrie.com/?app=876454"
+
+# Sentry is application monitoring and error tracking app
+SENTRY_DSN="https://8e5d690e5de843b4bf3cf22a563ee7fc@o1152360.ingest.sentry.io/6230367"
+
+# Possible log level descriptors, may be string, lower or upper case, or number.
+# There are 6 levels: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'.
+# This disables all logging below the given level, so that after a
+# log.setLevel("warn") call log.warn("something") or log.error("something")
+# will output messages, but log.info("something") will not.
+BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD="warn"
+BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV="trace"
+
+APP_ENV="production"
+
+# This value can be used to control the unique ID of an extension,
+# when it is loaded during development. In prod, the ID is generated
+# in Chrome Web Store and can't be changed.
+# It is generated based on a key.pem using the following method:
+# {@link https://stackoverflow.com/a/46739698/1333836}
+BROWSER_EXTENSION_KEY_DEV="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApWVEIETV8dEm9TUN1Yuc2H9otf56Jlmi5KTf8QbET6a2yHjxPjgS3pRStPET1w7FnpiuHiG6ExOq46iMrmvIJVPO/3VYefsT+0LFUojCUMuXeyditug35B7YAyHD0LLfaQaBVkZuN1LOBnLsYZQ42k6bAQv/vSr6N64T5bdIjTihj67GIjDlliLxyHD+o1XNfHSjODCyfIpkEKt0zJorUXpwkDvAyskO7P0MvZ0lyR7AxyHarE/QCuc/JGj5y0+HQdAPGII9rlW+DClaN/R3CuiJ+QhuamUZkmVxmuhzMPjxHu/x2khAxvkeekXBmlRC1hyNi6TsKc+Ml2hjp5PWwQIDAQAB"
+
+# Coingecko pro API key that will increase the rate limits and allow the use of the pro API endpoint.
+# If the value is not set, the application codebase will fallback and use the free API.
+# [Optional]
+COINGECKO_PRO_API_KEY='CG-975DVR46YYrWzab81M3VAfta'
+
+# Seed phrase commonly used for the various test cases written in the app.
+# Please do not use this seed phrase for any real-world use case!
+# [Required]
+SEED="brisk rich glide impose category stuff company you appear remain decorate monkey"
+
+# The bundler api key for ERC-4337 broadcasts
+REACT_APP_PIMLICO_API_KEY="b782895b-6fdb-47f9-8365-b7b563f8d61d"
+
+REACT_APP_JIFFYSCAN_API_KEY="ZpcHeqxNyu2yasjnr20S9wUK0w8HlZdQFt3vMT10"
+
+# Default unlimited-use invitation code for the app, for development purposes.
+DEFAULT_INVITATION_CODE_DEV="91b03ef70656"
+
+NFT_CDN_URL="https://nftcdn.ambire.com"
+
+IS_TESTING='true'
+# Here are variables used in Puppeteer tests
+KEYSTORE_PASS='Bolg1234566^'
+
+#BROWSER_EXTENSION_PUBLIC_KEY="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAk0m3/NA8a3dSnG65786czq2h6xLHfot/HjhvYow2+ZUWRHLTE+VnSru/HgmlUjCJuDToTayLpeodprXc/rjKBUeBjJoNbzoise7QklM03A4JxCkYAWZV/11DHTfQ1tilGhnF1PVh5b7I4zkRwfBIr9kc6ZngZgO86jHGgRhMFMvDD/BiwWUiGblmX1G0Y99eQfF1RKP4CFDeQxema4OJooRVJoPXpunzTPFwrIDq0FAbMDj/4OgiGrTeWoxwIBNZpjrxaICXdq80e83uGPwymw0J7q7revnmTzYNEZRoRN4SxIBXcJl17oaZOAde5juKtJsUJGXZCWqVr1XuN4CUHQIDAQAB"
+
+# These are credentials for basic test account
+BA_PRIVATE_KEY = '003390ce7b96835258b019e25f9196bf4ddbff575b7c102546e9e40780118919'
+BA_PASSPHRASE='allow survey play weasel exhibit helmet industry bunker fish step garlic slice'
+BA_ACCOUNT_PREFERENCES='{"0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e":{"label":"Account 1","pfp":"0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e"}}'
+BA_ACCOUNTS='[{"addr":"0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e","associatedKeys":["0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e"],"initialPrivileges":[],"creation":null,"usedOnNetworks":[{"id":"polygon","name":"Polygon","nativeAssetSymbol":"MATIC","rpcUrls":["https://invictus.ambire.com/polygon"],"rpcNoStateOverride":false,"chainId":{"$bigint":"137"},"explorerUrl":"https://polygonscan.com","erc4337":{"enabled":false,"hasPaymaster":true},"unstoppableDomainsChain":"MATIC","isSAEnabled":true,"areContractsDeployed":true,"hasRelayer":true,"hasDebugTraceCall":false,"platformId":"polygon-pos","nativeAssetId":"matic-network","hasSingleton":true,"features":[{"id":"saSupport","title":"Ambire's smart wallets","level":"success","msg":"This blockchain network support smart accounts and Ambire Wallet's contacts are deployed."},{"id":"simulation","title":"Transaction simulation is fully supported","level":"success","msg":"This feature offers a proactive approach to blockchain security by a process used to predict the outcome of a transaction before it is broadcasted to the blockchain."},{"id":"prices","title":"Token's prices","level":"success","msg":"We are using third-party providers in order to present you with information about current token prices, and it supports most of the popular tokens."}],"feeOptions":{"is1559":false,"feeIncrease":{"$bigint":"10"}},"selectedRpcUrl":"https://invictus.ambire.com/polygon"},{"id":"arbitrum","name":"Arbitrum","nativeAssetSymbol":"ETH","rpcUrls":["https://invictus.ambire.com/arbitrum"],"rpcNoStateOverride":false,"chainId":{"$bigint":"42161"},"explorerUrl":"https://arbiscan.io","erc4337":{"enabled":true,"hasPaymaster":true,"explorerId":"arbitrum-one"},"unstoppableDomainsChain":"ERC20","isSAEnabled":true,"areContractsDeployed":true,"hasRelayer":true,"hasDebugTraceCall":false,"platformId":"arbitrum-one","nativeAssetId":"ethereum","hasSingleton":true,"features":[{"id":"saSupport","title":"Ambire's smart wallets via ERC-4337 Account Abstraction","level":"success","msg":"This blockchain network support smart accounts and Ambire Wallet's contacts are deployed."},{"id":"simulation","title":"Transaction simulation is fully supported","level":"success","msg":"This feature offers a proactive approach to blockchain security by a process used to predict the outcome of a transaction before it is broadcasted to the blockchain."},{"id":"prices","title":"Token's prices","level":"success","msg":"We are using third-party providers in order to present you with information about current token prices, and it supports most of the popular tokens."}],"feeOptions":{"is1559":true,"minBaseFee":{"$bigint":"100000000"},"maxPriorityFee":{"$bigint":"100"}},"reestimateOn":6000,"selectedRpcUrl":"https://invictus.ambire.com/arbitrum"},{"id":"optimism","name":"Optimism","nativeAssetSymbol":"ETH","rpcUrls":["https://invictus.ambire.com/optimism"],"rpcNoStateOverride":false,"chainId":{"$bigint":"10"},"explorerUrl":"https://optimistic.etherscan.io","erc4337":{"enabled":true,"hasPaymaster":true},"unstoppableDomainsChain":"ERC20","isSAEnabled":true,"areContractsDeployed":true,"hasRelayer":true,"hasDebugTraceCall":false,"platformId":"optimistic-ethereum","nativeAssetId":"ethereum","hasSingleton":true,"features":[{"id":"saSupport","title":"Ambire's smart wallets via ERC-4337 Account Abstraction","level":"success","msg":"This blockchain network support smart accounts and Ambire Wallet's contacts are deployed."},{"id":"simulation","title":"Transaction simulation is fully supported","level":"success","msg":"This feature offers a proactive approach to blockchain security by a process used to predict the outcome of a transaction before it is broadcasted to the blockchain."},{"id":"prices","title":"Token's prices","level":"success","msg":"We are using third-party providers in order to present you with information about current token prices, and it supports most of the popular tokens."}],"feeOptions":{"is1559":true,"elasticityMultiplier":{"$bigint":"6"},"baseFeeMaxChangeDenominator":{"$bigint":"50"},"maxPriorityFee":{"$bigint":"100"}},"isOptimistic":true,"reestimateOn":6000,"selectedRpcUrl":"https://invictus.ambire.com/optimism"},{"id":"ethereum","name":"Ethereum","nativeAssetSymbol":"ETH","rpcUrls":["https://invictus.ambire.com/ethereum"],"rpcNoStateOverride":false,"chainId":{"$bigint":"1"},"explorerUrl":"https://etherscan.io","erc4337":{"enabled":false,"hasPaymaster":false},"unstoppableDomainsChain":"ERC20","isSAEnabled":true,"areContractsDeployed":true,"hasRelayer":true,"hasDebugTraceCall":false,"platformId":"ethereum","nativeAssetId":"ethereum","hasSingleton":true,"features":[{"id":"saSupport","title":"Ambire's smart wallets","level":"success","msg":"This blockchain network support smart accounts and Ambire Wallet's contacts are deployed."},{"id":"simulation","title":"Transaction simulation is fully supported","level":"success","msg":"This feature offers a proactive approach to blockchain security by a process used to predict the outcome of a transaction before it is broadcasted to the blockchain."},{"id":"prices","title":"Token's prices","level":"success","msg":"We are using third-party providers in order to present you with information about current token prices, and it supports most of the popular tokens."}],"feeOptions":{"is1559":true},"selectedRpcUrl":"https://invictus.ambire.com/ethereum"}],"newlyCreated":false}]'
+BA_IS_DEFAULT_WALLET='true'
+BA_IS_ONBOARDED='true'
+BA_KEY_PREFERENCES='[{"addr":"0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e","type":"internal","label":"Key 1"}]'
+BA_KEYSTORE_UID='5eb7118496189e0702540f0583f149143ab7b15cc9afa7c7f31aa924ecefb04046d3a1a59afadfc563d4c9a473dbd965a5d2d9ee26ffa4ad90a5aa810f685e9d'
+BA_KEYS='[{"addr":"0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e","type":"internal","dedicatedToOneSA":true,"privKey":"0x70b7278cc3b2f199bff10957c9e72048067dc9b85e83e6da00deba41eeb8b42d","meta":null}]'
+BA_SECRETS='[{"id":"password","scryptParams":{"salt":"0x07d68068f5b8572c70b286fe463c7f7b478b555a7cca3a913586885a477dd4ce","N":131072,"r":8,"p":1,"dkLen":64},"aesEncrypted":{"cipherType":"aes-128-ctr","ciphertext":"0xfd9d0cd0aab16ade3022b66c31cf1be456c4143c3dfbf81f273718ff5cfb0674","iv":"0xbdeae39f0c70204ef1af4091bc9eb296","mac":"0x07c716339eeaf04eac364f62e0e33e8fde1256303a66c0ab407cf07a00ea1a71"}}]'
+BA_NETWORK_PREFERENCES='{}'
+BA_NETWORK_WITH_ASSETS='{"0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e":["ethereum","polygon","optimism","arbitrum"]}'
+BA_ONBOARDING_STATE='{"version":"1.0.0","viewedAt":1714024848530}'
+BA_PERMISSION='{"dumpCache":[{"k":"https://sigtool.ambire.com","v":{"origin":"https://sigtool.ambire.com","name":"SigTool for EVM","icon":"https://sigtool.ambire.com/favicon.ico","chainId":1,"isSigned":false,"isTop":false,"isConnected":true},"e":0},{"k":"https://app.uniswap.org","v":{"origin":"https://app.uniswap.org","name":"Uniswap Interface","icon":"https://app.uniswap.org/favicon.png","chainId":137,"isSigned":true,"isTop":false,"isConnected":true},"e":0}]}'
+BA_PREVIOUSHINTS ='{"ethereum:0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e":{"erc20s":["0x0000000000000000000000000000000000000000","0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935","0x6B175474E89094C44Da98b954EedeAC495271d0F","0x88800092fF476844f74dC2FC427974BBee2794Ae","0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],"erc721s":{}},"avalanche:0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e":{"erc20s":["0x0000000000000000000000000000000000000000"],"erc721s":{}},"polygon:0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e":{"erc20s":["0x0000000000000000000000000000000000000000","0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174","0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359","0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],"erc721s":{}},"optimism:0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e":{"erc20s":["0x0000000000000000000000000000000000000000","0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85","0x94b008aA00579c1307B0EF2c499aD98a8ce58e58","0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"],"erc721s":{}},"arbitrum:0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e":{"erc20s":["0x0000000000000000000000000000000000000000","0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1","0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"],"erc721s":{"0x93dB082aeec3F0e8fcE7a7596412765946f7c3D4":{"isKnown":false,"tokens":["5945"]}}}}'
+BA_SELECTED_ACCOUNT='0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e'
+BA_TERMSTATE='{"version":"1.0.0","acceptedAt":1714024848528}'
+BA_TOKEN_ITEMS ='{"ethereum:0x0000000000000000000000000000000000000000":"https://assets.coingecko.com/coins/images/279/small/ethereum.png?1696501628","ethereum:0x47cd7e91c3cbaaf266369fe8518345fc4fc12935":"https://raw.githubusercontent.com/AmbireTech/ambire-brand/main/logos/xwallet_250x250.png","ethereum:0x6b175474e89094c44da98b954eedeac495271d0f":"https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png?1696509996","ethereum:0x88800092ff476844f74dc2fc427974bbee2794ae":"https://raw.githubusercontent.com/AmbireTech/ambire-brand/main/logos/ambire_logo_white_bg_250x250.png","ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48":"https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694","polygon:0x0000000000000000000000000000000000000000":"https://storage.googleapis.com/zapper-fi-assets/tokens/polygon/0x0000000000000000000000000000000000000000.png","polygon:0x2791bca1f2de4661ed88a30c99a7a9449aa84174":"https://assets.coingecko.com/coins/images/33000/small/usdc.png?1700119918","polygon:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359":"https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694","polygon:0xc2132d05d31c914a87c6611c10748aeb04b58e8f":"https://assets.coingecko.com/coins/images/35023/small/USDT.png?1707233644","optimism:0x0000000000000000000000000000000000000000":"https://storage.googleapis.com/zapper-fi-assets/tokens/optimism/0x0000000000000000000000000000000000000000.png","optimism:0x0b2c639c533813f4aa9d7837caf62653d097ff85":"https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694","optimism:0x94b008aa00579c1307b0ef2c499ad98a8ce58e58":"https://assets.coingecko.com/coins/images/35001/small/logo.png?1706959346","optimism:0xda10009cbd5d07dd0cecc66161fc93d7c9000da1":"https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png?1696509996","avalanche:0x0000000000000000000000000000000000000000":"https://storage.googleapis.com/zapper-fi-assets/tokens/avalanche/0x0000000000000000000000000000000000000000.png","arbitrum:0x0000000000000000000000000000000000000000":"https://storage.googleapis.com/zapper-fi-assets/tokens/arbitrum/0x0000000000000000000000000000000000000000.png","arbitrum:0xda10009cbd5d07dd0cecc66161fc93d7c9000da1":"https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png?1696509996","arbitrum:0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9":"https://assets.coingecko.com/coins/images/35073/small/logo.png?1707292836"}'
+# These are credentials for smart test account
+PASSPHRASE_SA='raise sauce injury myth area fox urge outside gossip rescue slight trigger'
+SA_ACCOUNT_PREFERENCES='{"0x6224438b995c2D49F696136B2cb3FcafB21bd1E7":{"label":"Account 1","pfp":"0x6224438b995c2D49F696136B2cb3FcafB21bd1E7"}}'
+SA_ACCOUNTS='[{"addr":"0x6224438b995c2D49F696136B2cb3FcafB21bd1E7","initialPrivileges":[["0xa18fe725A4a0E25A02411Ab28073E4F35D32d8e2","0x0000000000000000000000000000000000000000000000000000000000000002"]],"associatedKeys":["0xa18fe725A4a0E25A02411Ab28073E4F35D32d8e2"],"creation":{"factoryAddr":"0xa8202f888b9b2dfa5ceb2204865018133f6f179a","bytecode":"0x7f00000000000000000000000000000000000000000000000000000000000000027fca32523c64c36083b1291dd9ad1e268d3731e36174438cb702336b275ccb8295553d602d80604d3d3981f3363d3d373d3d3d363d730e370942ebe4d026d05d2cf477ff386338fc415a5af43d82803e903d91602b57fd5bf3","salt":"0x0000000000000000000000000000000000000000000000000000000000000000"},"usedOnNetworks":[{"id":"polygon","name":"Polygon","nativeAssetSymbol":"MATIC","rpcUrls":["https://invictus.ambire.com/polygon"],"rpcNoStateOverride":false,"chainId":{"$bigint":"137"},"explorerUrl":"https://polygonscan.com","erc4337":{"enabled":false,"hasPaymaster":true},"unstoppableDomainsChain":"MATIC","isSAEnabled":true,"areContractsDeployed":true,"hasRelayer":true,"hasDebugTraceCall":false,"platformId":"polygon-pos","nativeAssetId":"matic-network","hasSingleton":true,"features":[{"id":"saSupport","title":"Ambire's smart wallets","level":"success","msg":"This blockchain network support smart accounts and Ambire Wallet's contacts are deployed."},{"id":"simulation","title":"Transaction simulation is fully supported","level":"success","msg":"This feature offers a proactive approach to blockchain security by a process used to predict the outcome of a transaction before it is broadcasted to the blockchain."},{"id":"prices","title":"Token's prices","level":"success","msg":"We are using third-party providers in order to present you with information about current token prices, and it supports most of the popular tokens."}],"feeOptions":{"is1559":false,"feeIncrease":{"$bigint":"10"}},"selectedRpcUrl":"https://invictus.ambire.com/polygon"},{"id":"optimism","name":"Optimism","nativeAssetSymbol":"ETH","rpcUrls":["https://invictus.ambire.com/optimism"],"rpcNoStateOverride":false,"chainId":{"$bigint":"10"},"explorerUrl":"https://optimistic.etherscan.io","erc4337":{"enabled":true,"hasPaymaster":true},"unstoppableDomainsChain":"ERC20","isSAEnabled":true,"areContractsDeployed":true,"hasRelayer":true,"hasDebugTraceCall":false,"platformId":"optimistic-ethereum","nativeAssetId":"ethereum","hasSingleton":true,"features":[{"id":"saSupport","title":"Ambire's smart wallets via ERC-4337 Account Abstraction","level":"success","msg":"This blockchain network support smart accounts and Ambire Wallet's contacts are deployed."},{"id":"simulation","title":"Transaction simulation is fully supported","level":"success","msg":"This feature offers a proactive approach to blockchain security by a process used to predict the outcome of a transaction before it is broadcasted to the blockchain."},{"id":"prices","title":"Token's prices","level":"success","msg":"We are using third-party providers in order to present you with information about current token prices, and it supports most of the popular tokens."}],"feeOptions":{"is1559":true,"elasticityMultiplier":{"$bigint":"6"},"baseFeeMaxChangeDenominator":{"$bigint":"50"},"maxPriorityFee":{"$bigint":"100"}},"isOptimistic":true,"reestimateOn":6000,"selectedRpcUrl":"https://invictus.ambire.com/optimism"},{"id":"arbitrum","name":"Arbitrum","nativeAssetSymbol":"ETH","rpcUrls":["https://invictus.ambire.com/arbitrum"],"rpcNoStateOverride":false,"chainId":{"$bigint":"42161"},"explorerUrl":"https://arbiscan.io","erc4337":{"enabled":true,"hasPaymaster":true,"explorerId":"arbitrum-one"},"unstoppableDomainsChain":"ERC20","isSAEnabled":true,"areContractsDeployed":true,"hasRelayer":true,"hasDebugTraceCall":false,"platformId":"arbitrum-one","nativeAssetId":"ethereum","hasSingleton":true,"features":[{"id":"saSupport","title":"Ambire's smart wallets via ERC-4337 Account Abstraction","level":"success","msg":"This blockchain network support smart accounts and Ambire Wallet's contacts are deployed."},{"id":"simulation","title":"Transaction simulation is fully supported","level":"success","msg":"This feature offers a proactive approach to blockchain security by a process used to predict the outcome of a transaction before it is broadcasted to the blockchain."},{"id":"prices","title":"Token's prices","level":"success","msg":"We are using third-party providers in order to present you with information about current token prices, and it supports most of the popular tokens."}],"feeOptions":{"is1559":true,"minBaseFee":{"$bigint":"100000000"},"maxPriorityFee":{"$bigint":"100"}},"reestimateOn":6000,"selectedRpcUrl":"https://invictus.ambire.com/arbitrum"},{"id":"ethereum","name":"Ethereum","nativeAssetSymbol":"ETH","rpcUrls":["https://invictus.ambire.com/ethereum"],"rpcNoStateOverride":false,"chainId":{"$bigint":"1"},"explorerUrl":"https://etherscan.io","erc4337":{"enabled":false,"hasPaymaster":false},"unstoppableDomainsChain":"ERC20","isSAEnabled":true,"areContractsDeployed":true,"hasRelayer":true,"hasDebugTraceCall":false,"platformId":"ethereum","nativeAssetId":"ethereum","hasSingleton":true,"features":[{"id":"saSupport","title":"Ambire's smart wallets","level":"success","msg":"This blockchain network support smart accounts and Ambire Wallet's contacts are deployed."},{"id":"simulation","title":"Transaction simulation is fully supported","level":"success","msg":"This feature offers a proactive approach to blockchain security by a process used to predict the outcome of a transaction before it is broadcasted to the blockchain."},{"id":"prices","title":"Token's prices","level":"success","msg":"We are using third-party providers in order to present you with information about current token prices, and it supports most of the popular tokens."}],"feeOptions":{"is1559":true},"selectedRpcUrl":"https://invictus.ambire.com/ethereum"}],"newlyCreated":false}]'
+SA_IS_DEFAULT_WALLET='true'
+SA_IS_ONBOARDED='true'
+SA_KEY_PREFERENCES='[{"addr":"0xa18fe725A4a0E25A02411Ab28073E4F35D32d8e2","type":"internal","label":"Key 1"}]'
+SA_KEYSTORE_UID='bdf0fc136223d47b1ba72c3291801a69e2dd3bd8541af5b23920475bc4910ea014eb949ebd0a1dcfd78755e9de951213ceccdba6eca2a51ea80d46b9a0a44bf6'
+SA_KEYS='[{"addr":"0xa18fe725A4a0E25A02411Ab28073E4F35D32d8e2","type":"internal","dedicatedToOneSA":true,"privKey":"0xebab1d5bad78dc1340764a2c3df0ef48cf52a3c4ba7259945166a01378c8647b","meta":null}]'
+SA_SECRETS='[{"id":"password","scryptParams":{"salt":"0x9ab7f899bef96be76ba9f56053acb4255bea60913acb67cf20b41e08adf3f4b8","N":131072,"r":8,"p":1,"dkLen":64},"aesEncrypted":{"cipherType":"aes-128-ctr","ciphertext":"0x6ded1c60b976836aae116ce5d136e7d895e458fac4b1536f7cdbb51bc78b9de0","iv":"0x8313bfc122291d4983c7858c048f3eb8","mac":"0x8e068a7fd7170b927008c529755aa90b1809183daa2de40372e5dceaa8b6694e"}}]'
+SA_NETWORK_PREFERENCES='{}'
+SA_NETWORK_WITH_ASSETS='{"0x6224438b995c2D49F696136B2cb3FcafB21bd1E7":["ethereum","optimism","arbitrum"]}'
+SA_ONBOARDING_STATE='{"version":"1.0.0","viewedAt":1713437081404}'
+SA_PERMISSION='{"dumpCache":[{"k":"https://sigtool.ambire.com","v":{"origin":"https://sigtool.ambire.com","name":"SigTool for EVM","icon":"https://sigtool.ambire.com/favicon.ico","chainId":1,"isSigned":false,"isTop":false,"isConnected":true},"e":0},{"k":"https://app.uniswap.org","v":{"origin":"https://app.uniswap.org","name":"Uniswap Interface","icon":"https://app.uniswap.org/favicon.png","chainId":137,"isSigned":true,"isTop":false,"isConnected":true},"e":0}]}'
+SA_PREVIOUSHINTS ='{"arbitrum:0x6224438b995c2D49F696136B2cb3FcafB21bd1E7":{"erc20s":["0x0000000000000000000000000000000000000000","0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1","0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"],"erc721s":{}},"ethereum:0x6224438b995c2D49F696136B2cb3FcafB21bd1E7":{"erc20s":["0x0000000000000000000000000000000000000000"],"erc721s":{}},"avalanche:0x6224438b995c2D49F696136B2cb3FcafB21bd1E7":{"erc20s":["0x0000000000000000000000000000000000000000"],"erc721s":{}},"polygon:0x6224438b995c2D49F696136B2cb3FcafB21bd1E7":{"erc20s":["0x0000000000000000000000000000000000000000"],"erc721s":{}},"optimism:0x6224438b995c2D49F696136B2cb3FcafB21bd1E7":{"erc20s":["0x0000000000000000000000000000000000000000","0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85","0x7F5c764cBc14f9669B88837ca1490cCa17c31607","0x94b008aA00579c1307B0EF2c499aD98a8ce58e58","0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"],"erc721s":{"0xe736729Ee572CDF69df6A92eEb751C27311355a5":{"isKnown":false,"tokens":["7930"]}}}}'
+SA_SELECTED_ACCOUNT='0x6224438b995c2D49F696136B2cb3FcafB21bd1E7'
+SA_TERMSTATE='{"version":"1.0.0","acceptedAt":1713193787963}'
+SA_TOKEN_ITEMS ='{"ethereum:0x0000000000000000000000000000000000000000":"https://assets.coingecko.com/coins/images/279/small/ethereum.png?1696501628","ethereum:0x88800092ff476844f74dc2fc427974bbee2794ae":"https://raw.githubusercontent.com/AmbireTech/ambire-brand/main/logos/ambire_logo_white_bg_250x250.png","ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48":"https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694","polygon:0x0000000000000000000000000000000000000000":"https://storage.googleapis.com/zapper-fi-assets/tokens/polygon/0x0000000000000000000000000000000000000000.png","optimism:0x0000000000000000000000000000000000000000":"https://storage.googleapis.com/zapper-fi-assets/tokens/optimism/0x0000000000000000000000000000000000000000.png","optimism:0x0b2c639c533813f4aa9d7837caf62653d097ff85":"https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694","optimism:0x7f5c764cbc14f9669b88837ca1490cca17c31607":"https://assets.coingecko.com/coins/images/31580/small/USDC-icon.png?1696530397","optimism:0x94b008aa00579c1307b0ef2c499ad98a8ce58e58":"https://assets.coingecko.com/coins/images/35001/small/logo.png?1706959346","optimism:0xda10009cbd5d07dd0cecc66161fc93d7c9000da1":"https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png?1696509996","avalanche:0x0000000000000000000000000000000000000000":"https://storage.googleapis.com/zapper-fi-assets/tokens/avalanche/0x0000000000000000000000000000000000000000.png","arbitrum:0x0000000000000000000000000000000000000000":"https://storage.googleapis.com/zapper-fi-assets/tokens/arbitrum/0x0000000000000000000000000000000000000000.png","arbitrum:0xda10009cbd5d07dd0cecc66161fc93d7c9000da1":"https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png?1696509996","arbitrum:0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9":"https://assets.coingecko.com/coins/images/35073/small/logo.png?1707292836","ethereum:0x6b175474e89094c44da98b954eedeac495271d0f":"https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png?1696509996","ethereum:0x47cd7e91c3cbaaf266369fe8518345fc4fc12935":"https://raw.githubusercontent.com/AmbireTech/ambire-brand/main/logos/xwallet_250x250.png"}'
+
+VELCRO_URL="https://relayer.ambire.com/velcro-v3"
