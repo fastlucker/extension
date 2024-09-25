@@ -39,6 +39,11 @@ module.exports = async function (env, argv) {
     if (config.mode === 'development') {
       manifest.name = 'Ambire Wallet Dev'
     }
+    // Shorter for Safari on purpose (up to 100 characters allowed), all others allow up to 132 characters
+    manifest.description = isSafari
+      ? 'Hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+      : 'Secure and easy-to-use hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
 
@@ -177,6 +182,12 @@ module.exports = async function (env, argv) {
     publicPath: ''
   }
 
+  if (config.mode === 'production') {
+    config.output.assetModuleFilename = '[name].[ext]'
+    config.output.filename = '[name].js'
+    config.output.chunkFilename = '[id].js'
+  }
+
   // Environment specific configurations
   if (isExtension) {
     const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
@@ -275,6 +286,8 @@ module.exports = async function (env, argv) {
     if (config.mode === 'production') {
       // @TODO: The extension doesn't work with splitChunks out of the box, so disable it for now
       delete config.optimization.splitChunks
+      config.optimization.chunkIds = 'named' // Ensures same id for chunks across builds
+      config.optimization.moduleIds = 'named' // Ensures same id for modules across builds
     }
 
     return config
