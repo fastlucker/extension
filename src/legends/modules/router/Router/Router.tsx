@@ -1,15 +1,32 @@
 import React from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
-import Home from '@legends/modules/router/components/Home'
+import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
+import Legends from '@legends/modules/legends/screens/Legends'
 import Leaderboard from '@legends/modules/router/components/Leaderboard'
+import Welcome from '@legends/modules/welcome/screens/Welcome'
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Welcome />,
+    index: true
+  },
+  {
+    path: '/legends',
+    element: <Legends />
+  },
+  {
+    path: '/leaderboard',
+    element: <Leaderboard />
+  }
+])
 
 const Router = () => {
   return (
-    <Routes>
-      <Route index path="/" element={<Home />} />
-      <Route index path="/leaderboard" element={<Leaderboard />} />
-    </Routes>
+    <PortfolioControllerStateProvider>
+      <RouterProvider router={router} />
+    </PortfolioControllerStateProvider>
   )
 }
 
