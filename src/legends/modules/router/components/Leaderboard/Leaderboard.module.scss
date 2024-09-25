@@ -1,0 +1,152 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .heading {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .title {
+    color: $primaryText;
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 2.6375rem;
+    text-align: left;
+    padding-bottom: .75rem;
+
+  }
+
+  .subtitle {
+    color: $secondaryText;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.3931rem;
+    text-align: center;
+    max-width: 44.5rem;
+  }
+
+
+  .podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    margin-top: 3rem;
+    border: 1px solid $primaryBorder;
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 8px;
+        background-color: $secondaryBackground;
+        
+    }
+    
+    .first {
+        order: 2;
+        background-color: $tertiaryBackground;
+    }
+    
+    .second {
+        order: 1;
+    
+    }
+    
+    .third {
+        order: 3;
+    }
+    
+    .position {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+    
+    .name {
+        font-size: 18px;
+        font-weight: normal;
+    }
+    }
+
+
+.table {
+    display: flex;
+    flex-direction: column;
+    max-width: 45rem;
+    width: 100%;
+}
+
+.header {
+    border: 1px solid $primaryBorder; 
+    font-size: .875rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+    border-radius: .75rem;
+    padding: .75rem 1.3125rem .75rem 3.25rem;
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+    background-color: $secondaryBackground;
+    color: $secondaryText;
+    margin-bottom: .375rem;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    background-color: $secondaryBackground;
+    color: $primaryText;
+    font-weight: 400;
+    font-size: .875rem;
+    padding: .75rem 1.5rem;
+    border: 1px solid $primaryBorder;
+    border-radius: .75rem;
+    margin-bottom: .375rem;
+}
+
+.highlightRow {
+    background-color: #f0f8ff;
+}
+
+.currentUserRow {
+    background-color: $tertiaryBackground; 
+    border-color: $primaryBorder; 
+    border-width: .0625rem;
+    border-style: solid;
+}
+
+.cell {
+    flex: 1;
+    text-align: center;
+}
+
+.throphy {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+.firstPlaceThrophy {
+    color: $goldDecorative;
+}
+.secondPlaceThrophy {
+    color: $silverDecorative;
+}
+.thirdPlaceThrophy {
+    color: $bronzeDecorative;
+}
+.avatar {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: .75rem;
+}
+
+}
+
+

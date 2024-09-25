@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react'
 
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { fetchCaught } from '@common/services/fetch'
+import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import styles from './Leaderboard.module.scss'
 
 const getLeaderboard = async (currentUser?: string) => {
   try {
@@ -18,9 +22,18 @@ const getLeaderboard = async (currentUser?: string) => {
 }
 
 const getBadge = (rank: number) => {
-  if (rank === 1) return <div>sdad</div>
-  if (rank === 2) return <div>sdad</div>
-  if (rank === 3) return <div>sdad</div>
+  if (rank === 1)
+    return (
+      <FontAwesomeIcon className={(styles.throphy, styles.firstPlaceThrophy)} icon={faTrophy} />
+    )
+  if (rank === 2)
+    return (
+      <FontAwesomeIcon className={(styles.throphy, styles.secondPlaceThrophy)} icon={faTrophy} />
+    )
+  if (rank === 3)
+    return (
+      <FontAwesomeIcon className={(styles.throphy, styles.thirdPlaceThrophy)} icon={faTrophy} />
+    )
   return null
 }
 
@@ -66,113 +79,50 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
     .sort((a, b) => b.xp - a.xp)
 
   return (
-    (loading && <div>Spinner</div>) || (
-      <div style={styles.container}>
-        <h1 style={styles.title}>Leaderboard</h1>
-        <div style={styles.podium}>
-          <div style={{ ...styles.step, ...styles.second }}>
-            <div style={styles.position}>2</div>
-            <div style={styles.name}>John</div>
+    (loading && <div>Loading...</div>) || (
+      <div className={styles.wrapper}>
+        <div className={styles.heading}>
+          <h1 className={styles.title}>Leaderboard</h1>
+          <p className={styles.subtitle}>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi id nisl fringilla,
+            aliquet elit sit amet, feugiat nisi. Vestibulum condimentum aliquet tortor, eu laoreet
+            magna luctus et.
+          </p>
+        </div>
+        <div className={styles.podium}>
+          <div className={(styles.step, styles.second)}>
+            <div className={styles.name}>goshokazana.x</div>
+            <div className={styles.position}>18 349</div>
           </div>
-          <div style={{ ...styles.step, ...styles.first }}>
-            <img alt="avatar" style={styles.avatar} />
-            <div style={styles.position}>elmoto.eth</div>
-            <div style={styles.name}>19 349</div>
+          <div className={(styles.step, styles.first)}>
+            <img alt="avatar" className={styles.avatar} />
+            <div className={styles.name}>elmoto.eth</div>
+            <div className={styles.position}>19 349</div>
           </div>
-          <div style={{ ...styles.step, ...styles.third }}>
-            <div style={styles.position}>0x66fE...04d08</div>
-            <div style={styles.name}>Sarah</div>
+          <div className={(styles.step, styles.third)}>
+            <div className={styles.name}>0x66fE...04d08</div>
+            <div className={styles.position}>18 349</div>
           </div>
         </div>
-        <div>
+        <div className={styles.table}>
+          <div className={styles.header}>
+            <h5 className={styles.cell}>player</h5>
+            <h5 className={styles.cell}>Level</h5>
+            <h5 className={styles.cell}>XP</h5>
+          </div>
           {sortedData.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                ...styles.row,
-                ...(item.rank <= 3 ? styles.highlightRow : {}),
-                ...(item.account === userLeaderboardData.account ? styles.currentUserRow : {})
-              }}
-            >
-              <span style={styles.cell}>
-                {item.rank} {getBadge(item.rank)}
-              </span>
-              <img src={item.avatar} alt="avatar" style={styles.avatar} />
-              <span style={styles.cell}>{shortenAddress(item.account)}</span>
-              <span style={styles.cell}>{item.level}</span>
-              <span style={styles.cell}>{item.xp}</span>
+            <div key={index} className={styles.row}>
+              <h5 className={styles.cell}>{item.rank > 3 ? item.rank : getBadge(item.rank)}</h5>
+              <img src="/images/leaderboard/avatar1.png" alt="avatar" className={styles.avatar} />
+              <h5 className={styles.cell}>{shortenAddress(item.account)}</h5>
+              <h5 className={styles.cell}>{item.level}</h5>
+              <h5 className={styles.cell}>{item.xp}</h5>
             </div>
           ))}
         </div>
       </div>
     )
   )
-}
-
-const styles = {
-  container: {
-    padding: '16px',
-    backgroundColor: '#fff'
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    marginBottom: '16px'
-  },
-  row: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '8px 0',
-    borderBottom: '1px solid #ccc'
-  },
-  highlightRow: {
-    backgroundColor: '#f0f8ff'
-  },
-  currentUserRow: {
-    backgroundColor: '#e0ffe0', // Light green background for current user
-    borderColor: '#00ff00', // Green border for current user
-    borderWidth: '2px',
-    borderStyle: 'solid'
-  },
-  cell: {
-    flex: 1,
-    textAlign: 'center'
-  },
-  avatar: {
-    width: '30px',
-    height: '30px',
-    borderRadius: '15px'
-  },
-  podium: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    marginBottom: '16px'
-  },
-  step: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    margin: '0 8px'
-  },
-  first: {
-    order: 1
-  },
-  second: {
-    order: 2
-  },
-  third: {
-    order: 3
-  },
-  position: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    marginBottom: '8px'
-  },
-  name: {
-    fontSize: '18px',
-    fontWeight: 'normal'
-  }
 }
 
 export default LeaderboardContainer
