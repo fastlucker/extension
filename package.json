@@ -44,7 +44,7 @@
     "expo:install": "expo install",
     "eas:secret:list": "eas secret:list",
     "eas:secret:push": "eas secret:push --scope project --env-file .env",
-    "test:e2e:web:dev": "WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests",
+    "test:e2e:web:dev": "WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests/features/auth/trezorAuth.test.js",
     "test:e2e:web": "yarn build:web:webkit && jest test --config=./tests/jest.config.js",
     "test": "jest --config=./jest.config.js",
     "postinstall": "patch-package"
@@ -89,6 +89,7 @@
     "@tradle/react-native-http": "^2.0.0",
     "@trezor/connect-plugin-ethereum": "9.0.3",
     "@trezor/connect-webextension": "^9.4.0",
+    "@trezor/trezor-user-env-link": "^1.0.0",
     "@types/react-dom": "^18.2.0",
     "@types/w3c-web-hid": "^1.0.3",
     "@unstoppabledomains/resolution": "^9.2.2",
