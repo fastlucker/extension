@@ -5,7 +5,6 @@ import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerSt
 const Balance = () => {
   const { accountPortfolio } = usePortfolioControllerState()
 
-  console.log(accountPortfolio)
   // There is no balance
   if (!accountPortfolio) return null
 
