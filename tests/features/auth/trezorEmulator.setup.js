@@ -70,26 +70,6 @@ const TREZOR_CONNECT_MANIFEST = {
   appUrl: 'https://wallet.ambire.com'
 }
 
-const emulatorStartOpts = {
-  version: '1-main',
-  model: 'T1B1',
-  mnemonic: 'mnemonic_12',
-  pin: '1234',
-  passphrase_protection: false,
-  label: 'Test Trezor Device',
-  settings: {
-    use_passphrase: false,
-    experimental_features: true
-  }
-}
-
-const firmware = emulatorStartOpts.version
-const deviceModel = emulatorStartOpts.model
-
-if (!firmware || !deviceModel) {
-  throw new Error('Firmware and device model must be provided')
-}
-
 export const getController = () => {
   TrezorUserEnvLink.on('disconnected', () => {
     console.error('TrezorUserEnvLink WS disconnected')
@@ -110,7 +90,7 @@ export const setup = async (trezorUserEnvLink, options) => {
 
   if (!options.mnemonic) return true
 
-  await trezorUserEnvLink.api.startEmu(emulatorStartOpts)
+  await trezorUserEnvLink.api.startEmu(options)
 
   const mnemonic =
     typeof options.mnemonic === 'string' && options.mnemonic.indexOf(' ') > 0
@@ -176,7 +156,7 @@ export const initTrezorConnect = async (trezorUserEnvLink, options) => {
     debug: false,
     popup: false,
     pendingTransportEvent: true,
-    connectSrc: process.env.TREZOR_CONNECT_SRC,
+    // connectSrc: process.env.TREZOR_CONNECT_SRC,
     ...options
   })
 }

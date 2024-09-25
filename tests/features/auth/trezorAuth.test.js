@@ -18,7 +18,7 @@ import {
   checkAccountDetails
 } from './functions'
 
-const TREZOR_OPTIONS = {
+const TREZOR_EMULATOR_OPTIONS = {
   version: '1-main',
   model: 'T1B1',
   mnemonic: 'mnemonic_12',
@@ -41,7 +41,7 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
   let serviceWorker
 
   beforeAll(async () => {
-    await setup(controller, TREZOR_OPTIONS)
+    await setup(controller, TREZOR_EMULATOR_OPTIONS)
     await initTrezorConnect(controller)
   })
 
