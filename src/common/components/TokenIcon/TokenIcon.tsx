@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Image, ImageProps, View, ViewStyle } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
@@ -51,6 +51,10 @@ const TokenIcon: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [hasError, setHasError] = useState<boolean>(false)
   const { networks } = useNetworksControllerState()
+
+  useEffect(() => {
+    setHasError(false)
+  }, [uri])
 
   const network = useMemo(
     () =>
