@@ -28,7 +28,9 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.flex1
     },
     balance: {
-      ...flexbox.directionRow
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...flexbox.wrap
     },
     networkIcon: {
       width: 20,
