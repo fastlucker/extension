@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET } from '@ambire-common/consts/derivation'
+import { Account } from '@ambire-common/interfaces/account'
 import { ExternalKey, InternalKey } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
@@ -19,9 +20,10 @@ import getStyles from './styles'
 interface Props {
   details: AccountKeyType
   closeDetails: () => void
+  account: Account
 }
 
-const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
+const AccountKeyDetails: FC<Props> = ({ details, closeDetails, account }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { type, addr, dedicatedToOneSA } = details
@@ -114,7 +116,7 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
         {t('Key Details')}
       </Text>
       <View style={styles.container}>
-        <AccountKey {...details} />
+        <AccountKey {...details} account={account} />
         <View style={[spacings.phSm, spacings.pvSm, spacings.mtMi]}>
           {metaDetails.map(({ key, value, tooltip, suffix }) => (
             <Row key={key} rowKey={key} value={value} tooltip={tooltip} suffix={suffix} />

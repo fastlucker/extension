@@ -43,8 +43,7 @@ const AccountKeysButton = ({ account }: { account: AccountInterface }) => {
       </AnimatedPressable>
       <AccountKeysBottomSheet
         sheetRef={sheetRef}
-        associatedKeys={associatedKeys}
-        importedAccountKeys={importedAccountKeys}
+        account={account}
         closeBottomSheet={closeBottomSheet}
       />
     </>

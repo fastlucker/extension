@@ -8,7 +8,7 @@ import colors from '@common/styles/colors'
 import styles from './styles'
 
 interface Props {
-  data: Array<{ label: string; value: string }>
+  data: Array<{ label: string; value: string; style?: any }>
   onSelect: (item: { label: string; value: string }) => void
   toggle?: number
 }
@@ -52,7 +52,7 @@ const Dropdown: FC<Props> = ({ data, onSelect, toggle }) => {
             }
           ]}
         >
-          <Text fontSize={14} shouldScale={false}>
+          <Text fontSize={14} shouldScale={false} style={item.style}>
             {item.label}
           </Text>
         </View>

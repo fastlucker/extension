@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react'
 import { Modalize } from 'react-native-modalize'
 
-import { Key } from '@ambire-common/interfaces/keystore'
+import { Account } from '@ambire-common/interfaces/account'
 import { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import BottomSheet from '@common/components/BottomSheet'
 
@@ -10,17 +10,11 @@ import AccountKeys from './AccountKeys'
 
 interface Props {
   sheetRef: React.RefObject<Modalize>
-  associatedKeys: string[]
-  importedAccountKeys: Key[]
   closeBottomSheet: () => void
+  account: Account
 }
 
-const AccountKeysBottomSheet: FC<Props> = ({
-  sheetRef,
-  associatedKeys,
-  importedAccountKeys,
-  closeBottomSheet
-}) => {
+const AccountKeysBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, account }) => {
   const [currentKeyDetails, setCurrentKeyDetails] = useState<AccountKeyType | null>(null)
 
   const closeCurrentKeyDetails = () => setCurrentKeyDetails(null)
@@ -33,13 +27,13 @@ const AccountKeysBottomSheet: FC<Props> = ({
   return (
     <BottomSheet id="account-keys" sheetRef={sheetRef} closeBottomSheet={closeBottomSheetWrapped}>
       {!currentKeyDetails ? (
-        <AccountKeys
-          associatedKeys={associatedKeys}
-          importedAccountKeys={importedAccountKeys}
-          setCurrentKeyDetails={setCurrentKeyDetails}
-        />
+        <AccountKeys setCurrentKeyDetails={setCurrentKeyDetails} account={account} />
       ) : (
-        <AccountKeyDetails details={currentKeyDetails} closeDetails={closeCurrentKeyDetails} />
+        <AccountKeyDetails
+          details={currentKeyDetails}
+          closeDetails={closeCurrentKeyDetails}
+          account={account}
+        />
       )}
     </BottomSheet>
   )

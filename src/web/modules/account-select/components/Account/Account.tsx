@@ -19,11 +19,11 @@ import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -66,9 +66,6 @@ const Account = ({
   })
 
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const { keys } = useKeystoreControllerState()
-  const associatedKeys = account?.associatedKeys || []
-  const importedAccountKeys = keys.filter(({ addr: keyAddr }) => associatedKeys.includes(keyAddr))
 
   const selectAccount = useCallback(() => {
     if (isSettings) {
@@ -189,8 +186,7 @@ const Account = ({
           {isSettings && (
             <AccountKeysBottomSheet
               sheetRef={sheetRef}
-              associatedKeys={associatedKeys}
-              importedAccountKeys={importedAccountKeys}
+              account={account}
               closeBottomSheet={closeBottomSheet}
             />
           )}
@@ -198,7 +194,7 @@ const Account = ({
             <Dropdown
               data={[
                 { label: 'Manage Keys', value: 'keys' },
-                { label: 'Remove Account', value: 'remove' }
+                { label: 'Remove Account', value: 'remove', style: { color: iconColors.danger } }
               ]}
               onSelect={onDropdownSelect}
               toggle={toggleDropdown}

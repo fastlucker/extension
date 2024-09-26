@@ -1,9 +1,11 @@
 import * as Clipboard from 'expo-clipboard'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Animated, View, ViewStyle } from 'react-native'
+import { Animated, Pressable, View, ViewStyle } from 'react-native'
 
+import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import ExportIcon from '@common/assets/svg/ExportIcon'
@@ -20,6 +22,7 @@ import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover
 import { getUiType } from '@web/utils/uiType'
 
 import AccountKeyIcon from '../AccountKeyIcon'
+import Tooltip from '../Tooltip'
 
 export type AccountKeyType = {
   isImported: boolean
@@ -36,6 +39,7 @@ type Props = AccountKeyType & {
   enableEditing?: boolean
   handleOnKeyDetailsPress?: () => void
   showCopyAddr?: boolean
+  account: Account
 }
 
 const { isPopup } = getUiType()
@@ -50,7 +54,8 @@ const AccountKey: React.FC<Props> = ({
   isImported,
   style,
   enableEditing = true,
-  handleOnKeyDetailsPress
+  handleOnKeyDetailsPress,
+  account
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -92,6 +97,14 @@ const AccountKey: React.FC<Props> = ({
   }
 
   const shortAddr = shortenAddress(addr, 13)
+  const isSA = isSmartAccount(account)
+  const isInternal = !type || type === 'internal'
+  const canExportKey = isImported && isInternal && !isSA
+  const exportKey = () => {
+    if (!canExportKey) return
+
+    console.log(123)
+  }
 
   return (
     <View
@@ -154,9 +167,30 @@ const AccountKey: React.FC<Props> = ({
             <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
           </AnimatedPressable>
         )}
-        <View style={spacings.mlTy}>
-          <ExportIcon width={20} height={20} color={theme.secondaryText} />
-        </View>
+        <Pressable
+          onPress={exportKey}
+          style={() => [spacings.mlTy, !canExportKey ? { opacity: 0.4, cursor: 'default' } : {}]}
+        >
+          <ExportIcon
+            dataSet={{ tooltipId: 'export-icon-tooltip' }}
+            width={20}
+            height={20}
+            color={canExportKey ? theme.primaryText : theme.secondaryText}
+          />
+          <Tooltip id="export-icon-tooltip">
+            <View>
+              <Text fontSize={14} appearance="secondaryText">
+                {
+                  canExportKey
+                    ? t('Export key')
+                    : !isInternal
+                    ? t('Export is unavailable as this key is a hardware wallet key')
+                    : t('Smart account export coming soon') // the smart account case
+                }
+              </Text>
+            </View>
+          </Tooltip>
+        </Pressable>
       </View>
       {isImported ? (
         handleOnKeyDetailsPress && (

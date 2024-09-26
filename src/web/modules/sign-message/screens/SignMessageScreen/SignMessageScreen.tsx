@@ -213,7 +213,7 @@ const SignMessageScreen = () => {
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
   // loading spinner instead (would better be a skeleton, but whatever).
-  if (!signMessageState.isInitialized) {
+  if (!signMessageState.isInitialized || !selectedAccountFull) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />
@@ -241,6 +241,7 @@ const SignMessageScreen = () => {
         selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
         handleChooseSigningKey={handleSign}
         handleClose={() => setIsChooseSignerShown(false)}
+        account={selectedAccountFull}
       />
       {isViewOnly && (
         <View style={styles.noKeysToSignAlert}>
