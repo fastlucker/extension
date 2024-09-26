@@ -101,8 +101,6 @@ const AccountKey: React.FC<Props> = ({
   const isInternal = !type || type === 'internal'
   const canExportKey = isImported && isInternal && !isSA
   const exportKey = () => {
-    if (!canExportKey) return
-
     console.log(123)
   }
 
@@ -167,30 +165,38 @@ const AccountKey: React.FC<Props> = ({
             <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
           </AnimatedPressable>
         )}
-        <Pressable
-          onPress={exportKey}
-          style={() => [spacings.mlTy, !canExportKey ? { opacity: 0.4, cursor: 'default' } : {}]}
-        >
-          <ExportIcon
-            dataSet={{ tooltipId: 'export-icon-tooltip' }}
-            width={20}
-            height={20}
-            color={canExportKey ? theme.primaryText : theme.secondaryText}
-          />
-          <Tooltip id="export-icon-tooltip">
-            <View>
-              <Text fontSize={14} appearance="secondaryText">
-                {
-                  canExportKey
-                    ? t('Export key')
-                    : !isInternal
-                    ? t('Export is unavailable as this key is a hardware wallet key')
-                    : t('Smart account export coming soon') // the smart account case
-                }
-              </Text>
-            </View>
-          </Tooltip>
-        </Pressable>
+        {/* 
+          When making the Pressable disabled, it disables literally everything in it.
+          So even the tooltip will not work.
+          The workaround is to set a wrapping <View> and make it the tooltip target
+        */}
+        {/* @ts-ignore */}
+        <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
+          <Pressable
+            onPress={exportKey}
+            style={() => [spacings.mlTy, !canExportKey ? { opacity: 0.4 } : {}]}
+            disabled={!canExportKey}
+          >
+            <ExportIcon
+              width={20}
+              height={20}
+              color={canExportKey ? theme.primaryText : theme.secondaryText}
+            />
+          </Pressable>
+        </View>
+        <Tooltip id="export-icon-tooltip">
+          <View>
+            <Text fontSize={14} appearance="secondaryText">
+              {
+                canExportKey
+                  ? t('Export key')
+                  : !isInternal
+                  ? t('Export is unavailable as this key is a hardware wallet key')
+                  : t('Smart account export coming soon') // the smart account case
+              }
+            </Text>
+          </View>
+        </Tooltip>
       </View>
       {isImported ? (
         handleOnKeyDetailsPress && (
