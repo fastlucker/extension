@@ -21,7 +21,7 @@ const MaxAmount = ({
   maxAmountInFiat: number | null
   selectedTokenSymbol: string
   isLoading: boolean
-  onMaxButtonPress: () => void
+  onMaxButtonPress?: () => void
 }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
@@ -41,11 +41,13 @@ const MaxAmount = ({
         {`${maxAmount === 0 ? 0 : formatDecimals(maxAmount, 'amount')} ${selectedTokenSymbol} /`}
         {` ${maxAmountInFiat ? formatDecimals(maxAmountInFiat, 'value') : 0} USD`}
       </Text>
-      <Pressable style={styles.maxButton} onPress={onMaxButtonPress}>
-        <Text fontSize={12} weight="medium" appearance="primary">
-          {t('Max')}
-        </Text>
-      </Pressable>
+      {!!onMaxButtonPress && (
+        <Pressable style={styles.maxButton} onPress={onMaxButtonPress}>
+          <Text fontSize={12} weight="medium" appearance="primary">
+            {t('Max')}
+          </Text>
+        </Pressable>
+      )}
     </View>
   ) : (
     <SkeletonLoader height={22} width={100} />

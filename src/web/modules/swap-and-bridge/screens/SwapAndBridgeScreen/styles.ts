@@ -6,6 +6,8 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
+  tabLayoutContentContainer: ViewStyle
+  container: ViewStyle
   selectorContainer: ViewStyle
   swapAndBridgeToggleButtonWrapper: ViewStyle
   swapAndBridgeToggleButton: ViewStyle
@@ -14,6 +16,14 @@ interface Style {
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
+    tabLayoutContentContainer: {
+      ...spacings.pt2Xl,
+      ...flexbox.alignCenter
+    },
+    container: {
+      width: 640,
+      ...flexbox.flex1
+    },
     selectorContainer: {
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,

@@ -1,15 +1,19 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import FlipIcon from '@common/assets/svg/FlipIcon'
 import SwapBridgeToggleIcon from '@common/assets/svg/SwapBridgeToggleIcon'
+import BackButton from '@common/components/BackButton'
+import Button from '@common/components/Button'
 import NumberInput from '@common/components/NumberInput'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
@@ -25,6 +29,7 @@ import getStyles from './styles'
 const SwapAndBridgeScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
   const {
     fromAmountValue,
     onFromAmountChange,
@@ -38,18 +43,24 @@ const SwapAndBridgeScreen = () => {
     toTokenValue,
     handleChangeToToken,
     handleSwitchFromAmountFieldMode,
-    handleSetMaxFromAmount
+    handleSetMaxFromAmount,
+    handleSubmitForm
   } = useSwapAndBridgeFrom()
   const {
-    toChainId,
     fromSelectedToken,
     fromAmount,
     fromAmountInFiat,
     fromAmountFieldMode,
+    toChainId,
+    toAmount,
     maxFromAmount,
     maxFromAmountInFiat
   } = useSwapAndBridgeControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
+
+  const handleBackButtonPress = useCallback(() => {
+    navigate(ROUTES.dashboard)
+  }, [navigate])
 
   // TODO: Wire-up with the UI
   // TODO: Disable tokens that are NOT supported
@@ -77,135 +88,134 @@ const SwapAndBridgeScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="sm"
+      width="md"
       header={<HeaderAccountAndNetworkInfo />}
+      footer={<BackButton onPress={handleBackButtonPress} />}
     >
-      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
-        <Panel title={t('Swap & Bridge')} forceContainerSmallSpacings>
-          <View>
-            <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
-              {t('Send')}
-            </Text>
-            <View style={styles.selectorContainer}>
-              <View style={flexbox.directionRow}>
-                <View style={flexbox.flex1}>
-                  <NumberInput
-                    value={fromAmountValue}
-                    onChangeText={onFromAmountChange}
-                    placeholder="0"
-                    borderless
-                    inputStyle={spacings.pl0}
-                    nativeInputStyle={{ fontFamily: FONT_FAMILIES.MEDIUM, fontSize: 20 }}
-                    disabled={fromTokenAmountSelectDisabled}
-                    containerStyle={spacings.mb0}
+      <TabLayoutWrapperMainContent contentContainerStyle={styles.tabLayoutContentContainer}>
+        <View style={styles.container}>
+          <Panel title={t('Swap & Bridge')} forceContainerSmallSpacings>
+            <View>
+              <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
+                {t('Send')}
+              </Text>
+              <View style={styles.selectorContainer}>
+                <View style={flexbox.directionRow}>
+                  <View style={flexbox.flex1}>
+                    <NumberInput
+                      value={fromAmountValue}
+                      onChangeText={onFromAmountChange}
+                      placeholder="0"
+                      borderless
+                      inputStyle={spacings.pl0}
+                      nativeInputStyle={{ fontFamily: FONT_FAMILIES.MEDIUM, fontSize: 20 }}
+                      disabled={fromTokenAmountSelectDisabled}
+                      containerStyle={spacings.mb0}
+                    />
+                  </View>
+                  <Select
+                    setValue={({ value }) => handleChangeFromToken(value as string)}
+                    options={fromTokenOptions}
+                    value={fromTokenValue}
+                    // disabled={disableForm}
+                    testID="from-token-select"
+                    containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
+                    selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
                 </View>
-                <Select
-                  setValue={({ value }) => handleChangeFromToken(value as string)}
-                  options={fromTokenOptions}
-                  value={fromTokenValue}
-                  // disabled={disableForm}
-                  // containerStyle={styles.tokenSelect}
-                  testID="from-token-select"
-                  containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
-                  selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
-                />
-              </View>
-              <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.ptSm]}>
-                <View style={flexbox.flex1}>
-                  {fromSelectedToken?.priceIn.length !== 0 ? (
-                    <Pressable
-                      onPress={handleSwitchFromAmountFieldMode}
-                      style={[flexbox.directionRow, flexbox.alignCenter]}
-                      disabled={fromTokenAmountSelectDisabled}
-                    >
-                      <View
-                        style={{
-                          backgroundColor: theme.infoBackground,
-                          borderRadius: 50,
-                          paddingHorizontal: 5,
-                          paddingVertical: 5,
-                          ...spacings.mhTy
-                        }}
+                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.ptSm]}>
+                  <View style={flexbox.flex1}>
+                    {fromSelectedToken?.priceIn.length !== 0 ? (
+                      <Pressable
+                        onPress={handleSwitchFromAmountFieldMode}
+                        style={[flexbox.directionRow, flexbox.alignCenter]}
+                        disabled={fromTokenAmountSelectDisabled}
                       >
-                        <FlipIcon width={11} height={11} color={theme.primary} />
-                      </View>
-                      <Text fontSize={12} appearance="primary" weight="medium">
-                        {fromAmountFieldMode === 'token'
-                          ? `≈ ${
-                              fromAmountInFiat
-                                ? formatDecimals(Number(fromAmountInFiat), 'value')
-                                : 0
-                            } USD`
-                          : `${fromAmount ? formatDecimals(Number(fromAmount), 'amount') : 0} ${
-                              fromSelectedToken?.symbol
-                            }`}
-                      </Text>
-                    </Pressable>
-                  ) : (
-                    <View />
+                        <View
+                          style={{
+                            backgroundColor: theme.infoBackground,
+                            borderRadius: 50,
+                            paddingHorizontal: 5,
+                            paddingVertical: 5,
+                            ...spacings.mhTy
+                          }}
+                        >
+                          <FlipIcon width={11} height={11} color={theme.primary} />
+                        </View>
+                        <Text fontSize={12} appearance="primary" weight="medium">
+                          {fromAmountFieldMode === 'token'
+                            ? `≈ ${
+                                fromAmountInFiat
+                                  ? formatDecimals(Number(fromAmountInFiat), 'value')
+                                  : 0
+                              } USD`
+                            : `${fromAmount ? formatDecimals(Number(fromAmount), 'amount') : 0} ${
+                                fromSelectedToken?.symbol
+                              }`}
+                        </Text>
+                      </Pressable>
+                    ) : (
+                      <View />
+                    )}
+                  </View>
+                  {!fromTokenAmountSelectDisabled && (
+                    <MaxAmount
+                      isLoading={!accountPortfolio?.isAllReady}
+                      maxAmount={Number(maxFromAmount)}
+                      maxAmountInFiat={Number(maxFromAmountInFiat)}
+                      selectedTokenSymbol={fromSelectedToken?.symbol || ''}
+                      onMaxButtonPress={handleSetMaxFromAmount}
+                    />
                   )}
                 </View>
-                {!fromTokenAmountSelectDisabled && (
-                  <MaxAmount
-                    isLoading={!accountPortfolio?.isAllReady}
-                    maxAmount={Number(maxFromAmount)}
-                    maxAmountInFiat={Number(maxFromAmountInFiat)}
-                    selectedTokenSymbol={fromSelectedToken?.symbol || ''}
-                    onMaxButtonPress={handleSetMaxFromAmount}
-                  />
-                )}
               </View>
             </View>
+          </Panel>
+          <View style={styles.swapAndBridgeToggleButtonWrapper}>
+            <Pressable style={styles.swapAndBridgeToggleButton}>
+              <SwapBridgeToggleIcon />
+            </Pressable>
           </View>
-        </Panel>
-        <View style={styles.swapAndBridgeToggleButtonWrapper}>
-          <Pressable style={styles.swapAndBridgeToggleButton}>
-            <SwapBridgeToggleIcon />
-          </Pressable>
-        </View>
-        <Panel forceContainerSmallSpacings>
-          <View>
-            <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
-              {t('Receive')}
-            </Text>
-            <View style={[styles.selectorContainer, spacings.ph0, spacings.ptTy]}>
-              <View style={styles.networkSelectorContainer}>
-                <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-                  <Text fontSize={14} style={spacings.mrTy} appearance="secondaryText">
-                    {t('Network')}
-                  </Text>
+          <Panel forceContainerSmallSpacings>
+            <View>
+              <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
+                {t('Receive')}
+              </Text>
+              <View style={styles.selectorContainer}>
+                <View style={[flexbox.directionRow, spacings.mb]}>
                   <Select
                     setValue={handleSetToNetworkValue}
-                    containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
-                    size="sm"
+                    containerStyle={{ ...spacings.mb0, ...spacings.mrMi, ...flexbox.flex1 }}
                     options={toNetworksOptions}
                     value={toNetworksOptions.filter((opt) => opt.value === toChainId)[0]}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
+                  <Select
+                    setValue={({ value }) => handleChangeToToken(value as string)}
+                    options={toTokenOptions}
+                    value={toTokenValue}
+                    // disabled={disableForm}
+                    testID="to-token-select"
+                    containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
+                    selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+                  />
                 </View>
-                <View style={flexbox.flex1} />
-              </View>
-              <View style={[flexbox.directionRow, spacings.phSm]}>
-                <View style={flexbox.flex1}>
-                  <Text fontSize={20} weight="medium" numberOfLines={1}>
-                    {0}
-                  </Text>
-                </View>
-                <Select
-                  setValue={({ value }) => handleChangeToToken(value as string)}
-                  options={toTokenOptions}
-                  value={toTokenValue}
-                  // disabled={disableForm}
-                  // containerStyle={styles.tokenSelect}
-                  testID="to-token-select"
-                  containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
-                  selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
-                />
+
+                <Text
+                  fontSize={20}
+                  weight="medium"
+                  numberOfLines={1}
+                  appearance={toAmount ? 'primary' : 'secondaryText'}
+                >
+                  {toAmount || 0}
+                </Text>
               </View>
             </View>
+          </Panel>
+          <View style={spacings.ptTy}>
+            <Button text={t('Proceed')} onPress={handleSubmitForm} />
           </View>
-        </Panel>
+        </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )

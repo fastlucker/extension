@@ -825,8 +825,10 @@ handleKeepAlive()
 
               case 'SWAP_AND_BRIDGE_CONTROLLER_INIT':
                 return mainCtrl.swapAndBridge.init()
-              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE':
-                return mainCtrl.swapAndBridge.update(params)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
+                return mainCtrl.swapAndBridge.updateForm(params)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST':
+                return mainCtrl.swapAndBridge.updatePortfolioTokenList(params)
 
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addOrUpdateAction(params)

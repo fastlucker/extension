@@ -50,7 +50,7 @@ const useSwapAndBridgeFrom = () => {
     (value: string) => {
       setFromAmountValue(value)
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: { fromAmount: value }
       })
     },
@@ -59,15 +59,13 @@ const useSwapAndBridgeFrom = () => {
 
   useEffect(() => {
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
-      params: {
-        portfolioTokenList:
-          accountPortfolio?.tokens.filter((token) => {
-            const hasAmount = Number(getTokenAmount(token)) > 0
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST',
+      params:
+        accountPortfolio?.tokens.filter((token) => {
+          const hasAmount = Number(getTokenAmount(token)) > 0
 
-            return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
-          }) || []
-      }
+          return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
+        }) || []
     })
   }, [accountPortfolio?.tokens, dispatch])
 
@@ -88,7 +86,7 @@ const useSwapAndBridgeFrom = () => {
       )
 
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: { fromSelectedToken: tokenToSelect }
       })
     },
@@ -112,7 +110,7 @@ const useSwapAndBridgeFrom = () => {
       const tokenToSelect = toTokenList.find((t: SocketAPIToken) => getTokenId(t) === value)
 
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: { toSelectedToken: tokenToSelect }
       })
     },
@@ -134,7 +132,7 @@ const useSwapAndBridgeFrom = () => {
   const handleSetToNetworkValue = useCallback(
     (networkOption: SelectValue) => {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: {
           toChainId: networks.filter((net) => Number(net.chainId) === networkOption.value)[0]
             .chainId
@@ -146,17 +144,19 @@ const useSwapAndBridgeFrom = () => {
 
   const handleSwitchFromAmountFieldMode = useCallback(() => {
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
       params: { fromAmountFieldMode: fromAmountFieldMode === 'token' ? 'fiat' : 'token' }
     })
   }, [fromAmountFieldMode, dispatch])
 
   const handleSetMaxFromAmount = useCallback(() => {
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
       params: { fromAmount: fromAmountFieldMode === 'token' ? maxFromAmount : maxFromAmountInFiat }
     })
   }, [fromAmountFieldMode, maxFromAmount, maxFromAmountInFiat, dispatch])
+
+  const handleSubmitForm = useCallback(() => {}, [])
 
   return {
     fromAmountValue,
@@ -172,7 +172,8 @@ const useSwapAndBridgeFrom = () => {
     toTokenValue,
     handleChangeToToken,
     handleSwitchFromAmountFieldMode,
-    handleSetMaxFromAmount
+    handleSetMaxFromAmount,
+    handleSubmitForm
   }
 }
 

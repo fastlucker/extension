@@ -370,8 +370,8 @@ type DappsControllerRemoveDappAction = {
 type SwapAndBridgeControllerInitAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT'
 }
-type SwapAndBridgeControllerUpdateAction = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE'
+type SwapAndBridgeControllerUpdateFormAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM'
   params: {
     fromAmount?: string
     fromAmountInFiat?: string
@@ -380,8 +380,11 @@ type SwapAndBridgeControllerUpdateAction = {
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
     toSelectedToken?: SocketAPIToken | null
-    portfolioTokenList?: TokenResult[]
   }
+}
+type SwapAndBridgeControllerUpdatePortfolioTokenListAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST'
+  params: TokenResult[]
 }
 
 type ActionsControllerAddToActionsQueue = {
@@ -550,7 +553,8 @@ export type Action =
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
   | SwapAndBridgeControllerInitAction
-  | SwapAndBridgeControllerUpdateAction
+  | SwapAndBridgeControllerUpdateFormAction
+  | SwapAndBridgeControllerUpdatePortfolioTokenListAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
