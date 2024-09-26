@@ -6,24 +6,26 @@
     align-items: flex-end;
     margin-bottom: 2rem;
     margin-top: 3rem;
-    
+
     .step {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 0 1.75rem;        background-color: $secondaryBackground;
+        padding: 0 1.75rem;
+        background-color: $secondaryBackground;
         width: 7.5rem;
         border-color: $primaryBorder;
         border-style: solid;
         position: relative;
     }
+
     .avatar {
         width: 4rem;
         height: 4rem;
-        margin-bottom: .5rem;
+        margin-bottom: 0.5rem;
         border-radius: 2.5rem;
-        
     }
+
     .contentWrapper {
         padding: 1rem;
         position: relative;
@@ -32,33 +34,33 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-
         top: -2rem;
+
         .avatar {
             z-index: 2;
         }
     }
+
     .xp {
-        font-size: .875rem;
+        font-size: 0.875rem;
         font-weight: 500;
         line-height: 20px;
     }
-    
+
     .name {
-        font-size: .75rem;
+        font-size: 0.75rem;
         font-weight: 400;
         line-height: 16px;
         color: $primaryText;
-        margin-bottom: .25rem;
+        margin-bottom: 0.25rem;
     }
-    
+
     .throphy {
         width: 1.5rem;
         height: 1.5rem;
         color: $goldDecorative;
     }
-    
-    
+
     .first {
         order: 2;
         background-color: $tertiaryBackground;

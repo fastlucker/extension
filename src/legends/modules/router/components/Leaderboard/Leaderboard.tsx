@@ -4,7 +4,9 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { fetchCaught } from '@common/services/fetch'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Page from '@legends/components/Page'
 
+import Podium from './components/Podium'
 import styles from './Leaderboard.module.scss'
 
 const getLeaderboard = async (currentUser?: string) => {
@@ -44,6 +46,7 @@ interface LeaderboardProps {
 const USER_ADDR = '0x676E327EC5f53aA22906363Ef741a9f8894E0ad1'
 
 const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
+  const [currentUserRef, setCurrentUserRef] = useState<React.RefObject<HTMLDivElement> | null>(null)
   const [loading, setLoading] = useState(true)
   const [leaderboardData, setLeaderboardData] = useState([])
   const [userLeaderboardData, setCurrentUser] = useState({
@@ -57,7 +60,11 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
     const fetchLeaderboard = async () => {
       try {
         const { leaderboard, currentUser } = await getLeaderboard(USER_ADDR)
-        setLeaderboardData(leaderboard.slice(0, 100))
+        const duplicatedData = leaderboard.slice(0, 100).map((item, index) => ({
+          ...item,
+          account: `${item.account}_${index}`
+        }))
+        setLeaderboardData([...leaderboard, ...duplicatedData])
         setCurrentUser(currentUser)
       } catch (error) {
         console.error('Failed to fetch leaderboard:', error)
@@ -79,7 +86,7 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
     .sort((a, b) => b.xp - a.xp)
 
   return (
-    (loading && <div>Loading...</div>) || (
+    <Page>
       <div className={styles.wrapper}>
         <div className={styles.heading}>
           <h1 className={styles.title}>Leaderboard</h1>
@@ -89,21 +96,7 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
             magna luctus et.
           </p>
         </div>
-        <div className={styles.podium}>
-          <div className={(styles.step, styles.second)}>
-            <div className={styles.name}>goshokazana.x</div>
-            <div className={styles.position}>18 349</div>
-          </div>
-          <div className={(styles.step, styles.first)}>
-            <img alt="avatar" className={styles.avatar} />
-            <div className={styles.name}>elmoto.eth</div>
-            <div className={styles.position}>19 349</div>
-          </div>
-          <div className={(styles.step, styles.third)}>
-            <div className={styles.name}>0x66fE...04d08</div>
-            <div className={styles.position}>18 349</div>
-          </div>
-        </div>
+        <Podium />
         <div className={styles.table}>
           <div className={styles.header}>
             <h5 className={styles.cell}>player</h5>
@@ -111,17 +104,35 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
             <h5 className={styles.cell}>XP</h5>
           </div>
           {sortedData.map((item, index) => (
-            <div key={index} className={styles.row}>
-              <h5 className={styles.cell}>{item.rank > 3 ? item.rank : getBadge(item.rank)}</h5>
-              <img src="/images/leaderboard/avatar1.png" alt="avatar" className={styles.avatar} />
-              <h5 className={styles.cell}>{shortenAddress(item.account)}</h5>
+            <div
+              key={index}
+              className={`${styles.row} ${
+                item.account === userLeaderboardData.account ? styles.currentUserRow : ''
+              } ${item.rank <= 3 ? styles[`rankedRow${item.rank}`] : ''}`}
+              ref={(el) => {
+                if (item.account === userLeaderboardData.account) {
+                  setCurrentUserRef(el)
+                }
+              }}
+              style={
+                item.account === userLeaderboardData.account && currentUserRef
+                  ? { position: 'sticky', bottom: 0 }
+                  : {}
+              }
+            >
+              <div className={styles.cell}>
+                {item.rank > 3 ? item.rank : getBadge(item.rank)}
+
+                <img src="/images/leaderboard/avatar1.png" alt="avatar" className={styles.avatar} />
+                {shortenAddress(item.account, 20)}
+              </div>
               <h5 className={styles.cell}>{item.level}</h5>
               <h5 className={styles.cell}>{item.xp}</h5>
             </div>
           ))}
         </div>
       </div>
-    )
+    </Page>
   )
 }
 
