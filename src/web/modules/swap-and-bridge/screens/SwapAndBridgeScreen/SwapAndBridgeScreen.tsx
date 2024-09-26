@@ -2,6 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
+import FlipIcon from '@common/assets/svg/FlipIcon'
 import SwapBridgeToggleIcon from '@common/assets/svg/SwapBridgeToggleIcon'
 import NumberInput from '@common/components/NumberInput'
 import Panel from '@common/components/Panel'
@@ -11,11 +12,14 @@ import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
+import MaxAmount from '../../components/MaxAmount/MaxAmount'
 import getStyles from './styles'
 
 const SwapAndBridgeScreen = () => {
@@ -32,9 +36,20 @@ const SwapAndBridgeScreen = () => {
     handleSetToNetworkValue,
     toTokenOptions,
     toTokenValue,
-    handleChangeToToken
+    handleChangeToToken,
+    handleSwitchFromAmountFieldMode,
+    handleSetMaxFromAmount
   } = useSwapAndBridgeFrom()
-  const { toChainId } = useSwapAndBridgeControllerState()
+  const {
+    toChainId,
+    fromSelectedToken,
+    fromAmount,
+    fromAmountInFiat,
+    fromAmountFieldMode,
+    maxFromAmount,
+    maxFromAmountInFiat
+  } = useSwapAndBridgeControllerState()
+  const { accountPortfolio } = usePortfolioControllerState()
 
   // TODO: Wire-up with the UI
   // TODO: Disable tokens that are NOT supported
@@ -96,6 +111,51 @@ const SwapAndBridgeScreen = () => {
                   selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                 />
               </View>
+              <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.ptSm]}>
+                <View style={flexbox.flex1}>
+                  {fromSelectedToken?.priceIn.length !== 0 ? (
+                    <Pressable
+                      onPress={handleSwitchFromAmountFieldMode}
+                      style={[flexbox.directionRow, flexbox.alignCenter]}
+                      disabled={fromTokenAmountSelectDisabled}
+                    >
+                      <View
+                        style={{
+                          backgroundColor: theme.infoBackground,
+                          borderRadius: 50,
+                          paddingHorizontal: 5,
+                          paddingVertical: 5,
+                          ...spacings.mhTy
+                        }}
+                      >
+                        <FlipIcon width={11} height={11} color={theme.primary} />
+                      </View>
+                      <Text fontSize={12} appearance="primary" weight="medium">
+                        {fromAmountFieldMode === 'token'
+                          ? `≈ ${
+                              fromAmountInFiat
+                                ? formatDecimals(Number(fromAmountInFiat), 'value')
+                                : 0
+                            } USD`
+                          : `${fromAmount ? formatDecimals(Number(fromAmount), 'amount') : 0} ${
+                              fromSelectedToken?.symbol
+                            }`}
+                      </Text>
+                    </Pressable>
+                  ) : (
+                    <View />
+                  )}
+                </View>
+                {!fromTokenAmountSelectDisabled && (
+                  <MaxAmount
+                    isLoading={!accountPortfolio?.isAllReady}
+                    maxAmount={Number(maxFromAmount)}
+                    maxAmountInFiat={Number(maxFromAmountInFiat)}
+                    selectedTokenSymbol={fromSelectedToken?.symbol || ''}
+                    onMaxButtonPress={handleSetMaxFromAmount}
+                  />
+                )}
+              </View>
             </View>
           </View>
         </Panel>
@@ -128,16 +188,9 @@ const SwapAndBridgeScreen = () => {
               </View>
               <View style={[flexbox.directionRow, spacings.phSm]}>
                 <View style={flexbox.flex1}>
-                  <NumberInput
-                    value={fromAmountValue}
-                    onChangeText={onFromAmountChange}
-                    placeholder="0"
-                    borderless
-                    inputStyle={spacings.pl0}
-                    nativeInputStyle={{ fontFamily: FONT_FAMILIES.MEDIUM, fontSize: 20 }}
-                    disabled={fromTokenAmountSelectDisabled}
-                    containerStyle={spacings.mb0}
-                  />
+                  <Text fontSize={20} weight="medium" numberOfLines={1}>
+                    {0}
+                  </Text>
                 </View>
                 <Select
                   setValue={({ value }) => handleChangeToToken(value as string)}

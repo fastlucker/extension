@@ -374,6 +374,8 @@ type SwapAndBridgeControllerUpdateAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE'
   params: {
     fromAmount?: string
+    fromAmountInFiat?: string
+    fromAmountFieldMode?: 'fiat' | 'token'
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number

@@ -6,6 +6,7 @@ import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -18,9 +19,12 @@ const useSwapAndBridgeFrom = () => {
   const {
     fromAmount,
     fromSelectedToken,
+    fromAmountFieldMode,
     toSelectedToken,
     portfolioTokenList,
     toTokenList,
+    maxFromAmount,
+    maxFromAmountInFiat,
     statuses
   } = useSwapAndBridgeControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
@@ -28,12 +32,19 @@ const useSwapAndBridgeFrom = () => {
   const { networks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { theme } = useTheme()
+  const prevFromAmount = usePrevious(fromAmount)
 
   useEffect(() => {
     dispatch({
       type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT'
     })
   }, [dispatch])
+
+  useEffect(() => {
+    if (prevFromAmount !== fromAmount && fromAmount !== fromAmountValue) {
+      setFromAmountValue(fromAmount)
+    }
+  }, [fromAmount, fromAmountValue, prevFromAmount])
 
   const onFromAmountChange = useCallback(
     (value: string) => {
@@ -133,6 +144,20 @@ const useSwapAndBridgeFrom = () => {
     [networks, dispatch]
   )
 
+  const handleSwitchFromAmountFieldMode = useCallback(() => {
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
+      params: { fromAmountFieldMode: fromAmountFieldMode === 'token' ? 'fiat' : 'token' }
+    })
+  }, [fromAmountFieldMode, dispatch])
+
+  const handleSetMaxFromAmount = useCallback(() => {
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE',
+      params: { fromAmount: fromAmountFieldMode === 'token' ? maxFromAmount : maxFromAmountInFiat }
+    })
+  }, [fromAmountFieldMode, maxFromAmount, maxFromAmountInFiat, dispatch])
+
   return {
     fromAmountValue,
     onFromAmountChange,
@@ -145,7 +170,9 @@ const useSwapAndBridgeFrom = () => {
     toTokenAmountSelectDisabled,
     toTokenOptions,
     toTokenValue,
-    handleChangeToToken
+    handleChangeToToken,
+    handleSwitchFromAmountFieldMode,
+    handleSetMaxFromAmount
   }
 }
 
