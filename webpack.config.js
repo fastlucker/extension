@@ -7,6 +7,8 @@ const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 const webpack = require('webpack')
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
+
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -20,6 +22,7 @@ const outputPath = process.env.WEBPACK_BUILD_OUTPUT_PATH
 const isExtension =
   outputPath.includes('webkit') || outputPath.includes('gecko') || outputPath.includes('safari')
 const isBenzin = outputPath.includes('benzin')
+const isLegends = outputPath.includes('legends')
 
 // style.css output file for WEB_ENGINE: GECKO
 function processStyleGecko(content) {
@@ -166,13 +169,28 @@ module.exports = async function (env, argv) {
     }
   ]
 
-  config.resolve.fallback = {}
-  config.resolve.fallback.stream = require.resolve('stream-browserify')
-  config.resolve.fallback.crypto = require.resolve('crypto-browserify')
+  config.resolve.extensions = [...(config.resolve.extensions || []), '.scss']
+
+  config.resolve.alias = {
+    ...(config.resolve.alias || {}),
+    '@ambire-common': path.resolve(__dirname, 'src/ambire-common/src'),
+    '@contracts': path.resolve(__dirname, 'src/ambire-common/contracts'),
+    '@ambire-common-v1': path.resolve(__dirname, 'src/ambire-common/v1'),
+    '@common': path.resolve(__dirname, 'src/common'),
+    '@mobile': path.resolve(__dirname, 'src/mobile'),
+    '@web': path.resolve(__dirname, 'src/web'),
+    '@benzin': path.resolve(__dirname, 'src/benzin'),
+    '@legends': path.resolve(__dirname, 'src/legends'),
+    react: path.resolve(__dirname, 'node_modules/react')
+  }
+
+  config.resolve.fallback = {
+    stream: require.resolve('stream-browserify'),
+    crypto: require.resolve('crypto-browserify')
+  }
 
   // There will be 2 instances of React if node_modules are installed in src/ambire-common.
   // That's why we need to alias the React package to the one in the root node_modules.
-  config.resolve.alias.react = path.resolve(__dirname, 'node_modules/react')
 
   config.output = {
     // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod, /benzin-dev, /benzin-prod, /legends-dev, /legends-prod
@@ -325,6 +343,88 @@ module.exports = async function (env, argv) {
           {
             from: './src/benzin/public/favicon.ico',
             to: 'favicon.ico'
+          }
+        ]
+      })
+    ]
+
+    return config
+  }
+  if (isLegends) {
+    config.output.clean = true
+    config.entry = './src/legends/index.js'
+
+    if (process.env.APP_ENV === 'development') {
+      config.optimization = { minimize: false }
+
+      // Change the default WebSocket URL. Otherwise the dev build of the extension
+      // conflicts with the dev build of legends
+      config.devServer = {
+        ...config.devServer,
+        client: {
+          ...config.devServer.client,
+          webSocketURL: {
+            hostname: 'localhost', // Change this to your desired host
+            port: 8081, // Change this to your desired port
+            protocol: 'ws' // Can be 'ws' or 'wss' for secure connections
+          }
+        }
+      }
+    }
+
+    // Add scss support
+    config.module.rules[1].oneOf = config.module.rules[1].oneOf.map((rule) => {
+      if (rule.exclude && rule.type === 'asset/resource') {
+        rule.exclude.push(/\.scss$/)
+      }
+
+      return rule
+    })
+
+    config.module.rules = [
+      ...config.module.rules,
+      {
+        test: /\.module\.scss$/, // SCSS module rule
+        use: [
+          'style-loader', // Injects styles into the DOM
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true, // Enable CSS modules
+              esModule: false // DON'T DELETE: This is needed for the styles to work
+            }
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                includePaths: [path.resolve(__dirname, './src/legends')]
+              }
+            }
+          }
+        ]
+      },
+      {
+        test: /\.scss$/, // Regular SCSS rule (for global styles)
+        exclude: /\.module\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      }
+    ]
+
+    config.plugins = [
+      ...config.plugins,
+      new HtmlWebpackPlugin({
+        template: './src/legends/public/index.html',
+        filename: 'index.html'
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: 'src/legends/public', // Source directory
+            to: path.resolve(__dirname, `build/${process.env.WEBPACK_BUILD_OUTPUT_PATH}`), // Destination directory
+            globOptions: {
+              ignore: ['**/*.html'] // Ignore HTML files as they are handled by HtmlWebpackPlugin
+            }
           }
         ]
       })
