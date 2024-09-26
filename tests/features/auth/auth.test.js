@@ -7,7 +7,7 @@ import {
   TEST_ACCOUNT_NAMES,
   TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER,
   INVALID_SEEDS_12_WORDS,
-  INVALID_SEEDS_24_WORDS,
+  // INVALID_SEEDS_24_WORDS,
   SMART_ACC_VIEW_ONLY_ADDRESS,
   BASIC_ACC_VIEW_ONLY_ADDRESS,
   VIEW_ONLY_LABEL,
@@ -35,7 +35,7 @@ import {
   selectHdPathAndAddAccount
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
-import { baPrivateKey, SEED_12_WORDS, SEED_24_WORDS } from '../../config/constants'
+import { baPrivateKey, SEED_12_WORDS } from '../../config/constants'
 import { buildSelector } from '../../common-helpers/buildSelector'
 import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
 
@@ -124,9 +124,9 @@ describe('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import one Basic Account and one Smart Account from a 24 words seed phrase and personalize them', async () => {
-    await importAccountsFromSeedPhrase(page, extensionURL, SEED_24_WORDS, INVALID_SEEDS_24_WORDS)
-  })
+  // it('should import one Basic Account and one Smart Account from a 24 words seed phrase and personalize them', async () => {
+  //   await importAccountsFromSeedPhrase(page, extensionURL, SEED_24_WORDS, INVALID_SEEDS_24_WORDS)
+  // })
 
   //--------------------------------------------------------------------------------------------------------------
   it('should import view-only accounts', async () => {

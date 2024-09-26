@@ -29,8 +29,8 @@ const REQUIRED_ENV_VARIABLES = [
   'SA_TERMSTATE',
   'SA_TOKEN_ITEMS',
   'BA_PRIVATE_KEY',
-  'SEED',
-  'SEED_24_WORDS'
+  'SEED'
+  // 'SEED_24_WORDS'
 ]
 
 export const validateEnvVariables = (envVariables) => {

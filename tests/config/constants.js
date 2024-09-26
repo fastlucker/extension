@@ -35,4 +35,4 @@ export const baParams = parseEnvVariables(loadedEnvVariables, 'BA')
 export const saParams = parseEnvVariables(loadedEnvVariables, 'SA')
 export const baPrivateKey = loadedEnvVariables.BA_PRIVATE_KEY
 export const SEED_12_WORDS = loadedEnvVariables.SEED
-export const SEED_24_WORDS = loadedEnvVariables.SEED_24_WORDS
+// export const SEED_24_WORDS = loadedEnvVariables.SEED_24_WORDS
