@@ -5,8 +5,6 @@ export const loadEnv = () => {
   try {
     // Check if the environment is running in CI (GitHub Actions sets the CI environment variable)
     if (process.env.CI) {
-      console.log('Running in CI environment, using process.env variables...')
-
       // Return the process.env directly in CI environment
       const ciEnv = { ...process.env }
       validateEnvVariables(ciEnv)
