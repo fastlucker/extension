@@ -48,7 +48,10 @@ export async function makeValidTransaction(
   await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
   // Check the checkbox "I confirm this address is not a Binance wallets...."
-  const checkboxExists = await page.evaluate(() => !!document.querySelector(SELECTORS.checkbox))
+  const checkboxExists = await page.evaluate(
+    (selector) => !!document.querySelector(selector),
+    SELECTORS.checkbox
+  )
   if (checkboxExists) await clickOnElement(page, SELECTORS.checkbox)
 
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
