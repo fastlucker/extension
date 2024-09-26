@@ -7,10 +7,6 @@ module.exports = {
   preset: 'jest-puppeteer',
   roots: ['tests'],
   moduleFileExtensions: ['ts', 'js'],
-  transform: {
-    '^.+\\.jsx?$': 'babel-jest',
-    '^.+\\.tsx?$': 'ts-jest' // If you're using TypeScript
-  },
   transformIgnorePatterns: [
     '/node_modules/(?!@trezor/trezor-user-env-link).+\\.js$' 
   ],
@@ -27,6 +23,5 @@ module.exports = {
     // DEFAULT: no paths should be ignored
     // path.join('<rootDir>', 'tests/smart_account')
     // path.join('<rootDir>', 'tests/basic_account')
-    path.join('<rootDir>', '/node_modules/(?!@trezor/trezor-user-env-link)')
   ]
 }

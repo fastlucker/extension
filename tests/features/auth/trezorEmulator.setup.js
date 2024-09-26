@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import TrezorConnect from '@trezor/connect'
 import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link/libDev/src/websocket-client'
 
