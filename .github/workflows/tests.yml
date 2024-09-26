@@ -92,6 +92,7 @@ jobs:
           SA_NETWORK_WITH_ASSETS: ${{ vars.SA_NETWORK_WITH_ASSETS }}
           SA_PASSPHRASE: ${{ secrets.SA_PASSPHRASE }}
           DEFAULT_INVITATION_CODE_DEV: ${{ vars.DEFAULT_INVITATION_CODE_DEV }}
+          SEED_24_WORDS: ${{ secrets.SEED_24_WORDS }}
 
         run: yarn run test:e2e:web
 
