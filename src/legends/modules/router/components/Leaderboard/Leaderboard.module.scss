@@ -17,7 +17,6 @@
         font-size: 2rem;
         font-weight: 500;
         line-height: 2.6375rem;
-        text-align: left;
         padding-bottom: 0.75rem;
     }
 
@@ -26,7 +25,6 @@
         font-size: 1rem;
         font-weight: 400;
         line-height: 1.3931rem;
-        text-align: center;
         max-width: 44.5rem;
     }
 
@@ -37,70 +35,49 @@
         width: 100%;
     }
 
-    .header {
-        border: 1px solid $primaryBorder;
-        border-radius: 0.75rem;
-        margin-bottom: 0.375rem;
+    .header, .row {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         font-size: 0.875rem;
         font-weight: 400;
         line-height: 1.25rem;
-        padding: 0.75rem 1.3125rem 0.75rem 3.25rem;
-        text-transform: uppercase;
+        padding: 0.75rem 1.3125rem;
+        border: 0.0625rem solid $primaryBorder;
+        border-radius: 0.75rem;
+        margin-bottom: 0.375rem;
         background-color: $secondaryBackground;
+        text-transform: uppercase;
 
         .cell {
-            color: $secondaryText;
             flex: 0.7 1 0%;
-        }
+            color: $secondaryText;
 
-        .cell:nth-child(2) {
-            text-align: center;
-            flex: 1 1 0%;
+            &:nth-child(2) {
+                text-align: center;
+                flex: 1 1 0%;
+            }
 
-        }
-
-        .cell:last-child {
-            text-align: right;
-            flex: 0.5 1 0%;
+            &:last-child {
+                text-align: right;
+                flex: 0.5 1 0%;
+            }
         }
     }
 
     .row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        text-transform: uppercase;
-        background-color: $secondaryBackground;
-        color: $primaryText;
-        font-weight: 400;
-        font-size: 0.875rem;
         padding: 0.75rem 1.3125rem;
-        border: 1px solid $primaryBorder;
-        border-radius: 0.75rem;
-        margin-bottom: 0.375rem;
         color: $secondaryText;
 
         .cell:first-child {
             display: flex;
-            color: $primaryText;
-            flex: 0.7 1 0%;
             align-items: center;
-        }
-
-        .cell:nth-child(2) {
-            text-align: center;
-            flex: 1 1 0%;
+            color: $primaryText;
         }
 
         .cell:last-child {
-            text-align: right;
             color: $primaryText;
-            flex: 0.5 1 0%;
         }
-
     }
 
     .rank {
@@ -110,31 +87,29 @@
         text-align: center;
         color: $primaryText;
     }
+
+    .rankedRow1, .rankedRow2, .rankedRow3 {
+        .cell, .cell:first-child, .cell:last-child {
+            color: inherit;
+        }
+    }
+
     .rankedRow1 {
         background-color: $goldBackground;
         border-color: $goldDecorative;
-
-        .cell, .cell:first-child, .cell:last-child {
-            color: $goldText;
-        }
+        color: $goldText;
     }
 
     .rankedRow2 {
         background-color: $silverBackground;
         border-color: $silverDecorative;
-
-        .cell, .cell:first-child, .cell:last-child {
-            color: $silverText;
-        }
+        color: $silverText;
     }
 
     .rankedRow3 {
         background-color: $bronzeBackground;
         border-color: $bronzeDecorative;
-
-        .cell, .cell:first-child, .cell:last-child {
-            color: $bronzeText;
-        }
+        color: $bronzeText;
     }
 
     .highlightRow {
@@ -170,8 +145,6 @@
         width: 1.25rem;
         height: 1.25rem;
         border-radius: 0.75rem;
-        margin-left: 0.5rem;
-        margin-right: .25rem;
+        margin: 0 0.25rem 0 0.5rem;
     }
-
 }
