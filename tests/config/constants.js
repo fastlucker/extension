@@ -36,3 +36,5 @@ export const saParams = parseEnvVariables(loadedEnvVariables, 'SA')
 export const baPrivateKey = loadedEnvVariables.BA_PRIVATE_KEY
 export const SEED_12_WORDS = loadedEnvVariables.SEED
 export const SEED_24_WORDS = loadedEnvVariables.SEED_24_WORDS
+export const SHOULD_RUN_TREZOR_TESTS =
+  loadedEnvVariables.SHOULD_RUN_TREZOR_TESTS === 'true' || false

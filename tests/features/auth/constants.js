@@ -46,3 +46,16 @@ export const SUCCESSFULLY_ADDED_2_ACCOUNTS_MSG = 'Successfully added 2 accounts'
 export const SMART_ACC_VIEW_ONLY_ADDRESS = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 export const BASIC_ACC_VIEW_ONLY_ADDRESS = '0x048d8573402CE085A6c8f34d568eC2Ccc995196e'
 export const VIEW_ONLY_LABEL = 'View-only'
+
+export const TREZOR_EMULATOR_OPTIONS = {
+  version: '1-main',
+  model: 'T1B1',
+  mnemonic: 'mnemonic_12',
+  pin: '1234',
+  passphrase_protection: false,
+  label: 'Test Trezor Device',
+  settings: {
+    use_passphrase: false,
+    experimental_features: true
+  }
+}

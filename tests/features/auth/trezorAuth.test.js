@@ -4,7 +4,8 @@ import {
   URL_ACCOUNT_SELECT,
   INVITE_STORAGE_ITEM,
   INVITE_STATUS_VERIFIED,
-  TEST_ACCOUNT_NAMES
+  TEST_ACCOUNT_NAMES,
+  TREZOR_EMULATOR_OPTIONS
 } from './constants'
 import { getController, setup, initTrezorConnect } from './trezorEmulator.setup'
 import { SELECTORS } from '../../common/selectors/selectors'
@@ -17,23 +18,25 @@ import {
   interactWithTrezorConnectPage,
   checkAccountDetails
 } from './functions'
-
-const TREZOR_EMULATOR_OPTIONS = {
-  version: '1-main',
-  model: 'T1B1',
-  mnemonic: 'mnemonic_12',
-  pin: '1234',
-  passphrase_protection: false,
-  label: 'Test Trezor Device',
-  settings: {
-    use_passphrase: false,
-    experimental_features: true
-  }
-}
+import { SHOULD_RUN_TREZOR_TESTS } from '../../config/constants'
 
 const controller = getController()
 
+const skipTests = () => {
+  console.warn(
+    'Skipping all tests because env variable "SHOULD_RUN_TREZOR_TESTS" is set to false or never been set'
+  )
+  test.skip('Skipped due to condition', () => {
+    console.log('Tests skipped')
+  })
+}
+
 describe('Trezor Hardware Wallet Authentication E2E', () => {
+  if (!SHOULD_RUN_TREZOR_TESTS) {
+    skipTests()
+    return
+  }
+
   let browser
   let page
   let extensionURL
