@@ -17,11 +17,15 @@
         border-color: $primaryBorder;
         border-style: solid;
         position: relative;
+        border-color: $primaryBorder;
+        border-style: solid;
+        border-width: .0625rem;
     }
 
     .avatar {
-        width: 4rem;
-        height: 4rem;
+        width: 5rem;
+        height: 5rem;
+        flex: 1;
         margin-bottom: 0.5rem;
         border-radius: 2.5rem;
     }
@@ -61,12 +65,14 @@
         color: $goldDecorative;
     }
 
-    .first {
+    .position1 {
         order: 2;
         background-color: $tertiaryBackground;
         border-radius: 6px 6px 0px 0px;
         height: 11rem;
-
+        position: relative;
+        z-index: 2;
+      
         .contentWrapper {
             top: -4rem;
         }
@@ -78,10 +84,15 @@
         }
     }
     
-    .second {
+    .position2 {
         order: 1;
         border-radius: 6px 0px 0px 6px;
         height: 8.75rem;
+        border-right: none;
+        position: relative;
+        right: -1px;
+        z-index: 4;
+
         .xp {
             color: $silverText;
         }
@@ -90,10 +101,14 @@
         }
     }
     
-    .third {
+    .position3 {
         order: 3;
         height: 7.25rem;
         border-radius: 0px 6px 6px 0px;
+        border-left: none;
+        position: relative;
+        left: -1px;
+        z-index: 4;
 
         .xp {
             color: $bronzeText;
