@@ -14,13 +14,14 @@
       "@mobile/*": ["src/mobile/*"],
       "@web/*": ["src/web/*"],
       "@benzin/*": ["src/benzin/*"],
-      "@legends/*": ["src/legends/*"],
+      "@legends/*": ["src/legends/*"]
     }
   },
   "exclude": [
     "node_modules",
     "ios",
     "android",
+    "safari-extension",
     "build",
     "coverage",
     ".expo",
