@@ -117,11 +117,8 @@ const SwapAndBridgeScreen = () => {
                       disabled={fromTokenAmountSelectDisabled}
                       containerStyle={spacings.mb0}
                       leftIcon={dollarIcon}
-                      inputStyle={
-                        fromAmountFieldMode === 'token'
-                          ? spacings.pl0
-                          : { ...spacings.plMi, ...spacings.pl0 }
-                      }
+                      leftIconStyle={spacings.pl0}
+                      inputStyle={spacings.pl0}
                       error={validateFromAmount.message || ''}
                       errorType="warning"
                     />
