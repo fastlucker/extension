@@ -147,7 +147,7 @@ const SwapAndBridgeScreen = () => {
                             borderRadius: 50,
                             paddingHorizontal: 5,
                             paddingVertical: 5,
-                            ...spacings.mhTy
+                            ...spacings.mrTy
                           }}
                         >
                           <FlipIcon width={11} height={11} color={theme.primary} />
