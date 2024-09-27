@@ -13,8 +13,10 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Badge from '@common/components/Badge'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
+import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -61,6 +63,7 @@ const AccountKey: React.FC<Props> = ({
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
+  const { navigate } = useNavigation()
   const [bindKeyDetailsAnim, keyDetailsAnimStyles] = useCustomHover({
     property: 'left',
     values: {
@@ -101,7 +104,7 @@ const AccountKey: React.FC<Props> = ({
   const isInternal = !type || type === 'internal'
   const canExportKey = isImported && isInternal && !isSA
   const exportKey = () => {
-    console.log(123)
+    navigate(`${ROUTES.exportKey}?accountAddr=${account.addr}&keyAddr=${addr}`)
   }
 
   return (
@@ -187,13 +190,11 @@ const AccountKey: React.FC<Props> = ({
         <Tooltip id="export-icon-tooltip">
           <View>
             <Text fontSize={14} appearance="secondaryText">
-              {
-                canExportKey
-                  ? t('Export key')
-                  : !isInternal
-                  ? t('Export is unavailable as this key is a hardware wallet key')
-                  : t('Smart account export coming soon') // the smart account case
-              }
+              {canExportKey
+                ? t('Export key')
+                : isSA
+                ? t('Smart account export coming soon')
+                : t('Export unavailable as this is a hardware wallet key')}
             </Text>
           </View>
         </Tooltip>

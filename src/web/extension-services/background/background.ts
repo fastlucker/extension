@@ -177,6 +177,9 @@ handleKeepAlive()
       ...windowManager,
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
+      },
+      sendWindowUiMessage: (params) => {
+        pm.send('> ui', { method: 'receiveOneTimeData', params })
       }
     },
     notificationManager
@@ -947,6 +950,8 @@ handleKeepAlive()
                 // In the case we change the user's device password through the recovery process,
                 // we don't know the old password, which is why we send only the new password.
                 return await mainCtrl.keystore.changeKeystorePassword(params.newSecret)
+              case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
+                return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
 
               case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
                 return await mainCtrl.emailVault.getEmailVaultInfo(params.email)

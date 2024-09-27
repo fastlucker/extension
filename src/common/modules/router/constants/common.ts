@@ -68,6 +68,8 @@ const WEB_ROUTES = {
   settingsTerms: 'settings/terms',
   networksSettings: 'settings/networks',
   accountsSettings: 'settings/accounts',
+  // exportKey: 'settings/accounts/:accountAddr/:keyAddr',
+  exportKey: 'settings/accounts/exportKey',
   devicePasswordSet: 'settings/device-password-set',
   devicePasswordChange: 'settings/device-password-change',
   devicePasswordRecovery: 'settings/device-password-recovery',

@@ -42,6 +42,7 @@ import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomToke
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
+import ExportKeyScreen from '@web/modules/settings/screens/ExportKeyScreen'
 import GeneralSettingsScreen from '@web/modules/settings/screens/GeneralSettingsScreen'
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
@@ -123,6 +124,7 @@ const MainRoutes = () => {
               <Route element={<SettingsRoutesProvider />}>
                 <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
                 <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
+                <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
                 <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
                 <Route
                   path={WEB_ROUTES.transactions}
