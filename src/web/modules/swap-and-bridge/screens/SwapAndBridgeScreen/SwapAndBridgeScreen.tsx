@@ -2,6 +2,7 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
+import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import FlipIcon from '@common/assets/svg/FlipIcon'
 import SwapBridgeToggleIcon from '@common/assets/svg/SwapBridgeToggleIcon'
 import BackButton from '@common/components/BackButton'
@@ -24,6 +25,7 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import MaxAmount from '../../components/MaxAmount/MaxAmount'
+import RouteStepsPlaceholder from '../../components/RouteStepsPlaceholder'
 import getStyles from './styles'
 
 const SwapAndBridgeScreen = () => {
@@ -53,10 +55,11 @@ const SwapAndBridgeScreen = () => {
     fromAmountInFiat,
     fromAmountFieldMode,
     toChainId,
+    toSelectedToken,
     maxFromAmount,
     maxFromAmountInFiat,
     quote,
-    isFormValidToProceed,
+    formStatus,
     validateFromAmount
   } = useSwapAndBridgeControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
@@ -101,8 +104,8 @@ const SwapAndBridgeScreen = () => {
               </Text>
               <View
                 style={[
-                  styles.selectorContainer,
-                  !!validateFromAmount.message && styles.selectorContainerWarning
+                  styles.secondaryContainer,
+                  !!validateFromAmount.message && styles.secondaryContainerWarning
                 ]}
               >
                 <View style={flexbox.directionRow}>
@@ -191,7 +194,7 @@ const SwapAndBridgeScreen = () => {
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
                 {t('Receive')}
               </Text>
-              <View style={styles.selectorContainer}>
+              <View style={styles.secondaryContainer}>
                 <View style={[flexbox.directionRow, spacings.mb]}>
                   <Select
                     setValue={handleSetToNetworkValue}
@@ -230,7 +233,11 @@ const SwapAndBridgeScreen = () => {
               </View>
             </View>
 
-            {!!quote && (
+            {[
+              SwapAndBridgeFormStatus.FetchingRoutes,
+              SwapAndBridgeFormStatus.NoRoutesFound,
+              SwapAndBridgeFormStatus.ReadyToSubmit
+            ].includes(formStatus) && (
               <View>
                 <Text
                   appearance="secondaryText"
@@ -242,11 +249,30 @@ const SwapAndBridgeScreen = () => {
                 </Text>
               </View>
             )}
+
+            {formStatus === SwapAndBridgeFormStatus.FetchingRoutes && (
+              <View style={styles.secondaryContainer}>
+                <RouteStepsPlaceholder
+                  fromSelectedToken={fromSelectedToken!}
+                  toSelectedToken={toSelectedToken!}
+                  withBadge="loading"
+                />
+              </View>
+            )}
+            {formStatus === SwapAndBridgeFormStatus.NoRoutesFound && (
+              <View style={styles.secondaryContainer}>
+                <RouteStepsPlaceholder
+                  fromSelectedToken={fromSelectedToken!}
+                  toSelectedToken={toSelectedToken!}
+                  withBadge="no-route-found"
+                />
+              </View>
+            )}
           </Panel>
           <View style={spacings.ptTy}>
             <Button
               text={t('Proceed')}
-              disabled={!isFormValidToProceed}
+              disabled={formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit}
               onPress={handleSubmitForm}
             />
           </View>

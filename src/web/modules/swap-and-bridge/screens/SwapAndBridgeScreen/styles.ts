@@ -8,8 +8,8 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Style {
   tabLayoutContentContainer: ViewStyle
   container: ViewStyle
-  selectorContainer: ViewStyle
-  selectorContainerWarning: ViewStyle
+  secondaryContainer: ViewStyle
+  secondaryContainerWarning: ViewStyle
   swapAndBridgeToggleButtonWrapper: ViewStyle
   swapAndBridgeToggleButton: ViewStyle
   networkSelectorContainer: ViewStyle
@@ -26,13 +26,13 @@ const getStyles = (theme: ThemeProps) =>
       width: 640,
       ...flexbox.flex1
     },
-    selectorContainer: {
+    secondaryContainer: {
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.phSm,
       ...spacings.pvSm
     },
-    selectorContainerWarning: {
+    secondaryContainerWarning: {
       borderWidth: 1,
       borderColor: theme.warningDecorative,
       backgroundColor: theme.warningBackground
