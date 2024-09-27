@@ -113,7 +113,12 @@ const DevicePasswordChangeSettingsScreen = () => {
               testID="enter-current-pass-field"
               onBlur={onBlur}
               placeholder={t('Enter current password')}
-              onChangeText={onChange}
+              onChangeText={(val: string) => {
+                onChange(val)
+                if (state.errorMessage) {
+                  dispatch({ type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE' })
+                }
+              }}
               isValid={isValidPassword(value)}
               value={value}
               error={
