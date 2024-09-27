@@ -5,7 +5,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 
 const WalletConnect = () => {
   const navigate = useNavigate()
-  const { connectedAccount, requestAccounts } = useAccountContext()
+  const { connectedAccount, error, requestAccounts } = useAccountContext()
 
   useEffect(() => {
     if (connectedAccount) {
@@ -31,9 +31,16 @@ const WalletConnect = () => {
     )
 
   return (
-    <button type="button" onClick={requestAccounts} style={{ display: 'flex' }}>
-      Connect your Ambire v2 account
-    </button>
+    <>
+      {error}
+      <button
+        type="button"
+        onClick={requestAccounts}
+        style={{ display: 'flex', fontWeight: 'bold', border: '1px solid', padding: 2 }}
+      >
+        Connect your Ambire v2 account
+      </button>
+    </>
   )
 }
 

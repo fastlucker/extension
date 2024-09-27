@@ -1,15 +1,21 @@
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
+import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 
 const accountContext = createContext<{
   connectedAccount: string | null
+  error: string | null
   requestAccounts: () => void
 }>({
   connectedAccount: null,
+  error: null,
   requestAccounts: () => {}
 })
 
+const RELAYER_URL = 'https://staging-relayer.ambire.com'
+
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [connectedAccount, setConnectedAccount] = React.useState<string | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
 
   const requestAccounts = useCallback(async () => {
     if (!window.ambire) return
@@ -30,16 +36,30 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     return accounts[0]
   }, [])
 
+  const validateAndSetAccount = useCallback(async (address: string) => {
+    const identity = await getIdentity(address, fetch as any, RELAYER_URL)
+
+    if (!identity.creation) {
+      setConnectedAccount(null)
+      setError('You are trying to connect a non Ambire v2 account. Please switch your account!')
+      return
+    }
+
+    setConnectedAccount(address)
+  }, [])
+
   // On Account connect or change set the new Legends address and fetch its portfolio,
   // while on Account disconnect, we simply reload the Legends, which resets all the hooks state.
   useEffect(() => {
     const onAccountsChanged = async (accounts: string[]) => {
-      setConnectedAccount(accounts[0])
+      await validateAndSetAccount(accounts[0])
     }
 
     getConnectedAccount()
-      .then((account) => {
-        setConnectedAccount(account)
+      .then(async (account) => {
+        if (!account) return
+
+        await validateAndSetAccount(account)
       })
       .catch(() => console.error('Error fetching connected account'))
 
@@ -49,14 +69,15 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     return () => {
       window.ambire.removeListener('accountsChanged', onAccountsChanged)
     }
-  }, [getConnectedAccount])
+  }, [getConnectedAccount, validateAndSetAccount])
 
   const contextValue = useMemo(
     () => ({
       connectedAccount,
+      error,
       requestAccounts
     }),
-    [connectedAccount, requestAccounts]
+    [connectedAccount, error, requestAccounts]
   )
 
   return <accountContext.Provider value={contextValue}>{children}</accountContext.Provider>
