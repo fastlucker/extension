@@ -71,12 +71,12 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
     level: number
   } | null>(null)
 
-  const tableRef = useRef(null)
+  const tableRef = useRef<HTMLDivElement>(null)
 
-  const pageRef = useRef(null)
-  const currentUserRef = useRef(null)
+  const pageRef = useRef<HTMLDivElement>(null)
+  const currentUserRef = useRef<HTMLDivElement>(null)
 
-  const [stickyPosition, setStickyPosition] = useState(null) // 'top' | 'bottom' | null
+  const [stickyPosition, setStickyPosition] = useState<'top' | 'bottom' | null>(null)
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -111,11 +111,10 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
 
   useLayoutEffect(() => {
     const handleScroll = () => {
-      if (!userLeaderboardData && !currentUserRef.current) return
+      if (!userLeaderboardData || !currentUserRef.current) return
 
       const userRect = currentUserRef.current.getBoundingClientRect()
       const windowHeight = window.innerHeight
-      console.log('userRect.bottom', userRect.bottom, 'windowHeight', windowHeight)
       // Check if the current user's row is above the viewport (scrolling down)
       if (userRect.top < 0) {
         // If the user is above the viewport, pin to the top
@@ -125,21 +124,26 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
         setStickyPosition('bottom')
       } else {
         // Reset sticky behavior when the current user's row is in the viewport
-        // setStickyPosition(null)
+        setStickyPosition(null)
       }
     }
 
-    // Attach the scroll event listener
-    pageRef.current.addEventListener('scroll', handleScroll)
+    const pageElement = pageRef.current
+    if (pageElement) {
+      // Attach the scroll event listener
+      pageElement.addEventListener('scroll', handleScroll)
 
-    // Trigger the handleScroll function immediately after component mount
-    handleScroll()
+      // Trigger the handleScroll function immediately after component mount
+      handleScroll()
+    }
 
     return () => {
-      // Clean up the event listener on component unmount
-      pageRef.current.removeEventListener('scroll', handleScroll)
+      if (pageElement) {
+        // Clean up the event listener on component unmount
+        pageElement.removeEventListener('scroll', handleScroll)
+      }
     }
-  }, [currentUserRef, sortedData])
+  }, [currentUserRef, sortedData, userLeaderboardData])
 
   return (
     <Page pageRef={pageRef}>
