@@ -24,6 +24,7 @@ export interface InputProps extends TextInputProps {
   info?: string | boolean
   // Error message - Active if there is some error message string passed
   error?: string | boolean
+  errorType?: 'error' | 'warning'
   label?: string
   isValid?: boolean
   validLabel?: string
@@ -59,6 +60,7 @@ const Input = ({
   buttonStyle,
   info,
   error,
+  errorType,
   isValid,
   validLabel,
   onBlur = () => {},
@@ -196,7 +198,7 @@ const Input = ({
           style={styles.errorText}
           weight={isWeb ? 'regular' : undefined}
           fontSize={10}
-          appearance="errorText"
+          appearance={errorType === 'warning' ? 'warningText' : 'errorText'}
         >
           {error}
         </Text>

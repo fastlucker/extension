@@ -44,7 +44,8 @@ const SwapAndBridgeScreen = () => {
     handleChangeToToken,
     handleSwitchFromAmountFieldMode,
     handleSetMaxFromAmount,
-    handleSubmitForm
+    handleSubmitForm,
+    formattedToAmount
   } = useSwapAndBridgeFrom()
   const {
     fromSelectedToken,
@@ -52,9 +53,11 @@ const SwapAndBridgeScreen = () => {
     fromAmountInFiat,
     fromAmountFieldMode,
     toChainId,
-    toAmount,
     maxFromAmount,
-    maxFromAmountInFiat
+    maxFromAmountInFiat,
+    quote,
+    isFormValidToProceed,
+    validateFromAmount
   } = useSwapAndBridgeControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
 
@@ -62,33 +65,30 @@ const SwapAndBridgeScreen = () => {
     navigate(ROUTES.dashboard)
   }, [navigate])
 
-  // TODO: Wire-up with the UI
   // TODO: Disable tokens that are NOT supported
   // (not in the `fromTokenList` of the SwapAndBridge controller)
-
-  // TODO: Changing the FROM token (and chain), should:
-  // 1. If the next FROM chain is different than the previous - fetch the `fromTokenList` and the `toTokenList`:
-  // 1. Update quote or reset the amount to 0 (TBD)
-
-  // TODO: Changing the TO token, should:
-  // 1. Update quote or reset the amount to 0 (TBD)
-
-  // TODO: Changing the TO chain, should:
-  // 1. Fetch the `toTokenList`
-  // 2. Update quote (TBD)
-
-  // TODO: Changing the FROM amount should:
-  // 1. Update quote
-
-  // TODO: Changing the TO amount should be disabled.
 
   // TODO: Confirmation modal (warn) if the diff in dollar amount between the
   // FROM and TO tokens is too high (therefore, user will lose money).
 
+  const dollarIcon = useCallback(() => {
+    if (fromAmountFieldMode === 'token') return null
+
+    return (
+      <Text
+        fontSize={20}
+        weight="medium"
+        style={{ marginBottom: 3 }}
+        appearance={fromAmountInFiat ? 'primaryText' : 'secondaryText'}
+      >
+        $
+      </Text>
+    )
+  }, [fromAmountFieldMode, fromAmountInFiat])
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="md"
       header={<HeaderAccountAndNetworkInfo />}
       footer={<BackButton onPress={handleBackButtonPress} />}
     >
@@ -99,7 +99,12 @@ const SwapAndBridgeScreen = () => {
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
                 {t('Send')}
               </Text>
-              <View style={styles.selectorContainer}>
+              <View
+                style={[
+                  styles.selectorContainer,
+                  !!validateFromAmount.message && styles.selectorContainerWarning
+                ]}
+              >
                 <View style={flexbox.directionRow}>
                   <View style={flexbox.flex1}>
                     <NumberInput
@@ -107,10 +112,18 @@ const SwapAndBridgeScreen = () => {
                       onChangeText={onFromAmountChange}
                       placeholder="0"
                       borderless
-                      inputStyle={spacings.pl0}
+                      inputWrapperStyle={{ backgroundColor: 'transparent' }}
                       nativeInputStyle={{ fontFamily: FONT_FAMILIES.MEDIUM, fontSize: 20 }}
                       disabled={fromTokenAmountSelectDisabled}
                       containerStyle={spacings.mb0}
+                      leftIcon={dollarIcon}
+                      inputStyle={
+                        fromAmountFieldMode === 'token'
+                          ? spacings.pl0
+                          : { ...spacings.plMi, ...spacings.pl0 }
+                      }
+                      error={validateFromAmount.message || ''}
+                      errorType="warning"
                     />
                   </View>
                   <Select
@@ -177,7 +190,7 @@ const SwapAndBridgeScreen = () => {
             </Pressable>
           </View>
           <Panel forceContainerSmallSpacings>
-            <View>
+            <View style={spacings.mb}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
                 {t('Receive')}
               </Text>
@@ -185,7 +198,7 @@ const SwapAndBridgeScreen = () => {
                 <View style={[flexbox.directionRow, spacings.mb]}>
                   <Select
                     setValue={handleSetToNetworkValue}
-                    containerStyle={{ ...spacings.mb0, ...spacings.mrMi, ...flexbox.flex1 }}
+                    containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     options={toNetworksOptions}
                     value={toNetworksOptions.filter((opt) => opt.value === toChainId)[0]}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
@@ -205,15 +218,40 @@ const SwapAndBridgeScreen = () => {
                   fontSize={20}
                   weight="medium"
                   numberOfLines={1}
-                  appearance={toAmount ? 'primary' : 'secondaryText'}
+                  appearance={
+                    formattedToAmount && formattedToAmount !== '0' ? 'primaryText' : 'secondaryText'
+                  }
                 >
-                  {toAmount || 0}
+                  {formattedToAmount}
+                  {!!formattedToAmount && formattedToAmount !== '0' && !!quote?.route && (
+                    <Text
+                      fontSize={20}
+                      appearance="secondaryText"
+                    >{` ($${quote.route.outputValueInUsd})`}</Text>
+                  )}
                 </Text>
               </View>
             </View>
+
+            {!!quote && (
+              <View>
+                <Text
+                  appearance="secondaryText"
+                  fontSize={14}
+                  weight="medium"
+                  style={spacings.mbMi}
+                >
+                  {t('Preview route')}
+                </Text>
+              </View>
+            )}
           </Panel>
           <View style={spacings.ptTy}>
-            <Button text={t('Proceed')} onPress={handleSubmitForm} />
+            <Button
+              text={t('Proceed')}
+              disabled={!isFormValidToProceed}
+              onPress={handleSubmitForm}
+            />
           </View>
         </View>
       </TabLayoutWrapperMainContent>

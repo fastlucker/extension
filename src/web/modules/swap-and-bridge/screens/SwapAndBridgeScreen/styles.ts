@@ -9,9 +9,11 @@ interface Style {
   tabLayoutContentContainer: ViewStyle
   container: ViewStyle
   selectorContainer: ViewStyle
+  selectorContainerWarning: ViewStyle
   swapAndBridgeToggleButtonWrapper: ViewStyle
   swapAndBridgeToggleButton: ViewStyle
   networkSelectorContainer: ViewStyle
+  previewRouteContainer: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -29,6 +31,11 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       ...spacings.phSm,
       ...spacings.pvSm
+    },
+    selectorContainerWarning: {
+      borderWidth: 1,
+      borderColor: theme.warningDecorative,
+      backgroundColor: theme.warningBackground
     },
     swapAndBridgeToggleButtonWrapper: {
       height: 6,
@@ -57,6 +64,12 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pbTy,
       ...spacings.mbSm,
       ...spacings.phSm
+    },
+    previewRouteContainer: {
+      backgroundColor: '#F5F6FA',
+      ...common.borderRadiusPrimary,
+      ...spacings.phSm,
+      ...spacings.pvSm
     }
   })
 

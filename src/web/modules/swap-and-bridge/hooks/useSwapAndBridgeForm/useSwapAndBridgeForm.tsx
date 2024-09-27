@@ -1,3 +1,4 @@
+import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
@@ -25,7 +26,9 @@ const useSwapAndBridgeFrom = () => {
     toTokenList,
     maxFromAmount,
     maxFromAmountInFiat,
-    statuses
+    statuses,
+    quote,
+    fromAmountInFiat
   } = useSwapAndBridgeControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const { dispatch } = useBackgroundService()
@@ -33,6 +36,7 @@ const useSwapAndBridgeFrom = () => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { theme } = useTheme()
   const prevFromAmount = usePrevious(fromAmount)
+  const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
 
   useEffect(() => {
     dispatch({
@@ -41,10 +45,29 @@ const useSwapAndBridgeFrom = () => {
   }, [dispatch])
 
   useEffect(() => {
-    if (prevFromAmount !== fromAmount && fromAmount !== fromAmountValue) {
+    if (
+      fromAmountFieldMode === 'fiat' &&
+      prevFromAmountInFiat !== fromAmountInFiat &&
+      fromAmountInFiat !== fromAmountValue
+    ) {
+      setFromAmountValue(fromAmountInFiat)
+    }
+  }, [fromAmountInFiat, fromAmountValue, prevFromAmountInFiat, fromAmountFieldMode])
+
+  useEffect(() => {
+    if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
+    if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
+  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat])
+
+  useEffect(() => {
+    if (
+      fromAmountFieldMode === 'token' &&
+      prevFromAmount !== fromAmount &&
+      fromAmount !== fromAmountValue
+    ) {
       setFromAmountValue(fromAmount)
     }
-  }, [fromAmount, fromAmountValue, prevFromAmount])
+  }, [fromAmount, fromAmountValue, prevFromAmount, fromAmountFieldMode])
 
   const onFromAmountChange = useCallback(
     (value: string) => {
@@ -158,6 +181,12 @@ const useSwapAndBridgeFrom = () => {
 
   const handleSubmitForm = useCallback(() => {}, [])
 
+  const formattedToAmount = useMemo(() => {
+    if (!quote || !quote.route || !quote?.toAsset?.decimals) return '0'
+
+    return `${formatUnits(quote.route.toAmount, quote.toAsset.decimals)}`
+  }, [quote])
+
   return {
     fromAmountValue,
     onFromAmountChange,
@@ -173,7 +202,8 @@ const useSwapAndBridgeFrom = () => {
     handleChangeToToken,
     handleSwitchFromAmountFieldMode,
     handleSetMaxFromAmount,
-    handleSubmitForm
+    handleSubmitForm,
+    formattedToAmount
   }
 }
 
