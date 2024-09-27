@@ -28,6 +28,13 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      # Set up Docker
+      - name: Set up Docker
+        run: sudo apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose -y
+
+      - name: Start trezor-emulator container
+        run: docker pull ghcr.io/trezor/trezor-user-env && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d
+
       - name: Install NPM packages ♾️🕳️
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
@@ -92,7 +99,8 @@ jobs:
           SA_NETWORK_WITH_ASSETS: ${{ vars.SA_NETWORK_WITH_ASSETS }}
           SA_PASSPHRASE: ${{ secrets.SA_PASSPHRASE }}
           DEFAULT_INVITATION_CODE_DEV: ${{ vars.DEFAULT_INVITATION_CODE_DEV }}
-          # SEED_24_WORDS: ${{ secrets.SEED_24_WORDS }}
+          SEED_24_WORDS: ${{ secrets.SEED_24_WORDS }}
+          SHOULD_RUN_TREZOR_TESTS: 'true'
 
         run: yarn run test:e2e:web
 
