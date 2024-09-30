@@ -66,7 +66,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     const identity = await getIdentity(address, fetch as any, RELAYER_URL)
 
     if (!identity.creation) {
-      setAccountPortfolio({ error: 'Ambire Legends requires a Ambire v2 account' })
+      setAccountPortfolio({ error: 'Ambire Legends requires an Ambire v2 account' })
       return
     }
 
