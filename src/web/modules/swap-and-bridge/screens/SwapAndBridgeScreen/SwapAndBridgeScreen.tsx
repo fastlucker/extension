@@ -274,7 +274,7 @@ const SwapAndBridgeScreen = () => {
                 <RouteStepsPreview
                   steps={quote!.routeSteps}
                   totalGasFeesInUsd={quote!.route.totalGasFeesInUsd}
-                  estimationInSeconds={quote!.route.maxServiceTime}
+                  estimationInSeconds={quote!.route.serviceTime}
                 />
               </View>
             )}

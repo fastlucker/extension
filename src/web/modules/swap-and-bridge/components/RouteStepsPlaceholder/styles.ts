@@ -14,7 +14,8 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...flexbox.directionRow,
-      ...flexbox.alignCenter
+      ...flexbox.alignCenter,
+      marginHorizontal: -5
     },
     tokenContainer: {
       ...flexbox.alignCenter,

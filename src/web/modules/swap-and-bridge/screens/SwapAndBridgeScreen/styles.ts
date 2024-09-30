@@ -23,15 +23,15 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter
     },
     container: {
-      width: 640,
+      width: 660,
       ...flexbox.flex1
     },
     secondaryContainer: {
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.phSm,
-      ...spacings.pvSm,
-      ...spacings.pt
+      ...spacings.pt,
+      ...spacings.pbSm
     },
     secondaryContainerWarning: {
       borderWidth: 1,

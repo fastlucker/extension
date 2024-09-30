@@ -17,13 +17,13 @@ function formatTime(seconds: number) {
     return hours !== 0 ? `${days}d ${hours}h` : `${hours}h`
   }
   if (hours > 0) {
-    return minutes !== 0 ? `${hours}h, ${minutes}m` : `${hours}h`
+    return minutes !== 0 ? `${hours}h, ${minutes}min` : `${hours}h`
   }
   if (minutes > 0) {
-    return seconds !== 0 ? `${minutes}m, ${seconds}s` : `${minutes}m`
+    return seconds !== 0 ? `${minutes}min, ${seconds}sec` : `${minutes}min`
   }
 
-  return `${seconds}s`
+  return `${seconds}sec`
 }
 
 export default formatTime
