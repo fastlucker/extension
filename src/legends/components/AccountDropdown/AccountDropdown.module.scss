@@ -1,0 +1,114 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  position: relative;
+  margin-left: auto;
+  z-index: 999;
+
+  .button {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: $primaryBorderRadius;
+    background-color: $secondaryBackground;
+    border: 1px solid $primaryBorder;
+
+    &:hover {
+      opacity: 1;
+
+      .account {
+        opacity: 0.6;
+      }
+      .chevronIcon {
+        opacity: 0.6;
+      }
+    }
+
+    .avatarWrapper {
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0.25rem;
+      border-radius: $primaryBorderRadius;
+      background-color: $tertiaryBackground;
+      margin-right: 0.5rem;
+
+      .avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: $primaryBorderRadius;
+      }
+    }
+    .account {
+      transition: 0.2s opacity ease-in-out;
+      margin-right: 1rem;
+
+      .address {
+        font-family: $primaryFont;
+        color: $primaryText;
+        font-size: 1rem;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+      .levelAndRank {
+        font-size: 0.75rem;
+        font-family: $secondaryFont;
+        transform: translateX(-0.5ch); // Fixes the horizontal alignment relative to the address
+      }
+    }
+
+    .chevronIcon {
+      transition: 0.2s all ease-in-out;
+      color: $secondaryText;
+      width: 1rem;
+      height: 1rem;
+
+      &.open {
+        transform: rotate(180deg);
+      }
+    }
+  }
+  .dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+
+    background-color: $secondaryBackground;
+    padding: 0.75rem;
+    border-radius: $primaryBorderRadius;
+    border: 1px solid $primaryBorder;
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0.5;
+    transform: scale(0.8);
+    transition: opacity 0.3s ease-out, transform 0.2s ease-out;
+    transform-origin: top right;
+
+    &.open {
+      visibility: visible;
+      pointer-events: auto;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .network {
+      display: flex;
+      align-items: center;
+      font-size: 0.875rem;
+      font-family: $secondaryText;
+      margin-bottom: 0.5rem;
+
+      &::before {
+        content: '';
+        width: 0.375rem;
+        height: 0.375rem;
+        background-color: #26b437;
+        border-radius: 50%;
+        margin-right: 0.25rem;
+      }
+    }
+    .disconnectButton {
+      @include secondary-button;
+      width: 15rem;
+    }
+  }
+}
