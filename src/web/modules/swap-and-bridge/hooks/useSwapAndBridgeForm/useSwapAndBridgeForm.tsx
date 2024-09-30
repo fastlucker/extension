@@ -32,6 +32,7 @@ const useSwapAndBridgeFrom = () => {
     fromAmountInFiat
   } = useSwapAndBridgeControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
+  const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
@@ -191,6 +192,14 @@ const useSwapAndBridgeFrom = () => {
     )}`
   }, [quote])
 
+  const shouldConfirmFollowUpTransactions = useMemo(() => {
+    if (!quote) return false
+
+    const stepTypes = quote.routeSteps.map((s) => s.type)
+
+    return stepTypes.includes('bridge') && stepTypes.includes('swap')
+  }, [quote])
+
   return {
     fromAmountValue,
     onFromAmountChange,
@@ -207,7 +216,10 @@ const useSwapAndBridgeFrom = () => {
     handleSwitchFromAmountFieldMode,
     handleSetMaxFromAmount,
     handleSubmitForm,
-    formattedToAmount
+    formattedToAmount,
+    shouldConfirmFollowUpTransactions,
+    followUpTransactionConfirmed,
+    setFollowUpTransactionConfirmed
   }
 }
 

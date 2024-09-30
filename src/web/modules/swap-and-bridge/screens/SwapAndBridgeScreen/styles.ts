@@ -23,7 +23,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter
     },
     container: {
-      width: 660,
+      width: 654,
       ...flexbox.flex1
     },
     secondaryContainer: {

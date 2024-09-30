@@ -7,6 +7,7 @@ import FlipIcon from '@common/assets/svg/FlipIcon'
 import SwapBridgeToggleIcon from '@common/assets/svg/SwapBridgeToggleIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
+import Checkbox from '@common/components/Checkbox'
 import NumberInput from '@common/components/NumberInput'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
@@ -48,7 +49,10 @@ const SwapAndBridgeScreen = () => {
     handleSwitchFromAmountFieldMode,
     handleSetMaxFromAmount,
     handleSubmitForm,
-    formattedToAmount
+    formattedToAmount,
+    shouldConfirmFollowUpTransactions,
+    followUpTransactionConfirmed,
+    setFollowUpTransactionConfirmed
   } = useSwapAndBridgeFrom()
   const {
     fromSelectedToken,
@@ -89,6 +93,10 @@ const SwapAndBridgeScreen = () => {
       </Text>
     )
   }, [fromAmountFieldMode, fromAmountInFiat])
+
+  const handleCheckboxPress = useCallback(() => {
+    setFollowUpTransactionConfirmed((p) => !p)
+  }, [setFollowUpTransactionConfirmed])
 
   return (
     <TabLayoutContainer
@@ -241,7 +249,7 @@ const SwapAndBridgeScreen = () => {
               SwapAndBridgeFormStatus.NoRoutesFound,
               SwapAndBridgeFormStatus.ReadyToSubmit
             ].includes(formStatus) && (
-              <View>
+              <View style={spacings.ptMi}>
                 <Text
                   appearance="secondaryText"
                   fontSize={14}
@@ -272,19 +280,41 @@ const SwapAndBridgeScreen = () => {
               </View>
             )}
             {formStatus === SwapAndBridgeFormStatus.ReadyToSubmit && (
-              <View style={styles.secondaryContainer}>
-                <RouteStepsPreview
-                  steps={quote!.routeSteps}
-                  totalGasFeesInUsd={quote!.route.totalGasFeesInUsd}
-                  estimationInSeconds={quote!.route.serviceTime}
-                />
-              </View>
+              <>
+                <View style={styles.secondaryContainer}>
+                  <RouteStepsPreview
+                    steps={quote!.routeSteps}
+                    totalGasFeesInUsd={quote!.route.totalGasFeesInUsd}
+                    estimationInSeconds={quote!.route.serviceTime}
+                  />
+                </View>
+                {!!shouldConfirmFollowUpTransactions && (
+                  <View style={spacings.pt}>
+                    <Checkbox
+                      value={followUpTransactionConfirmed}
+                      style={{ ...spacings.mb0, ...flexbox.alignCenter }}
+                      onValueChange={handleCheckboxPress}
+                    >
+                      <Text
+                        fontSize={12}
+                        onPress={handleCheckboxPress}
+                        testID="confirm-follow-up-txns-checkbox"
+                      >
+                        {t('I understand that I need to do a follow-up transaction.')}
+                      </Text>
+                    </Checkbox>
+                  </View>
+                )}
+              </>
             )}
           </Panel>
           <View style={spacings.ptTy}>
             <Button
               text={t('Proceed')}
-              disabled={formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit}
+              disabled={
+                formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
+                shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed
+              }
               onPress={handleSubmitForm}
             />
           </View>
