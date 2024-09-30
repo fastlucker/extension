@@ -1,18 +1,25 @@
 import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
+import Character from '@legends/modules/character/screens/Character'
 import Legends from '@legends/modules/legends/screens/Legends'
 import Welcome from '@legends/modules/welcome/screens/Welcome'
 
+import { LEGENDS_ROUTES } from '../constants'
+
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: LEGENDS_ROUTES.welcome,
     element: <Welcome />,
     index: true
   },
   {
-    path: '/legends',
+    path: LEGENDS_ROUTES.legends,
     element: <Legends />
+  },
+  {
+    path: LEGENDS_ROUTES.character,
+    element: <Character />
   }
 ])
 
