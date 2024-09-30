@@ -9,6 +9,7 @@ import { isSmartAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import ExportIcon from '@common/assets/svg/ExportIcon'
+import ImportIcon from '@common/assets/svg/ImportIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Badge from '@common/components/Badge'
 import Editable from '@common/components/Editable'
@@ -24,6 +25,7 @@ import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover
 import { getUiType } from '@web/utils/uiType'
 
 import AccountKeyIcon from '../AccountKeyIcon'
+import Button from '../Button'
 import Tooltip from '../Tooltip'
 
 export type AccountKeyType = {
@@ -106,6 +108,10 @@ const AccountKey: React.FC<Props> = ({
   const exportKey = () => {
     navigate(`${ROUTES.exportKey}?accountAddr=${account.addr}&keyAddr=${addr}`)
   }
+  const importKey = () => {
+    // TODO<account>
+    console.log('import')
+  }
 
   return (
     <View
@@ -168,42 +174,44 @@ const AccountKey: React.FC<Props> = ({
             <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
           </AnimatedPressable>
         )}
-        {/* 
-          When making the Pressable disabled, it disables literally everything in it.
-          So even the tooltip will not work.
-          The workaround is to set a wrapping <View> and make it the tooltip target
-        */}
-        {/* @ts-ignore */}
-        <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
-          <Pressable
-            onPress={exportKey}
-            style={() => [spacings.mlTy, !canExportKey ? { opacity: 0.4 } : {}]}
-            disabled={!canExportKey}
-          >
-            <ExportIcon
-              width={20}
-              height={20}
-              color={canExportKey ? theme.primaryText : theme.secondaryText}
-            />
-          </Pressable>
-        </View>
-        <Tooltip id="export-icon-tooltip">
-          <View>
-            <Text fontSize={14} appearance="secondaryText">
-              {canExportKey
-                ? t('Export key')
-                : isSA
-                ? t('Smart account export coming soon')
-                : t('Export unavailable as this is a hardware wallet key')}
-            </Text>
-          </View>
-        </Tooltip>
       </View>
       {isImported ? (
-        handleOnKeyDetailsPress && (
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <View>
+            {/* 
+            When making the Pressable disabled, it disables literally everything in it.
+            So even the tooltip will not work.
+            The workaround is to set a wrapping <View> and make it the tooltip target
+          */}
+            {/* @ts-ignore */}
+            <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
+              <Pressable
+                onPress={exportKey}
+                style={() => [spacings.mlTy, !canExportKey ? { opacity: 0.4 } : {}]}
+                disabled={!canExportKey}
+              >
+                <ExportIcon
+                  width={20}
+                  height={20}
+                  color={canExportKey ? theme.primaryText : theme.secondaryText}
+                />
+              </Pressable>
+            </View>
+            <Tooltip id="export-icon-tooltip">
+              <View>
+                <Text fontSize={14} appearance="secondaryText">
+                  {canExportKey
+                    ? t('Export key')
+                    : isSA
+                    ? t('Smart account export coming soon')
+                    : t('Export unavailable as this is a hardware wallet key')}
+                </Text>
+              </View>
+            </Tooltip>
+          </View>
           <AnimatedPressable
             onPress={handleOnKeyDetailsPress}
-            style={[flexbox.directionRow, flexbox.alignCenter]}
+            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlTy]}
             {...bindKeyDetailsAnim}
           >
             <Text fontSize={14} appearance="secondaryText" weight="medium" style={spacings.mrTy}>
@@ -213,10 +221,19 @@ const AccountKey: React.FC<Props> = ({
               <RightArrowIcon width={16} height={16} color={theme.secondaryText} />
             </Animated.View>
           </AnimatedPressable>
-        )
+        </View>
       ) : (
-        <View style={isPopup ? spacings.ml : spacings.mlXl}>
-          <Badge type="warning" text={t('Not imported')} />
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <Button style={spacings.mtTy} onPress={importKey} size="tiny">
+            <Text style={{ color: '#fff', ...spacings.mrTy }} fontSize={12}>
+              Import
+            </Text>
+            <ImportIcon color="#fff" width={16} height={16} />
+          </Button>
+
+          <View style={spacings.mlTy}>
+            <Badge type="warning" text={t('Not imported')} />
+          </View>
         </View>
       )}
     </View>

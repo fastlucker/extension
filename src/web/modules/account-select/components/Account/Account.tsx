@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -50,7 +50,6 @@ const Account = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
-  const [toggleDropdown, setToggleDropdown] = useState(0)
   const mainCtrlState = useMainControllerState()
   const { selectedAccount, statuses: accountsStatuses } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
@@ -69,7 +68,6 @@ const Account = ({
 
   const selectAccount = useCallback(() => {
     if (isSettings) {
-      setToggleDropdown(toggleDropdown + 1)
       return
     }
 
@@ -81,7 +79,7 @@ const Account = ({
     }
 
     onSelect && onSelect(addr)
-  }, [addr, dispatch, onSelect, selectedAccount, isSettings, toggleDropdown])
+  }, [addr, dispatch, onSelect, selectedAccount, isSettings])
 
   const removeAccount = useCallback(() => {
     dispatch({
@@ -141,6 +139,8 @@ const Account = ({
       onPress={selectAccount}
       {...bindAnim}
       testID="account"
+      // @ts-ignore
+      style={isSettings ? { cursor: 'default' } : {}}
     >
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
@@ -197,7 +197,6 @@ const Account = ({
                 { label: 'Remove Account', value: 'remove', style: { color: iconColors.danger } }
               ]}
               onSelect={onDropdownSelect}
-              toggle={toggleDropdown}
             />
           )}
         </View>

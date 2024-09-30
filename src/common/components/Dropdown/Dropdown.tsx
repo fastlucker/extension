@@ -10,14 +10,12 @@ import styles from './styles'
 interface Props {
   data: Array<{ label: string; value: string; style?: any }>
   onSelect: (item: { label: string; value: string }) => void
-  toggle?: number
 }
 
-const Dropdown: FC<Props> = ({ data, onSelect, toggle }) => {
+const Dropdown: FC<Props> = ({ data, onSelect }) => {
   const DropdownButton: any = useRef()
   const [visible, setVisible] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [parentUpdateCounter, setParentUpdateCounter] = useState(toggle ?? 0)
 
   const openDropdown = (): void => {
     DropdownButton.current.measure((_fx, _fy, _w, h, _px, py) => {
@@ -28,11 +26,6 @@ const Dropdown: FC<Props> = ({ data, onSelect, toggle }) => {
 
   const toggleDropdown = (): void => {
     visible ? setVisible(false) : openDropdown()
-  }
-
-  if (toggle && toggle !== parentUpdateCounter) {
-    toggleDropdown()
-    setParentUpdateCounter(toggle)
   }
 
   const onItemPress = (item: any): void => {

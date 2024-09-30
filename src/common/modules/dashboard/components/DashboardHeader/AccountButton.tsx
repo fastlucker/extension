@@ -88,7 +88,7 @@ const AccountButton = () => {
             <Text
               numberOfLines={1}
               weight="semiBold"
-              style={[spacings.mlTy, spacings.mrLg]}
+              style={[spacings.mlTy, spacings.mrTy]}
               color={theme.primaryBackground}
               fontSize={14}
             >
