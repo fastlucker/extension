@@ -7,49 +7,27 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Page from '@legends/components/Page'
 
 import Podium from './components/Podium'
+import { getLeaderboard } from './helpers'
 import styles from './Leaderboard.module.scss'
 
-interface LeaderboardResponse {
+export interface LeaderboardResponse {
   leaderboard: Array<{ rank: number; account: string; level: number; xp: number; avatar: string }>
   currentUser: { rank: number; account: string; xp: number; level: number }
 }
 
-const getLeaderboard = async (currentUser?: string): Promise<LeaderboardResponse> => {
-  try {
-    const res = await fetchCaught(
-      `https://staging-relayer.ambire.com/legends/leaderboard${
-        currentUser ? `?identity=${currentUser}` : ''
-      }`
-    )
-    return res.body
-  } catch {
-    console.error('Error fetching leaderboard')
-    return { leaderboard: [], currentUser: { rank: 0, account: '', xp: 0, level: 0 } }
-  }
-}
-
 const getBadge = (rank: number) => {
-  if (rank === 1)
-    return (
-      <FontAwesomeIcon
-        className={`${styles.throphy} ${styles.firstPlaceThrophy}`}
-        icon={faTrophy}
-      />
-    )
-  if (rank === 2)
-    return (
-      <FontAwesomeIcon
-        className={`${styles.throphy} ${styles.secondPlaceThrophy}`}
-        icon={faTrophy}
-      />
-    )
-  if (rank === 3)
-    return (
-      <FontAwesomeIcon
-        className={`${styles.throphy} ${styles.thirdPlaceThrophy}`}
-        icon={faTrophy}
-      />
-    )
+  const rankClasses = {
+    1: styles.firstPlaceThrophy,
+    2: styles.secondPlaceThrophy,
+    3: styles.thirdPlaceThrophy
+  }
+
+  const className = rankClasses[rank]
+
+  if (className) {
+    return <FontAwesomeIcon className={`${styles.trophy} ${className}`} icon={faTrophy} />
+  }
+
   return null
 }
 
@@ -57,14 +35,14 @@ interface LeaderboardProps {
   data: Array<{ rank: number; account: string; xp: number }>
   currentUser: { rank: number; account: string; xp: number }
 }
-const USER_ADDR = '0x4a770E97F7fA83318C8Eda9F9E72874EBB6322ca'
 
 const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
+  // TODO: Implement the leaderboard loading state
   const [loading, setLoading] = useState(true)
   const [leaderboardData, setLeaderboardData] = useState<
-    Array<{ rank: number; account: string; level: number; xp: number; avatar: string }>
+    Array<{ rank: number; account: string; level: number; xp: number }>
   >([])
-  const [userLeaderboardData, setCurrentUser] = useState<{
+  const [userLeaderboardData, setUserLeaderboardData] = useState<{
     rank: number
     account: string
     xp: number
@@ -78,13 +56,40 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
 
   const [stickyPosition, setStickyPosition] = useState<'top' | 'bottom' | null>(null)
 
+  const calculateRowStyle = (item: {
+    rank: number
+    account: string
+    level: number
+    xp: number
+  }) => {
+    return {
+      position:
+        userLeaderboardData && item.account === userLeaderboardData.account && stickyPosition
+          ? ('sticky' as 'sticky')
+          : ('relative' as 'relative'),
+      top:
+        stickyPosition === 'top' &&
+        userLeaderboardData &&
+        item.account === userLeaderboardData.account
+          ? 0
+          : 'auto',
+      bottom:
+        stickyPosition === 'bottom' &&
+        userLeaderboardData &&
+        item.account === userLeaderboardData.account
+          ? 0
+          : 'auto',
+      zIndex: userLeaderboardData && item.account === userLeaderboardData.account ? 1000 : 0
+    }
+  }
+
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
         const { leaderboard, currentUser } = await getLeaderboard()
 
         setLeaderboardData(leaderboard)
-        currentUser && setCurrentUser(currentUser)
+        currentUser && setUserLeaderboardData(currentUser)
       } catch (error) {
         console.error('Failed to fetch leaderboard:', error)
       } finally {
@@ -156,7 +161,7 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
             magna luctus et.
           </p>
         </div>
-        <Podium data={[...sortedData].splice(0, 3)} />
+        <Podium data={sortedData.slice(0, 3)} />
         <div ref={tableRef} className={styles.table}>
           <div className={styles.header}>
             <h5 className={styles.cell}>player</h5>
@@ -176,36 +181,15 @@ const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
                   ? currentUserRef
                   : null
               }
-              style={{
-                position:
-                  userLeaderboardData &&
-                  item.account === userLeaderboardData.account &&
-                  stickyPosition
-                    ? 'sticky'
-                    : 'relative',
-                top:
-                  stickyPosition === 'top' &&
-                  userLeaderboardData &&
-                  item.account === userLeaderboardData.account
-                    ? 0
-                    : 'auto',
-                bottom:
-                  stickyPosition === 'bottom' &&
-                  userLeaderboardData &&
-                  item.account === userLeaderboardData.account
-                    ? 0
-                    : 'auto',
-                zIndex:
-                  userLeaderboardData && item.account === userLeaderboardData.account ? 1000 : 0
-              }}
+              style={calculateRowStyle(item)}
             >
+              <div className={styles.rankWrapper}>
+                {item.rank > 3 ? item.rank : getBadge(item.rank)}
+              </div>
               <div className={styles.cell}>
-                {item.rank > 3 ? (
-                  <div className={styles.rank}>{item.rank}</div>
-                ) : (
-                  getBadge(item.rank)
-                )}
+                {/* TODO: Replace the avatar image with the actual avatar - nft */}
                 <img src="/images/leaderboard/avatar1.png" alt="avatar" className={styles.avatar} />
+                {/* TODO: Add ens here instead of address */}
                 {shortenAddress(item.account, 23)}
               </div>
               <h5 className={styles.cell}>{item.level}</h5>

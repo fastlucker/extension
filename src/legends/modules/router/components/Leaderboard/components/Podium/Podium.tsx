@@ -19,7 +19,7 @@ const Podium: React.FC<PodiumProps> = ({ data }) => {
           className={`${styles.step} ${styles[`position${index + 1}`]}`}
         >
           <div className={styles.contentWrapper}>
-            {index === 0 && <FontAwesomeIcon className={styles.throphy} icon={faTrophy} />}
+            {index === 0 && <FontAwesomeIcon className={styles.trophy} icon={faTrophy} />}
             <img src="/images/leaderboard/avatar2.png" alt="avatar" className={styles.avatar} />
             <h5 className={styles.name}>{shortenAddress(item.account, 11)}</h5>
             <h4 className={styles.xp}>{item.xp}</h4>
