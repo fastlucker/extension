@@ -1,12 +1,14 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SocketAPIStep } from '@ambire-common/interfaces/swapAndBridge'
+import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import formatTime from '@common/utils/formatTime'
@@ -25,6 +27,11 @@ const RouteStepsPreview = ({
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
+
+  const shouldWarnForLongEstimation = useMemo(
+    () => estimationInSeconds > 3600, // 1 hour in seconds
+    [estimationInSeconds]
+  )
 
   return (
     <View style={flexbox.flex1}>
@@ -136,7 +143,7 @@ const RouteStepsPreview = ({
           )
         })}
       </View>
-      <Text>
+      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         <Text fontSize={12} weight="medium">
           {t('Total gas fees: {{fees}}', {
             fees: formatDecimals(totalGasFeesInUsd, 'price')
@@ -145,12 +152,27 @@ const RouteStepsPreview = ({
         <Text fontSize={12} weight="medium" appearance="secondaryText">
           {'  |  '}
         </Text>
-        <Text fontSize={12} weight="medium">
-          {t('Estimation: {{time}}', {
-            time: formatTime(estimationInSeconds)
-          })}
-        </Text>
-      </Text>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          {!!shouldWarnForLongEstimation && (
+            <WarningIcon
+              color={iconColors.warning}
+              width={14}
+              height={14}
+              style={spacings.mrMi}
+              strokeWidth={2.2}
+            />
+          )}
+          <Text
+            fontSize={12}
+            weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
+            appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
+          >
+            {t('Estimation: {{time}}', {
+              time: formatTime(estimationInSeconds)
+            })}
+          </Text>
+        </View>
+      </View>
     </View>
   )
 }
