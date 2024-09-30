@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import AccountDropdown from '@legends/components/AccountDropdown'
+import Sidebar from '@legends/components/Sidebar'
 
-import AccountDropdown from '../AccountDropdown'
-import Sidebar from '../Sidebar'
 import styles from './Page.module.scss'
 
 const Page = ({ children }: { children: React.ReactNode | React.ReactNode[] }) => {

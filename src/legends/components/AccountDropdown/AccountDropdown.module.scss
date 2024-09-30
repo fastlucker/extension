@@ -5,20 +5,22 @@
   margin-left: auto;
   z-index: 999;
 
+  .button,
+  .dropdown {
+    border-radius: $primaryBorderRadius;
+    background-color: $secondaryBackground;
+    border: 1px solid $primaryBorder;
+  }
+
   .button {
     display: flex;
     align-items: center;
     padding: 0.5rem 0.75rem;
-    border-radius: $primaryBorderRadius;
-    background-color: $secondaryBackground;
-    border: 1px solid $primaryBorder;
 
     &:hover {
       opacity: 1;
 
-      .account {
-        opacity: 0.6;
-      }
+      .account,
       .chevronIcon {
         opacity: 0.6;
       }
@@ -71,11 +73,8 @@
     position: absolute;
     right: 0;
     top: calc(100% + 0.5rem);
-
-    background-color: $secondaryBackground;
     padding: 0.75rem;
-    border-radius: $primaryBorderRadius;
-    border: 1px solid $primaryBorder;
+    // Animation
     visibility: hidden;
     pointer-events: none;
     opacity: 0.5;
