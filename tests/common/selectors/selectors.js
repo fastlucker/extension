@@ -51,7 +51,13 @@ export const TEST_IDS = {
   getStartedButtonConnectHwWallet: 'get-started-button-connect-hw-wallet',
   selectHwOptionTrezor: 'select-hw-option-trezor',
   trezorPermissionConfirmButton: '@permissions/confirm-button',
-  trezorExportAddressConfirmButton: '@export-address/confirm-button'
+  trezorExportAddressConfirmButton: '@export-address/confirm-button',
+  enterCurrentPassField: 'enter-current-pass-field',
+  enterNewPassField: 'enter-new-pass-field',
+  repeatNewPassField: 'repeat-new-pass-field',
+  changeDevicePassButton: 'change-device-pass-button',
+  bottomSheet: 'bottom-sheet',
+  devicePassSuccessModal: 'device-pass-success-modal'
 }
 
 export const SELECTORS = Object.fromEntries(
