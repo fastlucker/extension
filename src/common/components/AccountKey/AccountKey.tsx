@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Animated, Pressable, View, ViewStyle } from 'react-native'
+import { Animated, View, ViewStyle } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -185,29 +185,24 @@ const AccountKey: React.FC<Props> = ({
           */}
             {/* @ts-ignore */}
             <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
-              <Pressable
-                onPress={exportKey}
-                style={() => [spacings.mlTy, !canExportKey ? { opacity: 0.4 } : {}]}
-                disabled={!canExportKey}
-              >
-                <ExportIcon
-                  width={20}
-                  height={20}
-                  color={canExportKey ? theme.primaryText : theme.secondaryText}
-                />
-              </Pressable>
-            </View>
-            <Tooltip id="export-icon-tooltip">
-              <View>
-                <Text fontSize={14} appearance="secondaryText">
-                  {canExportKey
-                    ? t('Export key')
-                    : isSA
-                    ? t('Smart account export coming soon')
-                    : t('Export unavailable as this is a hardware wallet key')}
+              <Button style={spacings.mb0} onPress={exportKey} size="tiny" disabled={!canExportKey}>
+                <Text style={{ color: '#fff', ...spacings.mrTy }} fontSize={12}>
+                  Export
                 </Text>
-              </View>
-            </Tooltip>
+                <ExportIcon color="#fff" width={16} height={16} />
+              </Button>
+            </View>
+            {!canExportKey && (
+              <Tooltip id="export-icon-tooltip">
+                <View>
+                  <Text fontSize={14} appearance="secondaryText">
+                    {isSA
+                      ? t('Smart account export coming soon')
+                      : t('Export unavailable as this is a hardware wallet key')}
+                  </Text>
+                </View>
+              </Tooltip>
+            )}
           </View>
           <AnimatedPressable
             onPress={handleOnKeyDetailsPress}
@@ -224,7 +219,7 @@ const AccountKey: React.FC<Props> = ({
         </View>
       ) : (
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Button style={spacings.mtTy} onPress={importKey} size="tiny">
+          <Button style={spacings.mb0} onPress={importKey} size="tiny">
             <Text style={{ color: '#fff', ...spacings.mrTy }} fontSize={12}>
               Import
             </Text>
