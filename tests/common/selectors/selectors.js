@@ -58,7 +58,8 @@ export const TEST_IDS = {
   changeDevicePassButton: 'change-device-pass-button',
   bottomSheet: 'bottom-sheet',
   devicePassSuccessModal: 'device-pass-success-modal',
-  lockExtensionButton: 'lock-extension-button'
+  lockExtensionButton: 'lock-extension-button',
+  createKeystorePassBtn: 'create-keystore-pass-btn'
 }
 
 export const SELECTORS = Object.fromEntries(

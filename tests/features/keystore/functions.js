@@ -66,3 +66,21 @@ export async function lockKeystore(page, extensionURL) {
   const currentURL = page.url()
   expect(currentURL).toContain(URL_SETTINGS_GENERAL)
 }
+
+export async function setUpKeystore(page, extensionURL) {
+  await page.goto(`${extensionURL}${URL_DEVICE_PASSWORD_CHANGE}`, {
+    waitUntil: 'load'
+  })
+
+  await page.waitForSelector(SELECTORS.enterNewPassField)
+  await typeText(page, SELECTORS.enterPassField, DEF_KEYSTORE_PASS)
+  await typeText(page, SELECTORS.repeatPassField, DEF_KEYSTORE_PASS)
+  await clickOnElement(page, SELECTORS.createKeystorePassBtn)
+
+  await page.waitForSelector(SELECTORS.bottomSheet)
+  await expectButtonIsVisible(page, SELECTORS.keystoreBtnContinue)
+
+  await clickOnElement(page, SELECTORS.keystoreBtnContinue)
+  // Wait until the "Success device password" modal to be hidden
+  await page.waitForSelector(SELECTORS.bottomSheet, { hidden: true })
+}

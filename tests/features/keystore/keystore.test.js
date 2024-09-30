@@ -1,4 +1,3 @@
-// - should set up keystore
 // - should unlock keystore
 
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
