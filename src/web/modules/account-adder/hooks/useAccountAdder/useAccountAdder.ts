@@ -52,7 +52,11 @@ const useAccountAdder = ({ keySubType }: Props) => {
   }, [keySubType, updateStepperState])
 
   useEffect(() => {
-    if (!accountAdderState.isInitialized) goBack()
+    console.log('problem?')
+    if (!accountAdderState.isInitialized) {
+      console.log('problem???')
+      goBack()
+    }
   }, [accountAdderState.isInitialized, goBack])
 
   const completeStep = useCallback(
