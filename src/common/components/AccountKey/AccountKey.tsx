@@ -196,11 +196,12 @@ const AccountKey: React.FC<Props> = ({
                   onPress={exportKey}
                   size="tiny"
                   disabled={!canExportKey}
+                  type="secondary"
                 >
-                  <Text style={{ color: '#fff', ...spacings.mrTy }} fontSize={12}>
+                  <Text style={[spacings.mrTy]} fontSize={12}>
                     Export
                   </Text>
-                  <ExportIcon color="#fff" width={16} height={16} />
+                  <ExportIcon color={theme.secondaryText} width={16} height={16} />
                 </Button>
               </View>
               {!canExportKey && (
@@ -230,11 +231,11 @@ const AccountKey: React.FC<Props> = ({
           </View>
         ) : (
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <Button style={spacings.mb0} onPress={importKey} size="tiny">
-              <Text style={{ color: '#fff', ...spacings.mrTy }} fontSize={12}>
+            <Button style={spacings.mb0} onPress={importKey} size="tiny" type="secondary">
+              <Text style={[spacings.mrTy]} fontSize={12}>
                 Import
               </Text>
-              <ImportIcon color="#fff" width={16} height={16} />
+              <ImportIcon color={theme.secondaryText} width={16} height={16} />
             </Button>
 
             <View style={spacings.mlTy}>
@@ -246,13 +247,10 @@ const AccountKey: React.FC<Props> = ({
       {isImporting && openAddAccountBottomSheet && (
         <View style={[spacings.phSm, flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
           <Text>To import this key, you will need to reimport the account</Text>
-          <Button
-            style={[spacings.mb0, spacings.mlTy]}
-            onPress={reimportAccount}
-            size="tiny"
-            type="secondary"
-          >
-            <Text fontSize={12}>Reimport Account</Text>
+          <Button style={[spacings.mb0, spacings.mlTy]} onPress={reimportAccount} size="tiny">
+            <Text color="#fff" fontSize={12}>
+              Reimport Account
+            </Text>
           </Button>
         </View>
       )}
