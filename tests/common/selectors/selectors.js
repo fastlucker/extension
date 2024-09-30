@@ -57,7 +57,8 @@ export const TEST_IDS = {
   repeatNewPassField: 'repeat-new-pass-field',
   changeDevicePassButton: 'change-device-pass-button',
   bottomSheet: 'bottom-sheet',
-  devicePassSuccessModal: 'device-pass-success-modal'
+  devicePassSuccessModal: 'device-pass-success-modal',
+  lockExtensionButton: 'lock-extension-button'
 }
 
 export const SELECTORS = Object.fromEntries(

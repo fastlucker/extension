@@ -1,11 +1,10 @@
 // - should set up keystore
-// - should lock keystore
 // - should unlock keystore
 
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { saParams } from '../../config/constants'
 
-import { changeKeystorePassword } from './functions'
+import { lockKeystore, changeKeystorePassword } from './functions'
 
 describe('auth', () => {
   let browser
@@ -20,6 +19,10 @@ describe('auth', () => {
   afterEach(async () => {
     await recorder.stop()
     await browser.close()
+  })
+
+  it('should lock keystore', async () => {
+    await lockKeystore(page, extensionURL)
   })
 
   it('should change keystore password', async () => {

@@ -1,7 +1,11 @@
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { typeText } from '../../common-helpers/typeText'
 import { SELECTORS } from '../../common/selectors/selectors'
-import { URL_DEVICE_PASSWORD_CHANGE, NEW_KEYSTORE_PASSWORD } from './constants'
+import {
+  URL_SETTINGS_GENERAL,
+  URL_DEVICE_PASSWORD_CHANGE,
+  NEW_KEYSTORE_PASSWORD
+} from './constants'
 import { DEF_KEYSTORE_PASS } from '../../config/constants'
 
 // TODO: move to common functions
@@ -48,4 +52,17 @@ export async function changeKeystorePassword(page, extensionURL) {
 
   // Restore the old password
   await typeCurrentThenNewPassword(page, NEW_KEYSTORE_PASSWORD, DEF_KEYSTORE_PASS)
+}
+
+export async function lockKeystore(page, extensionURL) {
+  // TODO: constant for the url
+  await page.goto(`${extensionURL}${URL_SETTINGS_GENERAL}`, {
+    waitUntil: 'load'
+  })
+
+  await expectButtonIsVisible(page, SELECTORS.lockExtensionButton)
+  await clickOnElement(page, SELECTORS.lockExtensionButton)
+
+  const currentURL = page.url()
+  expect(currentURL).toContain(URL_SETTINGS_GENERAL)
 }
