@@ -12,9 +12,15 @@ interface Props {
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet: () => void
   account: Account
+  openAddAccountBottomSheet?: () => void
 }
 
-const AccountKeysBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, account }) => {
+const AccountKeysBottomSheet: FC<Props> = ({
+  sheetRef,
+  closeBottomSheet,
+  account,
+  openAddAccountBottomSheet
+}) => {
   const [currentKeyDetails, setCurrentKeyDetails] = useState<AccountKeyType | null>(null)
 
   const closeCurrentKeyDetails = () => setCurrentKeyDetails(null)
@@ -27,7 +33,11 @@ const AccountKeysBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, account
   return (
     <BottomSheet id="account-keys" sheetRef={sheetRef} closeBottomSheet={closeBottomSheetWrapped}>
       {!currentKeyDetails ? (
-        <AccountKeys setCurrentKeyDetails={setCurrentKeyDetails} account={account} />
+        <AccountKeys
+          setCurrentKeyDetails={setCurrentKeyDetails}
+          account={account}
+          openAddAccountBottomSheet={openAddAccountBottomSheet}
+        />
       ) : (
         <AccountKeyDetails
           details={currentKeyDetails}

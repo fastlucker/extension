@@ -59,6 +59,7 @@ const AccountsSettingsScreen = () => {
             account={account}
             maxAccountAddrLength={shortenAccountAddr()}
             isSettings
+            openAddAccountBottomSheet={openBottomSheet}
           />
         ))}
       </View>

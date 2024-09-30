@@ -37,7 +37,8 @@ const Account = ({
   maxAccountAddrLength = 42,
   withSettings = true,
   renderRightChildren,
-  isSettings = false
+  isSettings = false,
+  openAddAccountBottomSheet
 }: {
   account: AccountInterface
   onSelect?: (addr: string) => void
@@ -45,6 +46,7 @@ const Account = ({
   withSettings?: boolean
   renderRightChildren?: () => React.ReactNode
   isSettings?: boolean
+  openAddAccountBottomSheet?: () => void
 }) => {
   const { addr, preferences } = account
   const { t } = useTranslation()
@@ -64,7 +66,7 @@ const Account = ({
     forceHoveredStyle: !isSettings && addr === selectedAccount
   })
 
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { ref: sheetRef, open: openKeysBottomSheet, close: closeBottomSheet } = useModalize()
 
   const selectAccount = useCallback(() => {
     if (isSettings) {
@@ -129,7 +131,7 @@ const Account = ({
     }
 
     if (item.value === 'keys') {
-      openBottomSheet()
+      openKeysBottomSheet()
     }
   }
 
@@ -188,6 +190,7 @@ const Account = ({
               sheetRef={sheetRef}
               account={account}
               closeBottomSheet={closeBottomSheet}
+              openAddAccountBottomSheet={openAddAccountBottomSheet}
             />
           )}
           {isSettings && (

@@ -13,9 +13,10 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 interface Props {
   setCurrentKeyDetails: Dispatch<SetStateAction<AccountKeyType | null>>
   account: Account
+  openAddAccountBottomSheet?: () => void
 }
 
-const AccountKeys: FC<Props> = ({ setCurrentKeyDetails, account }) => {
+const AccountKeys: FC<Props> = ({ setCurrentKeyDetails, account, openAddAccountBottomSheet }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
 
@@ -79,6 +80,7 @@ const AccountKeys: FC<Props> = ({ setCurrentKeyDetails, account }) => {
               {...accountKeyProps}
               handleOnKeyDetailsPress={handleOnKeyDetailsPress}
               account={account}
+              openAddAccountBottomSheet={openAddAccountBottomSheet}
             />
           )
         })}
