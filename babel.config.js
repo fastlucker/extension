@@ -1,4 +1,5 @@
 module.exports = function (api) {
+  const isLegends = process.env.WEBPACK_BUILD_OUTPUT_PATH?.includes('legends')
   api.cache(true)
 
   const pathAliases = {
@@ -54,6 +55,10 @@ module.exports = function (api) {
         }
       ]
     ]
+  }
+
+  if (isLegends) {
+    webConfig.presets = [...webConfig.presets, '@babel/preset-react', '@babel/preset-typescript']
   }
 
   const mobileConfig = {

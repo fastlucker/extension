@@ -1,9 +1,10 @@
 import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
 
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 
+import { AccountContextProvider } from './contexts/accountContext'
+import { PortfolioControllerStateProvider } from './contexts/portfolioControllerStateContext'
 import Router from './modules/router/Router'
 
 declare global {
@@ -14,12 +15,14 @@ declare global {
 
 const LegendsInit = () => {
   return (
-    <BrowserRouter>
-      <PortalProvider>
-        <Router />
-        <PortalHost name="global" />
-      </PortalProvider>
-    </BrowserRouter>
+    <PortalProvider>
+      <AccountContextProvider>
+        <PortfolioControllerStateProvider>
+          <Router />
+        </PortfolioControllerStateProvider>
+      </AccountContextProvider>
+      <PortalHost name="global" />
+    </PortalProvider>
   )
 }
 

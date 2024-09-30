@@ -1,0 +1,56 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  height: 100vh;
+
+  .scroll {
+    overflow-y: auto;
+    background-color: $primaryBackground;
+    flex: 1;
+
+    .container {
+      padding: 1rem;
+      @include container;
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .sidebarButton {
+          font-size: 1.25rem;
+          color: $secondaryText;
+        }
+
+        .account {
+          margin-left: auto;
+          max-width: 18.75rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+      .content {
+        padding-top: 2.5rem;
+      }
+    }
+  }
+
+  @include breakpoint-from(large-tablet) {
+    .scroll {
+      .container {
+        padding: 2rem 0;
+
+        .header {
+          .account {
+            max-width: unset;
+          }
+          .sidebarButton {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}

@@ -13,6 +13,8 @@ module.exports = {
     path.join('<rootDir>', 'ios/'),
     // Extension, benzin and legends builds
     path.join('<rootDir>', 'build/'),
+    // Safari extension xcode project
+    path.join('<rootDir>', 'safari-extension/'),
     // Misc
     path.join('<rootDir>', '\\.[^/]+'), // Matches any directory starting with a dot
     path.join('<rootDir>', 'recorder/'), // E2E tests video recorder files

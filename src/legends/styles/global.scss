@@ -1,0 +1,46 @@
+@import './reset.scss';
+@import './normalize.scss';
+@import './base.scss';
+
+body {
+  background-color: $primaryBackground;
+  font-family: $primaryFont;
+  color: $primaryText;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $primaryFont;
+  color: $primaryText;
+}
+
+p,
+span,
+a,
+button,
+input,
+textarea {
+  font-family: $secondaryFont;
+}
+
+p,
+span,
+input,
+textarea {
+  color: $secondaryText;
+}
+
+button,
+a {
+  transition: 0.2s opacity ease-in-out;
+  color: $primaryText;
+}
+
+a:hover,
+button:hover {
+  opacity: 0.6;
+}
