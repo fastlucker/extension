@@ -1,5 +1,5 @@
 import { bootstrap } from './bootstrap'
-import { typeSeedPhrase } from './typeSeedPhrase'
+import { typeKeystorePassAndUnlock } from './typeKeystorePassAndUnlock'
 import { DEF_KEYSTORE_PASS } from '../config/constants'
 
 //----------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ export async function bootstrapWithStorage(
       // Navigate to a specific URL if necessary
       await page.goto(`${extensionURL}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
 
-      await typeSeedPhrase(page, DEF_KEYSTORE_PASS)
+      await typeKeystorePassAndUnlock(page, DEF_KEYSTORE_PASS)
     } catch (e) {
       console.log(e)
       await recorder.stop()

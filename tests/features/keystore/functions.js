@@ -7,6 +7,7 @@ import {
   NEW_KEYSTORE_PASSWORD
 } from './constants'
 import { DEF_KEYSTORE_PASS } from '../../config/constants'
+import { typeKeystorePassAndUnlock } from '../../common-helpers/typeKeystorePassAndUnlock'
 
 // TODO: move to common functions
 async function expectButtonIsVisible(page, selector) {
@@ -55,7 +56,6 @@ export async function changeKeystorePassword(page, extensionURL) {
 }
 
 export async function lockKeystore(page, extensionURL) {
-  // TODO: constant for the url
   await page.goto(`${extensionURL}${URL_SETTINGS_GENERAL}`, {
     waitUntil: 'load'
   })
@@ -65,6 +65,19 @@ export async function lockKeystore(page, extensionURL) {
 
   const currentURL = page.url()
   expect(currentURL).toContain(URL_SETTINGS_GENERAL)
+}
+
+export async function unlockKeystore(page, extensionURL) {
+  await page.goto(`${extensionURL}${URL_SETTINGS_GENERAL}`, {
+    waitUntil: 'load'
+  })
+
+  await expectButtonIsVisible(page, SELECTORS.lockExtensionButton)
+  await clickOnElement(page, SELECTORS.lockExtensionButton)
+
+  const currentURL = page.url()
+  expect(currentURL).toContain(URL_SETTINGS_GENERAL)
+  await typeKeystorePassAndUnlock(page, DEF_KEYSTORE_PASS)
 }
 
 export async function setUpKeystore(page, extensionURL) {

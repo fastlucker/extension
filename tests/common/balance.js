@@ -1,15 +1,16 @@
 import { clickOnElement } from '../common-helpers/clickOnElement'
+import { SELECTORS } from './selectors/selectors'
 
 //--------------------------------------------------------------------------------------------------------------
 export async function checkBalanceInAccount(page) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
-  await page.waitForSelector('[data-testid="full-balance"]')
+  await page.waitForSelector(SELECTORS.fullBalance)
 
   // Get the available balance
-  const availableAmount = await page.evaluate(() => {
-    const balance = document.querySelector('[data-testid="full-balance"]')
+  const availableAmount = await page.evaluate((selector) => {
+    const balance = document.querySelector(selector)
     return balance.innerText
-  })
+  }, SELECTORS.fullBalance)
 
   let availableAmountNum = availableAmount.replace(/\n/g, '')
   availableAmountNum = availableAmountNum.split('$')[1]
@@ -21,7 +22,7 @@ export async function checkBalanceInAccount(page) {
 //--------------------------------------------------------------------------------------------------------------
 export async function checkNetworks(page) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
-  await page.waitForSelector('[data-testid="full-balance"]')
+  await page.waitForSelector(SELECTORS.fullBalance)
 
   // Verify that USDC, ETH, WALLET
   const text = await page.$eval('*', (el) => el.innerText)
