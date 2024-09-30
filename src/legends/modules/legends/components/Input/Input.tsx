@@ -4,11 +4,12 @@ import styles from './Input.module.scss'
 
 type Props = {
   label?: string
+  state?: 'default' | 'error'
   placeholder?: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-const Input: FC<Props> = ({ placeholder, label, onChange }) => {
+const Input: FC<Props> = ({ placeholder, label, state = 'default', onChange }) => {
   return (
     <div className={styles.wrapper}>
       {label && (
@@ -19,7 +20,7 @@ const Input: FC<Props> = ({ placeholder, label, onChange }) => {
       <input
         placeholder={placeholder}
         onChange={onChange}
-        className={styles.input}
+        className={`${styles.input} ${styles[state]}`}
         id={label}
         type="text"
       />

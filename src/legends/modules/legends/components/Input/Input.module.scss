@@ -33,5 +33,9 @@
     &:focus::placeholder {
       color: transparent;
     }
+
+    &.error {
+      border-color: $errorDecorative;
+    }
   }
 }
