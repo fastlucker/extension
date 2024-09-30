@@ -96,7 +96,9 @@ const SwapAndBridgeScreen = () => {
       header={<HeaderAccountAndNetworkInfo />}
       footer={<BackButton onPress={handleBackButtonPress} />}
     >
-      <TabLayoutWrapperMainContent contentContainerStyle={styles.tabLayoutContentContainer}>
+      <TabLayoutWrapperMainContent
+        contentContainerStyle={{ ...spacings.ptMd, ...flexbox.alignCenter }}
+      >
         <View style={styles.container}>
           <Panel title={t('Swap & Bridge')} forceContainerSmallSpacings>
             <View>
