@@ -72,7 +72,9 @@ const RouteStepsPlaceholder = ({
             withNetworkIcon
           />
         </View>
-        <Text>{fromSelectedToken.symbol}</Text>
+        <Text fontSize={14} weight="medium">
+          {fromSelectedToken.symbol}
+        </Text>
       </View>
       <RouteStepsArrow
         containerStyle={flexbox.flex1}
@@ -90,7 +92,9 @@ const RouteStepsPlaceholder = ({
             withNetworkIcon
           />
         </View>
-        <Text>{toSelectedToken.symbol}</Text>
+        <Text fontSize={14} weight="medium">
+          {toSelectedToken.symbol}
+        </Text>
       </View>
     </View>
   )

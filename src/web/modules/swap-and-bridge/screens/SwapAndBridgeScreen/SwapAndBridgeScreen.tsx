@@ -26,6 +26,7 @@ import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndB
 
 import MaxAmount from '../../components/MaxAmount/MaxAmount'
 import RouteStepsPlaceholder from '../../components/RouteStepsPlaceholder'
+import RouteStepsPreview from '../../components/RouteStepsPreview'
 import getStyles from './styles'
 
 const SwapAndBridgeScreen = () => {
@@ -266,6 +267,11 @@ const SwapAndBridgeScreen = () => {
                   toSelectedToken={toSelectedToken!}
                   withBadge="no-route-found"
                 />
+              </View>
+            )}
+            {formStatus === SwapAndBridgeFormStatus.ReadyToSubmit && (
+              <View style={styles.secondaryContainer}>
+                <RouteStepsPreview steps={quote!.routeSteps} />
               </View>
             )}
           </Panel>

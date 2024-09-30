@@ -10,10 +10,12 @@ const RouteStepsArrow = ({
   containerStyle,
   badge,
   badgeStyle,
+  badgePosition = 'middle',
   type
 }: {
   containerStyle?: ViewStyle
   badge?: ReactElement | null
+  badgePosition?: 'top' | 'middle'
   badgeStyle?: ViewStyle
   type?: 'default' | 'warning' | 'success'
 }) => {
@@ -32,7 +34,16 @@ const RouteStepsArrow = ({
       <View style={[styles.arrowLine, { borderColor: getArrowColor }]}>
         {!!badge && (
           <View style={{ backgroundColor: theme.secondaryBackground }}>
-            <View style={[styles.badge, badgeStyle]}>{badge}</View>
+            <View
+              style={[
+                badgePosition === 'middle' && styles.badgeMiddle,
+                badgePosition === 'top' && styles.badgeTop,
+
+                badgeStyle
+              ]}
+            >
+              {badge}
+            </View>
           </View>
         )}
       </View>

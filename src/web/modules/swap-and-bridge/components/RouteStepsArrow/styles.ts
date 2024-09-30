@@ -8,7 +8,8 @@ interface Style {
   container: ViewStyle
   arrowStart: ViewStyle
   arrowLine: ViewStyle
-  badge: ViewStyle
+  badgeMiddle: ViewStyle
+  badgeTop: ViewStyle
   arrowTipWrapper: ViewStyle
 }
 
@@ -35,13 +36,22 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter
     },
-    badge: {
+    badgeMiddle: {
       height: 26,
       borderRadius: 50,
       ...spacings.phSm,
       ...flexbox.alignCenter,
       ...flexbox.directionRow,
       zIndex: 2
+    },
+    badgeTop: {
+      ...flexbox.alignCenter,
+      ...flexbox.directionRow,
+      zIndex: 2,
+      position: 'absolute',
+      bottom: 10,
+      ...flexbox.alignSelfCenter,
+      maxWidth: 120
     },
     arrowTipWrapper: {
       transform: [{ translateX: -4 }]
