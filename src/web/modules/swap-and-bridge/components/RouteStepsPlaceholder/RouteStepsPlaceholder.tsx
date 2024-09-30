@@ -61,41 +61,58 @@ const RouteStepsPlaceholder = ({
   }, [withBadge, theme])
 
   return (
-    <View style={styles.container}>
-      <View style={styles.tokenContainer}>
-        <View style={styles.tokenWrapper}>
-          <TokenIcon
-            width={30}
-            height={30}
-            address={fromSelectedToken.address}
-            networkId={fromSelectedToken.networkId}
-            withNetworkIcon
-          />
+    <View style={flexbox.flex1}>
+      <View style={[styles.container, spacings.mb]}>
+        <View style={styles.tokenContainer}>
+          <View style={styles.tokenWrapper}>
+            <TokenIcon
+              width={30}
+              height={30}
+              address={fromSelectedToken.address}
+              networkId={fromSelectedToken.networkId}
+              withNetworkIcon
+            />
+          </View>
+          <Text fontSize={14} weight="medium">
+            {fromSelectedToken.symbol}
+          </Text>
         </View>
-        <Text fontSize={14} weight="medium">
-          {fromSelectedToken.symbol}
-        </Text>
-      </View>
-      <RouteStepsArrow
-        containerStyle={flexbox.flex1}
-        badge={getBadge}
-        badgeStyle={getBadgeStyle}
-        type={withBadge === 'no-route-found' ? 'warning' : 'default'}
-      />
-      <View style={styles.tokenContainer}>
-        <View style={styles.tokenWrapper}>
-          <TokenIcon
-            width={30}
-            height={30}
-            uri={toSelectedToken.icon}
-            chainId={toSelectedToken.chainId}
-            withNetworkIcon
-          />
+        <RouteStepsArrow
+          containerStyle={flexbox.flex1}
+          badge={getBadge}
+          badgeStyle={getBadgeStyle}
+          type={withBadge === 'no-route-found' ? 'warning' : 'default'}
+        />
+        <View style={styles.tokenContainer}>
+          <View style={styles.tokenWrapper}>
+            <TokenIcon
+              width={30}
+              height={30}
+              uri={toSelectedToken.icon}
+              chainId={toSelectedToken.chainId}
+              withNetworkIcon
+            />
+          </View>
+          <Text fontSize={14} weight="medium">
+            {toSelectedToken.symbol}
+          </Text>
         </View>
-        <Text fontSize={14} weight="medium">
-          {toSelectedToken.symbol}
-        </Text>
       </View>
+      <Text>
+        <Text fontSize={12} weight="medium">
+          {t('Total gas fees: {{fees}}', {
+            fees: '-/-'
+          })}
+        </Text>
+        <Text fontSize={12} weight="medium" appearance="secondaryText">
+          {'  |  '}
+        </Text>
+        <Text fontSize={12} weight="medium">
+          {t('Estimation: {{time}}', {
+            time: '-/-'
+          })}
+        </Text>
+      </Text>
     </View>
   )
 }

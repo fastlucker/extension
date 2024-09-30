@@ -225,10 +225,10 @@ const SwapAndBridgeScreen = () => {
                 >
                   {formattedToAmount}
                   {!!formattedToAmount && formattedToAmount !== '0' && !!quote?.route && (
-                    <Text
-                      fontSize={20}
-                      appearance="secondaryText"
-                    >{` ($${quote.route.outputValueInUsd})`}</Text>
+                    <Text fontSize={20} appearance="secondaryText">{` (${formatDecimals(
+                      quote.route.outputValueInUsd,
+                      'price'
+                    )})`}</Text>
                   )}
                 </Text>
               </View>
@@ -271,7 +271,11 @@ const SwapAndBridgeScreen = () => {
             )}
             {formStatus === SwapAndBridgeFormStatus.ReadyToSubmit && (
               <View style={styles.secondaryContainer}>
-                <RouteStepsPreview steps={quote!.routeSteps} />
+                <RouteStepsPreview
+                  steps={quote!.routeSteps}
+                  totalGasFeesInUsd={quote!.route.totalGasFeesInUsd}
+                  estimationInSeconds={quote!.route.maxServiceTime}
+                />
               </View>
             )}
           </Panel>

@@ -30,7 +30,8 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.phSm,
-      ...spacings.pvSm
+      ...spacings.pvSm,
+      ...spacings.pt
     },
     secondaryContainerWarning: {
       borderWidth: 1,

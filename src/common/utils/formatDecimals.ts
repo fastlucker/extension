@@ -125,6 +125,10 @@ const formatDecimals = (value: number | undefined = undefined, type: FormatType 
     }
   }
 
+  if (type === 'precise') {
+    return formatNumber(value, withDollarPrefix, DECIMAL_RULES[type].max, type)
+  }
+
   const indexOfFirstNonZero = getIndexOfFirstNonZeroInDecimals(value, type)
 
   const decimals = indexOfFirstNonZero + DECIMAL_RULES[type].max

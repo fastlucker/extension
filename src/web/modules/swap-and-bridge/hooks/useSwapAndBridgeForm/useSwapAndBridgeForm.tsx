@@ -9,6 +9,7 @@ import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
+import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -184,7 +185,10 @@ const useSwapAndBridgeFrom = () => {
   const formattedToAmount = useMemo(() => {
     if (!quote || !quote.route || !quote?.toAsset?.decimals) return '0'
 
-    return `${formatUnits(quote.route.toAmount, quote.toAsset.decimals)}`
+    return `${formatDecimals(
+      Number(formatUnits(quote.route.toAmount, quote.toAsset.decimals)),
+      'precise'
+    )}`
   }, [quote])
 
   return {
