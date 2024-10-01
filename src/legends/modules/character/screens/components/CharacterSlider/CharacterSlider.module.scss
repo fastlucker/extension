@@ -27,13 +27,17 @@
             justify-content: center;
             transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
             filter: brightness(0);
-            transform: scale(0.95);
+
+            flex-grow: 0;
+            flex-basis: 10rem;
 
             &.selected {
                 z-index: 2;          
                 filter: brightness(1);
                 height: 30rem;
                 transform: scale(1.2);
+                flex-grow: 3; 
+                flex-basis: 16rem; 
                
                 .characterRelativeWrapper {
                     position: relative;
@@ -58,7 +62,21 @@
                     }
                 }
             } 
-            
+
+            &.adjacent {
+                opacity: 0.5;
+                flex-grow: 2; 
+                flex-basis: 12rem;
+                transform: scale(1);
+              }
+        
+              &.smaller {
+                opacity: 0.5;
+                flex-grow: 1; 
+                flex-basis: 8rem;
+                transform: scale(0.8);
+            }
+              
          
         }
 

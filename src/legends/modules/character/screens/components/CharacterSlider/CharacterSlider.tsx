@@ -66,6 +66,17 @@ const CharacterSlider = () => {
 
   const getClass = (index) => {
     if (index === currentIndex) return styles.selected
+    if (
+      index === (currentIndex + 1) % characters.length ||
+      (currentIndex === characters.length - 1 && index === 0)
+    )
+      return styles.adjacent
+    if (
+      index === (currentIndex - 1 + characters.length) % characters.length ||
+      (currentIndex === 0 && index === characters.length - 1)
+    )
+      return styles.adjacent
+    return styles.smaller
   }
 
   return (
