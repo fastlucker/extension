@@ -380,6 +380,7 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
     toSelectedToken?: SocketAPIToken | null
+    routePriority?: 'output' | 'time'
   }
 }
 type SwapAndBridgeControllerSubmitFormAction = {

@@ -33,6 +33,7 @@ const useSwapAndBridgeFrom = () => {
   } = useSwapAndBridgeControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
+  const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
@@ -204,6 +205,10 @@ const useSwapAndBridgeFrom = () => {
     })
   }, [dispatch])
 
+  const handleToggleSettingsMenu = useCallback(() => {
+    setSettingsModalVisible((p) => !p)
+  }, [])
+
   return {
     fromAmountValue,
     onFromAmountChange,
@@ -223,7 +228,9 @@ const useSwapAndBridgeFrom = () => {
     formattedToAmount,
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
-    setFollowUpTransactionConfirmed
+    setFollowUpTransactionConfirmed,
+    settingModalVisible,
+    handleToggleSettingsMenu
   }
 }
 

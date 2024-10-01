@@ -23,11 +23,12 @@ import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetwork
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
+import RouteStepsPlaceholder from '@web/modules/swap-and-bridge/components/RouteStepsPlaceholder'
+import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
+import SettingsModal from '@web/modules/swap-and-bridge/components/SettingsModal'
 import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
-import MaxAmount from '../../components/MaxAmount/MaxAmount'
-import RouteStepsPlaceholder from '../../components/RouteStepsPlaceholder'
-import RouteStepsPreview from '../../components/RouteStepsPreview'
 import getStyles from './styles'
 
 const SwapAndBridgeScreen = () => {
@@ -68,7 +69,6 @@ const SwapAndBridgeScreen = () => {
     validateFromAmount
   } = useSwapAndBridgeControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
-
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
   }, [navigate])
@@ -108,7 +108,19 @@ const SwapAndBridgeScreen = () => {
         contentContainerStyle={{ ...spacings.ptMd, ...flexbox.alignCenter }}
       >
         <View style={styles.container}>
-          <Panel title={t('Swap & Bridge')} forceContainerSmallSpacings>
+          <Panel forceContainerSmallSpacings>
+            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
+              <Text
+                fontSize={18}
+                weight="medium"
+                appearance="primaryText"
+                style={[flexbox.flex1]}
+                numberOfLines={1}
+              >
+                {t('Swap & Bridge')}
+              </Text>
+              <SettingsModal />
+            </View>
             <View>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
                 {t('Send')}
