@@ -1,1 +1,104 @@
 @import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  background-color: $secondaryBackground;
+
+  .imageAndBadges {
+    position: relative;
+    width: 100%;
+    height: 11.25rem;
+
+    .badges {
+      position: absolute;
+      left: 0.75rem;
+      top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: $secondaryBorderRadius $secondaryBorderRadius 0 0;
+    }
+  }
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem 1.25rem;
+    border: 1px solid $primaryBorder;
+    border-top: none;
+    border-radius: 0 0 $secondaryBorderRadius $secondaryBorderRadius;
+
+    .heading {
+      font-size: 1.25rem;
+      font-family: $primaryFont;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    .description {
+      margin-bottom: 0.75rem;
+      font-size: 0.875rem;
+      font-family: $secondaryFont;
+      color: $secondaryText;
+
+      .readMore {
+        display: inline;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        color: $secondaryAccent;
+      }
+    }
+    .rewardsHeading {
+      margin-bottom: 0.5rem;
+      font-family: $secondaryFont;
+      font-size: 0.875rem;
+      color: $secondaryText;
+      font-weight: 600;
+    }
+    .repeatableIcon {
+      display: inline;
+      color: $secondaryText;
+    }
+    .rewards {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      &.mb {
+        margin-bottom: 1.5rem;
+      }
+
+      .reward {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 1.75rem;
+        width: 100%;
+        background-color: $tertiaryBackground;
+        border-radius: $primaryBorderRadius;
+        padding: 0 0.5rem;
+
+        .rewardLabel,
+        .rewardValue {
+          font-family: $primaryFont;
+          font-size: 0.75rem;
+        }
+
+        .rewardLabel {
+          color: $secondaryText;
+        }
+        .rewardValue {
+          color: $primaryText;
+        }
+      }
+    }
+  }
+}
