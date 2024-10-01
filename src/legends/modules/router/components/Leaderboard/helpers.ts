@@ -11,7 +11,7 @@ export const getLeaderboard = async (currentUser?: string): Promise<LeaderboardR
     )
     const body = res.body as unknown as LeaderboardResponse
 
-    if (!body?.leaderboard || !body?.currentUser) throw new Error('Invalid response')
+    if (!body?.leaderboard) throw new Error('Invalid response')
 
     return body
   } catch {

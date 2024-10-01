@@ -27,6 +27,7 @@ const getBadge = (rank: number) => {
   return null
 }
 
+// TODO: Error and loading states
 const LeaderboardContainer: React.FC = () => {
   // TODO: Implement the leaderboard loading state
   const [loading, setLoading] = useState(true)
