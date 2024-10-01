@@ -10,8 +10,6 @@ interface Style {
   container: ViewStyle
   secondaryContainer: ViewStyle
   secondaryContainerWarning: ViewStyle
-  swapAndBridgeToggleButtonWrapper: ViewStyle
-  swapAndBridgeToggleButton: ViewStyle
   networkSelectorContainer: ViewStyle
   previewRouteContainer: ViewStyle
 }
@@ -37,26 +35,6 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       borderColor: theme.warningDecorative,
       backgroundColor: theme.warningBackground
-    },
-    swapAndBridgeToggleButtonWrapper: {
-      height: 6,
-      ...flexbox.alignCenter,
-      ...flexbox.justifyCenter,
-      ...flexbox.alignSelfCenter,
-      zIndex: 10
-    },
-    swapAndBridgeToggleButton: {
-      ...common.borderRadiusPrimary,
-      borderWidth: 1,
-      borderColor: theme.primary,
-      ...flexbox.alignCenter,
-      ...flexbox.justifyCenter,
-      width: 32,
-      height: 32,
-      backgroundColor: theme.primaryBackground,
-      shadowOffset: { width: 0, height: 3 },
-      shadowColor: '#6000FF33',
-      shadowRadius: 7
     },
     networkSelectorContainer: {
       ...flexbox.directionRow,

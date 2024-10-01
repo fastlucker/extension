@@ -109,15 +109,13 @@ const SettingsModal = () => {
     <>
       <View ref={settingButtonRef}>
         <Pressable onPress={handleToggleSettingsMenu} {...bindAnim}>
-          {!!rotateInterpolate && (
-            <Animated.View style={{ transform: [{ rotateZ: rotateInterpolate }] }}>
-              <SettingsIcon
-                width={SETTINGS_ICON_SIZE}
-                height={SETTINGS_ICON_SIZE}
-                color={isHovered || settingModalVisible ? iconColors.dark : iconColors.primary}
-              />
-            </Animated.View>
-          )}
+          <Animated.View style={{ transform: [{ rotateZ: rotateInterpolate || '0deg' }] }}>
+            <SettingsIcon
+              width={SETTINGS_ICON_SIZE}
+              height={SETTINGS_ICON_SIZE}
+              color={isHovered || settingModalVisible ? iconColors.dark : iconColors.primary}
+            />
+          </Animated.View>
         </Pressable>
       </View>
       {!!settingModalVisible && (

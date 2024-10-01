@@ -4,7 +4,6 @@ import { Pressable, View } from 'react-native'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import FlipIcon from '@common/assets/svg/FlipIcon'
-import SwapBridgeToggleIcon from '@common/assets/svg/SwapBridgeToggleIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
@@ -27,6 +26,7 @@ import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
 import RouteStepsPlaceholder from '@web/modules/swap-and-bridge/components/RouteStepsPlaceholder'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 import SettingsModal from '@web/modules/swap-and-bridge/components/SettingsModal'
+import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import getStyles from './styles'
@@ -207,11 +207,7 @@ const SwapAndBridgeScreen = () => {
               </View>
             </View>
           </Panel>
-          <View style={styles.swapAndBridgeToggleButtonWrapper}>
-            <Pressable style={styles.swapAndBridgeToggleButton}>
-              <SwapBridgeToggleIcon />
-            </Pressable>
-          </View>
+          <SwitchTokensButton />
           <Panel forceContainerSmallSpacings>
             <View style={spacings.mb}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
