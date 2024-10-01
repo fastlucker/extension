@@ -53,4 +53,10 @@
       }
     }
   }
+
+  @include breakpoint-down-from(medium-desktop) {
+    .scroll {
+      padding: 0 4rem;
+    }
+  }
 }

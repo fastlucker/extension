@@ -1,0 +1,870 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D46FBEC22C9DBCD7005E1A3C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46FBEC12C9DBCD7005E1A3C /* AppDelegate.swift */; };
+		D46FBEC62C9DBCD7005E1A3C /* Base in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEC52C9DBCD7005E1A3C /* Base */; };
+		D46FBEC82C9DBCD7005E1A3C /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEC72C9DBCD7005E1A3C /* Icon.png */; };
+		D46FBECA2C9DBCD7005E1A3C /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEC92C9DBCD7005E1A3C /* Style.css */; };
+		D46FBECC2C9DBCD7005E1A3C /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = D46FBECB2C9DBCD7005E1A3C /* Script.js */; };
+		D46FBECE2C9DBCD7005E1A3C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46FBECD2C9DBCD7005E1A3C /* ViewController.swift */; };
+		D46FBED12C9DBCD7005E1A3C /* Base in Resources */ = {isa = PBXBuildFile; fileRef = D46FBED02C9DBCD7005E1A3C /* Base */; };
+		D46FBED32C9DBCD8005E1A3C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D46FBED22C9DBCD8005E1A3C /* Assets.xcassets */; };
+		D46FBEDC2C9DBCD8005E1A3C /* wallet extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D46FBEDB2C9DBCD8005E1A3C /* wallet extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D46FBEE12C9DBCD8005E1A3C /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46FBEE02C9DBCD8005E1A3C /* SafariWebExtensionHandler.swift */; };
+		D46FBF352C9DBCD8005E1A3C /* Poppins_300Light..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEEE2C9DBCD8005E1A3C /* Poppins_300Light..ttf */; };
+		D46FBF362C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.js in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEEF2C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.js */; };
+		D46FBF372C9DBCD8005E1A3C /* 3-GasTank..mp4 in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF02C9DBCD8005E1A3C /* 3-GasTank..mp4 */; };
+		D46FBF382C9DBCD8005E1A3C /* ambire-inpage.js in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF12C9DBCD8005E1A3C /* ambire-inpage.js */; };
+		D46FBF392C9DBCD8005E1A3C /* Roboto_100Thin..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF22C9DBCD8005E1A3C /* Roboto_100Thin..ttf */; };
+		D46FBF3A2C9DBCD8005E1A3C /* Poppins_400Regular..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF32C9DBCD8005E1A3C /* Poppins_400Regular..ttf */; };
+		D46FBF3B2C9DBCD8005E1A3C /* Poppins_800ExtraBold..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF42C9DBCD8005E1A3C /* Poppins_800ExtraBold..ttf */; };
+		D46FBF3C2C9DBCD8005E1A3C /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF52C9DBCD8005E1A3C /* index.html */; };
+		D46FBF3D2C9DBCD8005E1A3C /* 4-HWs..mp4 in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF62C9DBCD8005E1A3C /* 4-HWs..mp4 */; };
+		D46FBF3E2C9DBCD8005E1A3C /* Poppins_100Thin..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF72C9DBCD8005E1A3C /* Poppins_100Thin..ttf */; };
+		D46FBF3F2C9DBCD8005E1A3C /* Roboto_500Medium_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF82C9DBCD8005E1A3C /* Roboto_500Medium_Italic..ttf */; };
+		D46FBF402C9DBCD8005E1A3C /* ethereum-inpage.js in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEF92C9DBCD8005E1A3C /* ethereum-inpage.js */; };
+		D46FBF412C9DBCD8005E1A3C /* Roboto_300Light..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEFA2C9DBCD8005E1A3C /* Roboto_300Light..ttf */; };
+		D46FBF422C9DBCD8005E1A3C /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEFB2C9DBCD8005E1A3C /* background.js */; };
+		D46FBF432C9DBCD8005E1A3C /* 1-Welcome..mp4 in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEFC2C9DBCD8005E1A3C /* 1-Welcome..mp4 */; };
+		D46FBF442C9DBCD8005E1A3C /* Poppins_300Light_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEFD2C9DBCD8005E1A3C /* Poppins_300Light_Italic..ttf */; };
+		D46FBF452C9DBCD8005E1A3C /* Poppins_500Medium..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEFE2C9DBCD8005E1A3C /* Poppins_500Medium..ttf */; };
+		D46FBF462C9DBCD8005E1A3C /* Poppins_900Black_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBEFF2C9DBCD8005E1A3C /* Poppins_900Black_Italic..ttf */; };
+		D46FBF472C9DBCD8005E1A3C /* Poppins_600SemiBold_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF002C9DBCD8005E1A3C /* Poppins_600SemiBold_Italic..ttf */; };
+		D46FBF482C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF012C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js.LICENSE.txt */; };
+		D46FBF492C9DBCD8005E1A3C /* story-6..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF022C9DBCD8005E1A3C /* story-6..png */; };
+		D46FBF4A2C9DBCD8005E1A3C /* browser-polyfill.min.js in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF032C9DBCD8005E1A3C /* browser-polyfill.min.js */; };
+		D46FBF4B2C9DBCD8005E1A3C /* Poppins_700Bold..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF042C9DBCD8005E1A3C /* Poppins_700Bold..ttf */; };
+		D46FBF4C2C9DBCD8005E1A3C /* avatar-planet..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF052C9DBCD8005E1A3C /* avatar-planet..png */; };
+		D46FBF4D2C9DBCD8005E1A3C /* Roboto_400Regular..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF062C9DBCD8005E1A3C /* Roboto_400Regular..ttf */; };
+		D46FBF4E2C9DBCD8005E1A3C /* Poppins_800ExtraBold_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF072C9DBCD8005E1A3C /* Poppins_800ExtraBold_Italic..ttf */; };
+		D46FBF4F2C9DBCD8005E1A3C /* asset-manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF082C9DBCD8005E1A3C /* asset-manifest.json */; };
+		D46FBF502C9DBCD8005E1A3C /* Roboto_700Bold..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF092C9DBCD8005E1A3C /* Roboto_700Bold..ttf */; };
+		D46FBF512C9DBCD8005E1A3C /* main.css in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF0A2C9DBCD8005E1A3C /* main.css */; };
+		D46FBF522C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.css in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF0B2C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.css */; };
+		D46FBF532C9DBCD8005E1A3C /* mesh-gradient..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF0C2C9DBCD8005E1A3C /* mesh-gradient..png */; };
+		D46FBF542C9DBCD8005E1A3C /* Ambire-Wallet-logo-colored-white-vertical..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF0D2C9DBCD8005E1A3C /* Ambire-Wallet-logo-colored-white-vertical..png */; };
+		D46FBF552C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF0E2C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js */; };
+		D46FBF562C9DBCD8005E1A3C /* mesh-gradient-large..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF0F2C9DBCD8005E1A3C /* mesh-gradient-large..png */; };
+		D46FBF572C9DBCD8005E1A3C /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF102C9DBCD8005E1A3C /* main.js */; };
+		D46FBF582C9DBCD8005E1A3C /* avatar-fire..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF112C9DBCD8005E1A3C /* avatar-fire..png */; };
+		D46FBF592C9DBCD8005E1A3C /* Roboto_100Thin_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF122C9DBCD8005E1A3C /* Roboto_100Thin_Italic..ttf */; };
+		D46FBF5A2C9DBCD8005E1A3C /* avatar-space-raccoon..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF132C9DBCD8005E1A3C /* avatar-space-raccoon..png */; };
+		D46FBF5B2C9DBCD8005E1A3C /* ethereum-inpage.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF142C9DBCD8005E1A3C /* ethereum-inpage.js.LICENSE.txt */; };
+		D46FBF5C2C9DBCD8005E1A3C /* action-window.html in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF152C9DBCD8005E1A3C /* action-window.html */; };
+		D46FBF5D2C9DBCD8005E1A3C /* static in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF162C9DBCD8005E1A3C /* static */; };
+		D46FBF5E2C9DBCD8005E1A3C /* avatar-spread-fire..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF172C9DBCD8005E1A3C /* avatar-spread-fire..png */; };
+		D46FBF5F2C9DBCD8005E1A3C /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF182C9DBCD8005E1A3C /* style.css */; };
+		D46FBF602C9DBCD8005E1A3C /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF192C9DBCD8005E1A3C /* manifest.json */; };
+		D46FBF612C9DBCD8005E1A3C /* Poppins_400Regular_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF1A2C9DBCD8005E1A3C /* Poppins_400Regular_Italic..ttf */; };
+		D46FBF622C9DBCD8005E1A3C /* Poppins_100Thin_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF1B2C9DBCD8005E1A3C /* Poppins_100Thin_Italic..ttf */; };
+		D46FBF632C9DBCD8005E1A3C /* content-script.js in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF1C2C9DBCD8005E1A3C /* content-script.js */; };
+		D46FBF642C9DBCD8005E1A3C /* Poppins_500Medium_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF1D2C9DBCD8005E1A3C /* Poppins_500Medium_Italic..ttf */; };
+		D46FBF652C9DBCD8005E1A3C /* Poppins_600SemiBold..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF1E2C9DBCD8005E1A3C /* Poppins_600SemiBold..ttf */; };
+		D46FBF662C9DBCD8005E1A3C /* Roboto_500Medium..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF1F2C9DBCD8005E1A3C /* Roboto_500Medium..ttf */; };
+		D46FBF672C9DBCD8005E1A3C /* Poppins_900Black..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF202C9DBCD8005E1A3C /* Poppins_900Black..ttf */; };
+		D46FBF682C9DBCD8005E1A3C /* 2-MMReplacement..mp4 in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF212C9DBCD8005E1A3C /* 2-MMReplacement..mp4 */; };
+		D46FBF692C9DBCD8005E1A3C /* ambire-inpage.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF222C9DBCD8005E1A3C /* ambire-inpage.js.LICENSE.txt */; };
+		D46FBF6A2C9DBCD8005E1A3C /* Roboto_700Bold_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF232C9DBCD8005E1A3C /* Roboto_700Bold_Italic..ttf */; };
+		D46FBF6B2C9DBCD8005E1A3C /* avatar-space..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF242C9DBCD8005E1A3C /* avatar-space..png */; };
+		D46FBF6C2C9DBCD8005E1A3C /* main.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF252C9DBCD8005E1A3C /* main.js.LICENSE.txt */; };
+		D46FBF6D2C9DBCD8005E1A3C /* avatar-astronaut-man..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF262C9DBCD8005E1A3C /* avatar-astronaut-man..png */; };
+		D46FBF6E2C9DBCD8005E1A3C /* avatar-astronaut-woman..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF272C9DBCD8005E1A3C /* avatar-astronaut-woman..png */; };
+		D46FBF6F2C9DBCD8005E1A3C /* assets in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF282C9DBCD8005E1A3C /* assets */; };
+		D46FBF702C9DBCD8005E1A3C /* background.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF292C9DBCD8005E1A3C /* background.js.LICENSE.txt */; };
+		D46FBF712C9DBCD8005E1A3C /* Poppins_200ExtraLight..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF2A2C9DBCD8005E1A3C /* Poppins_200ExtraLight..ttf */; };
+		D46FBF722C9DBCD8005E1A3C /* Poppins_200ExtraLight_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF2B2C9DBCD8005E1A3C /* Poppins_200ExtraLight_Italic..ttf */; };
+		D46FBF732C9DBCD8005E1A3C /* avatar-space-dog..png in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF2C2C9DBCD8005E1A3C /* avatar-space-dog..png */; };
+		D46FBF742C9DBCD8005E1A3C /* tab.html in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF2D2C9DBCD8005E1A3C /* tab.html */; };
+		D46FBF752C9DBCD8005E1A3C /* Roboto_400Regular_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF2E2C9DBCD8005E1A3C /* Roboto_400Regular_Italic..ttf */; };
+		D46FBF762C9DBCD8005E1A3C /* Poppins_700Bold_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF2F2C9DBCD8005E1A3C /* Poppins_700Bold_Italic..ttf */; };
+		D46FBF772C9DBCD8005E1A3C /* Roboto_300Light_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF302C9DBCD8005E1A3C /* Roboto_300Light_Italic..ttf */; };
+		D46FBF782C9DBCD8005E1A3C /* vendor in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF312C9DBCD8005E1A3C /* vendor */; };
+		D46FBF792C9DBCD8005E1A3C /* 5-WALLET..mp4 in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF322C9DBCD8005E1A3C /* 5-WALLET..mp4 */; };
+		D46FBF7A2C9DBCD8005E1A3C /* Roboto_900Black_Italic..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF332C9DBCD8005E1A3C /* Roboto_900Black_Italic..ttf */; };
+		D46FBF7B2C9DBCD8005E1A3C /* Roboto_900Black..ttf in Resources */ = {isa = PBXBuildFile; fileRef = D46FBF342C9DBCD8005E1A3C /* Roboto_900Black..ttf */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D46FBEDD2C9DBCD8005E1A3C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D46FBEB62C9DBCD7005E1A3C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D46FBEDA2C9DBCD8005E1A3C;
+			remoteInfo = "wallet Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D46FBEE92C9DBCD8005E1A3C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D46FBEDC2C9DBCD8005E1A3C /* wallet extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		D46FBEBE2C9DBCD7005E1A3C /* wallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = wallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D46FBEC12C9DBCD7005E1A3C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D46FBEC52C9DBCD7005E1A3C /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
+		D46FBEC72C9DBCD7005E1A3C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		D46FBEC92C9DBCD7005E1A3C /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		D46FBECB2C9DBCD7005E1A3C /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		D46FBECD2C9DBCD7005E1A3C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		D46FBED02C9DBCD7005E1A3C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		D46FBED22C9DBCD8005E1A3C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D46FBED42C9DBCD8005E1A3C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D46FBED52C9DBCD8005E1A3C /* wallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = wallet.entitlements; sourceTree = "<group>"; };
+		D46FBED62C9DBCD8005E1A3C /* wallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = wallet.entitlements; sourceTree = "<group>"; };
+		D46FBEDB2C9DBCD8005E1A3C /* wallet extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "wallet extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D46FBEE02C9DBCD8005E1A3C /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		D46FBEE22C9DBCD8005E1A3C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D46FBEE32C9DBCD8005E1A3C /* wallet_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = wallet_Extension.entitlements; sourceTree = "<group>"; };
+		D46FBEEE2C9DBCD8005E1A3C /* Poppins_300Light..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_300Light..ttf; path = "../../../build/safari-prod/Poppins_300Light..ttf"; sourceTree = "<group>"; };
+		D46FBEEF2C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.js"; path = "../../../build/safari-prod/src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.js"; sourceTree = "<group>"; };
+		D46FBEF02C9DBCD8005E1A3C /* 3-GasTank..mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "3-GasTank..mp4"; path = "../../../build/safari-prod/3-GasTank..mp4"; sourceTree = "<group>"; };
+		D46FBEF12C9DBCD8005E1A3C /* ambire-inpage.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "ambire-inpage.js"; path = "../../../build/safari-prod/ambire-inpage.js"; sourceTree = "<group>"; };
+		D46FBEF22C9DBCD8005E1A3C /* Roboto_100Thin..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_100Thin..ttf; path = "../../../build/safari-prod/Roboto_100Thin..ttf"; sourceTree = "<group>"; };
+		D46FBEF32C9DBCD8005E1A3C /* Poppins_400Regular..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_400Regular..ttf; path = "../../../build/safari-prod/Poppins_400Regular..ttf"; sourceTree = "<group>"; };
+		D46FBEF42C9DBCD8005E1A3C /* Poppins_800ExtraBold..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_800ExtraBold..ttf; path = "../../../build/safari-prod/Poppins_800ExtraBold..ttf"; sourceTree = "<group>"; };
+		D46FBEF52C9DBCD8005E1A3C /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = "../../../build/safari-prod/index.html"; sourceTree = "<group>"; };
+		D46FBEF62C9DBCD8005E1A3C /* 4-HWs..mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "4-HWs..mp4"; path = "../../../build/safari-prod/4-HWs..mp4"; sourceTree = "<group>"; };
+		D46FBEF72C9DBCD8005E1A3C /* Poppins_100Thin..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_100Thin..ttf; path = "../../../build/safari-prod/Poppins_100Thin..ttf"; sourceTree = "<group>"; };
+		D46FBEF82C9DBCD8005E1A3C /* Roboto_500Medium_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_500Medium_Italic..ttf; path = "../../../build/safari-prod/Roboto_500Medium_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBEF92C9DBCD8005E1A3C /* ethereum-inpage.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "ethereum-inpage.js"; path = "../../../build/safari-prod/ethereum-inpage.js"; sourceTree = "<group>"; };
+		D46FBEFA2C9DBCD8005E1A3C /* Roboto_300Light..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_300Light..ttf; path = "../../../build/safari-prod/Roboto_300Light..ttf"; sourceTree = "<group>"; };
+		D46FBEFB2C9DBCD8005E1A3C /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = "../../../build/safari-prod/background.js"; sourceTree = "<group>"; };
+		D46FBEFC2C9DBCD8005E1A3C /* 1-Welcome..mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "1-Welcome..mp4"; path = "../../../build/safari-prod/1-Welcome..mp4"; sourceTree = "<group>"; };
+		D46FBEFD2C9DBCD8005E1A3C /* Poppins_300Light_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_300Light_Italic..ttf; path = "../../../build/safari-prod/Poppins_300Light_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBEFE2C9DBCD8005E1A3C /* Poppins_500Medium..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_500Medium..ttf; path = "../../../build/safari-prod/Poppins_500Medium..ttf"; sourceTree = "<group>"; };
+		D46FBEFF2C9DBCD8005E1A3C /* Poppins_900Black_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_900Black_Italic..ttf; path = "../../../build/safari-prod/Poppins_900Black_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF002C9DBCD8005E1A3C /* Poppins_600SemiBold_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_600SemiBold_Italic..ttf; path = "../../../build/safari-prod/Poppins_600SemiBold_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF012C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js.LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js.LICENSE.txt"; path = "../../../build/safari-prod/vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js.LICENSE.txt"; sourceTree = "<group>"; };
+		D46FBF022C9DBCD8005E1A3C /* story-6..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "story-6..png"; path = "../../../build/safari-prod/story-6..png"; sourceTree = "<group>"; };
+		D46FBF032C9DBCD8005E1A3C /* browser-polyfill.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "browser-polyfill.min.js"; path = "../../../build/safari-prod/browser-polyfill.min.js"; sourceTree = "<group>"; };
+		D46FBF042C9DBCD8005E1A3C /* Poppins_700Bold..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_700Bold..ttf; path = "../../../build/safari-prod/Poppins_700Bold..ttf"; sourceTree = "<group>"; };
+		D46FBF052C9DBCD8005E1A3C /* avatar-planet..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "avatar-planet..png"; path = "../../../build/safari-prod/avatar-planet..png"; sourceTree = "<group>"; };
+		D46FBF062C9DBCD8005E1A3C /* Roboto_400Regular..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_400Regular..ttf; path = "../../../build/safari-prod/Roboto_400Regular..ttf"; sourceTree = "<group>"; };
+		D46FBF072C9DBCD8005E1A3C /* Poppins_800ExtraBold_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_800ExtraBold_Italic..ttf; path = "../../../build/safari-prod/Poppins_800ExtraBold_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF082C9DBCD8005E1A3C /* asset-manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = "asset-manifest.json"; path = "../../../build/safari-prod/asset-manifest.json"; sourceTree = "<group>"; };
+		D46FBF092C9DBCD8005E1A3C /* Roboto_700Bold..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_700Bold..ttf; path = "../../../build/safari-prod/Roboto_700Bold..ttf"; sourceTree = "<group>"; };
+		D46FBF0A2C9DBCD8005E1A3C /* main.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = main.css; path = "../../../build/safari-prod/main.css"; sourceTree = "<group>"; };
+		D46FBF0B2C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = "src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.css"; path = "../../../build/safari-prod/src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.css"; sourceTree = "<group>"; };
+		D46FBF0C2C9DBCD8005E1A3C /* mesh-gradient..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "mesh-gradient..png"; path = "../../../build/safari-prod/mesh-gradient..png"; sourceTree = "<group>"; };
+		D46FBF0D2C9DBCD8005E1A3C /* Ambire-Wallet-logo-colored-white-vertical..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Ambire-Wallet-logo-colored-white-vertical..png"; path = "../../../build/safari-prod/Ambire-Wallet-logo-colored-white-vertical..png"; sourceTree = "<group>"; };
+		D46FBF0E2C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js"; path = "../../../build/safari-prod/vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js"; sourceTree = "<group>"; };
+		D46FBF0F2C9DBCD8005E1A3C /* mesh-gradient-large..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "mesh-gradient-large..png"; path = "../../../build/safari-prod/mesh-gradient-large..png"; sourceTree = "<group>"; };
+		D46FBF102C9DBCD8005E1A3C /* main.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = main.js; path = "../../../build/safari-prod/main.js"; sourceTree = "<group>"; };
+		D46FBF112C9DBCD8005E1A3C /* avatar-fire..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "avatar-fire..png"; path = "../../../build/safari-prod/avatar-fire..png"; sourceTree = "<group>"; };
+		D46FBF122C9DBCD8005E1A3C /* Roboto_100Thin_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_100Thin_Italic..ttf; path = "../../../build/safari-prod/Roboto_100Thin_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF132C9DBCD8005E1A3C /* avatar-space-raccoon..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "avatar-space-raccoon..png"; path = "../../../build/safari-prod/avatar-space-raccoon..png"; sourceTree = "<group>"; };
+		D46FBF142C9DBCD8005E1A3C /* ethereum-inpage.js.LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "ethereum-inpage.js.LICENSE.txt"; path = "../../../build/safari-prod/ethereum-inpage.js.LICENSE.txt"; sourceTree = "<group>"; };
+		D46FBF152C9DBCD8005E1A3C /* action-window.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "action-window.html"; path = "../../../build/safari-prod/action-window.html"; sourceTree = "<group>"; };
+		D46FBF162C9DBCD8005E1A3C /* static */ = {isa = PBXFileReference; lastKnownFileType = folder; name = static; path = "../../../build/safari-prod/static"; sourceTree = "<group>"; };
+		D46FBF172C9DBCD8005E1A3C /* avatar-spread-fire..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "avatar-spread-fire..png"; path = "../../../build/safari-prod/avatar-spread-fire..png"; sourceTree = "<group>"; };
+		D46FBF182C9DBCD8005E1A3C /* style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = style.css; path = "../../../build/safari-prod/style.css"; sourceTree = "<group>"; };
+		D46FBF192C9DBCD8005E1A3C /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = "../../../build/safari-prod/manifest.json"; sourceTree = "<group>"; };
+		D46FBF1A2C9DBCD8005E1A3C /* Poppins_400Regular_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_400Regular_Italic..ttf; path = "../../../build/safari-prod/Poppins_400Regular_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF1B2C9DBCD8005E1A3C /* Poppins_100Thin_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_100Thin_Italic..ttf; path = "../../../build/safari-prod/Poppins_100Thin_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF1C2C9DBCD8005E1A3C /* content-script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "content-script.js"; path = "../../../build/safari-prod/content-script.js"; sourceTree = "<group>"; };
+		D46FBF1D2C9DBCD8005E1A3C /* Poppins_500Medium_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_500Medium_Italic..ttf; path = "../../../build/safari-prod/Poppins_500Medium_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF1E2C9DBCD8005E1A3C /* Poppins_600SemiBold..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_600SemiBold..ttf; path = "../../../build/safari-prod/Poppins_600SemiBold..ttf"; sourceTree = "<group>"; };
+		D46FBF1F2C9DBCD8005E1A3C /* Roboto_500Medium..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_500Medium..ttf; path = "../../../build/safari-prod/Roboto_500Medium..ttf"; sourceTree = "<group>"; };
+		D46FBF202C9DBCD8005E1A3C /* Poppins_900Black..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_900Black..ttf; path = "../../../build/safari-prod/Poppins_900Black..ttf"; sourceTree = "<group>"; };
+		D46FBF212C9DBCD8005E1A3C /* 2-MMReplacement..mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "2-MMReplacement..mp4"; path = "../../../build/safari-prod/2-MMReplacement..mp4"; sourceTree = "<group>"; };
+		D46FBF222C9DBCD8005E1A3C /* ambire-inpage.js.LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "ambire-inpage.js.LICENSE.txt"; path = "../../../build/safari-prod/ambire-inpage.js.LICENSE.txt"; sourceTree = "<group>"; };
+		D46FBF232C9DBCD8005E1A3C /* Roboto_700Bold_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_700Bold_Italic..ttf; path = "../../../build/safari-prod/Roboto_700Bold_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF242C9DBCD8005E1A3C /* avatar-space..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "avatar-space..png"; path = "../../../build/safari-prod/avatar-space..png"; sourceTree = "<group>"; };
+		D46FBF252C9DBCD8005E1A3C /* main.js.LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.js.LICENSE.txt; path = "../../../build/safari-prod/main.js.LICENSE.txt"; sourceTree = "<group>"; };
+		D46FBF262C9DBCD8005E1A3C /* avatar-astronaut-man..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "avatar-astronaut-man..png"; path = "../../../build/safari-prod/avatar-astronaut-man..png"; sourceTree = "<group>"; };
+		D46FBF272C9DBCD8005E1A3C /* avatar-astronaut-woman..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "avatar-astronaut-woman..png"; path = "../../../build/safari-prod/avatar-astronaut-woman..png"; sourceTree = "<group>"; };
+		D46FBF282C9DBCD8005E1A3C /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = "../../../build/safari-prod/assets"; sourceTree = "<group>"; };
+		D46FBF292C9DBCD8005E1A3C /* background.js.LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = background.js.LICENSE.txt; path = "../../../build/safari-prod/background.js.LICENSE.txt"; sourceTree = "<group>"; };
+		D46FBF2A2C9DBCD8005E1A3C /* Poppins_200ExtraLight..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_200ExtraLight..ttf; path = "../../../build/safari-prod/Poppins_200ExtraLight..ttf"; sourceTree = "<group>"; };
+		D46FBF2B2C9DBCD8005E1A3C /* Poppins_200ExtraLight_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_200ExtraLight_Italic..ttf; path = "../../../build/safari-prod/Poppins_200ExtraLight_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF2C2C9DBCD8005E1A3C /* avatar-space-dog..png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "avatar-space-dog..png"; path = "../../../build/safari-prod/avatar-space-dog..png"; sourceTree = "<group>"; };
+		D46FBF2D2C9DBCD8005E1A3C /* tab.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = tab.html; path = "../../../build/safari-prod/tab.html"; sourceTree = "<group>"; };
+		D46FBF2E2C9DBCD8005E1A3C /* Roboto_400Regular_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_400Regular_Italic..ttf; path = "../../../build/safari-prod/Roboto_400Regular_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF2F2C9DBCD8005E1A3C /* Poppins_700Bold_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Poppins_700Bold_Italic..ttf; path = "../../../build/safari-prod/Poppins_700Bold_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF302C9DBCD8005E1A3C /* Roboto_300Light_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_300Light_Italic..ttf; path = "../../../build/safari-prod/Roboto_300Light_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF312C9DBCD8005E1A3C /* vendor */ = {isa = PBXFileReference; lastKnownFileType = folder; name = vendor; path = "../../../build/safari-prod/vendor"; sourceTree = "<group>"; };
+		D46FBF322C9DBCD8005E1A3C /* 5-WALLET..mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "5-WALLET..mp4"; path = "../../../build/safari-prod/5-WALLET..mp4"; sourceTree = "<group>"; };
+		D46FBF332C9DBCD8005E1A3C /* Roboto_900Black_Italic..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_900Black_Italic..ttf; path = "../../../build/safari-prod/Roboto_900Black_Italic..ttf"; sourceTree = "<group>"; };
+		D46FBF342C9DBCD8005E1A3C /* Roboto_900Black..ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto_900Black..ttf; path = "../../../build/safari-prod/Roboto_900Black..ttf"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D46FBEBB2C9DBCD7005E1A3C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D46FBED82C9DBCD8005E1A3C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D46FBEB52C9DBCD7005E1A3C = {
+			isa = PBXGroup;
+			children = (
+				D46FBEC02C9DBCD7005E1A3C /* wallet */,
+				D46FBEDF2C9DBCD8005E1A3C /* wallet Extension */,
+				D46FBEBF2C9DBCD7005E1A3C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D46FBEBF2C9DBCD7005E1A3C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D46FBEBE2C9DBCD7005E1A3C /* wallet.app */,
+				D46FBEDB2C9DBCD8005E1A3C /* wallet extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D46FBEC02C9DBCD7005E1A3C /* wallet */ = {
+			isa = PBXGroup;
+			children = (
+				D46FBEC12C9DBCD7005E1A3C /* AppDelegate.swift */,
+				D46FBECD2C9DBCD7005E1A3C /* ViewController.swift */,
+				D46FBECF2C9DBCD7005E1A3C /* Main.storyboard */,
+				D46FBED22C9DBCD8005E1A3C /* Assets.xcassets */,
+				D46FBED42C9DBCD8005E1A3C /* Info.plist */,
+				D46FBED52C9DBCD8005E1A3C /* wallet.entitlements */,
+				D46FBED62C9DBCD8005E1A3C /* wallet.entitlements */,
+				D46FBEC32C9DBCD7005E1A3C /* Resources */,
+			);
+			path = wallet;
+			sourceTree = "<group>";
+		};
+		D46FBEC32C9DBCD7005E1A3C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D46FBEC42C9DBCD7005E1A3C /* Main.html */,
+				D46FBEC72C9DBCD7005E1A3C /* Icon.png */,
+				D46FBEC92C9DBCD7005E1A3C /* Style.css */,
+				D46FBECB2C9DBCD7005E1A3C /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		D46FBEDF2C9DBCD8005E1A3C /* wallet Extension */ = {
+			isa = PBXGroup;
+			children = (
+				D46FBEED2C9DBCD8005E1A3C /* Resources */,
+				D46FBEE02C9DBCD8005E1A3C /* SafariWebExtensionHandler.swift */,
+				D46FBEE22C9DBCD8005E1A3C /* Info.plist */,
+				D46FBEE32C9DBCD8005E1A3C /* wallet_Extension.entitlements */,
+			);
+			path = "wallet Extension";
+			sourceTree = "<group>";
+		};
+		D46FBEED2C9DBCD8005E1A3C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D46FBEEE2C9DBCD8005E1A3C /* Poppins_300Light..ttf */,
+				D46FBEEF2C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.js */,
+				D46FBEF02C9DBCD8005E1A3C /* 3-GasTank..mp4 */,
+				D46FBEF12C9DBCD8005E1A3C /* ambire-inpage.js */,
+				D46FBEF22C9DBCD8005E1A3C /* Roboto_100Thin..ttf */,
+				D46FBEF32C9DBCD8005E1A3C /* Poppins_400Regular..ttf */,
+				D46FBEF42C9DBCD8005E1A3C /* Poppins_800ExtraBold..ttf */,
+				D46FBEF52C9DBCD8005E1A3C /* index.html */,
+				D46FBEF62C9DBCD8005E1A3C /* 4-HWs..mp4 */,
+				D46FBEF72C9DBCD8005E1A3C /* Poppins_100Thin..ttf */,
+				D46FBEF82C9DBCD8005E1A3C /* Roboto_500Medium_Italic..ttf */,
+				D46FBEF92C9DBCD8005E1A3C /* ethereum-inpage.js */,
+				D46FBEFA2C9DBCD8005E1A3C /* Roboto_300Light..ttf */,
+				D46FBEFB2C9DBCD8005E1A3C /* background.js */,
+				D46FBEFC2C9DBCD8005E1A3C /* 1-Welcome..mp4 */,
+				D46FBEFD2C9DBCD8005E1A3C /* Poppins_300Light_Italic..ttf */,
+				D46FBEFE2C9DBCD8005E1A3C /* Poppins_500Medium..ttf */,
+				D46FBEFF2C9DBCD8005E1A3C /* Poppins_900Black_Italic..ttf */,
+				D46FBF002C9DBCD8005E1A3C /* Poppins_600SemiBold_Italic..ttf */,
+				D46FBF012C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js.LICENSE.txt */,
+				D46FBF022C9DBCD8005E1A3C /* story-6..png */,
+				D46FBF032C9DBCD8005E1A3C /* browser-polyfill.min.js */,
+				D46FBF042C9DBCD8005E1A3C /* Poppins_700Bold..ttf */,
+				D46FBF052C9DBCD8005E1A3C /* avatar-planet..png */,
+				D46FBF062C9DBCD8005E1A3C /* Roboto_400Regular..ttf */,
+				D46FBF072C9DBCD8005E1A3C /* Poppins_800ExtraBold_Italic..ttf */,
+				D46FBF082C9DBCD8005E1A3C /* asset-manifest.json */,
+				D46FBF092C9DBCD8005E1A3C /* Roboto_700Bold..ttf */,
+				D46FBF0A2C9DBCD8005E1A3C /* main.css */,
+				D46FBF0B2C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.css */,
+				D46FBF0C2C9DBCD8005E1A3C /* mesh-gradient..png */,
+				D46FBF0D2C9DBCD8005E1A3C /* Ambire-Wallet-logo-colored-white-vertical..png */,
+				D46FBF0E2C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js */,
+				D46FBF0F2C9DBCD8005E1A3C /* mesh-gradient-large..png */,
+				D46FBF102C9DBCD8005E1A3C /* main.js */,
+				D46FBF112C9DBCD8005E1A3C /* avatar-fire..png */,
+				D46FBF122C9DBCD8005E1A3C /* Roboto_100Thin_Italic..ttf */,
+				D46FBF132C9DBCD8005E1A3C /* avatar-space-raccoon..png */,
+				D46FBF142C9DBCD8005E1A3C /* ethereum-inpage.js.LICENSE.txt */,
+				D46FBF152C9DBCD8005E1A3C /* action-window.html */,
+				D46FBF162C9DBCD8005E1A3C /* static */,
+				D46FBF172C9DBCD8005E1A3C /* avatar-spread-fire..png */,
+				D46FBF182C9DBCD8005E1A3C /* style.css */,
+				D46FBF192C9DBCD8005E1A3C /* manifest.json */,
+				D46FBF1A2C9DBCD8005E1A3C /* Poppins_400Regular_Italic..ttf */,
+				D46FBF1B2C9DBCD8005E1A3C /* Poppins_100Thin_Italic..ttf */,
+				D46FBF1C2C9DBCD8005E1A3C /* content-script.js */,
+				D46FBF1D2C9DBCD8005E1A3C /* Poppins_500Medium_Italic..ttf */,
+				D46FBF1E2C9DBCD8005E1A3C /* Poppins_600SemiBold..ttf */,
+				D46FBF1F2C9DBCD8005E1A3C /* Roboto_500Medium..ttf */,
+				D46FBF202C9DBCD8005E1A3C /* Poppins_900Black..ttf */,
+				D46FBF212C9DBCD8005E1A3C /* 2-MMReplacement..mp4 */,
+				D46FBF222C9DBCD8005E1A3C /* ambire-inpage.js.LICENSE.txt */,
+				D46FBF232C9DBCD8005E1A3C /* Roboto_700Bold_Italic..ttf */,
+				D46FBF242C9DBCD8005E1A3C /* avatar-space..png */,
+				D46FBF252C9DBCD8005E1A3C /* main.js.LICENSE.txt */,
+				D46FBF262C9DBCD8005E1A3C /* avatar-astronaut-man..png */,
+				D46FBF272C9DBCD8005E1A3C /* avatar-astronaut-woman..png */,
+				D46FBF282C9DBCD8005E1A3C /* assets */,
+				D46FBF292C9DBCD8005E1A3C /* background.js.LICENSE.txt */,
+				D46FBF2A2C9DBCD8005E1A3C /* Poppins_200ExtraLight..ttf */,
+				D46FBF2B2C9DBCD8005E1A3C /* Poppins_200ExtraLight_Italic..ttf */,
+				D46FBF2C2C9DBCD8005E1A3C /* avatar-space-dog..png */,
+				D46FBF2D2C9DBCD8005E1A3C /* tab.html */,
+				D46FBF2E2C9DBCD8005E1A3C /* Roboto_400Regular_Italic..ttf */,
+				D46FBF2F2C9DBCD8005E1A3C /* Poppins_700Bold_Italic..ttf */,
+				D46FBF302C9DBCD8005E1A3C /* Roboto_300Light_Italic..ttf */,
+				D46FBF312C9DBCD8005E1A3C /* vendor */,
+				D46FBF322C9DBCD8005E1A3C /* 5-WALLET..mp4 */,
+				D46FBF332C9DBCD8005E1A3C /* Roboto_900Black_Italic..ttf */,
+				D46FBF342C9DBCD8005E1A3C /* Roboto_900Black..ttf */,
+			);
+			name = Resources;
+			path = "wallet Extension";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D46FBEBD2C9DBCD7005E1A3C /* wallet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D46FBEEA2C9DBCD8005E1A3C /* Build configuration list for PBXNativeTarget "wallet" */;
+			buildPhases = (
+				D46FBEBA2C9DBCD7005E1A3C /* Sources */,
+				D46FBEBB2C9DBCD7005E1A3C /* Frameworks */,
+				D46FBEBC2C9DBCD7005E1A3C /* Resources */,
+				D46FBEE92C9DBCD8005E1A3C /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D46FBEDE2C9DBCD8005E1A3C /* PBXTargetDependency */,
+			);
+			name = wallet;
+			productName = wallet;
+			productReference = D46FBEBE2C9DBCD7005E1A3C /* wallet.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D46FBEDA2C9DBCD8005E1A3C /* wallet extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D46FBEE62C9DBCD8005E1A3C /* Build configuration list for PBXNativeTarget "wallet extension" */;
+			buildPhases = (
+				D46FBED72C9DBCD8005E1A3C /* Sources */,
+				D46FBED82C9DBCD8005E1A3C /* Frameworks */,
+				D46FBED92C9DBCD8005E1A3C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "wallet extension";
+			productName = "wallet Extension";
+			productReference = D46FBEDB2C9DBCD8005E1A3C /* wallet extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D46FBEB62C9DBCD7005E1A3C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					D46FBEBD2C9DBCD7005E1A3C = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					D46FBEDA2C9DBCD8005E1A3C = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = D46FBEB92C9DBCD7005E1A3C /* Build configuration list for PBXProject "wallet" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D46FBEB52C9DBCD7005E1A3C;
+			productRefGroup = D46FBEBF2C9DBCD7005E1A3C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D46FBEBD2C9DBCD7005E1A3C /* wallet */,
+				D46FBEDA2C9DBCD8005E1A3C /* wallet extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D46FBEBC2C9DBCD7005E1A3C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D46FBEC82C9DBCD7005E1A3C /* Icon.png in Resources */,
+				D46FBECC2C9DBCD7005E1A3C /* Script.js in Resources */,
+				D46FBEC62C9DBCD7005E1A3C /* Base in Resources */,
+				D46FBECA2C9DBCD7005E1A3C /* Style.css in Resources */,
+				D46FBED32C9DBCD8005E1A3C /* Assets.xcassets in Resources */,
+				D46FBED12C9DBCD7005E1A3C /* Base in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D46FBED92C9DBCD8005E1A3C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D46FBF672C9DBCD8005E1A3C /* Poppins_900Black..ttf in Resources */,
+				D46FBF382C9DBCD8005E1A3C /* ambire-inpage.js in Resources */,
+				D46FBF772C9DBCD8005E1A3C /* Roboto_300Light_Italic..ttf in Resources */,
+				D46FBF372C9DBCD8005E1A3C /* 3-GasTank..mp4 in Resources */,
+				D46FBF532C9DBCD8005E1A3C /* mesh-gradient..png in Resources */,
+				D46FBF592C9DBCD8005E1A3C /* Roboto_100Thin_Italic..ttf in Resources */,
+				D46FBF512C9DBCD8005E1A3C /* main.css in Resources */,
+				D46FBF682C9DBCD8005E1A3C /* 2-MMReplacement..mp4 in Resources */,
+				D46FBF6A2C9DBCD8005E1A3C /* Roboto_700Bold_Italic..ttf in Resources */,
+				D46FBF572C9DBCD8005E1A3C /* main.js in Resources */,
+				D46FBF6F2C9DBCD8005E1A3C /* assets in Resources */,
+				D46FBF4B2C9DBCD8005E1A3C /* Poppins_700Bold..ttf in Resources */,
+				D46FBF492C9DBCD8005E1A3C /* story-6..png in Resources */,
+				D46FBF712C9DBCD8005E1A3C /* Poppins_200ExtraLight..ttf in Resources */,
+				D46FBF7A2C9DBCD8005E1A3C /* Roboto_900Black_Italic..ttf in Resources */,
+				D46FBF422C9DBCD8005E1A3C /* background.js in Resources */,
+				D46FBF692C9DBCD8005E1A3C /* ambire-inpage.js.LICENSE.txt in Resources */,
+				D46FBF792C9DBCD8005E1A3C /* 5-WALLET..mp4 in Resources */,
+				D46FBF352C9DBCD8005E1A3C /* Poppins_300Light..ttf in Resources */,
+				D46FBF3A2C9DBCD8005E1A3C /* Poppins_400Regular..ttf in Resources */,
+				D46FBF632C9DBCD8005E1A3C /* content-script.js in Resources */,
+				D46FBF4A2C9DBCD8005E1A3C /* browser-polyfill.min.js in Resources */,
+				D46FBF392C9DBCD8005E1A3C /* Roboto_100Thin..ttf in Resources */,
+				D46FBF482C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js.LICENSE.txt in Resources */,
+				D46FBF522C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.css in Resources */,
+				D46FBF402C9DBCD8005E1A3C /* ethereum-inpage.js in Resources */,
+				D46FBF7B2C9DBCD8005E1A3C /* Roboto_900Black..ttf in Resources */,
+				D46FBF602C9DBCD8005E1A3C /* manifest.json in Resources */,
+				D46FBF412C9DBCD8005E1A3C /* Roboto_300Light..ttf in Resources */,
+				D46FBF3C2C9DBCD8005E1A3C /* index.html in Resources */,
+				D46FBF5D2C9DBCD8005E1A3C /* static in Resources */,
+				D46FBF6D2C9DBCD8005E1A3C /* avatar-astronaut-man..png in Resources */,
+				D46FBF752C9DBCD8005E1A3C /* Roboto_400Regular_Italic..ttf in Resources */,
+				D46FBF722C9DBCD8005E1A3C /* Poppins_200ExtraLight_Italic..ttf in Resources */,
+				D46FBF3E2C9DBCD8005E1A3C /* Poppins_100Thin..ttf in Resources */,
+				D46FBF6C2C9DBCD8005E1A3C /* main.js.LICENSE.txt in Resources */,
+				D46FBF432C9DBCD8005E1A3C /* 1-Welcome..mp4 in Resources */,
+				D46FBF6B2C9DBCD8005E1A3C /* avatar-space..png in Resources */,
+				D46FBF5B2C9DBCD8005E1A3C /* ethereum-inpage.js.LICENSE.txt in Resources */,
+				D46FBF742C9DBCD8005E1A3C /* tab.html in Resources */,
+				D46FBF5A2C9DBCD8005E1A3C /* avatar-space-raccoon..png in Resources */,
+				D46FBF732C9DBCD8005E1A3C /* avatar-space-dog..png in Resources */,
+				D46FBF552C9DBCD8005E1A3C /* vendors-node_modules_expo-barcode-scanner_build_BarCodeScanner_js-node_modules_expo-camera_bu-ca86d5.js in Resources */,
+				D46FBF562C9DBCD8005E1A3C /* mesh-gradient-large..png in Resources */,
+				D46FBF5C2C9DBCD8005E1A3C /* action-window.html in Resources */,
+				D46FBF3D2C9DBCD8005E1A3C /* 4-HWs..mp4 in Resources */,
+				D46FBF362C9DBCD8005E1A3C /* src_web_modules_router_components_MainRoutes_index_ts-src_web_modules_auth_components_Stories-faf23b.js in Resources */,
+				D46FBF462C9DBCD8005E1A3C /* Poppins_900Black_Italic..ttf in Resources */,
+				D46FBF762C9DBCD8005E1A3C /* Poppins_700Bold_Italic..ttf in Resources */,
+				D46FBF5F2C9DBCD8005E1A3C /* style.css in Resources */,
+				D46FBF652C9DBCD8005E1A3C /* Poppins_600SemiBold..ttf in Resources */,
+				D46FBF6E2C9DBCD8005E1A3C /* avatar-astronaut-woman..png in Resources */,
+				D46FBF4D2C9DBCD8005E1A3C /* Roboto_400Regular..ttf in Resources */,
+				D46FBF4F2C9DBCD8005E1A3C /* asset-manifest.json in Resources */,
+				D46FBF3B2C9DBCD8005E1A3C /* Poppins_800ExtraBold..ttf in Resources */,
+				D46FBF612C9DBCD8005E1A3C /* Poppins_400Regular_Italic..ttf in Resources */,
+				D46FBF662C9DBCD8005E1A3C /* Roboto_500Medium..ttf in Resources */,
+				D46FBF5E2C9DBCD8005E1A3C /* avatar-spread-fire..png in Resources */,
+				D46FBF4C2C9DBCD8005E1A3C /* avatar-planet..png in Resources */,
+				D46FBF442C9DBCD8005E1A3C /* Poppins_300Light_Italic..ttf in Resources */,
+				D46FBF452C9DBCD8005E1A3C /* Poppins_500Medium..ttf in Resources */,
+				D46FBF472C9DBCD8005E1A3C /* Poppins_600SemiBold_Italic..ttf in Resources */,
+				D46FBF622C9DBCD8005E1A3C /* Poppins_100Thin_Italic..ttf in Resources */,
+				D46FBF642C9DBCD8005E1A3C /* Poppins_500Medium_Italic..ttf in Resources */,
+				D46FBF582C9DBCD8005E1A3C /* avatar-fire..png in Resources */,
+				D46FBF702C9DBCD8005E1A3C /* background.js.LICENSE.txt in Resources */,
+				D46FBF502C9DBCD8005E1A3C /* Roboto_700Bold..ttf in Resources */,
+				D46FBF782C9DBCD8005E1A3C /* vendor in Resources */,
+				D46FBF542C9DBCD8005E1A3C /* Ambire-Wallet-logo-colored-white-vertical..png in Resources */,
+				D46FBF4E2C9DBCD8005E1A3C /* Poppins_800ExtraBold_Italic..ttf in Resources */,
+				D46FBF3F2C9DBCD8005E1A3C /* Roboto_500Medium_Italic..ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D46FBEBA2C9DBCD7005E1A3C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D46FBECE2C9DBCD7005E1A3C /* ViewController.swift in Sources */,
+				D46FBEC22C9DBCD7005E1A3C /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D46FBED72C9DBCD8005E1A3C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D46FBEE12C9DBCD8005E1A3C /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D46FBEDE2C9DBCD8005E1A3C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D46FBEDA2C9DBCD8005E1A3C /* wallet extension */;
+			targetProxy = D46FBEDD2C9DBCD8005E1A3C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		D46FBEC42C9DBCD7005E1A3C /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D46FBEC52C9DBCD7005E1A3C /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		D46FBECF2C9DBCD7005E1A3C /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D46FBED02C9DBCD7005E1A3C /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		D46FBEE42C9DBCD8005E1A3C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		D46FBEE52C9DBCD8005E1A3C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		D46FBEE72C9DBCD8005E1A3C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "wallet Extension/wallet_Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DHQDP6BTU9;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "wallet Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "wallet Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_PREPROCESS = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 4.35;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambire.app.wallet.extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D46FBEE82C9DBCD8005E1A3C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "wallet Extension/wallet_Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DHQDP6BTU9;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "wallet Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "wallet Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_PREPROCESS = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 4.35;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambire.app.wallet.extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		D46FBEEB2C9DBCD8005E1A3C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DHQDP6BTU9;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = wallet/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = wallet;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_PREPROCESS = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 4.35;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambire.app.wallet;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D46FBEEC2C9DBCD8005E1A3C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DHQDP6BTU9;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = wallet/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = wallet;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_PREPROCESS = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 4.35;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambire.app.wallet;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D46FBEB92C9DBCD7005E1A3C /* Build configuration list for PBXProject "wallet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D46FBEE42C9DBCD8005E1A3C /* Debug */,
+				D46FBEE52C9DBCD8005E1A3C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D46FBEE62C9DBCD8005E1A3C /* Build configuration list for PBXNativeTarget "wallet extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D46FBEE72C9DBCD8005E1A3C /* Debug */,
+				D46FBEE82C9DBCD8005E1A3C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D46FBEEA2C9DBCD8005E1A3C /* Build configuration list for PBXNativeTarget "wallet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D46FBEEB2C9DBCD8005E1A3C /* Debug */,
+				D46FBEEC2C9DBCD8005E1A3C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D46FBEB62C9DBCD7005E1A3C /* Project object */;
+}

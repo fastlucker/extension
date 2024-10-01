@@ -2,7 +2,6 @@
   "name": "Ambire Wallet",
   "short_name": "Ambire",
   "author": "https://www.ambire.com",
-  "description": "Secure and easy-to-use hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.",
   "version": "SYNCED_WITH_THE_APP_VERSION_VIA_THE_WEBPACK_CONFIG",
   "manifest_version": 3,
   "permissions": ["storage", "tabs", "unlimitedStorage", "activeTab", "notifications"],

@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import AccountDropdown from '@legends/components/AccountDropdown'
+import Sidebar from '@legends/components/Sidebar'
 
-import Sidebar from '../Sidebar'
 import styles from './Page.module.scss'
 
 const Page = ({
@@ -14,7 +14,6 @@ const Page = ({
   children: React.ReactNode | React.ReactNode[]
   pageRef?: React.RefObject<HTMLDivElement>
 }) => {
-  const { accountPortfolio } = usePortfolioControllerState()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const openSidebar = () => setIsSidebarOpen(true)
@@ -29,9 +28,7 @@ const Page = ({
             <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
               <FontAwesomeIcon icon={faBars} />
             </button>
-            {accountPortfolio?.address && (
-              <p className={styles.account}>Account: {accountPortfolio.address}</p>
-            )}
+            <AccountDropdown />
           </div>
           <div className={styles.content}>{children}</div>
         </div>

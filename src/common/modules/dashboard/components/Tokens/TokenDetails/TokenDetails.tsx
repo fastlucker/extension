@@ -19,7 +19,6 @@ import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
-import Tooltip from '@common/components/Tooltip'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
@@ -293,15 +292,8 @@ const TokenDetails = ({
     address
   } = token
 
-  const {
-    balanceFormatted,
-    priceUSDFormatted,
-    balanceUSDFormatted,
-    isRewards,
-    isVesting,
-    networkData,
-    balance
-  } = getTokenDetails(token, networks)
+  const { priceUSDFormatted, balanceUSDFormatted, isRewards, isVesting, networkData, balance } =
+    getTokenDetails(token, networks)
 
   return (
     <View>
@@ -354,21 +346,22 @@ const TokenDetails = ({
               numberOfLines={1}
               dataSet={{ tooltipId: `${tokenId}-details-balance` }}
             >
-              {balanceFormatted} {symbol}
+              {String(balance)} {symbol}
             </Text>
-            <Tooltip content={String(balance)} id={`${tokenId}-details-balance`} />
-            <Text
-              selectable
-              style={spacings.mrMi}
-              fontSize={16}
-              weight="number_bold"
-              appearance="infoText"
-            >
-              ≈ {balanceUSDFormatted}
-            </Text>
-            <Text selectable fontSize={16} weight="number_regular" appearance="secondaryText">
-              (1 ${symbol} ≈ {priceUSDFormatted})
-            </Text>
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <Text
+                selectable
+                style={spacings.mrMi}
+                fontSize={16}
+                weight="number_bold"
+                appearance="infoText"
+              >
+                ≈ {balanceUSDFormatted}
+              </Text>
+              <Text selectable fontSize={16} weight="number_regular" appearance="secondaryText">
+                (1 ${symbol} ≈ {priceUSDFormatted})
+              </Text>
+            </View>
           </View>
           {!!onGasTank && (
             <View style={styles.balance}>
