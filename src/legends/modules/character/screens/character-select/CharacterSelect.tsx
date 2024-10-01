@@ -15,7 +15,7 @@ const CharacterSelect = () => {
       </p>
       <CharacterSlider />
 
-      <button className={styles.saveButton}>Save selection</button>
+      <button className={styles.saveButton}>Choose</button>
       <div />
     </div>
   )
