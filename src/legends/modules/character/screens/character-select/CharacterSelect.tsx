@@ -6,7 +6,7 @@ import styles from './CharacterSelect.module.scss'
 
 const CharacterSelect = () => {
   return (
-    <div className={styles.container}>
+    <div className={styles.wrapper}>
       <h1 className={styles.title}>Choose a Character</h1>
       <p className={styles.description}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi id nisl fringilla, aliquet

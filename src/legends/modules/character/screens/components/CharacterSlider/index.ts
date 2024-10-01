@@ -1,3 +1,3 @@
-import CharacterSlider from '../../CharacterSlider'
+import CharacterSlider from './CharacterSlider'
 
 export default CharacterSlider

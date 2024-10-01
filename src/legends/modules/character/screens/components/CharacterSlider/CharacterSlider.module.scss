@@ -1,23 +1,17 @@
-.container {
+@import '@legends/styles/base.scss';
+
+.wrapper {
     text-align: center;
     margin-bottom: 2rem;
-
-    .title {
-        font-size: 2rem;
-        margin-top: 20px;
-    }
-
-    .subtitle {
-        font-size: 1rem;
-        margin-bottom: 20px;
-        color: #333; // Replace $text-color with #333 or your desired color
-    }
 
     .swiper {
         width: 100%;
         max-width: 82rem;
         position: relative;
         display: flex;
+        .swiper-slide {
+            height: 100%;
+        }
     }
 
     .content {
@@ -27,47 +21,69 @@
         position: relative;
 
         .character {
-            text-align: center;
-
             position: relative;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
             filter: brightness(0);
+            transform: scale(0.95);
 
             &.selected {
                 z-index: 2;          
-                filter: brightness(1)
+                filter: brightness(1);
+                height: 30rem;
+                transform: scale(1.2);
+               
+                .characterRelativeWrapper {
+                    position: relative;
+                    
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        bottom: -2rem;
+                        left: 52%;
+                        transform: translateX(-50%);
+                        width: 16rem;
+                        height: 3.5rem;
+                        border-radius: 50%;
+                        background-color: $tertiaryBackground;
+                        z-index: 1;
+                        box-shadow: inset 0 0.25rem 0.25rem $primaryBorder;
+                    }
+            
+                    .image {
+                        position: relative;
+                        z-index: 2;
+                    }
+                }
             } 
             
-              
-            .image {
-                height: 300px;
-                width: auto;
-                object-fit: contain;
-            }
-
-            .name {
-                font-size: 1.5rem;
-                margin: 10px 0;
-            }
-
-            .description {
-                font-size: 1rem;
-                color: darken(#333, 20%); 
-            }
+         
         }
 
         .button {
-            background-color: transparent;
-            border: none;
-            font-size: 2rem;
             cursor: pointer;
-            padding: 10px;
-
-            &:hover {
-                transform: scale(1.1);
-            }
         }
+    }
+
+    .name {
+        font-size: 2.25rem;
+        font-weight: 700;
+        line-height: 2.25rem;
+        color:#000000;
+        text-transform: uppercase;
+        font-family: $secondaryFont;
+    }
+
+    .description {
+        font-family: $secondaryFont;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: 1.2188rem;
+        text-align: center;
+        max-width: 33.75rem;
+        margin: 0 auto;
     }
 
 }
