@@ -203,10 +203,7 @@ const GetStartedScreen = () => {
                 <Card
                   testID="get-started-button-import"
                   title={t('Create new or import\nan existing hot wallet')}
-                  style={{
-                    ...flexbox.flex1,
-                    ...spacings.mh
-                  }}
+                  style={[flexbox.flex1, spacings.mh, spacings.ml0]}
                   text={t(
                     'Securely create a new wallet or import an existing one from a seed phrase, private key, or with an email vault.'
                   )}

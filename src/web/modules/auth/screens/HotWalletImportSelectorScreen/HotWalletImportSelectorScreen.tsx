@@ -2,7 +2,9 @@ import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
 import ImportFromDefaultOrExternalSeedIcon from '@common/assets/svg/ImportFromDefaultOrExternalSeedIcon'
+import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceModal from '@common/components/DualChoiceModal'
@@ -11,6 +13,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -20,10 +23,13 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
 import options from '@web/modules/auth/screens/HotWalletImportSelectorScreen/options'
+
+import { showEmailVaultInterest } from '../../utils/emailVault'
 
 const HotWalletImportSelectorScreen = () => {
   const { t } = useTranslation()
@@ -31,7 +37,9 @@ const HotWalletImportSelectorScreen = () => {
   const { navigate } = useNavigation()
   const { isReadyToStoreKeys, hasKeystoreDefaultSeed } = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
+  const { addToast } = useToast()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { accounts } = useAccountsControllerState()
   const accountAdderCtrlState = useAccountAdderControllerState()
   useEffect(() => {
     if (
@@ -82,6 +90,11 @@ const HotWalletImportSelectorScreen = () => {
       return
     }
 
+    if (flow === 'email') {
+      await showEmailVaultInterest(accounts.length, addToast)
+      return
+    }
+
     if (!isReadyToStoreKeys) {
       navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
       return
@@ -106,16 +119,35 @@ const HotWalletImportSelectorScreen = () => {
             {options.map((option, index) => (
               <Card
                 testID={option.testID}
-                style={index === 1 ? spacings.mh : {}}
+                style={index === 1 ? [flexbox.flex1, spacings.mh] : [flexbox.flex1]}
                 key={option.title}
                 title={option.title}
                 text={option.text}
                 icon={option.image}
                 onPress={() => onOptionPress(option.flow)}
                 buttonText={option.buttonText}
-                isDisabled={option?.isDisabled}
               />
             ))}
+            {/* the email vault option is fairly different than the others */}
+            {/* therefore, we hardcode it here */}
+            <Card
+              title={t('Set up with an email')}
+              style={[flexbox.flex1]}
+              text={t(
+                'This option lets you setup a secure and email-recoverable Smart Account with just an email.'
+              )}
+              icon={EmailRecoveryIcon}
+              buttonText={t('Show interest')}
+              onPress={() => onOptionPress('email')}
+              isPartiallyDisabled
+            >
+              <Alert
+                title=""
+                type="info"
+                text="If you'd like to show interest in email-recoverable accounts, please vote here."
+                style={spacings.mbSm}
+              />
+            </Card>
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>

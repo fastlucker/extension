@@ -1,4 +1,4 @@
-import EmailVaultIcon from '@common/assets/svg/EmailVaultIcon'
+// import EmailVaultIcon from '@common/assets/svg/EmailVaultIcon'
 import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
 import SeedPhraseIcon from '@common/assets/svg/SeedPhraseIcon'
 
@@ -18,15 +18,15 @@ const options = [
     image: PrivateKeyIcon,
     buttonText: 'Import',
     flow: 'private-key'
-  },
-  {
-    title: 'Email Vault',
-    text: "Select this option to access the Smart Account(s) you've previously added to your Email Vault.",
-    image: EmailVaultIcon,
-    buttonText: 'Log in',
-    flow: 'TODO-EMAIL-VAULT', // @TODO
-    isDisabled: true
   }
+  // {
+  //   title: 'Email Vault',
+  //   text: "Select this option to access the Smart Account(s) you've previously added to your Email Vault.",
+  //   image: EmailVaultIcon,
+  //   buttonText: 'Log in',
+  //   flow: 'TODO-EMAIL-VAULT', // @TODO
+  //   isDisabled: true
+  // }
 ]
 
 export default options
