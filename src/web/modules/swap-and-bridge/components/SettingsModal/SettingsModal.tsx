@@ -140,6 +140,7 @@ const SettingsModal = () => {
               value="output"
               isSelected={routePriority === 'output'}
               onSelect={handleSelectPriority}
+              containerStyle={spacings.mbTy}
             />
             <RadioButton
               text="Fastest"
