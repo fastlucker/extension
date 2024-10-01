@@ -11,6 +11,7 @@ type CardAction = {
 type Card = {
   heading: string
   image: string
+  type?: 'daily'
   xpRewards: XpReward[]
   description: string
   repeatable?: boolean

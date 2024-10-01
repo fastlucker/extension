@@ -18,11 +18,13 @@ const Card: FC<Props> = ({
   description,
   completed,
   repeatable,
+  type,
   children
 }) => {
   const shortenedDescription = description.length > 60 ? `${description.slice(0, 60)}...` : null
   return (
-    <div className={styles.wrapper}>
+    // TODO: different style for different types
+    <div className={`${styles.wrapper} ${type && styles[type]}`}>
       {completed ? (
         <div className={styles.completed}>
           <span className={styles.completedText}>Completed</span>

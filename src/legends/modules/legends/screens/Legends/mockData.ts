@@ -20,7 +20,8 @@ const MOCK_FILTERS: Filter[] = [
 ]
 const MOCK_CARDS: Card[] = [
   {
-    heading: 'Legend 1',
+    heading: 'Daily Legend',
+    type: 'daily',
     image: 'images/legends/bridge.png',
     xpRewards: [
       {
@@ -33,7 +34,13 @@ const MOCK_CARDS: Card[] = [
       }
     ],
     description:
-      'Legends are the most active members of the community. They are the ones who are always there to help others and make the community a better place.'
+      'Legends are the most active members of the community. They are the ones who are always there to help others and make the community a better place.',
+    action: {
+      label: 'Spin the Wheel',
+      onClick: () => {
+        alert('Prize: kor')
+      }
+    }
   },
   {
     heading: 'Legend 2',
