@@ -1,9 +1,31 @@
 @import '@legends/styles/base.scss';
 
 .wrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
   background-color: $secondaryBackground;
+
+  .completed {
+    background-color: rgba(0, 0, 0, 0.5); // TODO: Use a variable
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    border-radius: $secondaryBorderRadius;
+    user-select: none;
+
+    .completedText {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $alternativeText;
+    }
+  }
 
   .imageAndBadges {
     position: relative;
