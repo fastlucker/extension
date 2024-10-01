@@ -181,8 +181,6 @@ const useSwapAndBridgeFrom = () => {
     })
   }, [fromAmountFieldMode, maxFromAmount, maxFromAmountInFiat, dispatch])
 
-  const handleSubmitForm = useCallback(() => {}, [])
-
   const formattedToAmount = useMemo(() => {
     if (!quote || !quote.route || !quote?.toAsset?.decimals) return '0'
 
@@ -199,6 +197,12 @@ const useSwapAndBridgeFrom = () => {
 
     return stepTypes.includes('bridge') && stepTypes.includes('swap')
   }, [quote])
+
+  const handleSubmitForm = useCallback(() => {
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
+    })
+  }, [dispatch])
 
   return {
     fromAmountValue,

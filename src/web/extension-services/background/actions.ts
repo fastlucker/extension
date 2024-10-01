@@ -382,6 +382,9 @@ type SwapAndBridgeControllerUpdateFormAction = {
     toSelectedToken?: SocketAPIToken | null
   }
 }
+type SwapAndBridgeControllerSubmitFormAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
+}
 type SwapAndBridgeControllerUpdatePortfolioTokenListAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST'
   params: TokenResult[]
@@ -554,6 +557,7 @@ export type Action =
   | DappsControllerRemoveDappAction
   | SwapAndBridgeControllerInitAction
   | SwapAndBridgeControllerUpdateFormAction
+  | SwapAndBridgeControllerSubmitFormAction
   | SwapAndBridgeControllerUpdatePortfolioTokenListAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
