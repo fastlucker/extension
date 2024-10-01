@@ -2,28 +2,32 @@ import React, { FC } from 'react'
 
 import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Card as CardType } from '@legends/modules/legends/types'
 
 import Badge from './Badge'
 import styles from './Card.module.scss'
 
-type XpReward = {
-  label: string
-  value: number
-}
-
-type Props = {
-  heading: string
-  image: string
-  xpRewards: XpReward[]
-  description: string
-  repeatable?: boolean
+type Props = CardType & {
   children?: React.ReactNode | React.ReactNode[]
 }
 
-const Card: FC<Props> = ({ heading, image, xpRewards, description, repeatable, children }) => {
+const Card: FC<Props> = ({
+  heading,
+  image,
+  xpRewards,
+  description,
+  completed,
+  repeatable,
+  children
+}) => {
   const shortenedDescription = description.length > 60 ? `${description.slice(0, 60)}...` : null
   return (
     <div className={styles.wrapper}>
+      {completed ? (
+        <div className={styles.completed}>
+          <span className={styles.completedText}>Completed</span>
+        </div>
+      ) : null}
       <div className={styles.imageAndBadges}>
         <div className={styles.badges}>
           {xpRewards.map(({ value, label }) => (

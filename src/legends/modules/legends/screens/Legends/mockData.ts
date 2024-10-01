@@ -1,4 +1,4 @@
-import { Filter } from '@legends/modules/legends/types/filter'
+import { Card, Filter } from '@legends/modules/legends/types'
 
 const MOCK_FILTERS: Filter[] = [
   {
@@ -18,7 +18,7 @@ const MOCK_FILTERS: Filter[] = [
     value: 'nft'
   }
 ]
-const MOCK_CARDS = [
+const MOCK_CARDS: Card[] = [
   {
     heading: 'Legend 1',
     image: 'images/legends/bridge.png',
@@ -87,7 +87,8 @@ const MOCK_CARDS = [
       }
     ],
     description:
-      'Legends are the most active members of the community. They are the ones who are always there to help others and make the community a better place.'
+      'Legends are the most active members of the community. They are the ones who are always there to help others and make the community a better place.',
+    completed: true
   }
 ]
 
