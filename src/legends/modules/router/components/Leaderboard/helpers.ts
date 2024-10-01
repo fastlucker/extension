@@ -1,6 +1,6 @@
 import { fetchCaught } from '@common/services/fetch'
 
-import { LeaderboardResponse } from './Leaderboard'
+import { LeaderboardResponse } from './types'
 
 export const getLeaderboard = async (currentUser?: string): Promise<LeaderboardResponse> => {
   try {
@@ -9,7 +9,11 @@ export const getLeaderboard = async (currentUser?: string): Promise<LeaderboardR
         currentUser ? `?identity=${currentUser}` : ''
       }`
     )
-    return res.body
+    const body = res.body as unknown as LeaderboardResponse
+
+    if (!body?.leaderboard || !body?.currentUser) throw new Error('Invalid response')
+
+    return body
   } catch {
     console.error('Error fetching leaderboard')
     return { leaderboard: [], currentUser: { rank: 0, account: '', xp: 0, level: 0 } }

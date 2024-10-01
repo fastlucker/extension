@@ -1,7 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import shortenAddress from '@ambire-common/utils/shortenAddress'
-import { fetchCaught } from '@common/services/fetch'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Page from '@legends/components/Page'
@@ -10,13 +9,10 @@ import Podium from './components/Podium'
 import { getLeaderboard } from './helpers'
 import styles from './Leaderboard.module.scss'
 
-export interface LeaderboardResponse {
-  leaderboard: Array<{ rank: number; account: string; level: number; xp: number; avatar: string }>
-  currentUser: { rank: number; account: string; xp: number; level: number }
-}
-
 const getBadge = (rank: number) => {
-  const rankClasses = {
+  const rankClasses: {
+    [key: number]: string
+  } = {
     1: styles.firstPlaceThrophy,
     2: styles.secondPlaceThrophy,
     3: styles.thirdPlaceThrophy
@@ -31,12 +27,7 @@ const getBadge = (rank: number) => {
   return null
 }
 
-interface LeaderboardProps {
-  data: Array<{ rank: number; account: string; xp: number }>
-  currentUser: { rank: number; account: string; xp: number }
-}
-
-const LeaderboardContainer: React.FC<LeaderboardProps> = () => {
+const LeaderboardContainer: React.FC = () => {
   // TODO: Implement the leaderboard loading state
   const [loading, setLoading] = useState(true)
   const [leaderboardData, setLeaderboardData] = useState<
