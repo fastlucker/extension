@@ -5,6 +5,7 @@ import { useModalize } from 'react-native-modalize'
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
+import Banner from '@common/components/Banner'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Panel from '@common/components/Panel'
@@ -25,6 +26,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -242,6 +244,29 @@ const GetStartedScreen = () => {
                   onPress={() => handleAuthButtonPress('view-only')}
                   buttonText={t('Add')}
                   isSecondary
+                />
+              </View>
+              <View style={[flexbox.directionRow, { margin: 'auto' }, spacings.mtXl]}>
+                <Banner
+                  title="Ambire v1 accounts"
+                  text={t(
+                    'If you are looking to import accounts from the web app (Ambire v1), please read this.'
+                  )}
+                  type="info2"
+                  // @ts-ignore
+                  style={[spacings.mb0, { width: 494 }]}
+                  renderButtons={
+                    <Banner.Button
+                      onPress={() =>
+                        openInTab(
+                          'https://help.ambire.com/hc/en-us/articles/15468208978332-How-to-add-your-v1-account-to-Ambire-Wallet-extension',
+                          false
+                        )
+                      }
+                      text={t('Read more')}
+                      type="info2"
+                    />
+                  }
                 />
               </View>
             </Panel>
