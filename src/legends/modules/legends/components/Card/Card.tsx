@@ -41,7 +41,6 @@ const Card: FC<Props> = ({
             />
           ))}
         </div>
-        {/* TODO: Badges  */}
         <img src={image} alt={heading} className={styles.image} />
       </div>
       <div className={styles.content}>
