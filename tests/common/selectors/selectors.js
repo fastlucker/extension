@@ -62,7 +62,9 @@ export const TEST_IDS = {
   createKeystorePassBtn: 'create-keystore-pass-btn',
   passphraseField: 'passphrase-field',
   buttonUnlock: 'button-unlock',
-  fullBalance: 'full-balance'
+  fullBalance: 'full-balance',
+  tabNft: 'tab-nft',
+  collectionItem: 'collection-item'
 }
 
 export const SELECTORS = Object.fromEntries(

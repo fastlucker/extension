@@ -1,8 +1,6 @@
-import { clickOnElement } from '../common-helpers/clickOnElement'
-import { SELECTORS } from './selectors/selectors'
+import { clickOnElement } from '../../common-helpers/clickOnElement'
+import { SELECTORS } from '../../common/selectors/selectors'
 
-//--------------------------------------------------------------------------------------------------------------
-// TODO: Remove checkBalanceInAccount function
 export async function checkBalanceInAccount(page) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   await page.waitForSelector(SELECTORS.fullBalance)
@@ -20,8 +18,6 @@ export async function checkBalanceInAccount(page) {
   expect(parseFloat(availableAmountNum)).toBeGreaterThan(0)
 }
 
-//--------------------------------------------------------------------------------------------------------------
-// TODO: Remove checkNetworks function
 export async function checkNetworks(page) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   await page.waitForSelector(SELECTORS.fullBalance)
@@ -34,17 +30,15 @@ export async function checkNetworks(page) {
   expect(text).toMatch(/\bWALLET\b/)
 }
 
-//--------------------------------------------------------------------------------------------------------------
-// TODO: Remove checkCollectibleItem function
 export async function checkCollectibleItem(page) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   // Click on "Collectibles" button
-  await clickOnElement(page, '[data-testid="tab-nft"]')
-  await page.waitForSelector('[data-testid="collection-item"]')
+  await clickOnElement(page, SELECTORS.tabNft)
+  await page.waitForSelector(SELECTORS.collectionItem)
 
   // Get the text content of the first item
   const firstCollectiblesItem = await page.$$eval(
-    '[data-testid="collection-item"]',
+    SELECTORS.collectionItem,
     (element) => element[0].textContent
   )
 
