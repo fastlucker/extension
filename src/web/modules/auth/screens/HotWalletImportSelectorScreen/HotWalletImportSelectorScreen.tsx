@@ -6,6 +6,7 @@ import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
 import ImportFromDefaultOrExternalSeedIcon from '@common/assets/svg/ImportFromDefaultOrExternalSeedIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
+import Banner from '@common/components/Banner'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceModal from '@common/components/DualChoiceModal'
 import Panel from '@common/components/Panel'
@@ -22,6 +23,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -148,6 +150,29 @@ const HotWalletImportSelectorScreen = () => {
                 style={spacings.mbSm}
               />
             </Card>
+          </View>
+          <View style={[flexbox.directionRow, { margin: 'auto' }, spacings.mtLg]}>
+            <Banner
+              title="Ambire v1 accounts"
+              text={t(
+                'If you are looking to import accounts from the web app (Ambire v1), please read this.'
+              )}
+              type="info2"
+              // @ts-ignore
+              style={[spacings.mb0, { width: 494 }]}
+              renderButtons={
+                <Banner.Button
+                  onPress={() =>
+                    openInTab(
+                      'https://help.ambire.com/hc/en-us/articles/15468208978332-How-to-add-your-v1-account-to-Ambire-Wallet-extension',
+                      false
+                    )
+                  }
+                  text={t('Read more')}
+                  type="info2"
+                />
+              }
+            />
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
