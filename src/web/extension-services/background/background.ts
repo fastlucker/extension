@@ -828,7 +828,7 @@ handleKeepAlive()
               case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
                 return mainCtrl.swapAndBridge.updateForm(params)
               case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
-                return await mainCtrl.swapAndBridge.submitForm()
+                return await mainCtrl.buildSwapAndBridgeUserRequest()
               case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST':
                 return mainCtrl.swapAndBridge.updatePortfolioTokenList(params)
 

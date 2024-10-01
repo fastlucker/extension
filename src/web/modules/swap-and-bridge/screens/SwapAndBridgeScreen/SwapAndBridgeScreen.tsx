@@ -20,6 +20,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
@@ -68,6 +69,7 @@ const SwapAndBridgeScreen = () => {
     formStatus,
     validateFromAmount
   } = useSwapAndBridgeControllerState()
+  const { statuses } = useMainControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
@@ -318,10 +320,15 @@ const SwapAndBridgeScreen = () => {
           </Panel>
           <View style={spacings.ptTy}>
             <Button
-              text={t('Proceed')}
+              text={
+                statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                  ? t('Loading...')
+                  : t('Proceed')
+              }
               disabled={
                 formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
-                shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed
+                shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
+                statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
               }
               onPress={handleSubmitForm}
             />
