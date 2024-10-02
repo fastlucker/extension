@@ -1,10 +1,18 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import CharacterSlider from '@legends/modules/character/screens/components/CharacterSlider/CharacterSlider'
+import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import styles from './CharacterSelect.module.scss'
 
 const CharacterSelect = () => {
+  const navigate = useNavigate()
+
+  const selectCharacter = () => {
+    alert('Not implemented')
+    navigate(LEGENDS_ROUTES.character)
+  }
   return (
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Choose a Character</h1>
@@ -15,7 +23,7 @@ const CharacterSelect = () => {
       </p>
       <CharacterSlider />
 
-      <button type="button" className={styles.saveButton}>
+      <button onClick={selectCharacter} type="button" className={styles.saveButton}>
         Choose
       </button>
       <div />

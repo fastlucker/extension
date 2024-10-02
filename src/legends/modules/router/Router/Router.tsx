@@ -20,7 +20,7 @@ const router = createBrowserRouter([
     element: <Legends />
   },
   {
-    path: '/character-select',
+    path: LEGENDS_ROUTES.characterSelect,
     element: <CharacterSelect />
   },
   {
