@@ -25,6 +25,10 @@ $silverText: #686663;
 $goldBackground: #f8e3b7;
 $goldDecorative: #e7aa27;
 $goldText: #b67d02;
+$backdrop: rgba($primaryText, 0.75);
+
+// TODO: error, success, warning colors
+$errorDecorative: #da2020;
 
 // Typography
 $primaryFont: 'Roboto Slab', serif;
