@@ -5,7 +5,7 @@ import 'swiper/css/effect-coverflow'
 import 'swiper/css/free-mode'
 
 import React, { useRef, useState } from 'react'
-import { EffectCoverflow, FreeMode, Navigation } from 'swiper/modules'
+import { Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
 import styles from './CharacterSlider.module.scss'
@@ -112,35 +112,28 @@ const CharacterSlider = () => {
         </button>
         <Swiper
           ref={sliderRef}
-          slidesPerView={5}
+          slidesPerView="auto"
           spaceBetween={0}
           slide
-          effect="coverflow"
-          coverflowEffect={{
-            rotate: 0,
-            stretch: 0,
-            depth: 40,
-            slideShadows: false
-          }}
-          freeMode={{
-            enabled: true
-          }}
+          // effect="coverflow"
+          // coverflowEffect={{
+          //   rotate: 0,
+          //   stretch: 0,
+          //   depth: 40,
+          //   slideShadows: false
+          // }}
           loop
           centeredSlides
           navigation
           initialSlide={3}
-          modules={[EffectCoverflow, FreeMode, Navigation]}
+          modules={[Navigation]}
           onSlideChange={(swiper) => {
             setCurrentIndex(swiper.realIndex)
           }}
         >
           {characters.map((character, index) => (
-            <SwiperSlide className={styles.slide} key={character.name}>
-              <div key={character.reactKey} className={`${styles.character} ${getClass(index)}`}>
-                <div className={styles.characterRelativeWrapper}>
-                  <img src={character.image} alt={character.name} className={styles.image} />
-                </div>
-              </div>
+            <SwiperSlide className={`${styles.slide} ${getClass(index)}`} key={character.reactKey}>
+              <img src={character.image} alt={character.name} className={styles.image} />
             </SwiperSlide>
           ))}
         </Swiper>
