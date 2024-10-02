@@ -149,29 +149,33 @@ const RouteStepsPreview = ({
             fees: formatDecimals(totalGasFeesInUsd, 'price')
           })}
         </Text>
-        <Text fontSize={12} weight="medium" appearance="secondaryText">
-          {'  |  '}
-        </Text>
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          {!!shouldWarnForLongEstimation && (
-            <WarningIcon
-              color={iconColors.warning}
-              width={14}
-              height={14}
-              style={spacings.mrMi}
-              strokeWidth={2.2}
-            />
-          )}
-          <Text
-            fontSize={12}
-            weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
-            appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
-          >
-            {t('Estimation: ~{{time}}', {
-              time: formatTime(estimationInSeconds)
-            })}
-          </Text>
-        </View>
+        {!!estimationInSeconds && (
+          <>
+            <Text fontSize={12} weight="medium" appearance="secondaryText">
+              {'  |  '}
+            </Text>
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              {!!shouldWarnForLongEstimation && (
+                <WarningIcon
+                  color={iconColors.warning}
+                  width={14}
+                  height={14}
+                  style={spacings.mrMi}
+                  strokeWidth={2.2}
+                />
+              )}
+              <Text
+                fontSize={12}
+                weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
+                appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
+              >
+                {t('Estimation: ~{{time}}', {
+                  time: formatTime(estimationInSeconds)
+                })}
+              </Text>
+            </View>
+          </>
+        )}
       </View>
     </View>
   )

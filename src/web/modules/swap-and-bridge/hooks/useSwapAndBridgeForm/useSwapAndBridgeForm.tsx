@@ -192,7 +192,9 @@ const useSwapAndBridgeFrom = () => {
   }, [quote])
 
   const shouldConfirmFollowUpTransactions = useMemo(() => {
-    if (!quote) return false
+    if (!quote?.route) return false
+
+    if (quote.route.isOnlySwapRoute) return false
 
     const stepTypes = quote.routeSteps.map((s) => s.type)
 

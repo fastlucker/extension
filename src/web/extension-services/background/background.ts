@@ -115,6 +115,7 @@ handleKeepAlive()
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
+    updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
@@ -250,6 +251,20 @@ handleKeepAlive()
     }
 
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+  }
+
+  function initActiveRoutesContinuousUpdate(updateInterval: number) {
+    if (backgroundState.updateActiveRoutesInterval)
+      clearTimeout(backgroundState.updateActiveRoutesInterval)
+
+    async function updateActiveRoutes() {
+      await mainCtrl.swapAndBridge.checkForNextUserTxForActiveRoutes()
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateActiveRoutesInterval = setTimeout(updateActiveRoutes, updateInterval)
+    }
+
+    backgroundState.updateActiveRoutesInterval = setTimeout(updateActiveRoutes, updateInterval)
   }
 
   async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
@@ -482,6 +497,19 @@ handleKeepAlive()
                     8000
                   )
                 }
+              }
+            }
+            if (ctrlName === 'swapAndBridge') {
+              // Start the interval for updating the active/pending routes
+              if (controller?.activeRoutes.length) {
+                // If the interval is already set, then do nothing.
+                if (!backgroundState.updateActiveRoutesInterval) {
+                  initActiveRoutesContinuousUpdate(5000)
+                }
+              } else {
+                !!backgroundState.updateActiveRoutesInterval &&
+                  clearTimeout(backgroundState.updateActiveRoutesInterval)
+                delete backgroundState.updateActiveRoutesInterval
               }
             }
           }, 'background')
