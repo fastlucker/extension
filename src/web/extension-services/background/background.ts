@@ -501,7 +501,7 @@ handleKeepAlive()
             }
             if (ctrlName === 'swapAndBridge') {
               // Start the interval for updating the active/pending routes
-              if (controller?.activeRoutes.length) {
+              if (controller?.activeRoutesInProgress?.length) {
                 // If the interval is already set, then do nothing.
                 if (!backgroundState.updateActiveRoutesInterval) {
                   initActiveRoutesContinuousUpdate(5000)
