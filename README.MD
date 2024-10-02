@@ -96,12 +96,12 @@ yarn web:safari
 
 Two new folders will be created:
 
-1. /safari-dev (dev build folder)
-2. /safari-xcode-project-dev (Xcode proj)
+1. build/safari-dev (dev build folder)
+1. safari-extension/wallet-dev (Xcode project)
    then in the Safari browser:
-3. Developer -> Developer settings...
-4. Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
-5. Then the extension should be automatically added and pinned in the browser.
+1. Developer -> Developer settings...
+1. Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
+1. Then the extension should be automatically added and pinned in the browser.
 
 NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
 
@@ -180,8 +180,18 @@ yarn build:web:safari
 
 Two new folders will be created:
 
-1. /safari-prod (prod build folder)
-2. /safari-xcode-project-prod (Xcode proj)
+1. build/safari-prod (prod build folder)
+1. safari-extension/wallet (Xcode project)
+
+Then, in xCode manually do:
+
+1. Delete "walletTests" and "walletUITests" targets.
+1. For both targets (macOS and extension): Signing & Capabilities: Team: "Ambire Tech Ltd", Signing Certificate: Development
+1. For both targets (macOS and extension): General - Identity - Version (should match the version in the app.json file) and Build (integer, bump up on every next build submitted to the App Store Connect)
+1. For the macOS target: General - App Category: "Utilities"
+1. For the extension target: General - Identity - Bundle Identifier: `com.ambire.app.wallet.extension`
+
+TODO: Automate the above steps.
 
 ## Versioning
 
