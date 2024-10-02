@@ -187,7 +187,7 @@ Then, in xCode manually do:
 
 1. Delete "walletTests" and "walletUITests" targets.
 1. For both targets (macOS and extension): Signing & Capabilities: Team: "Ambire Tech Ltd", Signing Certificate: Development
-1. For both targets (macOS and extension): General - Identity - Version (should match the version in the app.json file) and Build (integer, bump up on every next build submitted to the App Store Connect)
+1. For both targets (macOS and extension): General - Identity - Version: X.X (should match the version in the app.json file, example: `4.36`) and Build: X (integer, bump up on every next build submitted to the App Store Connect, example: `3`)
 1. For the macOS target: General - App Category: "Utilities"
 1. For the extension target: General - Identity - Bundle Identifier: `com.ambire.app.wallet.extension`
 
