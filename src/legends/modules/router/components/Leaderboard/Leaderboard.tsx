@@ -82,7 +82,7 @@ const LeaderboardContainer: React.FC = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const { leaderboard, currentUser } = await getLeaderboard(connectedAccount)
+        const { leaderboard, currentUser } = await getLeaderboard(connectedAccount ?? undefined)
 
         setLeaderboardData(leaderboard)
         currentUser && setUserLeaderboardData(currentUser)
@@ -94,7 +94,7 @@ const LeaderboardContainer: React.FC = () => {
     }
 
     fetchLeaderboard()
-  }, [])
+  }, [connectedAccount])
 
   const sortedData = useMemo(
     () =>
