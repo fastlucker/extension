@@ -1,15 +1,17 @@
 // import Swiper and modules styles
 import 'swiper/css'
 import 'swiper/css/virtual'
+import 'swiper/css/effect-coverflow'
+import 'swiper/css/free-mode'
 
 import React, { useRef, useState } from 'react'
-import { EffectCoverflow, Navigation } from 'swiper/modules'
+import { EffectCoverflow, FreeMode, Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
 import styles from './CharacterSlider.module.scss'
-import Left from './Left.tsx'
+import Left from './Left'
 import penguinPaladin from './penguin-paladin.png'
-import Right from './Right.tsx'
+import Right from './Right'
 import slimeCharacter from './slime.png'
 import sorceressCharacter from './sorceress.png'
 import vitalikCharacter from './vitalik.png'
@@ -44,6 +46,12 @@ const characters = [
     name: 'Necromancer Vitalik2',
     description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
     image: vitalikCharacter
+  },
+  {
+    id: 6,
+    name: 'Penguin Paladin2',
+    description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
+    image: penguinPaladin
   }
 ]
 
@@ -64,60 +72,54 @@ const CharacterSlider = () => {
     sliderRef.current.swiper.slidePrev()
   }
 
-  const getClass = (index) => {
+  const getClass = (index: number) => {
     if (index === currentIndex) return styles.selected
     if (
       index === (currentIndex + 1) % characters.length ||
       (currentIndex === characters.length - 1 && index === 0)
     )
-      return styles.adjacent
+      return `${styles.adjacent} ${styles.right}`
     if (
       index === (currentIndex - 1 + characters.length) % characters.length ||
       (currentIndex === 0 && index === characters.length - 1)
     )
-      return styles.adjacent
+      return `${styles.adjacent} ${styles.left}`
     return styles.smaller
   }
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.content}>
-        <div className={styles.button} onClick={handlePrevious}>
+        <button type="button" className={styles.button} onClick={handlePrevious}>
           <Left />
-        </div>
+        </button>
         <Swiper
           ref={sliderRef}
-          slidesPerView="auto"
-          spaceBetween={30}
+          slidesPerView={5}
+          spaceBetween={0}
+          slide
           effect="coverflow"
-          breakpoints={{
-            300: {
-              slidesPerView: 1,
-              spaceBetween: 0
-            },
-            1024: {
-              slidesPerView: 5,
-              spaceBetween: 0
-            }
-          }}
           coverflowEffect={{
             rotate: 0,
             stretch: 0,
             depth: 40,
             slideShadows: false
           }}
+          freeMode={{
+            enabled: true
+          }}
           loop
           centeredSlides
           navigation
-          initialSlide={2}
-          modules={[EffectCoverflow, Navigation]}
+          initialSlide={3}
+          modules={[EffectCoverflow, FreeMode, Navigation]}
           onSlideChange={(swiper) => {
             setCurrentIndex(swiper.realIndex)
           }}
         >
           {characters.map((character, index) => (
-            <SwiperSlide key={character.name}>
-              <div key={index} className={`${styles.character} ${getClass(index)}`}>
+            <SwiperSlide className={styles.slide} key={character.name}>
+              <div key={character.id} className={`${styles.character} ${getClass(index)}`}>
                 <div className={styles.characterRelativeWrapper}>
                   <img src={character.image} alt={character.name} className={styles.image} />
                 </div>
@@ -125,9 +127,9 @@ const CharacterSlider = () => {
             </SwiperSlide>
           ))}
         </Swiper>
-        <div className={styles.button} onClick={handleNext}>
+        <button type="button" className={styles.button} onClick={handleNext}>
           <Right />
-        </div>
+        </button>
       </div>
 
       <h2 className={styles.name}>{characters[currentIndex].name}</h2>
