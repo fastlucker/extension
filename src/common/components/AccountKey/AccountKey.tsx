@@ -5,7 +5,6 @@ import { Animated, View, ViewStyle } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import ExportIcon from '@common/assets/svg/ExportIcon'
@@ -105,9 +104,9 @@ const AccountKey: React.FC<Props> = ({
   }
 
   const shortAddr = shortenAddress(addr, 13)
-  const isSA = isSmartAccount(account)
+
   const isInternal = !type || type === 'internal'
-  const canExportKey = isImported && isInternal && !isSA
+  const canExportKey = isImported && isInternal
   const exportKey = () => {
     navigate(`${ROUTES.exportKey}?accountAddr=${account.addr}&keyAddr=${addr}`)
   }
@@ -208,9 +207,7 @@ const AccountKey: React.FC<Props> = ({
                 <Tooltip id="export-icon-tooltip">
                   <View>
                     <Text fontSize={14} appearance="secondaryText">
-                      {isSA
-                        ? t('Smart account export coming soon')
-                        : t('Export unavailable as this is a hardware wallet key')}
+                      {t('Export unavailable as this is a hardware wallet key')}
                     </Text>
                   </View>
                 </Tooltip>

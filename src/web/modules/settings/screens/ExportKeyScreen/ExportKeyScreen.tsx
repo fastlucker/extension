@@ -2,11 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { isValidPassword } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
@@ -18,12 +20,14 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import SettingsPageHeader from '../../components/SettingsPageHeader'
 import PrivateKeyExport from './PrivateKeyExport'
+import SmartAccountExport from './SmartAccountExport'
 
 const ExportKeyScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const keystoreState = useKeystoreControllerState()
   const { theme } = useTheme()
+  const { accounts } = useAccounts()
   const [passwordConfirmed, setPasswordConfirmed] = useState<boolean>(false)
   const [privateKey, setPrivateKey] = useState<string | null>(null)
   const { navigate } = useNavigation()
@@ -48,7 +52,20 @@ const ExportKeyScreen = () => {
   })
   const { search } = useRoute()
   const params = new URLSearchParams(search)
-  // const accountAddr = params.get('accountAddr')
+  const accountAddr = params.get('accountAddr')
+
+  const account = useMemo(
+    () => accounts.find((acc) => acc.addr === accountAddr),
+    [accounts, accountAddr]
+  )
+  // TODO: throw an error properly
+  if (!account) {
+    return (
+      <View>
+        <Text>Something went wrong</Text>
+      </View>
+    )
+  }
 
   // TODO: throw an error properly
   const keyAddr = params.get('keyAddr')
@@ -59,6 +76,8 @@ const ExportKeyScreen = () => {
       </View>
     )
   }
+
+  const isSA = isSmartAccount(account)
 
   useEffect(() => {
     const onReceiveOnTimeData = (data: any) => {
@@ -156,7 +175,10 @@ const ExportKeyScreen = () => {
           />
         </>
       )}
-      {passwordConfirmed && privateKey && <PrivateKeyExport privateKey={privateKey} />}
+      {passwordConfirmed && privateKey && !isSA && <PrivateKeyExport privateKey={privateKey} />}
+      {passwordConfirmed && privateKey && isSA && (
+        <SmartAccountExport account={account} privateKey={privateKey} />
+      )}
     </View>
   )
 }
