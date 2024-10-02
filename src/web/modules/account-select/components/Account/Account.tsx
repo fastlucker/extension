@@ -135,6 +135,13 @@ const Account = ({
     }
   }
 
+  const dropdownData = useMemo(() => {
+    return [
+      { label: 'Manage Keys', value: 'keys' },
+      { label: 'Remove Account', value: 'remove', style: { color: iconColors.danger } }
+    ]
+  }, [])
+
   return (
     <Pressable
       disabled={accountsStatuses.selectAccount !== 'INITIAL'}
@@ -193,15 +200,7 @@ const Account = ({
               openAddAccountBottomSheet={openAddAccountBottomSheet}
             />
           )}
-          {isSettings && (
-            <Dropdown
-              data={[
-                { label: 'Manage Keys', value: 'keys' },
-                { label: 'Remove Account', value: 'remove', style: { color: iconColors.danger } }
-              ]}
-              onSelect={onDropdownSelect}
-            />
-          )}
+          {isSettings && <Dropdown data={dropdownData} onSelect={onDropdownSelect} />}
         </View>
       </Animated.View>
       <Dialog
