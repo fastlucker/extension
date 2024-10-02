@@ -28,8 +28,10 @@ $goldDecorative: #e7aa27;
 $goldText: #b67d02;
 $backdrop: rgba($primaryText, 0.75);
 
-// TODO: error, success, warning colors
-$errorDecorative: #da2020;
+$success: #4e9200;
+$warning: #ba8315; //#FFC107;
+$error: #e33535;
+$info: #1a66df;
 
 // Typography
 $primaryFont: 'Roboto Slab', serif;
