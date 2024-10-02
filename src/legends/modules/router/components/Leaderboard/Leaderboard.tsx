@@ -4,6 +4,7 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Page from '@legends/components/Page'
+import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 
 import Podium from './components/Podium'
@@ -157,42 +158,52 @@ const LeaderboardContainer: React.FC = () => {
             magna luctus et.
           </p>
         </div>
-        <Podium data={sortedData.slice(0, 3)} />
-        <div ref={tableRef} className={styles.table}>
-          <div className={styles.header}>
-            <h5 className={styles.cell}>player</h5>
-            <h5 className={styles.cell}>Level</h5>
-            <h5 className={styles.cell}>XP</h5>
-          </div>
-          {sortedData.map((item) => (
-            <div
-              key={item.account}
-              className={`${styles.row} ${
-                userLeaderboardData && item.account === userLeaderboardData.account
-                  ? styles.currentUserRow
-                  : ''
-              } ${item.rank <= 3 ? styles[`rankedRow${item.rank}`] : ''}`}
-              ref={
-                userLeaderboardData && item.account === userLeaderboardData.account
-                  ? currentUserRef
-                  : null
-              }
-              style={calculateRowStyle(item)}
-            >
-              <div className={styles.rankWrapper}>
-                {item.rank > 3 ? item.rank : getBadge(item.rank)}
+        {loading ? (
+          <Spinner />
+        ) : (
+          <>
+            <Podium data={sortedData.slice(0, 3)} />
+            <div ref={tableRef} className={styles.table}>
+              <div className={styles.header}>
+                <h5 className={styles.cell}>player</h5>
+                <h5 className={styles.cell}>Level</h5>
+                <h5 className={styles.cell}>XP</h5>
               </div>
-              <div className={styles.cell}>
-                {/* TODO: Replace the avatar image with the actual avatar - nft */}
-                <img src="/images/leaderboard/avatar1.png" alt="avatar" className={styles.avatar} />
-                {/* TODO: Add ens here instead of address */}
-                {shortenAddress(item.account, 23)}
-              </div>
-              <h5 className={styles.cell}>{item.level}</h5>
-              <h5 className={styles.cell}>{item.xp}</h5>
+              {sortedData.map((item) => (
+                <div
+                  key={item.account}
+                  className={`${styles.row} ${
+                    userLeaderboardData && item.account === userLeaderboardData.account
+                      ? styles.currentUserRow
+                      : ''
+                  } ${item.rank <= 3 ? styles[`rankedRow${item.rank}`] : ''}`}
+                  ref={
+                    userLeaderboardData && item.account === userLeaderboardData.account
+                      ? currentUserRef
+                      : null
+                  }
+                  style={calculateRowStyle(item)}
+                >
+                  <div className={styles.rankWrapper}>
+                    {item.rank > 3 ? item.rank : getBadge(item.rank)}
+                  </div>
+                  <div className={styles.cell}>
+                    {/* TODO: Replace the avatar image with the actual avatar - nft */}
+                    <img
+                      src="/images/leaderboard/avatar1.png"
+                      alt="avatar"
+                      className={styles.avatar}
+                    />
+                    {/* TODO: Add ens here instead of address */}
+                    {shortenAddress(item.account, 23)}
+                  </div>
+                  <h5 className={styles.cell}>{item.level}</h5>
+                  <h5 className={styles.cell}>{item.xp}</h5>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </Page>
   )
