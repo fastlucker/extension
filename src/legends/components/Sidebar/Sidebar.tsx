@@ -23,7 +23,7 @@ const NAVIGATION_LINKS = [
   { to: LEGENDS_ROUTES.character, text: 'Character', icon: faCircleUser },
   { to: LEGENDS_ROUTES.legends, text: 'Legends', icon: faMedal },
   { to: LEGENDS_ROUTES.leaderboard, text: 'Leaderboard', icon: faTrophy },
-  { to: '/guide', text: 'Guide', icon: faFileLines }
+  { to: '', text: 'Guide', icon: faFileLines }
 ]
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
