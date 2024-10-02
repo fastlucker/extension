@@ -42,9 +42,7 @@ const useSwapAndBridgeFrom = () => {
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
 
   useEffect(() => {
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT'
-    })
+    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM' })
   }, [dispatch])
 
   useEffect(() => {

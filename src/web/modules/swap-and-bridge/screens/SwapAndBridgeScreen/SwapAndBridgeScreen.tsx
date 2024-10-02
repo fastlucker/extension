@@ -30,6 +30,7 @@ import SettingsModal from '@web/modules/swap-and-bridge/components/SettingsModal
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
+import ActiveRouteCard from '../../components/ActiveRouteCard'
 import getStyles from './styles'
 
 const SwapAndBridgeScreen = () => {
@@ -67,7 +68,8 @@ const SwapAndBridgeScreen = () => {
     maxFromAmountInFiat,
     quote,
     formStatus,
-    validateFromAmount
+    validateFromAmount,
+    activeRoutes
   } = useSwapAndBridgeControllerState()
   const { statuses } = useMainControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
@@ -110,6 +112,11 @@ const SwapAndBridgeScreen = () => {
         contentContainerStyle={{ ...spacings.ptMd, ...flexbox.alignCenter }}
       >
         <View style={styles.container}>
+          <View style={spacings.mbLg}>
+            {(activeRoutes || []).map((activeRoute) => (
+              <ActiveRouteCard key={activeRoute.activeRouteId} activeRoute={activeRoute} />
+            ))}
+          </View>
           <Panel forceContainerSmallSpacings>
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
               <Text

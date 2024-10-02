@@ -368,7 +368,7 @@ type DappsControllerRemoveDappAction = {
 }
 
 type SwapAndBridgeControllerInitAction = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT'
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
 }
 type SwapAndBridgeControllerUpdateFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM'
@@ -385,6 +385,10 @@ type SwapAndBridgeControllerUpdateFormAction = {
 }
 type SwapAndBridgeControllerSubmitFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
+}
+type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
+  params: { activeRouteId: number }
 }
 type SwapAndBridgeControllerUpdatePortfolioTokenListAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST'
@@ -559,6 +563,7 @@ export type Action =
   | SwapAndBridgeControllerInitAction
   | SwapAndBridgeControllerUpdateFormAction
   | SwapAndBridgeControllerSubmitFormAction
+  | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerUpdatePortfolioTokenListAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue

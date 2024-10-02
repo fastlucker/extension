@@ -22,16 +22,16 @@ const RouteStepsPreview = ({
   estimationInSeconds
 }: {
   steps: SocketAPIStep[]
-  totalGasFeesInUsd: number
-  estimationInSeconds: number
+  totalGasFeesInUsd?: number
+  estimationInSeconds?: number
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
 
-  const shouldWarnForLongEstimation = useMemo(
-    () => estimationInSeconds > 3600, // 1 hour in seconds
-    [estimationInSeconds]
-  )
+  const shouldWarnForLongEstimation = useMemo(() => {
+    if (!estimationInSeconds) return false
+    return estimationInSeconds > 3600 // 1 hour in seconds
+  }, [estimationInSeconds])
 
   return (
     <View style={flexbox.flex1}>
@@ -143,40 +143,42 @@ const RouteStepsPreview = ({
           )
         })}
       </View>
-      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        <Text fontSize={12} weight="medium">
-          {t('Total gas fees: {{fees}}', {
-            fees: formatDecimals(totalGasFeesInUsd, 'price')
-          })}
-        </Text>
-        {!!estimationInSeconds && (
-          <>
-            <Text fontSize={12} weight="medium" appearance="secondaryText">
-              {'  |  '}
-            </Text>
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              {!!shouldWarnForLongEstimation && (
-                <WarningIcon
-                  color={iconColors.warning}
-                  width={14}
-                  height={14}
-                  style={spacings.mrMi}
-                  strokeWidth={2.2}
-                />
-              )}
-              <Text
-                fontSize={12}
-                weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
-                appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
-              >
-                {t('Estimation: ~{{time}}', {
-                  time: formatTime(estimationInSeconds)
-                })}
+      {(!!totalGasFeesInUsd || !!estimationInSeconds) && (
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <Text fontSize={12} weight="medium">
+            {t('Total gas fees: {{fees}}', {
+              fees: formatDecimals(totalGasFeesInUsd, 'price')
+            })}
+          </Text>
+          {!!estimationInSeconds && (
+            <>
+              <Text fontSize={12} weight="medium" appearance="secondaryText">
+                {'  |  '}
               </Text>
-            </View>
-          </>
-        )}
-      </View>
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                {!!shouldWarnForLongEstimation && (
+                  <WarningIcon
+                    color={iconColors.warning}
+                    width={14}
+                    height={14}
+                    style={spacings.mrMi}
+                    strokeWidth={2.2}
+                  />
+                )}
+                <Text
+                  fontSize={12}
+                  weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
+                  appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
+                >
+                  {t('Estimation: ~{{time}}', {
+                    time: formatTime(estimationInSeconds)
+                  })}
+                </Text>
+              </View>
+            </>
+          )}
+        </View>
+      )}
     </View>
   )
 }
