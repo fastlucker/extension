@@ -3,9 +3,11 @@ import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 const accountContext = createContext<{
   connectedAccount: string | null
   requestAccounts: () => void
+  disconnectAccount: () => void
 }>({
   connectedAccount: null,
-  requestAccounts: () => {}
+  requestAccounts: () => {},
+  disconnectAccount: () => {}
 })
 
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
@@ -17,6 +19,11 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       method: 'eth_requestAccounts',
       params: []
     })
+  }, [])
+
+  const disconnectAccount = useCallback(() => {
+    alert('TODO: disconnect logic')
+    // TODO: disconnect logic
   }, [])
 
   const getConnectedAccount = useCallback(async (): Promise<string | null> => {
@@ -54,9 +61,10 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   const contextValue = useMemo(
     () => ({
       connectedAccount,
-      requestAccounts
+      requestAccounts,
+      disconnectAccount
     }),
-    [connectedAccount, requestAccounts]
+    [connectedAccount, requestAccounts, disconnectAccount]
   )
 
   return <accountContext.Provider value={contextValue}>{children}</accountContext.Provider>
