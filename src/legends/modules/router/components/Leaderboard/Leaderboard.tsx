@@ -4,6 +4,7 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Page from '@legends/components/Page'
+import useAccountContext from '@legends/hooks/useAccountContext'
 
 import Podium from './components/Podium'
 import { getLeaderboard } from './helpers'
@@ -31,6 +32,7 @@ const getBadge = (rank: number) => {
 const LeaderboardContainer: React.FC = () => {
   // TODO: Implement the leaderboard loading state
   const [loading, setLoading] = useState(true)
+
   const [leaderboardData, setLeaderboardData] = useState<
     Array<{ rank: number; account: string; level: number; xp: number }>
   >([])
@@ -40,6 +42,8 @@ const LeaderboardContainer: React.FC = () => {
     xp: number
     level: number
   } | null>(null)
+
+  const { connectedAccount } = useAccountContext()
 
   const tableRef = useRef<HTMLDivElement>(null)
 
@@ -78,7 +82,7 @@ const LeaderboardContainer: React.FC = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const { leaderboard, currentUser } = await getLeaderboard()
+        const { leaderboard, currentUser } = await getLeaderboard(connectedAccount)
 
         setLeaderboardData(leaderboard)
         currentUser && setUserLeaderboardData(currentUser)
