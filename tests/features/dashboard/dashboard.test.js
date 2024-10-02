@@ -1,9 +1,9 @@
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { saParams } from '../../config/constants'
 
-import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from './functions.js'
+import { checkBalanceInAccount, checkIfTokensExist, checkCollectibleItem } from './functions.js'
 
-describe('sa_balance', () => {
+describe('dashboard', () => {
   let browser
   let page
   let recorder
@@ -13,22 +13,18 @@ describe('sa_balance', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
-  //   should have balance on the dashboard
-  //   should test if expected tokens are visible on the dashboard
-  //   should test if expected NFTs are visible on the dashboard
-
-  it.skip('should have balance on the dashboard', async () => {
+  it('should have balance on the dashboard', async () => {
     await checkBalanceInAccount(page)
   })
 
-  it.skip('check if networks Ethereum, USDC and Polygon exist in the account  ', async () => {
-    await checkNetworks(page)
+  it('should test if expected tokens are visible on the dashboard', async () => {
+    await checkIfTokensExist(page)
   })
 
-  it('check if item exist in Collectibles tab', async () => {
+  it('should test if expected NFTs are visible on the dashboard', async () => {
     await checkCollectibleItem(page)
   })
 })

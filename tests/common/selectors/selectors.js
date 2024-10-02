@@ -64,7 +64,9 @@ export const TEST_IDS = {
   buttonUnlock: 'button-unlock',
   fullBalance: 'full-balance',
   tabNft: 'tab-nft',
-  collectionItem: 'collection-item'
+  collectionItem: 'collection-item',
+  collectiblePicture: 'collectible-picture',
+  collectibleRow: 'collectible-row'
 }
 
 export const SELECTORS = Object.fromEntries(
