@@ -1,7 +1,15 @@
 // Colors
+// Some colors are used within React and marked with a comment. Example:
+/*
+  ... React code
+  // @SCSS-VAR: $primaryText
+  ... React code
+*/
+// Make sure you update the hardcoded values in the React code as well.
 $primaryText: #333131;
 $secondaryText: #5c5954;
 $tertiaryText: #79766f;
+$alternativeText: #efefef;
 $primaryBorder: #baafac;
 $secondaryBorder: #2a3041;
 $primaryBackground: #f1eee5;
@@ -17,6 +25,10 @@ $silverText: #686663;
 $goldBackground: #f8e3b7;
 $goldDecorative: #e7aa27;
 $goldText: #b67d02;
+$backdrop: rgba($primaryText, 0.75);
+
+// TODO: error, success, warning colors
+$errorDecorative: #da2020;
 
 // Typography
 $primaryFont: 'Roboto Slab', serif;
