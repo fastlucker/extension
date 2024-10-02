@@ -1,11 +1,9 @@
-// - should unlock keystore
-
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { saParams } from '../../config/constants'
 
 import { lockKeystore, unlockKeystore, changeKeystorePassword } from './functions'
 
-describe('auth', () => {
+describe('keystore', () => {
   let browser
   let page
   let extensionURL
