@@ -16,7 +16,15 @@ import slimeCharacter from './slime.png'
 import sorceressCharacter from './sorceress.png'
 import vitalikCharacter from './vitalik.png'
 
-const characters = [
+type Character = {
+  id: number
+  name: string
+  description: string
+  image: string
+}
+
+type ReactCharacter = Character & { reactKey: number }
+const MOCK_CHARACTERS = [
   {
     id: 1,
     name: 'Slime',
@@ -55,9 +63,18 @@ const characters = [
   }
 ]
 
+const doubleCharacters = (characters: Character[]): ReactCharacter[] => {
+  return [
+    ...characters.map((char) => ({ ...char, reactKey: char.id })),
+    ...characters.map((char) => ({ ...char, reactKey: char.id + 1000 }))
+  ]
+}
+
 const CharacterSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(1)
   const sliderRef = useRef(null)
+
+  const characters = doubleCharacters(MOCK_CHARACTERS)
 
   // Handler to go to the next character
   const handleNext = () => {
@@ -119,7 +136,7 @@ const CharacterSlider = () => {
         >
           {characters.map((character, index) => (
             <SwiperSlide className={styles.slide} key={character.name}>
-              <div key={character.id} className={`${styles.character} ${getClass(index)}`}>
+              <div key={character.reactKey} className={`${styles.character} ${getClass(index)}`}>
                 <div className={styles.characterRelativeWrapper}>
                   <img src={character.image} alt={character.name} className={styles.image} />
                 </div>
