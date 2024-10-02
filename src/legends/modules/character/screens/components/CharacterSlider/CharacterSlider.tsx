@@ -114,14 +114,6 @@ const CharacterSlider = () => {
           ref={sliderRef}
           slidesPerView="auto"
           spaceBetween={0}
-          slide
-          // effect="coverflow"
-          // coverflowEffect={{
-          //   rotate: 0,
-          //   stretch: 0,
-          //   depth: 40,
-          //   slideShadows: false
-          // }}
           loop
           centeredSlides
           navigation
