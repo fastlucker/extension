@@ -3,6 +3,8 @@ import React from 'react'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 
+import { AccountContextProvider } from './contexts/accountContext'
+import { PortfolioControllerStateProvider } from './contexts/portfolioControllerStateContext'
 import Router from './modules/router/Router'
 
 declare global {
@@ -14,7 +16,11 @@ declare global {
 const LegendsInit = () => {
   return (
     <PortalProvider>
-      <Router />
+      <AccountContextProvider>
+        <PortfolioControllerStateProvider>
+          <Router />
+        </PortfolioControllerStateProvider>
+      </AccountContextProvider>
       <PortalHost name="global" />
     </PortalProvider>
   )
