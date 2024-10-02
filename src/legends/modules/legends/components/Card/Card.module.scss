@@ -4,6 +4,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  min-height: 27.5rem;
   background-color: $secondaryBackground;
 
   .completed {
@@ -60,14 +61,12 @@
 
     .heading {
       font-size: 1.25rem;
-      font-family: $primaryFont;
       font-weight: 500;
       margin-bottom: 0.5rem;
     }
     .description {
       margin-bottom: 0.75rem;
       font-size: 0.875rem;
-      font-family: $secondaryFont;
       color: $secondaryText;
 
       .readMore {

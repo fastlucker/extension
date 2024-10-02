@@ -62,7 +62,8 @@ const MOCK_CARDS: Card[] = [
       onClick: () => {
         alert('Wohoo!')
       }
-    }
+    },
+    repeatable: true
   },
   {
     heading: 'Legend 3',
