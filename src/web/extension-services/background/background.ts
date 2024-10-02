@@ -18,7 +18,11 @@ import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/acc
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
+import {
+  getAccountKeysCount,
+  getDefaultKeyLabel,
+  getExistingKeyLabel
+} from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -142,14 +146,37 @@ handleKeepAlive()
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
 
-  // Custom headers, as of v4.26.0 will be only extension-specific. TBD for the other apps.
-  const fetchWithCustomHeaders: Fetch = (url, init) => {
+  // Extension-specific additional trackings
+  const fetchWithAnalytics: Fetch = (url, init) => {
+    // As of v4.26.0, custom extension-specific headers. TBD for the other apps.
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
     initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
-
     const sliceOfKeyStoreUid = mainCtrl.keystore.keyStoreUid?.substring(10, 21) || ''
     const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
     initWithCustomHeaders.headers['x-app-source'] = sliceOfKeyStoreUid + inviteVerifiedCode
+
+    // As of v4.36.0, for metric purposes, pass the account keys count as an
+    // additional param for the batched velcro discovery requests.
+    const shouldAttachKeyCountParam = url.toString().startsWith(`${VELCRO_URL}/multi-hints?`)
+    if (shouldAttachKeyCountParam) {
+      const urlObj = new URL(url.toString())
+      const accounts = urlObj.searchParams.get('accounts')
+
+      if (accounts) {
+        const accountKeysCount = accounts.split(',').map((accountAddr) => {
+          return getAccountKeysCount({
+            accountAddr,
+            keys: mainCtrl.keystore.keys,
+            accounts: mainCtrl.accounts.accounts
+          })
+        })
+
+        urlObj.searchParams.append('sigs', accountKeysCount.join(','))
+        // Override the URL and replace encoded commas (%2C) with actual commas
+        // eslint-disable-next-line no-param-reassign
+        url = urlObj.toString().replace(/%2C/g, ',')
+      }
+    }
 
     // Use the native fetch (instead of node-fetch or whatever else) since
     // browser extensions are designed to run within the web environment,
@@ -159,7 +186,7 @@ handleKeepAlive()
 
   mainCtrl = new MainController({
     storage,
-    fetch: fetchWithCustomHeaders,
+    fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
     keystoreSigners: {

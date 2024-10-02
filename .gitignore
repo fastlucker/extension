@@ -492,6 +492,8 @@ credentials.json
 # All build output folders
 /build
 
+/safari-extension
+
 # Mobile injection provider
 /ios/EthereumProvider.js
 /android/app/src/main/assets/EthereumProvider.js

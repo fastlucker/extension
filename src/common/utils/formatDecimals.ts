@@ -11,7 +11,7 @@ const DECIMAL_RULES = {
     max: 2
   },
   amount: {
-    min: 2,
+    min: 0,
     max: 2
   },
   default: {
@@ -107,21 +107,13 @@ const formatDecimals = (value: number | undefined = undefined, type: FormatType 
     if (absoluteValue < 0.01) {
       return `${sign}<$0.01`
     }
-    if (absoluteValue >= 0.01 && absoluteValue < 1) {
-      return formatNumber(value, withDollarPrefix, DEFAULT_DECIMALS, type)
-    }
-    if (absoluteValue > 10) {
-      return formatNumber(value, withDollarPrefix, 0, type)
-    }
+
+    return formatNumber(value, withDollarPrefix, DEFAULT_DECIMALS, type)
   }
 
   if (type === 'amount') {
     if (absoluteValue < 0.00001) {
       return `${sign}<0.00001`
-    }
-
-    if (absoluteValue > 100) {
-      return formatNumber(value, withDollarPrefix, 0, type)
     }
   }
 
