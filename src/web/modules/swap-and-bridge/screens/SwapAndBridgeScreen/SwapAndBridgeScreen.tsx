@@ -56,7 +56,8 @@ const SwapAndBridgeScreen = () => {
     formattedToAmount,
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
-    setFollowUpTransactionConfirmed
+    setFollowUpTransactionConfirmed,
+    pendingRoutes
   } = useSwapAndBridgeFrom()
   const {
     sessionId: controllerSessionId,
@@ -70,8 +71,7 @@ const SwapAndBridgeScreen = () => {
     maxFromAmountInFiat,
     quote,
     formStatus,
-    validateFromAmount,
-    activeRoutes
+    validateFromAmount
   } = useSwapAndBridgeControllerState()
   const { statuses } = useMainControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
@@ -117,7 +117,7 @@ const SwapAndBridgeScreen = () => {
       >
         <View style={styles.container}>
           <View style={spacings.mbLg}>
-            {(activeRoutes || []).reverse().map((activeRoute) => (
+            {pendingRoutes.map((activeRoute) => (
               <ActiveRouteCard key={activeRoute.activeRouteId} activeRoute={activeRoute} />
             ))}
           </View>

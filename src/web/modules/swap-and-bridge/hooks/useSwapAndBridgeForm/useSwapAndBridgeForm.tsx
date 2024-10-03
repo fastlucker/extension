@@ -1,4 +1,4 @@
-import { formatUnits } from 'ethers'
+import { formatUnits, getAddress } from 'ethers'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -11,6 +11,7 @@ import Text from '@common/components/Text'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import formatDecimals from '@common/utils/formatDecimals'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -32,8 +33,10 @@ const useSwapAndBridgeFrom = () => {
     maxFromAmountInFiat,
     statuses,
     quote,
-    fromAmountInFiat
+    fromAmountInFiat,
+    activeRoutes
   } = useSwapAndBridgeControllerState()
+  const { selectedAccount } = useAccountsControllerState(0)
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
@@ -212,6 +215,13 @@ const useSwapAndBridgeFrom = () => {
     setSettingsModalVisible((p) => !p)
   }, [])
 
+  const pendingRoutes = useMemo(() => {
+    return (
+      activeRoutes.filter((r) => getAddress(r.route.userAddress) === selectedAccount).reverse() ||
+      []
+    )
+  }, [activeRoutes, selectedAccount])
+
   return {
     sessionId,
     fromAmountValue,
@@ -234,7 +244,8 @@ const useSwapAndBridgeFrom = () => {
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
     settingModalVisible,
-    handleToggleSettingsMenu
+    handleToggleSettingsMenu,
+    pendingRoutes
   }
 }
 
