@@ -22,7 +22,8 @@ const AddAccount = () => {
   const options = useGetAddAccountOptions({
     navigate,
     t,
-    hasKeystoreDefaultSeed: keystoreState.hasKeystoreDefaultSeed
+    hasKeystoreDefaultSeed: keystoreState.hasKeystoreDefaultSeed,
+    isReadyToStoreKeys: keystoreState.isReadyToStoreKeys
   })
   const mainControllerState = useMainControllerState()
   const accountAdderControllerState = useAccountAdderControllerState()

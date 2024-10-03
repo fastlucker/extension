@@ -148,7 +148,7 @@ const Account = ({
         <View style={[flexboxStyles.directionRow]}>
           <Avatar ens={ens} ud={ud} pfp={account.preferences.pfp} />
           <View>
-            <View style={[flexboxStyles.directionRow]}>
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
               {!withSettings ? (
                 <Text fontSize={isTab ? 16 : 14} weight="medium">
                   {account.preferences.label}
@@ -168,7 +168,7 @@ const Account = ({
               )}
 
               <View style={[spacings.mlMi]}>
-                <AccountKeyIcons account={account} />
+                <AccountKeyIcons isExtended account={account} />
               </View>
 
               <AccountBadges accountData={account} />

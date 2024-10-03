@@ -95,7 +95,7 @@ const AccountButton = () => {
               {selectedAccountData.preferences.label}
             </Text>
 
-            <AccountKeyIcons account={account} />
+            <AccountKeyIcons isExtended={false} account={account} />
           </View>
           <Animated.View style={accountBtnAnimStyle}>
             <RightArrowIcon
