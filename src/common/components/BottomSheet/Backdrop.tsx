@@ -14,11 +14,12 @@ interface Props {
   isBottomSheetVisible: boolean
   isVisible: boolean
   onPress: () => void
+  customZIndex?: number
 }
 
 const ANIMATION_DURATION: number = 250
 
-const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
+const Backdrop = ({ isBottomSheetVisible, isVisible, onPress, customZIndex }: Props) => {
   const { styles } = useTheme(getStyles)
 
   const opacity = React.useRef(new Animated.Value(0)).current
@@ -51,7 +52,8 @@ const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
           opacity: opacity.interpolate({
             inputRange: [0, 1],
             outputRange: [0, 1]
-          })
+          }),
+          zIndex: customZIndex || styles.backDrop.zIndex
         }
       ]}
       nativeID="modalBackdrop"
