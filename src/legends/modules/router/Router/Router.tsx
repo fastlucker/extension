@@ -1,8 +1,11 @@
 import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
+import ChooseCharacter from '@legends/modules/legends/screens/ChooseCharacter'
 import Legends from '@legends/modules/legends/screens/Legends'
 import Welcome from '@legends/modules/welcome/screens/Welcome'
+
+import PrivateRoute from '@legends/components/PrivateRoute'
 
 const router = createBrowserRouter([
   {
@@ -12,7 +15,12 @@ const router = createBrowserRouter([
   },
   {
     path: '/legends',
-    element: <Legends />
+    element: <PrivateRoute />,
+    children: [{ path: '/legends', element: <Legends /> }]
+  },
+  {
+    path: '/choose-character',
+    element: <ChooseCharacter />
   }
 ])
 
