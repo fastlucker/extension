@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
+import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import styles from './WalletConnect.module.scss'
 
@@ -11,7 +12,7 @@ const WalletConnect = () => {
 
   useEffect(() => {
     if (connectedAccount) {
-      navigate('/legends')
+      navigate(LEGENDS_ROUTES.character)
     }
   }, [connectedAccount, navigate])
 

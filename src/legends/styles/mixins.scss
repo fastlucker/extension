@@ -15,6 +15,12 @@
   color: $accent;
   font-weight: 700;
   height: 3.375rem;
+
+  &:active {
+    // Simulate a button press
+    transform: translateY(0.125rem);
+    opacity: 1;
+  }
 }
 @mixin secondary-button {
   @include button;
