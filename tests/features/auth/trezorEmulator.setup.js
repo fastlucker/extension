@@ -128,16 +128,6 @@ export const initTrezorConnect = async (trezorUserEnvLink, options) => {
     if (!device.features) {
       throw new Error('Device features not available')
     }
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const { major_version, minor_version, patch_version, internal_model, revision } =
-      device.features
-    console.log('Device connected: ', {
-      major_version,
-      minor_version,
-      patch_version,
-      internal_model,
-      revision
-    })
   })
 
   TrezorConnect.on(UI.REQUEST_CONFIRMATION, () => {
