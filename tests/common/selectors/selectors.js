@@ -51,7 +51,8 @@ export const TEST_IDS = {
   getStartedButtonConnectHwWallet: 'get-started-button-connect-hw-wallet',
   selectHwOptionTrezor: 'select-hw-option-trezor',
   trezorPermissionConfirmButton: '@permissions/confirm-button',
-  trezorExportAddressConfirmButton: '@export-address/confirm-button'
+  trezorExportAddressConfirmButton: '@export-address/confirm-button',
+  bottomSheet: 'bottom-sheet'
 }
 
 export const SELECTORS = Object.fromEntries(
