@@ -1,18 +1,23 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import CharacterSlider from '@legends/modules/character/screens/components/CharacterSlider/CharacterSlider'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
+import useAccountContext from '@legends/hooks/useAccountContext'
 import styles from './CharacterSelect.module.scss'
 
 const CharacterSelect = () => {
+  const accountContext = useAccountContext()
   const navigate = useNavigate()
 
   const selectCharacter = () => {
     alert('Not implemented')
     navigate(LEGENDS_ROUTES.character)
   }
+
+  if (!accountContext.connectedAccount) return <Navigate to="/" />
+
   return (
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Choose a Character</h1>

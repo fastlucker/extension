@@ -23,8 +23,7 @@ type Character = {
   image: string
 }
 
-type ReactCharacter = Character & { reactKey: number }
-const MOCK_CHARACTERS = [
+const CHARACTERS: Character[] = [
   {
     id: 1,
     name: 'Slime',
@@ -48,33 +47,12 @@ const MOCK_CHARACTERS = [
     name: 'Penguin Paladin',
     description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
     image: penguinPaladin
-  },
-  {
-    id: 5,
-    name: 'Necromancer Vitalik2',
-    description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
-    image: vitalikCharacter
-  },
-  {
-    id: 6,
-    name: 'Penguin Paladin2',
-    description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
-    image: penguinPaladin
   }
 ]
-
-const doubleCharacters = (characters: Character[]): ReactCharacter[] => {
-  return [
-    ...characters.map((char) => ({ ...char, reactKey: char.id })),
-    ...characters.map((char) => ({ ...char, reactKey: char.id + 1000 }))
-  ]
-}
 
 const CharacterSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(1)
   const sliderRef = useRef(null)
-
-  const characters = doubleCharacters(MOCK_CHARACTERS)
 
   // Handler to go to the next character
   const handleNext = () => {
@@ -92,13 +70,13 @@ const CharacterSlider = () => {
   const getClass = (index: number) => {
     if (index === currentIndex) return styles.selected
     if (
-      index === (currentIndex + 1) % characters.length ||
-      (currentIndex === characters.length - 1 && index === 0)
+      index === (currentIndex + 1) % CHARACTERS.length ||
+      (currentIndex === CHARACTERS.length - 1 && index === 0)
     )
       return `${styles.adjacent} ${styles.right}`
     if (
-      index === (currentIndex - 1 + characters.length) % characters.length ||
-      (currentIndex === 0 && index === characters.length - 1)
+      index === (currentIndex - 1 + CHARACTERS.length) % CHARACTERS.length ||
+      (currentIndex === 0 && index === CHARACTERS.length - 1)
     )
       return `${styles.adjacent} ${styles.left}`
     return styles.smaller
@@ -123,8 +101,8 @@ const CharacterSlider = () => {
             setCurrentIndex(swiper.realIndex)
           }}
         >
-          {characters.map((character, index) => (
-            <SwiperSlide className={`${styles.slide} ${getClass(index)}`} key={character.reactKey}>
+          {CHARACTERS.map((character, index) => (
+            <SwiperSlide className={`${styles.slide} ${getClass(index)}`} key={character.id}>
               <img src={character.image} alt={character.name} className={styles.image} />
             </SwiperSlide>
           ))}
@@ -134,8 +112,8 @@ const CharacterSlider = () => {
         </button>
       </div>
 
-      <h2 className={styles.name}>{characters[currentIndex].name}</h2>
-      <p className={styles.description}>{characters[currentIndex].description}</p>
+      <h2 className={styles.name}>{CHARACTERS[currentIndex].name}</h2>
+      <p className={styles.description}>{CHARACTERS[currentIndex].description}</p>
     </div>
   )
 }
