@@ -37,12 +37,14 @@ const AccountKeysBottomSheet: FC<Props> = ({
           setCurrentKeyDetails={setCurrentKeyDetails}
           account={account}
           openAddAccountBottomSheet={openAddAccountBottomSheet}
+          keyIconColor="#000"
         />
       ) : (
         <AccountKeyDetails
           details={currentKeyDetails}
           closeDetails={closeCurrentKeyDetails}
           account={account}
+          keyIconColor="#000"
         />
       )}
     </BottomSheet>

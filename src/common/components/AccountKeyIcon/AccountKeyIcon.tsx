@@ -8,15 +8,15 @@ import SingleKeyIcon from '@common/assets/svg/SingleKeyIcon'
 import TrezorLockIcon from '@common/assets/svg/TrezorLockIcon'
 import useTheme from '@common/hooks/useTheme'
 
-const AccountKeyIcon = ({ type }: { type: Key['type'] }) => {
+const AccountKeyIcon = ({ type, color }: { type: Key['type']; color?: string }) => {
   const { theme } = useTheme()
 
-  if (type === 'lattice') return <LatticeIcon width={32} height={32} color="#fff" />
-  if (type === 'trezor') return <TrezorLockIcon color="#fff" width={20} height={20} />
-  if (type === 'ledger') return <LedgerLetterIcon color="#fff" width={20} height={20} />
+  if (type === 'lattice') return <LatticeIcon color={color ?? '#fff'} width={32} height={32} />
+  if (type === 'trezor') return <TrezorLockIcon color={color ?? '#fff'} width={20} height={20} />
+  if (type === 'ledger') return <LedgerLetterIcon color={color ?? '#fff'} width={20} height={20} />
   if (type === 'none') return <NoKeysIcon color={theme.secondaryText} width={20} height={20} />
 
-  return <SingleKeyIcon color="none" width={20} height={20} />
+  return <SingleKeyIcon color={color ?? 'none'} width={20} height={20} />
 }
 
 export default React.memo(AccountKeyIcon)

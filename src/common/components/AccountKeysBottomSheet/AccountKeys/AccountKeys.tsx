@@ -14,9 +14,15 @@ interface Props {
   setCurrentKeyDetails: Dispatch<SetStateAction<AccountKeyType | null>>
   account: Account
   openAddAccountBottomSheet?: () => void
+  keyIconColor?: string
 }
 
-const AccountKeys: FC<Props> = ({ setCurrentKeyDetails, account, openAddAccountBottomSheet }) => {
+const AccountKeys: FC<Props> = ({
+  setCurrentKeyDetails,
+  account,
+  openAddAccountBottomSheet,
+  keyIconColor
+}) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
 
@@ -81,6 +87,7 @@ const AccountKeys: FC<Props> = ({ setCurrentKeyDetails, account, openAddAccountB
               handleOnKeyDetailsPress={handleOnKeyDetailsPress}
               account={account}
               openAddAccountBottomSheet={openAddAccountBottomSheet}
+              keyIconColor={keyIconColor}
             />
           )
         })}

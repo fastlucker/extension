@@ -44,6 +44,7 @@ type Props = AccountKeyType & {
   openAddAccountBottomSheet?: () => void
   showCopyAddr?: boolean
   account: Account
+  keyIconColor?: string
 }
 
 const { isPopup } = getUiType()
@@ -60,7 +61,8 @@ const AccountKey: React.FC<Props> = ({
   enableEditing = true,
   handleOnKeyDetailsPress,
   openAddAccountBottomSheet,
-  account
+  account,
+  keyIconColor
 }) => {
   const [isImporting, setIsImporting] = useState<boolean>(false)
   const { t } = useTranslation()
@@ -136,7 +138,7 @@ const AccountKey: React.FC<Props> = ({
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           {isImported && (
             <View style={spacings.mrTy}>
-              <AccountKeyIcon type={type || 'internal'} />
+              <AccountKeyIcon type={type || 'internal'} color={keyIconColor} />
             </View>
           )}
           <View style={isPopup ? { maxWidth: 350 } : {}}>
