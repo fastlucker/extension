@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
+import { ActiveRoute, SocketAPIBridgeUserTx } from '@ambire-common/interfaces/swapAndBridge'
 import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-import ClockIcon from '@common/assets/svg/ClockIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import formatTime from '@common/utils/formatTime'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
@@ -19,35 +19,16 @@ import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStep
 import getStyles from './styles'
 
 const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
-  const [remainingTime, setRemainingTime] = useState(activeRoute.route.serviceTime)
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { statuses } = useMainControllerState()
 
-  useEffect(() => {
-    if (!activeRoute.route.serviceTime) return
+  const activeTransaction = useMemo(() => {
+    if (!activeRoute.route) return
 
-    if (activeRoute.routeStatus && activeRoute.routeStatus !== 'in-progress') {
-      return
-    }
-
-    if (remainingTime <= 0) return
-
-    const timeout = setTimeout(() => setRemainingTime((prev) => prev - 1), 1000)
-
-    return () => clearTimeout(timeout)
-  }, [remainingTime, activeRoute.route.serviceTime, activeRoute.routeStatus])
-
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const remainingSeconds = seconds % 60
-
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(
-      remainingSeconds
-    ).padStart(2, '0')}`
-  }
+    return activeRoute.route.userTxs[activeRoute.route.currentUserTxIndex]
+  }, [activeRoute.route])
 
   const steps = useMemo(() => {
     return getQuoteRouteSteps(activeRoute.route.userTxs)
@@ -78,19 +59,18 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
 
       <View style={[spacings.ptSm, flexbox.directionRow, flexbox.alignCenter]}>
         <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
-          {!!activeRoute.route.serviceTime && activeRoute.routeStatus === 'in-progress' && (
+          {!!(activeTransaction as SocketAPIBridgeUserTx)?.serviceTime && (
             <>
               <Text fontSize={12} weight="medium" style={spacings.mrTy} appearance="secondaryText">
-                {t('Bridging in progress')}
+                {t('Estimated bridge time:')}
               </Text>
-              {!!activeRoute.route.serviceTime && (
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <ClockIcon color={iconColors.dark} style={spacings.mrTy} />
-                  <Text fontSize={12} weight="medium" appearance="primaryText">
-                    {formatTime(remainingTime)}
-                  </Text>
-                </View>
-              )}
+
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <Text fontSize={12} weight="medium" appearance="primary" style={spacings.mrTy}>
+                  ~{formatTime((activeTransaction as SocketAPIBridgeUserTx)?.serviceTime)}
+                </Text>
+                <Spinner style={{ width: 16, height: 16 }} />
+              </View>
             </>
           )}
         </View>
