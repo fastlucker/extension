@@ -27,13 +27,13 @@ const router = createBrowserRouter([
   },
   {
     path: LEGENDS_ROUTES.leaderboard,
-      element: <PrivateRoute />,
-      children: [{ path: LEGENDS_ROUTES.leaderboard, element: <Leaderboard /> }]
+    element: <PrivateRoute />,
+    children: [{ path: LEGENDS_ROUTES.leaderboard, element: <Leaderboard /> }]
   },
   {
     path: LEGENDS_ROUTES.character,
     element: <PrivateRoute />,
-      children: [{ path: LEGENDS_ROUTES.character, element: <Character /> }]
+    children: [{ path: LEGENDS_ROUTES.character, element: <Character /> }]
   }
 ])
 
