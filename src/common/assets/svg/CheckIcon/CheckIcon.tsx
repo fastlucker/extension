@@ -34,4 +34,4 @@ const CheckIcon: React.FC<Props> = ({
   </Svg>
 )
 
-export default CheckIcon
+export default React.memo(CheckIcon)

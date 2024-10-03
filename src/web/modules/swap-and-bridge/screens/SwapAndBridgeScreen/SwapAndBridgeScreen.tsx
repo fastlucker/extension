@@ -104,7 +104,7 @@ const SwapAndBridgeScreen = () => {
     setFollowUpTransactionConfirmed((p) => !p)
   }, [setFollowUpTransactionConfirmed])
 
-  if (sessionId !== controllerSessionId) return
+  if (sessionId !== controllerSessionId) return null
 
   return (
     <TabLayoutContainer

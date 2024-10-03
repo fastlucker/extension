@@ -46,7 +46,7 @@ const useSwapAndBridgeFrom = () => {
 
   useEffect(() => {
     dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
-  }, [dispatch, sessionId])
+  }, [dispatch])
 
   useEffect(() => {
     if (
