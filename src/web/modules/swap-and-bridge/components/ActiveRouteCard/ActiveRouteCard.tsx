@@ -13,6 +13,7 @@ import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 
 import getStyles from './styles'
@@ -22,12 +23,13 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
+  const { statuses } = useMainControllerState()
 
   useEffect(() => {
     if (!activeRoute.route.serviceTime) return
 
     if (activeRoute.routeStatus && activeRoute.routeStatus !== 'in-progress') {
-      setRemainingTime(0)
+      return
     }
 
     if (remainingTime <= 0) return
@@ -50,6 +52,13 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
   const steps = useMemo(() => {
     return getQuoteRouteSteps(activeRoute.route.userTxs)
   }, [activeRoute.route.userTxs])
+
+  const handleRejectActiveRoute = useCallback(() => {
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+      params: { activeRouteId: activeRoute.activeRouteId }
+    })
+  }, [activeRoute.activeRouteId, dispatch])
 
   const handleProceedToNextStep = useCallback(() => {
     dispatch({
@@ -86,12 +95,31 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
           )}
         </View>
         <Button
-          text={t('Proceed to next step')}
+          text={t('Reject')}
+          onPress={handleRejectActiveRoute}
+          type="danger"
+          size="small"
+          style={{ height: 40, ...spacings.mrTy }}
+          hasBottomSpacing={false}
+          disabled={
+            activeRoute.routeStatus !== 'ready' ||
+            statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+          }
+        />
+        <Button
+          text={
+            statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+              ? t('Building Transaction...')
+              : t('Proceed to Next Step')
+          }
           onPress={handleProceedToNextStep}
           size="small"
-          style={{ height: 40, minWidth: 230 }}
+          style={{ height: 40 }}
           hasBottomSpacing={false}
-          disabled={activeRoute.routeStatus !== 'ready'}
+          disabled={
+            activeRoute.routeStatus !== 'ready' ||
+            statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+          }
         />
       </View>
     </Panel>

@@ -390,6 +390,10 @@ type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
   params: { activeRouteId: number }
 }
+type SwapAndBridgeControllerRemoveActiveRouteAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE'
+  params: { activeRouteId: number }
+}
 type SwapAndBridgeControllerUpdatePortfolioTokenListAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST'
   params: TokenResult[]
@@ -564,6 +568,7 @@ export type Action =
   | SwapAndBridgeControllerUpdateFormAction
   | SwapAndBridgeControllerSubmitFormAction
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
+  | SwapAndBridgeControllerRemoveActiveRouteAction
   | SwapAndBridgeControllerUpdatePortfolioTokenListAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue

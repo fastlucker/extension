@@ -329,7 +329,7 @@ const SwapAndBridgeScreen = () => {
             <Button
               text={
                 statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-                  ? t('Loading...')
+                  ? t('Building Transaction...')
                   : t('Proceed')
               }
               disabled={

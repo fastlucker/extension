@@ -886,6 +886,8 @@ handleKeepAlive()
                 return await mainCtrl.buildSwapAndBridgeUserRequest()
               case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
                 return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE':
+                return mainCtrl.swapAndBridge.removeActiveRoute(params.activeRouteId)
               case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST':
                 return mainCtrl.swapAndBridge.updatePortfolioTokenList(params)
 
