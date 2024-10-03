@@ -1,6 +1,17 @@
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import useAccountContext from '@legends/hooks/useAccountContext'
 import { ethers } from 'ethers'
-import React, { useCallback, useEffect, useState } from 'react'
-import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
+
+const RELAYER_URL = 'https://staging-relayer.ambire.com'
+
+const CharacterContext = createContext<{
+  character?: any
+  getCharacter: () => void
+  mintCharacter: (type: number) => void
+}>({
+  getCharacter: () => {},
+  mintCharacter: () => {}
+})
 
 const LegendsNftAbi = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
@@ -248,92 +259,63 @@ const LegendsNftAbi = [
   }
 ]
 
-const RELAYER_URL = 'https://staging-relayer.ambire.com'
+const CharacterContextProvider: React.FC<any> = ({ children }) => {
+  const { connectedAccount } = useAccountContext()
+  const [character, setCharacter] = useState<any>()
 
-const Character = () => {
-  const [isMinted, setIsMinted] = useState()
-  const [character, setCharacter] = useState()
-  const { accountPortfolio } = usePortfolioControllerState()
+  const getCharacter = useCallback(async () => {
+    if (!connectedAccount) return
 
-  // This won't be needed, as `/legends/nft-meta/${accountPortfolio?.address}` will be refactored and will return that info
-  useEffect(() => {
-    ;(async () => {
+    const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
+    setCharacter(await characterResponse.json())
+  }, [connectedAccount])
+
+  const mintCharacter = useCallback(
+    async (type: number) => {
+      if (!connectedAccount || !window.ambire) return
+
+      // Switch to Base chain
       await window.ambire.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: '0x2105' }] // chainId must be in hexadecimal numbers
       })
 
-      const abi = LegendsNftAbi
-      const contractAddress = '0x52d067EBB7b06F31AEB645Bd34f92c3Ac13a29ea'
       const provider = new ethers.BrowserProvider(window.ambire)
+
       const signer = await provider.getSigner()
 
-      // Create a contract instance
-      const myNftContract = new ethers.Contract(contractAddress, abi, signer)
+      const abi = LegendsNftAbi
+      const contractAddress = '0x52d067EBB7b06F31AEB645Bd34f92c3Ac13a29ea'
 
-      try {
-        const owner = await myNftContract.owner()
-        setIsMinted(true)
-      } catch (e: any) {
-        console.log({ e })
-        setIsMinted(false)
-      }
-    })()
-  }, [])
+      // Create a contract instance
+      const nftContract = new ethers.Contract(contractAddress, abi, signer)
+
+      await nftContract.mint(type)
+
+      await getCharacter()
+    },
+    [connectedAccount, getCharacter]
+  )
 
   useEffect(() => {
-    if (!isMinted || character) return
-    ;(async () => {
-      const nftMeta = await fetch(`${RELAYER_URL}/legends/nft-meta/${accountPortfolio?.address}`)
-      setCharacter(nftMeta)
-    })()
-  }, [isMinted, accountPortfolio, character])
-
-  const mintCharacter = useCallback(async (event) => {
-    await window.ambire.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: '0x2105' }] // chainId must be in hexadecimal numbers
-    })
-
-    const provider = new ethers.BrowserProvider(window.ambire)
-
-    const signer = await provider.getSigner()
-
-    const abi = LegendsNftAbi
-    const contractAddress = '0x52d067EBB7b06F31AEB645Bd34f92c3Ac13a29ea'
-
-    // Create a contract instance
-    const myNftContract = new ethers.Contract(contractAddress, abi, signer)
-
-    await myNftContract.mint(signer.address)
-  }, [])
-
-  // Loading the contract
-  if (isMinted === undefined) {
-    return <div />
-  }
-
-  if (isMinted) {
-    return (
-      <div>
-        You already choose a Character
-        {character && character.toString()}
-      </div>
-    )
-  }
+    if (!connectedAccount) return
+    getCharacter()
+  }, [connectedAccount, getCharacter])
 
   return (
-    <div style={{ display: 'flex' }}>
-      <label>
-        <strong>Choose Character</strong>
-      </label>
-      <select onChange={mintCharacter}>
-        <option value={1}>Character 1</option>
-        <option value={2}>Character 2</option>
-        <option value={3}>Character 3</option>
-      </select>
-    </div>
+    <CharacterContext.Provider
+      value={useMemo(
+        () => ({
+          character,
+          getCharacter,
+          mintCharacter
+        }),
+        [character, getCharacter, mintCharacter]
+      )}
+    >
+      {children}
+    </CharacterContext.Provider>
   )
 }
 
-export default Character
+export { CharacterContextProvider, CharacterContext }

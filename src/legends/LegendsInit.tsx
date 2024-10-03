@@ -4,6 +4,7 @@ import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 
 import { AccountContextProvider } from './contexts/accountContext'
+import { CharacterContextProvider } from './contexts/characterContext'
 import { PortfolioControllerStateProvider } from './contexts/portfolioControllerStateContext'
 import Router from './modules/router/Router'
 
@@ -17,9 +18,11 @@ const LegendsInit = () => {
   return (
     <PortalProvider>
       <AccountContextProvider>
-        <PortfolioControllerStateProvider>
-          <Router />
-        </PortfolioControllerStateProvider>
+        <CharacterContextProvider>
+          <PortfolioControllerStateProvider>
+            <Router />
+          </PortfolioControllerStateProvider>
+        </CharacterContextProvider>
       </AccountContextProvider>
       <PortalHost name="global" />
     </PortalProvider>
