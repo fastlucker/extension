@@ -369,6 +369,7 @@ type DappsControllerRemoveDappAction = {
 
 type SwapAndBridgeControllerInitAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
+  params: { sessionId: string }
 }
 type SwapAndBridgeControllerUpdateFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM'

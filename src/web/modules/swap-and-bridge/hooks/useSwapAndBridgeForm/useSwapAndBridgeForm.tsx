@@ -1,4 +1,5 @@
 import { formatUnits } from 'ethers'
+import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
@@ -16,6 +17,8 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTokenSelectProps'
 import { getTokenId } from '@web/utils/token'
+
+const sessionId = nanoid()
 
 const useSwapAndBridgeFrom = () => {
   const {
@@ -42,8 +45,8 @@ const useSwapAndBridgeFrom = () => {
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
 
   useEffect(() => {
-    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM' })
-  }, [dispatch])
+    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+  }, [dispatch, sessionId])
 
   useEffect(() => {
     if (
@@ -210,6 +213,7 @@ const useSwapAndBridgeFrom = () => {
   }, [])
 
   return {
+    sessionId,
     fromAmountValue,
     onFromAmountChange,
     fromTokenAmountSelectDisabled,

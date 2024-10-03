@@ -879,7 +879,7 @@ handleKeepAlive()
                 return mainCtrl.destroySignAccOp()
 
               case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
-                return mainCtrl.swapAndBridge.initForm()
+                return mainCtrl.swapAndBridge.initForm(params.sessionId)
               case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
                 return mainCtrl.swapAndBridge.updateForm(params)
               case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':

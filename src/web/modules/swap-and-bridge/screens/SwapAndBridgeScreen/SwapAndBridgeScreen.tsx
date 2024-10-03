@@ -38,6 +38,7 @@ const SwapAndBridgeScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const {
+    sessionId,
     fromAmountValue,
     onFromAmountChange,
     fromTokenOptions,
@@ -58,6 +59,7 @@ const SwapAndBridgeScreen = () => {
     setFollowUpTransactionConfirmed
   } = useSwapAndBridgeFrom()
   const {
+    sessionId: controllerSessionId,
     fromSelectedToken,
     fromAmount,
     fromAmountInFiat,
@@ -101,6 +103,8 @@ const SwapAndBridgeScreen = () => {
   const handleCheckboxPress = useCallback(() => {
     setFollowUpTransactionConfirmed((p) => !p)
   }, [setFollowUpTransactionConfirmed])
+
+  if (sessionId !== controllerSessionId) return
 
   return (
     <TabLayoutContainer
