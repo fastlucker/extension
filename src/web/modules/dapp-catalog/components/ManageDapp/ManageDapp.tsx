@@ -114,8 +114,8 @@ const ManageDapp = ({
     <BottomSheet id="dapp-footer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
       <Dialog
         dialogRef={dialogRef}
-        id="delete-contact"
-        title={t('Delete dApp')}
+        id="remove-dapp"
+        title={t('Remove dApp')}
         text={
           dapp?.isConnected
             ? t(
