@@ -66,7 +66,12 @@ export const TEST_IDS = {
   tabNft: 'tab-nft',
   collectionItem: 'collection-item',
   collectiblePicture: 'collectible-picture',
-  collectibleRow: 'collectible-row'
+  collectibleRow: 'collectible-row',
+  addressBookMyWalletContactDyn: 'address-book-my-wallet-contact',
+  dashboardButtonSend: 'dashboard-button-send',
+  amountField: 'amount-field',
+  recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
+  transferButtonConfirm: 'transfer-button-confirm'
 }
 
 export const SELECTORS = Object.fromEntries(

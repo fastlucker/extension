@@ -9,56 +9,61 @@ import { selectFeeToken } from '../common-helpers/selectFeeToken'
 import { signTransaction } from '../common-helpers/signTransaction'
 import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
-import { SELECTORS } from './selectors/selectors'
+import { SELECTORS, TEST_IDS } from './selectors/selectors'
+import { buildSelector } from '../common-helpers/buildSelector'
 
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
-const amountField = '[data-testid="amount-field"]'
+const amountField = SELECTORS.amountField
+const polTokenSelector = buildSelector('token-0x0000000000000000000000000000000000000000-polygon')
 //--------------------------------------------------------------------------------------------------------------
 export async function makeValidTransaction(
   page,
   extensionURL,
   browser,
-  { shouldStopBeforeSign, feeToken } = {
-    shouldStopBeforeSign: false
+  { shouldStopBeforeSign, feeToken, shouldUseAddressBookRecipient, tokenAmount } = {
+    shouldStopBeforeSign: false,
+    shouldUseAddressBookRecipient: false,
+    tokenAmount: '0.0001'
   }
 ) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
   // Check if POL on Gas Tank are under 0.01
-  await checkBalanceOfToken(
-    page,
-    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-    0.01
-  )
+  await checkBalanceOfToken(page, polTokenSelector, 0.01)
   // Click on "Send" button
-  await clickOnElement(page, '[data-testid="dashboard-button-send"]')
+  await clickOnElement(page, SELECTORS.dashboardButtonSend)
 
-  await page.waitForSelector('[data-testid="amount-field"]')
+  await page.waitForSelector(amountField)
   await selectPolToken(page)
-  await typeText(page, '[data-testid="amount-field"]', '0.0001') // Type the amount
+  await typeText(page, amountField, tokenAmount) // Type the amount
 
-  // Type the address of the recipient
-  await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
-  await page.waitForXPath(
-    '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
-  )
+  if (!shouldUseAddressBookRecipient) {
+    // Type the address of the recipient
+    await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
+    await page.waitForXPath(
+      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+    )
 
-  // Check the checkbox "Confirm sending to a previously unknown address"
-  await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
+    // Check the checkbox "Confirm sending to a previously unknown address"
+    await clickOnElement(page, SELECTORS.recipientAddressUnknownCheckbox)
 
-  // Check the checkbox "I confirm this address is not a Binance wallets...."
-  const checkboxExists = await page.evaluate(
-    (selector) => !!document.querySelector(selector),
-    SELECTORS.checkbox
-  )
-  if (checkboxExists) await clickOnElement(page, SELECTORS.checkbox)
+    // Check the checkbox "I confirm this address is not a Binance wallets...."
+    const checkboxExists = await page.evaluate(
+      (selector) => !!document.querySelector(selector),
+      SELECTORS.checkbox
+    )
+    if (checkboxExists) await clickOnElement(page, SELECTORS.checkbox)
+  } else {
+    await clickOnElement(page, recipientField)
+    await clickOnElement(page, buildSelector(TEST_IDS.addressBookMyWalletContactDyn, 1))
+  }
 
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="transfer-button-confirm"]'
+    SELECTORS.transferButtonConfirm
   )
 
   if (shouldStopBeforeSign) return
@@ -243,11 +248,7 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 //--------------------------------------------------------------------------------------------------------------
 export async function sendFundsToSmartContract(page, extensionURL) {
   // Check if POL on Polygon are under 0.0015
-  await checkBalanceOfToken(
-    page,
-    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-    0.0002
-  )
+  await checkBalanceOfToken(page, polTokenSelector, 0.0002)
 
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
   await page.waitForSelector('[data-testid="max-available-amount"]')
