@@ -117,7 +117,7 @@ const SwapAndBridgeScreen = () => {
       >
         <View style={styles.container}>
           <View style={spacings.mbLg}>
-            {(activeRoutes || []).map((activeRoute) => (
+            {(activeRoutes || []).reverse().map((activeRoute) => (
               <ActiveRouteCard key={activeRoute.activeRouteId} activeRoute={activeRoute} />
             ))}
           </View>
