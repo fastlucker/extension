@@ -5,10 +5,12 @@ const accountContext = createContext<{
   connectedAccount: string | null
   error: string | null
   requestAccounts: () => void
+  disconnectAccount: () => void
 }>({
   connectedAccount: null,
   error: null,
-  requestAccounts: () => {}
+  requestAccounts: () => {},
+  disconnectAccount: () => {}
 })
 
 const RELAYER_URL = 'https://staging-relayer.ambire.com'
@@ -23,6 +25,11 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       method: 'eth_requestAccounts',
       params: []
     })
+  }, [])
+
+  const disconnectAccount = useCallback(() => {
+    alert('TODO: disconnect logic')
+    // TODO: disconnect logic
   }, [])
 
   const getConnectedAccount = useCallback(async (): Promise<string | null> => {
@@ -75,9 +82,10 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     () => ({
       connectedAccount,
       error,
-      requestAccounts
+      requestAccounts,
+      disconnectAccount
     }),
-    [connectedAccount, error, requestAccounts]
+    [connectedAccount, error, requestAccounts, disconnectAccount]
   )
 
   return <accountContext.Provider value={contextValue}>{children}</accountContext.Provider>
