@@ -1,0 +1,13 @@
+@import '@legends/styles/base.scss';
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+
+  .button {
+    @include primary-button;
+    font-size: 1rem;
+    color: $secondaryAccent;
+  }
+}

@@ -64,6 +64,7 @@ const ChangeHdPath: React.FC<Props> = () => {
         selectStyle={{ height: 40 }}
         options={DERIVATION_OPTIONS}
         value={value}
+        withSearch={false}
       />
     </View>
   )

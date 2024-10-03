@@ -1,4 +1,29 @@
+@mixin button {
+  border-radius: $primaryBorderRadius;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+@mixin primary-button {
+  @include button;
+  background-color: $primaryBackground;
+  border: 1px solid $primaryBorder;
+  box-shadow: 0 2px 1px #1d0a0a;
+  color: $accent;
+  font-weight: 700;
+  height: 3.375rem;
+
+  &:active {
+    // Simulate a button press
+    transform: translateY(0.125rem);
+    opacity: 1;
+  }
+}
 @mixin secondary-button {
+  @include button;
   background-color: $secondaryBackground;
   border: 1px solid $secondaryBorder;
   border-radius: $primaryBorderRadius;
@@ -29,7 +54,6 @@
   }
 }
 
-// Generate responsive mixins for mobile, tablet, large tablet, small desktop, medium and large desktop.
 @mixin breakpoint-from($breakpoint) {
   @if $breakpoint == tablet {
     @media (min-width: 600px) {
@@ -45,6 +69,32 @@
     }
   } @else if $breakpoint == medium-desktop {
     @media (min-width: 1400px) {
+      @content;
+    }
+  } @else if $breakpoint == large-desktop {
+    @media (min-width: 1800px) {
+      @content;
+    }
+  }
+}
+
+// Reverse of breakpoint-from. Will be more useful because
+// legends isn't mobile-first and responsive.
+@mixin breakpoint-down-from($breakpoint) {
+  @if $breakpoint == tablet {
+    @media (max-width: 899px) {
+      @content;
+    }
+  } @else if $breakpoint == large-tablet {
+    @media (max-width: 1199px) {
+      @content;
+    }
+  } @else if $breakpoint == small-desktop {
+    @media (max-width: 1399px) {
+      @content;
+    }
+  } @else if $breakpoint == medium-desktop {
+    @media (max-width: 1799px) {
       @content;
     }
   } @else if $breakpoint == large-desktop {

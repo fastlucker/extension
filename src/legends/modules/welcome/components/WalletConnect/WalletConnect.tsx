@@ -2,6 +2,9 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
+import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
+
+import styles from './WalletConnect.module.scss'
 
 const WalletConnect = () => {
   const navigate = useNavigate()
@@ -9,7 +12,7 @@ const WalletConnect = () => {
 
   useEffect(() => {
     if (connectedAccount) {
-      navigate('/legends')
+      navigate(LEGENDS_ROUTES.character)
     }
   }, [connectedAccount, navigate])
 
@@ -18,22 +21,26 @@ const WalletConnect = () => {
 
   if (!window.ambire)
     return (
-      <div>
-        The Ambire extension is not installed, and you cannot proceed with Legends.{' '}
+      <>
         <a
           href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en"
           target="_blank"
           rel="noreferrer"
+          className={styles.button}
         >
-          Get Ambire!
+          Install Ambire
         </a>
-      </div>
+        <p className={styles.text}>*Please, reload this tab after installing Ambire</p>
+      </>
     )
 
   return (
-    <button type="button" onClick={requestAccounts} style={{ display: 'flex' }}>
-      Connect your Ambire v2 account
-    </button>
+    <>
+      <button type="button" onClick={requestAccounts} className={styles.button}>
+        Connect Ambire
+      </button>
+      <p className={styles.text}>*Only Ambire V2 accounts can earn points</p>
+    </>
   )
 }
 

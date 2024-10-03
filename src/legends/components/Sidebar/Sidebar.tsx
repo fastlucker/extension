@@ -7,6 +7,7 @@ import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
 import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import HighlightedLink from './components/HighlightedLink'
 import Link from './components/Link'
@@ -19,10 +20,10 @@ type Props = {
 }
 
 const NAVIGATION_LINKS = [
-  { to: '/character', text: 'Character', icon: faCircleUser },
-  { to: '/legends', text: 'Legends', icon: faMedal },
-  { to: '/leaderboard', text: 'Leaderboard', icon: faTrophy },
-  { to: '/guide', text: 'Guide', icon: faFileLines }
+  { to: LEGENDS_ROUTES.character, text: 'Character', icon: faCircleUser },
+  { to: LEGENDS_ROUTES.legends, text: 'Legends', icon: faMedal },
+  { to: LEGENDS_ROUTES.leaderboard, text: 'Leaderboard', icon: faTrophy },
+  { to: '', text: 'Guide', icon: faFileLines }
 ]
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {

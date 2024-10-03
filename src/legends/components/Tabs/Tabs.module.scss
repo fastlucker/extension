@@ -1,0 +1,31 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: $secondaryBackground;
+  border: 1px solid $primaryBorder;
+  border-radius: $primaryBorderRadius;
+  width: fit-content;
+
+  .tab {
+    padding: 0.5rem 0.75rem;
+    font-family: $primaryFont;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: $secondaryText;
+
+    &.selected {
+      border-radius: $primaryBorderRadius;
+      background-color: $tertiaryBackground;
+      color: $primaryText;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
