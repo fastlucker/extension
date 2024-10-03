@@ -7,6 +7,7 @@ import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
 import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import WheelComponent from '@legends/modules/legends/components/WheelComponent'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import HighlightedLink from './components/HighlightedLink'
@@ -28,6 +29,11 @@ const NAVIGATION_LINKS = [
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { pathname } = useLocation()
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
+
+  const handleModal = () => {
+    setIsModalOpen(!isModalOpen)
+  }
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -41,9 +47,10 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           title="Daily Legend"
           text="Available Now"
         >
-          <button onClick={() => {}} type="button" className={styles.spinButton}>
+          <button onClick={handleModal} type="button" className={styles.spinButton}>
             Spin the Wheel
           </button>
+          <WheelComponent isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
         </HighlightedLink>
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
