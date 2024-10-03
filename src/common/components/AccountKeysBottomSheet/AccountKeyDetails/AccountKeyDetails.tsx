@@ -22,9 +22,16 @@ interface Props {
   closeDetails: () => void
   account: Account
   keyIconColor?: string
+  isSettings?: boolean
 }
 
-const AccountKeyDetails: FC<Props> = ({ details, closeDetails, account, keyIconColor }) => {
+const AccountKeyDetails: FC<Props> = ({
+  details,
+  closeDetails,
+  account,
+  keyIconColor,
+  isSettings = false
+}) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { type, addr, dedicatedToOneSA } = details
@@ -117,7 +124,12 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails, account, keyIconC
         {t('Key Details')}
       </Text>
       <View style={styles.container}>
-        <AccountKey {...details} account={account} keyIconColor={keyIconColor} />
+        <AccountKey
+          {...details}
+          account={account}
+          keyIconColor={keyIconColor}
+          isSettings={isSettings}
+        />
         <View style={[spacings.phSm, spacings.pvSm, spacings.mtMi]}>
           {metaDetails.map(({ key, value, tooltip, suffix }) => (
             <Row key={key} rowKey={key} value={value} tooltip={tooltip} suffix={suffix} />

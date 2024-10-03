@@ -45,6 +45,7 @@ type Props = AccountKeyType & {
   showCopyAddr?: boolean
   account: Account
   keyIconColor?: string
+  isSettings?: boolean
 }
 
 const { isPopup } = getUiType()
@@ -62,7 +63,8 @@ const AccountKey: React.FC<Props> = ({
   handleOnKeyDetailsPress,
   openAddAccountBottomSheet,
   account,
-  keyIconColor
+  keyIconColor,
+  isSettings = false
 }) => {
   const [isImporting, setIsImporting] = useState<boolean>(false)
   const { t } = useTranslation()
@@ -182,68 +184,77 @@ const AccountKey: React.FC<Props> = ({
             </AnimatedPressable>
           )}
         </View>
-        {isImported ? (
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <View>
-              {/* 
-            When making the Pressable disabled, it disables literally everything in it.
-            So even the tooltip will not work.
-            The workaround is to set a wrapping <View> and make it the tooltip target
-          */}
-              {/* @ts-ignore */}
-              <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
-                <Button
-                  style={spacings.mb0}
-                  onPress={exportKey}
-                  size="tiny"
-                  disabled={!canExportKey}
-                  type="secondary"
-                >
-                  <Text style={[spacings.mrTy]} fontSize={12}>
-                    Export
-                  </Text>
-                  <ExportIcon color={theme.secondaryText} width={16} height={16} />
-                </Button>
-              </View>
-              {!canExportKey && (
-                <Tooltip id="export-icon-tooltip">
-                  <View>
-                    <Text fontSize={14} appearance="secondaryText">
-                      {t('Export unavailable as this is a hardware wallet key')}
-                    </Text>
+        {isSettings && (
+          <View>
+            {isImported ? (
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <View>
+                  {/* 
+                When making the Pressable disabled, it disables literally everything in it.
+                So even the tooltip will not work.
+                The workaround is to set a wrapping <View> and make it the tooltip target
+              */}
+                  {/* @ts-ignore */}
+                  <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
+                    <Button
+                      style={spacings.mb0}
+                      onPress={exportKey}
+                      size="tiny"
+                      disabled={!canExportKey}
+                      type="secondary"
+                    >
+                      <Text style={[spacings.mrTy]} fontSize={12}>
+                        Export
+                      </Text>
+                      <ExportIcon color={theme.secondaryText} width={16} height={16} />
+                    </Button>
                   </View>
-                </Tooltip>
-              )}
-            </View>
-            <AnimatedPressable
-              onPress={handleOnKeyDetailsPress}
-              style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlTy]}
-              {...bindKeyDetailsAnim}
-            >
-              <Text fontSize={14} appearance="secondaryText" weight="medium" style={spacings.mrTy}>
-                {t('Details')}
-              </Text>
-              <Animated.View style={keyDetailsAnimStyles}>
-                <RightArrowIcon width={16} height={16} color={theme.secondaryText} />
-              </Animated.View>
-            </AnimatedPressable>
-          </View>
-        ) : (
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <Button style={spacings.mb0} onPress={importKey} size="tiny" type="secondary">
-              <Text style={[spacings.mrTy]} fontSize={12}>
-                Import
-              </Text>
-              <ImportIcon color={theme.secondaryText} width={16} height={16} />
-            </Button>
+                  {!canExportKey && (
+                    <Tooltip id="export-icon-tooltip">
+                      <View>
+                        <Text fontSize={14} appearance="secondaryText">
+                          {t('Export unavailable as this is a hardware wallet key')}
+                        </Text>
+                      </View>
+                    </Tooltip>
+                  )}
+                </View>
+                <AnimatedPressable
+                  onPress={handleOnKeyDetailsPress}
+                  style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlTy]}
+                  {...bindKeyDetailsAnim}
+                >
+                  <Text
+                    fontSize={14}
+                    appearance="secondaryText"
+                    weight="medium"
+                    style={spacings.mrTy}
+                  >
+                    {t('Details')}
+                  </Text>
+                  <Animated.View style={keyDetailsAnimStyles}>
+                    <RightArrowIcon width={16} height={16} color={theme.secondaryText} />
+                  </Animated.View>
+                </AnimatedPressable>
+              </View>
+            ) : (
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <Button style={spacings.mb0} onPress={importKey} size="tiny" type="secondary">
+                  <Text style={[spacings.mrTy]} fontSize={12}>
+                    Import
+                  </Text>
+                  <ImportIcon color={theme.secondaryText} width={16} height={16} />
+                </Button>
 
-            <View style={spacings.mlTy}>
-              <Badge type="warning" text={t('Not imported')} />
-            </View>
+                <View style={spacings.mlTy}>
+                  <Badge type="warning" text={t('Not imported')} />
+                </View>
+              </View>
+            )}
           </View>
         )}
       </View>
-      {isImporting && openAddAccountBottomSheet && (
+      {isSettings && isImporting && openAddAccountBottomSheet && (
         <View style={[spacings.phSm, flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
           <Text>To import this key, you will need to reimport the account</Text>
           <Button style={[spacings.mb0, spacings.mlTy]} onPress={reimportAccount} size="tiny">

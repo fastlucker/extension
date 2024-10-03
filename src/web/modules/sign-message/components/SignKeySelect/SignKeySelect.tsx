@@ -73,6 +73,7 @@ const SigningKeySelect = ({
                   isImported={isImported}
                   enableEditing={false}
                   account={account}
+                  keyIconColor="#000"
                 />
               </Pressable>
             )

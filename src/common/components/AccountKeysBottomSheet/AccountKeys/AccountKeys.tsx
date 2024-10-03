@@ -15,13 +15,15 @@ interface Props {
   account: Account
   openAddAccountBottomSheet?: () => void
   keyIconColor?: string
+  isSettings?: boolean
 }
 
 const AccountKeys: FC<Props> = ({
   setCurrentKeyDetails,
   account,
   openAddAccountBottomSheet,
-  keyIconColor
+  keyIconColor,
+  isSettings
 }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
@@ -88,6 +90,7 @@ const AccountKeys: FC<Props> = ({
               account={account}
               openAddAccountBottomSheet={openAddAccountBottomSheet}
               keyIconColor={keyIconColor}
+              isSettings={isSettings}
             />
           )
         })}

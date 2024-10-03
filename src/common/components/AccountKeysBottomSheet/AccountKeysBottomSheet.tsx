@@ -13,13 +13,15 @@ interface Props {
   closeBottomSheet: () => void
   account: Account
   openAddAccountBottomSheet?: () => void
+  isSettings?: boolean
 }
 
 const AccountKeysBottomSheet: FC<Props> = ({
   sheetRef,
   closeBottomSheet,
   account,
-  openAddAccountBottomSheet
+  openAddAccountBottomSheet,
+  isSettings = false
 }) => {
   const [currentKeyDetails, setCurrentKeyDetails] = useState<AccountKeyType | null>(null)
 
@@ -38,6 +40,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           account={account}
           openAddAccountBottomSheet={openAddAccountBottomSheet}
           keyIconColor="#000"
+          isSettings={isSettings}
         />
       ) : (
         <AccountKeyDetails
@@ -45,6 +48,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           closeDetails={closeCurrentKeyDetails}
           account={account}
           keyIconColor="#000"
+          isSettings={isSettings}
         />
       )}
     </BottomSheet>

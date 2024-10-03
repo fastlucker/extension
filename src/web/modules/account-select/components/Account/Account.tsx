@@ -191,6 +191,7 @@ const Account = ({
               account={account}
               closeBottomSheet={closeBottomSheet}
               openAddAccountBottomSheet={openAddAccountBottomSheet}
+              isSettings={isSettings}
             />
           )}
           {isSettings && (
