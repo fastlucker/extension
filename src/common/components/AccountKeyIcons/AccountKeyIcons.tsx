@@ -2,6 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
@@ -26,8 +27,10 @@ const AccountKeyIcons = ({
     <View style={[flexbox.directionRow]}>
       {importedKeyTypes.map((type, index) => {
         return (
-          // @ts-ignore
-          <View key={type || 'internal'} style={index !== 0 ? { 'margin-left': '-12px' } : {}}>
+          <View
+            key={type || 'internal'}
+            style={[index !== importedKeyTypes.length - 1 ? spacings.mrTy : spacings.mr0]}
+          >
             {isExtended ? (
               <AccountKeyBanner type={type || 'internal'} />
             ) : (
