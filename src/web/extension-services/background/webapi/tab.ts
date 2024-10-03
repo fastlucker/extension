@@ -35,9 +35,22 @@ export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
   return tab
 }
 
-const openInternalPageInTab = async (route?: string, useWebapi = true) => {
+const openInternalPageInTab = async (route?: string, useWebapi = true, searchParams = {}) => {
   if (useWebapi) {
-    openInTab(`./tab.html${route ? `#/${route}` : ''}`)
+    /* eslint-disable @typescript-eslint/no-floating-promises */
+    openInTab(
+      `./tab.html${
+        route
+          ? `#/${route}${
+              searchParams
+                ? `?${Object.keys(searchParams)
+                    .map((key) => `${key}=${searchParams[key]}`)
+                    .join('&')}`
+                : ''
+            }`
+          : ''
+      }`
+    )
   } else {
     window.open(`./tab.html${route ? `#/${route}` : ''}`)
   }

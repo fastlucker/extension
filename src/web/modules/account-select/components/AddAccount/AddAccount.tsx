@@ -9,6 +9,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -17,7 +18,12 @@ import { useGetAddAccountOptions } from './helpers/useGetAddAccountOptions'
 const AddAccount = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const options = useGetAddAccountOptions({ navigate, t })
+  const keystoreState = useKeystoreControllerState()
+  const options = useGetAddAccountOptions({
+    navigate,
+    t,
+    hasKeystoreDefaultSeed: keystoreState.hasKeystoreDefaultSeed
+  })
   const mainControllerState = useMainControllerState()
   const accountAdderControllerState = useAccountAdderControllerState()
 
@@ -31,6 +37,23 @@ const AddAccount = () => {
     mainControllerState.statuses.onAccountAdderSuccess,
     navigate,
     accountAdderControllerState.readyToAddAccounts
+  ])
+
+  useEffect(() => {
+    if (
+      accountAdderControllerState.isInitialized &&
+      // The AccountAdder could have been already initialized with the same or a
+      // different type. Navigate immediately only if the types match.
+      accountAdderControllerState.type === 'internal' &&
+      accountAdderControllerState.subType === 'seed'
+    ) {
+      navigate(WEB_ROUTES.accountAdder)
+    }
+  }, [
+    accountAdderControllerState.isInitialized,
+    accountAdderControllerState.subType,
+    accountAdderControllerState.type,
+    navigate
   ])
 
   return (
@@ -47,7 +70,6 @@ const AddAccount = () => {
           hasLargerBottomSpace={option.hasLargerBottomSpace}
           testID={option.testID}
           disabled={
-            option.disabled ||
             mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL' ||
             mainControllerState.statuses.importSmartAccountFromDefaultSeed !== 'INITIAL'
           }

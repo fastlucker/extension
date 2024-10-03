@@ -4,6 +4,8 @@ import { useModalize } from 'react-native-modalize'
 
 import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
 import ImportFromDefaultOrExternalSeedIcon from '@common/assets/svg/ImportFromDefaultOrExternalSeedIcon'
+import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
+import SeedPhraseIcon from '@common/assets/svg/SeedPhraseIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
@@ -24,10 +26,8 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
-import options from '@web/modules/auth/screens/HotWalletImportSelectorScreen/options'
 
 import { showEmailVaultInterest } from '../../utils/emailVault'
 
@@ -36,7 +36,6 @@ const HotWalletImportSelectorScreen = () => {
   const { theme } = useTheme()
   const { navigate } = useNavigation()
   const { isReadyToStoreKeys, hasKeystoreDefaultSeed } = useKeystoreControllerState()
-  const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { accounts } = useAccountsControllerState()
@@ -57,10 +56,6 @@ const HotWalletImportSelectorScreen = () => {
     accountAdderCtrlState.type,
     navigate
   ])
-
-  const handleImportFromDefaultSeed = useCallback(() => {
-    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE' })
-  }, [dispatch])
 
   const handleImportFromExternalSeed = useCallback(() => {
     navigate(WEB_ROUTES.importSeedPhrase)
@@ -84,8 +79,24 @@ const HotWalletImportSelectorScreen = () => {
     navigate(WEB_ROUTES.createSeedPhrasePrepare)
   }, [navigate, isReadyToStoreKeys])
 
+  const isImportOnly = hasKeystoreDefaultSeed || accounts.length
   const onOptionPress = async (flow: string) => {
     if (flow === 'seed') {
+      // if the extension has already been init once, this option
+      // will allow import a seed only as it will be availableo only
+      // from the bottom sheet
+      if (isImportOnly) {
+        // if you've added a view only account / hardware wallet,
+        // you won't have a device password => check it
+        if (!isReadyToStoreKeys) {
+          navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'seed' } })
+          return
+        }
+
+        handleImportFromExternalSeed()
+        return
+      }
+
       openBottomSheet()
       return
     }
@@ -105,6 +116,27 @@ const HotWalletImportSelectorScreen = () => {
 
     // @TODO: Implement email vault
   }
+
+  const options = [
+    {
+      testID: 'button-proceed-seed-phrase',
+      title: 'Seed Phrase',
+      text: `Select this option to ${
+        isImportOnly ? 'import' : 'create/import'
+      } your Basic or Smart account(s) by using a seed phrase.`,
+      image: SeedPhraseIcon,
+      buttonText: 'Proceed',
+      flow: 'seed'
+    },
+    {
+      testID: 'button-import-private-key',
+      title: 'Private Key',
+      text: 'Select this option to import your Basic or Smart account(s) by entering their private key.',
+      image: PrivateKeyIcon,
+      buttonText: 'Import',
+      flow: 'private-key'
+    }
+  ]
 
   return (
     <TabLayoutContainer
@@ -151,69 +183,36 @@ const HotWalletImportSelectorScreen = () => {
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
-      {hasKeystoreDefaultSeed ? (
-        <BottomSheet
-          id="import-seed-phrase"
-          sheetRef={sheetRef}
-          closeBottomSheet={closeBottomSheet}
-          backgroundColor="secondaryBackground"
-          style={{ overflow: 'hidden', width: 632, ...spacings.ph0, ...spacings.pv0 }}
-          type="modal"
-        >
-          <DualChoiceModal
-            title={t('Import from default or external Seed Phrase')}
-            description={
-              <View>
-                <Text style={spacings.mbTy} appearance="secondaryText">
-                  {t(
-                    'If you use default seed, you will be given the option to import selected accounts from the currently associated seed phase.'
-                  )}
-                </Text>
-                <Text appearance="secondaryText">
-                  {t(
-                    'If you use external seed, you can import selected accounts from a seed phrase that you enter now. The seed phase itself won’t be persisted.'
-                  )}
-                </Text>
-              </View>
-            }
-            Icon={ImportFromDefaultOrExternalSeedIcon}
-            onSecondaryButtonPress={handleImportFromExternalSeed}
-            onPrimaryButtonPress={handleImportFromDefaultSeed}
-            secondaryButtonText={t('Use external seed')}
-            primaryButtonText={t('Use default seed')}
-          />
-        </BottomSheet>
-      ) : (
-        <BottomSheet
-          id="create-or-import-seed-phrase"
-          sheetRef={sheetRef}
-          closeBottomSheet={closeBottomSheet}
-          backgroundColor="secondaryBackground"
-          style={{ overflow: 'hidden', width: 632, ...spacings.ph0, ...spacings.pv0 }}
-          type="modal"
-        >
-          <DualChoiceModal
-            title={t('Create or import Seed Phrase')}
-            description={
-              <View>
-                <Text style={spacings.mbTy} appearance="secondaryText">
-                  {t(
-                    'If you already have a seed and you would like to use it, please select the import option'
-                  )}
-                </Text>
-                <Text appearance="secondaryText">
-                  {t("If you don't have a seed, select the option to create a new one.")}
-                </Text>
-              </View>
-            }
-            Icon={ImportFromDefaultOrExternalSeedIcon}
-            onSecondaryButtonPress={handleImportSeed}
-            onPrimaryButtonPress={handleCreateSeed}
-            secondaryButtonText={t('Import existing seed')}
-            primaryButtonText={t('Create seed')}
-          />
-        </BottomSheet>
-      )}
+
+      <BottomSheet
+        id="create-or-import-seed-phrase"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        backgroundColor="secondaryBackground"
+        style={{ overflow: 'hidden', width: 632, ...spacings.ph0, ...spacings.pv0 }}
+        type="modal"
+      >
+        <DualChoiceModal
+          title={t('Create or import Seed Phrase')}
+          description={
+            <View>
+              <Text style={spacings.mbTy} appearance="secondaryText">
+                {t(
+                  'If you already have a seed and you would like to use it, please select the import option'
+                )}
+              </Text>
+              <Text appearance="secondaryText">
+                {t("If you don't have a seed, select the option to create a new one.")}
+              </Text>
+            </View>
+          }
+          Icon={ImportFromDefaultOrExternalSeedIcon}
+          onSecondaryButtonPress={handleImportSeed}
+          onPrimaryButtonPress={handleCreateSeed}
+          secondaryButtonText={t('Import existing seed')}
+          primaryButtonText={t('Create seed')}
+        />
+      </BottomSheet>
     </TabLayoutContainer>
   )
 }

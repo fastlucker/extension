@@ -31,10 +31,10 @@ const useAccountAdder = ({ keySubType }: Props) => {
    * one step back, because the above hook will navigate the user back if the
    * Account Adder controller gets reset (is not initialized).
    */
-  const handleGoBack = useCallback(
-    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' }),
-    [dispatch]
-  )
+  const handleGoBack = useCallback(() => {
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
+    goBack()
+  }, [dispatch, goBack])
 
   const setPage = React.useCallback(
     (page = 1) => {
@@ -52,9 +52,7 @@ const useAccountAdder = ({ keySubType }: Props) => {
   }, [keySubType, updateStepperState])
 
   useEffect(() => {
-    console.log('problem?')
     if (!accountAdderState.isInitialized) {
-      console.log('problem???')
       goBack()
     }
   }, [accountAdderState.isInitialized, goBack])
