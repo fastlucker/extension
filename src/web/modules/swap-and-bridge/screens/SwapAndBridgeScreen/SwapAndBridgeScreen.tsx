@@ -221,7 +221,10 @@ const SwapAndBridgeScreen = () => {
               </View>
             </View>
           </Panel>
-          <SwitchTokensButton onPress={handleSwitchFromAndToTokens} />
+          <SwitchTokensButton
+            onPress={handleSwitchFromAndToTokens}
+            disabled // Temporarily disabled, while WIP
+          />
           <Panel forceContainerSmallSpacings>
             <View style={spacings.mb}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
