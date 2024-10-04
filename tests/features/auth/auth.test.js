@@ -345,6 +345,7 @@ describe('auth', () => {
 
     await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
+    await wait(2000)
     // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
     await selectHdPathAndAddAccount(page, SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto)
   })
