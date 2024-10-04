@@ -30,10 +30,21 @@ const handlePredefinedAction = (predefinedId?: string) => {
     alert('Internal error')
     return
   }
+  switch (predefinedId) {
+    case 'addEOA':
+      alert('Add EOA')
+      break
+    case 'linkX':
+      alert('Link X')
+      break
+    default:
+      alert('Unknown action')
+  }
   console.log(predefinedId)
 }
 
 const handleCallsAction = (calls: CardAction['calls']) => {
+  // window.ambire.request(calls)
   console.log(calls)
 }
 

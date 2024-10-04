@@ -137,6 +137,9 @@
 }
 
 .modalText {
+  margin-bottom: 1.25rem;
+}
+.modalAction {
   margin-bottom: 2rem;
 }
 
@@ -144,4 +147,8 @@
   @include primary-button;
   font-size: 1rem;
   color: $secondaryAccent;
+
+  &:disabled {
+    opacity: 0.5;
+  }
 }

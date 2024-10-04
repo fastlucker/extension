@@ -5,9 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from '@legends/components/Modal'
 import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
+import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import Badge from './Badge'
 import styles from './Card.module.scss'
-import CardButton from './CardButton'
+import CardActionComponent from './CardAction'
 
 type Props = Pick<
   CardFromResponse,
@@ -39,16 +40,17 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
   const isCompleted = card?.type === CardType.done
   const isRecurring = card?.type === CardType.recurring
   const shortenedDescription = description.length > 60 ? `${description.slice(0, 60)}...` : null
-  const [isReadMoreModalOpen, setIsReadMoreModalOpen] = useState(false)
+  const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false)
 
-  const openReadMoreModal = () => setIsReadMoreModalOpen(true)
+  const openActionModal = () => setIsActionModalOpen(true)
 
   return (
     <div className={`${styles.wrapper}`}>
-      <Modal isOpen={isReadMoreModalOpen} setIsOpen={setIsReadMoreModalOpen}>
+      <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen}>
         <Modal.Heading>{title}</Modal.Heading>
         <Modal.Text className={styles.modalText}>{description}</Modal.Text>
-        <CardButton action={action} />
+        <CardActionComponent buttonText={buttonText} action={action} />
       </Modal>
       {isCompleted ? (
         <div className={styles.completed}>
@@ -74,7 +76,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
           <p className={styles.description}>
             {shortenedDescription || description}{' '}
             {shortenedDescription ? (
-              <button type="button" onClick={openReadMoreModal} className={styles.readMore}>
+              <button type="button" onClick={openActionModal} className={styles.readMore}>
                 Read more
               </button>
             ) : null}
@@ -101,7 +103,9 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
             ))}
           </div>
         </div>
-        <CardButton action={action} />
+        <button className={styles.button} type="button" onClick={openActionModal}>
+          {buttonText}
+        </button>
       </div>
     </div>
   )
