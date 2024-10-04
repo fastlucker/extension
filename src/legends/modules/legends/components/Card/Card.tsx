@@ -3,18 +3,11 @@ import React, { FC, useState } from 'react'
 import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from '@legends/components/Modal'
-import { PREDEFINED_ACTION_LABEL_MAP } from '@legends/modules/legends/constants'
-import {
-  CardAction,
-  CardActionType,
-  CardFromResponse,
-  CardType,
-  CardXpType
-} from '@legends/modules/legends/types'
-import { handleCallsAction, handlePredefinedAction } from '@legends/modules/legends/utils'
+import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
 import Badge from './Badge'
 import styles from './Card.module.scss'
+import CardButton from './CardButton'
 
 type Props = Pick<
   CardFromResponse,
@@ -40,33 +33,6 @@ const getBadgeType = (reward: number, type: CardXpType) => {
   }
 
   return 'primary'
-}
-
-const CardButton = ({ action }: { action: CardAction }) => {
-  if (!action) return null
-
-  return (
-    <>
-      {action.type === CardActionType.calls && (
-        <button
-          className={styles.button}
-          type="button"
-          onClick={() => handleCallsAction(action.calls)}
-        >
-          Proceed
-        </button>
-      )}
-      {action.type === CardActionType.predefined && !!action.predefinedId && (
-        <button
-          className={styles.button}
-          type="button"
-          onClick={() => handlePredefinedAction(action.predefinedId)}
-        >
-          {PREDEFINED_ACTION_LABEL_MAP[action.predefinedId] || 'Proceed'}
-        </button>
-      )}
-    </>
-  )
 }
 
 const Card: FC<Props> = ({ title, image, description, children, xp, card, action }) => {
