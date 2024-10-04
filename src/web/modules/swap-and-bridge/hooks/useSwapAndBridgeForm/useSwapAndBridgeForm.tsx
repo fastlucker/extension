@@ -36,9 +36,10 @@ const useSwapAndBridgeForm = () => {
     quote,
     fromAmountInFiat,
     activeRoutes,
-    formStatus
+    formStatus,
+    toChainId
   } = useSwapAndBridgeControllerState()
-  const { selectedAccount } = useAccountsControllerState(0)
+  const { selectedAccount } = useAccountsControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
@@ -158,7 +159,7 @@ const useSwapAndBridgeForm = () => {
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
       networks.map((n) => ({
-        value: Number(n.chainId),
+        value: n.id,
         label: <Text weight="medium">{n.name}</Text>,
         icon: (
           <NetworkIcon id={n.id} style={{ backgroundColor: theme.primaryBackground }} size={28} />
@@ -167,13 +168,19 @@ const useSwapAndBridgeForm = () => {
     [networks, theme]
   )
 
+  const getToNetworkSelectValue = useMemo(() => {
+    const network = networks.find((n) => Number(n.chainId) === toChainId)
+    if (!network) return toNetworksOptions[0]
+
+    return toNetworksOptions.filter((opt) => opt.value === network.id)[0]
+  }, [networks, toChainId, toNetworksOptions])
+
   const handleSetToNetworkValue = useCallback(
     (networkOption: SelectValue) => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: {
-          toChainId: networks.filter((net) => Number(net.chainId) === networkOption.value)[0]
-            .chainId
+          toChainId: networks.filter((net) => net.id === networkOption.value)[0].chainId
         }
       })
     },
@@ -239,6 +246,7 @@ const useSwapAndBridgeForm = () => {
     fromTokenValue,
     handleChangeFromToken,
     toNetworksOptions,
+    getToNetworkSelectValue,
     handleSetToNetworkValue,
     toTokenAmountSelectDisabled,
     toTokenOptions,

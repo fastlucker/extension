@@ -28,7 +28,7 @@ import RouteStepsPlaceholder from '@web/modules/swap-and-bridge/components/Route
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 import SettingsModal from '@web/modules/swap-and-bridge/components/SettingsModal'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
-import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
+import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import ActiveRouteCard from '../../components/ActiveRouteCard'
 import getStyles from './styles'
@@ -46,6 +46,7 @@ const SwapAndBridgeScreen = () => {
     fromTokenAmountSelectDisabled,
     handleChangeFromToken,
     toNetworksOptions,
+    getToNetworkSelectValue,
     handleSetToNetworkValue,
     toTokenOptions,
     toTokenValue,
@@ -58,14 +59,13 @@ const SwapAndBridgeScreen = () => {
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
     pendingRoutes
-  } = useSwapAndBridgeFrom()
+  } = useSwapAndBridgeForm()
   const {
     sessionId: controllerSessionId,
     fromSelectedToken,
     fromAmount,
     fromAmountInFiat,
     fromAmountFieldMode,
-    toChainId,
     toSelectedToken,
     maxFromAmount,
     maxFromAmountInFiat,
@@ -232,7 +232,7 @@ const SwapAndBridgeScreen = () => {
                     setValue={handleSetToNetworkValue}
                     containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     options={toNetworksOptions}
-                    value={toNetworksOptions.filter((opt) => opt.value === toChainId)[0]}
+                    value={getToNetworkSelectValue}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
                   <Select
