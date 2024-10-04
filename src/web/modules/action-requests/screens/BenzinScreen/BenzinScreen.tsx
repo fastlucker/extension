@@ -49,9 +49,9 @@ const BenzinScreen = () => {
             onPress={resolveAction}
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}
-            text={pendingRequests.length > 1 ? t('Proceed to Next Request') : t('Close')}
+            text={pendingRequests.length ? t('Proceed to Next Request') : t('Close')}
           >
-            {pendingRequests.length > 1 && (
+            {!!pendingRequests.length && (
               <View style={spacings.pl}>
                 <RightArrowIcon color={theme.primary} />
               </View>

@@ -51,7 +51,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
   return (
     <Panel
       forceContainerSmallSpacings
-      style={activeRoute.routeStatus === 'completed' && { backgroundColor: '#01864914' }}
+      style={
+        activeRoute.routeStatus === 'completed'
+          ? { backgroundColor: '#edf6f1', ...spacings.mbTy }
+          : spacings.mbTy
+      }
     >
       <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
         {activeRoute.routeStatus === 'completed' ? t('Completed Route') : t('Pending Route')}
