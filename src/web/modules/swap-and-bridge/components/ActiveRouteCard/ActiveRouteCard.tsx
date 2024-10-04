@@ -78,27 +78,34 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
 
       {activeRoute.routeStatus !== 'completed' && (
         <View style={[spacings.ptSm, flexbox.directionRow, flexbox.alignCenter]}>
-          <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
-            {!!(activeTransaction as SocketAPIBridgeUserTx)?.serviceTime && (
-              <>
-                <Text
-                  fontSize={12}
-                  weight="medium"
-                  style={spacings.mrTy}
-                  appearance="secondaryText"
-                >
-                  {t('Estimated bridge time:')}
-                </Text>
-
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <Text fontSize={12} weight="medium" appearance="primary" style={spacings.mrTy}>
-                    ~{formatTime((activeTransaction as SocketAPIBridgeUserTx)?.serviceTime)}
+          {!activeRoute.error && (
+            <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
+              {!!(activeTransaction as SocketAPIBridgeUserTx)?.serviceTime && (
+                <>
+                  <Text
+                    fontSize={12}
+                    weight="medium"
+                    style={spacings.mrTy}
+                    appearance="secondaryText"
+                  >
+                    {t('Estimated bridge time:')}
                   </Text>
-                  <Spinner style={{ width: 16, height: 16 }} />
-                </View>
-              </>
-            )}
-          </View>
+
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Text fontSize={12} weight="medium" appearance="primary" style={spacings.mrTy}>
+                      ~{formatTime((activeTransaction as SocketAPIBridgeUserTx)?.serviceTime)}
+                    </Text>
+                    <Spinner style={{ width: 16, height: 16 }} />
+                  </View>
+                </>
+              )}
+            </View>
+          )}
+          {!!activeRoute.error && (
+            <Text fontSize={12} weight="medium" style={spacings.mrTy} appearance="errorText">
+              {activeRoute.error}
+            </Text>
+          )}
           <Button
             text={t('Reject')}
             onPress={handleRejectActiveRoute}
