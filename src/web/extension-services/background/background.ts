@@ -645,17 +645,14 @@ handleKeepAlive()
                 const keyIterator = new KeyIterator(params.privKeyOrSeed)
 
                 // if it enters here, it's from the default seed. We can init the account adder like so
-                let isFromSavedSeed = false
                 if (keyIterator.subType === 'seed' && params.shouldPersist) {
                   await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
-                  isFromSavedSeed = true
                 }
 
                 await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
-                  hdPathTemplate,
-                  isFromSavedSeed
+                  hdPathTemplate
                 })
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
@@ -669,8 +666,7 @@ handleKeepAlive()
                 await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: 5,
-                  hdPathTemplate: keystoreDefaultSeed.hdPathTemplate,
-                  isFromSavedSeed: true
+                  hdPathTemplate: keystoreDefaultSeed.hdPathTemplate
                 })
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })

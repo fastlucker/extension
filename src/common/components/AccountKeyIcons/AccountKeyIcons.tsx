@@ -18,15 +18,6 @@ const AccountKeyIcons = ({
 }) => {
   const { keys } = useKeystoreControllerState()
   const associatedKeys = account?.associatedKeys || []
-  keys.push({
-    addr: '0xBd84Cc40a5b5197B5B61919c22A55e1c46d2A3bb',
-    dedicatedToOneSA: true,
-    isExternallyStored: false,
-    label: 'Key 1',
-    meta: { createdAt: 1728022945526 },
-    type: 'internal',
-    subType: 'savedSeed'
-  })
   const importedKeyTypes = [
     ...new Set(keys.filter(({ addr }) => associatedKeys.includes(addr)).map((key) => key.type))
   ]

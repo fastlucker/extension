@@ -29,6 +29,10 @@ const getBadgeTypes = (theme: ThemeProps) => ({
   warning: {
     color: theme.warningText,
     iconColor: theme.warningDecorative
+  },
+  ok: {
+    color: theme.secondaryText,
+    iconColor: theme.successText
   }
 })
 

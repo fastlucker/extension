@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { InternalKeyType, Key } from '@ambire-common/interfaces/keystore'
+import { Key } from '@ambire-common/interfaces/keystore'
 import LatticeIcon from '@common/assets/svg/LatticeIcon'
 import LedgerLetterIcon from '@common/assets/svg/LedgerLetterIcon'
 import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
@@ -11,7 +11,7 @@ import { iconColors } from '@common/styles/themeConfig'
 
 import Wrapper from './Wrapper'
 
-const AccountKeyBanner = ({ type, subType }: { type: Key['type']; subType?: InternalKeyType }) => {
+const AccountKeyBanner = ({ type }: { type: Key['type'] }) => {
   const { theme } = useTheme()
 
   if (type === 'lattice')
@@ -39,13 +39,8 @@ const AccountKeyBanner = ({ type, subType }: { type: Key['type']; subType?: Inte
       </Wrapper>
     )
 
-  const internalKeyType = !subType
-    ? 'unknown'
-    : subType === 'savedSeed'
-    ? 'from saved seed'
-    : 'external'
   return (
-    <Wrapper text={internalKeyType}>
+    <Wrapper text="Internal">
       <SingleKeyIcon color={iconColors.primary} width={16} height={16} />
     </Wrapper>
   )

@@ -395,7 +395,7 @@ const SeedPhraseImportScreen = () => {
             onPrimaryButtonPress={handleSaveSeedAndProceed}
             secondaryButtonText={t('No')}
             primaryButtonText={
-              keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Yes, save seed')
+              keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Save seed')
             }
             secondaryButtonTestID="do-not-save-seed-button"
             primaryButtonTestID="save-seed-button"
