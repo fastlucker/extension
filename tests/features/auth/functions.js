@@ -20,6 +20,7 @@ export async function checkAccountDetails(
 ) {
   await page.waitForSelector(selector, { visible: true })
 
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
   // Note: This wait is required because there is a case that the account address is loading with some delay because of the UD/ENS resolving.
   await wait(500)
 
@@ -208,6 +209,7 @@ export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, newName) 
   // Click on "Add Account"
   await clickOnElement(page, SELECTORS.buttonAddAccount)
 
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
   await wait(500)
   // Wait until modal is getting visible
   await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
@@ -261,8 +263,9 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
 
   // Click on "Set up Ambire Key Store" button
   await clickOnElement(page, SELECTORS.keystoreBtnCreate)
-  // Wait until the "Device password" modal is getting visible
 
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
+  // Wait until the "Device password" modal is getting visible
   await wait(1000)
 
   await page.waitForSelector(SELECTORS.bottomSheet)
@@ -381,6 +384,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   // Click on Import button.
   await clickOnElement(page, SELECTORS.importBtn)
 
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
   await wait(1000)
 
   // so that the modal appears
@@ -415,6 +419,7 @@ export async function selectHdPathAndAddAccount(page, hdPathSelector) {
   // Select different HD path
   await clickOnElement(page, hdPathSelector)
 
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
   // Note: The "waitForSelector" is not enough to be sure that the addresses data are fully loaded.
   // At this moment I couldn't find an other solution except to set a timeout
   await wait(2000)

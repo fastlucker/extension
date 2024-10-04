@@ -265,6 +265,7 @@ describe('auth', () => {
     // Import one new SA from default seed
     await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[0])
 
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(2000)
 
     // Wait for dashboard screen to be loaded
@@ -301,7 +302,7 @@ describe('auth', () => {
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    // so that the modal appears
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(500)
 
     await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
@@ -324,6 +325,7 @@ describe('auth', () => {
     // Click on "Add Account"
     await clickOnElement(page, SELECTORS.buttonAddAccount)
 
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(1000)
     // Click on "Import an existing hot wallet"
     await clickOnElement(page, SELECTORS.importExistingWallet)
@@ -336,11 +338,13 @@ describe('auth', () => {
     // Click on "Seed phrase proceed"
     await clickOnElement(page, SELECTORS.buttonProceedSeedPhrase)
 
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(1000)
 
     // Click on"Use default seed"
     await clickOnElement(page, SELECTORS.useDefaultSeedBtn)
 
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(2000)
     // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
     await selectHdPathAndAddAccount(page, SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto)
