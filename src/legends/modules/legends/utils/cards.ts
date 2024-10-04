@@ -1,7 +1,10 @@
 import { CardAction, CardFromResponse, CardType } from '@legends/modules/legends/types'
 
 const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
-  return b.xp[0].to - a.xp[0].to
+  const totalAXp = a.xp.reduce((acc, xp) => acc + xp.to + xp.from, 0)
+  const totalBXp = b.xp.reduce((acc, xp) => acc + xp.to + xp.from, 0)
+
+  return totalBXp - totalAXp
 }
 
 const sortCards = (cards: CardFromResponse[]) => {
