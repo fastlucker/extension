@@ -265,6 +265,8 @@ describe('auth', () => {
     // Import one new SA from default seed
     await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[0])
 
+    await wait(2000)
+
     // Wait for dashboard screen to be loaded
     await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 

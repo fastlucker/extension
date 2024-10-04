@@ -208,6 +208,7 @@ export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, newName) 
   // Click on "Add Account"
   await clickOnElement(page, SELECTORS.buttonAddAccount)
 
+  await wait(500)
   // Wait until modal is getting visible
   await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
 
