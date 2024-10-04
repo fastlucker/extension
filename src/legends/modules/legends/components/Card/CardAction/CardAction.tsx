@@ -11,13 +11,15 @@ type Props = {
 
 const CardActionComponent: FC<Props> = ({ action, buttonText }) => {
   if (action.type === CardActionType.calls) {
-    return <div>TODO: calls</div>
+    return <div>TODO: handle calls</div>
   }
 
   if (action.type === CardActionType.predefined) {
     if (action.predefinedId === 'addEOA') {
       return <SummonEOA buttonText={buttonText} />
     }
+
+    return <div>Unhandled action predefinedId ${action.predefinedId}</div>
   }
 
   return <div>Invalid action type</div>

@@ -15,8 +15,8 @@ const SummonEOA: FC<Props> = ({ buttonText }) => {
   const isValid = isValidAddress(eoaAddress)
 
   const onButtonClick = () => {
-    alert(`Associated with EOA Address: ${eoaAddress}`)
     setEoaAddress('')
+    alert(`TODO: Associate with EOA Address: ${eoaAddress}`)
   }
 
   return (
