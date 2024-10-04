@@ -45,12 +45,18 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
 
   const openActionModal = () => setIsActionModalOpen(true)
 
+  const closeActionModal = () => setIsActionModalOpen(false)
+
   return (
     <div className={`${styles.wrapper}`}>
       <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen}>
         <Modal.Heading>{title}</Modal.Heading>
         <Modal.Text className={styles.modalText}>{description}</Modal.Text>
-        <CardActionComponent buttonText={buttonText} action={action} />
+        <CardActionComponent
+          onComplete={closeActionModal}
+          buttonText={buttonText}
+          action={action}
+        />
       </Modal>
       {isCompleted ? (
         <div className={styles.completed}>
