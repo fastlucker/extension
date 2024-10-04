@@ -11,7 +11,7 @@ import {
   CardType,
   CardXpType
 } from '@legends/modules/legends/types'
-import { handlePredefinedAction } from '@legends/modules/legends/utils'
+import { handleCallsAction, handlePredefinedAction } from '@legends/modules/legends/utils'
 
 import Badge from './Badge'
 import styles from './Card.module.scss'
@@ -51,7 +51,7 @@ const CardButton = ({ action }: { action: CardAction }) => {
         <button
           className={styles.button}
           type="button"
-          onClick={() => prompt('This should be a modal')}
+          onClick={() => handleCallsAction(action.calls)}
         >
           Proceed
         </button>

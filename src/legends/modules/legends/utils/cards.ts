@@ -1,4 +1,4 @@
-import { CardFromResponse, CardType } from '@legends/modules/legends/types'
+import { CardAction, CardFromResponse, CardType } from '@legends/modules/legends/types'
 
 const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
   return b.xp[0].to - a.xp[0].to
@@ -30,4 +30,8 @@ const handlePredefinedAction = (predefinedId?: string) => {
   console.log(predefinedId)
 }
 
-export { sortCards, handlePredefinedAction }
+const handleCallsAction = (calls: CardAction['calls']) => {
+  console.log(calls)
+}
+
+export { sortCards, handlePredefinedAction, handleCallsAction }
