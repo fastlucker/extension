@@ -232,8 +232,9 @@ const useSwapAndBridgeForm = () => {
 
   const pendingRoutes = useMemo(() => {
     return (
-      activeRoutes.filter((r) => getAddress(r.route.userAddress) === selectedAccount).reverse() ||
-      []
+      (activeRoutes || [])
+        .filter((r) => getAddress(r.route.userAddress) === selectedAccount)
+        .reverse() || []
     )
   }, [activeRoutes, selectedAccount])
 
