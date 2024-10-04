@@ -416,7 +416,7 @@ export async function selectHdPathAndAddAccount(page, hdPathSelector) {
 
   // Note: The "waitForSelector" is not enough to be sure that the addresses data are fully loaded.
   // At this moment I couldn't find an other solution except to set a timeout
-  await wait(5000)
+  await wait(2000)
 
   await page.waitForSelector(SELECTORS.addAccount, { visible: true })
 

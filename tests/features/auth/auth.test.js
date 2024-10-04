@@ -299,20 +299,15 @@ describe('auth', () => {
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    // Click on save default seed phrase
+    // so that the modal appears
+    await wait(500)
+
     await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
 
     await page.waitForFunction(() => window.location.href.includes('/account-adder'))
     // Do the onboarding
-    await page.waitForSelector('div.introjs-tooltipbuttons', {
-      visible: true
-    })
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
-
-    await page.waitForSelector('div.introjs-tooltipbuttons', {
-      visible: true
-    })
-    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
 
     // Select BIP 44 Ledger Live and select import account
     await selectHdPathAndAddAccount(page, SELECTORS.optionBip44LedgerLive)
@@ -328,22 +323,21 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.buttonAddAccount)
 
     await wait(1000)
-
-    // Wait until modal is getting visible
-    await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
-
     // Click on "Import an existing hot wallet"
-    await clickOnElement(page, SELECTORS.importExistingWallet, false, 500)
+    await clickOnElement(page, SELECTORS.importExistingWallet)
+
+    // Wait for "Seed phrase proceed"
+    await page.waitForSelector(SELECTORS.buttonProceedSeedPhrase, {
+      visible: true
+    })
 
     // Click on "Seed phrase proceed"
     await clickOnElement(page, SELECTORS.buttonProceedSeedPhrase)
 
-    await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
+    await wait(1000)
 
     // Click on"Use default seed"
     await clickOnElement(page, SELECTORS.useDefaultSeedBtn)
-
-    await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
     await wait(2000)
     // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
