@@ -338,6 +338,8 @@ describe('auth', () => {
     // Click on "Seed phrase proceed"
     await clickOnElement(page, SELECTORS.buttonProceedSeedPhrase)
 
+    await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
+
     // Click on"Use default seed"
     await clickOnElement(page, SELECTORS.useDefaultSeedBtn)
 
