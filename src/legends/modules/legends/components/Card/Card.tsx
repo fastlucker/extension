@@ -2,50 +2,61 @@ import React, { FC } from 'react'
 
 import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Card as CardType } from '@legends/modules/legends/types'
+import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
 import Badge from './Badge'
 import styles from './Card.module.scss'
 
-type Props = CardType & {
+type Props = Pick<CardFromResponse, 'title' | 'description' | 'xp' | 'image' | 'card'> & {
   children?: React.ReactNode | React.ReactNode[]
 }
 
-const Card: FC<Props> = ({
-  heading,
-  image,
-  xpRewards,
-  description,
-  completed,
-  repeatable,
-  type,
-  children
-}) => {
+const CARD_XP_TYPE_LABELS: {
+  [key in CardXpType]: string
+} = {
+  0: 'Reward',
+  1: 'Mainnet',
+  2: 'Layer 2'
+}
+
+const getBadgeType = (reward: number, type: CardXpType) => {
+  if (type === CardXpType.l2) {
+    return 'secondary'
+  }
+  if (reward > 100) {
+    return 'highlight'
+  }
+
+  return 'primary'
+}
+
+const Card: FC<Props> = ({ title, image, description, children, xp, card }) => {
+  const isCompleted = card?.type === CardType.done
+  const isRecurring = card?.type === CardType.recurring
   const shortenedDescription = description.length > 60 ? `${description.slice(0, 60)}...` : null
   return (
-    // TODO: different style for different types
-    <div className={`${styles.wrapper} ${type && styles[type]}`}>
-      {completed ? (
+    <div className={`${styles.wrapper}`}>
+      {isCompleted ? (
         <div className={styles.completed}>
           <span className={styles.completedText}>Completed</span>
         </div>
       ) : null}
       <div className={styles.imageAndBadges}>
         <div className={styles.badges}>
-          {xpRewards.map(({ value, label }) => (
+          {xp?.map(({ from, to, type }) => (
             <Badge
-              type={label === 'Layer 2' ? 'secondary' : 'primary'}
-              key={value}
-              label={label}
-              value={value}
+              type={getBadgeType(to, type)}
+              key={`${from}-${to}-${type}`}
+              label={CARD_XP_TYPE_LABELS[type]}
+              value={to}
             />
           ))}
         </div>
-        <img src={image} alt={heading} className={styles.image} />
+        <img src={image} alt={title} className={styles.image} />
       </div>
-      <div className={styles.content}>
-        <div>
-          <h2 className={styles.heading}>{heading}</h2>
+      <div className={styles.contentAndAction}>
+        <div className={styles.content}>
+          <h2 className={styles.heading}>{title}</h2>
           <p className={styles.description}>
             {shortenedDescription || description}{' '}
             {shortenedDescription ? (
@@ -60,7 +71,7 @@ const Card: FC<Props> = ({
           </p>
           <h3 className={styles.rewardsHeading}>
             XP rewards{' '}
-            {repeatable ? (
+            {isRecurring ? (
               <>
                 (Repeatable <FontAwesomeIcon className={styles.repeatableIcon} icon={faInfinity} />)
               </>
@@ -69,10 +80,13 @@ const Card: FC<Props> = ({
             )}
           </h3>
           <div className={`${styles.rewards} ${children ? styles.mb : ''}`}>
-            {xpRewards.map(({ value, label }) => (
-              <div key={value} className={styles.reward}>
-                <span className={styles.rewardLabel}>{label}</span>
-                <span className={styles.rewardValue}>+ {value}</span>
+            {xp?.map(({ from, to, type }) => (
+              <div key={`${from}-${to}-${type}`} className={styles.reward}>
+                <span className={styles.rewardLabel}>{CARD_XP_TYPE_LABELS[type]}</span>
+                <span className={styles.rewardValue}>
+                  + {from}
+                  {to !== from ? `-${to}` : ''} xp
+                </span>
               </div>
             ))}
           </div>

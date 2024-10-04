@@ -5,7 +5,7 @@ import styles from './Badge.module.scss'
 type Props = {
   label: string
   value: number
-  type?: 'primary' | 'secondary'
+  type?: 'primary' | 'secondary' | 'highlight'
 }
 
 const Badge: FC<Props> = ({ label, value, type = 'primary' }) => {

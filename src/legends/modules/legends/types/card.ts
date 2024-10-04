@@ -1,22 +1,39 @@
-type XpReward = {
-  label: string
-  value: number
+export enum CardXpType {
+  'global',
+  'mainnet',
+  'l2'
 }
 
-type CardAction = {
-  label: string
-  onClick: () => void
+export enum CardActionType {
+  'none',
+  'calls',
+  'predefined'
 }
 
-type Card = {
-  heading: string
-  image: string
-  type?: 'daily'
-  xpRewards: XpReward[]
+export enum CardType {
+  'recurring',
+  'done',
+  'available'
+}
+
+export interface CardXp {
+  type: CardXpType
+  from: number
+  to: number
+  minUsdThreshold: number
+}
+
+export interface CardFromResponse {
+  title: string
   description: string
-  repeatable?: boolean
-  completed?: boolean
-  action?: CardAction
+  xp: CardXp[]
+  action: {
+    type: CardActionType
+    calls?: [string, string, string][]
+    predefinedId?: string
+  }
+  card: {
+    type: CardType
+  }
+  image: string
 }
-
-export type { Card, CardAction, XpReward }
