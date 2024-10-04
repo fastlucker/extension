@@ -2,6 +2,7 @@ import { formatUnits, getAddress } from 'ethers'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
@@ -34,7 +35,8 @@ const useSwapAndBridgeFrom = () => {
     statuses,
     quote,
     fromAmountInFiat,
-    activeRoutes
+    activeRoutes,
+    formStatus
   } = useSwapAndBridgeControllerState()
   const { selectedAccount } = useAccountsControllerState(0)
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
@@ -86,6 +88,12 @@ const useSwapAndBridgeFrom = () => {
     },
     [dispatch]
   )
+
+  useEffect(() => {
+    if (followUpTransactionConfirmed && formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+      setFollowUpTransactionConfirmed(false)
+    }
+  }, [followUpTransactionConfirmed, formStatus])
 
   useEffect(() => {
     dispatch({

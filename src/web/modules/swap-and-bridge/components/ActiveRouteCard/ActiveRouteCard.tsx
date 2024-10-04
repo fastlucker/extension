@@ -62,7 +62,14 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
           activeRoute.routeStatus === 'completed' && { backgroundColor: '#767DAD14' }
         ]}
       >
-        <RouteStepsPreview steps={steps} currentStep={activeRoute.route.currentUserTxIndex} />
+        <RouteStepsPreview
+          steps={steps}
+          currentStep={
+            activeRoute.routeStatus === 'completed'
+              ? activeRoute.route.totalUserTx
+              : activeRoute.route.currentUserTxIndex
+          }
+        />
       </View>
 
       {activeRoute.routeStatus !== 'completed' && (
