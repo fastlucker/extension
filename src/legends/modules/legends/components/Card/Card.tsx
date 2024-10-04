@@ -109,9 +109,11 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
             ))}
           </div>
         </div>
-        <button className={styles.button} type="button" onClick={openActionModal}>
-          {buttonText}
-        </button>
+        {!!action.type && (
+          <button className={styles.button} type="button" onClick={openActionModal}>
+            {buttonText}
+          </button>
+        )}
       </div>
     </div>
   )
