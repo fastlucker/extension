@@ -55,7 +55,8 @@ const SwapAndBridgeScreen = () => {
     formattedToAmount,
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
-    setFollowUpTransactionConfirmed
+    setFollowUpTransactionConfirmed,
+    handleSwitchFromAndToTokens
   } = useSwapAndBridgeFrom()
   const {
     fromSelectedToken,
@@ -216,7 +217,7 @@ const SwapAndBridgeScreen = () => {
               </View>
             </View>
           </Panel>
-          <SwitchTokensButton />
+          <SwitchTokensButton onPress={handleSwitchFromAndToTokens} />
           <Panel forceContainerSmallSpacings>
             <View style={spacings.mb}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>

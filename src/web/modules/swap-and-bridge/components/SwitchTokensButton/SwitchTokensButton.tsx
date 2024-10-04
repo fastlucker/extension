@@ -1,5 +1,5 @@
 import React from 'react'
-import { Animated, Pressable, View } from 'react-native'
+import { Animated, Pressable, PressableProps, View } from 'react-native'
 
 import SwapBridgeToggleIcon from '@common/assets/svg/SwapBridgeToggleIcon'
 import useTheme from '@common/hooks/useTheme'
@@ -7,7 +7,7 @@ import { useCustomHover } from '@web/hooks/useHover'
 
 import getStyles from './styles'
 
-const SwitchTokensButton = () => {
+const SwitchTokensButton = (props?: PressableProps) => {
   const { styles } = useTheme(getStyles)
   const [bindAnim, , , , animatedValues] = useCustomHover({
     property: 'rotateZ' as any,
@@ -24,7 +24,7 @@ const SwitchTokensButton = () => {
 
   return (
     <View style={styles.switchTokensButtonWrapper}>
-      <Pressable style={styles.switchTokensButton} {...bindAnim}>
+      <Pressable style={styles.switchTokensButton} {...bindAnim} {...props}>
         <Animated.View style={{ transform: [{ rotateZ: rotateInterpolate || '0deg' }] }}>
           <SwapBridgeToggleIcon />
         </Animated.View>

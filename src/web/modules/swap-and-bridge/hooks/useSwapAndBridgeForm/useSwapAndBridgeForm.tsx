@@ -173,6 +173,14 @@ const useSwapAndBridgeFrom = () => {
     })
   }, [fromAmountFieldMode, dispatch])
 
+  const handleSwitchFromAndToTokens = useCallback(
+    () =>
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
+      }),
+    [dispatch]
+  )
+
   const handleSetMaxFromAmount = useCallback(() => {
     dispatch({
       type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
@@ -230,7 +238,8 @@ const useSwapAndBridgeFrom = () => {
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
     settingModalVisible,
-    handleToggleSettingsMenu
+    handleToggleSettingsMenu,
+    handleSwitchFromAndToTokens
   }
 }
 

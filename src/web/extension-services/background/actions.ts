@@ -383,6 +383,9 @@ type SwapAndBridgeControllerUpdateFormAction = {
     routePriority?: 'output' | 'time'
   }
 }
+type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
+}
 type SwapAndBridgeControllerSubmitFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
 }
@@ -562,6 +565,7 @@ export type Action =
   | DappsControllerRemoveDappAction
   | SwapAndBridgeControllerInitAction
   | SwapAndBridgeControllerUpdateFormAction
+  | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSubmitFormAction
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerUpdatePortfolioTokenListAction

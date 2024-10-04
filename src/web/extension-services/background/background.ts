@@ -882,6 +882,8 @@ handleKeepAlive()
                 return mainCtrl.swapAndBridge.initForm()
               case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
                 return mainCtrl.swapAndBridge.updateForm(params)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
+                return mainCtrl.swapAndBridge.switchFromAndToTokens()
               case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
                 return await mainCtrl.buildSwapAndBridgeUserRequest()
               case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
