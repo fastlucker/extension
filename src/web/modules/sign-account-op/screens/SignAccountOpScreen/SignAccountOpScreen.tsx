@@ -49,7 +49,7 @@ const SignAccountOpScreen = () => {
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const { styles } = useTheme(getStyles)
-  const [isChooseSignerShown, setIsChooseSignerShown] = useState(true)
+  const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [isLedgerConnectModalVisible, setIsLedgerConnectModalVisible] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()

@@ -380,14 +380,13 @@ const SeedPhraseImportScreen = () => {
             description={
               <View>
                 <Text style={spacings.mbTy} appearance="secondaryText">
-                  {t(
-                    'Do you want to save the seed in the Ambire Wallet extension? You can save only one seed.'
-                  )}
+                  {t('Do you want to save the seed in the Ambire Wallet extension?')}
                 </Text>
-                <Text appearance="secondaryText">
-                  {t(
-                    'This will allow you to easily import more Smart Accounts from this Seed Phrase.'
-                  )}
+                <Text style={spacings.mbTy} appearance="secondaryText">
+                  {t('This will allow you to easily import more accounts from this Seed Phrase.')}
+                </Text>
+                <Text appearance="secondaryText" weight="semiBold">
+                  {t('You can save only one seed.')}
                 </Text>
               </View>
             }
@@ -396,7 +395,7 @@ const SeedPhraseImportScreen = () => {
             onPrimaryButtonPress={handleSaveSeedAndProceed}
             secondaryButtonText={t('No')}
             primaryButtonText={
-              keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Yes')
+              keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Yes, save seed')
             }
             secondaryButtonTestID="do-not-save-seed-button"
             primaryButtonTestID="save-seed-button"
