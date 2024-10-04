@@ -23,6 +23,7 @@ import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { typeText } from '../../common-helpers/typeText'
 import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExist'
 import {
+  wait,
   finishStoriesAndSelectAccount,
   importAccountsFromSeedPhrase,
   checkTextAreaHasValidInputByGivenText,
@@ -318,6 +319,8 @@ describe('auth', () => {
     await page.waitForFunction(() => window.location.href.includes('/account-select'))
     // Click on "Add Account"
     await clickOnElement(page, SELECTORS.buttonAddAccount)
+
+    await wait(1000)
 
     // Wait until modal is getting visible
     await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })

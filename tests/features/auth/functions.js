@@ -261,6 +261,9 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
   // Click on "Set up Ambire Key Store" button
   await clickOnElement(page, SELECTORS.keystoreBtnCreate)
   // Wait until the "Device password" modal is getting visible
+
+  await wait(1000)
+
   await page.waitForSelector(SELECTORS.bottomSheet)
 
   await clickOnElement(page, SELECTORS.keystoreBtnContinue)
@@ -376,6 +379,8 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
 
   // Click on Import button.
   await clickOnElement(page, SELECTORS.importBtn)
+
+  await wait(1000)
 
   // so that the modal appears
   await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
