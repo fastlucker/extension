@@ -1,13 +1,25 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 
 import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
+import Modal from '@legends/components/Modal'
+import { PREDEFINED_ACTION_LABEL_MAP } from '@legends/modules/legends/constants'
+import {
+  CardAction,
+  CardActionType,
+  CardFromResponse,
+  CardType,
+  CardXpType
+} from '@legends/modules/legends/types'
+import { handlePredefinedAction } from '@legends/modules/legends/utils'
 
 import Badge from './Badge'
 import styles from './Card.module.scss'
 
-type Props = Pick<CardFromResponse, 'title' | 'description' | 'xp' | 'image' | 'card'> & {
+type Props = Pick<
+  CardFromResponse,
+  'title' | 'description' | 'xp' | 'image' | 'card' | 'action'
+> & {
   children?: React.ReactNode | React.ReactNode[]
 }
 
@@ -30,12 +42,48 @@ const getBadgeType = (reward: number, type: CardXpType) => {
   return 'primary'
 }
 
-const Card: FC<Props> = ({ title, image, description, children, xp, card }) => {
+const CardButton = ({ action }: { action: CardAction }) => {
+  if (!action) return null
+
+  return (
+    <>
+      {action.type === CardActionType.calls && (
+        <button
+          className={styles.button}
+          type="button"
+          onClick={() => prompt('This should be a modal')}
+        >
+          Proceed
+        </button>
+      )}
+      {action.type === CardActionType.predefined && !!action.predefinedId && (
+        <button
+          className={styles.button}
+          type="button"
+          onClick={() => handlePredefinedAction(action.predefinedId)}
+        >
+          {PREDEFINED_ACTION_LABEL_MAP[action.predefinedId] || 'Proceed'}
+        </button>
+      )}
+    </>
+  )
+}
+
+const Card: FC<Props> = ({ title, image, description, children, xp, card, action }) => {
   const isCompleted = card?.type === CardType.done
   const isRecurring = card?.type === CardType.recurring
   const shortenedDescription = description.length > 60 ? `${description.slice(0, 60)}...` : null
+  const [isReadMoreModalOpen, setIsReadMoreModalOpen] = useState(false)
+
+  const openReadMoreModal = () => setIsReadMoreModalOpen(true)
+
   return (
     <div className={`${styles.wrapper}`}>
+      <Modal isOpen={isReadMoreModalOpen} setIsOpen={setIsReadMoreModalOpen}>
+        <Modal.Heading>{title}</Modal.Heading>
+        <Modal.Text className={styles.modalText}>{description}</Modal.Text>
+        <CardButton action={action} />
+      </Modal>
       {isCompleted ? (
         <div className={styles.completed}>
           <span className={styles.completedText}>Completed</span>
@@ -60,11 +108,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card }) => {
           <p className={styles.description}>
             {shortenedDescription || description}{' '}
             {shortenedDescription ? (
-              <button
-                type="button"
-                onClick={() => prompt('This should be a modal')}
-                className={styles.readMore}
-              >
+              <button type="button" onClick={openReadMoreModal} className={styles.readMore}>
                 Read more
               </button>
             ) : null}
@@ -91,7 +135,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card }) => {
             ))}
           </div>
         </div>
-        {children}
+        <CardButton action={action} />
       </div>
     </div>
   )

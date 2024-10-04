@@ -10,6 +10,12 @@ export enum CardActionType {
   'predefined'
 }
 
+export interface CardAction {
+  type: CardActionType
+  calls?: [string, string, string][]
+  predefinedId?: string
+}
+
 export enum CardType {
   'recurring',
   'done',
@@ -27,11 +33,7 @@ export interface CardFromResponse {
   title: string
   description: string
   xp: CardXp[]
-  action: {
-    type: CardActionType
-    calls?: [string, string, string][]
-    predefinedId?: string
-  }
+  action: CardAction
   card: {
     type: CardType
   }

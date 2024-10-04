@@ -135,3 +135,13 @@
     }
   }
 }
+
+.modalText {
+  margin-bottom: 2rem;
+}
+
+.button {
+  @include primary-button;
+  font-size: 1rem;
+  color: $secondaryAccent;
+}
