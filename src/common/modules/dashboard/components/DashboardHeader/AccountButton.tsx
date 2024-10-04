@@ -3,6 +3,7 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, View } from 'react-native'
 
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -11,7 +12,6 @@ import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
-import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -30,7 +30,6 @@ const AccountButton = () => {
   const { theme, styles } = useTheme(getStyles)
   const accountsState = useAccountsControllerState()
   const { accounts } = useAccounts()
-  const { ens, ud } = useReverseLookup({ address: accountsState.selectedAccount || '' })
   const [bindAddressAnim, addressAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -84,7 +83,11 @@ const AccountButton = () => {
       >
         <>
           <View style={styles.accountButtonInfo}>
-            <Avatar ens={ens} ud={ud} pfp={selectedAccountData.preferences.pfp} size={32} />
+            <Avatar
+              pfp={selectedAccountData.preferences.pfp}
+              size={32}
+              isSmart={isSmartAccount(account)}
+            />
             <Text
               numberOfLines={1}
               weight="semiBold"

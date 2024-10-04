@@ -3,11 +3,13 @@ import { Animated, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import AccountKeyIcons from '@common/components/AccountKeyIcons'
 import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Avatar from '@common/components/Avatar'
+import DomainBadge from '@common/components/Avatar/DomainBadge'
 import Dialog from '@common/components/Dialog'
 import DialogButton from '@common/components/Dialog/DialogButton'
 import DialogFooter from '@common/components/Dialog/DialogFooter'
@@ -146,7 +148,7 @@ const Account = ({
     >
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
-          <Avatar ens={ens} ud={ud} pfp={account.preferences.pfp} />
+          <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} />
           <View>
             <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
               {!withSettings ? (
@@ -173,14 +175,17 @@ const Account = ({
 
               <AccountBadges accountData={account} />
             </View>
-            <AccountAddress
-              isLoading={isLoading}
-              ens={ens}
-              ud={ud}
-              address={addr}
-              plainAddressMaxLength={maxAccountAddrLength}
-              skeletonAppearance={isHovered ? 'primaryBackground' : 'secondaryBackground'}
-            />
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+              <DomainBadge ens={ens} ud={ud} />
+              <AccountAddress
+                isLoading={isLoading}
+                ens={ens}
+                ud={ud}
+                address={addr}
+                plainAddressMaxLength={maxAccountAddrLength}
+                skeletonAppearance={isHovered ? 'primaryBackground' : 'secondaryBackground'}
+              />
+            </View>
           </View>
         </View>
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>

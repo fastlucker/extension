@@ -17,8 +17,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import { getAvatarType } from '@common/utils/avatars'
 
 import Blockie from './Blockies/Blockies'
-import DomainBadge from './DomainBadge'
 import JazzIcon from './Jazz'
+import TypeBadge from './TypeBadge'
 
 export {
   avatarAstronautMan,
@@ -54,16 +54,16 @@ export const getAccountPfpSource = (pfpId: string) => {
 
 interface Props {
   pfp: string
+  isSmart?: boolean
   size?: number
-  ens?: string | null
-  ud?: string | null
   style?: ViewStyle
 }
 
-const Avatar: FC<Props> = ({ pfp, size = 40, ens, ud, style }) => {
+const Avatar: FC<Props> = ({ pfp, isSmart, size = 40, style }) => {
   const selectedAccountPfp = getAccountPfpSource(pfp)
   const avatarType = getAvatarType(selectedAccountPfp)
   const borderRadius = size / 2
+  const badgeType = size === 40 ? 'big' : 'small'
 
   if (['jazz', 'blockies'].includes(avatarType)) {
     return (
@@ -79,7 +79,7 @@ const Avatar: FC<Props> = ({ pfp, size = 40, ens, ud, style }) => {
             borderRadius={borderRadius}
           />
         )}
-        <DomainBadge ens={ens} ud={ud} />
+        {isSmart !== undefined && <TypeBadge isSmart={isSmart} type={badgeType} />}
       </View>
     )
   }
