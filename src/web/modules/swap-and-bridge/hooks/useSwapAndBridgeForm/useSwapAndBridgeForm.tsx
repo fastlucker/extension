@@ -22,7 +22,7 @@ import { getTokenId } from '@web/utils/token'
 
 const sessionId = nanoid()
 
-const useSwapAndBridgeFrom = () => {
+const useSwapAndBridgeForm = () => {
   const {
     fromAmount,
     fromSelectedToken,
@@ -257,4 +257,4 @@ const useSwapAndBridgeFrom = () => {
   }
 }
 
-export default useSwapAndBridgeFrom
+export default useSwapAndBridgeForm

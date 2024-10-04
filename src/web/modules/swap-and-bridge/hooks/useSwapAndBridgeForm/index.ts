@@ -1,3 +1,3 @@
-import useSwapAndBridgeFrom from './useSwapAndBridgeForm'
+import useSwapAndBridgeForm from './useSwapAndBridgeForm'
 
-export default useSwapAndBridgeFrom
+export default useSwapAndBridgeForm
