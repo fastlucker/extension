@@ -23,7 +23,7 @@ const data = [
 
 interface WheelComponentProps {
   isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const WheelComponent: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
@@ -62,7 +62,7 @@ const WheelComponent: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) =>
           outerBorderColor="#E7AA27"
           outerBorderWidth={16}
           perpendicularText
-          fontFamily='"Roboto Slab", sans-serif'
+          fontFamily='"Roboto Slab", serif'
           pointerProps={{
             src: '/images/pointer.png',
             style: { rotate: '50deg', top: '50px', right: '20px', width: '90px' }
