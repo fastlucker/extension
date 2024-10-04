@@ -70,10 +70,10 @@ const CreateSeedPhrasePrepareScreen = () => {
     navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
   }, [addToast, navigate])
 
-  // prevent proceeding with new seed phrase setup if there is a default seed phrase already associated with the keystore
+  // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
   useEffect(() => {
-    if (keystoreState.hasKeystoreDefaultSeed) goBack()
-  }, [goBack, keystoreState.hasKeystoreDefaultSeed])
+    if (keystoreState.hasKeystoreSavedSeed) goBack()
+  }, [goBack, keystoreState.hasKeystoreSavedSeed])
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')

@@ -65,7 +65,7 @@ const CreateSeedPhraseConfirmScreen = () => {
     const seedPhrase = seed.join(' ') || ''
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-      params: { privKeyOrSeed: seedPhrase, shouldPersist: !keystoreState.hasKeystoreDefaultSeed }
+      params: { privKeyOrSeed: seedPhrase, shouldPersist: !keystoreState.hasKeystoreSavedSeed }
     })
   })
 

@@ -14,12 +14,12 @@ const { isActionWindow } = getUiType()
 const useGetAddAccountOptions = ({
   navigate,
   t,
-  hasKeystoreDefaultSeed,
+  hasKeystoreSavedSeed,
   isReadyToStoreKeys
 }: {
   navigate: ReturnType<typeof useNavigation>['navigate']
   t: (str: string) => string
-  hasKeystoreDefaultSeed: boolean
+  hasKeystoreSavedSeed: boolean
   isReadyToStoreKeys: boolean
 }) => {
   const { dispatch } = useBackgroundService()
@@ -56,7 +56,7 @@ const useGetAddAccountOptions = ({
       onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect),
       testID: 'connect-hardware-wallet'
     },
-    !hasKeystoreDefaultSeed
+    !hasKeystoreSavedSeed
       ? {
           key: 'create-new-hot-wallet',
           text: t('Create new hot wallets'),

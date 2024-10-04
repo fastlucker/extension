@@ -35,7 +35,7 @@ const HotWalletImportSelectorScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { isReadyToStoreKeys, hasKeystoreDefaultSeed } = useKeystoreControllerState()
+  const { isReadyToStoreKeys, hasKeystoreSavedSeed } = useKeystoreControllerState()
   const { addToast } = useToast()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { accounts } = useAccountsControllerState()
@@ -79,7 +79,7 @@ const HotWalletImportSelectorScreen = () => {
     navigate(WEB_ROUTES.createSeedPhrasePrepare)
   }, [navigate, isReadyToStoreKeys])
 
-  const isImportOnly = hasKeystoreDefaultSeed || accounts.length
+  const isImportOnly = hasKeystoreSavedSeed || accounts.length
   const onOptionPress = async (flow: string) => {
     if (flow === 'seed') {
       // if the extension has already been init once, this option

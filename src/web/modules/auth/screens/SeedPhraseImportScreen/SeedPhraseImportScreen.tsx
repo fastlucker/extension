@@ -149,7 +149,7 @@ const SeedPhraseImportScreen = () => {
     await handleSubmit(({ seedFields }) => {
       const formattedSeed = seedFields.map((field) => field.value).join(' ')
 
-      if (!keystoreState.hasKeystoreDefaultSeed) {
+      if (!keystoreState.hasKeystoreSavedSeed) {
         openBottomSheet()
       } else {
         dispatch({
@@ -158,7 +158,7 @@ const SeedPhraseImportScreen = () => {
         })
       }
     })()
-  }, [dispatch, handleSubmit, keystoreState.hasKeystoreDefaultSeed, openBottomSheet])
+  }, [dispatch, handleSubmit, keystoreState.hasKeystoreSavedSeed, openBottomSheet])
 
   const handleSaveSeedAndProceed = useCallback(() => {
     dispatch({
@@ -366,7 +366,7 @@ const SeedPhraseImportScreen = () => {
           ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
-      {!keystoreState.hasKeystoreDefaultSeed && (
+      {!keystoreState.hasKeystoreSavedSeed && (
         <BottomSheet
           id="import-seed-phrase"
           sheetRef={sheetRef}
@@ -376,12 +376,12 @@ const SeedPhraseImportScreen = () => {
           type="modal"
         >
           <DualChoiceModal
-            title={t('Save as default Seed Phrase')}
+            title={t('Save Seed Phrase')}
             description={
               <View>
                 <Text style={spacings.mbTy} appearance="secondaryText">
                   {t(
-                    'Do you want to save it as a default Seed Phrase for this Ambire Wallet extension?'
+                    'Do you want to save the seed in the Ambire Wallet extension? You can save only one seed.'
                   )}
                 </Text>
                 <Text appearance="secondaryText">

@@ -203,7 +203,7 @@ const AccountsOnPageList = ({
 
     if (subType === 'seed') {
       return accountAdderState.isInitializedWithDefaultSeed
-        ? t('Import Accounts from Default Seed Phrase')
+        ? t('Import Accounts from Saved Seed Phrase')
         : t('Import Accounts from Seed Phrase')
     }
 

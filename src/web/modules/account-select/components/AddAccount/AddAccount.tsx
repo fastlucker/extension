@@ -22,7 +22,7 @@ const AddAccount = () => {
   const options = useGetAddAccountOptions({
     navigate,
     t,
-    hasKeystoreDefaultSeed: keystoreState.hasKeystoreDefaultSeed,
+    hasKeystoreSavedSeed: keystoreState.hasKeystoreSavedSeed,
     isReadyToStoreKeys: keystoreState.isReadyToStoreKeys
   })
   const mainControllerState = useMainControllerState()
