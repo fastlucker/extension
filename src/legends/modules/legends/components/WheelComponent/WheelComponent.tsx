@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Wheel } from 'react-custom-roulette'
 
-import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import Modal from '@legends/components/Modal'
 
 import styles from './WheelComponent.module.scss'
@@ -46,9 +45,6 @@ const WheelComponent: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) =>
         process your spin securely. Please confirm the transaction in your wallet, and get ready for
         your chance to win amazing rewards!
       </Modal.Text>
-      {data[prizeNumber].option === '100' && !mustSpin && (
-        <ConfettiAnimation width={500} height={500} autoPlay />
-      )}
       <div className={styles.rouletteContainer}>
         <Wheel
           mustStartSpinning={mustSpin}
