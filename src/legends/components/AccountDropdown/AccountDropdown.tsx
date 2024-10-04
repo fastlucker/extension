@@ -4,11 +4,13 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import useAccountContext from '@legends/hooks/useAccountContext'
 
+import useCharacterContext from '@legends/hooks/useCharacterContext'
 import styles from './AccountDropdown.module.scss'
 
 const AccountDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { connectedAccount, disconnectAccount } = useAccountContext()
+  const { character } = useCharacterContext()
 
   const toggleIsOpen = () => setIsOpen((prev) => !prev)
 
@@ -42,11 +44,11 @@ const AccountDropdown = () => {
     <div className={styles.wrapper}>
       <button className={styles.button} type="button" onClick={toggleIsOpen}>
         <div className={styles.avatarWrapper}>
-          <img alt="avatar" className={styles.avatar} src="/images/logo.png" />
+          <img alt="avatar" className={styles.avatar} src={character.image_avatar} />
         </div>
         <div className={styles.account}>
           <p className={styles.address}>{formatAddress(connectedAccount)}</p>
-          <p className={styles.levelAndRank}>Level 7 / Rank 203</p>
+          <p className={styles.levelAndRank}>Level {character.level} / Rank 203</p>
         </div>
         <FontAwesomeIcon
           className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}

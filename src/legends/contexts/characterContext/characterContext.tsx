@@ -60,7 +60,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
 
         if (receipt.status === 1) {
           // Transaction was successful, call getCharacter
-          console.log({ receipt })
           await getCharacter()
           setIsMinting(false)
         } else {
