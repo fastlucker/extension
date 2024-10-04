@@ -6,6 +6,11 @@
   width: 100%;
   text-transform: uppercase;
   font-weight: 600;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 @mixin primary-button {
   @include button;
@@ -16,7 +21,12 @@
   font-weight: 700;
   height: 3.375rem;
 
-  &:active {
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
     // Simulate a button press
     transform: translateY(0.125rem);
     opacity: 1;

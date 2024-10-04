@@ -147,8 +147,4 @@
   @include primary-button;
   font-size: 1rem;
   color: $secondaryAccent;
-
-  &:disabled {
-    opacity: 0.5;
-  }
 }
