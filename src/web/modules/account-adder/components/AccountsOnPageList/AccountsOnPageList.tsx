@@ -202,7 +202,7 @@ const AccountsOnPageList = ({
     }
 
     if (subType === 'seed') {
-      return accountAdderState.isInitializedWithDefaultSeed
+      return accountAdderState.isInitializedWithSavedSeed
         ? t('Import Accounts from Saved Seed Phrase')
         : t('Import Accounts from Seed Phrase')
     }
@@ -212,7 +212,7 @@ const AccountsOnPageList = ({
     }
 
     return t('Select Accounts To Import')
-  }, [accountAdderState.isInitializedWithDefaultSeed, keyType, subType, t])
+  }, [accountAdderState.isInitializedWithSavedSeed, keyType, subType, t])
 
   // Empty means it's not loading and no accounts on the current page are derived.
   // Should rarely happen - if the deriving request gets cancelled on the device

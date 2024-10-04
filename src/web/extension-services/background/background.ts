@@ -659,14 +659,14 @@ handleKeepAlive()
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-                const keystoreDefaultSeed = await mainCtrl.keystore.getDefaultSeed()
+                const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
 
-                if (!keystoreDefaultSeed) return
-                const keyIterator = new KeyIterator(keystoreDefaultSeed.seed)
+                if (!keystoreSavedSeed) return
+                const keyIterator = new KeyIterator(keystoreSavedSeed.seed)
                 await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: 5,
-                  hdPathTemplate: keystoreDefaultSeed.hdPathTemplate
+                  hdPathTemplate: keystoreSavedSeed.hdPathTemplate
                 })
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
@@ -790,11 +790,11 @@ handleKeepAlive()
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
               case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-                await mainCtrl.importSmartAccountFromDefaultSeed(params.seed)
+                await mainCtrl.importSmartAccountFromSavedSeed(params.seed)
                 break
               }
               case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
-                await mainCtrl.importSmartAccountFromDefaultSeed()
+                await mainCtrl.importSmartAccountFromSavedSeed()
                 break
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {

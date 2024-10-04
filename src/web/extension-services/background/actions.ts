@@ -40,7 +40,7 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: { privKeyOrSeed: string; shouldPersist?: boolean }
 }
-type MainControllerAccountAdderInitFromDefaultSeedPhraseAction = {
+type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE'
 }
 type MainControllerSelectAccountAction = {
@@ -87,7 +87,7 @@ type CreateNewSeedPhraseAndAddFirstSmartAccount = {
   type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT'
   params: { seed: string }
 }
-type AddNextSmartAccountFromDefaultSeedPhraseAction = {
+type AddNextSmartAccountFromSavedSeedPhraseAction = {
   type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE'
 }
 type MainControllerRemoveAccount = {
@@ -471,7 +471,7 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
-  | MainControllerAccountAdderInitFromDefaultSeedPhraseAction
+  | MainControllerAccountAdderInitFromSavedSeedPhraseAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
@@ -488,7 +488,7 @@ export type Action =
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | CreateNewSeedPhraseAndAddFirstSmartAccount
-  | AddNextSmartAccountFromDefaultSeedPhraseAction
+  | AddNextSmartAccountFromSavedSeedPhraseAction
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest

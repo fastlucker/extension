@@ -72,7 +72,7 @@ const AddAccount = () => {
           testID={option.testID}
           disabled={
             mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL' ||
-            mainControllerState.statuses.importSmartAccountFromDefaultSeed !== 'INITIAL'
+            mainControllerState.statuses.importSmartAccountFromSavedSeed !== 'INITIAL'
           }
         />
       ))}
