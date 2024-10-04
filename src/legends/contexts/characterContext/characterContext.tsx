@@ -8,9 +8,11 @@ const CharacterContext = createContext<{
   character?: any
   getCharacter: () => void
   mintCharacter: (type: number) => void
+  isMinting: boolean
 }>({
   getCharacter: () => {},
-  mintCharacter: () => {}
+  mintCharacter: () => {},
+  isMinting: false
 })
 
 const LegendsNftAbi = [
@@ -262,6 +264,7 @@ const LegendsNftAbi = [
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
   const [character, setCharacter] = useState<any>()
+  const [isMinting, setIsMinting] = useState(false)
 
   const getCharacter = useCallback(async () => {
     if (!connectedAccount) return
@@ -280,6 +283,8 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
         params: [{ chainId: '0x2105' }] // chainId must be in hexadecimal numbers
       })
 
+      setIsMinting(true)
+
       const provider = new ethers.BrowserProvider(window.ambire)
 
       const signer = await provider.getSigner()
@@ -290,9 +295,27 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       // Create a contract instance
       const nftContract = new ethers.Contract(contractAddress, abi, signer)
 
-      await nftContract.mint(type)
+      // TODO: Keep the error in the state and render it in a component
+      try {
+        // Call the mint function and wait for the transaction response
+        const tx = await nftContract.mint(type)
 
-      await getCharacter()
+        // Wait for the transaction to be mined
+        const receipt = await tx.wait()
+
+        if (receipt.status === 1) {
+          // Transaction was successful, call getCharacter
+          console.log({ receipt })
+          await getCharacter()
+          setIsMinting(false)
+        } else {
+          alert('Error selecting a character: The transaction failed!')
+        }
+      } catch (error) {
+        setIsMinting(false)
+        alert('Error during minting process!')
+        console.log('Error during minting process:', error)
+      }
     },
     [connectedAccount, getCharacter]
   )
@@ -308,9 +331,10 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
         () => ({
           character,
           getCharacter,
-          mintCharacter
+          mintCharacter,
+          isMinting
         }),
-        [character, getCharacter, mintCharacter]
+        [character, getCharacter, mintCharacter, isMinting]
       )}
     >
       {children}
