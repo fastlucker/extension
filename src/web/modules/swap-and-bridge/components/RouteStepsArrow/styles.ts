@@ -11,6 +11,7 @@ interface Style {
   badgeMiddle: ViewStyle
   badgeTop: ViewStyle
   arrowTipWrapper: ViewStyle
+  arrowLineSuccess: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -35,6 +36,9 @@ const getStyles = (theme: ThemeProps) =>
       borderStyle: 'dashed',
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter
+    },
+    arrowLineSuccess: {
+      borderStyle: 'solid'
     },
     badgeMiddle: {
       height: 26,

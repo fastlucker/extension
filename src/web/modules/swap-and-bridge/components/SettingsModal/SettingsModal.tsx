@@ -13,7 +13,7 @@ import { Portal } from '@gorhom/portal'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
+import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import getStyles, { SETTINGS_MODAL_WIDTH } from './styles'
 
@@ -61,7 +61,7 @@ const SettingsModal = () => {
   const { styles } = useTheme(getStyles)
   const settingButtonRef: any = useRef(null)
   const settingMenuRef: any = useRef(null)
-  const { handleToggleSettingsMenu, settingModalVisible } = useSwapAndBridgeFrom()
+  const { handleToggleSettingsMenu, settingModalVisible } = useSwapAndBridgeForm()
   const { routePriority } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { x: settingButtonX, y: settingButtonY } = useElementSize(settingButtonRef)

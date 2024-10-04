@@ -1,6 +1,8 @@
-import { formatUnits } from 'ethers'
+import { formatUnits, getAddress } from 'ethers'
+import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
@@ -10,6 +12,7 @@ import Text from '@common/components/Text'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import formatDecimals from '@common/utils/formatDecimals'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -17,7 +20,9 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTokenSelectProps'
 import { getTokenId } from '@web/utils/token'
 
-const useSwapAndBridgeFrom = () => {
+const sessionId = nanoid()
+
+const useSwapAndBridgeForm = () => {
   const {
     fromAmount,
     fromSelectedToken,
@@ -29,8 +34,12 @@ const useSwapAndBridgeFrom = () => {
     maxFromAmountInFiat,
     statuses,
     quote,
-    fromAmountInFiat
+    fromAmountInFiat,
+    activeRoutes,
+    formStatus,
+    toChainId
   } = useSwapAndBridgeControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
@@ -42,7 +51,7 @@ const useSwapAndBridgeFrom = () => {
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
 
   useEffect(() => {
-    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM' })
+    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
   }, [dispatch])
 
   useEffect(() => {
@@ -80,6 +89,12 @@ const useSwapAndBridgeFrom = () => {
     },
     [dispatch]
   )
+
+  useEffect(() => {
+    if (followUpTransactionConfirmed && formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+      setFollowUpTransactionConfirmed(false)
+    }
+  }, [followUpTransactionConfirmed, formStatus])
 
   useEffect(() => {
     dispatch({
@@ -144,7 +159,7 @@ const useSwapAndBridgeFrom = () => {
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
       networks.map((n) => ({
-        value: Number(n.chainId),
+        value: n.id,
         label: <Text weight="medium">{n.name}</Text>,
         icon: (
           <NetworkIcon id={n.id} style={{ backgroundColor: theme.primaryBackground }} size={28} />
@@ -153,13 +168,19 @@ const useSwapAndBridgeFrom = () => {
     [networks, theme]
   )
 
+  const getToNetworkSelectValue = useMemo(() => {
+    const network = networks.find((n) => Number(n.chainId) === toChainId)
+    if (!network) return toNetworksOptions[0]
+
+    return toNetworksOptions.filter((opt) => opt.value === network.id)[0]
+  }, [networks, toChainId, toNetworksOptions])
+
   const handleSetToNetworkValue = useCallback(
     (networkOption: SelectValue) => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: {
-          toChainId: networks.filter((net) => Number(net.chainId) === networkOption.value)[0]
-            .chainId
+          toChainId: networks.filter((net) => net.id === networkOption.value)[0].chainId
         }
       })
     },
@@ -217,7 +238,16 @@ const useSwapAndBridgeFrom = () => {
     setSettingsModalVisible((p) => !p)
   }, [])
 
+  const pendingRoutes = useMemo(() => {
+    return (
+      (activeRoutes || [])
+        .filter((r) => getAddress(r.route.userAddress) === selectedAccount)
+        .reverse() || []
+    )
+  }, [activeRoutes, selectedAccount])
+
   return {
+    sessionId,
     fromAmountValue,
     onFromAmountChange,
     fromTokenAmountSelectDisabled,
@@ -225,6 +255,7 @@ const useSwapAndBridgeFrom = () => {
     fromTokenValue,
     handleChangeFromToken,
     toNetworksOptions,
+    getToNetworkSelectValue,
     handleSetToNetworkValue,
     toTokenAmountSelectDisabled,
     toTokenOptions,
@@ -239,8 +270,9 @@ const useSwapAndBridgeFrom = () => {
     setFollowUpTransactionConfirmed,
     settingModalVisible,
     handleToggleSettingsMenu,
-    handleSwitchFromAndToTokens
+    handleSwitchFromAndToTokens,
+    pendingRoutes
   }
 }
 
-export default useSwapAndBridgeFrom
+export default useSwapAndBridgeForm

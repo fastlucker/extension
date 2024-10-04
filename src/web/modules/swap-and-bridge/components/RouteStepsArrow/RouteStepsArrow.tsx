@@ -1,6 +1,7 @@
 import React, { ReactElement, useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
 
+import CheckIcon from '@common/assets/svg/CheckIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import useTheme from '@common/hooks/useTheme'
 
@@ -30,8 +31,18 @@ const RouteStepsArrow = ({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <View style={[styles.arrowStart, { borderColor: getArrowColor }]} />
-      <View style={[styles.arrowLine, { borderColor: getArrowColor }]}>
+      {type === 'success' ? (
+        <CheckIcon width={12} height={12} color={theme.successDecorative} />
+      ) : (
+        <View style={[styles.arrowStart, { borderColor: getArrowColor }]} />
+      )}
+      <View
+        style={[
+          styles.arrowLine,
+          type === 'success' && styles.arrowLineSuccess,
+          { borderColor: getArrowColor }
+        ]}
+      >
         {!!badge && (
           <View style={{ backgroundColor: theme.secondaryBackground }}>
             <View

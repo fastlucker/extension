@@ -14,6 +14,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
@@ -26,6 +27,10 @@ import {
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import {
+  getActiveRoutesLowestServiceTime,
+  getActiveRoutesUpdateInterval
+} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, VELCRO_URL } from '@env'
@@ -280,18 +285,32 @@ handleKeepAlive()
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
-  function initActiveRoutesContinuousUpdate(updateInterval: number) {
-    if (backgroundState.updateActiveRoutesInterval)
-      clearTimeout(backgroundState.updateActiveRoutesInterval)
+  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: ActiveRoute[]) {
+    if (!activeRoutesInProgress || !activeRoutesInProgress.length) {
+      !!backgroundState.updateActiveRoutesInterval &&
+        clearTimeout(backgroundState.updateActiveRoutesInterval)
+      delete backgroundState.updateActiveRoutesInterval
+      return
+    }
+    if (backgroundState.updateActiveRoutesInterval) return
+
+    let minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress)
 
     async function updateActiveRoutes() {
+      minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress!)
       await mainCtrl.swapAndBridge.checkForNextUserTxForActiveRoutes()
 
       // Schedule the next update only when the previous one completes
-      backgroundState.updateActiveRoutesInterval = setTimeout(updateActiveRoutes, updateInterval)
+      backgroundState.updateActiveRoutesInterval = setTimeout(
+        updateActiveRoutes,
+        getActiveRoutesUpdateInterval(minServiceTime)
+      )
     }
 
-    backgroundState.updateActiveRoutesInterval = setTimeout(updateActiveRoutes, updateInterval)
+    backgroundState.updateActiveRoutesInterval = setTimeout(
+      updateActiveRoutes,
+      getActiveRoutesUpdateInterval(minServiceTime)
+    )
   }
 
   async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
@@ -527,17 +546,7 @@ handleKeepAlive()
               }
             }
             if (ctrlName === 'swapAndBridge') {
-              // Start the interval for updating the active/pending routes
-              if (controller?.activeRoutesInProgress?.length) {
-                // If the interval is already set, then do nothing.
-                if (!backgroundState.updateActiveRoutesInterval) {
-                  initActiveRoutesContinuousUpdate(5000)
-                }
-              } else {
-                !!backgroundState.updateActiveRoutesInterval &&
-                  clearTimeout(backgroundState.updateActiveRoutesInterval)
-                delete backgroundState.updateActiveRoutesInterval
-              }
+              initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
             }
           }, 'background')
         }
@@ -879,7 +888,7 @@ handleKeepAlive()
                 return mainCtrl.destroySignAccOp()
 
               case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
-                return mainCtrl.swapAndBridge.initForm()
+                return mainCtrl.swapAndBridge.initForm(params.sessionId)
               case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
                 return mainCtrl.swapAndBridge.updateForm(params)
               case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
@@ -888,6 +897,8 @@ handleKeepAlive()
                 return await mainCtrl.buildSwapAndBridgeUserRequest()
               case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
                 return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE':
+                return mainCtrl.swapAndBridge.removeActiveRoute(params.activeRouteId)
               case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST':
                 return mainCtrl.swapAndBridge.updatePortfolioTokenList(params)
 

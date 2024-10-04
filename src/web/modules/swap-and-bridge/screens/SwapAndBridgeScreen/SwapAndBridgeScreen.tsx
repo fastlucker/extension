@@ -28,7 +28,7 @@ import RouteStepsPlaceholder from '@web/modules/swap-and-bridge/components/Route
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 import SettingsModal from '@web/modules/swap-and-bridge/components/SettingsModal'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
-import useSwapAndBridgeFrom from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
+import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import ActiveRouteCard from '../../components/ActiveRouteCard'
 import getStyles from './styles'
@@ -38,6 +38,7 @@ const SwapAndBridgeScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const {
+    sessionId,
     fromAmountValue,
     onFromAmountChange,
     fromTokenOptions,
@@ -45,6 +46,7 @@ const SwapAndBridgeScreen = () => {
     fromTokenAmountSelectDisabled,
     handleChangeFromToken,
     toNetworksOptions,
+    getToNetworkSelectValue,
     handleSetToNetworkValue,
     toTokenOptions,
     toTokenValue,
@@ -56,21 +58,21 @@ const SwapAndBridgeScreen = () => {
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
-    handleSwitchFromAndToTokens
-  } = useSwapAndBridgeFrom()
+    handleSwitchFromAndToTokens,
+    pendingRoutes
+  } = useSwapAndBridgeForm()
   const {
+    sessionId: controllerSessionId,
     fromSelectedToken,
     fromAmount,
     fromAmountInFiat,
     fromAmountFieldMode,
-    toChainId,
     toSelectedToken,
     maxFromAmount,
     maxFromAmountInFiat,
     quote,
     formStatus,
-    validateFromAmount,
-    activeRoutes
+    validateFromAmount
   } = useSwapAndBridgeControllerState()
   const { statuses } = useMainControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
@@ -103,6 +105,8 @@ const SwapAndBridgeScreen = () => {
     setFollowUpTransactionConfirmed((p) => !p)
   }, [setFollowUpTransactionConfirmed])
 
+  if (sessionId !== controllerSessionId) return null
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -114,7 +118,7 @@ const SwapAndBridgeScreen = () => {
       >
         <View style={styles.container}>
           <View style={spacings.mbLg}>
-            {(activeRoutes || []).map((activeRoute) => (
+            {pendingRoutes.map((activeRoute) => (
               <ActiveRouteCard key={activeRoute.activeRouteId} activeRoute={activeRoute} />
             ))}
           </View>
@@ -229,7 +233,7 @@ const SwapAndBridgeScreen = () => {
                     setValue={handleSetToNetworkValue}
                     containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     options={toNetworksOptions}
-                    value={toNetworksOptions.filter((opt) => opt.value === toChainId)[0]}
+                    value={getToNetworkSelectValue}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
                   <Select
@@ -330,7 +334,7 @@ const SwapAndBridgeScreen = () => {
             <Button
               text={
                 statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-                  ? t('Loading...')
+                  ? t('Building Transaction...')
                   : t('Proceed')
               }
               disabled={

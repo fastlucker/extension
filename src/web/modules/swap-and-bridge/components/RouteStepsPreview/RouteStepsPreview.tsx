@@ -19,11 +19,13 @@ import getStyles from './styles'
 const RouteStepsPreview = ({
   steps,
   totalGasFeesInUsd,
-  estimationInSeconds
+  estimationInSeconds,
+  currentStep = 0
 }: {
   steps: SocketAPIStep[]
   totalGasFeesInUsd?: number
   estimationInSeconds?: number
+  currentStep?: number
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
@@ -37,6 +39,11 @@ const RouteStepsPreview = ({
     <View style={flexbox.flex1}>
       <View style={[styles.container, spacings.mb]}>
         {steps.map((step, i) => {
+          if (step.userTxIndex === undefined) {
+            // eslint-disable-next-line no-param-reassign
+            step.userTxIndex = 0
+          }
+
           if (i === steps.length - 1) {
             return (
               <Fragment key={step.type}>
@@ -57,7 +64,7 @@ const RouteStepsPreview = ({
                   </View>
                   <RouteStepsArrow
                     containerStyle={flexbox.flex1}
-                    type="default"
+                    type={step.userTxIndex < currentStep ? 'success' : 'default'}
                     badge={
                       <>
                         <TokenIcon
@@ -118,7 +125,7 @@ const RouteStepsPreview = ({
               </View>
               <RouteStepsArrow
                 containerStyle={flexbox.flex1}
-                type="default"
+                type={step.userTxIndex < currentStep ? 'success' : 'default'}
                 badge={
                   <>
                     <TokenIcon
