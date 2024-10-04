@@ -3,7 +3,6 @@ import React from 'react'
 import { Key } from '@ambire-common/interfaces/keystore'
 import LatticeIcon from '@common/assets/svg/LatticeIcon'
 import LedgerLetterIcon from '@common/assets/svg/LedgerLetterIcon'
-import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
 import SingleKeyIcon from '@common/assets/svg/SingleKeyIcon'
 import TrezorLockIcon from '@common/assets/svg/TrezorLockIcon'
 import useTheme from '@common/hooks/useTheme'
@@ -12,6 +11,9 @@ import { iconColors } from '@common/styles/themeConfig'
 import Wrapper from './Wrapper'
 
 const AccountKeyBanner = ({ type }: { type: Key['type'] }) => {
+  /* eslint-disable react/jsx-no-useless-fragment */
+  if (type === 'none') return <></>
+
   const { theme } = useTheme()
 
   if (type === 'lattice')
@@ -30,12 +32,6 @@ const AccountKeyBanner = ({ type }: { type: Key['type'] }) => {
     return (
       <Wrapper text="Ledger">
         <LedgerLetterIcon width={14} height={14} />
-      </Wrapper>
-    )
-  if (type === 'none')
-    return (
-      <Wrapper text="No keys">
-        <NoKeysIcon width={14} height={14} color={theme.secondaryText} />
       </Wrapper>
     )
 

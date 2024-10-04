@@ -21,10 +21,11 @@ const AccountKeyIcons = ({
   const importedKeyTypes = [
     ...new Set(keys.filter(({ addr }) => associatedKeys.includes(addr)).map((key) => key.type))
   ]
-  if (!importedKeyTypes.length) importedKeyTypes.push('none')
+  const hasKeys = !!importedKeyTypes.length
+  if (!hasKeys) importedKeyTypes.push('none')
 
   return (
-    <View style={[flexbox.directionRow]}>
+    <View style={[flexbox.directionRow, hasKeys ? spacings.mlTy : spacings.ml0]}>
       {importedKeyTypes.map((type, index) => {
         return (
           <View
