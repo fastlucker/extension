@@ -36,7 +36,7 @@ const WalletConnect = () => {
 
   return (
     <>
-      {error}
+      {error && <p className={styles.error}>⚠️ {error}</p>}
       <button type="button" onClick={requestAccounts} className={styles.button}>
         Connect Ambire
       </button>
