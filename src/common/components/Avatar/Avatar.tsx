@@ -57,13 +57,15 @@ interface Props {
   isSmart?: boolean
   size?: number
   style?: ViewStyle
+  showTooltip?: boolean
 }
 
-const Avatar: FC<Props> = ({ pfp, isSmart, size = 40, style }) => {
+const Avatar: FC<Props> = ({ pfp, isSmart, size = 40, style, showTooltip = false }) => {
   const selectedAccountPfp = getAccountPfpSource(pfp)
   const avatarType = getAvatarType(selectedAccountPfp)
   const borderRadius = size / 2
   const badgeType = size === 40 ? 'big' : 'small'
+  console.log(showTooltip)
 
   if (['jazz', 'blockies'].includes(avatarType)) {
     return (
@@ -79,7 +81,9 @@ const Avatar: FC<Props> = ({ pfp, isSmart, size = 40, style }) => {
             borderRadius={borderRadius}
           />
         )}
-        {isSmart !== undefined && <TypeBadge isSmart={isSmart} type={badgeType} />}
+        {isSmart !== undefined && (
+          <TypeBadge isSmart={isSmart} type={badgeType} showTooltip={showTooltip} />
+        )}
       </View>
     )
   }

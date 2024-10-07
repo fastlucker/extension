@@ -148,7 +148,7 @@ const Account = ({
     >
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
-          <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} />
+          <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} showTooltip />
           <View>
             <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
               {!withSettings ? (
