@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -13,6 +13,7 @@ import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useNavigation from '@common/hooks/useNavigation'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -77,9 +78,21 @@ const SwapAndBridgeScreen = () => {
   } = useSwapAndBridgeControllerState()
   const { statuses } = useMainControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
+  const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
+  const scrollViewRef: any = useRef(null)
+
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
   }, [navigate])
+
+  useEffect(() => {
+    if (!pendingRoutes || !prevPendingRoutes) return
+    if (!pendingRoutes.length) return
+    if (prevPendingRoutes.length < pendingRoutes.length) {
+      // scroll to top when there is a new item in the active routes list
+      scrollViewRef.current?.scrollTo({ y: 0 })
+    }
+  }, [pendingRoutes, prevPendingRoutes])
 
   // TODO: Disable tokens that are NOT supported
   // (not in the `fromTokenList` of the SwapAndBridge controller)
@@ -116,6 +129,7 @@ const SwapAndBridgeScreen = () => {
     >
       <TabLayoutWrapperMainContent
         contentContainerStyle={{ ...spacings.ptMd, ...flexbox.alignCenter }}
+        wrapperRef={scrollViewRef}
       >
         <View style={styles.container}>
           <View style={spacings.mbLg}>
