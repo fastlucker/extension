@@ -52,6 +52,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       return
     }
 
+    setError(null)
     setConnectedAccount(address)
   }, [])
 
