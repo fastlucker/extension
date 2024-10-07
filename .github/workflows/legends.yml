@@ -3,10 +3,10 @@ name: Legends 👾
 on:
   push:
     branches:
-      - v2
+      - legends-deploy-test
   pull_request:
     branches:
-      - v2
+      - legends-deploy-test
 permissions:
   contents: write
 jobs:
@@ -41,10 +41,15 @@ jobs:
       - name: Build project 🛠️
         run: yarn build:web:legends
 
-      - name: Deploy 🚀🌕
-        if: github.ref == 'refs/heads/v2'
-        uses: JamesIves/github-pages-deploy-action@v4.4.1
-        with:
-          branch: gh-pages
-          folder: build/legends-prod
-          cname: legends.ambire.com
+      - name: Deploy to Legends Repo gh-pages 🚀🌕
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git init
+          git remote add origin https://x-access-token:${{ secrets.LEGENDS_DEPLOY_KEY }}@github.com/AmbireTech/legends-gh-pages.git
+          git fetch origin
+          git checkout gh-pages
+          cp -R ./build/legends-prod/* .  # Copy your build output to the root of the branch
+          git add .
+          git commit -m "Deploy from ambire-app to legends-gh-pages"
+          git push origin gh-pages
