@@ -1,10 +1,12 @@
 import formatDecimals from './formatDecimals'
 
-const TEST_CASES: {
+type TestCases = {
   value: number | undefined
   type: 'value' | 'price' | 'amount' | 'default' | 'precise'
   expected: string
-}[] = [
+}[]
+
+const TEST_CASES: TestCases = [
   { value: 1234.5678, type: 'value', expected: '$1,234.56' },
   { value: 1234.5678, type: 'price', expected: '$1,234.56' },
   { value: 1234.5678, type: 'amount', expected: '1,234.56' },
@@ -42,9 +44,37 @@ const TEST_CASES: {
   { value: NaN, type: 'precise', expected: '-' }
 ]
 
+const SPECIAL_TEST_CASES: TestCases = [
+  {
+    value: 0.001,
+    type: 'value',
+    expected: '<$0.01'
+  },
+  {
+    value: -0.001,
+    type: 'value',
+    expected: '-<$0.01'
+  },
+  {
+    value: 0.000000001,
+    type: 'amount',
+    expected: '<0.00001'
+  },
+  {
+    value: -0.000000001,
+    type: 'amount',
+    expected: '-<0.00001'
+  }
+]
+
 describe('formatDecimals', () => {
   TEST_CASES.forEach(({ value, type, expected }) => {
     it(`should format ${value} as ${expected} for type ${type}`, () => {
+      expect(formatDecimals(value, type)).toBe(expected)
+    })
+  })
+  SPECIAL_TEST_CASES.forEach(({ value, type, expected }) => {
+    it(`special test case: should format ${value} as ${expected} for type ${type}`, () => {
       expect(formatDecimals(value, type)).toBe(expected)
     })
   })
