@@ -17,6 +17,9 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     environment: benzin
     steps:
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v3
+        
       - name: Setup Environment
         uses: ./setup.yml
 

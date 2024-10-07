@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: testing
     steps:
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v3
+
       - name: Setup Environment
         uses: ./setup.yml
 
@@ -26,6 +29,9 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v3
+
       - name: Setup Environment
         uses: ./setup.yml
 
