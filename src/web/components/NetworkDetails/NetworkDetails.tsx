@@ -255,7 +255,7 @@ const NetworkDetails = ({
           <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
           <DialogButton
             style={spacings.ml}
-            text={t('Delete')}
+            text={t('Remove')}
             type="danger"
             onPress={removeCustomNetwork}
           />
