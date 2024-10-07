@@ -48,6 +48,17 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
     })
   }, [activeRoute.activeRouteId, dispatch])
 
+  const getIsStepLoading = useCallback(
+    (stepIndex: number) => {
+      return (
+        stepIndex === activeRoute.route?.currentUserTxIndex &&
+        activeRoute.userTxHash &&
+        activeRoute.routeStatus === 'in-progress'
+      )
+    },
+    [activeRoute.route?.currentUserTxIndex, activeRoute.routeStatus, activeRoute.userTxHash]
+  )
+
   return (
     <Panel
       forceContainerSmallSpacings
@@ -73,6 +84,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
               ? activeRoute.route.totalUserTx
               : activeRoute.route.currentUserTxIndex
           }
+          loadingEnabled={!!activeRoute.userTxHash && activeRoute.routeStatus === 'in-progress'}
         />
       </View>
 

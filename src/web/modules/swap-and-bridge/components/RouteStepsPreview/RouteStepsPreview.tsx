@@ -20,12 +20,14 @@ const RouteStepsPreview = ({
   steps,
   totalGasFeesInUsd,
   estimationInSeconds,
-  currentStep = 0
+  currentStep = 0,
+  loadingEnabled
 }: {
   steps: SocketAPIStep[]
   totalGasFeesInUsd?: number
   estimationInSeconds?: number
   currentStep?: number
+  loadingEnabled?: boolean
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
@@ -37,7 +39,7 @@ const RouteStepsPreview = ({
 
   return (
     <View style={flexbox.flex1}>
-      <View style={[styles.container, spacings.mb]}>
+      <View style={styles.container}>
         {steps.map((step, i) => {
           if (step.userTxIndex === undefined) {
             // eslint-disable-next-line no-param-reassign
@@ -83,6 +85,7 @@ const RouteStepsPreview = ({
                         </Text>
                       </>
                     }
+                    isLoading={loadingEnabled && step.userTxIndex === currentStep}
                     badgePosition="top"
                   />
                 </View>
@@ -144,6 +147,7 @@ const RouteStepsPreview = ({
                     </Text>
                   </>
                 }
+                isLoading={loadingEnabled && step.userTxIndex === currentStep}
                 badgePosition="top"
               />
             </View>
@@ -151,7 +155,7 @@ const RouteStepsPreview = ({
         })}
       </View>
       {(!!totalGasFeesInUsd || !!estimationInSeconds) && (
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pt]}>
           <Text fontSize={12} weight="medium">
             {t('Total gas fees: {{fees}}', {
               fees: formatDecimals(totalGasFeesInUsd, 'price')
