@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
 
 import BottomSheet from '@common/components/BottomSheet'
+import { BOTTOM_SHEET_Z_INDEX } from '@common/components/BottomSheet/styles'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 
@@ -24,6 +25,7 @@ const Dialog: FC<Props> = ({ id, dialogRef, closeDialog, title, text, children }
         overflow: 'hidden',
         width: 512
       }}
+      customZIndex={BOTTOM_SHEET_Z_INDEX + 1}
       backgroundColor="primaryBackground"
     >
       <Text fontSize={18} weight="semiBold" style={spacings.mbMi}>
