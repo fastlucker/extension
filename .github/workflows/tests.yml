@@ -7,8 +7,9 @@ on:
   pull_request:
     branches:
       - v2
+
 jobs:
-  tests:
+  e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-latest
     environment: testing
@@ -39,9 +40,6 @@ jobs:
       - name: Git submodules update
         run: git submodule update
 
-        # The next step is required to run Puppeteer in headful mode in GitHub Actions.
-        # We attempted to configure it in a headless manner,
-        # but it fails right from the start when we attempt to locate the current page of the extension.
       - name: Configure the display server
         run: Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &
 
@@ -49,7 +47,6 @@ jobs:
         env:
           IS_TESTING: 'true'
           E2E_DEBUG: ${{ vars.E2E_DEBUG }}
-          # Its value is based on the above Display server configuration
           DISPLAY: ':99.0'
           RELAYER_URL: ${{ vars.RELAYER_URL }}
           VELCRO_URL: ${{ vars.VELCRO_URL }}
@@ -95,10 +92,19 @@ jobs:
 
         run: yarn run test:e2e:web
 
-      # Upload the recorded test videos (in case of failure) as Artifact
       - name: Artifacts - Recordings
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: puppeteer-recordings
           path: recorder
+
+  unit_tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    environment: testing
+    needs: e2e_tests
+    steps:
+
+      - name: Run Unit Tests
+        run: yarn test
