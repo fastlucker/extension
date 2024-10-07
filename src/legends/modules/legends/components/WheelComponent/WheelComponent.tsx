@@ -64,8 +64,8 @@ const WheelComponent: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) =>
             style: { rotate: '50deg', top: '50px', right: '20px', width: '90px' }
           }}
         />
-        <button onClick={handleSpinClick} type="button" className={styles.button}>
-          Spin
+        <button onClick={handleSpinClick} disabled={mustSpin} type="button" className={styles.button}>
+          {mustSpin ? 'Spinning' : 'Spin' }
         </button>
       </div>
     </Modal>
