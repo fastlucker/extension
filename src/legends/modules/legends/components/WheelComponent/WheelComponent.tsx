@@ -61,7 +61,7 @@ const WheelComponent: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) =>
           fontFamily='"Roboto Slab", serif'
           pointerProps={{
             src: '/images/pointer.png',
-            style: { rotate: '50deg', top: '50px', right: '20px', width: '90px' }
+            style: { rotate: '46deg', top: '25px', right: '-10px', width: '148px' }
           }}
         />
         <button onClick={handleSpinClick} disabled={mustSpin} type="button" className={styles.button}>
