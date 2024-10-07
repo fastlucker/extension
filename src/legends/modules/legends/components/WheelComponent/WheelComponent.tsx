@@ -57,8 +57,8 @@ const WheelComponent: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) =>
           radiusLineWidth={1}
           outerBorderColor="#E7AA27"
           outerBorderWidth={16}
-          perpendicularText
           fontFamily='"Roboto Slab", serif'
+          fontSize={35}
           pointerProps={{
             src: '/images/pointer.png',
             style: { rotate: '46deg', top: '25px', right: '-10px', width: '148px' }
