@@ -178,7 +178,7 @@ const SwapAndBridgeScreen = () => {
                     {fromSelectedToken?.priceIn.length !== 0 ? (
                       <Pressable
                         onPress={handleSwitchFromAmountFieldMode}
-                        style={[flexbox.directionRow, flexbox.alignCenter]}
+                        style={[flexbox.directionRow, flexbox.alignCenter, flexbox.alignSelfStart]}
                         disabled={fromTokenAmountSelectDisabled}
                       >
                         <View
