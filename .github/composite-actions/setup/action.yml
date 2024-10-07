@@ -6,7 +6,6 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version-file: .nvmrc
-      shell: bash
 
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
@@ -25,7 +24,6 @@ runs:
           ${{ runner.os }}-build-${{ env.cache-name }}-
           ${{ runner.os }}-build-
           ${{ runner.os }}-
-      shell: bash
 
     - if: ${{ steps.cache-yarn.outputs.cache-hit != 'true' }}
       name: List the state of node modules
