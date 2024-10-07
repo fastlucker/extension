@@ -9,6 +9,16 @@ on:
       - v2
 
 jobs:
+  unit_tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    environment: testing
+    steps:
+      - name: Setup Environment
+        uses: ./setup.yml
+
+      - name: Run Unit Tests
+        run: yarn test
   e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-latest
@@ -16,29 +26,8 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-      - name: Add SSH key to checkout a private repo
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Checkout code 🛎️
-        uses: actions/checkout@v3
-
-      - name: Install Node.js ⚙️
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: .nvmrc
-
-      - name: Install NPM packages ♾️🕳️
-        env:
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-        run: yarn install
-
-      - name: Git submodules init
-        run: git submodule init
-
-      - name: Git submodules update
-        run: git submodule update
+      - name: Setup Environment
+        uses: ./setup.yml
 
         # The next step is required to run Puppeteer in headful mode in GitHub Actions.
         # We attempted to configure it in a headless manner,
@@ -103,13 +92,3 @@ jobs:
         with:
           name: puppeteer-recordings
           path: recorder
-
-  unit_tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    environment: testing
-    needs: e2e_tests
-    steps:
-
-      - name: Run Unit Tests
-        run: yarn test

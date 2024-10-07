@@ -1,0 +1,51 @@
+name: 'Setup environment'
+secrets:
+  DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+runs:
+  using: "composite"
+  steps:
+    - name: Add SSH key to checkout a private repo
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+    - name: Checkout code 🛎️
+      uses: actions/checkout@v3
+
+    - name: Install Node.js ⚙️
+      uses: actions/setup-node@v3
+      with:
+        node-version-file: .nvmrc
+
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+
+    - name: Cache node modules
+      id: cache-yarn
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: $ {{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-build-${{ env.cache-name }}\-${{ hashFiles('**/yarn.lock') }}
+        restore-keys:
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - if: ${{ steps.cache-yarn.outputs.cache-hit != 'true' }}
+      name: List the state of node modules
+      continue-on-error: true
+      run: yarn list
+
+    - name: Install NPM packages ♾️🕳️
+      env:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      run: yarn install
+
+    - name: Git submodules init
+      run: git submodule init
+
+    - name: Git submodules update
+      run: git submodule update
