@@ -14,25 +14,25 @@ export const CHARACTERS: Character[] = [
   {
     id: 1,
     name: 'Slime',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    description: '',
     image: slimeCharacter
   },
   {
     id: 2,
     name: 'Sorceress',
-    description: 'Morbi id nisl fringilla, aliquet elit sit amet.',
+    description: '',
     image: sorceressCharacter
   },
   {
     id: 3,
     name: 'Necromancer Vitalik',
-    description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
+    description: '',
     image: vitalikCharacter
   },
   {
     id: 4,
     name: 'Penguin Paladin',
-    description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
+    description: '',
     image: penguinPaladin
   }
 ]

@@ -24,9 +24,10 @@ const CharacterSelect = () => {
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Choose a Character</h1>
       <p className={styles.description}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi id nisl fringilla, aliquet
-        elit sit amet, feugiat nisi. Vestibulum condimentum aliquet tortor, eu laoreet magna luctus
-        et.
+        Select your character, who will start at level 0. By completing quests and accumulating XP,
+        you&apos;ll level up and climb the leaderboard.
+        <br />
+        <br />✨ Choosing a character will mint an NFT on the Base chain.
       </p>
       <CharacterSlider initialCharacterId={characterId} onCharacterChange={onCharacterChange} />
 
