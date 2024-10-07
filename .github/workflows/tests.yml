@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Environment
-        uses: ./.github/workflows
+        uses: ./.github/composite-actions/setup
 
       - name: Run Unit Tests
         run: yarn test
@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Environment
-        uses: ./.github/workflows
+        uses: ./.github/composite-actions/setup
 
         # The next step is required to run Puppeteer in headful mode in GitHub Actions.
         # We attempted to configure it in a headless manner,
