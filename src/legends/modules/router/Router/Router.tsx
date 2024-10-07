@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Character from '@legends/modules/character/screens/Character'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
 import Legends from '@legends/modules/legends/screens/Legends'
-import Leaderboard from '@legends/modules/router/components/Leaderboard'
+import Leaderboard from '@legends/modules/leaderboard/screens/Leaderboard'
 import Welcome from '@legends/modules/welcome/screens/Welcome'
 import PrivateRoute from '@legends/components/PrivateRoute'
 
