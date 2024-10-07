@@ -87,12 +87,12 @@ const DappItem = (dapp: Dapp) => {
                 </Pressable>
                 {!!hovered && (
                   <Pressable onPress={openBottomSheet as any}>
-                    {({ hovered }: any) => (
+                    {({ hovered: iconHovered }: any) => (
                       <SettingsIcon
                         width={16}
                         height={16}
                         strokeWidth="2"
-                        color={hovered ? iconColors.secondary : iconColors.primary}
+                        color={iconHovered ? iconColors.secondary : iconColors.primary}
                       />
                     )}
                   </Pressable>
