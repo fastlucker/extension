@@ -72,7 +72,8 @@ const SwapAndBridgeScreen = () => {
     maxFromAmountInFiat,
     quote,
     formStatus,
-    validateFromAmount
+    validateFromAmount,
+    isSwitchFromAndToTokensEnabled
   } = useSwapAndBridgeControllerState()
   const { statuses } = useMainControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
@@ -223,7 +224,7 @@ const SwapAndBridgeScreen = () => {
           </Panel>
           <SwitchTokensButton
             onPress={handleSwitchFromAndToTokens}
-            disabled // Temporarily disabled, while WIP
+            disabled={!isSwitchFromAndToTokensEnabled}
           />
           <Panel forceContainerSmallSpacings>
             <View style={spacings.mb}>
