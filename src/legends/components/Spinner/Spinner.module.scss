@@ -1,0 +1,28 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  border: 0.25rem solid $accent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+
+  &.primaryBackground {
+    border-color: $primaryBackground;
+    border-bottom-color: transparent;
+  }
+  &.secondaryBackground {
+    border-color: $secondaryBackground;
+    border-bottom-color: transparent;
+  }
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
