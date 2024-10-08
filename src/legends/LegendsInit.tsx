@@ -6,6 +6,7 @@ import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvide
 import { AccountContextProvider } from './contexts/accountContext'
 import { CharacterContextProvider } from './contexts/characterContext'
 import { PortfolioControllerStateProvider } from './contexts/portfolioControllerStateContext'
+import { ToastContextProvider } from './contexts/toastsContext'
 import Router from './modules/router/Router'
 
 declare global {
@@ -17,13 +18,15 @@ declare global {
 const LegendsInit = () => {
   return (
     <PortalProvider>
-      <AccountContextProvider>
-        <CharacterContextProvider>
+      <ToastContextProvider>
+        <AccountContextProvider>
+          <CharacterContextProvider>
           <PortfolioControllerStateProvider>
             <Router />
           </PortfolioControllerStateProvider>
         </CharacterContextProvider>
-      </AccountContextProvider>
+        </AccountContextProvider>
+      </ToastContextProvider>
       <PortalHost name="global" />
     </PortalProvider>
   )
