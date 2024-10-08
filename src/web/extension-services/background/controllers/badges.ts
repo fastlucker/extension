@@ -6,18 +6,27 @@ import { setExtensionIcon } from '@web/extension-services/background/webapi/icon
 export class BadgesController {
   #mainCtrl: MainController
 
-  #bannersCount: number = 0
+  #swapAndBridgeBannersCount: number = 0
 
   #badgesCount: number = 0
 
   #icon: 'default' | 'locked' | null = null
 
   get badgesCount() {
-    return this.#badgesCount + this.#bannersCount
+    return this.#badgesCount + this.swapAndBridgeBannersCount
   }
 
   set badgesCount(newValue: number) {
     this.#badgesCount = newValue
+    this.setBadges(this.badgesCount)
+  }
+
+  get swapAndBridgeBannersCount() {
+    return this.#swapAndBridgeBannersCount
+  }
+
+  set swapAndBridgeBannersCount(newValue: number) {
+    this.#swapAndBridgeBannersCount = newValue
     this.setBadges(this.badgesCount)
   }
 
@@ -27,6 +36,9 @@ export class BadgesController {
     this.#mainCtrl.onUpdate(() => {
       this.badgesCount = this.#mainCtrl.actions.visibleActionsQueue.filter(
         (a) => a.type !== 'benzin'
+      ).length
+      this.swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
+        (b) => b.category === 'swap-and-bridge-ready'
       ).length
     })
 
@@ -45,6 +57,12 @@ export class BadgesController {
         setExtensionIcon('default')
       }
     })
+
+    this.#mainCtrl.swapAndBridge.onUpdate(() => {
+      this.swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
+        (b) => b.category === 'swap-and-bridge-ready'
+      ).length
+    })
   }
 
   setBadges = (badgesCount: number) => {
@@ -59,7 +77,8 @@ export class BadgesController {
   toJSON() {
     return {
       ...this,
-      badgesCount: this.badgesCount // includes the getter in the stringified instance
+      badgesCount: this.badgesCount,
+      swapAndBridgeBannersCount: this.swapAndBridgeBannersCount
     }
   }
 }

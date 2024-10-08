@@ -4,6 +4,7 @@ import { useModalize } from 'react-native-modalize'
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
+import SwapIcon from '@common/assets/svg/SwapIcon'
 import Banner from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
@@ -13,7 +14,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import RPCSelectBottomSheet from './RPCSelectBottomSheet'
 
-const ERROR_ACTIONS = ['reject-accountOp']
+const ERROR_ACTIONS = ['reject-accountOp', 'reject-swap-and-bridge']
 
 const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions = [] }) => {
   const { dispatch } = useBackgroundService()
@@ -25,6 +26,7 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
     if (category === 'pending-to-be-confirmed-acc-op') return PendingToBeConfirmedIcon
+    if (category?.includes('swap-and-bridge')) return SwapIcon
 
     return null
   }, [category])
@@ -89,6 +91,20 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
 
       if (action.actionName === 'select-rpc-url') {
         handleOpenBottomSheet()
+      }
+
+      if (action.actionName === 'reject-swap-and-bridge') {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+          params: { activeRouteId: action.meta.activeRouteId }
+        })
+      }
+
+      if (action.actionName === 'proceed-swap-and-bridge') {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
+          params: { activeRouteId: action.meta.activeRouteId }
+        })
       }
     },
     [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]

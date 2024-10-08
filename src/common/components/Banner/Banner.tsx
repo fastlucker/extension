@@ -72,7 +72,7 @@ const Banner = ({ type, title, text, children, CustomIcon, renderButtons, style 
   return (
     <View style={[styles.container, { backgroundColor: theme[`${type}Background`] }, style]}>
       <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
-        <View style={[spacings.mrSm, spacings.mtMi]}>
+        <View style={[spacings.mrSm]}>
           <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
         </View>
 
