@@ -3,7 +3,7 @@ import { Wheel } from 'react-custom-roulette'
 
 import Modal from '@legends/components/Modal'
 
-import styles from './WheelComponent.module.scss'
+import styles from './WheelComponentModal.module.scss'
 
 const data = [
   { option: '50', style: { backgroundColor: '#EADDC9', textColor: '#333131' } },
@@ -59,6 +59,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           outerBorderWidth={16}
           fontFamily='"Roboto Slab", serif'
           fontSize={35}
+          perpendicularText
           pointerProps={{
             src: '/images/pointer.png',
             style: { rotate: '46deg', top: '50px', right: '10px', width: '148px' }
