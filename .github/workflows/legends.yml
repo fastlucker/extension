@@ -42,7 +42,7 @@ jobs:
         run: yarn build:web:legends
 
       - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.8.1
+        uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.LEGENDS_DEPLOY_KEY }}
 
@@ -57,4 +57,4 @@ jobs:
           git add .
           git commit -m "Automated deploy from ambire-app"
           git push origin gh-pages
-          
+
