@@ -13,22 +13,23 @@ export type Character = {
 export const CHARACTERS: Character[] = [
   {
     id: 1,
-    name: 'Slime',
-    description: '',
-    image: slimeCharacter
-  },
-  {
-    id: 2,
     name: 'Sorceress',
     description: '',
     image: sorceressCharacter
   },
   {
-    id: 3,
+    id: 2,
     name: 'Necromancer Vitalik',
     description: '',
     image: vitalikCharacter
   },
+  {
+    id: 3,
+    name: 'Slime',
+    description: '',
+    image: slimeCharacter
+  },
+
   {
     id: 4,
     name: 'Penguin Paladin',
