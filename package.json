@@ -170,6 +170,7 @@
     "puppeteer-screen-recorder": "^3.0.3",
     "querystring-es3": "~0.2.0",
     "react": "18.1.0",
+    "react-custom-roulette": "^1.4.1",
     "react-dom": "18.1.0",
     "react-dropzone": "^14.2.3",
     "react-fast-compare": "^3.2.0",

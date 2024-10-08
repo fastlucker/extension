@@ -4,64 +4,16 @@ import 'swiper/css/virtual'
 import 'swiper/css/effect-coverflow'
 import 'swiper/css/free-mode'
 
-import React, { useRef, useState } from 'react'
+import React, { useRef, useMemo, useState } from 'react'
 import { Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import { CHARACTERS, Character } from '../../constants/characters'
 
 import styles from './CharacterSlider.module.scss'
 import Left from './Left'
-import penguinPaladin from './penguin-paladin.png'
 import Right from './Right'
-import slimeCharacter from './slime.png'
-import sorceressCharacter from './sorceress.png'
-import vitalikCharacter from './vitalik.png'
-
-type Character = {
-  id: number
-  name: string
-  description: string
-  image: string
-}
 
 type ReactCharacter = Character & { reactKey: number }
-const MOCK_CHARACTERS = [
-  {
-    id: 1,
-    name: 'Slime',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    image: slimeCharacter
-  },
-  {
-    id: 2,
-    name: 'Sorceress',
-    description: 'Morbi id nisl fringilla, aliquet elit sit amet.',
-    image: sorceressCharacter
-  },
-  {
-    id: 3,
-    name: 'Necromancer Vitalik',
-    description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
-    image: vitalikCharacter
-  },
-  {
-    id: 4,
-    name: 'Penguin Paladin',
-    description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
-    image: penguinPaladin
-  },
-  {
-    id: 5,
-    name: 'Necromancer Vitalik2',
-    description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
-    image: vitalikCharacter
-  },
-  {
-    id: 6,
-    name: 'Penguin Paladin2',
-    description: 'Vestibulum condimentum aliquet tortor, eu laoreet magna.',
-    image: penguinPaladin
-  }
-]
 
 const doubleCharacters = (characters: Character[]): ReactCharacter[] => {
   return [
@@ -70,11 +22,19 @@ const doubleCharacters = (characters: Character[]): ReactCharacter[] => {
   ]
 }
 
-const CharacterSlider = () => {
-  const [currentIndex, setCurrentIndex] = useState(1)
-  const sliderRef = useRef(null)
+const CharacterSlider = ({
+  initialCharacterId,
+  onCharacterChange
+}: {
+  initialCharacterId: number
+  onCharacterChange: (characterId: number) => void
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(
+    CHARACTERS.findIndex((character) => character.id === initialCharacterId)
+  )
 
-  const characters = doubleCharacters(MOCK_CHARACTERS)
+  const sliderRef = useRef(null)
+  const characters = useMemo(() => doubleCharacters(CHARACTERS), [])
 
   // Handler to go to the next character
   const handleNext = () => {
@@ -117,10 +77,14 @@ const CharacterSlider = () => {
           loop
           centeredSlides
           navigation
-          initialSlide={3}
+          initialSlide={currentIndex}
           modules={[Navigation]}
-          onSlideChange={(swiper) => {
+          onRealIndexChange={(swiper) => {
             setCurrentIndex(swiper.realIndex)
+
+            const characterIndex = swiper.realIndex % CHARACTERS.length
+            const characterId = CHARACTERS[characterIndex].id
+            onCharacterChange(characterId)
           }}
         >
           {characters.map((character, index) => (

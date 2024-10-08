@@ -14,7 +14,6 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -22,7 +21,6 @@ import text from '@common/styles/utils/text'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import NetworkDetails from '@web/components/NetworkDetails'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
@@ -36,8 +34,7 @@ const NetworksSettingsScreen = () => {
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
   const { networks } = useNetworksControllerState()
-  const { dispatch } = useBackgroundService()
-  const { addToast } = useToast()
+
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { theme } = useTheme()
   const [selectedNetworkId, setSelectedNetworkId] = useState(() => {
@@ -63,28 +60,6 @@ const NetworksSettingsScreen = () => {
   useEffect(() => {
     setCurrentSettingsPage('networks')
   }, [setCurrentSettingsPage])
-
-  const onRemoveCustomNetwork = useCallback(
-    (chainId: string | number) => {
-      const network = networks.find((n) => Number(n.chainId) === Number(chainId))
-      if (network) {
-        // eslint-disable-next-line no-alert
-        const isSure = window.confirm(
-          t(
-            `Are you sure you want to remove ${network.name} from networks? Upon removal, any tokens associated with this network will no longer be visible in your wallet.`
-          )
-        )
-
-        if (!isSure) return
-
-        dispatch({ type: 'MAIN_CONTROLLER_REMOVE_NETWORK', params: network.id })
-        setSelectedNetworkId(undefined)
-      } else {
-        addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
-      }
-    },
-    [networks, dispatch, addToast, t]
-  )
 
   const filteredNetworkBySearch = useMemo(
     () => networks.filter((network) => network.name.toLowerCase().includes(search.toLowerCase())),
@@ -174,7 +149,8 @@ const NetworksSettingsScreen = () => {
                 selectedRpcUrl={selectedNetwork?.selectedRpcUrl || '-'}
                 nativeAssetSymbol={selectedNetwork?.nativeAssetSymbol || '-'}
                 explorerUrl={selectedNetwork?.explorerUrl || '-'}
-                handleRemoveNetwork={onRemoveCustomNetwork}
+                networkId={selectedNetworkId}
+                allowRemoveNetwork
               />
             </View>
             {!!selectedNetwork && !!selectedNetworkId && (

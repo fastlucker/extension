@@ -1,0 +1,23 @@
+name: "Setup environment"
+runs:
+  using: "composite"
+  steps:
+    - name: Install Node.js ⚙️
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.20.3
+        cache: 'npm'
+
+    - name: Install NPM packages ♾️🕳️
+      env:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      run: yarn install
+      shell: bash
+
+    - name: Git submodules init
+      run: git submodule init
+      shell: bash
+
+    - name: Git submodules update
+      run: git submodule update
+      shell: bash

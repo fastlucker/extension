@@ -1,0 +1,60 @@
+name: Legends 👾
+
+on:
+  push:
+    branches:
+      - v2
+  pull_request:
+    branches:
+      - v2
+permissions:
+  contents: write
+jobs:
+  build:
+    name: Build & Deploy Standalone Legends
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - name: Add SSH key to chekout a private repo
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v3
+
+      - name: Install Node.js ⚙️
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: .nvmrc
+
+      - name: Git submodules init
+        run: git submodule init
+
+      - name: Git submodules update
+        run: git submodule update
+
+      - name: Install Yarn packages ♾️🕳️
+        run: yarn install
+
+      - name: Build project 🛠️
+        run: yarn build:web:legends
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.LEGENDS_DEPLOY_KEY }}
+
+      - name: Deploy to Legends Repo gh-pages 🚀🌕
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git clone git@github.com:AmbireTech/legends-gh-pages.git legends-gh-pages
+          cd legends-gh-pages
+          git checkout gh-pages
+          cp -R ../build/legends-prod/* .
+          git add .
+          git commit -m "Automated deploy from ambire-app"
+          git push origin gh-pages
+
