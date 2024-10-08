@@ -76,6 +76,7 @@ const WEB_ROUTES = {
   customTokens: 'settings/custom-tokens',
   importHotWallet: 'import-hot-wallet',
   importPrivateKey: 'import-private-key',
+  importSmartAccountJson: 'import-smart-account-json',
   importSeedPhrase: 'import-seed-phrase',
   createHotWallet: 'create-hot-wallet',
   createSeedPhrasePrepare: 'create-seed-phrase/prepare',

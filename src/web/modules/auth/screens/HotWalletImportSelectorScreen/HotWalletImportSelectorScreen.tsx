@@ -114,6 +114,10 @@ const HotWalletImportSelectorScreen = () => {
       navigate(WEB_ROUTES.importPrivateKey)
     }
 
+    if (flow === 'smart-account-json') {
+      navigate(WEB_ROUTES.importSmartAccountJson)
+    }
+
     // @TODO: Implement email vault
   }
 
@@ -130,17 +134,25 @@ const HotWalletImportSelectorScreen = () => {
     },
     {
       testID: 'button-import-private-key',
-      title: 'Private Key',
-      text: 'Select this option to import your Basic or Smart account(s) by entering their private key.',
+      title: 'Private Key\n(Basic Accounts)',
+      text: 'Select this option to import your Basic account by entering their private key.',
       image: PrivateKeyIcon,
       buttonText: 'Import',
       flow: 'private-key'
+    },
+    {
+      testID: 'button-import-json-smart-wallet',
+      title: 'Import existing json\n(Smart Accounts)',
+      text: 'Select this option to import your Smart account from a json file exported from the extension.',
+      // TODO: CHANGE ICON
+      image: PrivateKeyIcon,
+      buttonText: 'Upload',
+      flow: 'smart-account-json'
     }
   ]
 
   return (
     <TabLayoutContainer
-      width="lg"
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
       footer={<BackButton fallbackBackRoute={WEB_ROUTES.dashboard} />}
@@ -151,13 +163,14 @@ const HotWalletImportSelectorScreen = () => {
             {options.map((option, index) => (
               <Card
                 testID={option.testID}
-                style={index === 1 ? [flexbox.flex1, spacings.mh] : [flexbox.flex1]}
+                style={[flexbox.flex1, spacings.mr]}
                 key={option.title}
                 title={option.title}
                 text={option.text}
                 icon={option.image}
                 onPress={() => onOptionPress(option.flow)}
                 buttonText={option.buttonText}
+                titleStyle={[index === 0 ? spacings.mb2Xl : spacings.mb]}
               />
             ))}
             {/* the email vault option is fairly different than the others */}
@@ -172,6 +185,7 @@ const HotWalletImportSelectorScreen = () => {
               buttonText={t('Show interest')}
               onPress={() => onOptionPress('email')}
               isPartiallyDisabled
+              titleStyle={[spacings.mb2Xl]}
             >
               <Alert
                 title=""
