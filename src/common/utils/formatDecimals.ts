@@ -69,6 +69,7 @@ const formatNumber = (
   value: number,
   withDollarPrefix: boolean,
   decimals: number,
+  sign: string,
   type: FormatType
 ) => {
   const stringValue = value.toFixed(16)
@@ -83,7 +84,7 @@ const formatNumber = (
     type ? DECIMAL_RULES[type].min : undefined
   )
 
-  return `${getPrefix(withDollarPrefix)}${stringValueWithoutTrailingZeros}`
+  return `${sign}${getPrefix(withDollarPrefix)}${stringValueWithoutTrailingZeros}`
 }
 
 // A function that formats a number to a string with a specific number of decimals.
@@ -108,7 +109,7 @@ const formatDecimals = (value: number | undefined = undefined, type: FormatType 
       return `${sign}<$0.01`
     }
 
-    return formatNumber(value, withDollarPrefix, DEFAULT_DECIMALS, type)
+    return formatNumber(absoluteValue, withDollarPrefix, DEFAULT_DECIMALS, sign, type)
   }
 
   if (type === 'amount') {
@@ -125,7 +126,7 @@ const formatDecimals = (value: number | undefined = undefined, type: FormatType 
 
   const decimals = indexOfFirstNonZero + DECIMAL_RULES[type].max
 
-  return formatNumber(value, withDollarPrefix, decimals, type)
+  return formatNumber(absoluteValue, withDollarPrefix, decimals, sign, type)
 }
 
 export default formatDecimals

@@ -27,9 +27,15 @@ $goldBackground: #f8e3b7;
 $goldDecorative: #e7aa27;
 $goldText: #b67d02;
 $backdrop: rgba($primaryText, 0.75);
+$primaryBadgeBackground: #2c567d;
+$primaryBadgeDecorative: #113a60;
+$secondaryBadgeBackground: #7d2c2d;
+$secondaryBadgeDecorative: #601119;
 
-// TODO: error, success, warning colors
-$errorDecorative: #da2020;
+$success: #4e9200;
+$warning: #ba8315;
+$error: #e33535;
+$info: #1a66df;
 
 // Typography
 $primaryFont: 'Roboto Slab', serif;

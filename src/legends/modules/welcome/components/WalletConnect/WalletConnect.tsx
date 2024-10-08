@@ -8,7 +8,7 @@ import styles from './WalletConnect.module.scss'
 
 const WalletConnect = () => {
   const navigate = useNavigate()
-  const { connectedAccount, requestAccounts } = useAccountContext()
+  const { connectedAccount, error, requestAccounts } = useAccountContext()
 
   useEffect(() => {
     if (connectedAccount) {
@@ -36,6 +36,7 @@ const WalletConnect = () => {
 
   return (
     <>
+      {error && <p className={styles.error}>⚠️ {error}</p>}
       <button type="button" onClick={requestAccounts} className={styles.button}>
         Connect Ambire
       </button>
