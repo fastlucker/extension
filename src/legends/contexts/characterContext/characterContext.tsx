@@ -9,22 +9,34 @@ const CharacterContext = createContext<{
   character?: any
   getCharacter: () => void
   mintCharacter: (type: number) => void
+  isLoading: boolean
   isMinting: boolean
 }>({
   getCharacter: () => {},
   mintCharacter: () => {},
+  isLoading: false,
   isMinting: false
 })
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
   const [character, setCharacter] = useState<any>()
+  const [isLoading, setIsLoading] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
 
   const getCharacter = useCallback(async () => {
-    if (!connectedAccount) return
+    if (!connectedAccount) {
+      setCharacter(null)
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    setCharacter(null)
 
     const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
+
+    setIsLoading(false)
     setCharacter(await characterResponse.json())
   }, [connectedAccount])
 
@@ -75,9 +87,8 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   )
 
   useEffect(() => {
-    if (!connectedAccount) return
     getCharacter()
-  }, [connectedAccount, getCharacter])
+  }, [getCharacter])
 
   return (
     <CharacterContext.Provider
@@ -86,9 +97,10 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
           character,
           getCharacter,
           mintCharacter,
+          isLoading,
           isMinting
         }),
-        [character, getCharacter, mintCharacter, isMinting]
+        [character, getCharacter, mintCharacter, isLoading, isMinting]
       )}
     >
       {children}

@@ -11,7 +11,8 @@ const PrivateRoute = () => {
 
   if (!accountContext.connectedAccount) return <Navigate to="/" />
 
-  if (characterContext.character === undefined) return <div />
+  // Don't allow loading the Outlet component if the character is not loaded or is in the process of loading.
+  if (!characterContext.character || characterContext.isLoading) return <div />
 
   if (characterContext.character.characterType === 'unknown')
     return <Navigate to={LEGENDS_ROUTES.characterSelect} />
