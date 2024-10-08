@@ -21,7 +21,10 @@ const getAreDefaultsChanged = (values: any, selectedNetwork?: Network) => {
       return values[key] !== Number(selectedNetwork[key])
     }
     if (key === 'rpcUrls') {
-      return values[key].some((u: string) => !(selectedNetwork.rpcUrls || []).includes(u))
+      return (
+        values[key].some((u: string) => !(selectedNetwork.rpcUrls || []).includes(u)) ||
+        !values[key].length
+      )
     }
 
     return key in selectedNetwork && values[key] !== selectedNetwork[key as keyof Network]
