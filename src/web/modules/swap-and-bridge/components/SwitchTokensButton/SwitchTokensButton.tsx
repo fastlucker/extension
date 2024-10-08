@@ -41,7 +41,7 @@ const SwitchTokensButton = ({ disabled, ...rest }: PressableProps) => {
       {disabled && (
         <Tooltip
           content={t(
-            'Switching tokens is only possible if the account already holds some of the receive token.'
+            'Switching tokens is only possible if the account already holds the selected receive token.'
           )}
           id={SWITCH_TOKENS_CONDITION_TOOLTIP_ID}
         />
