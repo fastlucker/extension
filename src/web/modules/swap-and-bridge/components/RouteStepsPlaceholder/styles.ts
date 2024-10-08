@@ -24,7 +24,7 @@ const getStyles = (theme: ThemeProps) =>
       minWidth: 50
     },
     tokenWrapper: {
-      ...spacings.pbMi
+      marginBottom: 6
     }
   })
 
