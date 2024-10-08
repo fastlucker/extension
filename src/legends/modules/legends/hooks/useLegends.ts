@@ -34,7 +34,8 @@ const useLegends = ({
 
         const sortedCards = sortCards(rawCards)
         setLegends(sortedCards)
-      } catch {
+      } catch (e: any) {
+        console.error(e)
         // handle error
         setError(
           'Internal error while fetching legends. Please reload the page or try again later.'
