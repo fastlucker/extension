@@ -3,10 +3,10 @@ name: Legends 👾
 on:
   push:
     branches:
-      - legends-deploy-test
+      - v2
   pull_request:
     branches:
-      - legends-deploy-test
+      - v2
 permissions:
   contents: write
 jobs:
