@@ -1,0 +1,39 @@
+@import '@legends/styles/base.scss';
+
+.wheelContainer {
+    position: relative;
+    width: 100%;
+    max-width: 31.6875rem;
+    aspect-ratio: 1;
+    margin: 0 auto;
+}
+
+.wheelContainer > div {
+    transform: rotate(-46deg);
+    width: 31.6875rem;
+    height: 100%;
+    max-width: unset;
+    max-height: unset;
+}
+
+.modal {
+    width: 50rem;
+}
+ 
+.heading {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.description {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.button {
+    @include primary-button;
+}

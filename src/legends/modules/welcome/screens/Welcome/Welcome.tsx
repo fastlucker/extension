@@ -11,35 +11,19 @@ const Welcome = () => {
       <div className={styles.mb}>
         <h1 className={styles.title}>Welcome to Ambire Legends</h1>
         <p className={`${styles.text} ${styles.textMb}`}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio dui. Nullam a
-          consectetur massa, at placerat dolor. Pellentesque eu imperdiet enim. Suspendisse
-          fringilla faucibus ipsum, sit amet blandit libero eleifend vel. Suspendisse faucibus
-          placerat est non convallis. Mauris vel magna laoreet, convallis lacus eu, bibendum metus.
-          Mauris convallis quam eu justo vestibulum convallis. Praesent nisi nisl, bibendum ac
-          pharetra non, varius at arcu.
+          <ul>
+            <li>#1. Connect your Ambire v2 smart account and start completing quests.</li>
+            <li>#2. You can choose a character that starts at level 0.</li>
+            <li>#3. By completing quests, you’ll earn XP to level up your character.</li>
+          </ul>
         </p>
-        <p className={styles.text}>
-          Mauris vel magna laoreet, convallis lacus eu, bibendum metus. Mauris convallis quam eu
-          justo vestibulum convallis. Praesent nisi nisl, bibendum ac pharetra non, varius at arcu.
+        <p className={`${styles.text} ${styles.textMb}`}>
+          ⚠️ Please note that this is an early prototype of Legends, intended for testing purposes
+          only.
         </p>
+        <p className={`${styles.text} ${styles.textMb}`}>🚀 Have fun and happy testing!</p>
       </div>
-      <div className={styles.mb}>
-        <h2 className={styles.subtitle}>Rewards Pool</h2>
-        <p className={styles.text}>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab, veniam repellendus possimus
-          sunt officia assumenda harum tempore fugit eaque molestias.
-        </p>
-      </div>
-      <div className={styles.mbLg}>
-        <h2 className={styles.subtitle}>Rules</h2>
-        <p className={styles.text}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio dui. Suspendisse
-          fringilla faucibus ipsum, sit amet blandit libero eleifend vel. Suspendisse faucibus
-          placerat est non convallis.
-        </p>
-      </div>
-
-      <h2 className={styles.subtitleLg}>Are you ready to earn stkWALLET?</h2>
+      <h2 className={styles.subtitleLg}>Are you ready to earn $WALLET?</h2>
       <WalletConnect />
     </div>
   )

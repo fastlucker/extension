@@ -49,7 +49,7 @@
       border-radius: $secondaryBorderRadius $secondaryBorderRadius 0 0;
     }
   }
-  .content {
+  .contentAndAction {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -59,67 +59,92 @@
     border-top: none;
     border-radius: 0 0 $secondaryBorderRadius $secondaryBorderRadius;
 
-    .heading {
-      font-size: 1.25rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
-    .description {
-      margin-bottom: 0.75rem;
-      font-size: 0.875rem;
-      color: $secondaryText;
-
-      .readMore {
-        display: inline;
-        font-size: inherit;
-        font-weight: inherit;
-        line-height: inherit;
-        color: $secondaryAccent;
-      }
-    }
-    .rewardsHeading {
-      margin-bottom: 0.5rem;
-      font-family: $secondaryFont;
-      font-size: 0.875rem;
-      color: $secondaryText;
-      font-weight: 600;
-    }
-    .repeatableIcon {
-      display: inline;
-      color: $secondaryText;
-    }
-    .rewards {
+    .content {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
 
-      &.mb {
-        margin-bottom: 1.5rem;
+      .heading {
+        font-size: 1.25rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
       }
+      .description {
+        // Always take two lines of text
+        line-height: 1.25rem;
+        height: 2.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+        color: $secondaryText;
 
-      .reward {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 1.75rem;
-        width: 100%;
-        background-color: $tertiaryBackground;
-        border-radius: $primaryBorderRadius;
-        padding: 0 0.5rem;
-
-        .rewardLabel,
-        .rewardValue {
-          font-family: $primaryFont;
-          font-size: 0.75rem;
+        .readMore {
+          display: inline;
+          font-size: inherit;
+          font-weight: inherit;
+          line-height: inherit;
+          color: $secondaryAccent;
         }
+      }
+      .rewardsHeading {
+        line-height: 1.25rem;
+        margin-bottom: 0.5rem;
+        font-family: $secondaryFont;
+        font-size: 0.875rem;
+        color: $secondaryText;
+        font-weight: 600;
 
-        .rewardLabel {
+        .repeatableIcon {
+          display: inline;
           color: $secondaryText;
         }
-        .rewardValue {
-          color: $primaryText;
+      }
+      .rewards {
+        flex: 3;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        &.mb {
+          margin-bottom: 1.5rem;
+        }
+
+        .reward {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          height: 1.75rem;
+          width: 100%;
+          background-color: $tertiaryBackground;
+          border-radius: $primaryBorderRadius;
+          padding: 0 0.5rem;
+
+          .rewardLabel,
+          .rewardValue {
+            font-family: $primaryFont;
+            font-size: 0.75rem;
+          }
+
+          .rewardLabel {
+            color: $secondaryText;
+          }
+          .rewardValue {
+            color: $primaryText;
+          }
         }
       }
     }
   }
+}
+
+.modalText {
+  margin-bottom: 1.25rem;
+}
+.modalAction {
+  margin-bottom: 2rem;
+}
+
+.button {
+  @include primary-button;
+  font-size: 1rem;
+  color: $secondaryAccent;
 }
