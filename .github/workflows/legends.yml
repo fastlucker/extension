@@ -41,15 +41,20 @@ jobs:
       - name: Build project 🛠️
         run: yarn build:web:legends
 
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.LEGENDS_DEPLOY_KEY }}
+
       - name: Deploy to Legends Repo gh-pages 🚀🌕
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git init
-          git remote add origin https://x-access-token:${{ secrets.LEGENDS_DEPLOY_KEY }}@github.com/AmbireTech/legends-gh-pages.git
-          git fetch origin
+          git clone git@github.com:AmbireTech/legends-gh-pages.git legends-gh-pages
+          cd legends-gh-pages
           git checkout gh-pages
-          cp -R ./build/legends-prod/* .  # Copy your build output to the root of the branch
+          cp -R ../build/legends-prod/* .
           git add .
-          git commit -m "Deploy from ambire-app to legends-gh-pages"
+          git commit -m "Automated deploy from ambire-app"
           git push origin gh-pages
+          
