@@ -21,10 +21,10 @@ const LegendsInit = () => {
       <ToastContextProvider>
         <AccountContextProvider>
           <CharacterContextProvider>
-          <PortfolioControllerStateProvider>
-            <Router />
-          </PortfolioControllerStateProvider>
-        </CharacterContextProvider>
+            <PortfolioControllerStateProvider>
+              <Router />
+            </PortfolioControllerStateProvider>
+          </CharacterContextProvider>
         </AccountContextProvider>
       </ToastContextProvider>
       <PortalHost name="global" />
