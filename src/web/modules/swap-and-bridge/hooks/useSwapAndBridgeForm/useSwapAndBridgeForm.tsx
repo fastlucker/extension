@@ -1,6 +1,7 @@
 import { formatUnits, getAddress } from 'ethers'
+import { debounce } from 'lodash'
 import { nanoid } from 'nanoid'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
@@ -41,6 +42,7 @@ const useSwapAndBridgeForm = () => {
   } = useSwapAndBridgeControllerState()
   const { selectedAccount } = useAccountsControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
+  const debouncedDispatchUpdateFormRef = useRef<_.DebouncedFunc<(value: string) => void>>()
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
@@ -82,10 +84,18 @@ const useSwapAndBridgeForm = () => {
   const onFromAmountChange = useCallback(
     (value: string) => {
       setFromAmountValue(value)
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { fromAmount: value }
-      })
+
+      // Debounce dispatching an update to prevent too many updates / requests
+      if (!debouncedDispatchUpdateFormRef.current) {
+        debouncedDispatchUpdateFormRef.current = debounce((latestFromAmount: string) => {
+          dispatch({
+            type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+            params: { fromAmount: latestFromAmount }
+          })
+        }, 750)
+      }
+
+      debouncedDispatchUpdateFormRef.current(value) // Use the debounced function to dispatch the action
     },
     [dispatch]
   )
