@@ -3,10 +3,6 @@ import React from 'react'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import styles from './CharacterSection.module.scss'
 
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1)
-}
-
 const CharacterSection = () => {
   const { character } = useCharacterContext()
 
@@ -15,7 +11,7 @@ const CharacterSection = () => {
       <div className={styles.characterInfo}>
         <span className={styles.kicker}>YOUR CHARACTER</span>
         <div className={styles.characterNameAndLevel}>
-          <h1 className={styles.characterName}>{capitalizeFirstLetter(character.characterType)}</h1>
+          <h1 className={styles.characterName}>{character.characterType}</h1>
           <div className={styles.levelWrapper}>
             <div className={styles.innerCircle}>
               <span className={styles.level}>{character.level}</span>
