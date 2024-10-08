@@ -56,5 +56,5 @@ jobs:
           cp -R ../build/legends-prod/* .
           git add .
           git commit -m "Automated deploy from ambire-app"
-          git push origin gh-pages
+          git push origin gh-pages --force
 
