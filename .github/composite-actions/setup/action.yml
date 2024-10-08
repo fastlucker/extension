@@ -7,6 +7,7 @@ runs:
       with:
         node-version: 18.20.3
         cache: 'yarn'
+        cache-dependency-path: './yarn.lock'
 
     - name: Install NPM packages using yarn ♾️🕳️
       env:
