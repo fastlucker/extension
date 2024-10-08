@@ -1,3 +1,4 @@
+import { formatUnits } from 'ethers'
 import React, { Fragment, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -36,6 +37,38 @@ const RouteStepsPreview = ({
     if (!estimationInSeconds) return false
     return estimationInSeconds > 3600 // 1 hour in seconds
   }, [estimationInSeconds])
+
+  const formattedFromAmount = useMemo(() => {
+    const fromStep = steps?.[0]
+    if (!fromStep) return ''
+
+    const fromAmount = `${formatDecimals(
+      Number(formatUnits(fromStep.fromAmount, fromStep.fromAsset.decimals)),
+      'precise'
+    )}`
+
+    if (fromAmount.length > 10) {
+      return `${fromAmount.slice(0, 10)}...`
+    }
+
+    return fromAmount
+  }, [steps])
+
+  const formattedToAmount = useMemo(() => {
+    const toStep = steps?.[steps.length - 1]
+    if (!toStep) return ''
+
+    const toAmount = `${formatDecimals(
+      Number(formatUnits(toStep.toAmount, toStep.toAsset.decimals)),
+      'precise'
+    )}`
+
+    if (toAmount.length > 10) {
+      return `${toAmount.slice(0, 10)}...`
+    }
+
+    return toAmount
+  }, [steps])
 
   return (
     <View style={flexbox.flex1}>
@@ -99,7 +132,13 @@ const RouteStepsPreview = ({
                       withNetworkIcon
                     />
                   </View>
-                  <Text fontSize={14} weight="medium">
+                  <Text
+                    fontSize={14}
+                    weight="medium"
+                    // @ts-ignore
+                    style={[!!formattedToAmount && flexbox.alignSelfEnd, { whiteSpace: 'nowrap' }]}
+                  >
+                    {formattedToAmount ? `${formattedToAmount} ` : ''}
                     {step.toAsset.symbol}
                   </Text>
                 </View>
@@ -122,7 +161,16 @@ const RouteStepsPreview = ({
                     withNetworkIcon
                   />
                 </View>
-                <Text fontSize={14} weight="medium">
+                <Text
+                  fontSize={14}
+                  weight="medium"
+                  style={[
+                    i === 0 && !!formattedFromAmount && flexbox.alignSelfStart,
+                    // @ts-ignore
+                    { whiteSpace: 'nowrap' }
+                  ]}
+                >
+                  {i === 0 && !!formattedFromAmount ? `${formattedFromAmount} ` : ''}
                   {step.fromAsset.symbol}
                 </Text>
               </View>

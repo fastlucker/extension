@@ -21,10 +21,11 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter,
       ...spacings.phMi,
-      minWidth: 50
+      minWidth: 50,
+      maxWidth: 58
     },
     tokenWrapper: {
-      ...spacings.pbMi
+      marginBottom: 6
     }
   })
 
