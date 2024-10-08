@@ -6,12 +6,13 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: 18.20.3
-        cache: 'npm'
+        cache: 'yarn'
+        cache-dependency-path: './yarn.lock'
 
-    - name: Install NPM packages ♾️🕳️
+    - name: Install NPM packages using yarn ♾️🕳️
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-      run: yarn install
+      run: yarn install --frozen-lockfile
       shell: bash
 
     - name: Git submodules init
