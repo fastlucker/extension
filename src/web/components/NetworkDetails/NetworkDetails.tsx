@@ -11,13 +11,18 @@ import EditPenIcon from '@common/assets/svg/EditPenIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Dialog from '@common/components/Dialog'
+import DialogButton from '@common/components/Dialog/DialogButton'
+import DialogFooter from '@common/components/Dialog/DialogFooter'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import NetworkForm from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm'
 
 import getStyles from './styles'
@@ -30,7 +35,8 @@ type Props = {
   chainId: string
   explorerUrl: string
   nativeAssetSymbol: string
-  handleRemoveNetwork?: (chainId: string | number) => void
+  networkId?: string
+  allowRemoveNetwork?: boolean
 }
 
 const NetworkDetails = ({
@@ -41,10 +47,15 @@ const NetworkDetails = ({
   chainId,
   explorerUrl,
   nativeAssetSymbol,
-  handleRemoveNetwork
+  allowRemoveNetwork,
+  networkId
 }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
+  const { dispatch } = useBackgroundService()
+  const { addToast } = useToast()
+  const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
+
   const { pathname } = useRoute()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [showAllRpcUrls, setShowAllRpcUrls] = useState(false)
@@ -63,9 +74,22 @@ const NetworkDetails = ({
       pathname?.includes(ROUTES.networksSettings) &&
       !isEmpty &&
       !predefinedNetworks.find((n) => Number(n.chainId) === Number(chainId)) &&
-      handleRemoveNetwork,
-    [pathname, chainId, isEmpty, handleRemoveNetwork]
+      allowRemoveNetwork,
+    [pathname, chainId, isEmpty, allowRemoveNetwork]
   )
+
+  const promptRemoveCustomNetwork = useCallback(() => {
+    openDialog()
+  }, [openDialog])
+
+  const removeCustomNetwork = useCallback(() => {
+    if (networkId) {
+      dispatch({ type: 'MAIN_CONTROLLER_REMOVE_NETWORK', params: networkId })
+      closeDialog()
+    } else {
+      addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
+    }
+  }, [networkId, dispatch, closeDialog, addToast, chainId])
 
   const renderInfoItem = useCallback(
     (title: string, value: string, withBottomSpacing = true) => {
@@ -199,7 +223,8 @@ const NetworkDetails = ({
               text={t('Remove')}
               type="danger"
               onPress={() => {
-                !!handleRemoveNetwork && handleRemoveNetwork(chainId)
+                if (!networkId || !allowRemoveNetwork) return
+                promptRemoveCustomNetwork()
               }}
               hasBottomSpacing={false}
             >
@@ -217,6 +242,25 @@ const NetworkDetails = ({
           {renderInfoItem(t('Block Explorer URL'), explorerUrl, false)}
         </View>
       </View>
+      <Dialog
+        dialogRef={dialogRef}
+        id="remove-network"
+        title={t(`Remove ${name}`)}
+        text={t(
+          `Are you sure you want to remove ${name} from networks? Upon removal, any tokens associated with this network will no longer be visible in your wallet.`
+        )}
+        closeDialog={closeDialog}
+      >
+        <DialogFooter horizontalAlignment="justifyEnd">
+          <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
+          <DialogButton
+            style={spacings.ml}
+            text={t('Remove')}
+            type="danger"
+            onPress={removeCustomNetwork}
+          />
+        </DialogFooter>
+      </Dialog>
       <BottomSheet
         id="edit-network-bottom-sheet"
         sheetRef={sheetRef}
