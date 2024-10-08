@@ -296,6 +296,7 @@ const SeedPhraseImportScreen = () => {
               control={control}
               render={({ field: { onChange, value } }) => (
                 <Select
+                  testID="select-seed-phrase-length"
                   setValue={(e) => {
                     updateFieldsLength(e.value as number)
                     onChange(e)
@@ -333,6 +334,7 @@ const SeedPhraseImportScreen = () => {
                   rules={{ required: true }}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
+                      testID={`seed-phrase-field-${index + 1}`}
                       value={value}
                       editable
                       numberOfLines={1}

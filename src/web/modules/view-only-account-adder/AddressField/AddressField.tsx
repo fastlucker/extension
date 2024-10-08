@@ -97,7 +97,7 @@ const AddressField: FC<Props> = ({
       render={({ field: { onChange, onBlur } }) => (
         <View style={[spacings.mbTy, flexbox.directionRow, flexbox.alignCenter]}>
           <AddressInput
-            testID="view-only-address-field"
+            testID={`view-only-address-field-${index}`}
             validation={validation}
             containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
             onBlur={onBlur}

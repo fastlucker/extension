@@ -132,7 +132,9 @@ const HotWalletImportSelectorScreen = () => {
             onSecondaryButtonPress={handleImportFromExternalSeed}
             onPrimaryButtonPress={handleImportFromDefaultSeed}
             secondaryButtonText={t('Use external seed')}
+            secondaryButtonTestID="use-external-seed-btn"
             primaryButtonText={t('Use default seed')}
+            primaryButtonTestID="use-default-seed-btn"
           />
         </BottomSheet>
       )}

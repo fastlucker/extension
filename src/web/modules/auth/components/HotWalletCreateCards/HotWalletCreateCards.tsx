@@ -45,6 +45,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
           />
         </Card>
         <Card
+          testID="set-up-with-seed-phrase-btn"
           title={t('Set up with a Seed Phrase')}
           style={{
             ...spacings.ml,

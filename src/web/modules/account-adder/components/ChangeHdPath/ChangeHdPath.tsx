@@ -57,6 +57,7 @@ const ChangeHdPath: React.FC<Props> = () => {
       />
       <Tooltip id="hd-path-tooltip" />
       <Select
+        testID="select-change-hd-path"
         disabled={accountsLoading}
         setValue={handleChangeHdPath}
         containerStyle={styles.selectContainer}
