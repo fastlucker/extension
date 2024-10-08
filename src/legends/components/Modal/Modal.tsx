@@ -55,9 +55,7 @@ const Modal = ({ children, className, isOpen, setIsOpen }: ModalProps) => {
     </div>
   )
 
-  return isOpen
-    ? ReactDOM.createPortal(modalContent, document.getElementById('modal-root') as HTMLElement)
-    : null
+  return ReactDOM.createPortal(modalContent, document.getElementById('modal-root') as HTMLElement)
 }
 
 Modal.Heading = Heading

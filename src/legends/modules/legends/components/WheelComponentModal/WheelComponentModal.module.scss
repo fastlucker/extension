@@ -1,6 +1,6 @@
 @import '@legends/styles/base.scss';
 
-.rouletteContainer {
+.wheelContainer {
     position: relative;
     width: 100%;
     max-width: 31.6875rem;
@@ -8,12 +8,16 @@
     margin: 0 auto;
 }
 
-.rouletteContainer > div {
+.wheelContainer > div {
     transform: rotate(-46deg);
-    width: 100%;
+    width: 31.6875rem;
     height: 100%;
     max-width: unset;
     max-height: unset;
+}
+
+.modal {
+    width: 50rem;
 }
  
 .heading {
@@ -22,9 +26,11 @@
     font-size: 2rem;
     font-weight: 500;
     line-height: 1.25rem;
+    margin-bottom: 1rem;
 }
 
-.text {
+.description {
+    margin-bottom: 2rem;
     text-align: center;
 }
 

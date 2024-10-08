@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
@@ -7,7 +7,7 @@ import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
 import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import WheelComponent from '@legends/modules/legends/components/WheelComponent'
+import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import HighlightedLink from './components/HighlightedLink'
@@ -29,10 +29,10 @@ const NAVIGATION_LINKS = [
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { pathname } = useLocation()
-  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
   const handleModal = () => {
-    setIsModalOpen(!isModalOpen)
+    setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
   }
 
   return (
@@ -50,7 +50,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           <button onClick={handleModal} type="button" className={styles.spinButton}>
             Spin the Wheel
           </button>
-          <WheelComponent isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
+          <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
         </HighlightedLink>
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
