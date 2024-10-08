@@ -6,7 +6,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: 18.20.3
-        cache: 'npm'
+        cache: 'yarn'
 
     - name: Install NPM packages ♾️🕳️
       env:
