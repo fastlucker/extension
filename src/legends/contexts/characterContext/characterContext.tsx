@@ -5,13 +5,24 @@ import LegendsNFT from '@contracts/compiled/LegendsNft.json'
 
 const RELAYER_URL = 'https://staging-relayer.ambire.com'
 
+type Character = {
+  characterType: 'unknown | slime | sorceress | necromancer | penguin'
+  name: string
+  description: string
+  level: number
+  xp: number
+  image: string
+  image_avatar: string
+}
+
 const CharacterContext = createContext<{
-  character?: any
+  character: Character | null
   getCharacter: () => void
   mintCharacter: (type: number) => void
   isLoading: boolean
   isMinting: boolean
 }>({
+  character: null,
   getCharacter: () => {},
   mintCharacter: () => {},
   isLoading: false,
@@ -20,7 +31,7 @@ const CharacterContext = createContext<{
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
-  const [character, setCharacter] = useState<any>()
+  const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
 
