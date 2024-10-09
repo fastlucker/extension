@@ -5,11 +5,14 @@ import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
+import Text from '@common/components/Text'
 import useAccounts from '@common/hooks/useAccounts/useAccounts'
 import useElementSize from '@common/hooks/useElementSize'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
@@ -19,7 +22,15 @@ import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { accounts, control } = useAccounts()
+  const {
+    accounts,
+    control,
+    selectedAccountIndex,
+    onContentSizeChange,
+    keyExtractor,
+    getItemLayout,
+    isReadyToScrollToSelectedAccount
+  } = useAccounts()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const accountsContainerRef = useRef(null)
   const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
@@ -29,14 +40,14 @@ const AccountsSettingsScreen = () => {
     setCurrentSettingsPage('accounts')
   }, [setCurrentSettingsPage])
 
-  const shortenAccountAddr = () => {
+  const shortenAccountAddr = useCallback(() => {
     if (maxElementWidthSize(800)) return undefined
     if (maxElementWidthSize(700) && minElementWidthSize(800)) return 32
     if (maxElementWidthSize(600) && minElementWidthSize(700)) return 24
     if (maxElementWidthSize(500) && minElementWidthSize(600)) return 16
 
     return 10
-  }
+  }, [maxElementWidthSize, minElementWidthSize])
 
   const onSelectAccount = useCallback(
     (addr: string) => {
@@ -46,22 +57,44 @@ const AccountsSettingsScreen = () => {
     [accounts, addToast, t]
   )
 
+  const renderItem = useCallback(
+    ({ item: account }: any) => {
+      return (
+        <Account
+          onSelect={onSelectAccount}
+          key={account.addr}
+          account={account}
+          maxAccountAddrLength={shortenAccountAddr()}
+          isSettings
+          openAddAccountBottomSheet={openBottomSheet}
+        />
+      )
+    },
+    [onSelectAccount, shortenAccountAddr, openBottomSheet]
+  )
+
   return (
     <>
       <SettingsPageHeader title="Accounts">
         <Search placeholder="Search for account" control={control} />
       </SettingsPageHeader>
-      <View style={spacings.mb} ref={accountsContainerRef}>
-        {accounts.map((account) => (
-          <Account
-            onSelect={onSelectAccount}
-            key={account.addr}
-            account={account}
-            maxAccountAddrLength={shortenAccountAddr()}
-            isSettings
-            openAddAccountBottomSheet={openBottomSheet}
-          />
-        ))}
+      <View style={flexbox.flex1} ref={accountsContainerRef}>
+        <ScrollableWrapper
+          type={WRAPPER_TYPES.FLAT_LIST}
+          style={[
+            spacings.mb,
+            {
+              opacity: isReadyToScrollToSelectedAccount ? 1 : 0
+            }
+          ]}
+          data={accounts}
+          renderItem={renderItem}
+          getItemLayout={getItemLayout}
+          onContentSizeChange={onContentSizeChange}
+          keyExtractor={keyExtractor}
+          initialScrollIndex={selectedAccountIndex}
+          ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
+        />
       </View>
       <Button
         type="secondary"

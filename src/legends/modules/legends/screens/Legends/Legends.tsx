@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import Page from '@legends/components/Page'
+import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import Card from '@legends/modules/legends/components/Card'
 import Topbar from '@legends/modules/legends/components/Topbar'
@@ -44,8 +45,9 @@ const Legends = () => {
           ))}
         </div>
       ) : (
-        // TODO: Replace with a Spinner
-        <div>Loading...</div>
+        <div className={styles.spinnerContainer}>
+          <Spinner />
+        </div>
       )}
     </Page>
   )
