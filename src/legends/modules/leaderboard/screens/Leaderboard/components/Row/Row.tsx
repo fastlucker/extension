@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import styles from '@legends/modules/leaderboard/screens/Leaderboard/Leaderboard.module.scss'
-import { LeaderboardEntry } from '@legends/modules/leaderboard/screens/Leaderboard/types'
+import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
 type Props = LeaderboardEntry & {
   stickyPosition: string | null
@@ -41,7 +41,15 @@ const getBadge = (rank: number) => {
   return null
 }
 
-const Row: FC<Props> = ({ account, rank, xp, level, stickyPosition, currentUserRef }) => {
+const Row: FC<Props> = ({
+  account,
+  image_avatar,
+  rank,
+  xp,
+  level,
+  stickyPosition,
+  currentUserRef
+}) => {
   const { connectedAccount } = useAccountContext()
   const isConnectedAccountRow = account === connectedAccount
 
@@ -56,8 +64,7 @@ const Row: FC<Props> = ({ account, rank, xp, level, stickyPosition, currentUserR
     >
       <div className={styles.rankWrapper}>{rank > 3 ? rank : getBadge(rank)}</div>
       <div className={styles.cell}>
-        {/* TODO: Replace the avatar image with the actual avatar - nft */}
-        <img src="/images/leaderboard/avatar1.png" alt="avatar" className={styles.avatar} />
+        <img src={image_avatar} alt="avatar" className={styles.avatar} />
         <Address address={account} maxAddressLength={23} />
       </div>
       <h5 className={styles.cell}>{level}</h5>
