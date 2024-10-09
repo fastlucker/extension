@@ -14,7 +14,7 @@ function formatTime(seconds: number) {
     return days !== 0 ? `${weeks}w ${days}d` : `${weeks}w`
   }
   if (days > 0) {
-    return hours !== 0 ? `${days}d ${hours}h` : `${hours}h`
+    return hours !== 0 ? `${days}d ${hours}h` : `${days}d`
   }
   if (hours > 0) {
     return minutes !== 0 ? `${hours}h, ${minutes}min` : `${hours}h`
