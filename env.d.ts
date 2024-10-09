@@ -81,7 +81,10 @@ declare module '@env' {
   export const IS_TESTING: string
 
   /**
-   * Self-explanatory
+   * Socket API is part of the Bungee API. It allows developers to easily transfer
+   * liquidity across chains, access aggregated liquidity and information from
+   * hundreds of on-chain and off-chain decentralized exchange networks, bridges,
+   * across multiple blockchains. Access is restricted and requires an API key.
    */
   export const SOCKET_API_KEY: EnvTypes['SOCKET_API_KEY']
 }
