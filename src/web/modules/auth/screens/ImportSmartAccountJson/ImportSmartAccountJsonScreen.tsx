@@ -1,5 +1,6 @@
 import { computeAddress, getAddress, isAddress, isHexString } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
+import { useDropzone } from 'react-dropzone'
 import { View } from 'react-native'
 
 import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
@@ -7,6 +8,7 @@ import { Account, AccountCreation } from '@ambire-common/interfaces/account'
 import { ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
+import ImportJsonIcon from '@common/assets/svg/ImportJsonIcon'
 import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
@@ -19,7 +21,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -29,12 +31,14 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Stepper from '@web/modules/router/components/Stepper'
 
+import getStyles from './styles'
+
 type ImportedJson = Account & { privateKey: string; creation: AccountCreation }
 
 const SmartAccountImportScreen = () => {
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { dispatch } = useBackgroundService()
@@ -138,12 +142,11 @@ const SmartAccountImportScreen = () => {
     return true
   }
 
-  const handleFileUpload = (event: any) => {
+  const handleFileUpload = (files: any) => {
     setError('')
     setIsLoading(true)
 
-    // TODO: handle bad case + validation
-    const file = event.target.files[0]
+    const file = files[0]
     if (file.type !== 'application/json') {
       setError('Please upload a valid json file')
       setIsLoading(false)
@@ -190,6 +193,8 @@ const SmartAccountImportScreen = () => {
     })
   }
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: handleFileUpload })
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -203,16 +208,41 @@ const SmartAccountImportScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Import existing smart account json')}>
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <input type="file" name="smartAccountJson" onChange={handleFileUpload} />
-            {isLoading && (
-              <View style={spacings.mlTy}>
-                <Spinner />
+          <div
+            {...getRootProps()}
+            style={{
+              display: 'flex',
+              flex: 1,
+              flexDirection: 'column'
+            }}
+          >
+            <View style={styles.dropAreaContainer}>
+              <View style={styles.dropArea}>
+                <input {...getInputProps()} />
+                <ImportJsonIcon />
+                {isDragActive ? (
+                  <Text weight="regular" style={text.center}>
+                    {t('Drop your file here...')}
+                  </Text>
+                ) : (
+                  <Text weight="regular" style={text.center}>
+                    {'Drop your JSON file here,\nor '}
+                    <Text appearance="primary" weight="regular">
+                      upload
+                    </Text>
+                    <Text weight="regular">{' from your computer'}</Text>
+                    {isLoading && (
+                      <View style={spacings.mlTy}>
+                        <Spinner style={{ width: 16, height: 16 }} />
+                      </View>
+                    )}
+                  </Text>
+                )}
               </View>
-            )}
-          </View>
+            </View>
+          </div>
           {!!error && (
-            <Text style={spacings.mtTy} weight="regular" fontSize={12} appearance="errorText">
+            <Text weight="regular" fontSize={14} appearance="errorText">
               {error}
             </Text>
           )}

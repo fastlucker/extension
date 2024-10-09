@@ -11,9 +11,9 @@ const ImportJsonIcon: React.FC<SvgProps> = ({ width = 43, height = 50, ...rest }
           transform="translate(-15006 -20033)"
           fill="none"
           stroke="#54597a"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
         />
         <Path
           data-name="Path 9950"
@@ -21,9 +21,9 @@ const ImportJsonIcon: React.FC<SvgProps> = ({ width = 43, height = 50, ...rest }
           transform="translate(-14989.2 -20033)"
           fill="none"
           stroke="#54597a"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
         />
       </G>
       <Path
