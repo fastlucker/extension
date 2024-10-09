@@ -102,7 +102,7 @@ const SmartAccountImportScreen = () => {
 
     if (creation.factoryAddr !== AMBIRE_ACCOUNT_FACTORY) {
       setError(
-        'factoryAddr in json different than the factory for Ambire accounts. Are you importing an Ambire v1 account? Importing V1 accounts is not supported.'
+        'factoryAddr in json is different than the factory for Ambire accounts. Are you importing an Ambire v1 account? Importing V1 accounts is not supported.'
       )
       return false
     }
@@ -205,17 +205,17 @@ const SmartAccountImportScreen = () => {
         <Panel title={t('Import existing smart account json')}>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <input type="file" name="smartAccountJson" onChange={handleFileUpload} />
-            {!!error && (
-              <Text weight="regular" fontSize={10} appearance="errorText">
-                {error}
-              </Text>
-            )}
             {isLoading && (
               <View style={spacings.mlTy}>
                 <Spinner />
               </View>
             )}
           </View>
+          {!!error && (
+            <Text style={spacings.mtTy} weight="regular" fontSize={12} appearance="errorText">
+              {error}
+            </Text>
+          )}
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
