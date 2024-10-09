@@ -1,10 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import wait from '@ambire-common/utils/wait'
 import useAccountContext from '@legends/hooks/useAccountContext'
-
-const RELAYER_URL = 'https://staging-relayer.ambire.com'
 
 export type AccountPortfolio = {
   amount?: number
@@ -63,13 +60,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>()
 
   const updateAccountPortfolio = useCallback(async (address: string) => {
-    const identity = await getIdentity(address, fetch as any, RELAYER_URL)
-
-    if (!identity.creation) {
-      setAccountPortfolio({ error: 'You are trying to connect a non Ambire v2 account.' })
-      return
-    }
-
     const portfolio = await getPortfolio(address)
 
     setAccountPortfolio(portfolio)

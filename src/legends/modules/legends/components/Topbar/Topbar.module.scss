@@ -1,0 +1,15 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+
+  .collected {
+    font-family: $primaryFont;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $secondaryText;
+  }
+}

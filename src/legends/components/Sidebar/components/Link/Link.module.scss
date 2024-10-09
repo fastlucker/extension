@@ -1,6 +1,7 @@
 @import '@legends/styles/base.scss';
 
 .wrapper {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -10,9 +11,25 @@
   font-size: 1rem;
   line-height: 1.3125rem;
   font-weight: 500;
+  user-select: none;
 
   &.active {
-    color: $primaryText;
+    &::after {
+      content: '';
+      margin-left: 0.5rem;
+      width: 3rem;
+      height: 1.5px;
+      background-color: $primaryText;
+    }
+    span,
+    .iconWrapper {
+      color: $primaryText;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
   }
 
   .iconWrapper {

@@ -54,7 +54,7 @@ const InnerToken: FC<Props> = ({
             </Text>
           ) : (
             <>
-              {Number(formatUnits(amount, tokenInfo?.decimals || 0))}{' '}
+              {formatUnits(amount, tokenInfo?.decimals || 0)}{' '}
               {!tokenInfo?.decimals && (
                 <Text
                   fontSize={textSize}

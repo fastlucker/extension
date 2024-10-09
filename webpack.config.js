@@ -356,20 +356,6 @@ module.exports = async function (env, argv) {
 
     if (process.env.APP_ENV === 'development') {
       config.optimization = { minimize: false }
-
-      // Change the default WebSocket URL. Otherwise the dev build of the extension
-      // conflicts with the dev build of legends
-      config.devServer = {
-        ...config.devServer,
-        client: {
-          ...config.devServer.client,
-          webSocketURL: {
-            hostname: 'localhost', // Change this to your desired host
-            port: 8081, // Change this to your desired port
-            protocol: 'ws' // Can be 'ws' or 'wss' for secure connections
-          }
-        }
-      }
     }
 
     // Add scss support
@@ -390,7 +376,13 @@ module.exports = async function (env, argv) {
           {
             loader: 'css-loader',
             options: {
-              modules: true, // Enable CSS modules
+              modules: {
+                localIdentName:
+                  process.env.APP_ENV === 'development'
+                    ? '[name]__[local]--[hash:base64:5]' // Development: readable names
+                    : '[hash:base64]' // Production: hashed names for optimization
+              },
+              sourceMap: process.env.APP_ENV === 'development',
               esModule: false // DON'T DELETE: This is needed for the styles to work
             }
           },
@@ -412,7 +404,7 @@ module.exports = async function (env, argv) {
     ]
 
     config.plugins = [
-      ...config.plugins,
+      ...defaultExpoConfigPlugins,
       new HtmlWebpackPlugin({
         template: './src/legends/public/index.html',
         filename: 'index.html'

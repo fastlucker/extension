@@ -1,13 +1,22 @@
 // Colors
+// Some colors are used within React and marked with a comment. Example:
+/*
+  ... React code
+  // @SCSS-VAR: $primaryText
+  ... React code
+*/
+// Make sure you update the hardcoded values in the React code as well.
 $primaryText: #333131;
 $secondaryText: #5c5954;
 $tertiaryText: #79766f;
+$alternativeText: #efefef;
 $primaryBorder: #baafac;
 $secondaryBorder: #2a3041;
 $primaryBackground: #f1eee5;
 $secondaryBackground: #f2e9db;
 $tertiaryBackground: #eaddc9;
 $accent: #e75132;
+$secondaryAccent: #1c510b;
 $bronzeBackground: #f9dbc5;
 $bronzeDecorative: #d08d4c;
 $bronzeText: #8a6037;
@@ -17,6 +26,16 @@ $silverText: #686663;
 $goldBackground: #f8e3b7;
 $goldDecorative: #e7aa27;
 $goldText: #b67d02;
+$backdrop: rgba($primaryText, 0.75);
+$primaryBadgeBackground: #2c567d;
+$primaryBadgeDecorative: #113a60;
+$secondaryBadgeBackground: #7d2c2d;
+$secondaryBadgeDecorative: #601119;
+
+$success: #4e9200;
+$warning: #ba8315;
+$error: #e33535;
+$info: #1a66df;
 
 // Typography
 $primaryFont: 'Roboto Slab', serif;

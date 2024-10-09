@@ -1,5 +1,5 @@
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
-import { saParams } from '../constants/constants'
+import { saParams } from '../config/constants'
 
 import { changePassword, addContactInAddressBook } from '../common/other.js'
 

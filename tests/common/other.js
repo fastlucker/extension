@@ -1,5 +1,6 @@
 import { typeText } from '../common-helpers/typeText'
 import { clickOnElement } from '../common-helpers/clickOnElement'
+import { SELECTORS } from './selectors/selectors'
 
 //--------------------------------------------------------------------------------------------------------------
 export async function changePassword(page, extensionURL) {
@@ -44,7 +45,7 @@ export async function addContactInAddressBook(page, extensionURL) {
   // 0xC254b41be9582...          dD3F8092D4ea6C
 
   await typeText(page, '[data-testid="contact-name-field"]', addName)
-  await typeText(page, '[data-testid="address-ens-field"]', addAddress)
+  await typeText(page, SELECTORS.addressEnsField, addAddress)
 
   await clickOnElement(page, '[data-testid="add-to-address-book-button"]')
 
