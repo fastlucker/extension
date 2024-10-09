@@ -33,7 +33,7 @@ import {
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
-import { RELAYER_URL, VELCRO_URL } from '@env'
+import { RELAYER_URL, SOCKET_API_KEY, VELCRO_URL } from '@env'
 import { browser } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -194,6 +194,7 @@ handleKeepAlive()
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
+    socketApiKey: SOCKET_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
