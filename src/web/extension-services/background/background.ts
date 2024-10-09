@@ -781,6 +781,19 @@ handleKeepAlive()
                   readyToAddKeys
                 )
               }
+              case 'IMPORT_SMART_ACCOUNT_JSON': {
+                // Add accounts first, because some of the next steps have validation
+                // if accounts exists.
+                await mainCtrl.accounts.addAccounts([params.readyToAddAccount])
+
+                // Then add keys, because some of the next steps could have validation
+                // if keys exists. Should be separate (not combined in Promise.all,
+                // since firing multiple keystore actions is not possible
+                // (the #wrapKeystoreAction listens for the first one to finish and
+                // skips the parallel one, if one is requested).
+
+                return await mainCtrl.keystore.addKeys(params.keys)
+              }
               case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
                 // Since these accounts are view-only, directly add them in the
                 // MainController, bypassing the AccountAdder flow.

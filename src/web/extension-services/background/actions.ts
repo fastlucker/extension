@@ -8,7 +8,7 @@ import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
-import { Key, KeyPreferences } from '@ambire-common/interfaces/keystore'
+import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -465,6 +465,11 @@ type MainControllerTraceCallAction = {
   params: { estimation: EstimateResult }
 }
 
+type ImportSmartAccountJson = {
+  type: 'IMPORT_SMART_ACCOUNT_JSON'
+  params: { readyToAddAccount: Account; keys: ReadyToAddKeys['internal'] }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -555,3 +560,4 @@ export type Action =
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction
   | MainControllerTraceCallAction
+  | ImportSmartAccountJson
