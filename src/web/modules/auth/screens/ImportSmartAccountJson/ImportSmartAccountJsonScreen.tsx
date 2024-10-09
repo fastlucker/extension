@@ -4,7 +4,6 @@ import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
@@ -13,36 +12,20 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const SmartAccountImportScreen = () => {
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
   const { theme } = useTheme()
   const [error, setError] = useState('')
-  const accountAdderCtrlState = useAccountAdderControllerState()
 
   useEffect(() => {
-    updateStepperState(WEB_ROUTES.importPrivateKey, 'private-key')
+    console.log('updating stepper to import-json')
+    updateStepperState(WEB_ROUTES.importSmartAccountJson, 'import-json')
   }, [updateStepperState])
 
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      // The AccountAdder could have been already initialized with the same or a
-      // different type. Navigate immediately only if the types match.
-      accountAdderCtrlState.type === 'internal' &&
-      accountAdderCtrlState.subType === 'private-key'
-    )
-      navigate(WEB_ROUTES.accountAdder)
-  }, [
-    accountAdderCtrlState.isInitialized,
-    accountAdderCtrlState.subType,
-    accountAdderCtrlState.type,
-    navigate
-  ])
+  // TODO: navigate to account personalize
 
   const handleFileUpload = (event: any) => {
     setError('')

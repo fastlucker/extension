@@ -35,7 +35,7 @@ export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
   return tab
 }
 
-const routeableSearchParams = ['flow']
+const routeableSearchParams = ['flow', 'goBack']
 
 const openInternalPageInTab = async (route?: string, useWebapi = true, searchParams = {}) => {
   if (useWebapi) {

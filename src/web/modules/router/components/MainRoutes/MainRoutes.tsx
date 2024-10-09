@@ -23,9 +23,9 @@ import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
 import HotWalletCreateSelectorScreen from '@web/modules/auth/screens/HotWalletCreateSelectorScreen'
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
+import ImportSmartAccountJsonScreen from '@web/modules/auth/screens/ImportSmartAccountJson'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
-import SmartAccountImportScreen from '@web/modules/auth/screens/SmartAccountImportScreen'
 import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
 import HardwareWalletReconnectScreen from '@web/modules/hardware-wallet/screens/HardwareWalletReconnectScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
@@ -95,7 +95,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.importSeedPhrase} element={<SeedPhraseImportScreen />} />
             <Route
               path={WEB_ROUTES.importSmartAccountJson}
-              element={<SmartAccountImportScreen />}
+              element={<ImportSmartAccountJsonScreen />}
             />
 
             <Route path={WEB_ROUTES.createHotWallet} element={<HotWalletCreateSelectorScreen />} />

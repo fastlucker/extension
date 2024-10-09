@@ -41,7 +41,7 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   params: { privKeyOrSeed: string; shouldPersist?: boolean }
 }
 type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE'
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE'
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'

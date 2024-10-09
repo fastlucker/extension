@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from 'react'
 
 import { KeyIterator } from '@ambire-common/interfaces/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import { STEPPER_FLOWS } from '@common/modules/auth/contexts/stepperContext/stepperContext'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -18,6 +19,7 @@ const useAccountAdder = ({ keySubType }: Props) => {
   const { navigate, goBack } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
+  const { params } = useRoute()
   const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
@@ -33,8 +35,11 @@ const useAccountAdder = ({ keySubType }: Props) => {
    */
   const handleGoBack = useCallback(() => {
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
-    goBack()
-  }, [dispatch, goBack])
+
+    if (params && params.goBack && params.goBack === 'dashboard') {
+      navigate(WEB_ROUTES.dashboard)
+    } else goBack()
+  }, [dispatch, goBack, navigate, params])
 
   const setPage = React.useCallback(
     (page = 1) => {

@@ -657,7 +657,7 @@ handleKeepAlive()
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
+              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
                 const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
 

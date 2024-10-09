@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -18,6 +18,7 @@ import { useGetAddAccountOptions } from './helpers/useGetAddAccountOptions'
 const AddAccount = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const [isNavigating, setIsNavigating] = useState(true)
   const keystoreState = useKeystoreControllerState()
   const options = useGetAddAccountOptions({
     navigate,
@@ -46,15 +47,18 @@ const AddAccount = () => {
       // The AccountAdder could have been already initialized with the same or a
       // different type. Navigate immediately only if the types match.
       accountAdderControllerState.type === 'internal' &&
-      accountAdderControllerState.subType === 'seed'
+      accountAdderControllerState.subType === 'seed' &&
+      !isNavigating
     ) {
-      navigate(WEB_ROUTES.accountAdder)
-    }
+      setIsNavigating(true)
+      navigate(WEB_ROUTES.accountAdder, { state: { goBack: 'dashboard' } })
+    } else setIsNavigating(false)
   }, [
     accountAdderControllerState.isInitialized,
     accountAdderControllerState.subType,
     accountAdderControllerState.type,
-    navigate
+    navigate,
+    isNavigating
   ])
 
   return (

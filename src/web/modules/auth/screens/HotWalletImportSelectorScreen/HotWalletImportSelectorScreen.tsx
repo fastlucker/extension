@@ -114,7 +114,7 @@ const HotWalletImportSelectorScreen = () => {
       navigate(WEB_ROUTES.importPrivateKey)
     }
 
-    if (flow === 'smart-account-json') {
+    if (flow === 'import-json') {
       navigate(WEB_ROUTES.importSmartAccountJson)
     }
 
@@ -141,13 +141,13 @@ const HotWalletImportSelectorScreen = () => {
       flow: 'private-key'
     },
     {
-      testID: 'button-import-json-smart-wallet',
+      testID: 'button-import-json',
       title: 'Import existing json\n(Smart Accounts)',
       text: 'Select this option to import your Smart account from a json file exported from the extension.',
       // TODO: CHANGE ICON
       image: PrivateKeyIcon,
-      buttonText: 'Upload',
-      flow: 'smart-account-json'
+      buttonText: 'Import',
+      flow: 'import-json'
     }
   ]
 

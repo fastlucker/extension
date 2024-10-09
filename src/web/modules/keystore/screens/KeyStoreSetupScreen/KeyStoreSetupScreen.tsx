@@ -90,6 +90,11 @@ const KeyStoreSetupScreen = () => {
         state: { backTo: WEB_ROUTES.getStarted }
       })
     }
+    if (flow === 'import-json') {
+      navigate(WEB_ROUTES.importSmartAccountJson, {
+        state: { backTo: WEB_ROUTES.importHotWallet }
+      })
+    }
   }, [flow, navigate])
 
   return (

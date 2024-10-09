@@ -38,7 +38,7 @@ const useGetAddAccountOptions = ({
   }
 
   const openAccountAdderWithSavedSeed = () => {
-    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE' })
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE' })
   }
 
   return [

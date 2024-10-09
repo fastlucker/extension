@@ -85,6 +85,7 @@ const CreateSeedPhraseWriteScreen = () => {
             }}
           />
           <Button
+            testID="create-seed-phrase-write-continue-btn"
             accessibilityRole="button"
             text={t('Continue')}
             size="large"
@@ -119,6 +120,7 @@ const CreateSeedPhraseWriteScreen = () => {
                   {index + 1}.
                 </Text>
                 <Input
+                  testID={`recovery-with-seed-word-${index}`}
                   value={word}
                   numberOfLines={1}
                   containerStyle={[spacings.mb0, flexbox.flex1]}
