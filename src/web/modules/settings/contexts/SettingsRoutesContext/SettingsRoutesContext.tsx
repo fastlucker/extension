@@ -39,6 +39,7 @@ const SettingsRoutesProvider = () => {
       pathname?.includes(ROUTES.signedMessages) ||
       pathname?.includes(ROUTES.transactions) ||
       pathname?.includes(ROUTES.addressBook) ||
+      pathname?.includes(ROUTES.accountsSettings) ||
       pathname?.includes(ROUTES.networksSettings) ||
       pathname?.includes(ROUTES.customTokens)
     )
