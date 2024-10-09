@@ -9,6 +9,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { BigIntMath } from '@common/utils/bigint'
 import formatDecimals from '@common/utils/formatDecimals'
 import { getTokenId } from '@web/utils/token'
 
@@ -23,7 +24,7 @@ interface Props {
 const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Props) => {
   const { styles } = useTheme(getStyles)
   const tokenId = getTokenId(token)
-  const amount = formatUnits(token.simulationAmount!, token.decimals || 18)
+  const amount = formatUnits(BigIntMath.abs(token.simulationAmount!), token.decimals || 18)
 
   const priceInUsd = useMemo(() => {
     if (!token.decimals) return null
@@ -73,7 +74,7 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
           tooltipId: `${amountToSendSign}token-summary-${tokenId}`
         }}
       >
-        {`${amountToSendSign}${Math.abs(Number(amount))}`}
+        {`${amountToSendSign}${amount}`}
         <Text fontSize={16} weight="medium">
           {` ${token.symbol}`}
         </Text>

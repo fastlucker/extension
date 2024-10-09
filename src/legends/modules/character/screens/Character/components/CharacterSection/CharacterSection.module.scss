@@ -1,0 +1,137 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  position: relative;
+  margin-bottom: 3rem;
+  padding-top: 2rem;
+  height: 37.5rem;
+
+  .characterInfo {
+    max-width: 25rem;
+
+    .kicker {
+      font-size: 1rem;
+      font-weight: 600;
+      color: $tertiaryText;
+    }
+    .characterNameAndLevel {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+
+      .characterName {
+        font-family: $secondaryFont;
+        font-size: 4rem;
+        line-height: 1;
+        font-weight: 500;
+        color: $primaryText;
+        text-transform: capitalize;
+      }
+
+      /* Container for the circular progress bar */
+      .levelWrapper {
+        position: relative;
+        width: 2.5rem;
+        height: 2.5rem;
+
+        /* Outer progress circle */
+        .outerCircle {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+        }
+
+        /* Inner white circle */
+        .innerCircle {
+          position: absolute;
+          z-index: 3;
+          top: 10%;
+          left: 10%;
+          width: 80%;
+          height: 80%;
+          background-color: $primaryBackground;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          /* Level number in the middle */
+          .level {
+            color: $primaryText;
+            font-family: $primaryFont;
+            font-size: 1.5rem;
+            line-height: 1;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+    .characterAbout {
+      font-size: 1rem;
+      color: $secondaryText;
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+    }
+  }
+  .character {
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    .characterRelativeWrapper {
+      position: relative;
+
+      &::before {
+        content: '';
+        position: absolute;
+        bottom: -2rem;
+        left: 52%;
+        transform: translateX(-50%);
+        width: 23.375rem;
+        height: 5.875rem;
+        border-radius: 50%;
+        background-color: $tertiaryBackground;
+        z-index: 1;
+        box-shadow: inset 0 0.25rem 0.25rem $primaryBorder;
+      }
+
+      .characterImage {
+        position: relative;
+        z-index: 2;
+        width: 37.5rem;
+        height: 37.5rem;
+      }
+    }
+  }
+
+  @include breakpoint-down-from(small-desktop) {
+    padding-top: 1rem;
+    height: 30rem;
+
+    .characterInfo {
+      .characterNameAndLevel {
+        .characterName {
+          font-size: 3rem;
+        }
+      }
+      .characterAbout {
+        font-size: 0.875rem;
+      }
+    }
+    .character {
+      .characterRelativeWrapper {
+        &::before {
+          width: 18.75rem;
+          height: 4.6875rem;
+        }
+        .characterImage {
+          width: 30rem;
+          height: 30rem;
+        }
+      }
+    }
+  }
+}

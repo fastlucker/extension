@@ -108,6 +108,7 @@ const CreateSeedPhraseConfirmScreen = () => {
             }}
           />
           <Button
+            testID="create-seed-phrase-confirm-continue-btn"
             accessibilityRole="button"
             text={!isLoading ? t('Continue') : t('Importing...')}
             size="large"
@@ -133,7 +134,12 @@ const CreateSeedPhraseConfirmScreen = () => {
                 key={word}
                 style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { width: 200 }]}
               >
-                <Text fontSize={14} weight="medium" style={[{ width: 32 }]}>
+                <Text
+                  testID="seed-word-number-to-be-entered"
+                  fontSize={14}
+                  weight="medium"
+                  style={[{ width: 32 }]}
+                >
                   #{numberInSeed}
                 </Text>
                 <Controller
@@ -142,6 +148,7 @@ const CreateSeedPhraseConfirmScreen = () => {
                   rules={{ required: true, validate: (value) => value === word }}
                   render={({ field: { onChange, value, onBlur } }) => (
                     <Input
+                      testID={`seed-word-position-field-${numberInSeed}`}
                       onChangeText={onChange}
                       onBlur={onBlur}
                       value={value}

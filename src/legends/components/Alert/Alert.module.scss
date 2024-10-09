@@ -1,0 +1,54 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  padding: 0.75rem;
+  border-radius: $primaryBorderRadius;
+  background-color: $tertiaryBackground;
+  border: 0.0625rem solid;
+
+  &.success {
+    color: $success;
+    border-color: $success;
+  }
+  &.warning {
+    color: $warning;
+    border-color: $warning;
+  }
+  &.error {
+    color: $error;
+    border-color: $error;
+  }
+  &.info {
+    color: $info;
+    border-color: $info;
+  }
+
+  .icon {
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    margin-left: 0.5rem;
+
+    .title,
+    .message {
+      font-family: $primaryFont;
+      color: inherit;
+    }
+    .title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: $primaryText;
+      margin-bottom: 0.25rem;
+    }
+    .message {
+      font-size: 0.875rem;
+      color: $secondaryText;
+      line-height: 1.5;
+    }
+  }
+}
