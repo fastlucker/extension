@@ -3,12 +3,12 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 're
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
 import Podium from './components/Podium'
 import Row from './components/Row/Row'
 import { getLeaderboard } from './helpers'
 import styles from './Leaderboard.module.scss'
-import { LeaderboardEntry } from './types'
 
 // TODO: Error and loading states
 const LeaderboardContainer: React.FC = () => {

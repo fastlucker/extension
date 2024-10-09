@@ -4,9 +4,8 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
-
-import styles from '../../Leaderboard.module.scss'
-import { LeaderboardEntry } from '../../types'
+import styles from '@legends/modules/leaderboard/screens/Leaderboard/Leaderboard.module.scss'
+import { LeaderboardEntry } from '@legends/modules/leaderboard/screens/Leaderboard/types'
 
 type Props = LeaderboardEntry & {
   stickyPosition: string | null
