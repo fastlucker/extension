@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC } from 'react'
 
 import Tabs from '@legends/components/Tabs'
@@ -22,7 +23,9 @@ const Topbar: FC<Props> = ({
 }) => {
   return (
     <div className={styles.wrapper}>
-      <Tabs>
+      <h1 className={styles.title}>Legends</h1>
+      {/* Hide tabs for now */}
+      {/* <Tabs>
         {filters.map((filter) => (
           <Tabs.Tab
             onClick={() => selectFilter(filter)}
@@ -32,7 +35,7 @@ const Topbar: FC<Props> = ({
             {filter.label}
           </Tabs.Tab>
         ))}
-      </Tabs>
+      </Tabs> */}
       <p className={styles.collected}>
         {completedCount} / {legendsCount} COLLECTED
       </p>
