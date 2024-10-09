@@ -1,5 +1,6 @@
 import { computeAddress, getAddress, isAddress, isHexString } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
+import { View } from 'react-native'
 
 import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
 import { Account, AccountCreation } from '@ambire-common/interfaces/account'
@@ -8,6 +9,7 @@ import { getDefaultAccountPreferences } from '@ambire-common/libs/account/accoun
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useAccounts from '@common/hooks/useAccounts'
@@ -16,6 +18,8 @@ import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -32,6 +36,7 @@ const SmartAccountImportScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const { dispatch } = useBackgroundService()
   const { accounts } = useAccounts()
   const { statuses } = useKeystoreControllerState()
@@ -135,17 +140,23 @@ const SmartAccountImportScreen = () => {
 
   const handleFileUpload = (event: any) => {
     setError('')
+    setIsLoading(true)
 
     // TODO: handle bad case + validation
     const file = event.target.files[0]
     if (file.type !== 'application/json') {
       setError('Please upload a valid json file')
+      setIsLoading(false)
+      return
     }
 
     file.text().then((contents: string) => {
       try {
         const accountData: ImportedJson = JSON.parse(contents)
-        if (!isValidJson(accountData)) return
+        if (!isValidJson(accountData)) {
+          setIsLoading(false)
+          return
+        }
 
         const readyToAddAccount: Account = {
           addr: accountData.addr,
@@ -174,6 +185,7 @@ const SmartAccountImportScreen = () => {
         })
       } catch (e) {
         setError('Could not parse file. Please upload a valid json file')
+        setIsLoading(false)
       }
     })
   }
@@ -191,12 +203,19 @@ const SmartAccountImportScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Import existing smart account json')}>
-          <input type="file" name="smartAccountJson" onChange={handleFileUpload} />
-          {!!error && (
-            <Text weight="regular" fontSize={10} appearance="errorText">
-              {error}
-            </Text>
-          )}
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <input type="file" name="smartAccountJson" onChange={handleFileUpload} />
+            {!!error && (
+              <Text weight="regular" fontSize={10} appearance="errorText">
+                {error}
+              </Text>
+            )}
+            {isLoading && (
+              <View style={spacings.mlTy}>
+                <Spinner />
+              </View>
+            )}
+          </View>
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

@@ -4,6 +4,7 @@ import { useModalize } from 'react-native-modalize'
 
 import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
 import ImportFromDefaultOrExternalSeedIcon from '@common/assets/svg/ImportFromDefaultOrExternalSeedIcon'
+import ImportJsonIcon from '@common/assets/svg/ImportJsonIcon'
 import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
 import SeedPhraseIcon from '@common/assets/svg/SeedPhraseIcon'
 import Alert from '@common/components/Alert'
@@ -144,8 +145,7 @@ const HotWalletImportSelectorScreen = () => {
       testID: 'button-import-json',
       title: 'Import existing json\n(Smart Accounts)',
       text: 'Select this option to import your Smart account from a json file exported from the extension.',
-      // TODO: CHANGE ICON
-      image: PrivateKeyIcon,
+      image: ImportJsonIcon,
       buttonText: 'Import',
       flow: 'import-json'
     }
