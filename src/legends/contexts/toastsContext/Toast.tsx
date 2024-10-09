@@ -50,7 +50,7 @@ const Toast = ({ message, type, id }: ToastProps) => {
     <div className={`${styles.toast} ${styles[type]} ${dismissed ? styles.dismissed : ''}`}>
       {icon}
       <p className={styles.toastMessage}>{message}</p>
-      <button type="button" className={styles.dismissBtn}>
+      <button onClick={handleDismiss} type="button" className={styles.dismissBtn}>
         <FontAwesomeIcon icon={faTimes} />
       </button>
       <div className={styles.toastProgress}>
