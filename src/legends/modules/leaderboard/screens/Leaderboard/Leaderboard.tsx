@@ -6,7 +6,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
 import Podium from './components/Podium'
-import Row from './components/Row/Row'
+import Row from './components/Row'
 import { getLeaderboard } from './helpers'
 import styles from './Leaderboard.module.scss'
 
