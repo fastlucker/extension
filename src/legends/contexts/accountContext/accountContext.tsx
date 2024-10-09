@@ -5,11 +5,13 @@ import { RELAYER_URL } from '@env'
 
 const accountContext = createContext<{
   connectedAccount: string | null
+  chainId: bigint | null
   error: string | null
   requestAccounts: () => void
   disconnectAccount: () => void
 }>({
   connectedAccount: null,
+  chainId: null,
   error: null,
   requestAccounts: () => {},
   disconnectAccount: () => {}
@@ -17,6 +19,7 @@ const accountContext = createContext<{
 
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [connectedAccount, setConnectedAccount] = React.useState<string | null>(null)
+  const [chainId, setChainId] = React.useState<bigint | null>(null)
   const [error, setError] = React.useState<string | null>(null)
 
   const requestAccounts = useCallback(async () => {
@@ -43,6 +46,19 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     return accounts[0]
   }, [])
 
+  const getChainId = useCallback(async (): Promise<bigint | null> => {
+    if (!window.ambire) return null
+
+    const connectedOnChainId = await window.ambire.request({
+      method: 'eth_chainId',
+      params: []
+    })
+
+    if (typeof connectedOnChainId !== 'string') return null
+
+    return BigInt(connectedOnChainId)
+  }, [])
+
   const validateAndSetAccount = useCallback(async (address: string) => {
     const identity = await getIdentity(address, fetch as any, RELAYER_URL)
 
@@ -55,6 +71,22 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     setError(null)
     setConnectedAccount(address)
   }, [])
+
+  useEffect(() => {
+    getChainId()
+      .then((newChainId) => {
+        if (newChainId) setChainId(newChainId)
+      })
+      .catch((e) => console.error('Error fetching chainId', e))
+
+    const onChainChanged = (newChainId: string) => setChainId(BigInt(newChainId))
+
+    window.ambire?.on('chainChanged', onChainChanged)
+
+    return () => {
+      window.ambire.removeListener('chainChanged', onChainChanged)
+    }
+  }, [getChainId])
 
   // On Account connect or change set the new Legends address and fetch its portfolio,
   // while on Account disconnect, we simply reload the Legends, which resets all the hooks state.
@@ -73,6 +105,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
     // The `accountsChanged` event is fired when the account is connected, changed or disconnected by the extension.
     window.ambire?.on('accountsChanged', onAccountsChanged)
+    window.ambire?.on('chainChanged', (newChainId: string) => setChainId(BigInt(newChainId)))
 
     return () => {
       window.ambire.removeListener('accountsChanged', onAccountsChanged)
@@ -84,9 +117,10 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       connectedAccount,
       error,
       requestAccounts,
-      disconnectAccount
+      disconnectAccount,
+      chainId
     }),
-    [connectedAccount, error, requestAccounts, disconnectAccount]
+    [connectedAccount, error, requestAccounts, disconnectAccount, chainId]
   )
 
   return <accountContext.Provider value={contextValue}>{children}</accountContext.Provider>

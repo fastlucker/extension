@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
+import { networks } from '@ambire-common/consts/networks'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
@@ -10,10 +11,14 @@ import styles from './AccountDropdown.module.scss'
 
 const AccountDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { connectedAccount, disconnectAccount } = useAccountContext()
+  const { connectedAccount, disconnectAccount, chainId } = useAccountContext()
   const { character } = useCharacterContext()
 
   const toggleIsOpen = () => setIsOpen((prev) => !prev)
+
+  const networkData = useMemo(() => {
+    return networks.find((network) => network.chainId === chainId)
+  }, [chainId])
 
   // Hide the dropdown when the user clicks outside of it
   useEffect(() => {
@@ -50,7 +55,9 @@ const AccountDropdown = () => {
         />
       </button>
       <div className={`${styles.dropdown} ${isOpen ? styles.open : ''}`}>
-        <p className={styles.network}>Connected on Base Network</p>
+        <p className={styles.network}>
+          Connected on {networkData?.name || `Unknown Network (${String(chainId)})`}
+        </p>
         <button className={styles.disconnectButton} type="button" onClick={disconnectAccount}>
           Disconnect
         </button>
