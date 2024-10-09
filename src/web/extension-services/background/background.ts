@@ -11,6 +11,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
@@ -125,6 +126,7 @@ handleKeepAlive()
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
+    updateSwapAndBridgeQuoteInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
@@ -312,6 +314,30 @@ handleKeepAlive()
       updateActiveRoutes,
       getActiveRoutesUpdateInterval(minServiceTime)
     )
+  }
+
+  function initSwapAndBridgeQuoteContinuousUpdate() {
+    if (mainCtrl.swapAndBridge.formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+      !!backgroundState.updateSwapAndBridgeQuoteInterval &&
+        clearTimeout(backgroundState.updateSwapAndBridgeQuoteInterval)
+      delete backgroundState.updateSwapAndBridgeQuoteInterval
+      return
+    }
+    if (backgroundState.updateSwapAndBridgeQuoteInterval) return
+
+    async function updateSwapAndBridgeQuote() {
+      if (mainCtrl.swapAndBridge.formStatus === SwapAndBridgeFormStatus.ReadyToSubmit)
+        await mainCtrl.swapAndBridge.updateQuote({
+          skipPreviousQuoteRemoval: true,
+          skipQuoteUpdateOnSameValues: false,
+          skipStatusUpdate: true
+        })
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
+    }
+
+    backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
   }
 
   async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
@@ -548,6 +574,7 @@ handleKeepAlive()
             }
             if (ctrlName === 'swapAndBridge') {
               initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
+              initSwapAndBridgeQuoteContinuousUpdate()
             }
           }, 'background')
         }
