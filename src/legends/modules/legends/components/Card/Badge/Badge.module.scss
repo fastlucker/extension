@@ -1,0 +1,65 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  align-items: center;
+
+  .label,
+  .value {
+    color: $alternativeText;
+    background-color: $primaryBadgeBackground;
+    border: 1px solid $primaryBadgeDecorative;
+  }
+  .value {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-family: $primaryFont;
+  }
+  .label {
+    position: relative;
+    left: -0.375rem;
+    height: 1.25rem;
+    padding-left: 0.625rem;
+    padding-right: 0.75rem;
+    border-radius: $primaryBorderRadius;
+    font-size: 0.875rem;
+  }
+
+  &.secondary {
+    .label,
+    .value {
+      background-color: $secondaryBadgeBackground;
+      border-color: $secondaryBadgeDecorative;
+    }
+    .value {
+      width: 1.5rem;
+      height: 1.5rem;
+      font-size: 0.625rem;
+    }
+    .label {
+      height: 1rem;
+      padding: 0 0.5rem;
+      font-size: 0.75rem;
+      line-height: 1.2;
+    }
+  }
+
+  &.highlight {
+    .value {
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+    .label {
+      height: 1.5rem;
+      padding-top: 0.125rem;
+      border-radius: 0 $primaryBorderRadius $primaryBorderRadius 0;
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
@@ -7,6 +7,7 @@ import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
 import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import HighlightedLink from './components/HighlightedLink'
@@ -23,11 +24,16 @@ const NAVIGATION_LINKS = [
   { to: LEGENDS_ROUTES.character, text: 'Character', icon: faCircleUser },
   { to: LEGENDS_ROUTES.legends, text: 'Legends', icon: faMedal },
   { to: LEGENDS_ROUTES.leaderboard, text: 'Leaderboard', icon: faTrophy },
-  { to: '/guide', text: 'Guide', icon: faFileLines }
+  { to: '', text: 'Guide', icon: faFileLines }
 ]
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { pathname } = useLocation()
+  const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
+
+  const handleModal = () => {
+    setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
+  }
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -41,9 +47,10 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           title="Daily Legend"
           text="Available Now"
         >
-          <button onClick={() => {}} type="button" className={styles.spinButton}>
+          <button onClick={handleModal} type="button" className={styles.spinButton}>
             Spin the Wheel
           </button>
+          <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
         </HighlightedLink>
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (

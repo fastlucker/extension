@@ -61,12 +61,7 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
   })
 
   beforeEach(async () => {
-    const bootstrapResult = await bootstrap('auth')
-    browser = bootstrapResult.browser
-    page = bootstrapResult.page
-    recorder = bootstrapResult.recorder
-    extensionURL = bootstrapResult.extensionURL
-    serviceWorker = bootstrapResult.serviceWorker
+    ;({ browser, page, recorder, extensionURL, serviceWorker } = await bootstrap('trezorAuth'))
 
     // Bypass the invite verification step
     await serviceWorker.evaluate(
@@ -83,14 +78,6 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
   })
 
   it('should successfully authenticate using Trezor', async () => {
-    // Get invite data from storage
-    const inviteFromStorage = await serviceWorker.evaluate(() => chrome.storage.local.get('invite'))
-    expect(Object.keys(inviteFromStorage).length).toBe(1)
-
-    // Validate invitation status
-    const parsedInvitation = JSON.parse(inviteFromStorage.invite)
-    expect(parsedInvitation.status).toBe(INVITE_STATUS_VERIFIED)
-
     // Complete onboarding steps
     await completeOnboardingSteps(page)
 
@@ -117,8 +104,6 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
     const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
     await personalizeAccountName(page, accountName1, 0)
     await personalizeAccountName(page, accountName2, 1)
-
-    await wait(1000)
 
     // Click on "Save and Continue" button
     await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)

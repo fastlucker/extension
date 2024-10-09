@@ -23,9 +23,9 @@ import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { typeText } from '../../common-helpers/typeText'
 import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExist'
 import {
+  wait,
   finishStoriesAndSelectAccount,
   importAccountsFromSeedPhrase,
-  wait,
   checkTextAreaHasValidInputByGivenText,
   importNewSAFromDefaultSeedAndPersonalizeIt,
   personalizeAccountName,
@@ -111,8 +111,9 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
 
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
-    // Wait for account addresses to load
-    await wait(2000)
+
+    // Wait for selector to be visible
+    await page.waitForSelector(SELECTORS.account)
 
     // Verify that selected accounts exist on the page
     await checkAccountDetails(page, SELECTORS.account, [firstSelectedBasicAccount])
@@ -264,6 +265,7 @@ describe('auth', () => {
     // Import one new SA from default seed
     await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[0])
 
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(2000)
 
     // Wait for dashboard screen to be loaded
@@ -272,15 +274,21 @@ describe('auth', () => {
     // Import one more new SA from default seed
     await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[1])
 
+    // Wait for dashboard screen to be loaded
+    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
     // Get accounts from storage
     const importedAccounts = await serviceWorker.evaluate(() =>
       chrome.storage.local.get('accounts')
     )
 
     const parsedImportedAccounts = JSON.parse(importedAccounts.accounts)
+    const accountAddresses = parsedImportedAccounts.map((account) => account.preferences.label)
 
     // Checks if exact 3 accounts have been added
     expect(parsedImportedAccounts.length).toBe(3)
+    expect(accountAddresses.includes(TEST_ACCOUNT_NAMES[0])).toBe(true)
+    expect(accountAddresses.includes(TEST_ACCOUNT_NAMES[1])).toBe(true)
   })
   //--------------------------------------------------------------------------------------------------------------
   it('should importing account from different HD paths', async () => {
@@ -294,7 +302,7 @@ describe('auth', () => {
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    // so that the modal appears
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(500)
 
     await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
@@ -317,6 +325,7 @@ describe('auth', () => {
     // Click on "Add Account"
     await clickOnElement(page, SELECTORS.buttonAddAccount)
 
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(1000)
     // Click on "Import an existing hot wallet"
     await clickOnElement(page, SELECTORS.importExistingWallet)
@@ -329,11 +338,13 @@ describe('auth', () => {
     // Click on "Seed phrase proceed"
     await clickOnElement(page, SELECTORS.buttonProceedSeedPhrase)
 
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(1000)
 
     // Click on"Use default seed"
     await clickOnElement(page, SELECTORS.useDefaultSeedBtn)
 
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(2000)
     // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
     await selectHdPathAndAddAccount(page, SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto)

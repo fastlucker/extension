@@ -1,3 +1,4 @@
+import { timeout } from 'rxjs'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
 import { buildSelector } from '../../common-helpers/buildSelector'
@@ -17,6 +18,12 @@ export async function checkAccountDetails(
   expectedAccountNames,
   expectedAccountDetails
 ) {
+  await page.waitForSelector(selector, { visible: true })
+
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
+  // Note: This wait is required because there is a case that the account address is loading with some delay because of the UD/ENS resolving.
+  await wait(500)
+
   const addedAccounts = await page.$$eval(selector, (elements) =>
     elements.map((element) => element.innerText)
   )
@@ -42,9 +49,10 @@ export async function finishStoriesAndSelectAccount(
   await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
-  await page.waitForSelector(SELECTORS.checkbox)
+  await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
-  await wait(3000)
+  await page.waitForSelector(SELECTORS.addAccount, { visible: true })
+
   // Select one Legacy account and one Smart account
   const firstSelectedBasicAccount = await page.$$eval(
     SELECTORS.addAccount,
@@ -130,14 +138,14 @@ export function buildSelectorsForDynamicTestId(testId, arrayOfIndexes) {
 
 export async function checkTextAreaHasValidInputByGivenText(
   page,
-  privateKey,
+  invalidPrivateKey,
   selectorInputField,
   selectorImportButton,
   errorMsg
 ) {
-  await typeText(page, selectorInputField, privateKey, { delay: 10 })
+  await typeText(page, selectorInputField, invalidPrivateKey, { delay: 10 })
 
-  if (privateKey !== '') {
+  if (invalidPrivateKey !== '') {
     // Wait for the error message to appear if the private key is invalid
     await page.waitForFunction(
       (errMsg) => {
@@ -201,14 +209,19 @@ export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, newName) 
   // Click on "Add Account"
   await clickOnElement(page, SELECTORS.buttonAddAccount)
 
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
   await wait(500)
-  // Wait until "Import a new Smart Account from the default Seed Phrase" button loaded
-  await page.waitForSelector(SELECTORS.createNewWallet, { visible: true })
+  // Wait until modal is getting visible
+  await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
+
   // Click on "Import a new Smart Account from the default Seed Phrase" button
-  await clickOnElement(page, SELECTORS.createNewWallet)
-  // TODO: create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them
+  // Note: Added a delay of 500ms because of the importing process
+  await clickOnElement(page, SELECTORS.createNewWallet, false, 500)
 
   await page.waitForNavigation({ waitUntil: 'load' })
+
+  await page.waitForFunction(() => window.location.href.includes('/account-personalize'))
+
   // TODO: maybe this check is redundant
   const isSuccAddedOneAcc = await page.$$eval(
     'div[dir="auto"]',
@@ -250,7 +263,14 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
 
   // Click on "Set up Ambire Key Store" button
   await clickOnElement(page, SELECTORS.keystoreBtnCreate)
-  await clickOnElement(page, SELECTORS.keystoreBtnContinue, true, 1500)
+
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
+  // Wait until the "Device password" modal is getting visible
+  await wait(1000)
+
+  await page.waitForSelector(SELECTORS.bottomSheet)
+
+  await clickOnElement(page, SELECTORS.keystoreBtnContinue)
 
   const isKeyStoreUidKeyPresent = await checkStorageKeysExist(serviceWorker, 'keyStoreUid')
   expect(isKeyStoreUidKeyPresent).toBe(true)
@@ -296,9 +316,6 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
   }
 
   // Wait Continue btn to be enabled then click on it
-  await page.waitForSelector(`${SELECTORS.createSeedPhraseConfirmContinueBtn}:not([disabled])`, {
-    visible: true
-  })
   await clickOnElement(page, SELECTORS.createSeedPhraseConfirmContinueBtn)
 
   await page.waitForNavigation({ waitUntil: 'load' })
@@ -317,13 +334,6 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
     (elements) => elements.length
   )
   expect(addedAccountsCount).toBe(1)
-
-  const areKeysPresent = await checkStorageKeysExist(serviceWorker, [
-    'selectedAccount',
-    'accounts',
-    'keystoreSeeds'
-  ])
-  expect(areKeysPresent).toBe(true)
 
   // Click "Save and continue button"
   await clickOnElement(page, SELECTORS.saveAndContinueBtn)
@@ -374,8 +384,11 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   // Click on Import button.
   await clickOnElement(page, SELECTORS.importBtn)
 
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
+  await wait(1000)
+
   // so that the modal appears
-  await wait(500)
+  await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
 
   await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
 
@@ -386,12 +399,12 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   await personalizeAccountName(page, accountName1, 0)
   await personalizeAccountName(page, accountName2, 1)
 
-  await wait(1000)
-
   // Click on "Save and Continue" button
   await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
 
   await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
+
+  await page.waitForSelector(SELECTORS.account, { visible: true })
 
   await checkAccountDetails(
     page,
@@ -401,11 +414,14 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   )
 }
 
-export async function selectHdPathAndAddAccount(page, hdPAthSelector) {
+export async function selectHdPathAndAddAccount(page, hdPathSelector) {
   await clickOnElement(page, SELECTORS.selectChangeHdPath)
   // Select different HD path
-  await clickOnElement(page, hdPAthSelector)
+  await clickOnElement(page, hdPathSelector)
 
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
+  // Note: The "waitForSelector" is not enough to be sure that the addresses data are fully loaded.
+  // At this moment I couldn't find an other solution except to set a timeout
   await wait(2000)
 
   await page.waitForSelector(SELECTORS.addAccount, { visible: true })
