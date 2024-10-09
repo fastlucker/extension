@@ -1,0 +1,13 @@
+@import '@legends/styles/base';
+
+.skeleton {
+  height: 1em;
+  line-height: inherit;
+  background-color: $tertiaryBackground;
+  border-radius: $primaryBorderRadius;
+}
+
+.address {
+  font-family: $primaryFont;
+  color: $primaryText;
+}

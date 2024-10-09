@@ -1,13 +1,14 @@
 import React from 'react'
 
-import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Address from '@legends/components/Address'
+import { LeaderboardEntry } from '@legends/modules/leaderboard/screens/Leaderboard/types'
 
 import styles from './Podium.module.scss'
 
 interface PodiumProps {
-  data: Array<{ account: string; xp: number }>
+  data: Array<LeaderboardEntry>
 }
 
 const Podium: React.FC<PodiumProps> = ({ data }) => {
@@ -21,7 +22,7 @@ const Podium: React.FC<PodiumProps> = ({ data }) => {
           <div className={styles.contentWrapper}>
             {index === 0 && <FontAwesomeIcon className={styles.trophy} icon={faTrophy} />}
             <img src="/images/leaderboard/avatar2.png" alt="avatar" className={styles.avatar} />
-            <h5 className={styles.name}>{shortenAddress(item.account, 11)}</h5>
+            <Address address={item.account} className={styles.name} maxAddressLength={11} />
             <h4 className={styles.xp}>{item.xp}</h4>
           </div>
         </div>

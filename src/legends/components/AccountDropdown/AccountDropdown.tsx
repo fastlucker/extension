@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
-
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+
 import styles from './AccountDropdown.module.scss'
 
 const AccountDropdown = () => {
@@ -13,15 +14,6 @@ const AccountDropdown = () => {
   const { character } = useCharacterContext()
 
   const toggleIsOpen = () => setIsOpen((prev) => !prev)
-
-  const formatAddress = (address: string | null) => {
-    if (!address) return ''
-
-    const isEns = address.includes('.')
-    if (isEns) return address
-
-    return `${address.slice(0, 6)}...${address.slice(-4)}`
-  }
 
   // Hide the dropdown when the user clicks outside of it
   useEffect(() => {
@@ -40,6 +32,8 @@ const AccountDropdown = () => {
     }
   }, [])
 
+  if (!connectedAccount || !character) return null
+
   return (
     <div className={styles.wrapper}>
       <button className={styles.button} type="button" onClick={toggleIsOpen}>
@@ -47,7 +41,7 @@ const AccountDropdown = () => {
           <img alt="avatar" className={styles.avatar} src={character.image_avatar} />
         </div>
         <div className={styles.account}>
-          <p className={styles.address}>{formatAddress(connectedAccount)}</p>
+          <Address className={styles.address} address={connectedAccount} maxAddressLength={12} />
           <p className={styles.levelAndRank}>Level {character.level} / Rank 203</p>
         </div>
         <FontAwesomeIcon
