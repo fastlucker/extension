@@ -248,7 +248,6 @@ export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, newName) 
 export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
   // Click on "Create a new hot wallet" button
   await clickOnElement(page, SELECTORS.getStartedCreateHotWallet)
-  await page.waitForSelector(SELECTORS.setUpWithSeedPhraseBtn)
 
   // Click on "Set up with a seed phrase" button
   await clickOnElement(page, SELECTORS.setUpWithSeedPhraseBtn)
