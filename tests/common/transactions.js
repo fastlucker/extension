@@ -228,12 +228,7 @@ export async function makeSwap(
     await selectFeeToken(updatedPage, feeToken)
   }
 
-  if (shouldStopBeforeSign) {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 5000)
-    })
-    return
-  }
+  if (shouldStopBeforeSign) return
 
   // Sign and confirm the transaction
   await signTransaction(updatedPage, transactionRecorder)
