@@ -4,13 +4,13 @@ import { useModalize } from 'react-native-modalize'
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
-import SwapIcon from '@common/assets/svg/SwapIcon'
-import Banner from '@common/components/Banner'
+import Banner, { BannerButton } from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import RPCSelectBottomSheet from './RPCSelectBottomSheet'
 
@@ -21,12 +21,12 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { visibleActionsQueue } = useActionsControllerState()
+  const { statuses } = useMainControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
     if (category === 'pending-to-be-confirmed-acc-op') return PendingToBeConfirmedIcon
-    if (category?.includes('swap-and-bridge')) return SwapIcon
 
     return null
   }, [category])
@@ -93,7 +93,10 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
         handleOpenBottomSheet()
       }
 
-      if (action.actionName === 'reject-swap-and-bridge') {
+      if (
+        action.actionName === 'reject-swap-and-bridge' ||
+        action.actionName === 'close-swap-and-bridge'
+      ) {
         dispatch({
           type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE',
           params: { activeRouteId: action.meta.activeRouteId }
@@ -114,17 +117,27 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
     () =>
       actions.map((action) => {
         const isReject = ERROR_ACTIONS.includes(action.actionName)
+        let actionText = action.label
+        let isDisabled = false
+
+        if (action.actionName === 'proceed-swap-and-bridge') {
+          if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
+            actionText = 'Building Transaction...'
+            isDisabled = true
+          }
+        }
 
         return (
-          <Banner.Button
+          <BannerButton
             key={action.actionName}
             isReject={isReject}
-            text={action.label}
+            text={actionText}
+            disabled={isDisabled}
             onPress={() => handleActionPress(action)}
           />
         )
       }),
-    [actions, handleActionPress]
+    [actions, handleActionPress, statuses.buildSwapAndBridgeUserRequest]
   )
 
   return (

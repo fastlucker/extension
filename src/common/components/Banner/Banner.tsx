@@ -35,7 +35,11 @@ export interface Props {
   style?: ViewStyle
 }
 
-const Button: FC<CommonButtonProps & { isReject?: boolean }> = ({ isReject, style, ...rest }) => {
+const BannerButton: FC<CommonButtonProps & { isReject?: boolean }> = ({
+  isReject,
+  style,
+  ...rest
+}) => {
   const { theme } = useTheme()
 
   return (
@@ -60,37 +64,39 @@ const Button: FC<CommonButtonProps & { isReject?: boolean }> = ({ isReject, styl
 
 const { isTab } = getUiType()
 
-const Banner = ({ type, title, text, children, CustomIcon, renderButtons, style }: Props) => {
-  const { styles, theme } = useTheme(getStyles)
+const Banner = React.memo(
+  ({ type, title, text, children, CustomIcon, renderButtons, style }: Props) => {
+    const { styles, theme } = useTheme(getStyles)
 
-  const Icon = useMemo(() => {
-    if (CustomIcon) return CustomIcon
+    const Icon = useMemo(() => {
+      if (CustomIcon) return CustomIcon
 
-    return ICON_MAP[type]
-  }, [CustomIcon, type])
+      return ICON_MAP[type]
+    }, [CustomIcon, type])
 
-  return (
-    <View style={[styles.container, { backgroundColor: theme[`${type}Background`] }, style]}>
-      <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
-        <View style={[spacings.mrSm]}>
-          <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
+    return (
+      <View style={[styles.container, { backgroundColor: theme[`${type}Background`] }, style]}>
+        <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
+          <View style={[spacings.mrSm]}>
+            <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
+          </View>
+
+          <View style={[flexbox.wrap, flexbox.flex1]}>
+            <Text appearance="primaryText" fontSize={isTab ? 16 : 14} weight="medium">
+              {title}
+            </Text>
+            <Text fontSize={isTab ? 14 : 12} weight="regular" appearance="secondaryText">
+              {text}
+            </Text>
+          </View>
         </View>
-
-        <View style={[flexbox.wrap, flexbox.flex1]}>
-          <Text appearance="primaryText" fontSize={isTab ? 16 : 14} weight="medium">
-            {title}
-          </Text>
-          <Text fontSize={isTab ? 14 : 12} weight="regular" appearance="secondaryText">
-            {text}
-          </Text>
-        </View>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>{renderButtons}</View>
+        {children}
       </View>
-      <View style={[flexbox.directionRow, flexbox.alignCenter]}>{renderButtons}</View>
-      {children}
-    </View>
-  )
-}
+    )
+  }
+)
 
-Banner.Button = Button
+export { BannerButton }
 
 export default Banner

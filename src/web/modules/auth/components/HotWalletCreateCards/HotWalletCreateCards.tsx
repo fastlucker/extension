@@ -5,7 +5,7 @@ import { View } from 'react-native'
 import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
 import SeedPhraseRecoveryIcon from '@common/assets/svg/SeedPhraseRecoveryIcon'
 import Alert from '@common/components/Alert'
-import Banner from '@common/components/Banner'
+import Banner, { BannerButton } from '@common/components/Banner'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
@@ -66,7 +66,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
         )}
         type="info2"
         renderButtons={
-          <Banner.Button
+          <BannerButton
             onPress={() =>
               openInTab(
                 'https://help.ambire.com/hc/en-us/articles/15468208978332-How-to-add-your-v1-account-to-Ambire-Wallet-extension',
