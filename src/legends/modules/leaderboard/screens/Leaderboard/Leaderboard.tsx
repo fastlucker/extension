@@ -99,9 +99,8 @@ const LeaderboardContainer: React.FC = () => {
         <div className={styles.heading}>
           <h1 className={styles.title}>Leaderboard</h1>
           <p className={styles.subtitle}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi id nisl fringilla,
-            aliquet elit sit amet, feugiat nisi. Vestibulum condimentum aliquet tortor, eu laoreet
-            magna luctus et.
+            This is where your earned XP showcases your legacy in the world of Web3. Compete, rise
+            through the ranks, and leave your mark among the top Legends!
           </p>
         </div>
         {loading ? (
