@@ -211,12 +211,12 @@ const SwapAndBridgeScreen = () => {
                           {fromAmountFieldMode === 'token'
                             ? `≈ ${
                                 fromAmountInFiat
-                                  ? formatDecimals(Number(fromAmountInFiat), 'value')
+                                  ? formatDecimals(parseFloat(fromAmountInFiat), 'value')
                                   : 0
                               } USD`
-                            : `${fromAmount ? formatDecimals(Number(fromAmount), 'amount') : 0} ${
-                                fromSelectedToken?.symbol
-                              }`}
+                            : `${
+                                fromAmount ? formatDecimals(parseFloat(fromAmount), 'amount') : 0
+                              } ${fromSelectedToken?.symbol}`}
                         </Text>
                       </Pressable>
                     ) : (
