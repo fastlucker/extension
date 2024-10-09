@@ -41,6 +41,7 @@ const useStandaloneReverseLookup = ({ address, disable, cache, cacheCallback }: 
 
     const resolveDomain = async () => {
       setIsLoading(true)
+      let hasError = false
       let ens = null
       let ud = null
 
@@ -51,6 +52,7 @@ const useStandaloneReverseLookup = ({ address, disable, cache, cacheCallback }: 
         } catch (e: any) {
           if (!e?.message?.includes('cancelled request')) {
             console.error('ENS reverse lookup unexpected error', e)
+            hasError = true
           }
         }
       }
@@ -65,11 +67,12 @@ const useStandaloneReverseLookup = ({ address, disable, cache, cacheCallback }: 
             !e?.message?.includes('cancelled request')
           ) {
             console.error('UD reverse lookup unexpected error', e)
+            hasError = true
           }
         }
       }
 
-      if (cacheCallback) {
+      if (cacheCallback && !hasError) {
         cacheCallback(address, {
           ens,
           ud
