@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
+
 import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
+import { RELAYER_URL } from '@env'
 
 const accountContext = createContext<{
   connectedAccount: string | null
@@ -12,8 +14,6 @@ const accountContext = createContext<{
   requestAccounts: () => {},
   disconnectAccount: () => {}
 })
-
-const RELAYER_URL = 'https://staging-relayer.ambire.com'
 
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [connectedAccount, setConnectedAccount] = React.useState<string | null>(null)

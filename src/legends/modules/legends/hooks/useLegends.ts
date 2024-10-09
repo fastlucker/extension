@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { fetchGet } from '@common/services/fetch'
+import { RELAYER_URL } from '@env'
 import { CardFromResponse, CardType } from '@legends/modules/legends/types'
 import { sortCards } from '@legends/modules/legends/utils'
 
@@ -28,9 +29,7 @@ const useLegends = ({
     const fetchData = async () => {
       setError(null)
       try {
-        const rawCards = await fetchGet(
-          `https://staging-relayer.ambire.com/legends/cards?identity=${connectedAccount}`
-        )
+        const rawCards = await fetchGet(`${RELAYER_URL}/legends/cards?identity=${connectedAccount}`)
 
         const sortedCards = sortCards(rawCards)
         setLegends(sortedCards)

@@ -1,13 +1,12 @@
 import { fetchCaught } from '@common/services/fetch'
+import { RELAYER_URL } from '@env'
 
 import { LeaderboardResponse } from './types'
 
 export const getLeaderboard = async (currentUser?: string): Promise<LeaderboardResponse> => {
   try {
     const res = await fetchCaught(
-      `https://staging-relayer.ambire.com/legends/leaderboard${
-        currentUser ? `?identity=${currentUser}` : ''
-      }`
+      `${RELAYER_URL}/legends/leaderboard${currentUser ? `?identity=${currentUser}` : ''}`
     )
     const body = res.body as unknown as LeaderboardResponse
 
@@ -16,6 +15,6 @@ export const getLeaderboard = async (currentUser?: string): Promise<LeaderboardR
     return body
   } catch {
     console.error('Error fetching leaderboard')
-    return { leaderboard: [], currentUser: { rank: 0, account: '', xp: 0, level: 0 } }
+    return { leaderboard: [], currentUser: { avatar: '', rank: 0, account: '', xp: 0, level: 0 } }
   }
 }
