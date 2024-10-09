@@ -46,7 +46,7 @@ const useLegends = ({
     }
 
     fetchData()
-  })
+  }, [connectedAccount])
 
   return {
     legends,
