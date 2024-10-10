@@ -23,7 +23,7 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
       run: yarn
       if: |
-      steps.cache-node-modules.outputs.cache-hit != 'true'
+        steps.cache-node-modules.outputs.cache-hit != 'true'
       shell: bash
 
     - name: Git submodules init
