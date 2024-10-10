@@ -65,7 +65,11 @@ const Row: FC<Props> = ({
       <div className={styles.rankWrapper}>{rank > 3 ? rank : getBadge(rank)}</div>
       <div className={styles.cell}>
         <img src={image_avatar} alt="avatar" className={styles.avatar} />
-        <Address address={account} maxAddressLength={23} />
+        <Address
+          skeletonClassName={styles.addressSkeleton}
+          address={account}
+          maxAddressLength={23}
+        />
       </div>
       <h5 className={styles.cell}>{level}</h5>
       <h5 className={styles.cell}>{xp}</h5>

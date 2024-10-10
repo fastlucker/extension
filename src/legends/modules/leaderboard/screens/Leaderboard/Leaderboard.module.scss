@@ -116,6 +116,10 @@
     background-color: $goldBackground;
     border-color: $goldDecorative;
     color: $goldText;
+
+    .addressSkeleton {
+      background-color: $secondaryBackground;
+    }
   }
 
   .rankedRow2 {
@@ -141,6 +145,9 @@
     border-style: solid;
 
     .avatar {
+      background-color: $secondaryBackground;
+    }
+    .addressSkeleton {
       background-color: $secondaryBackground;
     }
   }
@@ -169,5 +176,10 @@
     border-radius: 0.75rem;
     margin: 0 0.25rem 0 0;
     background-color: $tertiaryBackground;
+  }
+
+  .addressSkeleton {
+    width: 8.75rem;
+    height: 1.125rem;
   }
 }

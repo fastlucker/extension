@@ -8,24 +8,18 @@ import styles from './Address.module.scss'
 type Props = {
   address: string
   maxAddressLength?: number
+  skeletonClassName?: string
   className?: string
 }
 
-const Address: FC<Props> = ({ address, className, maxAddressLength }) => {
+const Address: FC<Props> = ({ address, className, skeletonClassName, maxAddressLength }) => {
   const { isLoading, resolvedDomain } = useStandaloneReverseLookup({
     address
   })
   const shortenedAddress = maxAddressLength ? shortenAddress(address, maxAddressLength) : address
 
   if (isLoading) {
-    return (
-      <div
-        className={`${styles.skeleton} ${className}`}
-        style={{
-          width: maxAddressLength ? `${maxAddressLength}ch` : 'auto'
-        }}
-      />
-    )
+    return <div className={`${styles.skeleton} ${className} ${skeletonClassName}`} />
   }
 
   return (

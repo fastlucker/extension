@@ -46,7 +46,12 @@ const AccountDropdown = () => {
           <img alt="avatar" className={styles.avatar} src={character.image_avatar} />
         </div>
         <div className={styles.account}>
-          <Address className={styles.address} address={connectedAccount} maxAddressLength={12} />
+          <Address
+            skeletonClassName={styles.addressSkeleton}
+            className={styles.address}
+            address={connectedAccount}
+            maxAddressLength={12}
+          />
           <p className={styles.levelAndRank}>Level {character.level} / Rank 203</p>
         </div>
         <FontAwesomeIcon

@@ -26,7 +26,8 @@ const useStandaloneReverseLookup = ({ address }: Props) => {
   }, [checksummedAddress, domainsCtrl])
 
   return {
-    isLoading: state.loadingAddresses.includes(checksummedAddress),
+    isLoading:
+      state.loadingAddresses.includes(checksummedAddress) || !state.domains[checksummedAddress],
     resolvedDomain: state.domains[checksummedAddress] ?? { ens: null, ud: null }
   }
 }
