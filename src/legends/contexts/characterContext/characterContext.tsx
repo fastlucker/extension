@@ -2,9 +2,8 @@ import { ethers } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import LegendsNFT from '@contracts/compiled/LegendsNft.json'
+import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
-
-const RELAYER_URL = 'https://staging-relayer.ambire.com'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'

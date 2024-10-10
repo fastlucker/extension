@@ -29,7 +29,6 @@
     .avatarWrapper {
       width: 2.5rem;
       height: 2.5rem;
-      padding: 0.25rem;
       border-radius: $primaryBorderRadius;
       background-color: $tertiaryBackground;
       margin-right: 0.5rem;
@@ -51,10 +50,13 @@
         line-height: 1.4;
         font-weight: 500;
       }
+      .addressSkeleton {
+        height: 19.6px;
+        width: 5.25rem;
+      }
       .levelAndRank {
         font-size: 0.75rem;
         font-family: $secondaryFont;
-        transform: translateX(-0.5ch); // Fixes the horizontal alignment relative to the address
       }
     }
 
