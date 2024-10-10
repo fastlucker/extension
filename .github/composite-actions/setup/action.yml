@@ -15,12 +15,15 @@ runs:
         path: node_modules
         key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
         restore-keys: |
-          ${{ runner.os }}-node-modules-
+          ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
 
     - name: Install NPM packages using yarn ♾️🕳️
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-      run: yarn install 
+      run: yarn
+      if: |
+      steps.cache-yarn-cache.outputs.cache-hit != 'true' ||
+      steps.cache-node-modules.outputs.cache-hit != 'true'
       shell: bash
 
     - name: Git submodules init
