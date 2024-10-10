@@ -20,7 +20,7 @@ runs:
     - name: Install NPM packages using yarn ♾️🕳️
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-      run: yarn install --frozen-lockfile
+      run: yarn install 
       shell: bash
 
     - name: Git submodules init
