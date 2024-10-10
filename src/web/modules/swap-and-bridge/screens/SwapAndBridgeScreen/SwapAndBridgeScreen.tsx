@@ -22,6 +22,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
@@ -56,6 +57,8 @@ const SwapAndBridgeScreen = () => {
     handleSwitchFromAmountFieldMode,
     handleSetMaxFromAmount,
     handleSubmitForm,
+    handleToggleSettingsMenu,
+    settingModalVisible,
     formattedToAmount,
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
@@ -152,7 +155,10 @@ const SwapAndBridgeScreen = () => {
                   >
                     {t('Swap & Bridge')}
                   </Text>
-                  <SettingsModal />
+                  <SettingsModal
+                    handleToggleSettingsMenu={handleToggleSettingsMenu}
+                    settingModalVisible={settingModalVisible}
+                  />
                 </View>
                 <View>
                   <Text

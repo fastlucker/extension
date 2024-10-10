@@ -13,7 +13,6 @@ import { Portal } from '@gorhom/portal'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import getStyles, { SETTINGS_MODAL_WIDTH } from './styles'
 
@@ -56,12 +55,16 @@ const RadioButton = ({
   )
 }
 
-const SettingsModal = () => {
+interface Props {
+  handleToggleSettingsMenu: () => void
+  settingModalVisible: boolean
+}
+
+const SettingsModal: React.FC<Props> = ({ handleToggleSettingsMenu, settingModalVisible }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const settingButtonRef: any = useRef(null)
   const settingMenuRef: any = useRef(null)
-  const { handleToggleSettingsMenu, settingModalVisible } = useSwapAndBridgeForm()
   const { routePriority } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { x: settingButtonX, y: settingButtonY } = useElementSize(settingButtonRef)
