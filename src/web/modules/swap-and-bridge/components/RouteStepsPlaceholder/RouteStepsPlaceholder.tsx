@@ -90,6 +90,7 @@ const RouteStepsPlaceholder = ({
               height={30}
               uri={toSelectedToken.icon}
               chainId={toSelectedToken.chainId}
+              address={toSelectedToken.address}
               withNetworkIcon
             />
           </View>

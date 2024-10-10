@@ -90,6 +90,7 @@ const RouteStepsPreview = ({
                         height={30}
                         uri={step.fromAsset.icon}
                         chainId={step.fromAsset.chainId}
+                        address={step.fromAsset.address}
                         withNetworkIcon
                       />
                     </View>
@@ -129,6 +130,7 @@ const RouteStepsPreview = ({
                       height={30}
                       uri={step.toAsset.icon}
                       chainId={step.toAsset.chainId}
+                      address={step.toAsset.address}
                       withNetworkIcon
                     />
                   </View>
@@ -158,6 +160,7 @@ const RouteStepsPreview = ({
                     height={30}
                     uri={step.fromAsset.icon}
                     chainId={step.fromAsset.chainId}
+                    address={step.fromAsset.address}
                     withNetworkIcon
                   />
                 </View>
