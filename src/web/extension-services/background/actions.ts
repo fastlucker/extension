@@ -371,6 +371,10 @@ type SwapAndBridgeControllerInitAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
   params: { sessionId: string }
 }
+type SwapAndBridgeControllerUnloadScreenAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN'
+  params: { sessionId: string }
+}
 type SwapAndBridgeControllerUpdateFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM'
   params: {
@@ -569,6 +573,7 @@ export type Action =
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
   | SwapAndBridgeControllerInitAction
+  | SwapAndBridgeControllerUnloadScreenAction
   | SwapAndBridgeControllerUpdateFormAction
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSubmitFormAction

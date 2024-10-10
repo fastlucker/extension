@@ -54,6 +54,14 @@ const useSwapAndBridgeForm = () => {
 
   useEffect(() => {
     dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    const unloadScreen = () => {
+      dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
+    }
+    window.addEventListener('beforeunload', unloadScreen)
+    return () => {
+      window.removeEventListener('beforeunload', unloadScreen)
+      unloadScreen()
+    }
   }, [dispatch])
 
   useEffect(() => {
