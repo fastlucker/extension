@@ -21,34 +21,10 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
     const isClickable = await page.evaluate((selector) => {
       try {
         const buttonElement = document.querySelector(selector)
-
-        if (!buttonElement) return false
-
         const style = window.getComputedStyle(buttonElement)
-        const rect = buttonElement.getBoundingClientRect()
-
-        // Extensive check for validating if the element is clickable.
-        // This is necessary because some elements are part of an animated wrapper, such as modals.
-        // When we invoke `clickOnElement`, these elements are theoretically clickable as they are part of the DOM,
-        // and the click is executed.
-        // However, at the same time, this click doesn't trigger any changes in the React component (the reason is unclear).
-        // To ensure we are clicking on truly visible elements (as a real user would), we add these validations.
         const isClickableByCSS = style.pointerEvents !== 'none'
-        const isVisibleOnTheScreen = rect.width > 0 && rect.height > 0
-        const isNotOutOfViewport = rect.top >= 0 && rect.left >= 0
-        const isInsideViewPortVertically =
-          rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-        const isInsideViewportHorizontally =
-          rect.right <= (window.innerWidth || document.documentElement.clientWidth)
 
-        return (
-          !buttonElement.disabled && // not disabled
-          isClickableByCSS &&
-          isVisibleOnTheScreen &&
-          isNotOutOfViewport &&
-          isInsideViewPortVertically &&
-          isInsideViewportHorizontally
-        )
+        return !!buttonElement && !buttonElement.disabled && isClickableByCSS
       } catch (error) {
         // Some Puppeteer selectors are not valid for querySelector.
         // In such cases, skip the enabled check and assume the button should be enabled.
