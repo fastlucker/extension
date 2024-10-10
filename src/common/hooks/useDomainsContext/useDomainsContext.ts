@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import { DomainsContext } from '@legends/contexts/domainsContext'
+import { DomainsContext } from '@common/contexts/domainsContext'
 
 export default function useDomainsContext() {
   const context = useContext(DomainsContext)

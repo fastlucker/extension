@@ -2,7 +2,6 @@ import React, { FC } from 'react'
 
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import useStandaloneReverseLookup from '@common/hooks/useStandaloneReverseLookup'
-import useDomainsContext from '@legends/hooks/useDomainsContext'
 
 import styles from './Address.module.scss'
 
@@ -13,12 +12,8 @@ type Props = {
 }
 
 const Address: FC<Props> = ({ address, className, maxAddressLength }) => {
-  const { cachedDomains, cacheDomain } = useDomainsContext()
   const { isLoading, resolvedDomain } = useStandaloneReverseLookup({
-    address,
-    disable: ['ud'],
-    cache: cachedDomains,
-    cacheCallback: cacheDomain
+    address
   })
   const shortenedAddress = maxAddressLength ? shortenAddress(address, maxAddressLength) : address
 
