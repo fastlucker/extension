@@ -1,9 +1,15 @@
-import React, { useState } from 'react'
+import { ethers, Interface } from 'ethers'
+import React, { useCallback, useState } from 'react'
 import { Wheel } from 'react-custom-roulette'
 
 import Modal from '@legends/components/Modal'
+import { BASE_CHAIN_ID } from '@legends/constants/network'
+import useAccountContext from '@legends/hooks/useAccountContext'
 
 import styles from './WheelComponentModal.module.scss'
+
+export const ONCHAIN_TXNS_LEGENDS_ADDRESS = '0x1415926535897932384626433832795028841971'
+export const iface = new Interface(['function spinWheel(uint256)'])
 
 const data = [
   { option: '50', style: { backgroundColor: '#EADDC9', textColor: '#333131' } },
@@ -19,7 +25,6 @@ const data = [
   { option: '10', style: { backgroundColor: '#EADDC9', textColor: '#333131' } },
   { option: '20', style: { backgroundColor: '#F2E9DB', textColor: '#333131' } }
 ]
-
 interface WheelComponentProps {
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -28,14 +33,39 @@ interface WheelComponentProps {
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
   const [mustSpin, setMustSpin] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState(0)
+  const { connectedAccount } = useAccountContext()
 
   const handleSpinClick = () => {
     if (!mustSpin) {
+      broadcastTransaction()
       const newPrizeNumber = Math.floor(Math.random() * data.length)
       setPrizeNumber(newPrizeNumber)
       setMustSpin(true)
     }
   }
+
+  const broadcastTransaction = useCallback(async () => {
+    if (!connectedAccount || !window.ambire) return
+
+    // Switch to Base chain
+    await window.ambire.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: BASE_CHAIN_ID }]
+    })
+
+    const provider = new ethers.BrowserProvider(window.ambire)
+
+    const signer = await provider.getSigner()
+
+    console.log('signer', signer)
+
+    const randomValue = BigInt(Math.floor(Math.random() * 1000000).toString())
+    const tx = await signer.sendTransaction({
+      to: ONCHAIN_TXNS_LEGENDS_ADDRESS,
+      data: iface.encodeFunctionData('spinWheel', [randomValue])
+    })
+    console.log('transactionRes', tx)
+  }, [connectedAccount])
 
   return (
     <Modal className={styles.modal} isOpen={isOpen} setIsOpen={setIsOpen}>
