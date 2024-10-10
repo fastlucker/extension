@@ -141,7 +141,7 @@ const SwapAndBridgeScreen = () => {
               type="error"
               title={t('Temporarily unavailable.')}
               text={t(
-                "We're currently unable to initiate a swap or a bridge request because our service provider's API is temporarily unavailable. Please try again later. If the issue persists, check for updates or reach out to support."
+                "We're currently unable to initiate a swap or bridge request because our service provider's API is temporarily unavailable. Please try again later. If the issue persists, check for updates or contact support."
               )}
               style={spacings.mb}
             />
