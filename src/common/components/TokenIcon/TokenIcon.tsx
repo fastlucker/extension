@@ -7,6 +7,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import useTheme from '@common/hooks/useTheme'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import SkeletonLoader from '../SkeletonLoader'
@@ -30,11 +31,17 @@ interface Props extends Partial<ImageProps> {
   skeletonAppearance?: SkeletonLoaderProps['appearance']
 }
 
+enum UriStatus {
+  UNKNOWN = 'UNKNOWN',
+  IMAGE_MISSING = 'IMAGE_MISSING',
+  IMAGE_EXISTS = 'IMAGE_EXISTS'
+}
+
 const TokenIcon: React.FC<Props> = ({
   networkId = '',
   chainId,
   address = '',
-  uri,
+  uri: fallbackUri,
   withContainer = false,
   withNetworkIcon = true,
   containerWidth = 34,
@@ -48,13 +55,9 @@ const TokenIcon: React.FC<Props> = ({
   ...props
 }) => {
   const { theme, styles } = useTheme(getStyles)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [hasError, setHasError] = useState<boolean>(false)
   const { networks } = useNetworksControllerState()
-
-  useEffect(() => {
-    setHasError(false)
-  }, [uri])
+  const [uriStatus, setUriStatus] = useState<UriStatus>(UriStatus.UNKNOWN)
+  const [imageUrl, setImageUrl] = useState<string | undefined>()
 
   const network = useMemo(
     () =>
@@ -64,15 +67,33 @@ const TokenIcon: React.FC<Props> = ({
     [networkId, chainId, networks]
   )
 
-  const imageUrl = useMemo(() => {
-    if (uri) return uri
-    if (!network || !network.platformId) {
-      setHasError(true)
-      return undefined
-    }
-    setHasError(false)
-    return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
-  }, [address, network, uri])
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      const hasAmbireUriRequiredData = network && network.platformId && address
+      if (hasAmbireUriRequiredData) {
+        const ambireUri = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
+        const doesAmbireUriImageExists = await checkIfImageExists(ambireUri)
+        if (doesAmbireUriImageExists) {
+          setImageUrl(ambireUri)
+          setUriStatus(UriStatus.IMAGE_EXISTS)
+          return
+        }
+      }
+
+      if (fallbackUri) {
+        const doesFallbackUriImageExists = await checkIfImageExists(fallbackUri)
+        if (doesFallbackUriImageExists) {
+          setImageUrl(fallbackUri)
+          setUriStatus(UriStatus.IMAGE_EXISTS)
+          return
+        }
+      }
+
+      setUriStatus(UriStatus.IMAGE_MISSING)
+      setImageUrl(undefined)
+    })()
+  }, [address, network, fallbackUri])
 
   const allContainerStyle = useMemo(
     () => [
@@ -92,40 +113,33 @@ const TokenIcon: React.FC<Props> = ({
     ],
     [containerStyle, withContainer, containerWidth, containerHeight, theme.secondaryBackground]
   )
-  const setLoadingFinished = useCallback(() => {
-    setIsLoading(false)
-  }, [])
 
-  const setShowFallbackImage = useCallback(() => {
-    setHasError(true)
-  }, [])
+  const setImageMissing = useCallback(() => setUriStatus(UriStatus.IMAGE_MISSING), [])
 
   return (
     <View style={allContainerStyle}>
-      {!!isLoading && !hasError && (
+      {uriStatus === UriStatus.UNKNOWN ? (
         <SkeletonLoader
           width={width}
           height={height}
           style={styles.loader}
           appearance={skeletonAppearance}
         />
-      )}
-      {!!imageUrl && !hasError && (
-        <Image
-          source={{ uri: imageUrl }}
-          style={{ width, height, borderRadius: BORDER_RADIUS_PRIMARY }}
-          onError={setShowFallbackImage}
-          onLoadEnd={setLoadingFinished}
-          {...props}
-        />
-      )}
-      {!!hasError && (
+      ) : uriStatus === UriStatus.IMAGE_MISSING ? (
         <MissingTokenIcon
           withRect={withContainer}
           // A bit larger when they don't have a container,
           // because the SVG sizings are made with rectangle in mind
           width={withContainer ? containerWidth : width}
           height={withContainer ? containerHeight : height}
+        />
+      ) : (
+        <Image
+          source={{ uri: imageUrl }}
+          style={{ width, height, borderRadius: BORDER_RADIUS_PRIMARY }}
+          // Just in case the URI is valid and image exists, but still fails to load
+          onError={setImageMissing}
+          {...props}
         />
       )}
       {!!network && withNetworkIcon ? (

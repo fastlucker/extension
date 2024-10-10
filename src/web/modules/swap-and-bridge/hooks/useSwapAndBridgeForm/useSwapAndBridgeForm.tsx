@@ -159,7 +159,8 @@ const useSwapAndBridgeForm = () => {
     token: toSelectedToken ? getTokenId(toSelectedToken) : '',
     networks,
     isLoading: !toTokenList.length && statuses.updateToTokenList !== 'INITIAL',
-    skipNetwork: true
+    withNetworkName: false,
+    withNetworkIcon: false
   })
 
   const handleChangeToToken = useCallback(

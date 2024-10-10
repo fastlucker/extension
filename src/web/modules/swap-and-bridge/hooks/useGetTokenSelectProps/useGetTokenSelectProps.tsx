@@ -36,13 +36,15 @@ const useGetTokenSelectProps = ({
   token,
   networks,
   isLoading,
-  skipNetwork
+  withNetworkName = true,
+  withNetworkIcon = true
 }: {
   tokens: SocketAPIToken[] | TokenResult[]
   token: string
   networks: Network[]
   isLoading?: boolean
-  skipNetwork?: boolean
+  withNetworkName?: boolean
+  withNetworkIcon?: boolean
 }) => {
   let options: any = []
   let value = null
@@ -62,7 +64,7 @@ const useGetTokenSelectProps = ({
           <Text fontSize={16} weight="medium">
             {t.symbol}
           </Text>
-          {!skipNetwork && (
+          {withNetworkName && (
             <>
               <Text fontSize={14} appearance="secondaryText">
                 {' on '}
@@ -75,14 +77,14 @@ const useGetTokenSelectProps = ({
           )}
         </Text>
       ),
-      icon: t.icon ? (
-        <TokenIcon containerHeight={30} containerWidth={30} uri={t.icon} withContainer />
-      ) : (
+      icon: (
         <TokenIcon
           containerHeight={30}
           containerWidth={30}
           networkSize={12}
           withContainer
+          withNetworkIcon={withNetworkIcon}
+          uri={t.icon}
           address={t.address}
           chainId={t.chainId}
           networkId={t.networkId}
