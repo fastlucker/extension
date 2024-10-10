@@ -59,3 +59,8 @@ export const TREZOR_EMULATOR_OPTIONS = {
     experimental_features: true
   }
 }
+// NOTE: If the SEED_12_WORDS is changed these addresses needs to be changed as well
+export const HD_PATHS_ADDRESSES = {
+  ledgerLive: '0x10D4102562373113d1dCd82C2EEE5626D9daEcD8',
+  ledgerLegacy: '0x6748B0B94B4b8D95F78A81e331C09eFd22baA896'
+}

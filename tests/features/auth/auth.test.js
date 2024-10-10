@@ -16,7 +16,8 @@ import {
   INVALID_ACC_ADDRESS,
   INVALID_CHECKSUM_ERROR_MSG,
   INVALID_ADDRESS_OR_UD_DOMAIN_ERROR_MSG,
-  SUCCESSFULLY_ADDED_2_ACCOUNTS_MSG
+  SUCCESSFULLY_ADDED_2_ACCOUNTS_MSG,
+  HD_PATHS_ADDRESSES
 } from './constants'
 import { bootstrap } from '../../common-helpers/bootstrap'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
@@ -313,7 +314,12 @@ describe('auth', () => {
     await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
 
     // Select BIP 44 Ledger Live and select import account
-    await selectHdPathAndAddAccount(page, SELECTORS.optionBip44LedgerLive)
+
+    await selectHdPathAndAddAccount(
+      page,
+      SELECTORS.optionBip44LedgerLive,
+      HD_PATHS_ADDRESSES.ledgerLive
+    )
 
     await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
 
@@ -346,7 +352,12 @@ describe('auth', () => {
 
     // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(2000)
+
     // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
-    await selectHdPathAndAddAccount(page, SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto)
+    await selectHdPathAndAddAccount(
+      page,
+      SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto,
+      HD_PATHS_ADDRESSES.ledgerLegacy
+    )
   })
 })

@@ -413,7 +413,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   )
 }
 
-export async function selectHdPathAndAddAccount(page, hdPathSelector) {
+export async function selectHdPathAndAddAccount(page, hdPathSelector, accAddrSelector) {
   await clickOnElement(page, SELECTORS.selectChangeHdPath)
   // Select different HD path
   await clickOnElement(page, hdPathSelector)
@@ -431,11 +431,20 @@ export async function selectHdPathAndAddAccount(page, hdPathSelector) {
 
   expect(accountsData.length).toBeGreaterThan(0)
 
-  // Click on the first account from the list
-  await page.$eval(SELECTORS.addAccount, (element) => {
-    element.click()
-    return element.textContent
-  })
+  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
+  // Awaiting 5s to be sure all the account data has been loaded
+  await wait(5000)
+
+  // Select a specific element by given text (in this case account address)
+  const accAddressSelector = await page.waitForXPath(
+    `//*[contains(text(), "${accAddrSelector}")]`,
+    {
+      timeout: 3000
+    }
+  )
+
+  // Click on selected account address
+  await accAddressSelector.click()
 
   // Click on "Import account" button
   await clickOnElement(page, SELECTORS.buttonImportAccount)
