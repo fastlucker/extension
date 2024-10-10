@@ -9,10 +9,18 @@ runs:
         cache: 'yarn'
         cache-dependency-path: './yarn.lock'
 
+    - name: Cache node_modules
+      uses: actions/cache@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-node-modules-
+
     - name: Install NPM packages using yarn ♾️🕳️
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-      run: yarn install
+      run: yarn install --frozen-lockfile
       shell: bash
 
     - name: Git submodules init
