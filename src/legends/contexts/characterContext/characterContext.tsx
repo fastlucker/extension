@@ -6,7 +6,7 @@ import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 
 type Character = {
-  characterType: 'unknown | slime | sorceress | necromancer | penguin'
+  characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
   name: string
   description: string
   level: number

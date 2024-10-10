@@ -6,12 +6,14 @@ import { RELAYER_URL } from '@env'
 const accountContext = createContext<{
   connectedAccount: string | null
   chainId: bigint | null
+  isLoading: boolean
   error: string | null
   requestAccounts: () => void
   disconnectAccount: () => void
 }>({
   connectedAccount: null,
   chainId: null,
+  isLoading: true,
   error: null,
   requestAccounts: () => {},
   disconnectAccount: () => {}
@@ -20,6 +22,7 @@ const accountContext = createContext<{
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [connectedAccount, setConnectedAccount] = React.useState<string | null>(null)
   const [chainId, setChainId] = React.useState<bigint | null>(null)
+  const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
   const requestAccounts = useCallback(async () => {
@@ -93,6 +96,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   useEffect(() => {
     const onAccountsChanged = async (accounts: string[]) => {
       await validateAndSetAccount(accounts[0])
+      setIsLoading(false)
     }
 
     getConnectedAccount()
@@ -100,6 +104,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
         if (!account) return
 
         await validateAndSetAccount(account)
+        setIsLoading(false)
       })
       .catch(() => console.error('Error fetching connected account'))
 
@@ -118,9 +123,10 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       error,
       requestAccounts,
       disconnectAccount,
-      chainId
+      chainId,
+      isLoading
     }),
-    [connectedAccount, error, requestAccounts, disconnectAccount, chainId]
+    [connectedAccount, error, requestAccounts, disconnectAccount, chainId, isLoading]
   )
 
   return <accountContext.Provider value={contextValue}>{children}</accountContext.Provider>

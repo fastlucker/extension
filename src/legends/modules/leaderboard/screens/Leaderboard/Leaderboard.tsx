@@ -70,9 +70,6 @@ const LeaderboardContainer: React.FC = () => {
       } else if (userRect.bottom > windowHeight) {
         // If the user is below the viewport, pin to the bottom
         setStickyPosition('bottom')
-      } else {
-        // Reset sticky behavior when the current user's row is in the viewport
-        setStickyPosition(null)
       }
     }
 
