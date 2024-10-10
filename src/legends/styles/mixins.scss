@@ -19,10 +19,10 @@
 
 @mixin primary-button {
   @include button;
-  background-color: $accent;
-  border: 1px solid $accent;
+  background-color: $primaryBackground;
+  border: 1px solid $primaryBorder;
   box-shadow: 0 2px 1px #1d0a0a;
-  color: $alternativeText;
+  color: $accent;
   font-weight: 700;
   height: 3.375rem;
 
