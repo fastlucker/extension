@@ -12,6 +12,7 @@ runs:
     - name: Cache node_modules
       uses: actions/cache@v4
       with:
+        id: cache-node-modules
         path: node_modules
         key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
         restore-keys: |
