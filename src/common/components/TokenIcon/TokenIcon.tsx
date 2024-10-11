@@ -70,7 +70,7 @@ const TokenIcon: React.FC<Props> = ({
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      const hasAmbireUriRequiredData = network && network.platformId && address
+      const hasAmbireUriRequiredData = !!(network?.platformId && address)
       if (hasAmbireUriRequiredData) {
         const ambireUri = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
         const doesAmbireUriImageExists = await checkIfImageExists(ambireUri)
@@ -93,7 +93,7 @@ const TokenIcon: React.FC<Props> = ({
       setUriStatus(UriStatus.IMAGE_MISSING)
       setImageUrl(undefined)
     })()
-  }, [address, network, fallbackUri])
+  }, [address, network?.platformId, fallbackUri])
 
   const setImageMissing = useCallback(() => setUriStatus(UriStatus.IMAGE_MISSING), [])
 
