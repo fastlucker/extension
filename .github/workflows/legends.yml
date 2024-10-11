@@ -39,6 +39,8 @@ jobs:
         run: yarn install
 
       - name: Build project 🛠️
+        env:
+          RELAYER_URL: 'https://staging-relayer.ambire.com'
         run: yarn build:web:legends
 
       - name: Setup SSH agent
