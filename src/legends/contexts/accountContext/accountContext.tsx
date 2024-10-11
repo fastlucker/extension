@@ -92,6 +92,13 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     [lastConnectedV2Account]
   )
 
+  const handleDisconnectFromWallet = useCallback(() => {
+    setConnectedAccount(null)
+    setLastConnectedV2Account(null)
+    setIsLoading(false)
+    localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
+  }, [])
+
   useEffect(() => {
     getChainId()
       .then((newChainId) => {
@@ -113,10 +120,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   useEffect(() => {
     const onAccountsChanged = async (accounts: string[]) => {
       if (!accounts.length) {
-        setConnectedAccount(null)
-        setLastConnectedV2Account(null)
-        setIsLoading(false)
-        localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
+        handleDisconnectFromWallet()
         return
       }
 
@@ -127,8 +131,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     getConnectedAccount()
       .then(async (account) => {
         if (!account) {
-          localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
-          setIsLoading(false)
+          handleDisconnectFromWallet()
           return
         }
 
@@ -143,7 +146,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     return () => {
       window.ambire.removeListener('accountsChanged', onAccountsChanged)
     }
-  }, [getConnectedAccount, validateAndSetAccount])
+  }, [getConnectedAccount, handleDisconnectFromWallet, validateAndSetAccount])
 
   const contextValue = useMemo(
     () => ({
