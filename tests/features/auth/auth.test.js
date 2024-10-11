@@ -16,8 +16,7 @@ import {
   INVALID_ACC_ADDRESS,
   INVALID_CHECKSUM_ERROR_MSG,
   INVALID_ADDRESS_OR_UD_DOMAIN_ERROR_MSG,
-  SUCCESSFULLY_ADDED_2_ACCOUNTS_MSG,
-  HD_PATHS_ADDRESSES
+  SUCCESSFULLY_ADDED_2_ACCOUNTS_MSG
 } from './constants'
 import { bootstrap } from '../../common-helpers/bootstrap'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
@@ -25,7 +24,6 @@ import { typeText } from '../../common-helpers/typeText'
 import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExist'
 import {
   wait,
-  finishStoriesAndSelectAccount,
   importAccountsFromSeedPhrase,
   checkTextAreaHasValidInputByGivenText,
   importNewSAFromDefaultSeedAndPersonalizeIt,
@@ -101,12 +99,22 @@ describe('auth', () => {
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
-    const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page, undefined, false)
+    await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-    // Since v4.31.0, Ambire does NOT retrieve smart accounts from private keys.
-    expect(firstSelectedSmartAccount).toBeNull()
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 500)
+
+    await page.waitForSelector(SELECTORS.checkbox, { visible: true })
+
+    const firstSelectedBasicAccount = await page.$eval(SELECTORS.addAccountField, (element) => {
+      return element.textContent
+    })
+
+    await clickOnElement(page, `${SELECTORS.buttonImportAccount}:not([disabled])`)
+    await page.waitForNavigation()
+
+    const currentUrl = page.url()
+    expect(currentUrl).toContain('/account-personalize')
 
     // Click on "Save and Continue" button
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
@@ -315,11 +323,7 @@ describe('auth', () => {
 
     // Select BIP 44 Ledger Live and select import account
 
-    await selectHdPathAndAddAccount(
-      page,
-      SELECTORS.optionBip44LedgerLive,
-      HD_PATHS_ADDRESSES.ledgerLive
-    )
+    await selectHdPathAndAddAccount(page, SELECTORS.optionBip44LedgerLive)
 
     await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
 
@@ -354,10 +358,6 @@ describe('auth', () => {
     await wait(2000)
 
     // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
-    await selectHdPathAndAddAccount(
-      page,
-      SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto,
-      HD_PATHS_ADDRESSES.ledgerLegacy
-    )
+    await selectHdPathAndAddAccount(page, SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto)
   })
 })

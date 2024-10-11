@@ -3,7 +3,6 @@ import {
   URL_GET_STARTED,
   URL_ACCOUNT_SELECT,
   INVITE_STORAGE_ITEM,
-  INVITE_STATUS_VERIFIED,
   TEST_ACCOUNT_NAMES,
   TREZOR_EMULATOR_OPTIONS
 } from './constants'
@@ -12,7 +11,6 @@ import { SELECTORS } from '../../common/selectors/selectors'
 import { completeOnboardingSteps } from '../../common-helpers/completeOnboardingSteps'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import {
-  wait,
   finishStoriesAndSelectAccount,
   personalizeAccountName,
   interactWithTrezorConnectPage,
@@ -99,7 +97,7 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
 
     // Complete the account selection and interaction process
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page, true)
+      await finishStoriesAndSelectAccount(page)
 
     const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
     await personalizeAccountName(page, accountName1, 0)

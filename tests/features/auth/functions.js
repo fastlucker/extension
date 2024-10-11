@@ -1,4 +1,3 @@
-import { timeout } from 'rxjs'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
 import { buildSelector } from '../../common-helpers/buildSelector'
@@ -38,11 +37,7 @@ export async function checkAccountDetails(
   })
 }
 
-export async function finishStoriesAndSelectAccount(
-  page,
-  shouldClickOnAccounts,
-  shouldSelectSmartAccount = true
-) {
+export async function finishStoriesAndSelectAccount(page) {
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
@@ -51,26 +46,32 @@ export async function finishStoriesAndSelectAccount(
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
-  await page.waitForSelector(SELECTORS.addAccount, { visible: true })
+  const addedAccounts = await page.$$eval(SELECTORS.addAccountField, (elements) =>
+    elements.map((element) => element.innerText)
+  )
+
+  const [firstAddress, secondAddress] = addedAccounts
 
   // Select one Legacy account and one Smart account
-  const firstSelectedBasicAccount = await page.$$eval(
-    SELECTORS.addAccount,
-    (element, shouldClick) => {
-      if (shouldClick) element[0].click()
-      return element[0].textContent
-    },
-    shouldClickOnAccounts
-  )
-  const firstSelectedSmartAccount = shouldSelectSmartAccount
-    ? await page.$$eval(
-        SELECTORS.addAccount,
-        (element, shouldClick) => {
-          if (shouldClick) element[1].click()
-          return element[1].textContent
-        },
-        shouldClickOnAccounts
-      )
+  const firstAddrSelector = firstAddress
+    ? buildSelector(TEST_IDS.addAccount, firstAddress)
+    : undefined
+  const secondAddrSelector = secondAddress
+    ? buildSelector(TEST_IDS.addAccount, secondAddress)
+    : undefined
+
+  if (firstAddrSelector) await clickOnElement(page, firstAddrSelector)
+  if (secondAddrSelector) await clickOnElement(page, secondAddrSelector)
+
+  const firstSelectedBasicAccount = firstAddrSelector
+    ? await page.$eval(firstAddrSelector, (element) => {
+        return element.textContent
+      })
+    : null
+  const firstSelectedSmartAccount = secondAddrSelector
+    ? await page.$eval(secondAddrSelector, (element) => {
+        return element.textContent
+      })
     : null
 
   await Promise.all([
@@ -392,7 +393,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
 
   const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-    await finishStoriesAndSelectAccount(page, true)
+    await finishStoriesAndSelectAccount(page)
 
   const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
   await personalizeAccountName(page, accountName1, 0)
@@ -413,7 +414,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   )
 }
 
-export async function selectHdPathAndAddAccount(page, hdPathSelector, accAddrSelector) {
+export async function selectHdPathAndAddAccount(page, hdPathSelector) {
   await clickOnElement(page, SELECTORS.selectChangeHdPath)
   // Select different HD path
   await clickOnElement(page, hdPathSelector)
@@ -423,28 +424,14 @@ export async function selectHdPathAndAddAccount(page, hdPathSelector, accAddrSel
   // At this moment I couldn't find an other solution except to set a timeout
   await wait(2000)
 
-  await page.waitForSelector(SELECTORS.addAccount, { visible: true })
+  const addedAccountAddress = await page.$eval(SELECTORS.addAccountField, (element) => {
+    return element.innerText
+  })
 
-  const accountsData = await page.evaluate((selector) => {
-    return Array.from(document.querySelectorAll(selector)).map((element) => element.textContent)
-  }, SELECTORS.addAccount)
+  const accAddrSelector = buildSelector(TEST_IDS.addAccount, addedAccountAddress)
 
-  expect(accountsData.length).toBeGreaterThan(0)
-
-  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
-  // Awaiting 5s to be sure all the account data has been loaded
-  await wait(5000)
-
-  // Select a specific element by given text (in this case account address)
-  const accAddressSelector = await page.waitForXPath(
-    `//*[contains(text(), "${accAddrSelector}")]`,
-    {
-      timeout: 3000
-    }
-  )
-
-  // Click on selected account address
-  await accAddressSelector.click()
+  // Click on "Import account" button
+  await clickOnElement(page, accAddrSelector)
 
   // Click on "Import account" button
   await clickOnElement(page, SELECTORS.buttonImportAccount)
