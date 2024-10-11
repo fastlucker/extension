@@ -11,6 +11,32 @@ import { confirmTransactionStatus } from '../common-helpers/confirmTransactionSt
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 import { SELECTORS } from './selectors/selectors'
 
+// When we run tests in GitHub Actions in parallel (with different PRs running tests simultaneously),
+// it's very likely that the nonce we use for the transaction may already have been used.
+// Since we can't run the tests sequentially, we've introduced this workaround to handle this scenario,
+// which will reload the sign-acc-op page if a `nonce too low` error is detected.
+// Upon reloading, our @ambire-app logic will retrieve the next available nonce.
+// Please note, this fix is only for E2E tests, as in a real-world scenario,
+// it's uncommon for a user to operate with the same account from multiple extension instances at the same time.
+const overcomeNonceError = async (page) => {
+  let hasNonceError = false
+  try {
+    const nonceError = await page.waitForXPath(
+      '//*[contains(text(), "Perhaps wrong nonce set in Account op")]',
+      { timeout: 3000 }
+    )
+
+    hasNonceError = nonceError !== null
+  } catch {
+    hasNonceError = false
+  }
+
+  if (hasNonceError) {
+    await page.reload()
+    await overcomeNonceError(page)
+  }
+}
+
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
@@ -62,6 +88,9 @@ export async function makeValidTransaction(
   )
 
   if (shouldStopBeforeSign) return
+
+  await overcomeNonceError(newPage)
+
   // Check if select fee token is visible and select the token
   if (feeToken) {
     await selectFeeToken(newPage, feeToken)
@@ -192,17 +221,14 @@ export async function makeSwap(
   const result = await checkForSignMessageWindow(newPage, extensionURL, browser)
   const updatedPage = result.actionWindowPage
 
+  await overcomeNonceError(updatedPage)
+
   // Check if select fee token is visible and select the token
   if (feeToken) {
     await selectFeeToken(updatedPage, feeToken)
   }
 
-  if (shouldStopBeforeSign) {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 5000)
-    })
-    return
-  }
+  if (shouldStopBeforeSign) return
 
   // Sign and confirm the transaction
   await signTransaction(updatedPage, transactionRecorder)
