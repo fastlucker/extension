@@ -1,3 +1,4 @@
+import useInviteEOA from './useInviteEOA'
 import { useLegends } from './useLegends'
 
-export { useLegends }
+export { useLegends, useInviteEOA }

@@ -33,12 +33,11 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
 
     const isClickable = await page.evaluate((_selector) => {
       try {
-        const buttonElement = document.querySelector(_selector)
-        return (
-          !!buttonElement &&
-          !buttonElement.disabled &&
-          window.getComputedStyle(buttonElement).pointerEvents !== 'none'
-        )
+        const buttonElement = document.querySelector(selector)
+        const style = window.getComputedStyle(buttonElement)
+        const isClickableByCSS = style.pointerEvents !== 'none'
+
+        return !!buttonElement && !buttonElement.disabled && isClickableByCSS
       } catch (error) {
         // Some Puppeteer selectors are not valid for querySelector.
         // In such cases, skip the enabled check and assume the button should be enabled.

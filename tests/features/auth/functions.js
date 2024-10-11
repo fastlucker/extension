@@ -250,8 +250,11 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
   // Click on "Create a new hot wallet" button
   await clickOnElement(page, SELECTORS.getStartedCreateHotWallet)
 
-  // Click on "Set up with a seed phrase" button
-  await clickOnElement(page, SELECTORS.setUpWithSeedPhraseBtn)
+  // Click on "Set up with a seed phrase" button.
+  // We add a delay because the selector is part of an animated modal, and clicking on the selector
+  // doesn't update the React state. This is most likely because the element is present in the DOM
+  // but still outside the clickable viewport.
+  await clickOnElement(page, SELECTORS.setUpWithSeedPhraseBtn, true, 500)
 
   // Wait for keystore to be loaded
   await page.waitForFunction(() => window.location.href.includes('/keystore-setup'))
@@ -270,7 +273,10 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
 
   await page.waitForSelector(SELECTORS.bottomSheet)
 
-  await clickOnElement(page, SELECTORS.keystoreBtnContinue)
+  // We add a delay because the selector is part of an animated modal, and clicking on the selector
+  // doesn't update the React state. This is most likely because the element is present in the DOM
+  // but still outside the clickable viewport.
+  await clickOnElement(page, SELECTORS.keystoreBtnContinue, true, 500)
 
   const isKeyStoreUidKeyPresent = await checkStorageKeysExist(serviceWorker, 'keyStoreUid')
   expect(isKeyStoreUidKeyPresent).toBe(true)

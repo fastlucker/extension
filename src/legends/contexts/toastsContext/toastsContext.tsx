@@ -32,7 +32,7 @@ const toastReducer = (
 }
 
 const ToastContext = createContext<{
-  addToast: (type: ToastType, message: string) => void
+  addToast: (message: string, type?: ToastType) => void
   dismissToast: (id: number) => void
 }>({
   addToast: () => {},
@@ -44,7 +44,7 @@ const ToastContextProvider: FC<{
 }> = ({ children }) => {
   const [state, dispatch] = useReducer(toastReducer, { toasts: [] })
 
-  const addToast = useCallback((type: ToastType, message: string) => {
+  const addToast = useCallback((message: string, type: ToastType = 'info') => {
     const id = Math.floor(Math.random() * 10000000)
     dispatch({ type: 'ADD_TOAST', payload: { id, message, type } })
   }, [])

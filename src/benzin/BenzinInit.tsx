@@ -2,6 +2,7 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter } from 'react-router-dom'
 
+import { DomainsContextProvider } from '@common/contexts/domainsContext'
 import { ThemeProvider } from '@common/contexts/themeContext'
 import { ToastProvider } from '@common/contexts/toastContext'
 import useFonts from '@common/hooks/useFonts'
@@ -20,8 +21,10 @@ const BenzinInit = () => {
         <ThemeProvider>
           <SafeAreaProvider>
             <ToastProvider>
-              <BenzinScreen />
-              <PortalHost name="global" />
+              <DomainsContextProvider>
+                <BenzinScreen />
+                <PortalHost name="global" />
+              </DomainsContextProvider>
             </ToastProvider>
           </SafeAreaProvider>
         </ThemeProvider>
