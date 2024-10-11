@@ -2,12 +2,12 @@ import { BrowserProvider, Contract, getAddress, Interface } from 'ethers'
 import { useState } from 'react'
 
 import { isValidAddress } from '@ambire-common/services/address'
-import { SUMMON_ABI } from '@legends/constants/abis/summon'
+import { LEGENDS_CONTRACT_ABI } from '@legends/constants/abis/summon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useToast from '@legends/hooks/useToast'
 
-const SUMMON_INTERFACE = new Interface(SUMMON_ABI)
+const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
 const useInviteEOA = () => {
   const { addToast } = useToast()
@@ -36,7 +36,7 @@ const useInviteEOA = () => {
       const provider = new BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
 
-      const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, SUMMON_INTERFACE, signer)
+      const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, LEGENDS_CONTRACT_INTERFACE, signer)
 
       await contract.invite(checksummedAddress)
     } catch (e: any) {
