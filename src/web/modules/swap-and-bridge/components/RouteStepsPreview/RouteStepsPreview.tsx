@@ -76,6 +76,7 @@ const RouteStepsPreview = ({
       <View style={styles.container}>
         {steps.map((step, i) => {
           const isFirst = i === 0
+          const isOnlyOneStep = steps.length === 1
           const isLast = i === steps.length - 1
 
           if (step.userTxIndex === undefined) {
@@ -92,6 +93,7 @@ const RouteStepsPreview = ({
                     chainId={step.fromAsset.chainId}
                     address={step.fromAsset.address}
                     symbol={step.fromAsset.symbol}
+                    amount={isOnlyOneStep ? formattedFromAmount : ''}
                   />
                   <RouteStepsArrow
                     containerStyle={flexbox.flex1}
@@ -141,7 +143,6 @@ const RouteStepsPreview = ({
                 uri={step.fromAsset.icon}
                 symbol={step.fromAsset.symbol}
                 amount={isFirst ? formattedFromAmount : ''}
-                isLast={false}
               />
               <RouteStepsArrow
                 containerStyle={flexbox.flex1}
