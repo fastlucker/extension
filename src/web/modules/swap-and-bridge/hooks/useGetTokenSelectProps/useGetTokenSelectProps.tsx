@@ -86,8 +86,7 @@ const useGetTokenSelectProps = ({
           withNetworkIcon={withNetworkIcon}
           uri={t.icon}
           address={t.address}
-          chainId={t.chainId}
-          networkId={t.networkId}
+          networkId={t.networkId || t.chainId}
         />
       )
     }))
