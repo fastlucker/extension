@@ -178,9 +178,6 @@ const HotWalletImportSelectorScreen = () => {
             <Card
               title={t('Set up with an email')}
               style={[flexbox.flex1]}
-              text={t(
-                'This option lets you setup a secure and email-recoverable Smart Account with just an email.'
-              )}
               icon={EmailRecoveryIcon}
               buttonText={t('Show interest')}
               onPress={() => onOptionPress('email')}

@@ -4,6 +4,7 @@ import { Modalize } from 'react-native-modalize'
 import { Account } from '@ambire-common/interfaces/account'
 import { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import BottomSheet from '@common/components/BottomSheet'
+import { iconColors } from '@common/styles/themeConfig'
 
 import AccountKeyDetails from './AccountKeyDetails'
 import AccountKeys from './AccountKeys'
@@ -39,7 +40,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           setCurrentKeyDetails={setCurrentKeyDetails}
           account={account}
           openAddAccountBottomSheet={openAddAccountBottomSheet}
-          keyIconColor="#000"
+          keyIconColor={iconColors.black}
           isSettings={isSettings}
         />
       ) : (
@@ -47,7 +48,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           details={currentKeyDetails}
           closeDetails={closeCurrentKeyDetails}
           account={account}
-          keyIconColor="#000"
+          keyIconColor={iconColors.black}
           isSettings={isSettings}
         />
       )}

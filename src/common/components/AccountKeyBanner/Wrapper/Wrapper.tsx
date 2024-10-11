@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import Badge from '@common/components/Badge'
 
-const Wrapper = ({ text, children }: { text: string; children: any }) => {
+const Wrapper = ({ text, children }: { text: string; children: React.ReactNode }) => {
   return (
     <Badge text={text}>
       <View>{children}</View>

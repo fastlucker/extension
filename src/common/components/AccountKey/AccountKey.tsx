@@ -46,6 +46,7 @@ type Props = AccountKeyType & {
   account: Account
   keyIconColor?: string
   isSettings?: boolean
+  closeDetails?: () => void
 }
 
 const { isPopup } = getUiType()
@@ -64,7 +65,8 @@ const AccountKey: React.FC<Props> = ({
   openAddAccountBottomSheet,
   account,
   keyIconColor,
-  isSettings = false
+  isSettings = false,
+  closeDetails
 }) => {
   const [isImporting, setIsImporting] = useState<boolean>(false)
   const { t } = useTranslation()
@@ -83,6 +85,7 @@ const AccountKey: React.FC<Props> = ({
     preset: 'opacityInverted'
   })
   const fontSize = isPopup ? 14 : 16
+  const isShowingDetails = !openAddAccountBottomSheet
 
   const handleCopy = async () => {
     try {
@@ -183,6 +186,11 @@ const AccountKey: React.FC<Props> = ({
               <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
             </AnimatedPressable>
           )}
+          {!isImported && (
+            <View style={spacings.mlTy}>
+              <Badge type="warning" text={t('Not imported')} />
+            </View>
+          )}
         </View>
         {isSettings && (
           <View>
@@ -204,7 +212,7 @@ const AccountKey: React.FC<Props> = ({
                       type="secondary"
                     >
                       <Text style={[spacings.mrTy]} fontSize={12}>
-                        Export
+                        {t('Export')}
                       </Text>
                       <ExportIcon color={theme.secondaryText} width={16} height={16} />
                     </Button>
@@ -220,7 +228,11 @@ const AccountKey: React.FC<Props> = ({
                   )}
                 </View>
                 <AnimatedPressable
-                  onPress={handleOnKeyDetailsPress}
+                  onPress={() => {
+                    handleOnKeyDetailsPress
+                      ? handleOnKeyDetailsPress()
+                      : closeDetails && closeDetails()
+                  }}
                   style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlTy]}
                   {...bindKeyDetailsAnim}
                 >
@@ -230,10 +242,16 @@ const AccountKey: React.FC<Props> = ({
                     weight="medium"
                     style={spacings.mrTy}
                   >
-                    {t('Details')}
+                    {isShowingDetails ? t('Hide Details') : t('Details')}
                   </Text>
                   <Animated.View style={keyDetailsAnimStyles}>
-                    <RightArrowIcon width={16} height={16} color={theme.secondaryText} />
+                    <RightArrowIcon
+                      width={16}
+                      height={16}
+                      color={theme.secondaryText}
+                      // @ts-ignore
+                      style={isShowingDetails ? { transform: 'rotate(180deg)' } : {}}
+                    />
                   </Animated.View>
                 </AnimatedPressable>
               </View>
@@ -241,14 +259,10 @@ const AccountKey: React.FC<Props> = ({
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <Button style={spacings.mb0} onPress={importKey} size="tiny" type="secondary">
                   <Text style={[spacings.mrTy]} fontSize={12}>
-                    Import
+                    {t('Import')}
                   </Text>
                   <ImportIcon color={theme.secondaryText} width={16} height={16} />
                 </Button>
-
-                <View style={spacings.mlTy}>
-                  <Badge type="warning" text={t('Not imported')} />
-                </View>
               </View>
             )}
           </View>
@@ -256,10 +270,10 @@ const AccountKey: React.FC<Props> = ({
       </View>
       {isSettings && isImporting && openAddAccountBottomSheet && (
         <View style={[spacings.phSm, flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-          <Text>To import this key, you will need to reimport the account</Text>
+          <Text>{t('To import this key, you will need to reimport the account')}</Text>
           <Button style={[spacings.mb0, spacings.mlTy]} onPress={reimportAccount} size="tiny">
             <Text color="#fff" fontSize={12}>
-              Reimport Account
+              {t('Reimport Account')}
             </Text>
           </Button>
         </View>

@@ -9,6 +9,10 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import AccountKeyBanner from '../AccountKeyBanner'
 import AccountKeyIcon from '../AccountKeyIcon/AccountKeyIcon'
 
+const AccountKeyIconOrBanner = ({ type, isExtended }: { type: string; isExtended: boolean }) => {
+  return isExtended ? <AccountKeyBanner type={type} /> : <AccountKeyIcon type={type} />
+}
+
 const AccountKeyIcons = ({
   account,
   isExtended
@@ -18,28 +22,27 @@ const AccountKeyIcons = ({
 }) => {
   const { keys } = useKeystoreControllerState()
   const associatedKeys = account?.associatedKeys || []
-  const importedKeyTypes = [
-    ...new Set(keys.filter(({ addr }) => associatedKeys.includes(addr)).map((key) => key.type))
-  ]
-  const hasKeys = !!importedKeyTypes.length
-  if (!hasKeys) importedKeyTypes.push('none')
+  const importedKeyTypes = Array.from(
+    new Set(keys.filter(({ addr }) => associatedKeys.includes(addr)).map((key) => key.type))
+  )
+  const hasKeys = React.useMemo(() => importedKeyTypes.length > 0, [importedKeyTypes])
 
   return (
     <View style={[flexbox.directionRow, hasKeys ? spacings.mlTy : spacings.ml0]}>
-      {importedKeyTypes.map((type, index) => {
-        return (
-          <View
-            key={type || 'internal'}
-            style={[index !== importedKeyTypes.length - 1 ? spacings.mrTy : spacings.mr0]}
-          >
-            {isExtended ? (
-              <AccountKeyBanner type={type || 'internal'} />
-            ) : (
-              <AccountKeyIcon type={type || 'internal'} />
-            )}
-          </View>
-        )
-      })}
+      {hasKeys ? (
+        importedKeyTypes.map((type, index) => {
+          return (
+            <View
+              key={type || 'internal'}
+              style={[index !== importedKeyTypes.length - 1 ? spacings.mrTy : spacings.mr0]}
+            >
+              <AccountKeyIconOrBanner type={type || 'internal'} isExtended={isExtended} />
+            </View>
+          )
+        })
+      ) : (
+        <AccountKeyIconOrBanner type="none" isExtended={isExtended} />
+      )}
     </View>
   )
 }

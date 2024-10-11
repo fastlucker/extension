@@ -247,7 +247,9 @@ const GetStartedScreen = () => {
                   isSecondary
                 />
               </View>
-              <View style={[flexbox.directionRow, { margin: 'auto' }, spacings.mtXl]}>
+              <View
+                style={[flexbox.directionRow, { margin: 'auto', width: '100%' }, spacings.mtXl]}
+              >
                 <Banner
                   title="Ambire v1 accounts"
                   text={t(
@@ -255,7 +257,7 @@ const GetStartedScreen = () => {
                   )}
                   type="info2"
                   // @ts-ignore
-                  style={[spacings.mb0, { width: 494 }]}
+                  style={[spacings.mb0, { width: '100%' }]}
                   renderButtons={
                     <Banner.Button
                       onPress={() =>
