@@ -13,7 +13,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 import RouteStepsArrow from '../RouteStepsArrow'
 import RouteStepsToken from '../RouteStepsToken'
-import getStyles from './styles'
+import styles from './styles'
 
 const RouteStepsPlaceholder = ({
   fromSelectedToken,
@@ -24,7 +24,7 @@ const RouteStepsPlaceholder = ({
   toSelectedToken: SocketAPIToken
   withBadge?: 'loading' | 'no-route-found'
 }) => {
-  const { styles, theme } = useTheme(getStyles)
+  const { theme } = useTheme()
   const { t } = useTranslation()
 
   const getBadge = useMemo(() => {

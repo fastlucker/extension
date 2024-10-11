@@ -7,7 +7,6 @@ import { SocketAPIStep } from '@ambire-common/interfaces/swapAndBridge'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -16,7 +15,7 @@ import formatTime from '@common/utils/formatTime'
 
 import RouteStepsArrow from '../RouteStepsArrow'
 import RouteStepsToken from '../RouteStepsToken'
-import getStyles from './styles'
+import styles from './styles'
 
 const RouteStepsPreview = ({
   steps,
@@ -31,7 +30,6 @@ const RouteStepsPreview = ({
   currentStep?: number
   loadingEnabled?: boolean
 }) => {
-  const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
 
   const shouldWarnForLongEstimation = useMemo(() => {
