@@ -11,7 +11,8 @@ import styles from './AccountDropdown.module.scss'
 
 const AccountDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { connectedAccount, disconnectAccount, chainId } = useAccountContext()
+  const { lastConnectedV2Account, isConnectedAccountV2, disconnectAccount, chainId } =
+    useAccountContext()
   const { character } = useCharacterContext()
 
   const toggleIsOpen = () => setIsOpen((prev) => !prev)
@@ -37,11 +38,16 @@ const AccountDropdown = () => {
     }
   }, [])
 
-  if (!connectedAccount || !character) return null
+  if (!lastConnectedV2Account || !character) return null
 
   return (
-    <div className={styles.wrapper}>
-      <button className={styles.button} type="button" onClick={toggleIsOpen}>
+    <div className={`${styles.wrapper} ${isConnectedAccountV2 ? styles.connected : ''}`}>
+      <button
+        disabled={!isConnectedAccountV2}
+        className={styles.button}
+        type="button"
+        onClick={toggleIsOpen}
+      >
         <div className={styles.avatarWrapper}>
           <img alt="avatar" className={styles.avatar} src={character.image_avatar} />
         </div>
@@ -49,10 +55,16 @@ const AccountDropdown = () => {
           <Address
             skeletonClassName={styles.addressSkeleton}
             className={styles.address}
-            address={connectedAccount}
+            address={lastConnectedV2Account}
             maxAddressLength={12}
           />
-          <p className={styles.levelAndRank}>Level {character.level} / Rank 203</p>
+          {isConnectedAccountV2 ? (
+            <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
+              Level {character.level} / Rank 203
+            </p>
+          ) : (
+            <p className={styles.levelAndRank}>V2 Disconnected</p>
+          )}
         </div>
         <FontAwesomeIcon
           className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}

@@ -3,9 +3,10 @@ import React, { FC, useState } from 'react'
 import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from '@legends/components/Modal'
+import useAccountContext from '@legends/hooks/useAccountContext'
 import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
-import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
+import { EOA_ACCESSIBLE_CARDS, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import Badge from './Badge'
 import styles from './Card.module.scss'
 import CardActionComponent from './CardAction'
@@ -37,6 +38,7 @@ const getBadgeType = (reward: number, type: CardXpType) => {
 }
 
 const Card: FC<Props> = ({ title, image, description, children, xp, card, action }) => {
+  const { isConnectedAccountV2 } = useAccountContext()
   const isCompleted = card?.type === CardType.done
   const isRecurring = card?.type === CardType.recurring
   const shortenedDescription = description.length > 60 ? `${description.slice(0, 60)}...` : null
@@ -110,7 +112,14 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
           </div>
         </div>
         {!!action.type && (
-          <button className={styles.button} type="button" onClick={openActionModal}>
+          <button
+            disabled={
+              !isConnectedAccountV2 && !EOA_ACCESSIBLE_CARDS.includes(action.predefinedId || '')
+            }
+            className={styles.button}
+            type="button"
+            onClick={openActionModal}
+          >
             {buttonText}
           </button>
         )}
