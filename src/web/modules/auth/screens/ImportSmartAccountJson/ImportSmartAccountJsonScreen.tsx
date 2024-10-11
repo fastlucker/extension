@@ -35,6 +35,100 @@ import getStyles from './styles'
 
 type ImportedJson = Account & { privateKey: string; creation: AccountCreation }
 
+const validateJson = (json: ImportedJson): { error?: string; success: boolean } => {
+  if (!('addr' in json) || !isAddress(json.addr)) {
+    return {
+      error:
+        'Invalid address in json. Please check if it is present. If it is, make sure it is checksummed.',
+      success: false
+    }
+  }
+
+  if (
+    !('associatedKeys' in json) ||
+    !Array.isArray(json.associatedKeys) ||
+    json.associatedKeys.length !== 1
+  ) {
+    return {
+      error: 'Invalid associatedKeys in json. Please contact support.',
+      success: false
+    }
+  }
+
+  if (!('creation' in json)) {
+    return {
+      error: 'Creation data missing in provided json.',
+      success: false
+    }
+  }
+
+  const creation = json.creation
+  if (!('bytecode' in creation) || !isHexString(creation.bytecode)) {
+    return {
+      error: 'Invalid bytecode in provided json.',
+      success: false
+    }
+  }
+
+  if (
+    !('factoryAddr' in creation) ||
+    !isHexString(creation.factoryAddr) ||
+    !isAddress(creation.factoryAddr)
+  ) {
+    return {
+      error: 'Invalid factoryAddr in provided json.',
+      success: false
+    }
+  }
+
+  if (creation.factoryAddr !== AMBIRE_ACCOUNT_FACTORY) {
+    return {
+      error:
+        'factoryAddr in json is different than the factory for Ambire accounts. Are you importing an Ambire v1 account? Importing V1 accounts is not supported.',
+      success: false
+    }
+  }
+
+  if (!('salt' in creation) || !isHexString(creation.salt)) {
+    return {
+      error: 'Invalid salt in provided json.',
+      success: false
+    }
+  }
+
+  if (
+    !('initialPrivileges' in json) ||
+    !Array.isArray(json.initialPrivileges) ||
+    json.initialPrivileges.length !== 1 ||
+    !Array.isArray(json.initialPrivileges[0]) ||
+    json.initialPrivileges[0].length !== 2
+  ) {
+    return {
+      error: 'Invalid initialPrivileges in provided json.',
+      success: false
+    }
+  }
+
+  if (!('privateKey' in json) || !isValidPrivateKey(json.privateKey)) {
+    return {
+      error: 'Invalid privateKey in provided json.',
+      success: false
+    }
+  }
+
+  if (computeAddress(json.privateKey) !== getAddress(json.associatedKeys[0])) {
+    return {
+      error:
+        'PrivateKey and associatedKey address mismatch. Are you providing the correct private key?',
+      success: false
+    }
+  }
+
+  return {
+    success: true
+  }
+}
+
 const SmartAccountImportScreen = () => {
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
@@ -62,86 +156,6 @@ const SmartAccountImportScreen = () => {
     updateStepperState(WEB_ROUTES.importSmartAccountJson, 'import-json')
   }, [updateStepperState])
 
-  const isValidJson = (json: ImportedJson) => {
-    if (!('addr' in json) || !isAddress(json.addr)) {
-      setError(
-        'Invalid address in json. Please check if it is present. If it is, make sure it is checksummed.'
-      )
-      return false
-    }
-
-    if (
-      !('associatedKeys' in json) ||
-      !Array.isArray(json.associatedKeys) ||
-      json.associatedKeys.length !== 1
-    ) {
-      setError('Invalid associatedKeys in json. Please contact support.')
-      return false
-    }
-
-    if (!('creation' in json)) {
-      setError('Creation data missing in provided json.')
-      return false
-    }
-
-    const creation = json.creation
-    if (!('bytecode' in creation) || !isHexString(creation.bytecode)) {
-      setError('Invalid bytecode in provided json.')
-      return false
-    }
-
-    if (!('bytecode' in creation) || !isHexString(creation.bytecode)) {
-      setError('Invalid bytecode in provided json.')
-      return false
-    }
-
-    if (
-      !('factoryAddr' in creation) ||
-      !isHexString(creation.factoryAddr) ||
-      !isAddress(creation.factoryAddr)
-    ) {
-      setError('Invalid factoryAddr in provided json.')
-      return false
-    }
-
-    if (creation.factoryAddr !== AMBIRE_ACCOUNT_FACTORY) {
-      setError(
-        'factoryAddr in json is different than the factory for Ambire accounts. Are you importing an Ambire v1 account? Importing V1 accounts is not supported.'
-      )
-      return false
-    }
-
-    if (!('salt' in creation) || !isHexString(creation.salt)) {
-      setError('Invalid salt in provided json.')
-      return false
-    }
-
-    if (
-      !('initialPrivileges' in json) ||
-      !Array.isArray(json.initialPrivileges) ||
-      json.initialPrivileges.length !== 1 ||
-      !Array.isArray(json.initialPrivileges[0]) ||
-      json.initialPrivileges[0].length !== 2
-    ) {
-      setError('Invalid initialPrivileges in provided json.')
-      return false
-    }
-
-    if (!('privateKey' in json) || !isValidPrivateKey(json.privateKey)) {
-      setError('Invalid privateKey in provided json.')
-      return false
-    }
-
-    if (computeAddress(json.privateKey) !== getAddress(json.associatedKeys[0])) {
-      setError(
-        'PrivateKey and associatedKey address mismatch. Are you providing the correct private key?'
-      )
-      return false
-    }
-
-    return true
-  }
-
   const handleFileUpload = (files: any) => {
     setError('')
     setIsLoading(true)
@@ -156,8 +170,10 @@ const SmartAccountImportScreen = () => {
     file.text().then((contents: string) => {
       try {
         const accountData: ImportedJson = JSON.parse(contents)
-        if (!isValidJson(accountData)) {
+        const validation = validateJson(accountData)
+        if (!validation.success) {
           setIsLoading(false)
+          validation.error && setError(validation.error)
           return
         }
 

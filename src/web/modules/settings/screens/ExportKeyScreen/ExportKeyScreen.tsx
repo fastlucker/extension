@@ -52,32 +52,19 @@ const ExportKeyScreen = () => {
   })
   const { search } = useRoute()
   const params = new URLSearchParams(search)
-  const accountAddr = params.get('accountAddr')
 
+  const accountAddr = params.get('accountAddr')
   const account = useMemo(
     () => accounts.find((acc) => acc.addr === accountAddr),
     [accounts, accountAddr]
   )
-  // TODO: throw an error properly
-  if (!account) {
-    return (
-      <View>
-        <Text>Something went wrong</Text>
-      </View>
-    )
-  }
-
-  // TODO: throw an error properly
-  const keyAddr = params.get('keyAddr')
-  if (!keyAddr) {
-    return (
-      <View>
-        <Text>Something went wrong</Text>
-      </View>
-    )
-  }
-
   const isSA = isSmartAccount(account)
+
+  const keyAddr = params.get('keyAddr')
+  const key = useMemo(
+    () => keystoreState.keys.find((aKey) => aKey.addr === keyAddr),
+    [keystoreState.keys, keyAddr]
+  )
 
   useEffect(() => {
     const onReceiveOnTimeData = (data: any) => {
@@ -93,7 +80,7 @@ const ExportKeyScreen = () => {
 
   useEffect(() => {
     if (keystoreState.errorMessage) setError('password', { message: keystoreState.errorMessage })
-    else if (keystoreState.statuses.unlockWithSecret === 'SUCCESS') {
+    else if (keyAddr && keystoreState.statuses.unlockWithSecret === 'SUCCESS') {
       setPasswordConfirmed(true)
       dispatch({
         type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL',
@@ -129,6 +116,14 @@ const ExportKeyScreen = () => {
 
     return errors.password.message || t('Invalid password')
   }, [errors.password, passwordFieldValue.length, t])
+
+  if (!account || !key) {
+    return (
+      <View>
+        <Text>Something went wrong as the account/key was not found. Please contract support</Text>
+      </View>
+    )
+  }
 
   return (
     <View style={{ maxWidth: 440 }}>

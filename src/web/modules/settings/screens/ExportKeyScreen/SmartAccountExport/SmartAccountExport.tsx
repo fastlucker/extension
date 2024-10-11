@@ -8,8 +8,7 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
-
-import SettingsPageHeader from '../../../components/SettingsPageHeader'
+import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 interface Props {
   account: Account
