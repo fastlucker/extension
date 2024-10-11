@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Image, ImageProps, View, ViewStyle } from 'react-native'
 
-import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import useTheme from '@common/hooks/useTheme'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
-import flexbox from '@common/styles/utils/flexbox'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
@@ -54,70 +52,74 @@ const TokenIcon: React.FC<Props> = ({
   skeletonAppearance = 'primaryBackground',
   ...props
 }) => {
-  const { theme, styles } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
   const [uriStatus, setUriStatus] = useState<UriStatus>(UriStatus.UNKNOWN)
   const [imageUrl, setImageUrl] = useState<string | undefined>()
 
   const network = useMemo(
-    () =>
-      networks
-        ? networks.find((net) => net.id === networkId || Number(net.chainId) === chainId)
-        : predefinedNetworks.find((net) => net.id === networkId),
+    () => networks.find((net) => net.id === networkId || Number(net.chainId) === chainId),
     [networkId, chainId, networks]
   )
+
+  const handleImageLoaded = useCallback(() => setUriStatus(UriStatus.IMAGE_EXISTS), [])
+  const attemptToLoadFallbackImage = useCallback(async () => {
+    if (fallbackUri) {
+      const doesFallbackUriImageExists = await checkIfImageExists(fallbackUri)
+      if (doesFallbackUriImageExists) {
+        setImageUrl(fallbackUri)
+        setUriStatus(UriStatus.IMAGE_EXISTS)
+        return
+      }
+    }
+
+    setUriStatus(UriStatus.IMAGE_MISSING)
+    setImageUrl(undefined)
+  }, [fallbackUri])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      const hasAmbireUriRequiredData = network && network.platformId && address
+      const hasAmbireUriRequiredData = !!(network?.platformId && address)
       if (hasAmbireUriRequiredData) {
         const ambireUri = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
-        const doesAmbireUriImageExists = await checkIfImageExists(ambireUri)
-        if (doesAmbireUriImageExists) {
-          setImageUrl(ambireUri)
-          setUriStatus(UriStatus.IMAGE_EXISTS)
-          return
-        }
+        // Skip checking if the this image exists for optimizing network calls.
+        // Although the `checkIfImageExists` only retrieves headers (which is
+        // quick), in the cast majority of cases, the (default) ambire URI will exist.
+        // const doesAmbireUriImageExists = await checkIfImageExists(ambireUri)
+        setImageUrl(ambireUri)
+        setUriStatus(UriStatus.IMAGE_EXISTS)
+        return
       }
 
-      if (fallbackUri) {
-        const doesFallbackUriImageExists = await checkIfImageExists(fallbackUri)
-        if (doesFallbackUriImageExists) {
-          setImageUrl(fallbackUri)
-          setUriStatus(UriStatus.IMAGE_EXISTS)
-          return
-        }
-      }
-
-      setUriStatus(UriStatus.IMAGE_MISSING)
-      setImageUrl(undefined)
+      await attemptToLoadFallbackImage()
     })()
-  }, [address, network, fallbackUri])
+  }, [address, network?.platformId, fallbackUri, attemptToLoadFallbackImage])
 
-  const allContainerStyle = useMemo(
+  const memoizedContainerStyle = useMemo(
     () => [
       containerStyle,
-      ...(withContainer
-        ? [
-            {
-              width: containerWidth,
-              height: containerHeight,
-              backgroundColor: theme.secondaryBackground,
-              ...common.borderRadiusPrimary,
-              ...flexbox.alignCenter,
-              ...flexbox.justifyCenter
-            }
-          ]
-        : [])
+      {
+        width: withContainer ? containerWidth : width,
+        height: withContainer ? containerHeight : height
+      },
+      withContainer && styles.withContainerStyle
     ],
-    [containerStyle, withContainer, containerWidth, containerHeight, theme.secondaryBackground]
+    [
+      containerStyle,
+      withContainer,
+      containerWidth,
+      width,
+      containerHeight,
+      height,
+      styles.withContainerStyle
+    ]
   )
 
-  const setImageMissing = useCallback(() => setUriStatus(UriStatus.IMAGE_MISSING), [])
+  const shouldDisplayNetworkIcon = withNetworkIcon && !!network
 
   return (
-    <View style={allContainerStyle}>
+    <View style={memoizedContainerStyle}>
       {uriStatus === UriStatus.UNKNOWN ? (
         <SkeletonLoader
           width={width}
@@ -128,8 +130,6 @@ const TokenIcon: React.FC<Props> = ({
       ) : uriStatus === UriStatus.IMAGE_MISSING ? (
         <MissingTokenIcon
           withRect={withContainer}
-          // A bit larger when they don't have a container,
-          // because the SVG sizings are made with rectangle in mind
           width={withContainer ? containerWidth : width}
           height={withContainer ? containerHeight : height}
         />
@@ -138,11 +138,12 @@ const TokenIcon: React.FC<Props> = ({
           source={{ uri: imageUrl }}
           style={{ width, height, borderRadius: BORDER_RADIUS_PRIMARY }}
           // Just in case the URI is valid and image exists, but still fails to load
-          onError={setImageMissing}
+          onError={attemptToLoadFallbackImage}
+          onLoad={handleImageLoaded}
           {...props}
         />
       )}
-      {!!network && withNetworkIcon ? (
+      {shouldDisplayNetworkIcon && (
         <View
           style={[
             styles.networkIconWrapper,
@@ -158,7 +159,7 @@ const TokenIcon: React.FC<Props> = ({
             style={styles.networkIcon}
           />
         </View>
-      ) : null}
+      )}
     </View>
   )
 }
