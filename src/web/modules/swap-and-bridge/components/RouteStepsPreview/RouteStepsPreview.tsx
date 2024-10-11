@@ -73,7 +73,7 @@ const RouteStepsPreview = ({
 
   return (
     <View style={flexbox.flex1}>
-      <View style={styles.container}>
+      <View style={[styles.container, spacings.mb]}>
         {steps.map((step, i) => {
           const isFirst = i === 0
           const isOnlyOneStep = steps.length === 1
@@ -173,7 +173,7 @@ const RouteStepsPreview = ({
         })}
       </View>
       {(!!totalGasFeesInUsd || !!estimationInSeconds) && (
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pt]}>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text fontSize={12} weight="medium">
             {t('Total gas fees: {{fees}}', {
               fees: formatDecimals(totalGasFeesInUsd, 'price')

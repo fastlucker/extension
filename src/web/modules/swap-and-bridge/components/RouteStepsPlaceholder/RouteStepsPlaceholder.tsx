@@ -82,7 +82,7 @@ const RouteStepsPlaceholder = ({
           isLast
         />
       </View>
-      <Text>
+      <Text fontSize={12} weight="medium">
         <Text fontSize={12} weight="medium">
           {t('Total gas fees: {{fees}}', { fees: '-/-' })}
         </Text>
