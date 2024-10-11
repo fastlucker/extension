@@ -118,6 +118,8 @@ const TokenIcon: React.FC<Props> = ({
     ]
   )
 
+  const shouldDisplayNetworkIcon = withNetworkIcon && !!network
+
   return (
     <View style={memoizedContainerStyle}>
       {uriStatus === UriStatus.UNKNOWN ? (
@@ -143,7 +145,7 @@ const TokenIcon: React.FC<Props> = ({
           {...props}
         />
       )}
-      {!!network && withNetworkIcon ? (
+      {shouldDisplayNetworkIcon && (
         <View
           style={[
             styles.networkIconWrapper,
@@ -159,7 +161,7 @@ const TokenIcon: React.FC<Props> = ({
             style={styles.networkIcon}
           />
         </View>
-      ) : null}
+      )}
     </View>
   )
 }
