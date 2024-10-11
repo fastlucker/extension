@@ -38,12 +38,9 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const getCharacter = useCallback(async () => {
     if (!lastConnectedV2Account) {
       setCharacter(null)
-      setIsLoading(false)
+      setIsLoading(true)
       return
     }
-
-    setIsLoading(true)
-    setCharacter(null)
 
     const characterResponse = await fetch(
       `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
