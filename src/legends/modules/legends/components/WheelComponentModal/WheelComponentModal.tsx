@@ -145,7 +145,6 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           outerBorderWidth={16}
           fontFamily='"Roboto Slab", serif'
           fontSize={25}
-          disableInitialAnimation
           perpendicularText
           pointerProps={{
             src: '/images/pointer.png',
