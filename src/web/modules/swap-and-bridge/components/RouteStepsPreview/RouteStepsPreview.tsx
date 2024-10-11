@@ -15,6 +15,7 @@ import formatDecimals from '@common/utils/formatDecimals'
 import formatTime from '@common/utils/formatTime'
 
 import RouteStepsArrow from '../RouteStepsArrow'
+import RouteStepsToken from '../RouteStepsToken'
 import getStyles from './styles'
 
 const RouteStepsPreview = ({
@@ -74,30 +75,24 @@ const RouteStepsPreview = ({
     <View style={flexbox.flex1}>
       <View style={styles.container}>
         {steps.map((step, i) => {
+          const isFirst = i === 0
+          const isLast = i === steps.length - 1
+
           if (step.userTxIndex === undefined) {
             // eslint-disable-next-line no-param-reassign
             step.userTxIndex = 0
           }
 
-          if (i === steps.length - 1) {
+          if (isLast) {
             return (
               <Fragment key={step.type}>
                 <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-                  <View style={styles.tokenContainer}>
-                    <View style={styles.tokenWrapper}>
-                      <TokenIcon
-                        width={30}
-                        height={30}
-                        uri={step.fromAsset.icon}
-                        chainId={step.fromAsset.chainId}
-                        address={step.fromAsset.address}
-                        withNetworkIcon
-                      />
-                    </View>
-                    <Text fontSize={14} weight="medium">
-                      {step.fromAsset.symbol}
-                    </Text>
-                  </View>
+                  <RouteStepsToken
+                    uri={step.fromAsset.icon}
+                    chainId={step.fromAsset.chainId}
+                    address={step.fromAsset.address}
+                    symbol={step.fromAsset.symbol}
+                  />
                   <RouteStepsArrow
                     containerStyle={flexbox.flex1}
                     type={step.userTxIndex < currentStep ? 'success' : 'default'}
@@ -123,27 +118,14 @@ const RouteStepsPreview = ({
                     badgePosition="top"
                   />
                 </View>
-                <View style={styles.tokenContainer}>
-                  <View style={styles.tokenWrapper}>
-                    <TokenIcon
-                      width={30}
-                      height={30}
-                      uri={step.toAsset.icon}
-                      chainId={step.toAsset.chainId}
-                      address={step.toAsset.address}
-                      withNetworkIcon
-                    />
-                  </View>
-                  <Text
-                    fontSize={14}
-                    weight="medium"
-                    // @ts-ignore
-                    style={[!!formattedToAmount && flexbox.alignSelfEnd, { whiteSpace: 'nowrap' }]}
-                  >
-                    {formattedToAmount ? `${formattedToAmount} ` : ''}
-                    {step.toAsset.symbol}
-                  </Text>
-                </View>
+                <RouteStepsToken
+                  address={step.toAsset.address}
+                  chainId={step.toAsset.chainId}
+                  uri={step.toAsset.icon}
+                  symbol={step.toAsset.symbol}
+                  amount={formattedToAmount}
+                  isLast
+                />
               </Fragment>
             )
           }
@@ -153,30 +135,14 @@ const RouteStepsPreview = ({
               key={step.type}
               style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}
             >
-              <View style={styles.tokenContainer}>
-                <View style={styles.tokenWrapper}>
-                  <TokenIcon
-                    width={30}
-                    height={30}
-                    uri={step.fromAsset.icon}
-                    chainId={step.fromAsset.chainId}
-                    address={step.fromAsset.address}
-                    withNetworkIcon
-                  />
-                </View>
-                <Text
-                  fontSize={14}
-                  weight="medium"
-                  style={[
-                    i === 0 && !!formattedFromAmount && flexbox.alignSelfStart,
-                    // @ts-ignore
-                    { whiteSpace: 'nowrap' }
-                  ]}
-                >
-                  {i === 0 && !!formattedFromAmount ? `${formattedFromAmount} ` : ''}
-                  {step.fromAsset.symbol}
-                </Text>
-              </View>
+              <RouteStepsToken
+                address={step.fromAsset.address}
+                chainId={step.fromAsset.chainId}
+                uri={step.fromAsset.icon}
+                symbol={step.fromAsset.symbol}
+                amount={isFirst ? formattedFromAmount : ''}
+                isLast={false}
+              />
               <RouteStepsArrow
                 containerStyle={flexbox.flex1}
                 type={step.userTxIndex < currentStep ? 'success' : 'default'}
