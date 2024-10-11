@@ -38,7 +38,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const getCharacter = useCallback(async () => {
     if (!lastConnectedV2Account) {
       setCharacter(null)
-      setIsLoading(true)
+      setIsLoading(false)
       return
     }
 
