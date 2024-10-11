@@ -60,10 +60,7 @@ const TokenIcon: React.FC<Props> = ({
   const [imageUrl, setImageUrl] = useState<string | undefined>()
 
   const network = useMemo(
-    () =>
-      networks
-        ? networks.find((net) => net.id === networkId || Number(net.chainId) === chainId)
-        : predefinedNetworks.find((net) => net.id === networkId),
+    () => networks.find((net) => net.id === networkId || Number(net.chainId) === chainId),
     [networkId, chainId, networks]
   )
 
