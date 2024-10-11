@@ -37,9 +37,14 @@ export class BadgesController {
       this.badgesCount = this.#mainCtrl.actions.visibleActionsQueue.filter(
         (a) => a.type !== 'benzin'
       ).length
-      this.swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
+      const swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
         (b) => b.category === 'swap-and-bridge-ready'
       ).length
+
+      this.swapAndBridgeBannersCount =
+        this.#mainCtrl.signAccountOp && !!swapAndBridgeBannersCount
+          ? swapAndBridgeBannersCount - 1
+          : swapAndBridgeBannersCount
     })
 
     this.#mainCtrl.keystore.onUpdate(() => {
@@ -59,9 +64,14 @@ export class BadgesController {
     })
 
     this.#mainCtrl.swapAndBridge.onUpdate(() => {
-      this.swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
+      const swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
         (b) => b.category === 'swap-and-bridge-ready'
       ).length
+
+      this.swapAndBridgeBannersCount =
+        this.#mainCtrl.signAccountOp && !!swapAndBridgeBannersCount
+          ? swapAndBridgeBannersCount - 1
+          : swapAndBridgeBannersCount
     })
   }
 
