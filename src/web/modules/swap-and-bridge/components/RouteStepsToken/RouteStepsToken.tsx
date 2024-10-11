@@ -32,8 +32,7 @@ const RouteStepsToken: React.FC<Props> = ({
         width={30}
         height={30}
         address={address}
-        networkId={networkId}
-        chainId={chainId}
+        networkId={networkId || chainId}
         withNetworkIcon
       />
     </View>
