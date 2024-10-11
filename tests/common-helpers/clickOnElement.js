@@ -33,7 +33,7 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
 
     const isClickable = await page.evaluate((_selector) => {
       try {
-        const buttonElement = document.querySelector(selector)
+        const buttonElement = document.querySelector(_selector)
         const style = window.getComputedStyle(buttonElement)
         const isClickableByCSS = style.pointerEvents !== 'none'
 
@@ -51,8 +51,8 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
       return executeClick()
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 100)) // Retry after 100ms
-    return waitForClickable() // Recursively retry
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    return waitForClickable()
   }
 
   try {
