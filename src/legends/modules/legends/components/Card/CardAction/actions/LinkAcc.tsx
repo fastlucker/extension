@@ -2,12 +2,12 @@ import { BrowserProvider, Contract, Interface } from 'ethers'
 import React, { FC, useMemo, useState } from 'react'
 
 import Alert from '@legends/components/Alert'
+import Stepper from '@legends/components/Stepper'
 import { LEGENDS_CONTRACT_ABI } from '@legends/constants/abis/summon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 
-import Stepper from '../../../Stepper/Stepper'
 import styles from './Action.module.scss'
 import CardActionWrapper from './CardActionWrapper'
 
