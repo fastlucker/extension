@@ -1,12 +1,8 @@
-import { BrowserProvider, Contract, getAddress, Interface } from 'ethers'
 import React, { FC, useState } from 'react'
 
-import { isValidAddress } from '@ambire-common/services/address'
 import Input from '@legends/components/Input'
-import { SUMMON_ABI } from '@legends/constants/abis/summon'
-import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
-import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useToast from '@legends/hooks/useToast'
+import { useInviteEOA } from '@legends/modules/legends/hooks'
 
 import CardActionWrapper from './CardActionWrapper'
 
@@ -15,41 +11,22 @@ type Props = {
   onComplete: () => void
 }
 
-const SUMMON_INTERFACE = new Interface(SUMMON_ABI)
-
 const SummonEOA: FC<Props> = ({ buttonText, onComplete }) => {
   const { addToast } = useToast()
-  const [eoaAddress, setEoaAddress] = useState('')
+  const {
+    inviteEOA,
+    switchNetwork,
+    eoaAddress,
+    setEoaAddress,
+    isEOAAddressValid: isValid
+  } = useInviteEOA()
   const [isInProgress, setIsInProgress] = useState(false)
 
-  const isValid = isValidAddress(eoaAddress)
-
-  const switchNetwork = async () => {
-    // Request a chain change to base and a sign message to associate the EOA address
+  const onButtonClick = async () => {
     try {
-      await window.ambire.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: BASE_CHAIN_ID }]
-      })
-    } catch {
-      addToast('Failed to switch to Base Network', 'error')
-    }
-  }
-
-  const inviteEOA = async () => {
-    const checksummedAddress = getAddress(eoaAddress)
-
-    try {
-      setEoaAddress('')
+      await switchNetwork()
       setIsInProgress(true)
-
-      const provider = new BrowserProvider(window.ethereum)
-      const signer = await provider.getSigner()
-
-      const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, SUMMON_INTERFACE, signer)
-
-      await contract.invite(checksummedAddress)
-
+      await inviteEOA()
       addToast('Successfully invited EOA address', 'success')
       onComplete()
     } catch (e: any) {
@@ -58,11 +35,6 @@ const SummonEOA: FC<Props> = ({ buttonText, onComplete }) => {
     } finally {
       setIsInProgress(false)
     }
-  }
-
-  const onButtonClick = async () => {
-    await switchNetwork()
-    await inviteEOA()
   }
 
   return (

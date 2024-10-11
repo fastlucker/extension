@@ -6,12 +6,12 @@ import useCharacterContext from '@legends/hooks/useCharacterContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 const PrivateRoute = () => {
-  const { connectedAccount, isLoading } = useAccountContext()
+  const { connectedAccount, lastConnectedV2Account, isLoading } = useAccountContext()
   const { character, isLoading: isCharacterLoading } = useCharacterContext()
 
   if (isLoading) return <div />
 
-  if (!connectedAccount) return <Navigate to="/" />
+  if (!connectedAccount || !lastConnectedV2Account) return <Navigate to="/" />
 
   // Don't allow loading the Outlet component if the character is not loaded or is in the process of loading.
   if (!character || isCharacterLoading) return <div />

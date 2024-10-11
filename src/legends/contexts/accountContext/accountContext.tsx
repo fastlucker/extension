@@ -4,24 +4,35 @@ import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import { RELAYER_URL } from '@env'
 
 const accountContext = createContext<{
+  lastConnectedV2Account: string | null
   connectedAccount: string | null
   chainId: bigint | null
+  isConnectedAccountV2: boolean
   isLoading: boolean
   error: string | null
   requestAccounts: () => void
   disconnectAccount: () => void
 }>({
+  lastConnectedV2Account: null,
   connectedAccount: null,
   chainId: null,
+  isConnectedAccountV2: false,
   isLoading: true,
   error: null,
   requestAccounts: () => {},
   disconnectAccount: () => {}
 })
 
+const LOCAL_STORAGE_ACC_KEY = 'connectedAccount'
+
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [connectedAccount, setConnectedAccount] = React.useState<string | null>(null)
+  const [lastConnectedV2Account, setLastConnectedV2Account] = React.useState<string | null>(() => {
+    const storedAccount = localStorage.getItem(LOCAL_STORAGE_ACC_KEY)
+
+    return storedAccount || null
+  })
   const [chainId, setChainId] = React.useState<bigint | null>(null)
+  const [connectedAccount, setConnectedAccount] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -62,18 +73,24 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     return BigInt(connectedOnChainId)
   }, [])
 
-  const validateAndSetAccount = useCallback(async (address: string) => {
-    const identity = await getIdentity(address, fetch as any, RELAYER_URL)
+  const validateAndSetAccount = useCallback(
+    async (address: string) => {
+      setConnectedAccount(address)
+      const identity = await getIdentity(address, fetch as any, RELAYER_URL)
 
-    if (!identity.creation) {
-      setConnectedAccount(null)
-      setError('You are trying to connect a non Ambire v2 account. Please switch your account!')
-      return
-    }
+      if (!identity.creation) {
+        if (!lastConnectedV2Account) {
+          setError('You are trying to connect a non Ambire v2 account. Please switch your account!')
+        }
+        return
+      }
 
-    setError(null)
-    setConnectedAccount(address)
-  }, [])
+      setError(null)
+      setLastConnectedV2Account(address)
+      localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
+    },
+    [lastConnectedV2Account]
+  )
 
   useEffect(() => {
     getChainId()
@@ -95,13 +112,25 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   // while on Account disconnect, we simply reload the Legends, which resets all the hooks state.
   useEffect(() => {
     const onAccountsChanged = async (accounts: string[]) => {
+      if (!accounts.length) {
+        setConnectedAccount(null)
+        setLastConnectedV2Account(null)
+        setIsLoading(false)
+        localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
+        return
+      }
+
       await validateAndSetAccount(accounts[0])
       setIsLoading(false)
     }
 
     getConnectedAccount()
       .then(async (account) => {
-        if (!account) return
+        if (!account) {
+          localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
+          setIsLoading(false)
+          return
+        }
 
         await validateAndSetAccount(account)
         setIsLoading(false)
@@ -110,7 +139,6 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
     // The `accountsChanged` event is fired when the account is connected, changed or disconnected by the extension.
     window.ambire?.on('accountsChanged', onAccountsChanged)
-    window.ambire?.on('chainChanged', (newChainId: string) => setChainId(BigInt(newChainId)))
 
     return () => {
       window.ambire.removeListener('accountsChanged', onAccountsChanged)
@@ -119,14 +147,24 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   const contextValue = useMemo(
     () => ({
+      lastConnectedV2Account,
       connectedAccount,
+      isConnectedAccountV2: connectedAccount === lastConnectedV2Account,
       error,
       requestAccounts,
       disconnectAccount,
       chainId,
       isLoading
     }),
-    [connectedAccount, error, requestAccounts, disconnectAccount, chainId, isLoading]
+    [
+      lastConnectedV2Account,
+      connectedAccount,
+      error,
+      requestAccounts,
+      disconnectAccount,
+      chainId,
+      isLoading
+    ]
   )
 
   return <accountContext.Provider value={contextValue}>{children}</accountContext.Provider>

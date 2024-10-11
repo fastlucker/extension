@@ -17,7 +17,7 @@ const LeaderboardContainer: React.FC = () => {
   const [leaderboardData, setLeaderboardData] = useState<Array<LeaderboardEntry>>([])
   const [userLeaderboardData, setUserLeaderboardData] = useState<LeaderboardEntry | null>(null)
 
-  const { connectedAccount } = useAccountContext()
+  const { lastConnectedV2Account } = useAccountContext()
 
   const tableRef = useRef<HTMLDivElement>(null)
 
@@ -29,7 +29,9 @@ const LeaderboardContainer: React.FC = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const { leaderboard, currentUser } = await getLeaderboard(connectedAccount ?? undefined)
+        const { leaderboard, currentUser } = await getLeaderboard(
+          lastConnectedV2Account ?? undefined
+        )
 
         setLeaderboardData(leaderboard)
         currentUser && setUserLeaderboardData(currentUser)
@@ -41,7 +43,7 @@ const LeaderboardContainer: React.FC = () => {
     }
 
     fetchLeaderboard()
-  }, [connectedAccount])
+  }, [lastConnectedV2Account])
 
   const sortedData = useMemo(
     () =>
