@@ -54,7 +54,7 @@ const TokenIcon: React.FC<Props> = ({
   skeletonAppearance = 'primaryBackground',
   ...props
 }) => {
-  const { theme, styles } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
   const [uriStatus, setUriStatus] = useState<UriStatus>(UriStatus.UNKNOWN)
   const [imageUrl, setImageUrl] = useState<string | undefined>()
@@ -95,29 +95,30 @@ const TokenIcon: React.FC<Props> = ({
     })()
   }, [address, network, fallbackUri])
 
-  const allContainerStyle = useMemo(
-    () => [
-      containerStyle,
-      ...(withContainer
-        ? [
-            {
-              width: containerWidth,
-              height: containerHeight,
-              backgroundColor: theme.secondaryBackground,
-              ...common.borderRadiusPrimary,
-              ...flexbox.alignCenter,
-              ...flexbox.justifyCenter
-            }
-          ]
-        : [])
-    ],
-    [containerStyle, withContainer, containerWidth, containerHeight, theme.secondaryBackground]
-  )
-
   const setImageMissing = useCallback(() => setUriStatus(UriStatus.IMAGE_MISSING), [])
 
+  const memoizedContainerStyle = useMemo(
+    () => [
+      containerStyle,
+      {
+        width: withContainer ? containerWidth : width,
+        height: withContainer ? containerHeight : height
+      },
+      withContainer && styles.withContainerStyle
+    ],
+    [
+      containerStyle,
+      withContainer,
+      containerWidth,
+      width,
+      containerHeight,
+      height,
+      styles.withContainerStyle
+    ]
+  )
+
   return (
-    <View style={allContainerStyle}>
+    <View style={memoizedContainerStyle}>
       {uriStatus === UriStatus.UNKNOWN ? (
         <SkeletonLoader
           width={width}
@@ -128,8 +129,6 @@ const TokenIcon: React.FC<Props> = ({
       ) : uriStatus === UriStatus.IMAGE_MISSING ? (
         <MissingTokenIcon
           withRect={withContainer}
-          // A bit larger when they don't have a container,
-          // because the SVG sizings are made with rectangle in mind
           width={withContainer ? containerWidth : width}
           height={withContainer ? containerHeight : height}
         />
