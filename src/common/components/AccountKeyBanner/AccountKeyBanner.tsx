@@ -11,8 +11,7 @@ import { iconColors } from '@common/styles/themeConfig'
 import Wrapper from './Wrapper'
 
 const AccountKeyBanner = ({ type }: { type: Key['type'] }) => {
-  /* eslint-disable react/jsx-no-useless-fragment */
-  if (type === 'none') return <></>
+  if (type === 'none') return null
 
   const { theme } = useTheme()
 
