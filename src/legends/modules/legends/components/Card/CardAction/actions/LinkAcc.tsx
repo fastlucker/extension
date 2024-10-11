@@ -1,10 +1,11 @@
 import { BrowserProvider, Contract, Interface } from 'ethers'
-import React, { FC, useMemo, useState } from 'react'
+import React, { FC, useCallback, useMemo, useState } from 'react'
 
 import Alert from '@legends/components/Alert'
 import Stepper from '@legends/components/Stepper'
 import { LEGENDS_CONTRACT_ABI } from '@legends/constants/abis/summon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
+import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 
@@ -50,51 +51,81 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
     return false
   }, [activeStep, isConnectedAccountV2, messageSignedForV2Account, connectedAccount])
 
-  const onButtonClick = async () => {
+  const changeNetworkToBase = useCallback(async () => {
+    try {
+      await window.ambire.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: BASE_CHAIN_ID }]
+      })
+    } catch (e) {
+      console.error(e)
+      addToast('Failed to switch network', 'error')
+    }
+  }, [addToast])
+
+  const signV1OrBasicAccountMessage = useCallback(async () => {
     if (!lastConnectedV2Account) return
 
-    if (activeStep === 1) {
-      try {
-        setIsInProgress(true)
-        const signature = await window.ambire.request({
-          method: 'personal_sign',
-          params: [`Assign to Ambire Legends ${lastConnectedV2Account}`, connectedAccount]
-        })
-        setMessageSignedForV2Account(lastConnectedV2Account)
+    try {
+      setIsInProgress(true)
+      const signature = await window.ambire.request({
+        method: 'personal_sign',
+        params: [`Assign to Ambire Legends ${lastConnectedV2Account}`, connectedAccount]
+      })
+      setMessageSignedForV2Account(lastConnectedV2Account)
 
-        if (typeof signature !== 'string') throw new Error('Invalid signature')
+      if (typeof signature !== 'string') throw new Error('Invalid signature')
 
-        setV1OrBasicSignature(signature)
-      } catch (e) {
-        console.error(e)
-        addToast('Failed to sign message', 'error')
-      } finally {
-        setIsInProgress(false)
-      }
-    } else if (activeStep === 3) {
-      try {
-        setIsInProgress(true)
-        const provider = new BrowserProvider(window.ethereum)
-        const signer = await provider.getSigner()
-
-        const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, LEGENDS_CONTRACT_INTERFACE, signer)
-
-        await contract.linkAndAcceptInvite(
-          lastConnectedV2Account,
-          connectedAccount,
-          lastConnectedV2Account,
-          v1OrBasicSignature
-        )
-        onComplete()
-        addToast('Successfully linked accounts', 'success')
-      } catch (e) {
-        console.error(e)
-        addToast('Failed to sign transaction', 'error')
-      } finally {
-        setIsInProgress(false)
-      }
+      setV1OrBasicSignature(signature)
+    } catch (e) {
+      console.error(e)
+      addToast('Failed to sign message', 'error')
+    } finally {
+      setIsInProgress(false)
     }
-  }
+  }, [addToast, connectedAccount, lastConnectedV2Account])
+
+  const sendV2Transaction = useCallback(async () => {
+    try {
+      setIsInProgress(true)
+      const provider = new BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+
+      const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, LEGENDS_CONTRACT_INTERFACE, signer)
+
+      await contract.linkAndAcceptInvite(
+        lastConnectedV2Account,
+        connectedAccount,
+        lastConnectedV2Account,
+        v1OrBasicSignature
+      )
+      onComplete()
+      addToast('Successfully linked accounts', 'success')
+    } catch (e) {
+      console.error(e)
+      addToast('Failed to sign transaction', 'error')
+    } finally {
+      setIsInProgress(false)
+    }
+  }, [lastConnectedV2Account, connectedAccount, v1OrBasicSignature, onComplete, addToast])
+
+  const onButtonClick = useCallback(async () => {
+    if (!lastConnectedV2Account) return
+
+    await changeNetworkToBase()
+
+    if (activeStep === 1) {
+      await signV1OrBasicAccountMessage()
+    } else if (activeStep === 3) {
+      await sendV2Transaction()
+    }
+  }, [
+    activeStep,
+    changeNetworkToBase,
+    lastConnectedV2Account,
+    sendV2Transaction,
+    signV1OrBasicAccountMessage
+  ])
 
   return (
     <CardActionWrapper
