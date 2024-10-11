@@ -41,7 +41,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
   const { isConnectedAccountV2 } = useAccountContext()
   const isCompleted = card?.type === CardType.done
   const isRecurring = card?.type === CardType.recurring
-  const shortenedDescription = description.length > 60 ? `${description.slice(0, 60)}...` : null
+  const shortenedDescription = description.length > 55 ? `${description.slice(0, 55)}...` : null
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
 
