@@ -13,8 +13,8 @@ import { SkeletonLoaderProps } from '../SkeletonLoader/types'
 import getStyles from './styles'
 
 interface Props extends Partial<ImageProps> {
-  networkId?: string
-  chainId?: number
+  /* supports network id or chain id */
+  networkId?: string | number
   address?: string
   containerStyle?: ViewStyle
   withContainer?: boolean
@@ -36,8 +36,7 @@ enum UriStatus {
 }
 
 const TokenIcon: React.FC<Props> = ({
-  networkId = '',
-  chainId,
+  networkId: networkIdOrChainId,
   address = '',
   uri: fallbackUri,
   withContainer = false,
@@ -58,8 +57,12 @@ const TokenIcon: React.FC<Props> = ({
   const [imageUrl, setImageUrl] = useState<string | undefined>()
 
   const network = useMemo(
-    () => networks.find((net) => net.id === networkId || Number(net.chainId) === chainId),
-    [networkId, chainId, networks]
+    () =>
+      networks.find((n) => {
+        const isNetworkId = typeof networkIdOrChainId === 'string'
+        return isNetworkId ? n.id === networkIdOrChainId : Number(n.chainId) === networkIdOrChainId
+      }),
+    [networkIdOrChainId, networks]
   )
 
   const handleImageLoaded = useCallback(() => setUriStatus(UriStatus.IMAGE_EXISTS), [])
