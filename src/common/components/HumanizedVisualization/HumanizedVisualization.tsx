@@ -105,7 +105,7 @@ const HumanizedVisualization: FC<Props> = ({
             <ManifestImage
               uri={item.content}
               containerStyle={spacings.mrSm}
-              size={48}
+              size={36}
               skeletonAppearance="primaryBackground"
               fallback={() => (
                 <View
@@ -136,9 +136,7 @@ const HumanizedVisualization: FC<Props> = ({
               key={key}
               style={{ maxWidth: '100%', marginRight }}
               fontSize={textSize}
-              weight={
-                item.type === 'label' ? 'regular' : item.type === 'action' ? 'semiBold' : 'medium'
-              }
+              weight={item.isBold || item.type === 'action' ? 'semiBold' : 'regular'}
               appearance={
                 item.type === 'label'
                   ? 'secondaryText'
