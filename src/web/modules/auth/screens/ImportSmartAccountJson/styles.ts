@@ -1,6 +1,5 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
@@ -15,13 +14,13 @@ const getStyles = (theme: ThemeProps) =>
     dropAreaContainer: {
       width: '100%',
       height: 220,
-      backgroundColor: colors.melrose_15,
+      backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.ph,
       ...spacings.pv,
       ...common.shadowPrimary,
       borderWidth: 1,
-      borderColor: colors.scampi_20,
+      borderColor: theme.featureBackground,
       // @ts-ignore
       cursor: 'pointer',
       ...spacings.mbMd

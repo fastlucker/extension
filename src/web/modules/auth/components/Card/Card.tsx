@@ -16,7 +16,7 @@ import getStyles from './styles'
 
 interface Props {
   style?: ViewStyle | ViewStyle[]
-  titleStyle?: ViewStyle[]
+  titleStyle?: TextStyle[]
   text?: string | React.ReactNode
   textStyle?: TextStyle | TextStyle[]
   title?: string

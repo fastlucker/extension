@@ -18,7 +18,6 @@ const TypeBadge: FC<Props> = ({ isSmart, type, showTooltip = false }) => {
   const { theme } = useTheme()
   const badgePreset = isSmart ? BADGE_PRESETS['smart-account'] : BADGE_PRESETS['basic-account']
   const tooltipId = uuidv4()
-  // console.log(showTooltip)
 
   return (
     <>

@@ -69,8 +69,6 @@ const CreateSeedPhraseConfirmScreen = () => {
     })
   })
 
-  console.log(accountAdderState)
-
   useEffect(() => {
     if (
       accountAdderState.isInitialized &&

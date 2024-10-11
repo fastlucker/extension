@@ -44,7 +44,7 @@ const useGetAddAccountOptions = ({
   return [
     {
       key: 'hot-wallet',
-      text: t('Import existing wallets'),
+      text: t('Import existing accounts'),
       icon: ImportAccountIcon,
       onPress: () => navigateWrapped(ROUTES.importHotWallet),
       testID: 'import-existing-wallet'

@@ -21,7 +21,6 @@ import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -30,6 +29,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+import submenuOptions from './submenuOptions'
 
 const { isTab } = getUiType()
 
@@ -199,15 +199,7 @@ const Account = ({
               isSettings={isSettings}
             />
           )}
-          {isSettings && (
-            <Dropdown
-              data={[
-                { label: 'Manage Keys', value: 'keys' },
-                { label: 'Remove Account', value: 'remove', style: { color: iconColors.danger } }
-              ]}
-              onSelect={onDropdownSelect}
-            />
-          )}
+          {isSettings && <Dropdown data={submenuOptions} onSelect={onDropdownSelect} />}
         </View>
       </Animated.View>
       <Dialog

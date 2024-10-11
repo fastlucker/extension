@@ -2,9 +2,8 @@ import { useLocation } from 'react-router-dom'
 
 import { UseRouteReturnType } from './types'
 
-function getSearchParamsAsObject() {
-  const route = useLocation()
-  const params = new URLSearchParams(route.search)
+function getSearchParamsAsObject(search: string) {
+  const params = new URLSearchParams(search)
   const paramsObject: any = {}
 
   // eslint-disable-next-line no-restricted-syntax
@@ -20,7 +19,7 @@ const useRoute = (): UseRouteReturnType => {
 
   return {
     ...route,
-    params: route.state || getSearchParamsAsObject() || {},
+    params: route.state || getSearchParamsAsObject(route.search) || {},
     path: route.pathname
   }
 }
