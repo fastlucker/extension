@@ -123,8 +123,16 @@ export async function makeSwap(
 ) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
-  // Wait until modal with text "Introducing the Uniswap Extension." appears
-  await page.waitForXPath('//div[contains(text(), "Introducing the Uniswap Extension.")]')
+  const hasUnichainModal = await page.waitForSelector(
+    'xpath///span[contains(text(), "Introducing Unichain")]',
+    { timeout: 3000 }
+  )
+
+  if (hasUnichainModal) {
+    const dismissButton = await page.waitForSelector('xpath///span[contains(text(), "Dismiss")]')
+
+    await dismissButton.click()
+  }
 
   // Click somewhere just to hide the modal
   await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
