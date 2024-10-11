@@ -40,7 +40,6 @@ const AccountDropdown = () => {
 
   if (!lastConnectedV2Account || !character) return null
 
-  // TODO: UI change if lastConnectedV2Account is not connected
   return (
     <div className={`${styles.wrapper} ${isConnectedAccountV2 ? styles.connected : ''}`}>
       <button
