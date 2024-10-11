@@ -67,35 +67,39 @@ const TokenIcon: React.FC<Props> = ({
     [networkId, chainId, networks]
   )
 
+  const handleImageLoaded = useCallback(() => setUriStatus(UriStatus.IMAGE_EXISTS), [])
+  const attemptToLoadFallbackImage = useCallback(async () => {
+    if (fallbackUri) {
+      const doesFallbackUriImageExists = await checkIfImageExists(fallbackUri)
+      if (doesFallbackUriImageExists) {
+        setImageUrl(fallbackUri)
+        setUriStatus(UriStatus.IMAGE_EXISTS)
+        return
+      }
+    }
+
+    setUriStatus(UriStatus.IMAGE_MISSING)
+    setImageUrl(undefined)
+  }, [fallbackUri])
+
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       const hasAmbireUriRequiredData = !!(network?.platformId && address)
       if (hasAmbireUriRequiredData) {
         const ambireUri = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
-        const doesAmbireUriImageExists = await checkIfImageExists(ambireUri)
-        if (doesAmbireUriImageExists) {
-          setImageUrl(ambireUri)
-          setUriStatus(UriStatus.IMAGE_EXISTS)
-          return
-        }
+        // Skip checking if the this image exists for optimizing network calls.
+        // Although the `checkIfImageExists` only retrieves headers (which is
+        // quick), in the cast majority of cases, the (default) ambire URI will exist.
+        // const doesAmbireUriImageExists = await checkIfImageExists(ambireUri)
+        setImageUrl(ambireUri)
+        setUriStatus(UriStatus.IMAGE_EXISTS)
+        return
       }
 
-      if (fallbackUri) {
-        const doesFallbackUriImageExists = await checkIfImageExists(fallbackUri)
-        if (doesFallbackUriImageExists) {
-          setImageUrl(fallbackUri)
-          setUriStatus(UriStatus.IMAGE_EXISTS)
-          return
-        }
-      }
-
-      setUriStatus(UriStatus.IMAGE_MISSING)
-      setImageUrl(undefined)
+      await attemptToLoadFallbackImage()
     })()
-  }, [address, network?.platformId, fallbackUri])
-
-  const setImageMissing = useCallback(() => setUriStatus(UriStatus.IMAGE_MISSING), [])
+  }, [address, network?.platformId, fallbackUri, attemptToLoadFallbackImage])
 
   const memoizedContainerStyle = useMemo(
     () => [
@@ -137,7 +141,8 @@ const TokenIcon: React.FC<Props> = ({
           source={{ uri: imageUrl }}
           style={{ width, height, borderRadius: BORDER_RADIUS_PRIMARY }}
           // Just in case the URI is valid and image exists, but still fails to load
-          onError={setImageMissing}
+          onError={attemptToLoadFallbackImage}
+          onLoad={handleImageLoaded}
           {...props}
         />
       )}
