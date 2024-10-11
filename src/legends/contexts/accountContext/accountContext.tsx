@@ -26,13 +26,17 @@ const accountContext = createContext<{
 const LOCAL_STORAGE_ACC_KEY = 'connectedAccount'
 
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
+  // We keep track of the last connected v2 account so users can access Legends with the
+  // state of the last connected account, even if they switch to a non-v2 account. This is
+  // useful for actions which require a message/transaction to be signed with a Basic Account/v1.
   const [lastConnectedV2Account, setLastConnectedV2Account] = React.useState<string | null>(() => {
     const storedAccount = localStorage.getItem(LOCAL_STORAGE_ACC_KEY)
 
     return storedAccount || null
   })
-  const [chainId, setChainId] = React.useState<bigint | null>(null)
+  // Can be Basic Account/Ambire v1 or v2
   const [connectedAccount, setConnectedAccount] = React.useState<string | null>(null)
+  const [chainId, setChainId] = React.useState<bigint | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
