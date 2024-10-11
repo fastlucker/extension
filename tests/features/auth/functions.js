@@ -46,13 +46,15 @@ export async function finishStoriesAndSelectAccount(page) {
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
-  const addedAccounts = await page.$$eval(SELECTORS.addAccountField, (elements) =>
+  // Get an array with all the account addresses from the list
+  const accountAddresses = await page.$$eval(SELECTORS.addAccountField, (elements) =>
     elements.map((element) => element.innerText)
   )
 
-  const [firstAddress, secondAddress] = addedAccounts
+  // Take the first two accounts from the list
+  const [firstAddress, secondAddress] = accountAddresses
 
-  // Select one Legacy account and one Smart account
+  // if exist generate selectors for these account addresses
   const firstAddrSelector = firstAddress
     ? buildSelector(TEST_IDS.addAccount, firstAddress)
     : undefined
@@ -63,12 +65,12 @@ export async function finishStoriesAndSelectAccount(page) {
   if (firstAddrSelector) await clickOnElement(page, firstAddrSelector)
   if (secondAddrSelector) await clickOnElement(page, secondAddrSelector)
 
-  const firstSelectedBasicAccount = firstAddrSelector
+  const firstSelectedAccount = firstAddrSelector
     ? await page.$eval(firstAddrSelector, (element) => {
         return element.textContent
       })
     : null
-  const firstSelectedSmartAccount = secondAddrSelector
+  const secondSelectedAccount = secondAddrSelector
     ? await page.$eval(secondAddrSelector, (element) => {
         return element.textContent
       })
@@ -81,7 +83,7 @@ export async function finishStoriesAndSelectAccount(page) {
   ])
   const currentUrl = page.url()
   expect(currentUrl).toContain('/account-personalize')
-  return { firstSelectedBasicAccount, firstSelectedSmartAccount }
+  return { firstSelectedAccount, secondSelectedAccount }
 }
 
 export async function typeSeedWords(page, passphraseWords) {
@@ -398,8 +400,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
 
   await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
 
-  const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-    await finishStoriesAndSelectAccount(page)
+  const { firstSelectedAccount, secondSelectedAccount } = await finishStoriesAndSelectAccount(page)
 
   const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
   await personalizeAccountName(page, accountName1, 0)
@@ -416,7 +417,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
     page,
     SELECTORS.account,
     [accountName1, accountName2],
-    [firstSelectedBasicAccount, firstSelectedSmartAccount]
+    [firstSelectedAccount, secondSelectedAccount]
   )
 }
 

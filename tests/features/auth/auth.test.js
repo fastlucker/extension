@@ -106,7 +106,7 @@ describe('auth', () => {
 
     await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
-    const firstSelectedBasicAccount = await page.$eval(SELECTORS.addAccountField, (element) => {
+    const selectedAccount = await page.$eval(SELECTORS.addAccountField, (element) => {
       return element.textContent
     })
 
@@ -125,7 +125,7 @@ describe('auth', () => {
     await page.waitForSelector(SELECTORS.account)
 
     // Verify that selected accounts exist on the page
-    await checkAccountDetails(page, SELECTORS.account, [firstSelectedBasicAccount])
+    await checkAccountDetails(page, SELECTORS.account, [selectedAccount])
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -322,7 +322,6 @@ describe('auth', () => {
     await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
 
     // Select BIP 44 Ledger Live and select import account
-
     await selectHdPathAndAddAccount(page, SELECTORS.optionBip44LedgerLive)
 
     await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)

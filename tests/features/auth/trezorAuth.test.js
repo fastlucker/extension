@@ -96,8 +96,9 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
     await interactWithTrezorConnectPage(trezorConnectPage)
 
     // Complete the account selection and interaction process
-    const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page)
+    const { firstSelectedAccount, secondSelectedAccount } = await finishStoriesAndSelectAccount(
+      page
+    )
 
     const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
     await personalizeAccountName(page, accountName1, 0)
@@ -112,7 +113,7 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
       page,
       SELECTORS.account,
       [accountName1, accountName2],
-      [firstSelectedBasicAccount, firstSelectedSmartAccount]
+      [firstSelectedAccount, secondSelectedAccount]
     )
   })
 })
