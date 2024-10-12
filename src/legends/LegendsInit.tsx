@@ -1,32 +1,38 @@
 import React from 'react'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { BrowserRouter } from 'react-router-dom'
 
-import { ToastProvider } from '@common/contexts/toastContext'
-import useFonts from '@common/hooks/useFonts'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
+import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 
+import { DomainsContextProvider } from '../common/contexts/domainsContext'
+import { AccountContextProvider } from './contexts/accountContext'
+import { CharacterContextProvider } from './contexts/characterContext'
+import { PortfolioControllerStateProvider } from './contexts/portfolioControllerStateContext'
+import { ToastContextProvider } from './contexts/toastsContext'
 import Router from './modules/router/Router'
 
-const BenzinInit = () => {
-  const { fontsLoaded, robotoFontsLoaded } = useFonts()
+declare global {
+  interface Window {
+    ambire: EthereumProvider
+  }
+}
 
-  if (!fontsLoaded && !robotoFontsLoaded) return null
-
+const LegendsInit = () => {
   return (
-    <BrowserRouter>
-      <PortalProvider>
-        <SafeAreaProvider>
-          {/* TODO: Theme provider is purposefully missing because the theme is not yet implemented and
-          the colours will most likely be different from the ones in themeConfig.ts */}
-          <ToastProvider>
-            <Router />
-            <PortalHost name="global" />
-          </ToastProvider>
-        </SafeAreaProvider>
-      </PortalProvider>
-    </BrowserRouter>
+    <PortalProvider>
+      <ToastContextProvider>
+        <AccountContextProvider>
+          <CharacterContextProvider>
+            <PortfolioControllerStateProvider>
+              <DomainsContextProvider>
+                <Router />
+              </DomainsContextProvider>
+            </PortfolioControllerStateProvider>
+          </CharacterContextProvider>
+        </AccountContextProvider>
+      </ToastContextProvider>
+      <PortalHost name="global" />
+    </PortalProvider>
   )
 }
 
-export default BenzinInit
+export default LegendsInit

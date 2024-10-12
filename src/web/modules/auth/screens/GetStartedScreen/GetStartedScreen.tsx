@@ -13,6 +13,7 @@ import getPanelStyles from '@common/components/Panel/styles'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
@@ -25,6 +26,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
@@ -35,6 +37,7 @@ import { TERMS_VERSION } from '@web/modules/terms/screens/Terms'
 
 import HotWalletCreateCards from '../../components/HotWalletCreateCards'
 import { ONBOARDING_VERSION } from '../../components/Stories/Stories'
+import { showEmailVaultInterest } from '../../utils/emailVault'
 import getStyles from './styles'
 
 const GetStartedScreen = () => {
@@ -42,7 +45,9 @@ const GetStartedScreen = () => {
   const { styles: panelStyles } = useTheme(getPanelStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { addToast } = useToast()
   const keystoreState = useKeystoreControllerState()
+  const { accounts } = useAccountsControllerState()
   const {
     ref: hotWalletModalRef,
     open: openHotWalletModal,
@@ -97,12 +102,12 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.importHotWallet)
         return
       }
-      if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
-        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
+      if (flow === 'email') {
+        await showEmailVaultInterest(accounts.length, addToast)
         return
       }
-      if (flow === 'email') {
-        navigate(WEB_ROUTES.emailVault)
+      if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
+        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
         return
       }
       if (flow === 'hw') {
@@ -113,7 +118,7 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
-    [navigate, keystoreState, openHotWalletModal]
+    [keystoreState.isReadyToStoreKeys, openHotWalletModal, navigate, accounts.length, addToast]
   )
 
   const handleSetStoriesCompleted = () => {
@@ -196,6 +201,7 @@ const GetStartedScreen = () => {
             >
               <View style={[flexbox.directionRow]}>
                 <Card
+                  testID="get-started-button-connect-hw-wallet"
                   title={t('Connect a\nHardware Wallet')}
                   text={t(
                     'Start using accounts secured by Trezor, Ledger, or another Hardware Wallet.'
@@ -230,6 +236,7 @@ const GetStartedScreen = () => {
                   onPress={() => handleAuthButtonPress('import-hot-wallet')}
                 />
                 <Card
+                  testID="get-started-create-hot-wallet"
                   title={t('Create a new\nhot wallet')}
                   text={t(
                     'Create a fresh hot wallet with modern features, including optional smart recovery.'

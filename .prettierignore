@@ -1,6 +1,7 @@
 node_modules
 ios
 android
+safari-extension
 build
 coverage
 .expo

@@ -1,0 +1,69 @@
+@import './reset.scss';
+@import './normalize.scss';
+@import './base.scss';
+@import './typography.scss';
+
+// Scale down rems
+html {
+  font-size: 13px;
+
+  @include breakpoint-from(tablet) {
+    font-size: 13.5px;
+  }
+  @include breakpoint-from(large-tablet) {
+    font-size: 14px;
+  }
+  @include breakpoint-from(small-desktop) {
+    font-size: 14.5px;
+  }
+  @include breakpoint-from(medium-desktop) {
+    font-size: 15px;
+  }
+  @include breakpoint-from(large-desktop) {
+    font-size: 16px;
+  }
+}
+
+body {
+  background-color: $primaryBackground;
+  font-family: $primaryFont;
+  color: $primaryText;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $primaryFont;
+  color: $primaryText;
+}
+
+p,
+span,
+a,
+button,
+input,
+textarea {
+  font-family: $secondaryFont;
+}
+
+p,
+span,
+input,
+textarea {
+  color: $secondaryText;
+}
+
+button,
+a {
+  transition: 0.2s opacity ease-in-out;
+  color: $primaryText;
+}
+
+a:hover,
+button:hover,
+button:disabled {
+  opacity: 0.6;
+}

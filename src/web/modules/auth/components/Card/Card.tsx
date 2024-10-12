@@ -23,9 +23,11 @@ interface Props {
   onPress?: () => void
   buttonText?: string
   isDisabled?: boolean
+  isPartiallyDisabled?: boolean
   isSecondary?: boolean
   iconProps?: SvgProps
   testID?: string
+  children?: React.ReactNode | React.ReactNode[]
 }
 
 const Card: React.FC<Props> = ({
@@ -37,9 +39,11 @@ const Card: React.FC<Props> = ({
   icon: Icon,
   onPress,
   isDisabled,
+  isPartiallyDisabled,
   buttonText,
   isSecondary = false,
-  iconProps = {}
+  iconProps = {},
+  children
 }) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered, triggerHovered] = useCustomHover({
@@ -72,25 +76,28 @@ const Card: React.FC<Props> = ({
       ]}
       {...bindAnim}
     >
-      {!!Icon && (
-        <View style={styles.iconWrapper}>
-          <Icon color={isHovered ? hoveredIconColor : theme.secondaryText} {...iconProps} />
-        </View>
-      )}
-      {!!title && (
-        <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={20}>
-          {t(title)}
-        </Text>
-      )}
-      {!!text && (
-        <Text
-          style={[spacings.mb, flexbox.flex1, textStyle]}
-          fontSize={14}
-          appearance="secondaryText"
-        >
-          <Trans>{text}</Trans>
-        </Text>
-      )}
+      <View style={[flexbox.flex1, isPartiallyDisabled && { opacity: 0.7 }]}>
+        {!!Icon && (
+          <View style={styles.iconWrapper}>
+            <Icon color={isHovered ? hoveredIconColor : theme.secondaryText} {...iconProps} />
+          </View>
+        )}
+        {!!title && (
+          <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={20}>
+            {t(title)}
+          </Text>
+        )}
+        {!!text && (
+          <Text
+            style={[spacings.mb, flexbox.flex1, textStyle]}
+            fontSize={14}
+            appearance="secondaryText"
+          >
+            <Trans>{text}</Trans>
+          </Text>
+        )}
+      </View>
+      {children}
       {!!buttonText && (
         <Button
           testID={testID}

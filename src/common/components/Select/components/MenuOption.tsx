@@ -7,7 +7,17 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from '../styles'
-import { SelectValue } from '../types'
+import { SelectProps, SelectValue } from '../types'
+
+const formatOptionString = (optionString: string): string => {
+  const formattedString = optionString
+    .toLowerCase()
+    .replace(/[()]/g, '')
+    .replace(/\s*,\s*/g, '-')
+    .replace(/\s+/g, '-')
+
+  return formattedString
+}
 
 const Option = React.memo(({ item }: { item: SelectValue }) => {
   const { styles } = useTheme(getStyles)
@@ -16,9 +26,9 @@ const Option = React.memo(({ item }: { item: SelectValue }) => {
   // Otherwise, default to 'undefined', and letting Puppeteer to assert using alternative selectors.
   const testID = `option-${
     typeof item.label === 'string'
-      ? item.label.toLowerCase()
+      ? formatOptionString(item.label)
       : typeof item.value === 'string'
-      ? item.value.toLowerCase()
+      ? formatOptionString(item.value)
       : undefined
   }`
 
@@ -49,13 +59,15 @@ const MenuOption = React.memo(
     height,
     isSelected,
     onPress,
-    disabled
+    disabled,
+    size
   }: {
     item: SelectValue
     height?: number
     isSelected: boolean
     onPress: (item: SelectValue) => void
     disabled?: boolean
+    size: SelectProps['size']
   }) => {
     const { theme, styles } = useTheme(getStyles)
 
@@ -69,6 +81,7 @@ const MenuOption = React.memo(
       <Pressable
         style={({ hovered }: any) => [
           styles.menuOption,
+          size && styles[`${size}MenuOption`],
           !!height && { height },
           isSelected && { backgroundColor: theme.tertiaryBackground },
           hovered && !disabled && { backgroundColor: theme.secondaryBackground },

@@ -88,6 +88,29 @@ Browser extension (web app) for gecko browsers (tested on Firefox only)::
 yarn web:gecko
 ```
 
+Browser extension (web app) for the Safari browser (tested on Safari only)::
+
+```bash
+yarn web:safari
+```
+
+Two new folders will be created:
+
+1. build/safari-dev (dev build folder)
+1. safari-extension/wallet-dev (Xcode project)
+   then in the Safari browser:
+1. Developer -> Developer settings...
+1. Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
+1. Then the extension should be automatically added and pinned in the browser.
+
+NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
+
+NOTE: The development script for Safari relies on the fswatch tool to automatically reload the Safari build when the development server is reloaded. If fswatch is not already installed on your system, you can install it using Homebrew with the following command:
+
+```bash
+brew install fswatch
+```
+
 ## Translations (Beta)
 
 To scan the project for translation labels and to update translations JSON files, run:
@@ -148,6 +171,27 @@ For gecko browsers (tested on Firefox only):
 ```bash
 yarn build:web:gecko
 ```
+
+For the Safari browser (tested on Safari only):
+
+```bash
+yarn build:web:safari
+```
+
+Two new folders will be created:
+
+1. build/safari-prod (prod build folder)
+1. safari-extension/wallet (Xcode project)
+
+Then, in xCode manually do:
+
+1. Delete "walletTests" and "walletUITests" targets.
+1. For both targets (macOS and extension): Signing & Capabilities: Team: "Ambire Tech Ltd", Signing Certificate: Development
+1. For both targets (macOS and extension): General - Identity - Version: X.X (should match the version in the app.json file, example: `4.36`) and Build: X (integer, bump up on every next build submitted to the App Store Connect, example: `3`)
+1. For the macOS target: General - App Category: "Utilities"
+1. For the extension target: General - Identity - Bundle Identifier: `com.ambire.app.wallet.extension`
+
+TODO: Automate the above steps.
 
 ## Versioning
 

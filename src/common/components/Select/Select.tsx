@@ -4,18 +4,10 @@ import { FlatList } from 'react-native'
 
 import EmptyListPlaceholder from './components/EmptyListPlaceholder'
 import SelectContainer from './components/SelectContainer'
-import { MENU_OPTION_HEIGHT } from './styles'
 import { SelectProps } from './types'
 import useSelectInternal from './useSelectInternal'
 
-const Select = ({
-  setValue,
-  value,
-  options,
-  testID,
-  menuOptionHeight = MENU_OPTION_HEIGHT,
-  ...props
-}: SelectProps) => {
+const Select = ({ setValue, value, options, testID, menuOptionHeight, ...props }: SelectProps) => {
   const selectData = useSelectInternal({ menuOptionHeight, setValue, value })
   const { renderItem, keyExtractor, getItemLayout, search } = selectData
 

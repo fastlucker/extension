@@ -98,9 +98,14 @@ const ManageContact: FC<Props> = ({ address, name, tooltipRef }) => {
         text={t(`Are you sure you want to delete ${name} from your Address Book?`)}
         closeDialog={closeDialog}
       >
-        <DialogFooter>
-          <DialogButton text={t('Delete')} type="danger" onPress={removeContact} />
+        <DialogFooter horizontalAlignment="justifyEnd">
           <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
+          <DialogButton
+            style={spacings.ml}
+            text={t('Delete')}
+            type="danger"
+            onPress={removeContact}
+          />
         </DialogFooter>
       </Dialog>
     </>

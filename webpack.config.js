@@ -7,67 +7,22 @@ const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 const webpack = require('webpack')
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
+
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
-function processManifest(content) {
-  const manifest = JSON.parse(content.toString())
-  // Maintain the same versioning between the web extension and the mobile app
-  manifest.version = appJSON.expo.version
-
-  // Directives to disallow a set of script-related privileges for a
-  // specific page. They prevent the browser extension being embedded or
-  // loaded as an <iframe /> in a potentially malicious website(s).
-  //   1. The "script-src" directive specifies valid sources for JavaScript.
-  //   This includes not only URLs loaded directly into <script> elements,
-  //   but also things like inline script event handlers (onclick) and XSLT
-  //   stylesheets which can trigger script execution. Must include at least
-  //   the 'self' keyword and may only contain secure sources.
-  //   'wasm-eval' needed, otherwise the GridPlus SDK fires errors
-  //   (GridPlus needs to allow inline Web Assembly (wasm))
-  //   2. The "object-src" directive may be required in some browsers that
-  //   support obsolete plugins and should be set to a secure source such as
-  //   'none' when needed. This may be necessary for browsers up until 2022.
-  //   3. The "frame-ancestors" directive specifies valid parents that may
-  //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
-  // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
-  // {@link https://web.dev/csp/}
-
-  const csp = "frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
-
-  if (process.env.WEB_ENGINE === 'gecko') {
-    manifest.background = { scripts: ['background.js'] }
-    manifest.host_permissions = [...manifest.host_permissions, '<all_urls>']
-    manifest.externally_connectable = undefined
-    manifest.browser_specific_settings = {
-      gecko: {
-        id: 'wallet@ambire.com',
-        strict_min_version: '115.0'
-      }
-    }
-  }
-
-  const permissions = [...manifest.permissions, 'scripting', 'alarms']
-  if (process.env.WEB_ENGINE === 'webkit') permissions.push('system.display')
-  manifest.permissions = permissions
-
-  manifest.content_security_policy = { extension_pages: csp }
-
-  // This value can be used to control the unique ID of an extension,
-  // when it is loaded during development. In prod, the ID is generated
-  // in Chrome Web Store and can't be changed.
-  // {@link https://developer.chrome.com/extensions/manifest/key}
-  // TODO: key not supported in gecko browsers
-  if (process.env.WEB_ENGINE === 'webkit') {
-    manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
-  }
-
-  const manifestJSON = JSON.stringify(manifest, null, 2)
-  return manifestJSON
-}
+const isWebkit = process.env.WEB_ENGINE?.startsWith('webkit')
+const isGecko = process.env.WEB_ENGINE === 'gecko'
+const isSafari = process.env.WEB_ENGINE === 'webkit-safari'
+const outputPath = process.env.WEBPACK_BUILD_OUTPUT_PATH
+const isExtension =
+  outputPath.includes('webkit') || outputPath.includes('gecko') || outputPath.includes('safari')
+const isBenzin = outputPath.includes('benzin')
+const isLegends = outputPath.includes('legends')
 
 // style.css output file for WEB_ENGINE: GECKO
 function processStyleGecko(content) {
@@ -82,10 +37,76 @@ function processStyleGecko(content) {
 module.exports = async function (env, argv) {
   const config = await createExpoWebpackConfigAsync(env, argv)
 
-  const outputPath = process.env.WEBPACK_BUILD_OUTPUT_PATH
-  const isExtension = outputPath.includes('webkit') || outputPath.includes('gecko')
-  const isBenzin = outputPath.includes('benzin')
-  const isLegends = outputPath.includes('legends')
+  function processManifest(content) {
+    const manifest = JSON.parse(content.toString())
+    if (config.mode === 'development') {
+      manifest.name = 'Ambire Wallet Dev'
+    }
+    // Shorter for Safari on purpose (up to 100 characters allowed), all others allow up to 132 characters
+    manifest.description = isSafari
+      ? 'Hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+      : 'Secure and easy-to-use hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+
+    // Maintain the same versioning between the web extension and the mobile app
+    manifest.version = appJSON.expo.version
+
+    // Directives to disallow a set of script-related privileges for a
+    // specific page. They prevent the browser extension being embedded or
+    // loaded as an <iframe /> in a potentially malicious website(s).
+    //   1. The "script-src" directive specifies valid sources for JavaScript.
+    //   This includes not only URLs loaded directly into <script> elements,
+    //   but also things like inline script event handlers (onclick) and XSLT
+    //   stylesheets which can trigger script execution. Must include at least
+    //   the 'self' keyword and may only contain secure sources.
+    //   'wasm-eval' needed, otherwise the GridPlus SDK fires errors
+    //   (GridPlus needs to allow inline Web Assembly (wasm))
+    //   2. The "object-src" directive may be required in some browsers that
+    //   support obsolete plugins and should be set to a secure source such as
+    //   'none' when needed. This may be necessary for browsers up until 2022.
+    //   3. The "frame-ancestors" directive specifies valid parents that may
+    //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
+    // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
+    // {@link https://web.dev/csp/}
+
+    const csp = "frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+
+    if (isGecko) {
+      manifest.background = { scripts: ['background.js'] }
+      manifest.host_permissions = [...manifest.host_permissions, '<all_urls>']
+      manifest.browser_specific_settings = {
+        gecko: {
+          id: 'wallet@ambire.com',
+          strict_min_version: '115.0'
+        }
+      }
+    }
+
+    if (isGecko || isSafari) {
+      manifest.externally_connectable = undefined
+    }
+
+    const permissions = [...manifest.permissions, 'scripting', 'alarms']
+    if (isWebkit && !isSafari) permissions.push('system.display')
+    manifest.permissions = permissions
+
+    if (isSafari) {
+      manifest.permissions = manifest.permissions.filter((p) => p !== 'notifications')
+    }
+
+    manifest.content_security_policy = { extension_pages: csp }
+
+    // This value can be used to control the unique ID of an extension,
+    // when it is loaded during development. In prod, the ID is generated
+    // in Chrome Web Store and can't be changed.
+    // {@link https://developer.chrome.com/extensions/manifest/key}
+    // TODO: key not supported in gecko browsers
+    if (isWebkit) {
+      manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
+    }
+
+    const manifestJSON = JSON.stringify(manifest, null, 2)
+    return manifestJSON
+  }
 
   // Global configuration
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
@@ -148,13 +169,28 @@ module.exports = async function (env, argv) {
     }
   ]
 
-  config.resolve.fallback = {}
-  config.resolve.fallback.stream = require.resolve('stream-browserify')
-  config.resolve.fallback.crypto = require.resolve('crypto-browserify')
+  config.resolve.extensions = [...(config.resolve.extensions || []), '.scss']
+
+  config.resolve.alias = {
+    ...(config.resolve.alias || {}),
+    '@ambire-common': path.resolve(__dirname, 'src/ambire-common/src'),
+    '@contracts': path.resolve(__dirname, 'src/ambire-common/contracts'),
+    '@ambire-common-v1': path.resolve(__dirname, 'src/ambire-common/v1'),
+    '@common': path.resolve(__dirname, 'src/common'),
+    '@mobile': path.resolve(__dirname, 'src/mobile'),
+    '@web': path.resolve(__dirname, 'src/web'),
+    '@benzin': path.resolve(__dirname, 'src/benzin'),
+    '@legends': path.resolve(__dirname, 'src/legends'),
+    react: path.resolve(__dirname, 'node_modules/react')
+  }
+
+  config.resolve.fallback = {
+    stream: require.resolve('stream-browserify'),
+    crypto: require.resolve('crypto-browserify')
+  }
 
   // There will be 2 instances of React if node_modules are installed in src/ambire-common.
   // That's why we need to alias the React package to the one in the root node_modules.
-  config.resolve.alias.react = path.resolve(__dirname, 'node_modules/react')
 
   config.output = {
     // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod, /benzin-dev, /benzin-prod, /legends-dev, /legends-prod
@@ -162,6 +198,12 @@ module.exports = async function (env, argv) {
     // Defaults to using 'auto', but this is causing problems in some environments
     // like in certain browsers, when building (and running) in extension context.
     publicPath: ''
+  }
+
+  if (config.mode === 'production') {
+    config.output.assetModuleFilename = '[name].[ext]'
+    config.output.filename = '[name].js'
+    config.output.chunkFilename = '[id].js'
   }
 
   // Environment specific configurations
@@ -188,7 +230,7 @@ module.exports = async function (env, argv) {
       'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts'
     }
 
-    if (process.env.WEB_ENGINE === 'gecko') {
+    if (isGecko) {
       config.entry['content-script-ambire-injection'] =
         './src/web/extension-services/content-script/content-script-ambire-injection.ts'
       config.entry['content-script-ethereum-injection'] =
@@ -204,7 +246,7 @@ module.exports = async function (env, argv) {
         from: './src/web/public/style.css',
         to: 'style.css',
         transform(content) {
-          if (process.env.WEB_ENGINE === 'gecko') {
+          if (isGecko) {
             return processStyleGecko(content)
           }
 
@@ -250,7 +292,7 @@ module.exports = async function (env, argv) {
       new CopyPlugin({ patterns: extensionCopyPatterns })
     ]
 
-    if (process.env.WEB_ENGINE === 'gecko') {
+    if (isGecko) {
       config.plugins.push(
         new AssetReplacePlugin({
           '#AMBIREINPAGE#': 'ambire-inpage',
@@ -262,6 +304,8 @@ module.exports = async function (env, argv) {
     if (config.mode === 'production') {
       // @TODO: The extension doesn't work with splitChunks out of the box, so disable it for now
       delete config.optimization.splitChunks
+      config.optimization.chunkIds = 'named' // Ensures same id for chunks across builds
+      config.optimization.moduleIds = 'named' // Ensures same id for modules across builds
     }
 
     return config
@@ -307,38 +351,76 @@ module.exports = async function (env, argv) {
     return config
   }
   if (isLegends) {
+    config.output.clean = true
+    config.entry = './src/legends/index.js'
+
     if (process.env.APP_ENV === 'development') {
       config.optimization = { minimize: false }
-    } else {
-      delete config.optimization.splitChunks
     }
 
-    config.entry = './src/legends/index.js'
+    // Add scss support
+    config.module.rules[1].oneOf = config.module.rules[1].oneOf.map((rule) => {
+      if (rule.exclude && rule.type === 'asset/resource') {
+        rule.exclude.push(/\.scss$/)
+      }
+
+      return rule
+    })
+
+    config.module.rules = [
+      ...config.module.rules,
+      {
+        test: /\.module\.scss$/, // SCSS module rule
+        use: [
+          'style-loader', // Injects styles into the DOM
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName:
+                  process.env.APP_ENV === 'development'
+                    ? '[name]__[local]--[hash:base64:5]' // Development: readable names
+                    : '[hash:base64]' // Production: hashed names for optimization
+              },
+              sourceMap: process.env.APP_ENV === 'development',
+              esModule: false // DON'T DELETE: This is needed for the styles to work
+            }
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                includePaths: [path.resolve(__dirname, './src/legends')]
+              }
+            }
+          }
+        ]
+      },
+      {
+        test: /\.scss$/, // Regular SCSS rule (for global styles)
+        exclude: /\.module\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      }
+    ]
 
     config.plugins = [
       ...defaultExpoConfigPlugins,
-      new NodePolyfillPlugin(),
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
         process: 'process'
       }),
+      new HtmlWebpackPlugin({
+        template: './src/legends/public/index.html',
+        filename: 'index.html'
+      }),
       new CopyPlugin({
         patterns: [
           {
-            from: './src/web/assets',
-            to: 'assets'
-          },
-          {
-            from: './src/legends/public/style.css',
-            to: 'style.css'
-          },
-          {
-            from: './src/legends/public/index.html',
-            to: 'index.html'
-          },
-          {
-            from: './src/legends/public/favicon.ico',
-            to: 'favicon.ico'
+            from: 'src/legends/public', // Source directory
+            to: path.resolve(__dirname, `build/${process.env.WEBPACK_BUILD_OUTPUT_PATH}`), // Destination directory
+            globOptions: {
+              ignore: ['**/*.html'] // Ignore HTML files as they are handled by HtmlWebpackPlugin
+            }
           }
         ]
       })

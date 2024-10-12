@@ -16,8 +16,13 @@ import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keys
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
+import {
+  getAccountKeysCount,
+  getDefaultKeyLabel,
+  getExistingKeyLabel
+} from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -28,10 +33,11 @@ import { browser } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
+import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
+import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
-import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
@@ -48,14 +54,6 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
-
-import { handleRegisterScripts } from './handlers/handleScripting'
-
-function saveTimestamp() {
-  const timestamp = new Date().toISOString()
-
-  browser.storage.session.set({ timestamp })
-}
 
 function stateDebug(event: string, stateToLog: object) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
@@ -83,6 +81,7 @@ let mainCtrl: MainController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
+handleKeepAlive()
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
@@ -105,14 +104,6 @@ handleRegisterScripts()
 
     await checkE2EStorage()
   }
-
-  saveTimestamp()
-  // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
-  // miliseconds. This keeps the service worker alive.
-  const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
-  setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
-
-  await updateHumanizerMetaInStorage(storage)
 
   const backgroundState: {
     isUnlocked: boolean
@@ -154,14 +145,37 @@ handleRegisterScripts()
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
 
-  // Custom headers, as of v4.26.0 will be only extension-specific. TBD for the other apps.
-  const fetchWithCustomHeaders: Fetch = (url, init) => {
+  // Extension-specific additional trackings
+  const fetchWithAnalytics: Fetch = (url, init) => {
+    // As of v4.26.0, custom extension-specific headers. TBD for the other apps.
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
     initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
-
     const sliceOfKeyStoreUid = mainCtrl.keystore.keyStoreUid?.substring(10, 21) || ''
     const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
     initWithCustomHeaders.headers['x-app-source'] = sliceOfKeyStoreUid + inviteVerifiedCode
+
+    // As of v4.36.0, for metric purposes, pass the account keys count as an
+    // additional param for the batched velcro discovery requests.
+    const shouldAttachKeyCountParam = url.toString().startsWith(`${VELCRO_URL}/multi-hints?`)
+    if (shouldAttachKeyCountParam) {
+      const urlObj = new URL(url.toString())
+      const accounts = urlObj.searchParams.get('accounts')
+
+      if (accounts) {
+        const accountKeysCount = accounts.split(',').map((accountAddr) => {
+          return getAccountKeysCount({
+            accountAddr,
+            keys: mainCtrl.keystore.keys,
+            accounts: mainCtrl.accounts.accounts
+          })
+        })
+
+        urlObj.searchParams.append('sigs', accountKeysCount.join(','))
+        // Override the URL and replace encoded commas (%2C) with actual commas
+        // eslint-disable-next-line no-param-reassign
+        url = urlObj.toString().replace(/%2C/g, ',')
+      }
+    }
 
     // Use the native fetch (instead of node-fetch or whatever else) since
     // browser extensions are designed to run within the web environment,
@@ -171,7 +185,7 @@ handleRegisterScripts()
 
   mainCtrl = new MainController({
     storage,
-    fetch: fetchWithCustomHeaders,
+    fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
     keystoreSigners: {
@@ -557,6 +571,31 @@ handleRegisterScripts()
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
+      const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
+
+      const timeSinceLastUpdate =
+        Date.now() - (backgroundState.portfolioLastUpdatedByIntervalAt || 0)
+
+      // Call portfolio update if the extension is inactive and 30 seconds have passed since the last update
+      // in order to have the latest data when the user opens the extension
+      // otherwise, the portfolio will be updated by the interval after 1 minute
+      // and there is no broadcasted but not confirmed acc op, due to the fact that this will cost it being
+      // removed from the UI and we will lose the simulation
+      // Also do not trigger update on every new port but only if there is only one port
+      if (
+        timeSinceLastUpdate > ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL / 2 &&
+        pm.ports.length === 1 &&
+        port.name === 'popup' &&
+        !hasBroadcastedButNotConfirmed
+      ) {
+        try {
+          await mainCtrl.updateSelectedAccountPortfolio()
+          backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
+        } catch (error) {
+          console.error('Error during immediate portfolio update:', error)
+        }
+      }
+
       initPortfolioContinuousUpdate()
 
       // @ts-ignore
@@ -982,8 +1021,7 @@ handleRegisterScripts()
               case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
                 return mainCtrl.domains.saveResolvedReverseLookup(params)
               case 'SET_IS_DEFAULT_WALLET': {
-                walletStateCtrl.isDefaultWallet = params.isDefaultWallet
-                break
+                return await walletStateCtrl.setDefaultWallet(params.isDefaultWallet)
               }
               case 'SET_ONBOARDING_STATE': {
                 walletStateCtrl.onboardingState = params
@@ -1079,6 +1117,7 @@ handleRegisterScripts()
 
   initPortfolioContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+  await clearHumanizerMetaObjectFromStorage(storage)
 })()
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })

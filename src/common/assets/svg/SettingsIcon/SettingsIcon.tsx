@@ -3,13 +3,7 @@ import Svg, { Path, SvgProps } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-  strokeWidth?: string
-}
-
-const SettingsIcon: React.FC<Props> = ({
+const SettingsIcon: React.FC<SvgProps> = ({
   width = 24,
   height = 24,
   strokeWidth = '1.5',

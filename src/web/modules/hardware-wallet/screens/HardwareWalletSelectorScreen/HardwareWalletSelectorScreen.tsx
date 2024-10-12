@@ -6,6 +6,7 @@ import Panel from '@common/components/Panel'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -15,6 +16,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { isSafari } from '@web/constants/browserapi'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -33,7 +35,7 @@ const HardwareWalletSelectorScreen = () => {
   const { dispatch } = useBackgroundService()
   const { theme } = useTheme()
   const [isLedgerConnectModalVisible, setIsLedgerConnectModalVisible] = useState(false)
-
+  const { addToast } = useToast()
   useEffect(() => {
     updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
   }, [updateStepperState])
@@ -49,10 +51,18 @@ const HardwareWalletSelectorScreen = () => {
     }
   }, [accountAdderCtrlState.isInitialized, accountAdderCtrlState.type, navigate])
 
-  const onTrezorPress = useCallback(
-    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' }),
-    [dispatch]
-  )
+  const onTrezorPress = useCallback(() => {
+    if (isSafari()) {
+      addToast(
+        t(
+          "Your browser doesn't support WebUSB, which is required for the Trezor device. Please try using a different browser."
+        ),
+        { type: 'error' }
+      )
+    } else {
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' })
+    }
+  }, [dispatch, addToast, t])
 
   const onGridPlusPress = useCallback(
     () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' }),
