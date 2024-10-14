@@ -65,7 +65,7 @@ const RouteStepsPlaceholder = ({
       <View style={[styles.container, spacings.mb]}>
         <RouteStepsToken
           address={fromSelectedToken.address}
-          networkId={fromSelectedToken.networkId}
+          networkIdOrChainId={fromSelectedToken.networkId}
           symbol={fromSelectedToken.symbol}
         />
         <RouteStepsArrow
@@ -77,7 +77,7 @@ const RouteStepsPlaceholder = ({
         <RouteStepsToken
           address={toSelectedToken.address}
           uri={toSelectedToken.icon}
-          chainId={toSelectedToken.chainId}
+          networkIdOrChainId={toSelectedToken.chainId}
           symbol={toSelectedToken.symbol}
           isLast
         />
