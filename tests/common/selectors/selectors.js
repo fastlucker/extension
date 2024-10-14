@@ -53,7 +53,9 @@ export const TEST_IDS = {
   trezorPermissionConfirmButton: '@permissions/confirm-button',
   trezorExportAddressConfirmButton: '@export-address/confirm-button',
   bottomSheet: 'bottom-sheet',
-  addAccountField: 'add-account-field'
+  addAccountField: 'add-account-field',
+  importExistingSeedBtn: 'import-existing-seed-btn',
+  createSeedBtn: 'create-seed-btn'
 }
 
 export const SELECTORS = Object.fromEntries(

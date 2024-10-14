@@ -11,9 +11,16 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   await clickOnElement(page, SELECTORS.getStartedBtnImport)
 
   await page.waitForFunction(() => window.location.href.includes('/import-hot-wallet'))
-  // Click on "Import" private key
+
+  // Click on Seed Phrase "Proceed" button
   await clickOnElement(page, privKeyOrPhraseSelector)
+
+  // Click on "Import existing seed" button in "Create or import Seed Phrase" modal
+  // Note: Added delay of 500ms because of modal
+  await clickOnElement(page, SELECTORS.importExistingSeedBtn, true, 500)
+
   await page.waitForFunction(() => window.location.href.includes('/keystore-setup'))
+
   // type phrase
   const phrase = 'Password'
   await typeText(page, SELECTORS.enterPassField, phrase)

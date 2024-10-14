@@ -221,7 +221,9 @@ const HotWalletImportSelectorScreen = () => {
           onSecondaryButtonPress={handleImportSeed}
           onPrimaryButtonPress={handleCreateSeed}
           secondaryButtonText={t('Import existing seed')}
+          secondaryButtonTestID="import-existing-seed-btn"
           primaryButtonText={t('Create seed')}
+          primaryButtonTestID="create-seed-btn"
         />
       </BottomSheet>
     </TabLayoutContainer>
