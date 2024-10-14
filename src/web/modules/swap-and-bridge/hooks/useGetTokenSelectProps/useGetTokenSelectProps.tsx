@@ -79,6 +79,7 @@ const useGetTokenSelectProps = ({
       ),
       icon: (
         <TokenIcon
+          key={`${t.networkId || t.chainId}-${t.address}`}
           containerHeight={30}
           containerWidth={30}
           networkSize={12}

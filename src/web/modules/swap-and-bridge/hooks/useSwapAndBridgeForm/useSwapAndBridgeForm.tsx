@@ -181,7 +181,12 @@ const useSwapAndBridgeForm = () => {
         value: n.id,
         label: <Text weight="medium">{n.name}</Text>,
         icon: (
-          <NetworkIcon id={n.id} style={{ backgroundColor: theme.primaryBackground }} size={28} />
+          <NetworkIcon
+            key={n.id}
+            id={n.id}
+            style={{ backgroundColor: theme.primaryBackground }}
+            size={28}
+          />
         )
       })),
     [networks, theme]
