@@ -6,6 +6,7 @@
   flex-direction: column;
   min-height: 27.5rem;
   background-color: $secondaryBackground;
+  border-radius: $secondaryBorderRadius;
 
   .completed {
     background-color: rgba(0, 0, 0, 0.5); // TODO: Use a variable
