@@ -405,6 +405,10 @@ module.exports = async function (env, argv) {
 
     config.plugins = [
       ...defaultExpoConfigPlugins,
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+        process: 'process'
+      }),
       new HtmlWebpackPlugin({
         template: './src/legends/public/index.html',
         filename: 'index.html'

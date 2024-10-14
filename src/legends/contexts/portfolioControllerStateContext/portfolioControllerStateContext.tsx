@@ -56,7 +56,7 @@ const getPortfolio = async (
 }
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
-  const { connectedAccount } = useAccountContext()
+  const { lastConnectedV2Account } = useAccountContext()
   const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>()
 
   const updateAccountPortfolio = useCallback(async (address: string) => {
@@ -66,12 +66,12 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    if (!connectedAccount) return
+    if (!lastConnectedV2Account) return
 
-    updateAccountPortfolio(connectedAccount).catch(() =>
+    updateAccountPortfolio(lastConnectedV2Account).catch(() =>
       setAccountPortfolio({ error: 'Unable to retrieve your portfolio. Please try again later.' })
     )
-  }, [connectedAccount, updateAccountPortfolio])
+  }, [lastConnectedV2Account, updateAccountPortfolio])
 
   return (
     <PortfolioControllerStateContext.Provider

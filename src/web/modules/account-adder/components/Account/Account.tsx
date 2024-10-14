@@ -103,7 +103,10 @@ const Account = ({
 
         <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
+            <View
+              style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}
+              testID="add-account-field"
+            >
               {isAccountImported ? (
                 <>
                   <Avatar pfp={account.preferences.pfp} size={24} />
@@ -116,7 +119,7 @@ const Account = ({
                     {account.preferences.label}
                   </Text>
                   <Text
-                    testID="add-account"
+                    testID={`add-account-${account.addr}`}
                     fontSize={14}
                     appearance="secondaryText"
                     style={spacings.mrMi}
@@ -129,7 +132,7 @@ const Account = ({
                 </>
               ) : (
                 <Text
-                  testID="add-account"
+                  testID={`add-account-${account.addr}`}
                   fontSize={16}
                   appearance="primaryText"
                   style={spacings.mrMi}

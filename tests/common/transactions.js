@@ -11,6 +11,32 @@ import { confirmTransactionStatus } from '../common-helpers/confirmTransactionSt
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 import { SELECTORS } from './selectors/selectors'
 
+// When we run tests in GitHub Actions in parallel (with different PRs running tests simultaneously),
+// it's very likely that the nonce we use for the transaction may already have been used.
+// Since we can't run the tests sequentially, we've introduced this workaround to handle this scenario,
+// which will reload the sign-acc-op page if a `nonce too low` error is detected.
+// Upon reloading, our @ambire-app logic will retrieve the next available nonce.
+// Please note, this fix is only for E2E tests, as in a real-world scenario,
+// it's uncommon for a user to operate with the same account from multiple extension instances at the same time.
+const overcomeNonceError = async (page) => {
+  let hasNonceError = false
+  try {
+    const nonceError = await page.waitForXPath(
+      '//*[contains(text(), "Perhaps wrong nonce set in Account op")]',
+      { timeout: 3000 }
+    )
+
+    hasNonceError = nonceError !== null
+  } catch {
+    hasNonceError = false
+  }
+
+  if (hasNonceError) {
+    await page.reload()
+    await overcomeNonceError(page)
+  }
+}
+
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
@@ -62,6 +88,9 @@ export async function makeValidTransaction(
   )
 
   if (shouldStopBeforeSign) return
+
+  await overcomeNonceError(newPage)
+
   // Check if select fee token is visible and select the token
   if (feeToken) {
     await selectFeeToken(newPage, feeToken)
@@ -107,6 +136,16 @@ async function prepareSwap(page) {
 
   await selectTokenInUni(page, 'token-option-137-USDC', 'USDC')
 
+  try {
+    await page.waitForXPath('//*[contains(text(), "Swapping on Polygon")]', {
+      timeout: 30000 // 30 seconds
+    })
+  } catch {
+    throw new Error(
+      "Uniswap couldn't switch the network to Polygon! This may have been caused by an RPC outage. Please re-run the test and check the RPC."
+    )
+  }
+
   await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
 
   await selectTokenInUni(page, 'token-option-137-USDT', 'USDT')
@@ -123,8 +162,16 @@ export async function makeSwap(
 ) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
-  // Wait until modal with text "Introducing the Uniswap Extension." appears
-  await page.waitForXPath('//div[contains(text(), "Introducing the Uniswap Extension.")]')
+  const hasUnichainModal = await page.waitForSelector(
+    'xpath///span[contains(text(), "Introducing Unichain")]',
+    { timeout: 3000 }
+  )
+
+  if (hasUnichainModal) {
+    const dismissButton = await page.waitForSelector('xpath///span[contains(text(), "Dismiss")]')
+
+    await dismissButton.click()
+  }
 
   // Click somewhere just to hide the modal
   await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
@@ -178,7 +225,8 @@ export async function makeSwap(
     await prepareSwap(page)
   }
 
-  await typeText(page, '#swap-currency-output', '0.0001')
+  await typeText(page, 'input#swap-currency-output', '0.0001')
+
   await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
 
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
@@ -192,17 +240,14 @@ export async function makeSwap(
   const result = await checkForSignMessageWindow(newPage, extensionURL, browser)
   const updatedPage = result.actionWindowPage
 
+  await overcomeNonceError(updatedPage)
+
   // Check if select fee token is visible and select the token
   if (feeToken) {
     await selectFeeToken(updatedPage, feeToken)
   }
 
-  if (shouldStopBeforeSign) {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 5000)
-    })
-    return
-  }
+  if (shouldStopBeforeSign) return
 
   // Sign and confirm the transaction
   await signTransaction(updatedPage, transactionRecorder)

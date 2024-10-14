@@ -2,9 +2,8 @@ import { ethers } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import LegendsNFT from '@contracts/compiled/LegendsNft.json'
+import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
-
-const RELAYER_URL = 'https://staging-relayer.ambire.com'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
@@ -31,13 +30,13 @@ const CharacterContext = createContext<{
 })
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
-  const { connectedAccount } = useAccountContext()
+  const { lastConnectedV2Account, isConnectedAccountV2 } = useAccountContext()
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
 
   const getCharacter = useCallback(async () => {
-    if (!connectedAccount) {
+    if (!lastConnectedV2Account) {
       setCharacter(null)
       setIsLoading(false)
       return
@@ -46,15 +45,17 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     setIsLoading(true)
     setCharacter(null)
 
-    const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
+    const characterResponse = await fetch(
+      `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
+    )
 
     setIsLoading(false)
     setCharacter(await characterResponse.json())
-  }, [connectedAccount])
+  }, [lastConnectedV2Account])
 
   const mintCharacter = useCallback(
     async (type: number) => {
-      if (!connectedAccount || !window.ambire) return
+      if (!isConnectedAccountV2 || !window.ambire) return
 
       // Switch to Base chain
       await window.ambire.request({
@@ -95,7 +96,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
         console.log('Error during minting process:', error)
       }
     },
-    [connectedAccount, getCharacter]
+    [isConnectedAccountV2, getCharacter]
   )
 
   useEffect(() => {
