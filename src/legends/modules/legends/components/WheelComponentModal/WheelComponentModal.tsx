@@ -151,7 +151,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           perpendicularText
           pointerProps={{
             src: '/images/pointer.png',
-            style: { rotate: '46deg', top: '50px', right: '10px', width: '148px' }
+            style: { rotate: '46deg', top: '30px', right: '0', width: '148px' }
           }}
         />
         <button
