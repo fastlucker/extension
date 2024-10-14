@@ -45,8 +45,8 @@ export async function finishStoriesAndSelectAccount(
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
   if (!skipStories) {
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
-    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
   }
 
   // Hide empty basic accounts
@@ -54,7 +54,7 @@ export async function finishStoriesAndSelectAccount(
     await clickOnElement(
       page,
       'xpath///div[contains(text(), "Hide empty basic accounts")]',
-      false,
+      true,
       1500
     )
   }
@@ -440,6 +440,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
 }
 
 export async function selectHdPathAndAddAccount(page, hdPathSelector) {
+  // Select the HD Path dropdown
   await clickOnElement(page, SELECTORS.selectChangeHdPath)
   // Select different HD path
   await clickOnElement(page, hdPathSelector)
@@ -449,17 +450,29 @@ export async function selectHdPathAndAddAccount(page, hdPathSelector) {
   // At this moment I couldn't find an other solution except to set a timeout
   await wait(2000)
 
-  const addedAccountAddress = await page.$eval(SELECTORS.addAccountField, (element) => {
-    return element.innerText
-  })
+  await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
-  const accAddrSelector = buildSelector(TEST_IDS.addAccount, addedAccountAddress)
+  const accountAddresses = await page.$$eval(SELECTORS.addAccountField, (elements) =>
+    elements
+      .map((element) => element.innerText)
+      .filter((item) => {
+        // Regular expression to match a valid Ethereum address
+        const validAddressRegex = /^0x[a-fA-F0-9]{40}$/
+        return validAddressRegex.test(item)
+      })
+  )
 
-  // Click on "Import account" button
+  // Take the first two accounts from the list
+  const [firstAddress] = accountAddresses
+
+  const accAddrSelector = buildSelector(TEST_IDS.addAccount, firstAddress)
+
+  // Click on selected account address button
   await clickOnElement(page, accAddrSelector)
 
   // Click on "Import account" button
-  await clickOnElement(page, SELECTORS.buttonImportAccount)
+  await clickOnElement(page, `${SELECTORS.buttonImportAccount}:not([disabled])`)
+  await page.waitForNavigation()
 
   // Click on "Save and Continue" button
   await clickOnElement(page, SELECTORS.saveAndContinueBtn)

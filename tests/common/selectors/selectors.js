@@ -45,7 +45,6 @@ export const TEST_IDS = {
   selectChangeHdPath: 'select-change-hd-path',
   optionBip44LedgerLive: 'option-bip44-ledger-live',
   importExistingWallet: 'import-existing-wallet',
-  useDefaultSeedBtn: 'use-default-seed-btn',
   optionLegacyLedgerMyEtherWalletMyCrypto: 'option-legacy-ledger-myetherwallet-mycrypto',
   getStartedButtonConnectHwWallet: 'get-started-button-connect-hw-wallet',
   selectHwOptionTrezor: 'select-hw-option-trezor',

@@ -101,8 +101,8 @@ describe('auth', () => {
 
     await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 500)
-    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
 
     await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
@@ -289,15 +289,12 @@ describe('auth', () => {
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
-    await wait(500)
-
-    await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
+    await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn, true, 500)
 
     await page.waitForFunction(() => window.location.href.includes('/account-adder'))
     // Do the onboarding
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
-    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
 
     // Select BIP 44 Ledger Live and select import account
     await selectHdPathAndAddAccount(page, SELECTORS.optionBip44LedgerLive)
@@ -312,28 +309,14 @@ describe('auth', () => {
     // Click on "Add Account"
     await clickOnElement(page, SELECTORS.buttonAddAccount)
 
-    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
-    await wait(1000)
-    // Click on "Import an existing hot wallet"
-    await clickOnElement(page, SELECTORS.importExistingWallet)
+    // Click on "Import a new Smart Account from the default Seed Phrase" button
+    // Note: Added a delay of 500ms because of the importing process
+    await clickOnElement(page, SELECTORS.importFromSavedSeed, true, 500)
 
-    // Wait for "Seed phrase proceed"
-    await page.waitForSelector(SELECTORS.buttonProceedSeedPhrase, {
-      visible: true
-    })
-
-    // Click on "Seed phrase proceed"
-    await clickOnElement(page, SELECTORS.buttonProceedSeedPhrase)
-
-    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
-    await wait(1000)
-
-    // Click on"Use default seed"
-    await clickOnElement(page, SELECTORS.useDefaultSeedBtn)
-
+    //
+    await page.waitForFunction(() => window.location.href.includes('/account-adder'))
     // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(2000)
-
     // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
     await selectHdPathAndAddAccount(page, SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto)
   })
