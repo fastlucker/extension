@@ -32,16 +32,17 @@
       background: $primaryGradient;
       border-radius: $secondaryBorderRadius;
       padding: 0.25rem;
+      $innerBorderRadius: calc(#{$secondaryBorderRadius} - 0.25rem);
 
       .wheelOfFortune {
-        background-color: $secondaryBackground;
         display: flex;
-        border-radius: $secondaryBorderRadius;
+        background-color: $tertiaryBackground;
+        border-radius: $innerBorderRadius;
 
         .wheelImage {
           height: 7.5rem;
           width: auto;
-          border-radius: $secondaryBorderRadius 0 0 $secondaryBorderRadius;
+          border-radius: $innerBorderRadius 0 0 $innerBorderRadius;
         }
 
         .wheelContent {
