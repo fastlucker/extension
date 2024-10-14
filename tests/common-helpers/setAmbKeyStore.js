@@ -3,7 +3,11 @@ import { completeOnboardingSteps } from './completeOnboardingSteps'
 import { typeText } from './typeText'
 import { SELECTORS } from '../common/selectors/selectors'
 
-export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
+export async function setAmbKeyStore(
+  page,
+  privKeyOrPhraseSelector,
+  shouldClickOnImportExistingSeedBtn = true
+) {
   await completeOnboardingSteps(page)
 
   await page.waitForFunction(() => window.location.href.includes('/get-started'))
@@ -15,9 +19,11 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   // Click on Seed Phrase "Proceed" button
   await clickOnElement(page, privKeyOrPhraseSelector)
 
-  // Click on "Import existing seed" button in "Create or import Seed Phrase" modal
-  // Note: Added delay of 500ms because of modal
-  await clickOnElement(page, SELECTORS.importExistingSeedBtn, true, 500)
+  if (shouldClickOnImportExistingSeedBtn) {
+    // Click on "Import existing seed" button in "Create or import Seed Phrase" modal
+    // Note: Added delay of 500ms because of modal
+    await clickOnElement(page, SELECTORS.importExistingSeedBtn, true, 500)
+  }
 
   await page.waitForFunction(() => window.location.href.includes('/keystore-setup'))
 

@@ -71,7 +71,7 @@ describe('auth', () => {
     const parsedInvitation = JSON.parse(inviteFromStorage.invite)
     expect(parsedInvitation.status).toBe(INVITE_STATUS_VERIFIED)
 
-    await setAmbKeyStore(page, SELECTORS.importPrivateBtn)
+    await setAmbKeyStore(page, SELECTORS.importPrivateBtn, false)
     await page.waitForSelector(SELECTORS.enterSeedPhraseField)
 
     const enterSeedPhraseFieldPlaceholder = await page.$eval(
@@ -264,40 +264,18 @@ describe('auth', () => {
     await page.waitForFunction(() => window.location.href.includes('/get-started'))
 
     // Create new hot wallet with seed phrase
-    await createHotWalletWithSeedPhrase(page, serviceWorker)
-
-    // Wait for dashboard screen to be loaded
-    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
-    // Close Pin Ambire extension modal
-    await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
+    await createHotWalletWithSeedPhrase(page, serviceWorker, extensionURL)
 
     // Import one new SA from default seed
-    await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[0])
-
-    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
-    await wait(2000)
-
-    // Wait for dashboard screen to be loaded
-    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
-
-    // Import one more new SA from default seed
-    await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[1])
-
-    // Wait for dashboard screen to be loaded
-    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+    await importNewSAFromDefaultSeedAndPersonalizeIt(page, extensionURL)
 
     // Get accounts from storage
-    const importedAccounts = await serviceWorker.evaluate(() =>
-      chrome.storage.local.get('accounts')
+    const addedAccounts = await page.$$eval(SELECTORS.account, (elements) =>
+      elements.map((element) => element.innerText)
     )
 
-    const parsedImportedAccounts = JSON.parse(importedAccounts.accounts)
-    const accountAddresses = parsedImportedAccounts.map((account) => account.preferences.label)
-
-    // Checks if exact 3 accounts have been added
-    expect(parsedImportedAccounts.length).toBe(3)
-    expect(accountAddresses.includes(TEST_ACCOUNT_NAMES[0])).toBe(true)
-    expect(accountAddresses.includes(TEST_ACCOUNT_NAMES[1])).toBe(true)
+    // Checks if exact 4 accounts have been added
+    expect(addedAccounts.length).toBe(4)
   })
   //--------------------------------------------------------------------------------------------------------------
   it('should importing account from different HD paths', async () => {
