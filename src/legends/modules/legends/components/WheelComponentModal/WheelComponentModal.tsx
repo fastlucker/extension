@@ -13,6 +13,18 @@ import styles from './WheelComponentModal.module.scss'
 
 export const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
+interface Activity {
+  action: string
+  xp: number
+}
+
+interface Transaction {
+  submittedAt: string
+  legends: {
+    activities: Activity[]
+  }
+}
+
 const data = [
   { option: '80', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
   { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
@@ -66,11 +78,11 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         const txns = await response.json()
         const today = new Date().toISOString().split('T')[0]
 
-        const transaction = txns.find(
-          (txn) =>
+        const transaction: Transaction | undefined = txns.find(
+          (txn: Transaction) =>
             txn.submittedAt.startsWith(today) &&
             txn.legends.activities &&
-            txn.legends.activities.some((activity: any) =>
+            txn.legends.activities.some((activity: Activity) =>
               activity.action.startsWith('WheelOfFortune')
             )
         )
@@ -95,6 +107,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         alert('Error fetching transaction status')
         return false
       }
+
+      return false
     }
 
     try {
@@ -106,7 +120,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
 
       const receipt = await tx.wait()
 
-      if (receipt.status === 1) {
+      if (receipt && receipt.status === 1) {
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
           const intervalId = setInterval(async () => {
