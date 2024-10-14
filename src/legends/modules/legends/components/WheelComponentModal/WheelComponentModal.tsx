@@ -2,16 +2,16 @@ import { ethers, Interface } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { Wheel } from 'react-custom-roulette'
 
+import { RELAYER_URL } from '@env'
 import Modal from '@legends/components/Modal'
+import { LEGENDS_CONTRACT_ABI } from '@legends/constants/abis/legends'
+import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useAccountContext from '@legends/hooks/useAccountContext'
 
 import styles from './WheelComponentModal.module.scss'
 
-const relayerUrl = 'https://staging-relayer.ambire.com'
-
-export const ONCHAIN_TXNS_LEGENDS_ADDRESS = '0x1415926535897932384626433832795028841971'
-export const iface = new Interface(['function spinWheel(uint256)'])
+export const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
 const data = [
   { option: '80', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
@@ -62,7 +62,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       if (spinOfTheDay === 1) return true
       try {
         fetchTryCount += 1
-        const response = await fetch(`${relayerUrl}/legends/activity/${connectedAccount}`)
+        const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
         const txns = await response.json()
         const today = new Date().toISOString().split('T')[0]
 
@@ -70,8 +70,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           (txn) =>
             txn.submittedAt.startsWith(today) &&
             txn.legends.activities &&
-            txn.legends.activities.find((activity: any) =>
-              activity.action.substring('WheelOfFortune')
+            txn.legends.activities.some((activity: any) =>
+              activity.action.startsWith('WheelOfFortune')
             )
         )
 
@@ -79,7 +79,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         const spinWheelActivity = transaction.legends.activities.find((activity: any) => {
           return activity.action.includes('WheelOfFortune')
         })
-
+        if (!spinWheelActivity) return false
         const spinWheelActivityIndex = data.findIndex(
           (item: any) => item.option === spinWheelActivity.xp.toString()
         )
@@ -100,8 +100,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     try {
       const randomValue = BigInt(Math.floor(Math.random() * 1000000).toString())
       const tx = await signer.sendTransaction({
-        to: ONCHAIN_TXNS_LEGENDS_ADDRESS,
-        data: iface.encodeFunctionData('spinWheel', [randomValue])
+        to: LEGENDS_CONTRACT_ADDRESS,
+        data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('spinWheel', [randomValue])
       })
 
       const receipt = await tx.wait()

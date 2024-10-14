@@ -2,7 +2,7 @@ import { BrowserProvider, Contract, getAddress, Interface } from 'ethers'
 import { useState } from 'react'
 
 import { isValidAddress } from '@ambire-common/services/address'
-import { LEGENDS_CONTRACT_ABI } from '@legends/constants/abis/summon'
+import { LEGENDS_CONTRACT_ABI } from '@legends/constants/abis/legends'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useToast from '@legends/hooks/useToast'
