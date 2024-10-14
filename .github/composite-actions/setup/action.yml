@@ -2,6 +2,14 @@ name: 'Setup environment'
 runs:
   using: 'composite'
   steps:
+    - name: Git submodules init
+      run: git submodule init
+      shell: bash
+
+    - name: Git submodules update
+      run: git submodule update
+      shell: bash
+
     - name: Install Node.js ⚙️
       uses: actions/setup-node@v4
       with:
@@ -15,10 +23,3 @@ runs:
       run: yarn install --frozen-lockfile
       shell: bash
 
-    - name: Git submodules init
-      run: git submodule init
-      shell: bash
-
-    - name: Git submodules update
-      run: git submodule update
-      shell: bash
