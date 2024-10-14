@@ -74,6 +74,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
               activity.action.substring('WheelOfFortune')
             )
         )
+
         if (!transaction) return false
         const spinWheelActivity = transaction.legends.activities.find((activity: any) => {
           return activity.action.includes('WheelOfFortune')
@@ -91,6 +92,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         }
       } catch (error) {
         console.error('Error fetching transaction status:', error)
+        alert('Error fetching transaction status')
+        return false
       }
     }
 
@@ -107,9 +110,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
           const intervalId = setInterval(async () => {
-            if (fetchTryCount >= 4) {
+            if (fetchTryCount >= 10) {
               clearInterval(intervalId)
-              console.error('Failed to fetch transaction status after 4 attempts')
+              console.error('Failed to fetch transaction status after 10 attempts')
               return
             }
             const found = await checkTransactionStatus()
