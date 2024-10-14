@@ -39,6 +39,8 @@ jobs:
         run: yarn install
 
       - name: Build project 🛠️
+        env:
+          RELAYER_URL: 'https://staging-relayer.ambire.com'
         run: yarn build:web:legends
 
       - name: Setup SSH agent
@@ -54,6 +56,7 @@ jobs:
           cd legends-gh-pages
           git checkout gh-pages
           cp -R ../build/legends-prod/* .
+          date > deployDate
           git add .
           git commit -m "Automated deploy from ambire-app"
           git push origin gh-pages --force

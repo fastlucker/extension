@@ -1,5 +1,7 @@
 import { CardAction, CardFromResponse, CardType } from '@legends/modules/legends/types'
 
+import { CARD_PREDEFINED_ID } from '../constants'
+
 const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
   const totalAXp = a.xp.reduce((acc, xp) => acc + xp.to + xp.from, 0)
   const totalBXp = b.xp.reduce((acc, xp) => acc + xp.to + xp.from, 0)
@@ -9,6 +11,11 @@ const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
 
 const sortCards = (cards: CardFromResponse[]) => {
   return cards.sort((a, b) => {
+    // Display Wheel of Fortune first
+    if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+      return -1
+    }
+
     const order = {
       [CardType.available]: 1,
       [CardType.recurring]: 2,

@@ -12,10 +12,12 @@ import styles from './Legends.module.scss'
 import { MOCK_FILTERS } from './mockData'
 
 const Legends = () => {
-  const { connectedAccount } = useAccountContext()
+  const { lastConnectedV2Account } = useAccountContext()
   const [selectedFilter, setSelectedFilter] = useState<Filter['value']>(MOCK_FILTERS[0].value)
 
-  const { legends, isLoading, completedCount } = useLegends({ connectedAccount })
+  const { legends, isLoading, completedCount } = useLegends({
+    connectedAccount: lastConnectedV2Account
+  })
 
   const selectFilter = (filter: Filter) => {
     setSelectedFilter(filter.value)
