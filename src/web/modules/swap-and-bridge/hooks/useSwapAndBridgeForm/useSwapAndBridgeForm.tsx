@@ -33,12 +33,12 @@ const useSwapAndBridgeForm = () => {
     toTokenList,
     maxFromAmount,
     maxFromAmountInFiat,
-    statuses,
     quote,
     fromAmountInFiat,
     activeRoutes,
     formStatus,
-    toChainId
+    toChainId,
+    updateToTokenListStatus
   } = useSwapAndBridgeControllerState()
   const { selectedAccount } = useAccountsControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
@@ -158,7 +158,7 @@ const useSwapAndBridgeForm = () => {
     tokens: toTokenList,
     token: toSelectedToken ? getTokenId(toSelectedToken) : '',
     networks,
-    isLoading: !toTokenList.length && statuses.updateToTokenList !== 'INITIAL',
+    isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
     withNetworkName: false,
     withNetworkIcon: false
   })
