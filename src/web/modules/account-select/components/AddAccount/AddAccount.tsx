@@ -7,11 +7,9 @@ import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import { getUiType } from '@web/utils/uiType'
 
 import { useGetAddAccountOptions } from './helpers/useGetAddAccountOptions'
 
@@ -29,18 +27,9 @@ const AddAccount = () => {
   const mainControllerState = useMainControllerState()
   const accountAdderControllerState = useAccountAdderControllerState()
 
-  useEffect(() => {
-    if (mainControllerState.statuses.onAccountAdderSuccess === 'SUCCESS') {
-      getUiType().isTab
-        ? navigate(WEB_ROUTES.accountPersonalize)
-        : openInternalPageInTab(WEB_ROUTES.accountPersonalize)
-    }
-  }, [
-    mainControllerState.statuses.onAccountAdderSuccess,
-    navigate,
-    accountAdderControllerState.readyToAddAccounts
-  ])
-
+  // this component rerenders twice when accountAdderControllerState enters
+  // the below described options. So, to prevent navigating to account adder
+  // twice, we use an isNavigating flag
   useEffect(() => {
     if (
       accountAdderControllerState.isInitialized &&
