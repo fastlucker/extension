@@ -146,7 +146,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           radiusLineWidth={1}
           outerBorderColor="#E7AA27"
           outerBorderWidth={16}
-          fontFamily="Roboto Slab"
+          fontFamily="Sentient"
           fontSize={25}
           perpendicularText
           pointerProps={{
