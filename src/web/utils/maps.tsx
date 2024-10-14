@@ -25,7 +25,7 @@ const mapTokenOptions = (values: TokenResult[], networks: Network[]) =>
     ),
     icon: (
       <TokenIcon
-        key={value.address}
+        key={`${value.networkId}-${value.address}`}
         containerHeight={30}
         containerWidth={30}
         networkSize={12}
