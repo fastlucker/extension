@@ -17,7 +17,7 @@ const AccountKeyBanner = ({ type }: { type: Key['type'] }) => {
 
   if (type === 'lattice')
     return (
-      <Wrapper text="Lattice">
+      <Wrapper text="">
         <LatticeIcon color={theme.secondaryText} width={32} height={32} />
       </Wrapper>
     )
