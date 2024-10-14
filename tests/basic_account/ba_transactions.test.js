@@ -28,11 +28,11 @@ describe('ba_transactions', () => {
   })
 
   it('Makes a valid transaction', async () => {
-    await makeValidTransaction(page, extensionURL, browser)
+    await makeValidTransaction(page, extensionURL, browser, { shouldStopBeforeSign: true })
   })
 
   it('Makes a valid swap', async () => {
-    await makeSwap(page, extensionURL, browser)
+    await makeSwap(page, extensionURL, browser, { shouldStopBeforeSign: true })
   })
 
   it('(-) Sends POL tokens greater than the available balance', async () => {

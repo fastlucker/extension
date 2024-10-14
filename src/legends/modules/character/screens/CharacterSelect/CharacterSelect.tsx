@@ -4,8 +4,9 @@ import { Navigate } from 'react-router-dom'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
-import CharacterSlider from './components/CharacterSlider'
+
 import styles from './CharacterSelect.module.scss'
+import CharacterSlider from './components/CharacterSlider'
 
 const CharacterSelect = () => {
   const [characterId, setCharacterId] = useState(1)
@@ -16,7 +17,8 @@ const CharacterSelect = () => {
     setCharacterId(id)
   }
 
-  if (!accountContext.connectedAccount) return <Navigate to="/" />
+  if (!accountContext.connectedAccount || !accountContext.isConnectedAccountV2)
+    return <Navigate to="/" />
   if (character && character.characterType !== 'unknown')
     return <Navigate to={LEGENDS_ROUTES.character} />
 
