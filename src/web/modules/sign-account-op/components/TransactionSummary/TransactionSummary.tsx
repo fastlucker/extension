@@ -4,7 +4,7 @@ import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { NetworkId } from '@ambire-common/interfaces/network'
-import { AbiFragment, IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
