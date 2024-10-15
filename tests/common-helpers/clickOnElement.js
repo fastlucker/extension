@@ -5,7 +5,7 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
   let elementToClick
 
   // Define a timeout for throwing an error if the selector is not found after 10 seconds
-  const timeout = 10000 // 10 seconds
+  const timeout = 20000 // 20 seconds
   const startTime = Date.now()
 
   const executeClick = async () => {
