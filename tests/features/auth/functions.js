@@ -1,4 +1,3 @@
-import { timeout } from 'rxjs'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
 import { buildSelector } from '../../common-helpers/buildSelector'
@@ -38,11 +37,7 @@ export async function checkAccountDetails(
   })
 }
 
-export async function finishStoriesAndSelectAccount(
-  page,
-  shouldClickOnAccounts,
-  shouldSelectSmartAccount = true
-) {
+export async function finishStoriesAndSelectAccount(page) {
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
@@ -51,26 +46,34 @@ export async function finishStoriesAndSelectAccount(
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
-  await page.waitForSelector(SELECTORS.addAccount, { visible: true })
-
-  // Select one Legacy account and one Smart account
-  const firstSelectedBasicAccount = await page.$$eval(
-    SELECTORS.addAccount,
-    (element, shouldClick) => {
-      if (shouldClick) element[0].click()
-      return element[0].textContent
-    },
-    shouldClickOnAccounts
+  // Get an array with all the account addresses from the list
+  const accountAddresses = await page.$$eval(SELECTORS.addAccountField, (elements) =>
+    elements.map((element) => element.innerText)
   )
-  const firstSelectedSmartAccount = shouldSelectSmartAccount
-    ? await page.$$eval(
-        SELECTORS.addAccount,
-        (element, shouldClick) => {
-          if (shouldClick) element[1].click()
-          return element[1].textContent
-        },
-        shouldClickOnAccounts
-      )
+
+  // Take the first two accounts from the list
+  const [firstAddress, secondAddress] = accountAddresses
+
+  // if exist generate selectors for these account addresses
+  const firstAddrSelector = firstAddress
+    ? buildSelector(TEST_IDS.addAccount, firstAddress)
+    : undefined
+  const secondAddrSelector = secondAddress
+    ? buildSelector(TEST_IDS.addAccount, secondAddress)
+    : undefined
+
+  if (firstAddrSelector) await clickOnElement(page, firstAddrSelector)
+  if (secondAddrSelector) await clickOnElement(page, secondAddrSelector)
+
+  const firstSelectedAccount = firstAddrSelector
+    ? await page.$eval(firstAddrSelector, (element) => {
+        return element.textContent
+      })
+    : null
+  const secondSelectedAccount = secondAddrSelector
+    ? await page.$eval(secondAddrSelector, (element) => {
+        return element.textContent
+      })
     : null
 
   await Promise.all([
@@ -80,7 +83,7 @@ export async function finishStoriesAndSelectAccount(
   ])
   const currentUrl = page.url()
   expect(currentUrl).toContain('/account-personalize')
-  return { firstSelectedBasicAccount, firstSelectedSmartAccount }
+  return { firstSelectedAccount, secondSelectedAccount }
 }
 
 export async function typeSeedWords(page, passphraseWords) {
@@ -397,8 +400,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
 
   await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
 
-  const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-    await finishStoriesAndSelectAccount(page, true)
+  const { firstSelectedAccount, secondSelectedAccount } = await finishStoriesAndSelectAccount(page)
 
   const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
   await personalizeAccountName(page, accountName1, 0)
@@ -415,7 +417,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
     page,
     SELECTORS.account,
     [accountName1, accountName2],
-    [firstSelectedBasicAccount, firstSelectedSmartAccount]
+    [firstSelectedAccount, secondSelectedAccount]
   )
 }
 
@@ -429,19 +431,14 @@ export async function selectHdPathAndAddAccount(page, hdPathSelector) {
   // At this moment I couldn't find an other solution except to set a timeout
   await wait(2000)
 
-  await page.waitForSelector(SELECTORS.addAccount, { visible: true })
-
-  const accountsData = await page.evaluate((selector) => {
-    return Array.from(document.querySelectorAll(selector)).map((element) => element.textContent)
-  }, SELECTORS.addAccount)
-
-  expect(accountsData.length).toBeGreaterThan(0)
-
-  // Click on the first account from the list
-  await page.$eval(SELECTORS.addAccount, (element) => {
-    element.click()
-    return element.textContent
+  const addedAccountAddress = await page.$eval(SELECTORS.addAccountField, (element) => {
+    return element.innerText
   })
+
+  const accAddrSelector = buildSelector(TEST_IDS.addAccount, addedAccountAddress)
+
+  // Click on "Import account" button
+  await clickOnElement(page, accAddrSelector)
 
   // Click on "Import account" button
   await clickOnElement(page, SELECTORS.buttonImportAccount)

@@ -24,7 +24,6 @@ import { typeText } from '../../common-helpers/typeText'
 import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExist'
 import {
   wait,
-  finishStoriesAndSelectAccount,
   importAccountsFromSeedPhrase,
   checkTextAreaHasValidInputByGivenText,
   importNewSAFromDefaultSeedAndPersonalizeIt,
@@ -100,12 +99,22 @@ describe('auth', () => {
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
-    const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page, undefined, false)
+    await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-    // Since v4.31.0, Ambire does NOT retrieve smart accounts from private keys.
-    expect(firstSelectedSmartAccount).toBeNull()
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 500)
+
+    await page.waitForSelector(SELECTORS.checkbox, { visible: true })
+
+    const selectedAccount = await page.$eval(SELECTORS.addAccountField, (element) => {
+      return element.textContent
+    })
+
+    await clickOnElement(page, `${SELECTORS.buttonImportAccount}:not([disabled])`)
+    await page.waitForNavigation()
+
+    const currentUrl = page.url()
+    expect(currentUrl).toContain('/account-personalize')
 
     // Click on "Save and Continue" button
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
@@ -116,7 +125,7 @@ describe('auth', () => {
     await page.waitForSelector(SELECTORS.account)
 
     // Verify that selected accounts exist on the page
-    await checkAccountDetails(page, SELECTORS.account, [firstSelectedBasicAccount])
+    await checkAccountDetails(page, SELECTORS.account, [selectedAccount])
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -318,7 +327,9 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
 
     // Click on account select button
-    await clickOnElement(page, SELECTORS.accountSelectBtn)
+    // We add a delay because there is a loading animation in the header (when closing the PinExtension tooltip),
+    // and Puppeteer registers the click, but it is not applied to the React state.
+    await clickOnElement(page, SELECTORS.accountSelectBtn, true, 1000)
 
     // Wait for dashboard screen to be loaded
     await page.waitForFunction(() => window.location.href.includes('/account-select'))
@@ -346,6 +357,7 @@ describe('auth', () => {
 
     // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(2000)
+
     // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
     await selectHdPathAndAddAccount(page, SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto)
   })

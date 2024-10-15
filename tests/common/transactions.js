@@ -136,6 +136,16 @@ async function prepareSwap(page) {
 
   await selectTokenInUni(page, 'token-option-137-USDC', 'USDC')
 
+  try {
+    await page.waitForXPath('//*[contains(text(), "Swapping on Polygon")]', {
+      timeout: 30000 // 30 seconds
+    })
+  } catch {
+    throw new Error(
+      "Uniswap couldn't switch the network to Polygon! This may have been caused by an RPC outage. Please re-run the test and check the RPC."
+    )
+  }
+
   await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
 
   await selectTokenInUni(page, 'token-option-137-USDT', 'USDT')
@@ -215,7 +225,8 @@ export async function makeSwap(
     await prepareSwap(page)
   }
 
-  await typeText(page, '#swap-currency-output', '0.0001')
+  await typeText(page, 'input#swap-currency-output', '0.0001')
+
   await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
 
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
