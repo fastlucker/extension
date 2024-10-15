@@ -137,14 +137,14 @@ const SettingsModal: React.FC<Props> = ({ handleToggleSettingsMenu, settingModal
               {t('Select route priority')}
             </Text>
             <RadioButton
-              text="Highest Return"
+              text={t('Highest Return')}
               value="output"
               isSelected={routePriority === 'output'}
               onSelect={handleSelectPriority}
               containerStyle={spacings.mbTy}
             />
             <RadioButton
-              text="Fastest"
+              text={t('Fastest Transfer')}
               value="time"
               isSelected={routePriority === 'time'}
               onSelect={handleSelectPriority}
