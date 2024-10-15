@@ -59,7 +59,7 @@ const HumanizedVisualization: FC<Props> = ({
       {data.map((item) => {
         if (!item || item.isHidden) return null
         const key = item.id
-        if (item.type === 'token' && item.value) {
+        if (item.type === 'token') {
           return (
             <TokenOrNft
               key={key}
