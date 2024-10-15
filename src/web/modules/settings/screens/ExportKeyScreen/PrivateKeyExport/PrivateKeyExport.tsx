@@ -98,11 +98,7 @@ const PrivateKeyExport: FC<Props> = ({ privateKey }) => {
           )}
         />
       </View>
-      <Button style={spacings.mtTy} onPress={returnToAccounts}>
-        <Text style={{ color: '#fff', ...spacings.mlSm }} weight="medium">
-          Done
-        </Text>
-      </Button>
+      <Button type="secondary" style={spacings.mtTy} onPress={returnToAccounts} text="Back" />
     </>
   )
 }

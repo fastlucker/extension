@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 import { Account } from '@ambire-common/interfaces/account'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
-import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -52,7 +51,7 @@ const SmartAccountExport: FC<Props> = ({ account, privateKey }) => {
       >
         <Button style={[spacings.mb0, spacings.mt0]} text="Download" />
       </Link>
-      <Button onPress={returnToAccounts} type="secondary" style={[spacings.mtTy]} text="Done" />
+      <Button onPress={returnToAccounts} type="secondary" style={[spacings.mtTy]} text="Back" />
     </>
   )
 }
