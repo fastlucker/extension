@@ -212,6 +212,7 @@ const ViewOnlyScreen = () => {
           ))}
           <View>
             <AnimatedPressable
+              testID="add-one-more-address"
               disabled={isSubmitting}
               onPress={() => append({ ...DEFAULT_ADDRESS_FIELD_VALUE })}
               style={[spacings.ptTy, animStyle]}

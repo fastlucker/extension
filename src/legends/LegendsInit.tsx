@@ -3,6 +3,7 @@ import React from 'react'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 
+import { DomainsContextProvider } from '../common/contexts/domainsContext'
 import { AccountContextProvider } from './contexts/accountContext'
 import { CharacterContextProvider } from './contexts/characterContext'
 import { PortfolioControllerStateProvider } from './contexts/portfolioControllerStateContext'
@@ -22,7 +23,9 @@ const LegendsInit = () => {
         <AccountContextProvider>
           <CharacterContextProvider>
             <PortfolioControllerStateProvider>
-              <Router />
+              <DomainsContextProvider>
+                <Router />
+              </DomainsContextProvider>
             </PortfolioControllerStateProvider>
           </CharacterContextProvider>
         </AccountContextProvider>

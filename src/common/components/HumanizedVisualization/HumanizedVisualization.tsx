@@ -6,10 +6,15 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Address from '@common/components/Address'
 import Text from '@common/components/Text'
 import TokenOrNft from '@common/components/TokenOrNft'
-import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
+import useTheme from '@common/hooks/useTheme'
+import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { getMessageAsText } from '@common/utils/messageToString'
+import ImageIcon from '@web/assets/svg/ImageIcon'
+import ManifestImage from '@web/components/ManifestImage'
 
+import { COLLECTIBLE_SIZE } from '../Collectible/styles'
 import ChainVisualization from './ChainVisualization/ChainVisualization'
 import DeadlineItem from './DeadlineItem'
 
@@ -37,6 +42,7 @@ const HumanizedVisualization: FC<Props> = ({
   testID
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
+  const { theme } = useTheme()
   return (
     <View
       testID={testID}
@@ -94,15 +100,43 @@ const HumanizedVisualization: FC<Props> = ({
             </Text>
           )
         }
+        if (item.type === 'image' && item.content) {
+          return (
+            <ManifestImage
+              uri={item.content}
+              containerStyle={spacings.mrSm}
+              size={36}
+              skeletonAppearance="primaryBackground"
+              fallback={() => (
+                <View
+                  style={[
+                    flexbox.flex1,
+                    flexbox.center,
+                    { backgroundColor: theme.primaryBackground, width: '100%' }
+                  ]}
+                >
+                  <ImageIcon
+                    color={theme.secondaryText}
+                    width={COLLECTIBLE_SIZE / 2}
+                    height={COLLECTIBLE_SIZE / 2}
+                  />
+                </View>
+              )}
+              imageStyle={{
+                borderRadius: BORDER_RADIUS_PRIMARY,
+                backgroundColor: 'transparent',
+                marginRight: 0
+              }}
+            />
+          )
+        }
         if (item.content) {
           return (
             <Text
               key={key}
               style={{ maxWidth: '100%', marginRight }}
               fontSize={textSize}
-              weight={
-                item.type === 'label' ? 'regular' : item.type === 'action' ? 'semiBold' : 'medium'
-              }
+              weight={item.isBold || item.type === 'action' ? 'semiBold' : 'regular'}
               appearance={
                 item.type === 'label'
                   ? 'secondaryText'

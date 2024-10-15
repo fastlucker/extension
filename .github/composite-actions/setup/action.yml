@@ -1,6 +1,6 @@
-name: "Setup environment"
+name: 'Setup environment'
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Install Node.js ⚙️
       uses: actions/setup-node@v4
@@ -12,7 +12,7 @@ runs:
     - name: Install NPM packages using yarn ♾️🕳️
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-      run: yarn install --frozen-lockfile
+      run: yarn install
       shell: bash
 
     - name: Git submodules init

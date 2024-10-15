@@ -201,6 +201,7 @@ const GetStartedScreen = () => {
             >
               <View style={[flexbox.directionRow]}>
                 <Card
+                  testID="get-started-button-connect-hw-wallet"
                   title={t('Connect a\nHardware Wallet')}
                   text={t(
                     'Start using accounts secured by Trezor, Ledger, or another Hardware Wallet.'
@@ -235,6 +236,7 @@ const GetStartedScreen = () => {
                   onPress={() => handleAuthButtonPress('import-hot-wallet')}
                 />
                 <Card
+                  testID="get-started-create-hot-wallet"
                   title={t('Create a new\nhot wallet')}
                   text={t(
                     'Create a fresh hot wallet with modern features, including optional smart recovery.'

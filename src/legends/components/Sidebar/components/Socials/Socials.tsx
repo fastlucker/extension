@@ -12,7 +12,7 @@ const Socials = () => {
   return (
     <div className={styles.wrapper}>
       <HighlightedLink
-        title="Ambire Discord Server"
+        title="Ambire Discord"
         text="Join our Discord server for support and announcements."
       >
         <a
