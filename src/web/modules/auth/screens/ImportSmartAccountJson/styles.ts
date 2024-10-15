@@ -2,7 +2,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 
 interface Styles {
   dropAreaContainer: ViewStyle
@@ -26,7 +26,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mbMd
     },
     dropArea: {
-      borderRadius: 6,
+      borderRadius: BORDER_RADIUS_PRIMARY,
       width: '100%',
       height: '100%',
       borderWidth: 1,

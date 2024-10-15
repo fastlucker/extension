@@ -10,9 +10,12 @@ import CopyIcon from '@common/assets/svg/CopyIcon'
 import ExportIcon from '@common/assets/svg/ExportIcon'
 import ImportIcon from '@common/assets/svg/ImportIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import AccountKeyIcon from '@common/components/AccountKeyIcon'
 import Badge from '@common/components/Badge'
+import Button from '@common/components/Button'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -22,10 +25,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import { getUiType } from '@web/utils/uiType'
-
-import AccountKeyIcon from '../AccountKeyIcon'
-import Button from '../Button'
-import Tooltip from '../Tooltip'
 
 export type AccountKeyType = {
   isImported: boolean
@@ -242,7 +241,7 @@ const AccountKey: React.FC<Props> = ({
                     weight="medium"
                     style={spacings.mrTy}
                   >
-                    {isShowingDetails ? t('Hide Details') : t('Details')}
+                    {t('Details')}
                   </Text>
                   <Animated.View style={keyDetailsAnimStyles}>
                     <RightArrowIcon
@@ -250,7 +249,11 @@ const AccountKey: React.FC<Props> = ({
                       height={16}
                       color={theme.secondaryText}
                       // @ts-ignore
-                      style={isShowingDetails ? { transform: 'rotate(180deg)' } : {}}
+                      style={
+                        isShowingDetails
+                          ? { transform: 'rotate(270deg)' }
+                          : { transform: 'rotate(90deg)' }
+                      }
                     />
                   </Animated.View>
                 </AnimatedPressable>

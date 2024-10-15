@@ -68,7 +68,7 @@ const Badge = ({
       ]}
       nativeID={nativeID}
     >
-      {text !== '' && (
+      {text && (
         <Text weight="regular" fontSize={10} color={color} style={[spacings.mrMi]}>
           {text}
         </Text>

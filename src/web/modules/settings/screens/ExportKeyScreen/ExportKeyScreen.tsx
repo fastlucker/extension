@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { isValidPassword } from '@ambire-common/services/validations'
+import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
@@ -96,7 +97,7 @@ const ExportKeyScreen = () => {
   ])
 
   const handleUnlock = useCallback(
-    (data: any) => {
+    (data: { password: string }) => {
       dispatch({
         type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET',
         params: { secretId: 'password', secret: data.password }
@@ -107,7 +108,7 @@ const ExportKeyScreen = () => {
 
   const passwordFieldValue = watch('password')
 
-  const passwordFieldError: any = useMemo(() => {
+  const passwordFieldError: string | undefined = useMemo(() => {
     if (!errors.password) return undefined
 
     if (passwordFieldValue.length < 8) {
@@ -119,9 +120,11 @@ const ExportKeyScreen = () => {
 
   if (!account || !key) {
     return (
-      <View>
-        <Text>Something went wrong as the account/key was not found. Please contract support</Text>
-      </View>
+      <Alert
+        type="warning"
+        style={spacings.mtTy}
+        text={t('Something went wrong as the account/key was not found. Please contract support')}
+      />
     )
   }
 

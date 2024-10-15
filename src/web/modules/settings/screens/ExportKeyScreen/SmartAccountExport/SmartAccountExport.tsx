@@ -7,6 +7,8 @@ import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
+import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
@@ -17,6 +19,7 @@ interface Props {
 
 const SmartAccountExport: FC<Props> = ({ account, privateKey }) => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
   const smartAccountJson = {
     addr: account.addr,
     associatedKeys: account.associatedKeys,
@@ -26,10 +29,14 @@ const SmartAccountExport: FC<Props> = ({ account, privateKey }) => {
     privateKey
   }
 
+  const returnToAccounts = () => {
+    navigate(ROUTES.accountsSettings)
+  }
+
   return (
     <>
       <SettingsPageHeader title="Smart account export" />
-      <View>
+      <View style={[spacings.mbTy]}>
         <Alert
           size="sm"
           type="warning"
@@ -43,12 +50,9 @@ const SmartAccountExport: FC<Props> = ({ account, privateKey }) => {
         download="smartAccount.json"
         style={{ textDecoration: 'none' }}
       >
-        <Button style={[spacings.mtTy]}>
-          <Text weight="medium" style={{ color: '#fff' }}>
-            Download
-          </Text>
-        </Button>
+        <Button style={[spacings.mb0, spacings.mt0]} text="Download" />
       </Link>
+      <Button onPress={returnToAccounts} type="secondary" style={[spacings.mtTy]} text="Done" />
     </>
   )
 }

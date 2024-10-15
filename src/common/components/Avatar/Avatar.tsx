@@ -64,7 +64,7 @@ const Avatar: FC<Props> = ({ pfp, isSmart, size = 40, style, showTooltip = false
   const selectedAccountPfp = getAccountPfpSource(pfp)
   const avatarType = getAvatarType(selectedAccountPfp)
   const borderRadius = size / 2
-  const badgeType = size === 40 ? 'big' : 'small'
+  const badgeType = size >= 40 ? 'big' : 'small'
 
   if (['jazz', 'blockies'].includes(avatarType)) {
     return (

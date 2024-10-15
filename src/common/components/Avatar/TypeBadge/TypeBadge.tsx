@@ -10,11 +10,11 @@ import { SPACING_MI } from '@common/styles/spacings'
 
 interface Props {
   isSmart: boolean
-  type?: string
+  size?: 'big' | 'small'
   showTooltip?: boolean
 }
 
-const TypeBadge: FC<Props> = ({ isSmart, type, showTooltip = false }) => {
+const TypeBadge: FC<Props> = ({ isSmart, size, showTooltip = false }) => {
   const { theme } = useTheme()
   const badgePreset = isSmart ? BADGE_PRESETS['smart-account'] : BADGE_PRESETS['basic-account']
   const tooltipId = uuidv4()
@@ -26,18 +26,18 @@ const TypeBadge: FC<Props> = ({ isSmart, type, showTooltip = false }) => {
         dataSet={{ tooltipId }}
         style={{
           position: 'absolute',
-          left: type === 'big' ? -SPACING_MI / 2 : -SPACING_MI,
-          top: type === 'big' ? -SPACING_MI / 2 : -SPACING_MI,
+          left: size === 'big' ? -SPACING_MI / 2 : -SPACING_MI,
+          top: size === 'big' ? -SPACING_MI / 2 : -SPACING_MI,
           paddingHorizontal: 3,
           paddingVertical: 2,
           backgroundColor: isSmart ? theme.successDecorative : theme.warningDecorative,
           zIndex: 2,
           borderRadius: 50,
-          borderWidth: type === 'big' ? 3 : 2,
-          borderColor: '#fff'
+          borderWidth: size === 'big' ? 3 : 2,
+          borderColor: theme.primaryBackground
         }}
       >
-        <Text color="#fff" weight="semiBold" fontSize={type === 'big' ? 10 : 9}>
+        <Text color="#fff" weight="semiBold" fontSize={size === 'big' ? 10 : 9}>
           {isSmart ? 'SA' : 'BA'}
         </Text>
       </View>

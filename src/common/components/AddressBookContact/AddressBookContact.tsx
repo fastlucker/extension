@@ -4,7 +4,9 @@ import { View, ViewStyle } from 'react-native'
 import { TooltipRefProps } from 'react-tooltip'
 
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import AccountAddress from '@common/components/AccountAddress'
 import Avatar from '@common/components/Avatar'
+import DomainBadge from '@common/components/Avatar/DomainBadge'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
@@ -18,8 +20,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
-import AccountAddress from '../AccountAddress'
-import DomainBadge from '../Avatar/DomainBadge'
 import ManageContact from './ManageContact'
 
 interface Props {
@@ -92,6 +92,10 @@ const AddressBookContact: FC<Props> = ({
     }
   }, [closeTooltip])
 
+  const isSmart = useMemo(() => {
+    return account ? isSmartAccount(account) : undefined
+  }, [account])
+
   return (
     <ContainerElement
       ref={containerRef}
@@ -110,7 +114,7 @@ const AddressBookContact: FC<Props> = ({
       testID={testID}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        <Avatar pfp={address} size={32} isSmart={account ? isSmartAccount(account) : undefined} />
+        <Avatar pfp={address} size={32} isSmart={isSmart} />
         <View>
           {isEditable ? (
             <Editable

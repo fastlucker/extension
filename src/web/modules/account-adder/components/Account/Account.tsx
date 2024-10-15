@@ -40,8 +40,7 @@ const Account = ({
   onSelect,
   onDeselect,
   isDisabled,
-  importStatus,
-  showAvatarBadgeType
+  importStatus
 }: {
   account: AccountInterface & { usedOnNetworks: Network[] }
   type: 'basic' | 'smart' | 'linked'
@@ -53,7 +52,6 @@ const Account = ({
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
   importStatus: ImportStatus
-  showAvatarBadgeType?: boolean
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -114,11 +112,7 @@ const Account = ({
                   <Avatar
                     pfp={account.preferences.pfp}
                     size={24}
-                    isSmart={
-                      showAvatarBadgeType !== undefined
-                        ? showAvatarBadgeType && isSmartAccount(account)
-                        : undefined
-                    }
+                    isSmart={isSmartAccount(account)}
                   />
                   <Text
                     fontSize={16}

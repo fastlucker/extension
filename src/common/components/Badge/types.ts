@@ -9,7 +9,7 @@ type Props = {
   style?: ViewStyle
   withRightSpacing?: boolean
   nativeID?: string
-  children?: any
+  children?: React.ReactNode
 }
 
 export type { BadgeType, Props }

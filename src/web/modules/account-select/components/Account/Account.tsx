@@ -29,7 +29,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
-import submenuOptions from './submenuOptions'
+import SUBMENU_OPTIONS from './submenuOptions'
 
 const { isTab } = getUiType()
 
@@ -63,7 +63,7 @@ const Account = ({
     property: 'backgroundColor',
     values: {
       from: theme.primaryBackground,
-      to: theme.secondaryBackground
+      to: !isSettings ? theme.secondaryBackground : theme.primaryBackground
     },
     forceHoveredStyle: !isSettings && addr === selectedAccount
   })
@@ -199,7 +199,7 @@ const Account = ({
               isSettings={isSettings}
             />
           )}
-          {isSettings && <Dropdown data={submenuOptions} onSelect={onDropdownSelect} />}
+          {isSettings && <Dropdown data={SUBMENU_OPTIONS} onSelect={onDropdownSelect} />}
         </View>
       </Animated.View>
       <Dialog

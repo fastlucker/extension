@@ -1,8 +1,8 @@
 import { iconColors } from '@common/styles/themeConfig'
 
-const submenuOptions = [
+const SUBMENU_OPTIONS = [
   { label: 'Manage Keys', value: 'keys' },
   { label: 'Remove Account', value: 'remove', style: { color: iconColors.danger } }
 ]
 
-export default submenuOptions
+export default SUBMENU_OPTIONS

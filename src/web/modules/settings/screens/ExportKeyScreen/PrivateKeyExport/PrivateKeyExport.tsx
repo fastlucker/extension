@@ -43,8 +43,8 @@ const PrivateKeyExport: FC<Props> = ({ privateKey }) => {
   }, [addToast, privateKey])
 
   const toggleKeyVisibility = useCallback(async () => {
-    setBlurred(!blurred)
-  }, [blurred])
+    setBlurred((prev) => !prev)
+  }, [])
 
   const returnToAccounts = () => {
     navigate(ROUTES.accountsSettings)
@@ -85,7 +85,7 @@ const PrivateKeyExport: FC<Props> = ({ privateKey }) => {
             <InvisibilityIcon color={theme.secondaryText} style={spacings.mlTy} />
           )}
           <Text fontSize={14} color={theme.secondaryText}>
-            {blurred ? 'Reveal key' : 'Hide key'}
+            {blurred ? t('Reveal key') : t('Hide key')}
           </Text>
         </Pressable>
       </View>
