@@ -52,7 +52,8 @@ export const TEST_IDS = {
   selectHwOptionTrezor: 'select-hw-option-trezor',
   trezorPermissionConfirmButton: '@permissions/confirm-button',
   trezorExportAddressConfirmButton: '@export-address/confirm-button',
-  bottomSheet: 'bottom-sheet'
+  bottomSheet: 'bottom-sheet',
+  addAccountField: 'add-account-field'
 }
 
 export const SELECTORS = Object.fromEntries(
