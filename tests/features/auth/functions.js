@@ -227,10 +227,6 @@ export async function personalizeAccountName(page, newName, accIndex = 0) {
 }
 
 export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, extensionURL) {
-  // // Click on account select button
-  // await clickOnElement(page, SELECTORS.accountSelectBtn)
-  // // Wait for dashboard screen to be loaded
-  // await page.waitForFunction(() => window.location.href.includes('/account-select'))
   // Click on "Add Account"
   await clickOnElement(page, SELECTORS.buttonAddAccount)
 
@@ -473,6 +469,17 @@ export async function selectHdPathAndAddAccount(page, hdPathSelector) {
   // Click on "Import account" button
   await clickOnElement(page, `${SELECTORS.buttonImportAccount}:not([disabled])`)
   await page.waitForNavigation()
+
+  await page.waitForSelector(SELECTORS.address, { visible: true })
+
+  const importedAccountDetails = await page.$$eval(SELECTORS.address, (elements) =>
+    elements.map((element) => element.innerText)
+  )
+
+  // Check if there is an imported account
+  expect(importedAccountDetails.length).toBeGreaterThan(0)
+  // Check if there is an imported account address is equal to the selected one
+  expect(importedAccountDetails[0]).toEqual(firstAddress)
 
   // Click on "Save and Continue" button
   await clickOnElement(page, SELECTORS.saveAndContinueBtn)
