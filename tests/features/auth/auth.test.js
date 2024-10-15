@@ -327,7 +327,9 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
 
     // Click on account select button
-    await clickOnElement(page, SELECTORS.accountSelectBtn)
+    // We add a delay because there is a loading animation in the header (when closing the PinExtension tooltip),
+    // and Puppeteer registers the click, but it is not applied to the React state.
+    await clickOnElement(page, SELECTORS.accountSelectBtn, true, 1000)
 
     // Wait for dashboard screen to be loaded
     await page.waitForFunction(() => window.location.href.includes('/account-select'))
