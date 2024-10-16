@@ -31,10 +31,6 @@ describe('ba_transactions', () => {
     await makeValidTransaction(page, extensionURL, browser, { shouldStopBeforeSign: true })
   })
 
-  it('Makes a valid swap', async () => {
-    await makeSwap(page, extensionURL, browser, { shouldStopBeforeSign: true })
-  })
-
   it('(-) Sends POL tokens greater than the available balance', async () => {
     await sendFundsGreaterThanBalance(page, extensionURL)
   })
@@ -45,5 +41,18 @@ describe('ba_transactions', () => {
 
   it('Signs a message', async () => {
     await signMessage(page, extensionURL, browser, process.env.BA_SELECTED_ACCOUNT)
+  })
+
+  describe('Swap', () => {
+    // Swap tests fail occasionally (2 out of 10 times in CI) because Uniswap can't switch the network to Polygon.
+    // We traced the RPC requests but couldn't identify any failing ones.
+    // Since the swap is managed by Uniswap, it is difficult to debug exactly what is happening.
+    // Considering that this failure is only observed in CI mode,
+    // we have decided to stop investigating the issue and instead re-run the test if it fails.
+    jest.retryTimes(3)
+
+    it('Makes a valid swap', async () => {
+      await makeSwap(page, extensionURL, browser, { shouldStopBeforeSign: true })
+    })
   })
 })
