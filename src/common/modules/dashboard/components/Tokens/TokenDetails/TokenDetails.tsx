@@ -1,7 +1,7 @@
 import { getAddress, ZeroAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
@@ -15,9 +15,9 @@ import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
+import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useConnectivity from '@common/hooks/useConnectivity'
@@ -48,7 +48,7 @@ const TokenDetails = ({
   handleClose: () => void
   tokenPreferences: CustomToken[]
 }) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
@@ -282,6 +282,10 @@ const TokenDetails = ({
         token: newToken
       }
     })
+
+    // The modal closes anyway so it's better to close it right
+    // after hiding the token
+    handleClose()
   }
   if (!token) return null
 
@@ -328,12 +332,16 @@ const TokenDetails = ({
             </View>
             {!onGasTank && !isRewards && !isVesting && (
               <View style={[flexbox.alignSelfEnd]}>
-                <Toggle
-                  isOn={isHidden}
-                  onToggle={handleHideToken}
-                  label={isHidden ? t('Show Token') : t('Hide Token')}
-                  toggleStyle={spacings.mrTy}
-                />
+                <Pressable
+                  style={[flexbox.directionRow, flexbox.alignCenter]}
+                  onPress={handleHideToken}
+                  disabled={isHidden}
+                >
+                  <Text weight="medium" fontSize={12}>
+                    {t('Hide')}
+                  </Text>
+                  <VisibilityIcon color={theme.successDecorative} style={styles.visibilityIcon} />
+                </Pressable>
               </View>
             )}
           </View>
