@@ -225,6 +225,19 @@ const SeedPhraseImportScreen = () => {
     [fields, setValue, addToast, updateFieldsLength, t]
   )
 
+  const validateSeedPhraseWord = useCallback(
+    (value: string) => {
+      const couldValueBeAPastedSeed = value.split(' ').length > 1
+
+      // If the value contains multiple words, it could be a pasted seed phrase
+      // Don't display errors in this case, otherwise an error flashes when pasting
+      if (!value || couldValueBeAPastedSeed) return undefined
+      if (!wordlists.english.includes(value)) return t('Invalid Word.')
+      return undefined
+    },
+    [t]
+  )
+
   return (
     <TabLayoutContainer
       width="md"
@@ -297,7 +310,7 @@ const SeedPhraseImportScreen = () => {
                 style={[
                   flexbox.directionRow,
                   (index + 1) % 4 !== 0 ? spacings.pr : {},
-                  spacings.mb,
+                  spacings.mbTy,
                   { width: '25%' }
                 ]}
               >
@@ -308,11 +321,7 @@ const SeedPhraseImportScreen = () => {
                   control={control}
                   rules={{
                     required: true,
-                    validate: (value: string) => {
-                      if (!value) return undefined
-                      if (!wordlists.english.includes(value)) return t('Invalid Word.')
-                      return undefined
-                    }
+                    validate: validateSeedPhraseWord
                   }}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
