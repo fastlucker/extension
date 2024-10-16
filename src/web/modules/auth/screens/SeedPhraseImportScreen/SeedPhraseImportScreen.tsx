@@ -232,7 +232,7 @@ const SeedPhraseImportScreen = () => {
       // If the value contains multiple words, it could be a pasted seed phrase
       // Don't display errors in this case, otherwise an error flashes when pasting
       if (!value || couldValueBeAPastedSeed) return undefined
-      if (!wordlists.english.includes(value)) return t('Invalid Word.')
+      if (!wordlists.english.includes(value)) return t('Invalid Word')
       return undefined
     },
     [t]
