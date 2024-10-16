@@ -1,4 +1,4 @@
-import { Mnemonic } from 'ethers'
+import { wordlists } from 'bip39'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -76,9 +76,7 @@ const SeedPhraseImportScreen = () => {
     watch,
     control,
     handleSubmit,
-    clearErrors,
     getValues,
-    setError,
     setValue,
     formState: { isValid, errors }
   } = useForm({
@@ -105,28 +103,6 @@ const SeedPhraseImportScreen = () => {
   useEffect(() => {
     updateStepperState(WEB_ROUTES.importSeedPhrase, 'seed')
   }, [updateStepperState])
-
-  useEffect(() => {
-    const { unsubscribe } = watch((value) => {
-      const formattedSeed = value.seedFields?.map((field) => field.value?.trim()).join(' ') || ''
-
-      // Some fields are empty
-      if (value.seedFields?.filter((field) => field.value).length !== value.seedLength?.value)
-        return
-
-      // Invalid seed phrase
-      if (!Mnemonic.isValidMnemonic(formattedSeed)) {
-        setError('seedFields', {
-          type: 'custom',
-          message: t('Invalid Seed Phrase. Please review every field carefully.')
-        })
-        return
-      }
-
-      clearErrors('seedFields')
-    })
-    return () => unsubscribe()
-  }, [watch, setError, clearErrors, t])
 
   useEffect(() => {
     if (
@@ -267,7 +243,7 @@ const SeedPhraseImportScreen = () => {
             text={t('Import')}
             size="large"
             hasBottomSpacing={false}
-            disabled={!isValid || !!errors.seedFields?.message}
+            disabled={!isValid}
             onPress={handleFormSubmit}
           >
             <View style={spacings.pl}>
@@ -320,18 +296,24 @@ const SeedPhraseImportScreen = () => {
                 key={field.id}
                 style={[
                   flexbox.directionRow,
-                  flexbox.alignCenter,
                   (index + 1) % 4 !== 0 ? spacings.pr : {},
                   spacings.mb,
                   { width: '25%' }
                 ]}
               >
-                <Text fontSize={14} weight="medium" style={[{ width: 24 }]}>
+                <Text fontSize={14} weight="medium" style={[{ marginTop: 10, width: 24 }]}>
                   {index + 1}.
                 </Text>
                 <Controller
                   control={control}
-                  rules={{ required: true }}
+                  rules={{
+                    required: true,
+                    validate: (value: string) => {
+                      if (!value) return undefined
+                      if (!wordlists.english.includes(value)) return t('Invalid Word.')
+                      return undefined
+                    }
+                  }}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       testID={`seed-phrase-field-${index + 1}`}
@@ -341,8 +323,17 @@ const SeedPhraseImportScreen = () => {
                       inputWrapperStyle={{ height: 40 }}
                       inputStyle={{ height: 38 }}
                       placeholder={t('Word {{index}}', { index: index + 1 })}
-                      containerStyle={[spacings.mb0, flexbox.flex1]}
+                      containerStyle={[
+                        spacings.mb0,
+                        flexbox.flex1,
+                        {
+                          height: 60
+                        }
+                      ]}
                       placeholderTextColor={theme.secondaryText}
+                      // @ts-ignore
+                      error={String(errors.seedFields?.[index]?.value?.message || '')}
+                      isValid={errors.seedFields?.[index] ? false : undefined}
                       // any type, because nativeEvent?.inputType is web only
                       onChange={(e: any) => {
                         if (!isWeb) return onChange(e)
@@ -363,9 +354,6 @@ const SeedPhraseImportScreen = () => {
               </View>
             ))}
           </View>
-          {errors.seedFields?.message ? (
-            <Alert type="error" title={errors.seedFields?.message} />
-          ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
       {!keystoreState.hasKeystoreDefaultSeed && (
