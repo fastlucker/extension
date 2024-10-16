@@ -35,10 +35,12 @@ const generateConfirmationWords = (seed: string[]) => {
   const confirmationWords: { numberInSeed: number; word: string }[] = []
 
   // Select one random word from each group
-  wordGroups.forEach((group) => {
-    const randomIndex = Math.floor(Math.random() * group.length)
+  wordGroups.forEach((group, groupIndex) => {
+    const randomIndex = Math.floor(Math.random() * (group.length - 1))
+    const indexOfWord = groupIndex * 3 + randomIndex
+
     confirmationWords.push({
-      numberInSeed: seed.indexOf(group[randomIndex]) + 1,
+      numberInSeed: indexOfWord + 1,
       word: group[randomIndex]
     })
   })
