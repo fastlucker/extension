@@ -19,9 +19,6 @@ const DomainBadge: FC<Props> = ({ ens, ud }) => {
   return (
     <View
       style={{
-        position: 'absolute',
-        left: -SPACING_MI,
-        top: -SPACING_MI,
         padding: SPACING_MI / 2,
         backgroundColor: theme.primaryBackground,
         zIndex: 2,
