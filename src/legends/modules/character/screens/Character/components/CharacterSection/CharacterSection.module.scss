@@ -1,5 +1,9 @@
 @import '@legends/styles/base.scss';
 
+.error {
+  margin-bottom: 1.5rem;
+}
+
 .wrapper {
   display: flex;
   position: relative;
@@ -22,12 +26,17 @@
       margin-bottom: 0.25rem;
 
       .characterName {
+        flex: 1;
         font-family: $secondaryFont;
         font-size: 4rem;
         line-height: 1;
         font-weight: 500;
         color: $primaryText;
         text-transform: capitalize;
+
+        &.small {
+          font-size: 3rem;
+        }
       }
 
       /* Container for the circular progress bar */
@@ -103,6 +112,7 @@
         z-index: 2;
         width: 37.5rem;
         height: 37.5rem;
+        object-fit: contain;
       }
     }
   }
