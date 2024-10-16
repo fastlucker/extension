@@ -38,6 +38,7 @@ const ActivitySection = () => {
                         href={`${network.explorerUrl}/tx/${act.txId}`}
                         target="_blank"
                         rel="noreferrer"
+                        className={styles.link}
                       >
                         {txnId}
                       </a>
