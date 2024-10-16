@@ -20,14 +20,17 @@ type Activity = {
 const ActivityContext = createContext<{
   activity: Activity[] | null
   isLoading: boolean
+  error: string | null
 }>({
   activity: null,
-  isLoading: false
+  isLoading: false,
+  error: null
 })
 const ActivityContextProvider: React.FC<any> = ({ children }) => {
   const { lastConnectedV2Account } = useAccountContext()
   const [activity, setActivity] = useState<Activity[] | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const getActivity = useCallback(async () => {
     if (!lastConnectedV2Account) {
@@ -36,12 +39,24 @@ const ActivityContextProvider: React.FC<any> = ({ children }) => {
       return
     }
 
-    const activityResponse = await fetch(
-      `${RELAYER_URL}/legends/activity/${lastConnectedV2Account}`
-    )
+    try {
+      const activityResponse = await fetch(
+        `${RELAYER_URL}/legends/activity/${lastConnectedV2Account}`
+      )
+
+      const response = await activityResponse.json()
+
+      setActivity(response)
+      setError(null)
+    } catch (e) {
+      setIsLoading(false)
+      setActivity(null)
+
+      console.error(e)
+      setError("Couldn't fetch Character's activity! Please try again later!")
+    }
 
     setIsLoading(false)
-    setActivity(await activityResponse.json())
   }, [lastConnectedV2Account])
 
   useEffect(() => {
@@ -53,9 +68,10 @@ const ActivityContextProvider: React.FC<any> = ({ children }) => {
       value={useMemo(
         () => ({
           activity,
-          isLoading
+          isLoading,
+          error
         }),
-        [activity, isLoading]
+        [activity, isLoading, error]
       )}
     >
       {children}

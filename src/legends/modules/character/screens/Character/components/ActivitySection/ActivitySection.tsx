@@ -3,15 +3,17 @@ import React from 'react'
 import useActivityContext from '@legends/hooks/useActivityContext'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { networks } from '@ambire-common/consts/networks'
+import Alert from '@legends/components/Alert'
 import SectionHeading from '../SectionHeading'
 import styles from './ActivitySection.module.scss'
 
 const ActivitySection = () => {
-  const { activity, isLoading } = useActivityContext()
+  const { activity, isLoading, error = 'test' } = useActivityContext()
   return (
     <div className={styles.wrapper}>
       <SectionHeading>Legends Activity</SectionHeading>
       <p>{isLoading ? 'Loading ...' : ''}</p>
+      {error && <Alert type="error" title={error} />}
       {activity && (
         <table className={styles.table}>
           <thead>
