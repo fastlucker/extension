@@ -2,7 +2,7 @@ import { wordlists } from 'bip39'
 import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import ImportAccountsFromSeedPhraseIcon from '@common/assets/svg/ImportAccountsFromSeedPhraseIcon'
@@ -32,10 +32,13 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Stepper from '@web/modules/router/components/Stepper'
+
+import getStyles from './styles'
 
 const arrayWithEmptyString = (length: number) => new Array(length).fill({ value: '' })
 
@@ -69,7 +72,7 @@ const SeedPhraseImportScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const accountAdderCtrlState = useAccountAdderControllerState()
   const keystoreState = useKeystoreControllerState()
@@ -254,7 +257,7 @@ const SeedPhraseImportScreen = () => {
       // If the value contains multiple words, it could be a pasted seed phrase
       // Don't display errors in this case, otherwise an error flashes when pasting
       if (!value || couldValueBeAPastedSeed) return undefined
-      if (!wordlists.english.includes(value)) return t('Word not in BIP39 list')
+      if (!wordlists.english.includes(value)) return t('invalid-bip39-word')
       return undefined
     },
     [t]
@@ -339,49 +342,77 @@ const SeedPhraseImportScreen = () => {
                 <Text fontSize={14} weight="medium" style={[{ marginTop: 10, width: 24 }]}>
                   {index + 1}.
                 </Text>
-                <Controller
-                  control={control}
-                  rules={{
-                    required: true,
-                    validate: validateSeedPhraseWord
-                  }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <Input
-                      testID={`seed-phrase-field-${index + 1}`}
-                      value={value}
-                      editable
-                      numberOfLines={1}
-                      inputWrapperStyle={{ height: 40 }}
-                      inputStyle={{ height: 38 }}
-                      placeholder={t('Word {{index}}', { index: index + 1 })}
-                      containerStyle={[
-                        spacings.mb0,
-                        flexbox.flex1,
-                        {
-                          height: 60
-                        }
-                      ]}
-                      placeholderTextColor={theme.secondaryText}
-                      // @ts-ignore
-                      error={String(errors.seedFields?.[index]?.value?.message || '')}
-                      isValid={errors.seedFields?.[index] ? false : undefined}
-                      // any type, because nativeEvent?.inputType is web only
-                      onChange={(e: any) => {
-                        if (!isWeb) return onChange(e)
-                        const prevValue = getValues(`seedFields.${index}.value`)
-                        const newValueWithoutPrevValue = e.nativeEvent.text.replace(prevValue, '')
+                <View
+                  style={[
+                    flexbox.flex1,
+                    {
+                      height: 64
+                    }
+                  ]}
+                >
+                  <Controller
+                    control={control}
+                    rules={{
+                      required: true,
+                      validate: validateSeedPhraseWord
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <Input
+                        testID={`seed-phrase-field-${index + 1}`}
+                        value={value}
+                        editable
+                        numberOfLines={1}
+                        inputWrapperStyle={{ height: 40 }}
+                        inputStyle={{ height: 38 }}
+                        placeholder={t('Word {{index}}', { index: index + 1 })}
+                        containerStyle={spacings.mb0}
+                        placeholderTextColor={theme.secondaryText}
+                        // @ts-ignore
+                        isValid={errors.seedFields?.[index] ? false : undefined}
+                        // any type, because nativeEvent?.inputType is web only
+                        onChange={(e: any) => {
+                          if (!isWeb) return onChange(e)
+                          const prevValue = getValues(`seedFields.${index}.value`)
+                          const newValueWithoutPrevValue = e.nativeEvent.text.replace(prevValue, '')
 
-                        if (e.nativeEvent?.inputType === 'insertFromPaste') {
-                          handlePaste(newValueWithoutPrevValue)
+                          if (e.nativeEvent?.inputType === 'insertFromPaste') {
+                            handlePaste(newValueWithoutPrevValue)
+                          }
+                          onChange(e)
+                        }}
+                        onSubmitEditing={handleFormSubmit}
+                        onBlur={onBlur}
+                      />
+                    )}
+                    name={`seedFields.${index}.value`}
+                  />
+                  {/* @ts-ignore */}
+                  {errors.seedFields?.[index]?.value?.message === 'invalid-bip39-word' && (
+                    <Text fontSize={10} appearance="errorText" style={styles.errorText}>
+                      {t('Invalid ')}
+                      <Pressable
+                        onPress={() =>
+                          openInTab(
+                            'https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt',
+                            false
+                          )
                         }
-                        onChange(e)
-                      }}
-                      onSubmitEditing={handleFormSubmit}
-                      onBlur={onBlur}
-                    />
+                      >
+                        <Text
+                          fontSize={10}
+                          appearance="errorText"
+                          style={{
+                            textDecorationLine: 'underline'
+                          }}
+                          weight="medium"
+                        >
+                          {t('BIP39')}
+                        </Text>
+                      </Pressable>
+                      {t(' word')}
+                    </Text>
                   )}
-                  name={`seedFields.${index}.value`}
-                />
+                </View>
               </View>
             ))}
           </View>
