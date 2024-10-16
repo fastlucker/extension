@@ -3,9 +3,11 @@ import { Control, Controller } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import Avatar from '@common/components/Avatar'
+import DomainBadge from '@common/components/Avatar/DomainBadge'
 import Editable from '@common/components/Editable'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
@@ -32,7 +34,7 @@ const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = tr
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
       <View style={[flexbox.justifySpaceBetween, flexbox.alignCenter, flexbox.directionRow]}>
         <View testID="personalize-account" style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Avatar ens={ens} ud={ud} pfp={preferences.pfp} />
+          <Avatar isSmart={isSmartAccount(account)} pfp={preferences.pfp} />
           <View style={flexbox.flex1}>
             <View style={flexbox.directionRow}>
               <Controller
@@ -53,7 +55,10 @@ const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = tr
               />
               <AccountBadges accountData={account} />
             </View>
-            <AccountAddress ens={ens} ud={ud} isLoading={isLoading} address={address} />
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <DomainBadge ens={ens} ud={ud} />
+              <AccountAddress ens={ens} ud={ud} isLoading={isLoading} address={address} />
+            </View>
           </View>
         </View>
       </View>

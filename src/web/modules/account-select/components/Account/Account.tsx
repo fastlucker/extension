@@ -3,13 +3,17 @@ import { Animated, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
-import LogOutIcon from '@common/assets/svg/LogOutIcon'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
+import AccountKeyIcons from '@common/components/AccountKeyIcons'
+import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Avatar from '@common/components/Avatar'
+import DomainBadge from '@common/components/Avatar/DomainBadge'
 import Dialog from '@common/components/Dialog'
 import DialogButton from '@common/components/Dialog/DialogButton'
 import DialogFooter from '@common/components/Dialog/DialogFooter'
+import Dropdown from '@common/components/Dropdown'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -25,6 +29,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+import SUBMENU_OPTIONS from './submenuOptions'
 
 const { isTab } = getUiType()
 
@@ -33,13 +38,17 @@ const Account = ({
   onSelect,
   maxAccountAddrLength = 42,
   withSettings = true,
-  renderRightChildren
+  renderRightChildren,
+  isSettings = false,
+  openAddAccountBottomSheet
 }: {
   account: AccountInterface
   onSelect?: (addr: string) => void
   maxAccountAddrLength?: number
   withSettings?: boolean
   renderRightChildren?: () => React.ReactNode
+  isSettings?: boolean
+  openAddAccountBottomSheet?: () => void
 }) => {
   const { addr, preferences } = account
   const { t } = useTranslation()
@@ -54,12 +63,18 @@ const Account = ({
     property: 'backgroundColor',
     values: {
       from: theme.primaryBackground,
-      to: theme.secondaryBackground
+      to: !isSettings ? theme.secondaryBackground : theme.primaryBackground
     },
-    forceHoveredStyle: addr === selectedAccount
+    forceHoveredStyle: !isSettings && addr === selectedAccount
   })
 
+  const { ref: sheetRef, open: openKeysBottomSheet, close: closeBottomSheet } = useModalize()
+
   const selectAccount = useCallback(() => {
+    if (isSettings) {
+      return
+    }
+
     if (selectedAccount !== addr) {
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
@@ -68,7 +83,7 @@ const Account = ({
     }
 
     onSelect && onSelect(addr)
-  }, [addr, dispatch, onSelect, selectedAccount])
+  }, [addr, dispatch, onSelect, selectedAccount, isSettings])
 
   const removeAccount = useCallback(() => {
     dispatch({
@@ -111,18 +126,31 @@ const Account = ({
     }
   }, [addToast, closeDialog, mainCtrlState.statuses.removeAccount, t])
 
+  const onDropdownSelect = (item: { label: string; value: string }) => {
+    if (item.value === 'remove') {
+      promptRemoveAccount()
+      return
+    }
+
+    if (item.value === 'keys') {
+      openKeysBottomSheet()
+    }
+  }
+
   return (
     <Pressable
       disabled={accountsStatuses.selectAccount !== 'INITIAL'}
       onPress={selectAccount}
       {...bindAnim}
       testID="account"
+      // @ts-ignore
+      style={isSettings ? { cursor: 'default' } : {}}
     >
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
-          <Avatar ens={ens} ud={ud} pfp={account.preferences.pfp} />
+          <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} showTooltip />
           <View>
-            <View style={[flexboxStyles.directionRow]}>
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
               {!withSettings ? (
                 <Text fontSize={isTab ? 16 : 14} weight="medium">
                   {account.preferences.label}
@@ -141,23 +169,37 @@ const Account = ({
                 />
               )}
 
+              <View style={[spacings.mlMi]}>
+                <AccountKeyIcons isExtended account={account} />
+              </View>
+
               <AccountBadges accountData={account} />
             </View>
-            <AccountAddress
-              isLoading={isLoading}
-              ens={ens}
-              ud={ud}
-              address={addr}
-              plainAddressMaxLength={maxAccountAddrLength}
-              skeletonAppearance={isHovered ? 'primaryBackground' : 'secondaryBackground'}
-            />
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+              <DomainBadge ens={ens} ud={ud} />
+              <AccountAddress
+                isLoading={isLoading}
+                ens={ens}
+                ud={ud}
+                address={addr}
+                plainAddressMaxLength={maxAccountAddrLength}
+                skeletonAppearance={isHovered ? 'primaryBackground' : 'secondaryBackground'}
+              />
+            </View>
           </View>
         </View>
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
           {renderRightChildren && renderRightChildren()}
-          <Pressable onPress={promptRemoveAccount}>
-            <LogOutIcon width={20} height={20} color={theme.secondaryText} />
-          </Pressable>
+          {isSettings && (
+            <AccountKeysBottomSheet
+              sheetRef={sheetRef}
+              account={account}
+              closeBottomSheet={closeBottomSheet}
+              openAddAccountBottomSheet={openAddAccountBottomSheet}
+              isSettings={isSettings}
+            />
+          )}
+          {isSettings && <Dropdown data={SUBMENU_OPTIONS} onSelect={onDropdownSelect} />}
         </View>
       </Animated.View>
       <Dialog

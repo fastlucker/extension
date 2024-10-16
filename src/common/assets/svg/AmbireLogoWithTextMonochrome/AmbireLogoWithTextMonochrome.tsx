@@ -38,7 +38,6 @@ const AmbireLogoWithTextMonochrome = ({ width = 160, height = 168, ...rest }: Pr
         y1="0.062"
         x2="0.095"
         y2="1.049"
-        xlinkHref="#monochrome-linear-gradient-2"
       />
       <LinearGradient
         id="monochrome-linear-gradient-4"
@@ -148,7 +147,6 @@ const AmbireLogoWithTextMonochrome = ({ width = 160, height = 168, ...rest }: Pr
           />
           <Path
             id="Path_3163"
-            data-name="Path 3163"
             d="M517.86,0h0a.165.165,0,0,0-.165.163l.01,28.21a.783.783,0,0,1-.042.235l15.266,8.038L517.993.1a.144.144,0,0,0-.134-.1Zm-.2,28.608,2.915,1.673Z"
             transform="translate(-485.358 0)"
             fillRule="evenodd"

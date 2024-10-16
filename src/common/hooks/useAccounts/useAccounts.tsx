@@ -59,8 +59,8 @@ const useAccounts = () => {
 
   const getItemLayout = useCallback(
     (_: any, index: number) => ({
-      length: 68,
-      offset: 68 * index,
+      length: 64,
+      offset: 64 * index,
       index
     }),
     []

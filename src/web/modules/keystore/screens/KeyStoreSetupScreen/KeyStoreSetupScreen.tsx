@@ -73,6 +73,12 @@ const KeyStoreSetupScreen = () => {
       })
       return
     }
+    if (flow === 'create-seed') {
+      navigate(WEB_ROUTES.createSeedPhrasePrepare, {
+        state: { backTo: WEB_ROUTES.importHotWallet }
+      })
+      return
+    }
     if (flow === 'private-key') {
       navigate(WEB_ROUTES.importPrivateKey, {
         state: { backTo: WEB_ROUTES.importHotWallet }
@@ -82,6 +88,11 @@ const KeyStoreSetupScreen = () => {
     if (flow === 'create-seed') {
       navigate(WEB_ROUTES.createSeedPhrasePrepare, {
         state: { backTo: WEB_ROUTES.getStarted }
+      })
+    }
+    if (flow === 'import-json') {
+      navigate(WEB_ROUTES.importSmartAccountJson, {
+        state: { backTo: WEB_ROUTES.importHotWallet }
       })
     }
   }, [flow, navigate])

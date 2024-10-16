@@ -105,7 +105,7 @@ const AmbireLogoHorizontal: React.FC<SvgProps> = ({ ...rest }) => {
             transform="translate(-1290.209 -1186.421)"
             fill="#231f20"
           />
-          <G id="Group_1638" data-name="Group 1638">
+          <G id="Group_1638">
             <Path
               d="M524.4,626.591l3.589,7.639a.216.216,0,0,1-.044.238l-9.44,9.121a.1.1,0,0,1-.177-.079v-8.38l5.948-5.742a.193.193,0,0,0,.062-.15l.018-2.646c0-.018.035-.018.044,0Z"
               transform="translate(-509.804 -616.271)"

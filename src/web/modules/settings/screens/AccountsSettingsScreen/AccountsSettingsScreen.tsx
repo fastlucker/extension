@@ -65,10 +65,12 @@ const AccountsSettingsScreen = () => {
           key={account.addr}
           account={account}
           maxAccountAddrLength={shortenAccountAddr()}
+          isSettings
+          openAddAccountBottomSheet={openBottomSheet}
         />
       )
     },
-    [onSelectAccount, shortenAccountAddr]
+    [onSelectAccount, shortenAccountAddr, openBottomSheet]
   )
 
   return (

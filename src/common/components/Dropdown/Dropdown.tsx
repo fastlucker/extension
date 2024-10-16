@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useRef, useState } from 'react'
-import { FlatList, Modal, Pressable, TouchableOpacity, View } from 'react-native'
+import { FlatList, Modal, Pressable, TextStyle, TouchableOpacity, View } from 'react-native'
 
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import Text from '@common/components/Text'
@@ -8,7 +8,7 @@ import colors from '@common/styles/colors'
 import styles from './styles'
 
 interface Props {
-  data: Array<{ label: string; value: string }>
+  data: Array<{ label: string; value: string; style?: TextStyle }>
   onSelect: (item: { label: string; value: string }) => void
 }
 
@@ -45,7 +45,7 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
             }
           ]}
         >
-          <Text fontSize={14} shouldScale={false}>
+          <Text fontSize={14} shouldScale={false} style={item.style}>
             {item.label}
           </Text>
         </View>
