@@ -1,5 +1,6 @@
 import { wordlists } from 'bip39'
-import React, { useCallback, useEffect } from 'react'
+import { Mnemonic } from 'ethers'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -87,14 +88,14 @@ const SeedPhraseImportScreen = () => {
     }
   })
   const { maxWidthSize } = useWindowSize()
-
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'seedFields'
   })
-
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-
+  const [seedPhraseStatus, setSeedPhraseStatus] = useState<'incomplete' | 'valid' | 'invalid'>(
+    'incomplete'
+  )
   const seedPhrase =
     watch('seedFields')
       ?.map((field) => field.value?.trim())
@@ -103,6 +104,27 @@ const SeedPhraseImportScreen = () => {
   useEffect(() => {
     updateStepperState(WEB_ROUTES.importSeedPhrase, 'seed')
   }, [updateStepperState])
+
+  useEffect(() => {
+    const { unsubscribe } = watch((value) => {
+      const formattedSeed = value.seedFields?.map((field) => field.value?.trim()).join(' ') || ''
+
+      // Some fields are empty
+      if (value.seedFields?.filter((field) => field.value).length !== value.seedLength?.value) {
+        setSeedPhraseStatus('incomplete')
+        return
+      }
+
+      // Invalid seed phrase
+      if (!Mnemonic.isValidMnemonic(formattedSeed)) {
+        setSeedPhraseStatus('invalid')
+        return
+      }
+
+      setSeedPhraseStatus('valid')
+    })
+    return () => unsubscribe()
+  }, [watch, t])
 
   useEffect(() => {
     if (
@@ -232,7 +254,7 @@ const SeedPhraseImportScreen = () => {
       // If the value contains multiple words, it could be a pasted seed phrase
       // Don't display errors in this case, otherwise an error flashes when pasting
       if (!value || couldValueBeAPastedSeed) return undefined
-      if (!wordlists.english.includes(value)) return t('Invalid Word')
+      if (!wordlists.english.includes(value)) return t('Word not in BIP39 list')
       return undefined
     },
     [t]
@@ -256,7 +278,7 @@ const SeedPhraseImportScreen = () => {
             text={t('Import')}
             size="large"
             hasBottomSpacing={false}
-            disabled={!isValid}
+            disabled={!isValid || seedPhraseStatus !== 'valid'}
             onPress={handleFormSubmit}
           >
             <View style={spacings.pl}>
@@ -363,6 +385,13 @@ const SeedPhraseImportScreen = () => {
               </View>
             ))}
           </View>
+
+          {seedPhraseStatus === 'invalid' ? (
+            <Alert
+              type="error"
+              title={t('Invalid Seed Phrase. Please review every field carefully.')}
+            />
+          ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
       {!keystoreState.hasKeystoreDefaultSeed && (

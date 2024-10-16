@@ -34,7 +34,8 @@ export const INVALID_ACC_ADDRESS = '0xC254b41239582e45a2aCE62D5adD3F8092D4ea6C'
 
 // ERROR MESSAGES
 export const INVALID_PRIVATE_KEY_ERROR_MSG = 'Invalid private key.'
-export const INVALID_SEED_PHRASE_ERROR_MSG = 'Invalid Word'
+export const INVALID_SEED_PHRASE_ERROR_MSG =
+  'Invalid Seed Phrase. Please review every field carefully.'
 export const INVALID_CHECKSUM_ERROR_MSG = 'Invalid checksum. Verify the address and try again.'
 export const INVALID_ADDRESS_OR_UD_DOMAIN_ERROR_MSG =
   'Please enter a valid address or ENS/UD domain'
