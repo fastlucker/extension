@@ -412,7 +412,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   // so that the modal appears
   await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
 
-  await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
+  await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn, true, 500)
 
   const { firstSelectedAccount, secondSelectedAccount } = await finishStoriesAndSelectAccount(page)
 
