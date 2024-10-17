@@ -1,13 +1,14 @@
-import { ethers, Interface } from 'ethers'
+import { ethers, hexlify, Interface, randomBytes } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { Wheel } from 'react-custom-roulette'
 
+import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import { RELAYER_URL } from '@env'
 import Modal from '@legends/components/Modal'
-import { LEGENDS_CONTRACT_ABI } from '@legends/constants/abis/legends'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useToast from '@legends/hooks/useToast'
 
 import styles from './WheelComponentModal.module.scss'
 
@@ -29,34 +30,73 @@ const data = [
   { option: '80', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
   { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
   { option: '20', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '300', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 2 },
-  { option: '50', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '80', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
+  { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
+  { option: '80', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
   { option: '150', style: { backgroundColor: '#F8E3B7', textColor: '#B67D02' }, optionSize: 3 },
   { option: '80', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
   { option: '50', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
   { option: '20', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
-  { option: '50', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 }
+  { option: '300', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 2 },
+  { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 }
 ]
 interface WheelComponentProps {
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
+let fetchTryCount = 0
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
   const [mustSpin, setMustSpin] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState(6)
   const [spinOfTheDay, setSpinOfTheDay] = useState(0)
-  const { connectedAccount } = useAccountContext()
+  const [txnHash, setTxnHash] = useState('')
+  const { connectedAccount, isConnectedAccountV2 } = useAccountContext()
+  const { addToast } = useToast()
 
-  const handleSpinClick = () => {
-    if (!mustSpin) {
-      broadcastTransaction()
+  const checkTransactionStatus = useCallback(async () => {
+    if (spinOfTheDay === 1) return true
+    try {
+      fetchTryCount += 1
+      const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
+      const txns = await response.json()
+      const today = new Date().toISOString().split('T')[0]
+
+      const transaction: Transaction | undefined = txns.find(
+        (txn: Transaction) =>
+          txn.submittedAt.startsWith(today) &&
+          txn.legends.activities &&
+          txn.legends.activities.some((activity: Activity) =>
+            activity.action.startsWith('WheelOfFortune')
+          )
+      )
+
+      if (!transaction) return false
+      const spinWheelActivity = transaction.legends.activities.find((activity: any) => {
+        return activity.action.includes('WheelOfFortune')
+      })
+      console.log('spinWheelActivity', spinWheelActivity)
+      if (!spinWheelActivity) return false
+      const spinWheelActivityIndex = data.findIndex(
+        (item: any) => item.option === spinWheelActivity.xp.toString()
+      )
+
+      if (spinWheelActivityIndex !== -1) {
+        setPrizeNumber(spinWheelActivityIndex)
+        setMustSpin(true)
+        setSpinOfTheDay(1)
+        return true
+      }
+    } catch (error) {
+      console.error('Error fetching transaction status:', error)
+      addToast('Error fetching transaction status', 'error')
+      return false
     }
-  }
+
+    return false
+  }, [connectedAccount, spinOfTheDay, addToast])
 
   const broadcastTransaction = useCallback(async () => {
-    if (!connectedAccount || !window.ambire) return
+    if (!connectedAccount || !isConnectedAccountV2 || !window.ambire) return
 
     // Switch to Base chain
     await window.ambire.request({
@@ -68,55 +108,15 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
 
     const signer = await provider.getSigner()
 
-    let fetchTryCount = 0
-
-    const checkTransactionStatus = async (): Promise<boolean> => {
-      if (spinOfTheDay === 1) return true
-      try {
-        fetchTryCount += 1
-        const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
-        const txns = await response.json()
-        const today = new Date().toISOString().split('T')[0]
-
-        const transaction: Transaction | undefined = txns.find(
-          (txn: Transaction) =>
-            txn.submittedAt.startsWith(today) &&
-            txn.legends.activities &&
-            txn.legends.activities.some((activity: Activity) =>
-              activity.action.startsWith('WheelOfFortune')
-            )
-        )
-
-        if (!transaction) return false
-        const spinWheelActivity = transaction.legends.activities.find((activity: any) => {
-          return activity.action.includes('WheelOfFortune')
-        })
-        if (!spinWheelActivity) return false
-        const spinWheelActivityIndex = data.findIndex(
-          (item: any) => item.option === spinWheelActivity.xp.toString()
-        )
-
-        if (spinWheelActivityIndex !== -1) {
-          setPrizeNumber(spinWheelActivityIndex)
-          setMustSpin(true)
-          setSpinOfTheDay(1)
-          return true
-        }
-      } catch (error) {
-        console.error('Error fetching transaction status:', error)
-        alert('Error fetching transaction status')
-        return false
-      }
-
-      return false
-    }
-
     try {
-      const randomValue = BigInt(Math.floor(Math.random() * 1000000).toString())
+      const randomValueBytes = randomBytes(32)
+      const randomValue = BigInt(hexlify(randomValueBytes))
+
       const tx = await signer.sendTransaction({
         to: LEGENDS_CONTRACT_ADDRESS,
         data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('spinWheel', [randomValue])
       })
+      setTxnHash(tx.hash)
 
       const receipt = await tx.wait()
 
@@ -138,9 +138,16 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       }
     } catch (e) {
       console.error('Failed to broadcast transaction:', e)
+      addToast('Failed to broadcast transaction', 'error')
       setMustSpin(false)
     }
-  }, [connectedAccount, spinOfTheDay])
+  }, [connectedAccount, checkTransactionStatus, addToast, isConnectedAccountV2])
+
+  const handleSpinClick = async () => {
+    if (!mustSpin) {
+      await broadcastTransaction()
+    }
+  }
 
   return (
     <Modal className={styles.modal} isOpen={isOpen} setIsOpen={setIsOpen}>
@@ -165,16 +172,20 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           perpendicularText
           pointerProps={{
             src: '/images/pointer.png',
-            style: { rotate: '46deg', top: '30px', right: '0', width: '148px' }
+            style: { rotate: '46deg', top: '35px', right: '0', width: '148px' }
           }}
         />
         <button
           onClick={handleSpinClick}
-          disabled={mustSpin || !!spinOfTheDay}
+          disabled={mustSpin || !!spinOfTheDay || !!txnHash}
           type="button"
           className={styles.button}
         >
-          {mustSpin ? 'Spinning' : 'Send Transaction & Spin'}
+          {txnHash && !mustSpin && !spinOfTheDay
+            ? 'Awaiting Transaction Confirmation'
+            : mustSpin
+            ? 'Spinning'
+            : 'Send Transaction & Spin'}
         </button>
       </div>
     </Modal>
