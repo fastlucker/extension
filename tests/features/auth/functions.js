@@ -37,18 +37,40 @@ export async function checkAccountDetails(
   })
 }
 
-export async function finishStoriesAndSelectAccount(page) {
+export async function finishStoriesAndSelectAccount(
+  page,
+  skipStories = false,
+  hideEmptyBasicAccounts = false
+) {
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-  await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
-  await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
+  if (!skipStories) {
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
+  }
+
+  // Hide empty basic accounts
+  if (hideEmptyBasicAccounts) {
+    await clickOnElement(
+      page,
+      'xpath///div[contains(text(), "Hide empty basic accounts")]',
+      true,
+      1500
+    )
+  }
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
   // Get an array with all the account addresses from the list
   const accountAddresses = await page.$$eval(SELECTORS.addAccountField, (elements) =>
-    elements.map((element) => element.innerText)
+    elements
+      .map((element) => element.innerText)
+      .filter((item) => {
+        // Regular expression to match a valid Ethereum address
+        const validAddressRegex = /^0x[a-fA-F0-9]{40}$/
+        return validAddressRegex.test(item)
+      })
   )
 
   // Take the first two accounts from the list
@@ -204,11 +226,7 @@ export async function personalizeAccountName(page, newName, accIndex = 0) {
   await clickOnElement(page, buildSelector(TEST_IDS.editBtnForEditNameField, accIndex))
 }
 
-export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, newName) {
-  // Click on account select button
-  await clickOnElement(page, SELECTORS.accountSelectBtn)
-  // Wait for dashboard screen to be loaded
-  await page.waitForFunction(() => window.location.href.includes('/account-select'))
+export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, extensionURL) {
   // Click on "Add Account"
   await clickOnElement(page, SELECTORS.buttonAddAccount)
 
@@ -219,44 +237,34 @@ export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, newName) 
 
   // Click on "Import a new Smart Account from the default Seed Phrase" button
   // Note: Added a delay of 500ms because of the importing process
-  await clickOnElement(page, SELECTORS.createNewWallet, false, 500)
+  await clickOnElement(page, SELECTORS.importFromSavedSeed, false, 500)
 
-  await page.waitForNavigation({ waitUntil: 'load' })
+  await finishStoriesAndSelectAccount(page, true, true)
 
-  await page.waitForFunction(() => window.location.href.includes('/account-personalize'))
+  const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
+  await personalizeAccountName(page, accountName1, 0)
+  await personalizeAccountName(page, accountName2, 1)
 
-  // TODO: maybe this check is redundant
-  const isSuccAddedOneAcc = await page.$$eval(
-    'div[dir="auto"]',
-    (elements, msg) => {
-      return elements.some((item) => item.textContent === msg)
-    },
-    'Successfully added 1 account'
-  )
-  expect(isSuccAddedOneAcc).toBe(true)
+  // Click on "Save and Continue" button
+  await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
 
-  const addedNewAccCount = await page.$$eval(
-    SELECTORS.personalizeAccount,
-    (elements) => elements.length
-  )
-  expect(addedNewAccCount).toBe(1)
+  await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
-  // Personalize the account
-  await personalizeAccountName(page, newName)
-
-  // Click "Save and continue button"
-  await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+  await page.waitForSelector(SELECTORS.account, { visible: true })
 }
 
-export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
-  // Click on "Create a new hot wallet" button
-  await clickOnElement(page, SELECTORS.getStartedCreateHotWallet)
+export async function createHotWalletWithSeedPhrase(page, serviceWorker, extensionURL) {
+  // Click on "Create new or import an existing hot wallet" button
+  await clickOnElement(page, SELECTORS.getStartedBtnImport)
 
-  // Click on "Set up with a seed phrase" button.
+  // Click on Seed Phrase "Proceed" button
+  await clickOnElement(page, SELECTORS.buttonProceedSeedPhrase)
+
+  // Click on "Create seed" button.
   // We add a delay because the selector is part of an animated modal, and clicking on the selector
   // doesn't update the React state. This is most likely because the element is present in the DOM
   // but still outside the clickable viewport.
-  await clickOnElement(page, SELECTORS.setUpWithSeedPhraseBtn, true, 500)
+  await clickOnElement(page, SELECTORS.createSeedBtn, true, 500)
 
   // Wait for keystore to be loaded
   await page.waitForFunction(() => window.location.href.includes('/keystore-setup'))
@@ -327,24 +335,30 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker) {
   await clickOnElement(page, SELECTORS.createSeedPhraseConfirmContinueBtn)
 
   await page.waitForNavigation({ waitUntil: 'load' })
-  // TODO: maybe this check is redundant
-  const isSuccessfullyAddedOneAccount = await page.$$eval(
-    'div[dir="auto"]',
-    (elements, msg) => {
-      return elements.some((item) => item.textContent === msg)
-    },
-    'Successfully added 1 account'
-  )
-  expect(isSuccessfullyAddedOneAccount).toBe(true)
 
-  const addedAccountsCount = await page.$$eval(
-    SELECTORS.personalizeAccount,
-    (elements) => elements.length
+  const { firstSelectedAccount, secondSelectedAccount } = await finishStoriesAndSelectAccount(
+    page,
+    false,
+    true
   )
-  expect(addedAccountsCount).toBe(1)
 
-  // Click "Save and continue button"
-  await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+  const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
+  await personalizeAccountName(page, accountName1, 0)
+  await personalizeAccountName(page, accountName2, 1)
+
+  // Click on "Save and Continue" button
+  await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
+
+  await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
+
+  await page.waitForSelector(SELECTORS.account, { visible: true })
+
+  await checkAccountDetails(
+    page,
+    SELECTORS.account,
+    [accountName1, accountName2],
+    [firstSelectedAccount, secondSelectedAccount]
+  )
 }
 
 async function testWithInvalidSeedPhrase(page, invalidSeeds) {
@@ -422,6 +436,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
 }
 
 export async function selectHdPathAndAddAccount(page, hdPathSelector) {
+  // Select the HD Path dropdown
   await clickOnElement(page, SELECTORS.selectChangeHdPath)
   // Select different HD path
   await clickOnElement(page, hdPathSelector)
@@ -431,17 +446,40 @@ export async function selectHdPathAndAddAccount(page, hdPathSelector) {
   // At this moment I couldn't find an other solution except to set a timeout
   await wait(2000)
 
-  const addedAccountAddress = await page.$eval(SELECTORS.addAccountField, (element) => {
-    return element.innerText
-  })
+  await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
-  const accAddrSelector = buildSelector(TEST_IDS.addAccount, addedAccountAddress)
+  const accountAddresses = await page.$$eval(SELECTORS.addAccountField, (elements) =>
+    elements
+      .map((element) => element.innerText)
+      .filter((item) => {
+        // Regular expression to match a valid Ethereum address
+        const validAddressRegex = /^0x[a-fA-F0-9]{40}$/
+        return validAddressRegex.test(item)
+      })
+  )
 
-  // Click on "Import account" button
+  // Take the first two accounts from the list
+  const [firstAddress] = accountAddresses
+
+  const accAddrSelector = buildSelector(TEST_IDS.addAccount, firstAddress)
+
+  // Click on selected account address button
   await clickOnElement(page, accAddrSelector)
 
   // Click on "Import account" button
-  await clickOnElement(page, SELECTORS.buttonImportAccount)
+  await clickOnElement(page, `${SELECTORS.buttonImportAccount}:not([disabled])`)
+  await page.waitForNavigation()
+
+  await page.waitForSelector(SELECTORS.address, { visible: true })
+
+  const importedAccountDetails = await page.$$eval(SELECTORS.address, (elements) =>
+    elements.map((element) => element.innerText)
+  )
+
+  // Check if there is an imported account
+  expect(importedAccountDetails.length).toBeGreaterThan(0)
+  // Check if there is an imported account address is equal to the selected one
+  expect(importedAccountDetails[0]).toEqual(firstAddress)
 
   // Click on "Save and Continue" button
   await clickOnElement(page, SELECTORS.saveAndContinueBtn)

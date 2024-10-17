@@ -15,7 +15,7 @@ const DepositIcon: React.FC<Props> = ({
   strokeWidth = '1.5'
 }) => (
   <Svg width={width} height={height} viewBox="0 0 16 16">
-    <G fill="none" data-name="deposit icon">
+    <G fill="none">
       <G stroke={color} strokeWidth={strokeWidth}>
         <Path
           strokeLinecap="round"

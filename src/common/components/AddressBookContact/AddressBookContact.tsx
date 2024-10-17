@@ -1,12 +1,16 @@
-import React, { FC, useCallback, useEffect, useRef } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
 import { TooltipRefProps } from 'react-tooltip'
 
+import { isSmartAccount } from '@ambire-common/libs/account/account'
+import AccountAddress from '@common/components/AccountAddress'
 import Avatar from '@common/components/Avatar'
+import DomainBadge from '@common/components/Avatar/DomainBadge'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
+import useAccounts from '@common/hooks/useAccounts'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -16,7 +20,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
-import AccountAddress from '../AccountAddress'
 import ManageContact from './ManageContact'
 
 interface Props {
@@ -44,6 +47,7 @@ const AddressBookContact: FC<Props> = ({
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
+  const { accounts } = useAccounts()
   const { ens, ud, isLoading } = useReverseLookup({ address })
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -54,6 +58,10 @@ const AddressBookContact: FC<Props> = ({
   })
   const tooltipRef = useRef<TooltipRefProps>(null)
   const containerRef = useRef(null)
+
+  const account = useMemo(() => {
+    return accounts.find((acc) => acc.addr.toLowerCase() === address.toLowerCase())
+  }, [accounts, address])
 
   const onSave = (newName: string) => {
     dispatch({
@@ -84,6 +92,10 @@ const AddressBookContact: FC<Props> = ({
     }
   }, [closeTooltip])
 
+  const isSmart = useMemo(() => {
+    return account ? isSmartAccount(account) : undefined
+  }, [account])
+
   return (
     <ContainerElement
       ref={containerRef}
@@ -102,7 +114,7 @@ const AddressBookContact: FC<Props> = ({
       testID={testID}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        <Avatar ens={ens} ud={ud} pfp={address} size={32} />
+        <Avatar pfp={address} size={32} isSmart={isSmart} />
         <View>
           {isEditable ? (
             <Editable
@@ -121,7 +133,10 @@ const AddressBookContact: FC<Props> = ({
               {name}
             </Text>
           )}
-          <AccountAddress isLoading={isLoading} ens={ens} ud={ud} address={address} />
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <DomainBadge ens={ens} ud={ud} />
+            <AccountAddress isLoading={isLoading} ens={ens} ud={ud} address={address} />
+          </View>
         </View>
       </View>
       {isManageable ? (

@@ -4,7 +4,7 @@ import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface, ImportStatus } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
-import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
+import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Avatar from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
@@ -109,7 +109,11 @@ const Account = ({
             >
               {isAccountImported ? (
                 <>
-                  <Avatar pfp={account.preferences.pfp} size={24} />
+                  <Avatar
+                    pfp={account.preferences.pfp}
+                    size={24}
+                    isSmart={isSmartAccount(account)}
+                  />
                   <Text
                     fontSize={16}
                     weight="medium"
