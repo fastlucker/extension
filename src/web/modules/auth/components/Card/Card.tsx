@@ -16,6 +16,7 @@ import getStyles from './styles'
 
 interface Props {
   style?: ViewStyle | ViewStyle[]
+  titleStyle?: TextStyle[]
   text?: string | React.ReactNode
   textStyle?: TextStyle | TextStyle[]
   title?: string
@@ -33,6 +34,7 @@ interface Props {
 const Card: React.FC<Props> = ({
   testID,
   style,
+  titleStyle = [],
   text,
   title,
   textStyle,
@@ -83,7 +85,11 @@ const Card: React.FC<Props> = ({
           </View>
         )}
         {!!title && (
-          <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={20}>
+          <Text
+            weight="medium"
+            style={[spacings.mb, textStyles.center, ...titleStyle]}
+            fontSize={20}
+          >
             {t(title)}
           </Text>
         )}

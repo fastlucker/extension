@@ -11,7 +11,7 @@ const { isTab } = getUiType()
 
 const TabOnlyRoute = () => {
   const isActionWindow = getUiType().isActionWindow
-  const { path, search } = useRoute()
+  const { path, search, params } = useRoute()
   const state = useActionsControllerState()
 
   // if the current window is action-window and there is a action request don't open
@@ -21,15 +21,16 @@ const TabOnlyRoute = () => {
   useEffect(() => {
     if (!isTab && isExtension) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      openInternalPageInTab(`${path?.substring(1)}${search}`)
+      openInternalPageInTab(`${path?.substring(1)}${search}`, true, params)
     }
-  }, [path, search])
+  }, [path, search, params])
 
   if (isActionWindow && state.currentAction) {
     return <Outlet />
   }
 
   if (!isTab && isExtension) {
+    /* eslint-disable react/jsx-no-useless-fragment */
     return <></>
   }
 

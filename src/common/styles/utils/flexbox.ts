@@ -5,6 +5,7 @@ import { isWeb } from '@common/config/env'
 interface Styles {
   flex1: ViewStyle
   directionRow: ViewStyle
+  directionRowReverse: ViewStyle
   center: ViewStyle
   alignSelfStart: ViewStyle
   alignSelfCenter: ViewStyle
@@ -25,6 +26,9 @@ const styles: Styles = {
   },
   directionRow: {
     flexDirection: 'row'
+  },
+  directionRowReverse: {
+    flexDirection: 'row-reverse'
   },
   alignCenter: {
     alignItems: 'center'
