@@ -35,7 +35,7 @@ async function typeCurrentThenNewPassword(page, currPass, newPass) {
   // Expect device the "Got it" button in the "Success device password" modal to be visible
   await expectButtonIsVisible(page, SELECTORS.devicePassSuccessModal)
   // Click on "Got it" button
-  await clickOnElement(page, SELECTORS.devicePassSuccessModal)
+  await clickOnElement(page, SELECTORS.devicePassSuccessModal, true, 500)
   // Wait until the "Success device password" modal to be hidden
   await page.waitForSelector(SELECTORS.bottomSheet, { hidden: true })
 }
