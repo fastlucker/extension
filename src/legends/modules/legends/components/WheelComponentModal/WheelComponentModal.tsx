@@ -7,38 +7,15 @@ import { RELAYER_URL } from '@env'
 import Modal from '@legends/components/Modal'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
+import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 
 import styles from './WheelComponentModal.module.scss'
+import wheelData from './wheelData'
 
 export const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
-interface Activity {
-  action: string
-  xp: number
-}
-
-interface Transaction {
-  submittedAt: string
-  legends: {
-    activities: Activity[]
-  }
-}
-
-const data = [
-  { option: '80', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
-  { option: '20', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
-  { option: '80', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '150', style: { backgroundColor: '#F8E3B7', textColor: '#B67D02' }, optionSize: 3 },
-  { option: '80', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
-  { option: '50', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '20', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
-  { option: '300', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 2 },
-  { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 }
-]
 interface WheelComponentProps {
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -61,11 +38,11 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       const txns = await response.json()
       const today = new Date().toISOString().split('T')[0]
 
-      const transaction: Transaction | undefined = txns.find(
-        (txn: Transaction) =>
+      const transaction: Activity | undefined = txns.find(
+        (txn: Activity) =>
           txn.submittedAt.startsWith(today) &&
           txn.legends.activities &&
-          txn.legends.activities.some((activity: Activity) =>
+          txn.legends.activities.some((activity: LegendActivity) =>
             activity.action.startsWith('WheelOfFortune')
           )
       )
@@ -74,9 +51,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       const spinWheelActivity = transaction.legends.activities.find((activity: any) => {
         return activity.action.includes('WheelOfFortune')
       })
-      console.log('spinWheelActivity', spinWheelActivity)
+
       if (!spinWheelActivity) return false
-      const spinWheelActivityIndex = data.findIndex(
+      const spinWheelActivityIndex = wheelData.findIndex(
         (item: any) => item.option === spinWheelActivity.xp.toString()
       )
 
@@ -105,7 +82,6 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     })
 
     const provider = new ethers.BrowserProvider(window.ambire)
-
     const signer = await provider.getSigner()
 
     try {
@@ -127,6 +103,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
             if (fetchTryCount >= 10) {
               clearInterval(intervalId)
               console.error('Failed to fetch transaction status after 10 attempts')
+              addToast('Failed to fetch transaction status', 'error')
               return
             }
             const found = await checkTransactionStatus()
@@ -162,7 +139,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           mustStartSpinning={mustSpin}
           prizeNumber={prizeNumber}
           onStopSpinning={() => setMustSpin(false)}
-          data={data}
+          data={wheelData}
           radiusLineColor="#BAAFAC"
           radiusLineWidth={1}
           outerBorderColor="#E7AA27"
