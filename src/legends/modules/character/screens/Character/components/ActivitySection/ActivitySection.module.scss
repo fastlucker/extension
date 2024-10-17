@@ -1,0 +1,22 @@
+.table {
+  width: 100%;
+  text-align: left;
+
+  td {
+    padding: 0 0 0.75em;
+  }
+
+  thead {
+    font-weight: bold;
+  }
+
+  tbody:before {
+    content: " ";
+    display: block;
+    margin: 0 0 1em;
+  }
+
+  .link {
+    text-decoration: underline;
+  }
+}
