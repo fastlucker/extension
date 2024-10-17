@@ -50,6 +50,16 @@ const getAddKeyOptions = ({
       }
     },
     {
+      key: 'import-json',
+      text: t('Import smart account json'),
+      icon: PrivateKeyIcon,
+      onPress: () => navigateWrapped(ROUTES.importSmartAccountJson, 'import-json'),
+      iconProps: {
+        width: 36,
+        height: 36
+      }
+    },
+    {
       key: 'seed-phrase',
       text: t('Seed Phrase'),
       icon: SeedPhraseIcon,

@@ -28,11 +28,11 @@ const AccountAddress: FC<Props> = ({
   skeletonAppearance
 }) => {
   if (isLoading) {
-    return <SkeletonLoader width={200} height={20} appearance={skeletonAppearance} />
+    return <SkeletonLoader width={200} height={18} appearance={skeletonAppearance} />
   }
 
   return (
-    <View style={{ height: 20 }} testID="address">
+    <View style={{ height: 18 }} testID="address">
       {ens || ud ? (
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text fontSize={12} weight="semiBold" appearance="primary">

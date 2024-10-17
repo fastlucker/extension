@@ -40,13 +40,11 @@ export const TEST_IDS = {
   personalizeAccount: 'personalize-account',
   pinExtensionCloseBtn: 'pin-extension-close-btn',
   accountSelectBtn: 'account-select-btn',
-  createNewWallet: 'create-new-wallet',
   selectSeedPhraseLength: 'select-seed-phrase-length',
   option24WordsSeedPhrase: 'option-24-word-seed-phrase',
   selectChangeHdPath: 'select-change-hd-path',
   optionBip44LedgerLive: 'option-bip44-ledger-live',
   importExistingWallet: 'import-existing-wallet',
-  useDefaultSeedBtn: 'use-default-seed-btn',
   optionLegacyLedgerMyEtherWalletMyCrypto: 'option-legacy-ledger-myetherwallet-mycrypto',
   getStartedButtonConnectHwWallet: 'get-started-button-connect-hw-wallet',
   selectHwOptionTrezor: 'select-hw-option-trezor',
@@ -62,7 +60,11 @@ export const TEST_IDS = {
   createKeystorePassBtn: 'create-keystore-pass-btn',
   passphraseField: 'passphrase-field',
   buttonUnlock: 'button-unlock',
-  fullBalance: 'full-balance'
+  fullBalance: 'full-balance',
+  addAccountField: 'add-account-field',
+  importExistingSeedBtn: 'import-existing-seed-btn',
+  createSeedBtn: 'create-seed-btn',
+  importFromSavedSeed: 'import-from-saved-seed'
 }
 
 export const SELECTORS = Object.fromEntries(

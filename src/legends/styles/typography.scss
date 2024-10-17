@@ -1,0 +1,49 @@
+@font-face {
+  font-family: 'Sentient';
+  src: url('../public/fonts/Sentient-Extralight.woff2') format('woff2'),
+    url('../public/fonts/Sentient-Extralight.woff') format('woff'),
+    url('../public/fonts/Sentient-Extralight.ttf') format('truetype'),
+    url('../public/fonts/Sentient-Extralight.eot') format('opentype');
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sentient';
+  src: url('../public/fonts/Sentient-Light.woff2') format('woff2'),
+    url('../public/fonts/Sentient-Light.woff') format('woff'),
+    url('../public/fonts/Sentient-Light.ttf') format('truetype'),
+    url('../public/fonts/Sentient-Light.eot') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sentient';
+  src: url('../public/fonts/Sentient-Regular.woff2') format('woff2'),
+    url('../public/fonts/Sentient-Regular.woff') format('woff'),
+    url('../public/fonts/Sentient-Regular.ttf') format('truetype'),
+    url('../public/fonts/Sentient-Regular.eot') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sentient';
+  src: url('../public/fonts/Sentient-Medium.woff2') format('woff2'),
+    url('../public/fonts/Sentient-Medium.woff') format('woff'),
+    url('../public/fonts/Sentient-Medium.ttf') format('truetype'),
+    url('../public/fonts/Sentient-Medium.eot') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sentient';
+  src: url('../public/fonts/Sentient-Bold.woff2') format('woff2'),
+    url('../public/fonts/Sentient-Bold.woff') format('woff'),
+    url('../public/fonts/Sentient-Bold.ttf') format('truetype'),
+    url('../public/fonts/Sentient-Bold.eot') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}

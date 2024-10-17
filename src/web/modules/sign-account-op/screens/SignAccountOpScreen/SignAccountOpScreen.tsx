@@ -398,6 +398,7 @@ const SignAccountOpScreen = () => {
             handleClose={() => setIsChooseSignerShown(false)}
             selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
             handleChooseSigningKey={handleChangeSigningKey}
+            account={signAccountOpState.account}
           />
         ) : null}
         <TabLayoutWrapperMainContent scrollEnabled={false}>
