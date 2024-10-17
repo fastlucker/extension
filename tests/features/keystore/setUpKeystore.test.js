@@ -3,7 +3,7 @@ import { saParams } from '../../config/constants'
 
 import { setUpKeystore } from './functions'
 
-describe('auth', () => {
+describe('setUpKeystore', () => {
   let browser
   let page
   let extensionURL
@@ -11,7 +11,7 @@ describe('auth', () => {
 
   beforeEach(async () => {
     ;({ browser, page, recorder, extensionURL } = await bootstrapWithStorage(
-      'keystore',
+      'setUpKeystore',
       saParams,
       true
     ))
