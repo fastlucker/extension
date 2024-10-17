@@ -1,5 +1,5 @@
 import React from 'react'
-import Svg, { Defs, G, Path, Rect, Stop, LinearGradient } from 'react-native-svg'
+import Svg, { Defs, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
@@ -111,7 +111,7 @@ const AmbireDevice: React.FC<any> = (props) => (
       <Rect width="120" height="72" rx="2" transform="translate(511 -15303)" fill={colors.titan} />
       <G transform="translate(525.344 -15281.437)" opacity="0.3">
         <G id="_1967955583232" transform="translate(36.039 -0.01)">
-          <G data-name="Group 219">
+          <G>
             <Path
               d="M727.2,420.5l3.791,8.071a.229.229,0,0,1-.047.252l-9.974,9.637a.11.11,0,0,1-.187-.084v-8.854l6.285-6.067a.2.2,0,0,0,.065-.158l.019-2.8c0-.019.037-.019.047,0Z"
               transform="translate(-711.771 -409.601)"
@@ -131,7 +131,6 @@ const AmbireDevice: React.FC<any> = (props) => (
             />
             <Path
               id="Path_661"
-              data-name="Path 661"
               d="M974.684,547.594a.245.245,0,0,0-.019-.14h0l-.2-.419-3.529-4.494Z"
               transform="translate(-955.453 -528.49)"
               fill="#be80f5"

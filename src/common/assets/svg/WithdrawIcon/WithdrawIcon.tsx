@@ -21,7 +21,6 @@ const WithdrawIcon: React.FC<Props> = ({
           strokeLinecap="round"
           strokeLinejoin="round"
           d="m6.148 11.989 1.855 2.013 1.856-2.012"
-          data-name="Path 2139"
         />
         <Path strokeLinecap="round" d="M8.003 9.005v4.996" />
         <Path strokeLinecap="round" strokeLinejoin="round" d="M3.785 9.989H2V2h12v7.989h-1.772" />
