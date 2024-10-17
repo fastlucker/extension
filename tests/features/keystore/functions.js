@@ -93,7 +93,7 @@ export async function setUpKeystore(page, extensionURL) {
   await page.waitForSelector(SELECTORS.bottomSheet)
   await expectButtonIsVisible(page, SELECTORS.keystoreBtnContinue)
 
-  await clickOnElement(page, SELECTORS.keystoreBtnContinue)
+  await clickOnElement(page, SELECTORS.keystoreBtnContinue, true, 500)
   // Wait until the "Success device password" modal to be hidden
   await page.waitForSelector(SELECTORS.bottomSheet, { hidden: true })
 }
