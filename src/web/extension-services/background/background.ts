@@ -11,9 +11,11 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
@@ -26,9 +28,13 @@ import {
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import {
+  getActiveRoutesLowestServiceTime,
+  getActiveRoutesUpdateInterval
+} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
-import { RELAYER_URL, VELCRO_URL } from '@env'
+import { RELAYER_URL, SOCKET_API_KEY, VELCRO_URL } from '@env'
 import { browser } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -119,6 +125,8 @@ handleKeepAlive()
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
+    updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
+    updateSwapAndBridgeQuoteInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
@@ -188,6 +196,7 @@ handleKeepAlive()
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
+    socketApiKey: SOCKET_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -280,6 +289,58 @@ handleKeepAlive()
     }
 
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+  }
+
+  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: ActiveRoute[]) {
+    if (!activeRoutesInProgress || !activeRoutesInProgress.length) {
+      !!backgroundState.updateActiveRoutesInterval &&
+        clearTimeout(backgroundState.updateActiveRoutesInterval)
+      delete backgroundState.updateActiveRoutesInterval
+      return
+    }
+    if (backgroundState.updateActiveRoutesInterval) return
+
+    let minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress)
+
+    async function updateActiveRoutes() {
+      minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress!)
+      await mainCtrl.swapAndBridge.checkForNextUserTxForActiveRoutes()
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateActiveRoutesInterval = setTimeout(
+        updateActiveRoutes,
+        getActiveRoutesUpdateInterval(minServiceTime)
+      )
+    }
+
+    backgroundState.updateActiveRoutesInterval = setTimeout(
+      updateActiveRoutes,
+      getActiveRoutesUpdateInterval(minServiceTime)
+    )
+  }
+
+  function initSwapAndBridgeQuoteContinuousUpdate() {
+    if (mainCtrl.swapAndBridge.formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+      !!backgroundState.updateSwapAndBridgeQuoteInterval &&
+        clearTimeout(backgroundState.updateSwapAndBridgeQuoteInterval)
+      delete backgroundState.updateSwapAndBridgeQuoteInterval
+      return
+    }
+    if (backgroundState.updateSwapAndBridgeQuoteInterval) return
+
+    async function updateSwapAndBridgeQuote() {
+      if (mainCtrl.swapAndBridge.formStatus === SwapAndBridgeFormStatus.ReadyToSubmit)
+        await mainCtrl.swapAndBridge.updateQuote({
+          skipPreviousQuoteRemoval: true,
+          skipQuoteUpdateOnSameValues: false,
+          skipStatusUpdate: true
+        })
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
+    }
+
+    backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
   }
 
   async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
@@ -513,6 +574,10 @@ handleKeepAlive()
                   )
                 }
               }
+            }
+            if (ctrlName === 'swapAndBridge') {
+              initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
+              initSwapAndBridgeQuoteContinuousUpdate()
             }
           }, 'background')
         }
@@ -867,6 +932,26 @@ handleKeepAlive()
                 return mainCtrl.initSignAccOp(params.actionId)
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
+
+              case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
+                return await mainCtrl.swapAndBridge.initForm(params.sessionId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
+                return mainCtrl.swapAndBridge.unloadScreen(params.sessionId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
+                return mainCtrl.swapAndBridge.updateForm(params)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
+                return await mainCtrl.swapAndBridge.switchFromAndToTokens()
+              case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
+                return mainCtrl.swapAndBridge.selectRoute(params.route)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
+                return await mainCtrl.buildSwapAndBridgeUserRequest()
+              case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
+                return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE':
+                return mainCtrl.swapAndBridge.removeActiveRoute(params.activeRouteId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST':
+                return mainCtrl.swapAndBridge.updatePortfolioTokenList(params)
+
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addOrUpdateAction(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':

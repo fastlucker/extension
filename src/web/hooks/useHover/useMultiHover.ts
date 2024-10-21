@@ -151,7 +151,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
     setIsHovered(true)
   }, [])
 
-  return [bind, style, isHovered, triggerHover] as [
+  return [bind, style, isHovered, triggerHover, animatedValues] as [
     {
       onHoverIn: (event: MouseEvent) => void
       onHoverOut: (event: MouseEvent) => void
@@ -160,7 +160,8 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
     },
     ViewStyle,
     boolean,
-    () => void
+    () => void,
+    AnimationValuesExtended[] | null
   ]
 }
 
