@@ -5,7 +5,7 @@ import { useModalize } from 'react-native-modalize'
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
-import Banner from '@common/components/Banner'
+import Banner, { BannerButton } from '@common/components/Banner'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Panel from '@common/components/Panel'
@@ -259,7 +259,7 @@ const GetStartedScreen = () => {
                   // @ts-ignore
                   style={[spacings.mb0, { width: '100%' }]}
                   renderButtons={
-                    <Banner.Button
+                    <BannerButton
                       onPress={() =>
                         openInTab(
                           'https://help.ambire.com/hc/en-us/articles/15468208978332-How-to-add-your-v1-account-to-Ambire-Wallet-extension',
