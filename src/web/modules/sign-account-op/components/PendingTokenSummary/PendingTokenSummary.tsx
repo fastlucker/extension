@@ -35,7 +35,7 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
 
     if (!usdPrice) return null
 
-    const value = usdPrice * Number(formatUnits(token.simulationAmount!, token.decimals))
+    const value = Math.abs(usdPrice * Number(formatUnits(token.simulationAmount!, token.decimals)))
 
     return formatDecimals(value)
   }, [token])
