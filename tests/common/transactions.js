@@ -227,13 +227,20 @@ export async function makeSwap(
 
   await typeText(page, '[data-testid="amount-input-out"]', '0.0001')
 
-  await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
+  // FIXME: The Uniswap DOM element is no longer with this test id
+  // await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
+  // TODO: Temporary solution with a delay (the DOM element is not a btn anymore)
+  await clickOnElement(page, 'xpath///span[contains(text(), "Review")]', true, 3000)
 
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="confirm-swap-button"]:not([disabled])'
+    // FIXME: The Uniswap DOM element is no longer with this test id
+    // '[data-testid="confirm-swap-button"]:not([disabled])'
+    // TODO: This probably clicks on another span with text Swap
+    'xpath///span[contains(@class, "font_button") and contains(text(), "Swap")]',
+    3000
   )
 
   // Check for sign message window
