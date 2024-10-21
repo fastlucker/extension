@@ -6,9 +6,11 @@ export async function triggerTransaction(
   extensionURL,
   browser,
   triggerTransactionSelector,
-  clickDelay
+  shouldNotClick = false
 ) {
-  await clickOnElement(page, triggerTransactionSelector, true, clickDelay)
+  if (shouldNotClick) {
+    await clickOnElement(page, triggerTransactionSelector)
+  }
 
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionURL}/action-window.html#`)

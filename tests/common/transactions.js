@@ -232,15 +232,54 @@ export async function makeSwap(
   // TODO: Temporary solution with a delay (the DOM element is not a btn anymore)
   await clickOnElement(page, 'xpath///span[contains(text(), "Review")]', true, 3000)
 
+  await page.waitForSelector(
+    'xpath///span[contains(@class, "font_button") and contains(text(), "Swap")]',
+    {
+      visible: true,
+      timeout: 3000
+    }
+  )
+
+  const elementsHandles = await page.$x(
+    '//span[contains(@class, "font_button") and contains(text(), "Swap")]'
+  )
+
+  await Promise.all(
+    elementsHandles.map(async (elHandle) => {
+      try {
+        const heightOfParent = await elHandle.evaluate(
+          (el) => el.parentElement.getBoundingClientRect().height
+        )
+
+        const isEqual = parseFloat(heightOfParent.toFixed(1)) === 58.7
+
+        if (isEqual) {
+          let isDisabled = true
+          /* eslint-disable no-await-in-loop */
+          while (isDisabled) {
+            isDisabled = await elHandle.evaluate(
+              (el) => el.parentElement.getAttribute('aria-disabled') === 'true'
+            )
+
+            if (isDisabled) {
+              await page.waitForTimeout(500)
+            }
+          }
+
+          await elHandle.evaluate((el) => el.parentElement.click())
+        }
+      } catch (err) {
+        console.error('Error while clicking on element:', err)
+      }
+    })
+  )
+
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    // FIXME: The Uniswap DOM element is no longer with this test id
-    // '[data-testid="confirm-swap-button"]:not([disabled])'
-    // TODO: This probably clicks on another span with text Swap
-    'xpath///span[contains(@class, "font_button") and contains(text(), "Swap")]',
-    3000
+    '',
+    true
   )
 
   // Check for sign message window
