@@ -213,6 +213,9 @@ handleKeepAlive()
       ...windowManager,
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
+      },
+      sendWindowUiMessage: (params) => {
+        pm.send('> ui', { method: 'receiveOneTimeData', params })
       }
     },
     notificationManager
@@ -705,6 +708,8 @@ handleKeepAlive()
 
                 const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
                 const keyIterator = new KeyIterator(params.privKeyOrSeed)
+
+                // if it enters here, it's from the default seed. We can init the account adder like so
                 if (keyIterator.subType === 'seed' && params.shouldPersist) {
                   await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
                 }
@@ -717,16 +722,16 @@ handleKeepAlive()
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
+              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-                const keystoreDefaultSeed = await mainCtrl.keystore.getDefaultSeed()
+                const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
 
-                if (!keystoreDefaultSeed) return
-                const keyIterator = new KeyIterator(keystoreDefaultSeed.seed)
+                if (!keystoreSavedSeed) return
+                const keyIterator = new KeyIterator(keystoreSavedSeed.seed)
                 await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: 5,
-                  hdPathTemplate: keystoreDefaultSeed.hdPathTemplate
+                  hdPathTemplate: keystoreSavedSeed.hdPathTemplate
                 })
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
@@ -841,6 +846,19 @@ handleKeepAlive()
                   readyToAddKeys
                 )
               }
+              case 'IMPORT_SMART_ACCOUNT_JSON': {
+                // Add accounts first, because some of the next steps have validation
+                // if accounts exists.
+                await mainCtrl.accounts.addAccounts([params.readyToAddAccount])
+
+                // Then add keys, because some of the next steps could have validation
+                // if keys exists. Should be separate (not combined in Promise.all,
+                // since firing multiple keystore actions is not possible
+                // (the #wrapKeystoreAction listens for the first one to finish and
+                // skips the parallel one, if one is requested).
+
+                return await mainCtrl.keystore.addKeys(params.keys)
+              }
               case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
                 // Since these accounts are view-only, directly add them in the
                 // MainController, bypassing the AccountAdder flow.
@@ -850,11 +868,11 @@ handleKeepAlive()
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
               case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-                await mainCtrl.importSmartAccountFromDefaultSeed(params.seed)
+                await mainCtrl.importSmartAccountFromSavedSeed(params.seed)
                 break
               }
               case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
-                await mainCtrl.importSmartAccountFromDefaultSeed()
+                await mainCtrl.importSmartAccountFromSavedSeed()
                 break
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
@@ -1057,6 +1075,8 @@ handleKeepAlive()
                 // In the case we change the user's device password through the recovery process,
                 // we don't know the old password, which is why we send only the new password.
                 return await mainCtrl.keystore.changeKeystorePassword(params.newSecret)
+              case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
+                return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
 
               case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
                 return await mainCtrl.emailVault.getEmailVaultInfo(params.email)

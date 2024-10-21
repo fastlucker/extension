@@ -23,7 +23,7 @@ type ButtonTypes =
   | 'info2'
   | 'success'
 
-type ButtonSizes = 'regular' | 'small' | 'large'
+type ButtonSizes = 'regular' | 'small' | 'large' | 'tiny'
 export interface Props extends PressableProps {
   text?: string
   type?: ButtonTypes
@@ -145,7 +145,8 @@ const Button = ({
   const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
     large: styles.buttonContainerStylesSizeLarge,
     regular: styles.buttonContainerStylesSizeRegular,
-    small: styles.buttonContainerStylesSizeSmall
+    small: styles.buttonContainerStylesSizeSmall,
+    tiny: styles.buttonContainerStylesSizeTiny
   }
 
   const buttonTextStyles: { [key in ButtonTypes]: TextStyle } = {
@@ -164,7 +165,8 @@ const Button = ({
   const buttonTextStylesSizes: { [key in ButtonSizes]: TextStyle } = {
     large: styles.buttonTextStylesSizeLarge,
     regular: styles.buttonTextStylesSizeRegular,
-    small: styles.buttonTextStylesSizeSmall
+    small: styles.buttonTextStylesSizeSmall,
+    tiny: styles.buttonTextStylesSizeTiny
   }
   return (
     <AnimatedPressable

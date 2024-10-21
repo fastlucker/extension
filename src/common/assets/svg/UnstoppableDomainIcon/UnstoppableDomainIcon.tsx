@@ -11,7 +11,7 @@ interface Props extends SvgProps {
 
 const UnstoppableDomainIcon: React.FC<Props> = ({ width = 24, height = 24, isActive }) => (
   <Svg width={width} height={height} viewBox="0 0 25 25">
-    <G data-name="Group 3" transform="translate(-1401 -296)">
+    <G transform="translate(-1401 -296)">
       <Rect width="25" height="25" transform="translate(1401 296)" fill="none" />
       <G transform="translate(319.17 -302.562)" opacity={isActive ? 1 : 0.25}>
         <Path d="M1106.83,603v8.7l-25,10.13Z" transform="translate(0 -3.463)" fill="#a0a0a0" />
