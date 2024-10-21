@@ -154,12 +154,14 @@ const RoutesModal = ({
           type="secondary"
           size="large"
           onPress={closeBottomSheet as any}
+          hasBottomSpacing={false}
         />
         <Button
           text={t('Confirm')}
           size="large"
           onPress={handleConfirmRouteSelection}
           disabled={isConfirmSelectionDisabled}
+          hasBottomSpacing={false}
         />
       </View>
     </BottomSheet>
