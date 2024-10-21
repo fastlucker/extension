@@ -12,7 +12,10 @@ interface Style {
   secondaryContainerWarning: ViewStyle
   networkSelectorContainer: ViewStyle
   previewRouteContainer: ViewStyle
+  selectAnotherRouteButton: ViewStyle
 }
+
+export const SWAP_AND_BRIDGE_FORM_WIDTH = 654
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
@@ -21,7 +24,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter
     },
     container: {
-      width: 654,
+      width: SWAP_AND_BRIDGE_FORM_WIDTH,
       ...flexbox.flex1
     },
     secondaryContainer: {
@@ -49,6 +52,15 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       ...spacings.phSm,
       ...spacings.pvSm
+    },
+    selectAnotherRouteButton: {
+      backgroundColor: '#6000FF14',
+      ...common.borderRadiusPrimary,
+      paddingVertical: 3,
+      ...spacings.phTy,
+      ...common.borderRadiusPrimary,
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter
     }
   })
 

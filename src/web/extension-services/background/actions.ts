@@ -10,7 +10,7 @@ import { Account, AccountPreferences, AccountStates } from '@ambire-common/inter
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
-import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -395,6 +395,10 @@ type SwapAndBridgeControllerUpdateFormAction = {
 type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
 }
+type SwapAndBridgeControllerSelectRouteAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE'
+  params: { route: SocketAPIRoute }
+}
 type SwapAndBridgeControllerSubmitFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
 }
@@ -586,6 +590,7 @@ export type Action =
   | SwapAndBridgeControllerUnloadScreenAction
   | SwapAndBridgeControllerUpdateFormAction
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
+  | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerSubmitFormAction
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerRemoveActiveRouteAction

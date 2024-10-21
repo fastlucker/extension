@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import FlipIcon from '@common/assets/svg/FlipIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -25,14 +26,15 @@ import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import ActiveRouteCard from '@web/modules/swap-and-bridge/components/ActiveRouteCard'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
+import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import RouteStepsPlaceholder from '@web/modules/swap-and-bridge/components/RouteStepsPlaceholder'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 import SettingsModal from '@web/modules/swap-and-bridge/components/SettingsModal'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
-import ActiveRouteCard from '../../components/ActiveRouteCard'
 import getStyles from './styles'
 
 const SwapAndBridgeScreen = () => {
@@ -63,7 +65,10 @@ const SwapAndBridgeScreen = () => {
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
     handleSwitchFromAndToTokens,
-    pendingRoutes
+    pendingRoutes,
+    routesModalRef,
+    openRoutesModal,
+    closeRoutesModal
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -78,7 +83,8 @@ const SwapAndBridgeScreen = () => {
     formStatus,
     validateFromAmount,
     isSwitchFromAndToTokensEnabled,
-    isHealthy
+    isHealthy,
+    shouldEnableRoutesSelection
   } = useSwapAndBridgeControllerState()
   const { statuses } = useMainControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
@@ -292,9 +298,9 @@ const SwapAndBridgeScreen = () => {
                   }
                 >
                   {formattedToAmount}
-                  {!!formattedToAmount && formattedToAmount !== '0' && !!quote?.route && (
+                  {!!formattedToAmount && formattedToAmount !== '0' && !!quote?.selectedRoute && (
                     <Text fontSize={20} appearance="secondaryText">{` (${formatDecimals(
-                      quote.route.outputValueInUsd,
+                      quote.selectedRoute.outputValueInUsd,
                       'price'
                     )})`}</Text>
                   )}
@@ -307,15 +313,34 @@ const SwapAndBridgeScreen = () => {
               SwapAndBridgeFormStatus.NoRoutesFound,
               SwapAndBridgeFormStatus.ReadyToSubmit
             ].includes(formStatus) && (
-              <View style={spacings.ptMi}>
+              <View
+                style={[
+                  spacings.ptTy,
+                  spacings.mbMi,
+                  flexbox.directionRow,
+                  flexbox.alignCenter,
+                  flexbox.flex1
+                ]}
+              >
                 <Text
                   appearance="secondaryText"
                   fontSize={14}
                   weight="medium"
-                  style={spacings.mbMi}
+                  style={[flexbox.flex1]}
                 >
                   {t('Preview route')}
                 </Text>
+                {!!shouldEnableRoutesSelection && (
+                  <Pressable
+                    style={styles.selectAnotherRouteButton}
+                    onPress={openRoutesModal as any}
+                  >
+                    <Text fontSize={12} weight="medium" appearance="primary" style={spacings.mrTy}>
+                      {t('Select another route')}
+                    </Text>
+                    <RightArrowIcon color={theme.primary} />
+                  </Pressable>
+                )}
               </View>
             )}
 
@@ -341,9 +366,9 @@ const SwapAndBridgeScreen = () => {
               <>
                 <View style={styles.secondaryContainer}>
                   <RouteStepsPreview
-                    steps={quote!.routeSteps}
-                    totalGasFeesInUsd={quote!.route.totalGasFeesInUsd}
-                    estimationInSeconds={quote!.route.serviceTime}
+                    steps={quote!.selectedRouteSteps}
+                    totalGasFeesInUsd={quote!.selectedRoute.totalGasFeesInUsd}
+                    estimationInSeconds={quote!.selectedRoute.serviceTime}
                   />
                 </View>
                 {!!shouldConfirmFollowUpTransactions && (
@@ -383,6 +408,7 @@ const SwapAndBridgeScreen = () => {
           </View>
         </View>
       </TabLayoutWrapperMainContent>
+      <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
     </TabLayoutContainer>
   )
 }

@@ -2,6 +2,7 @@ import { formatUnits, getAddress } from 'ethers'
 import { debounce } from 'lodash'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useModalize } from 'react-native-modalize'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
@@ -51,6 +52,7 @@ const useSwapAndBridgeForm = () => {
   const { theme } = useTheme()
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
+  const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
 
   useEffect(() => {
     dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
@@ -234,20 +236,20 @@ const useSwapAndBridgeForm = () => {
   }, [fromAmountFieldMode, maxFromAmount, maxFromAmountInFiat, dispatch])
 
   const formattedToAmount = useMemo(() => {
-    if (!quote || !quote.route || !quote?.toAsset?.decimals) return '0'
+    if (!quote || !quote.selectedRoute || !quote?.toAsset?.decimals) return '0'
 
     return `${formatDecimals(
-      Number(formatUnits(quote.route.toAmount, quote.toAsset.decimals)),
+      Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
       'precise'
     )}`
   }, [quote])
 
   const shouldConfirmFollowUpTransactions = useMemo(() => {
-    if (!quote?.route) return false
+    if (!quote?.selectedRoute) return false
 
-    if (quote.route.isOnlySwapRoute) return false
+    if (quote.selectedRoute.isOnlySwapRoute) return false
 
-    const stepTypes = quote.routeSteps.map((s) => s.type)
+    const stepTypes = quote.selectedRouteSteps.map((s) => s.type)
 
     return stepTypes.includes('bridge') && stepTypes.includes('swap')
   }, [quote])
@@ -295,7 +297,10 @@ const useSwapAndBridgeForm = () => {
     settingModalVisible,
     handleToggleSettingsMenu,
     handleSwitchFromAndToTokens,
-    pendingRoutes
+    pendingRoutes,
+    routesModalRef,
+    openRoutesModal,
+    closeRoutesModal
   }
 }
 
