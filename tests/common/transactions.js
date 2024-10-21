@@ -225,7 +225,7 @@ export async function makeSwap(
     await prepareSwap(page)
   }
 
-  await typeText(page, 'input#swap-currency-output', '0.0001')
+  await typeText(page, '[data-testid="amount-input-out"]', '0.0001')
 
   await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
 
