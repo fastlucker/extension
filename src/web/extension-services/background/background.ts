@@ -319,6 +319,30 @@ handleKeepAlive()
     )
   }
 
+  function initSwapAndBridgeQuoteContinuousUpdate() {
+    if (mainCtrl.swapAndBridge.formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+      !!backgroundState.updateSwapAndBridgeQuoteInterval &&
+        clearTimeout(backgroundState.updateSwapAndBridgeQuoteInterval)
+      delete backgroundState.updateSwapAndBridgeQuoteInterval
+      return
+    }
+    if (backgroundState.updateSwapAndBridgeQuoteInterval) return
+
+    async function updateSwapAndBridgeQuote() {
+      if (mainCtrl.swapAndBridge.formStatus === SwapAndBridgeFormStatus.ReadyToSubmit)
+        await mainCtrl.swapAndBridge.updateQuote({
+          skipPreviousQuoteRemoval: true,
+          skipQuoteUpdateOnSameValues: false,
+          skipStatusUpdate: true
+        })
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
+    }
+
+    backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
+  }
+
   async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
     if (backgroundState.accountStateLatestInterval)
       clearTimeout(backgroundState.accountStateLatestInterval)
@@ -553,6 +577,7 @@ handleKeepAlive()
             }
             if (ctrlName === 'swapAndBridge') {
               initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
+              initSwapAndBridgeQuoteContinuousUpdate()
             }
           }, 'background')
         }
