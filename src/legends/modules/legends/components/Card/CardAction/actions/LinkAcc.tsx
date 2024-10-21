@@ -16,12 +16,26 @@ type Props = {
   onComplete: () => void
 }
 
-const BUTTON_TEXT = {
-  0: 'Connect a v1/Basic Account',
-  1: 'Sign message',
-  2: 'Connect your v2 account again',
-  3: 'Sign transaction'
+enum STEPS {
+  CONNECT_V1_OR_BASIC_ACCOUNT,
+  SIGN_MESSAGE,
+  CONNECT_V2_ACCOUNT,
+  SIGN_TRANSACTION
 }
+
+const BUTTON_TEXT = {
+  [STEPS.CONNECT_V1_OR_BASIC_ACCOUNT]: 'Connect a v1/Basic Account',
+  [STEPS.SIGN_MESSAGE]: 'Sign message',
+  [STEPS.CONNECT_V2_ACCOUNT]: 'Connect your v2 account again',
+  [STEPS.SIGN_TRANSACTION]: 'Sign transaction'
+}
+
+const STEPPER_STEPS = [
+  'Connect a v1/basic account',
+  'Sign a message',
+  'Connect your v2 account again',
+  'Sign a transaction'
+]
 
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
@@ -33,18 +47,18 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
   const [messageSignedForV2Account, setMessageSignedForV2Account] = useState('')
 
   const activeStep = useMemo(() => {
-    if (v1OrBasicSignature && isConnectedAccountV2) return 3
-    if (v1OrBasicSignature) return 2
-    if (!isConnectedAccountV2 && !v1OrBasicSignature) return 1
+    if (v1OrBasicSignature && isConnectedAccountV2) return STEPS.SIGN_TRANSACTION
+    if (v1OrBasicSignature) return STEPS.CONNECT_V2_ACCOUNT
+    if (!isConnectedAccountV2 && !v1OrBasicSignature) return STEPS.SIGN_MESSAGE
 
-    return 0
+    return STEPS.CONNECT_V1_OR_BASIC_ACCOUNT
   }, [isConnectedAccountV2, v1OrBasicSignature])
 
   const isActionEnabled = useMemo(() => {
-    if (activeStep === 1) {
+    if (activeStep === STEPS.SIGN_MESSAGE) {
       return !isConnectedAccountV2
     }
-    if (activeStep === 3) {
+    if (activeStep === STEPS.SIGN_TRANSACTION) {
       return isConnectedAccountV2 && messageSignedForV2Account === connectedAccount
     }
 
@@ -114,9 +128,9 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
 
     await changeNetworkToBase()
 
-    if (activeStep === 1) {
+    if (activeStep === STEPS.SIGN_MESSAGE) {
       await signV1OrBasicAccountMessage()
-    } else if (activeStep === 3) {
+    } else if (activeStep === STEPS.SIGN_TRANSACTION) {
       await sendV2Transaction()
     }
   }, [
@@ -135,17 +149,8 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
       buttonText={BUTTON_TEXT[activeStep]}
       onButtonClick={onButtonClick}
     >
-      <Stepper
-        activeStep={activeStep}
-        steps={[
-          'Connect a v1/basic account',
-          'Sign a message',
-          'Connect your v2 account again',
-          'Sign a transaction'
-        ]}
-        className={styles.stepper}
-      />
-      {activeStep === 3 && !isActionEnabled && (
+      <Stepper activeStep={activeStep} steps={STEPPER_STEPS} className={styles.stepper} />
+      {activeStep === STEPS.SIGN_TRANSACTION && !isActionEnabled && (
         <Alert
           type="warning"
           title="You have connected a wrong account"
