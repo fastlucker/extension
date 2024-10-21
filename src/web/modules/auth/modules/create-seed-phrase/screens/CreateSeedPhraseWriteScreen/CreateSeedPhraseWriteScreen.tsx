@@ -35,10 +35,12 @@ const generateConfirmationWords = (seed: string[]) => {
   const confirmationWords: { numberInSeed: number; word: string }[] = []
 
   // Select one random word from each group
-  wordGroups.forEach((group) => {
-    const randomIndex = Math.floor(Math.random() * group.length)
+  wordGroups.forEach((group, groupIndex) => {
+    const randomIndex = Math.floor(Math.random() * (group.length - 1))
+    const indexOfWord = groupIndex * 3 + randomIndex
+
     confirmationWords.push({
-      numberInSeed: seed.indexOf(group[randomIndex]) + 1,
+      numberInSeed: indexOfWord + 1,
       word: group[randomIndex]
     })
   })
@@ -85,6 +87,7 @@ const CreateSeedPhraseWriteScreen = () => {
             }}
           />
           <Button
+            testID="create-seed-phrase-write-continue-btn"
             accessibilityRole="button"
             text={t('Continue')}
             size="large"
@@ -119,6 +122,7 @@ const CreateSeedPhraseWriteScreen = () => {
                   {index + 1}.
                 </Text>
                 <Input
+                  testID={`recovery-with-seed-word-${index}`}
                   value={word}
                   numberOfLines={1}
                   containerStyle={[spacings.mb0, flexbox.flex1]}

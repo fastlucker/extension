@@ -36,7 +36,11 @@ const PinExtension = () => {
       {!isPinned ? (
         <>
           <View style={styles.pinExtensionIcon}>
-            <TouchableOpacity style={styles.closeIcon} onPress={onReject}>
+            <TouchableOpacity
+              testID="pin-extension-close-btn"
+              style={styles.closeIcon}
+              onPress={onReject}
+            >
               <CloseIcon />
             </TouchableOpacity>
             <PinExtensionIcon />

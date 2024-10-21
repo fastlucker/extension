@@ -4,8 +4,8 @@ import { useModalize } from 'react-native-modalize'
 
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
-import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
+import Banner, { BannerButton } from '@common/components/Banner'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Panel from '@common/components/Panel'
@@ -26,6 +26,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -151,6 +152,7 @@ const GetStartedScreen = () => {
 
   return (
     <TabLayoutContainer
+      width="lg"
       backgroundColor={theme.secondaryBackground}
       header={
         <Animated.View style={{ opacity: opacityInterpolate }}>
@@ -201,11 +203,28 @@ const GetStartedScreen = () => {
             >
               <View style={[flexbox.directionRow]}>
                 <Card
+                  testID="get-started-button-import"
+                  title={t('Create new or import\nan existing hot wallet')}
+                  style={[flexbox.flex1, spacings.mh, spacings.ml0]}
+                  text={t(
+                    'Securely create a new wallet or import an existing one from a seed phrase, private key, or with an email vault.'
+                  )}
+                  icon={CreateWalletIcon}
+                  iconProps={{
+                    width: 60,
+                    height: 60,
+                    strokeWidth: 1.1
+                  }}
+                  buttonText={t('Create')}
+                  onPress={() => handleAuthButtonPress('import-hot-wallet')}
+                />
+                <Card
+                  testID="get-started-button-connect-hw-wallet"
                   title={t('Connect a\nHardware Wallet')}
                   text={t(
                     'Start using accounts secured by Trezor, Ledger, or another Hardware Wallet.'
                   )}
-                  style={flexbox.flex1}
+                  style={{ ...flexbox.flex1, ...spacings.mr }}
                   icon={HWIcon}
                   iconProps={{
                     width: 60,
@@ -214,40 +233,6 @@ const GetStartedScreen = () => {
                   }}
                   buttonText={t('Connect')}
                   onPress={() => handleAuthButtonPress('hw')}
-                />
-                <Card
-                  testID="get-started-button-import"
-                  title={t('Import an existing\nhot wallet')}
-                  style={{
-                    ...flexbox.flex1,
-                    ...spacings.mh
-                  }}
-                  text={t(
-                    'Securely import an existing wallet from a seed phrase, private key, or with an email vault.'
-                  )}
-                  icon={ImportAccountIcon}
-                  iconProps={{
-                    width: 60,
-                    height: 60,
-                    strokeWidth: 1.1
-                  }}
-                  buttonText={t('Import')}
-                  onPress={() => handleAuthButtonPress('import-hot-wallet')}
-                />
-                <Card
-                  title={t('Create a new\nhot wallet')}
-                  text={t(
-                    'Create a fresh hot wallet with modern features, including optional smart recovery.'
-                  )}
-                  icon={CreateWalletIcon}
-                  iconProps={{
-                    width: 60,
-                    height: 60,
-                    strokeWidth: 1.1
-                  }}
-                  style={{ ...flexbox.flex1, ...spacings.mr }}
-                  onPress={() => handleAuthButtonPress('create-hot-wallet')}
-                  buttonText={t('Create')}
                 />
                 <Card
                   testID="get-started-button-add"
@@ -260,6 +245,31 @@ const GetStartedScreen = () => {
                   onPress={() => handleAuthButtonPress('view-only')}
                   buttonText={t('Add')}
                   isSecondary
+                />
+              </View>
+              <View
+                style={[flexbox.directionRow, { margin: 'auto', width: '100%' }, spacings.mtXl]}
+              >
+                <Banner
+                  title="Ambire v1 accounts"
+                  text={t(
+                    'If you are looking to import accounts from the web app (Ambire v1), please read this.'
+                  )}
+                  type="info2"
+                  // @ts-ignore
+                  style={[spacings.mb0, { width: '100%' }]}
+                  renderButtons={
+                    <BannerButton
+                      onPress={() =>
+                        openInTab(
+                          'https://help.ambire.com/hc/en-us/articles/15468208978332-How-to-add-your-v1-account-to-Ambire-Wallet-extension',
+                          false
+                        )
+                      }
+                      text={t('Read more')}
+                      type="info2"
+                    />
+                  }
                 />
               </View>
             </Panel>

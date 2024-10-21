@@ -19,7 +19,7 @@ interface Props {
 
 const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) => {
   const { t } = useTranslation()
-  const { hasKeystoreDefaultSeed } = useKeystoreControllerState()
+  const { hasKeystoreSavedSeed } = useKeystoreControllerState()
 
   return (
     <View>
@@ -45,6 +45,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
           />
         </Card>
         <Card
+          testID="set-up-with-seed-phrase-btn"
           title={t('Set up with a Seed Phrase')}
           style={{
             ...spacings.ml,
@@ -56,7 +57,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
           icon={SeedPhraseRecoveryIcon}
           buttonText={t('Proceed')}
           onPress={handleSeedPress}
-          isDisabled={!!hasKeystoreDefaultSeed}
+          isDisabled={!!hasKeystoreSavedSeed}
         />
       </View>
       <Banner

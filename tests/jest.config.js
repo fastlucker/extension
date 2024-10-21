@@ -6,6 +6,10 @@ module.exports = {
   displayName: 'Ambire Extension E2E Tests',
   preset: 'jest-puppeteer',
   roots: ['tests'],
+  moduleFileExtensions: ['ts', 'js'],
+  transformIgnorePatterns: [
+    '/node_modules/(?!@trezor/trezor-user-env-link).+\\.js$' 
+  ],
   // Longer timeout than the default one needed for heavier dapps, like https://myetherwallet.com,
   // otherwise, tests fail because the default timeout gets reached.
   testTimeout: 120000,

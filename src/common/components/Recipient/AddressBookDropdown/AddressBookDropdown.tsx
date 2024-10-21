@@ -1,7 +1,6 @@
-import React, { FC, ReactNode, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
-import { SvgProps } from 'react-native-svg'
 
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { isValidAddress } from '@ambire-common/services/address'
@@ -12,6 +11,7 @@ import Text from '@common/components//Text'
 import AddressBookContact from '@common/components/AddressBookContact'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import { MenuContainer } from '@common/components/Select'
+import TitleAndIcon from '@common/components/TitleAndIcon'
 import useNavigation from '@common/hooks/useNavigation'
 import useSelect from '@common/hooks/useSelect'
 import useTheme from '@common/hooks/useTheme'
@@ -31,35 +31,6 @@ interface Props {
   actualAddress: string
   isRecipientDomainResolving: boolean
 }
-
-const TitleRow = ({
-  title,
-  icon: Icon,
-  children
-}: {
-  title: string
-  icon: FC<SvgProps>
-  children?: ReactNode
-}) => (
-  <View
-    style={[
-      flexbox.directionRow,
-      flexbox.alignCenter,
-      flexbox.justifySpaceBetween,
-      spacings.pt,
-      spacings.phSm,
-      spacings.mbTy
-    ]}
-  >
-    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-      <Icon width={16} height={16} />
-      <Text fontSize={14} appearance="secondaryText" weight="medium" style={spacings.mlTy}>
-        {title}
-      </Text>
-    </View>
-    {children}
-  </View>
-)
 
 const AddressBookDropdown: FC<Props> = ({
   isVisible,
@@ -102,7 +73,7 @@ const AddressBookDropdown: FC<Props> = ({
       <ScrollableWrapper style={{ maxHeight: 300 }}>
         {walletAccountsSourcedContacts.length > 0 ? (
           <>
-            <TitleRow title={t('My Wallets')} icon={WalletFilledIcon} />
+            <TitleAndIcon title={t('My Wallets')} icon={WalletFilledIcon} />
             {walletAccountsSourcedContacts.map((contact) => (
               <AddressBookContact
                 key={contact.address}
@@ -118,7 +89,7 @@ const AddressBookDropdown: FC<Props> = ({
         ) : null}
         {manuallyAddedContacts.length > 0 ? (
           <>
-            <TitleRow title={t('Contacts')} icon={AccountsFilledIcon}>
+            <TitleAndIcon title={t('Contacts')} icon={AccountsFilledIcon}>
               <AnimatedPressable
                 style={[flexbox.directionRow, flexbox.alignCenter, manageBtnAnimStyle]}
                 onPress={onManagePress}
@@ -129,7 +100,7 @@ const AddressBookDropdown: FC<Props> = ({
                   {t('Manage Contacts')}
                 </Text>
               </AnimatedPressable>
-            </TitleRow>
+            </TitleAndIcon>
             {manuallyAddedContacts.map((contact) => (
               <AddressBookContact
                 key={contact.address}

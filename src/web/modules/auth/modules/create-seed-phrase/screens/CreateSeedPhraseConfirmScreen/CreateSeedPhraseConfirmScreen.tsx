@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -24,7 +24,7 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -35,7 +35,8 @@ const CreateSeedPhraseConfirmScreen = () => {
   const { updateStepperState } = useStepper()
   const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
-  const mainControllerState = useMainControllerState()
+
+  const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
@@ -55,36 +56,30 @@ const CreateSeedPhraseConfirmScreen = () => {
   })
 
   useEffect(() => {
-    return () => {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
-    }
-  }, [dispatch])
-
-  useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
   }, [updateStepperState])
 
-  const completeStep = useCallback(
-    (hasAccountsToImport: boolean = true) => {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
-      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
-    },
-    [dispatch, navigate]
-  )
-
-  useEffect(() => {
-    if (mainControllerState.statuses.onAccountAdderSuccess === 'SUCCESS') {
-      completeStep()
-    }
-  }, [completeStep, mainControllerState.statuses.onAccountAdderSuccess, dispatch])
-
   const onSubmit = handleSubmit(() => {
     setIsLoading(true)
+
+    const seedPhrase = seed.join(' ') || ''
     dispatch({
-      type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT',
-      params: { seed: seed.join(' ') }
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+      params: { privKeyOrSeed: seedPhrase, shouldPersist: !keystoreState.hasKeystoreSavedSeed }
     })
   })
+
+  useEffect(() => {
+    if (
+      accountAdderState.isInitialized &&
+      // The AccountAdder could have been already initialized with the same or a
+      // different type. Navigate immediately only if the types match.
+      accountAdderState.type === 'internal' &&
+      accountAdderState.subType === 'seed'
+    ) {
+      navigate(WEB_ROUTES.accountAdder)
+    }
+  }, [accountAdderState.isInitialized, accountAdderState.subType, accountAdderState.type, navigate])
 
   return (
     <TabLayoutContainer
@@ -108,6 +103,7 @@ const CreateSeedPhraseConfirmScreen = () => {
             }}
           />
           <Button
+            testID="create-seed-phrase-confirm-continue-btn"
             accessibilityRole="button"
             text={!isLoading ? t('Continue') : t('Importing...')}
             size="large"
@@ -133,7 +129,12 @@ const CreateSeedPhraseConfirmScreen = () => {
                 key={word}
                 style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { width: 200 }]}
               >
-                <Text fontSize={14} weight="medium" style={[{ width: 32 }]}>
+                <Text
+                  testID="seed-word-number-to-be-entered"
+                  fontSize={14}
+                  weight="medium"
+                  style={[{ width: 32 }]}
+                >
                   #{numberInSeed}
                 </Text>
                 <Controller
@@ -142,6 +143,7 @@ const CreateSeedPhraseConfirmScreen = () => {
                   rules={{ required: true, validate: (value) => value === word }}
                   render={({ field: { onChange, value, onBlur } }) => (
                     <Input
+                      testID={`seed-word-position-field-${numberInSeed}`}
                       onChangeText={onChange}
                       onBlur={onBlur}
                       value={value}

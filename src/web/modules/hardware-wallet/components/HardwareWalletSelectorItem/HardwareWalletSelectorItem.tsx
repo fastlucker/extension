@@ -29,6 +29,7 @@ const HardwareWalletSelectorItem = ({
 
   return (
     <Card
+      testID={`select-hw-option-${title.toLowerCase()}`}
       style={style}
       textStyle={[textStyles.center, spacings.mt2Xl]}
       text={

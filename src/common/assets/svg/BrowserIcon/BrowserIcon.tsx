@@ -21,7 +21,6 @@ const BrowserIcon: React.FC<Props> = ({ width = 27, height = 27 }) => (
       />
       <Path
         id="Path_3071"
-        data-name="Path 3071"
         d="M3,18H27"
         transform="translate(0 -3)"
         fill="none"
@@ -32,7 +31,6 @@ const BrowserIcon: React.FC<Props> = ({ width = 27, height = 27 }) => (
       />
       <Path
         id="Path_3072"
-        data-name="Path 3072"
         d="M16.8,3a18.36,18.36,0,0,1,4.8,12,18.36,18.36,0,0,1-4.8,12A18.36,18.36,0,0,1,12,15,18.36,18.36,0,0,1,16.8,3Z"
         transform="translate(-1.8)"
         fill="none"

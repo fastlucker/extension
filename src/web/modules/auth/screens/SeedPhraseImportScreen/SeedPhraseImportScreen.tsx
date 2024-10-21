@@ -149,7 +149,7 @@ const SeedPhraseImportScreen = () => {
     await handleSubmit(({ seedFields }) => {
       const formattedSeed = seedFields.map((field) => field.value).join(' ')
 
-      if (!keystoreState.hasKeystoreDefaultSeed) {
+      if (!keystoreState.hasKeystoreSavedSeed) {
         openBottomSheet()
       } else {
         dispatch({
@@ -158,7 +158,7 @@ const SeedPhraseImportScreen = () => {
         })
       }
     })()
-  }, [dispatch, handleSubmit, keystoreState.hasKeystoreDefaultSeed, openBottomSheet])
+  }, [dispatch, handleSubmit, keystoreState.hasKeystoreSavedSeed, openBottomSheet])
 
   const handleSaveSeedAndProceed = useCallback(() => {
     dispatch({
@@ -296,6 +296,7 @@ const SeedPhraseImportScreen = () => {
               control={control}
               render={({ field: { onChange, value } }) => (
                 <Select
+                  testID="select-seed-phrase-length"
                   setValue={(e) => {
                     updateFieldsLength(e.value as number)
                     onChange(e)
@@ -333,6 +334,7 @@ const SeedPhraseImportScreen = () => {
                   rules={{ required: true }}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
+                      testID={`seed-phrase-field-${index + 1}`}
                       value={value}
                       editable
                       numberOfLines={1}
@@ -366,7 +368,7 @@ const SeedPhraseImportScreen = () => {
           ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
-      {!keystoreState.hasKeystoreDefaultSeed && (
+      {!keystoreState.hasKeystoreSavedSeed && (
         <BottomSheet
           id="import-seed-phrase"
           sheetRef={sheetRef}
@@ -376,18 +378,17 @@ const SeedPhraseImportScreen = () => {
           type="modal"
         >
           <DualChoiceModal
-            title={t('Save as default Seed Phrase')}
+            title={t('Save Seed Phrase')}
             description={
               <View>
                 <Text style={spacings.mbTy} appearance="secondaryText">
-                  {t(
-                    'Do you want to save it as a default Seed Phrase for this Ambire Wallet extension?'
-                  )}
+                  {t('Do you want to save the seed in the Ambire Wallet extension?')}
                 </Text>
-                <Text appearance="secondaryText">
-                  {t(
-                    'This will allow you to easily import more Smart Accounts from this Seed Phrase.'
-                  )}
+                <Text style={spacings.mbTy} appearance="secondaryText">
+                  {t('This will allow you to easily import more accounts from this Seed Phrase.')}
+                </Text>
+                <Text appearance="secondaryText" weight="semiBold">
+                  {t('You can save only one seed.')}
                 </Text>
               </View>
             }
@@ -396,7 +397,7 @@ const SeedPhraseImportScreen = () => {
             onPrimaryButtonPress={handleSaveSeedAndProceed}
             secondaryButtonText={t('No')}
             primaryButtonText={
-              keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Yes')
+              keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Save seed')
             }
             secondaryButtonTestID="do-not-save-seed-button"
             primaryButtonTestID="save-seed-button"

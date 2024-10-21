@@ -2,14 +2,16 @@ import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { selectPolToken } from '../common-helpers/selectPolToken'
-import { saParams } from '../constants/constants'
+import { saParams } from '../config/constants'
 import { triggerTransaction } from '../common-helpers/triggerTransaction'
 import { signTransaction } from '../common-helpers/signTransaction'
 import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
 import { selectFeeToken } from '../common-helpers/selectFeeToken'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
+import { SELECTORS } from '../common/selectors/selectors'
 
-const recipientField = '[data-testid="address-ens-field"]'
+// TODO: Fix this
+const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
 
 // Helper functions for common operations
@@ -21,9 +23,9 @@ async function prepareTransaction(page, recipient, amount) {
   await page.waitForXPath(
     '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
   )
-  await page.waitForSelector('[data-testid="checkbox"]')
+  await page.waitForSelector(SELECTORS.checkbox)
   await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
-  await clickOnElement(page, '[data-testid="checkbox"]')
+  await clickOnElement(page, SELECTORS.checkbox)
   await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 }
 
@@ -255,9 +257,10 @@ describe('sa_features', () => {
 
     // Check the checkbox "I confirm this address is not a Binance wallets...."
     const checkboxExists = await page.evaluate(
-      () => !!document.querySelector('[data-testid="checkbox"]')
+      (selector) => !!document.querySelector(selector),
+      SELECTORS.checkbox
     )
-    if (checkboxExists) await clickOnElement(page, '[data-testid="checkbox"]')
+    if (checkboxExists) await clickOnElement(page, SELECTORS.checkbox)
 
     // Click on "Send" button and cofirm transaction
     const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(

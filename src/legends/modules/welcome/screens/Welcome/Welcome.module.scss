@@ -42,6 +42,8 @@
   .text {
     font-size: 1rem;
     line-height: 1.5rem;
+    color: $secondaryText;
+    font-family: $secondaryFont;
   }
   .textMb {
     margin-bottom: 1rem;

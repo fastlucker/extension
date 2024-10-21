@@ -8,7 +8,7 @@ import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
-import { Key, KeyPreferences } from '@ambire-common/interfaces/keystore'
+import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
 import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
@@ -41,8 +41,8 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: { privKeyOrSeed: string; shouldPersist?: boolean }
 }
-type MainControllerAccountAdderInitFromDefaultSeedPhraseAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE'
+type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE'
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -88,7 +88,7 @@ type CreateNewSeedPhraseAndAddFirstSmartAccount = {
   type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT'
   params: { seed: string }
 }
-type AddNextSmartAccountFromDefaultSeedPhraseAction = {
+type AddNextSmartAccountFromSavedSeedPhraseAction = {
   type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE'
 }
 type MainControllerRemoveAccount = {
@@ -308,6 +308,10 @@ type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
   params: { newSecret: string }
 }
+type KeystoreControllerSendPrivateKeyOverChannel = {
+  type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
+  params: { keyAddr: string }
+}
 
 type EmailVaultControllerGetInfoAction = {
   type: 'EMAIL_VAULT_CONTROLLER_GET_INFO'
@@ -506,13 +510,18 @@ type MainControllerTraceCallAction = {
   params: { estimation: EstimateResult }
 }
 
+type ImportSmartAccountJson = {
+  type: 'IMPORT_SMART_ACCOUNT_JSON'
+  params: { readyToAddAccount: Account; keys: ReadyToAddKeys['internal'] }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
-  | MainControllerAccountAdderInitFromDefaultSeedPhraseAction
+  | MainControllerAccountAdderInitFromSavedSeedPhraseAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
@@ -529,7 +538,7 @@ export type Action =
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | CreateNewSeedPhraseAndAddFirstSmartAccount
-  | AddNextSmartAccountFromDefaultSeedPhraseAction
+  | AddNextSmartAccountFromSavedSeedPhraseAction
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
@@ -563,6 +572,7 @@ export type Action =
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
   | KeystoreControllerChangePasswordFromRecoveryAction
+  | KeystoreControllerSendPrivateKeyOverChannel
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
   | EmailVaultControllerCancelConfirmationAction
@@ -604,3 +614,4 @@ export type Action =
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction
   | MainControllerTraceCallAction
+  | ImportSmartAccountJson

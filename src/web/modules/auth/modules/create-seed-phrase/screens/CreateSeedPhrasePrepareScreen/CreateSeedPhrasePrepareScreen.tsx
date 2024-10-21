@@ -70,10 +70,10 @@ const CreateSeedPhrasePrepareScreen = () => {
     navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
   }, [addToast, navigate])
 
-  // prevent proceeding with new seed phrase setup if there is a default seed phrase already associated with the keystore
+  // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
   useEffect(() => {
-    if (keystoreState.hasKeystoreDefaultSeed) goBack()
-  }, [goBack, keystoreState.hasKeystoreDefaultSeed])
+    if (keystoreState.hasKeystoreSavedSeed) goBack()
+  }, [goBack, keystoreState.hasKeystoreSavedSeed])
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
@@ -100,13 +100,14 @@ const CreateSeedPhrasePrepareScreen = () => {
           <BackButton
             onPress={() => {
               if (accounts.length) {
-                navigate(WEB_ROUTES.createHotWallet)
+                navigate(WEB_ROUTES.dashboard)
                 return
               }
               navigate(WEB_ROUTES.getStarted)
             }}
           />
           <Button
+            testID="review-seed-phrase-btn"
             disabled={!allCheckboxesChecked}
             accessibilityRole="button"
             size="large"
@@ -146,7 +147,7 @@ const CreateSeedPhrasePrepareScreen = () => {
                   'The Seed Phrase is a unique set of 12 or 24 words, that allows you to access and recover your Smart Wallet account.'
                 )}
               </Text>
-              {CHECKBOXES.map(({ id, label }) => (
+              {CHECKBOXES.map(({ id, label }, index) => (
                 <View
                   key={id}
                   style={[
@@ -168,7 +169,11 @@ const CreateSeedPhrasePrepareScreen = () => {
                       handleCheckboxPress(id)
                     }}
                   />
-                  <Pressable style={flexbox.flex1} onPress={() => handleCheckboxPress(id)}>
+                  <Pressable
+                    testID={`create-seed-prepare-checkbox-${index}`}
+                    style={flexbox.flex1}
+                    onPress={() => handleCheckboxPress(id)}
+                  >
                     <Text appearance="secondaryText" fontSize={16}>
                       {t(label)}
                     </Text>
