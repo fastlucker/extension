@@ -40,6 +40,7 @@ const overcomeNonceError = async (page) => {
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
+const TARGET_HEIGHT = 58.7
 //--------------------------------------------------------------------------------------------------------------
 export async function makeValidTransaction(
   page,
@@ -151,6 +152,56 @@ async function prepareSwap(page) {
   await selectTokenInUni(page, 'token-option-137-USDT', 'USDT')
 }
 
+// Utility function to check if element's parent height matches the target
+const isParentHeightEqual = async (elHandle, targetHeight) => {
+  const heightOfParent = await elHandle.evaluate(
+    (el) => el.parentElement.getBoundingClientRect().height
+  )
+  return parseFloat(heightOfParent.toFixed(1)) === targetHeight
+}
+
+// Utility function to check if element's parent is disabled based on aria-disabled attribute
+const isParentDisabled = async (elHandle) => {
+  return elHandle.evaluate((el) => el.parentElement.getAttribute('aria-disabled') === 'true')
+}
+
+// Utility function to wait for the parent element to become enabled
+const waitForParentEnabled = async (page, elHandle, timeout = 500) => {
+  let isDisabled = true
+
+  // Use a loop to repeatedly check if the element is enabled
+  /* eslint-disable no-await-in-loop */
+  while (isDisabled) {
+    isDisabled = await isParentDisabled(elHandle)
+
+    if (isDisabled) {
+      await page.waitForTimeout(timeout) // Wait for a defined timeout before rechecking
+    }
+  }
+}
+
+// Main function to handle clicking on elements that meet conditions
+const clickMatchingElements = async (page, elementsHandles, targetHeight = TARGET_HEIGHT) => {
+  await Promise.all(
+    elementsHandles.map(async (elHandle) => {
+      try {
+        // Check if the parent's height matches the target height
+        const heightMatches = await isParentHeightEqual(elHandle, targetHeight)
+
+        if (heightMatches) {
+          // Wait until the parent is enabled (aria-disabled = false)
+          await waitForParentEnabled(page, elHandle)
+
+          // Click the parent element once enabled
+          await elHandle.evaluate((el) => el.parentElement.click())
+        }
+      } catch (err) {
+        console.error('Error while processing element:', err)
+      }
+    })
+  )
+}
+
 //--------------------------------------------------------------------------------------------------------------
 export async function makeSwap(
   page,
@@ -227,8 +278,6 @@ export async function makeSwap(
 
   await typeText(page, '[data-testid="amount-input-out"]', '0.0001')
 
-  // FIXME: The Uniswap DOM element is no longer with this test id
-  // await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
   // TODO: Temporary solution with a delay (the DOM element is not a btn anymore)
   await clickOnElement(page, 'xpath///span[contains(text(), "Review")]', true, 3000)
 
@@ -244,42 +293,15 @@ export async function makeSwap(
     '//span[contains(@class, "font_button") and contains(text(), "Swap")]'
   )
 
-  await Promise.all(
-    elementsHandles.map(async (elHandle) => {
-      try {
-        const heightOfParent = await elHandle.evaluate(
-          (el) => el.parentElement.getBoundingClientRect().height
-        )
-
-        const isEqual = parseFloat(heightOfParent.toFixed(1)) === 58.7
-
-        if (isEqual) {
-          let isDisabled = true
-          /* eslint-disable no-await-in-loop */
-          while (isDisabled) {
-            isDisabled = await elHandle.evaluate(
-              (el) => el.parentElement.getAttribute('aria-disabled') === 'true'
-            )
-
-            if (isDisabled) {
-              await page.waitForTimeout(500)
-            }
-          }
-
-          await elHandle.evaluate((el) => el.parentElement.click())
-        }
-      } catch (err) {
-        console.error('Error while clicking on element:', err)
-      }
-    })
-  )
+  if (elementsHandles.length) await clickMatchingElements(page, elementsHandles)
+  else throw new Error('No elements found')
 
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
     '',
-    true
+    false
   )
 
   // Check for sign message window

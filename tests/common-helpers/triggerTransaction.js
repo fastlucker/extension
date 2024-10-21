@@ -6,9 +6,9 @@ export async function triggerTransaction(
   extensionURL,
   browser,
   triggerTransactionSelector,
-  shouldNotClick = false
+  shouldClick = true
 ) {
-  if (shouldNotClick) {
+  if (shouldClick) {
     await clickOnElement(page, triggerTransactionSelector)
   }
 
