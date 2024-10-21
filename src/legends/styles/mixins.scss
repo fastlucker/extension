@@ -39,9 +39,9 @@
 @mixin secondary-button {
   @include button;
   gap: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   line-height: 1rem;
-  height: 2rem;
+  height: 2.25rem;
   width: 100%;
   text-transform: uppercase;
 
