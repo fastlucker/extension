@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import spacings from '@common/styles/spacings'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import NetworkComponent from './Network'
@@ -11,12 +12,15 @@ import NetworkComponent from './Network'
 const Networks = ({
   openSettingsBottomSheet,
   openBlockExplorer,
-  filterByNetworkId
+  filterByNetworkId,
+  search
 }: {
   openSettingsBottomSheet: (networkId: NetworkId) => void
   openBlockExplorer: (url?: string) => void
   filterByNetworkId: NetworkId | null
+  search: string
 }) => {
+  const { networks } = useNetworksControllerState()
   const { selectedAccount } = useAccountsControllerState()
   const portfolioControllerState = usePortfolioControllerState()
 
@@ -27,18 +31,30 @@ const Networks = ({
 
   const filteredAndSortedPortfolio = useMemo(
     () =>
-      Object.keys(portfolioByNetworks || []).sort((a, b) => {
-        const aBalance = portfolioByNetworks[a]?.result?.total?.usd || 0
-        const bBalance = portfolioByNetworks[b]?.result?.total?.usd || 0
+      Object.keys(portfolioByNetworks || [])
+        .filter((networkId) => {
+          const { name } = networks.find(({ id }) => id === networkId) || {}
 
-        if (aBalance === bBalance) {
-          if (b === 'rewards' || b === 'gasTank') return -1
-          return 1
-        }
+          if (!name) return false
 
-        return Number(bBalance) - Number(aBalance)
-      }),
-    [portfolioByNetworks]
+          if (search) {
+            return name.toLowerCase().includes(search.toLowerCase())
+          }
+
+          return true
+        })
+        .sort((a, b) => {
+          const aBalance = portfolioByNetworks[a]?.result?.total?.usd || 0
+          const bBalance = portfolioByNetworks[b]?.result?.total?.usd || 0
+
+          if (aBalance === bBalance) {
+            if (b === 'rewards' || b === 'gasTank') return -1
+            return 1
+          }
+
+          return Number(bBalance) - Number(aBalance)
+        }),
+    [networks, portfolioByNetworks, search]
   )
 
   return (
