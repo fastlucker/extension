@@ -1,13 +1,14 @@
 import React, { FC, memo, useCallback } from 'react'
 import { Linking, Pressable, View } from 'react-native'
 
-import useBenzinGetNetwork from '@benzin/screens/BenzinScreen/hooks/useBenzin/useBenzinGetNetwork'
+import useNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 interface Props {
   chainId: bigint
@@ -15,9 +16,12 @@ interface Props {
 }
 
 const ChainVisualization: FC<Props> = ({ chainId, marginRight }) => {
-  const { network: destinationNetwork, isNetworkLoading } = useBenzinGetNetwork({
-    chainId: String(chainId)
-  })
+  const { benzinNetworks, loadingBenzinNetworks = [] } = useNetworksContext()
+  const { networks } = useNetworksControllerState()
+  const actualNetworks = networks ?? benzinNetworks
+  const isNetworkLoading = loadingBenzinNetworks.includes(chainId)
+  const destinationNetwork = actualNetworks.find((n) => n.chainId === chainId)
+
   const handleLink = useCallback(
     () => Linking.openURL(`https://chainlist.org/chain/${chainId}`),
     [chainId]
