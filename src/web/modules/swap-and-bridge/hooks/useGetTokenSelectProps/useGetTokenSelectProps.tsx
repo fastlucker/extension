@@ -31,6 +31,18 @@ const LOADING_TOKEN_ITEMS = [
   }
 ]
 
+const NO_VALUE_SELECTED = [
+  {
+    value: 'no-selection',
+    label: (
+      <Text weight="medium" fontSize={14}>
+        Please select token
+      </Text>
+    ),
+    icon: null
+  }
+]
+
 const useGetTokenSelectProps = ({
   tokens,
   token,
@@ -91,7 +103,12 @@ const useGetTokenSelectProps = ({
         />
       )
     }))
-    value = options.find((item: any) => item.value === token) || options[0]
+
+    if (!token) {
+      value = NO_VALUE_SELECTED[0]
+    } else {
+      value = options.find((item: any) => item.value === token) || options[0]
+    }
     amountSelectDisabled = false
   }
 
