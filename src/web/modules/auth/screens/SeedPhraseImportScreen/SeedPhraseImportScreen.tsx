@@ -393,7 +393,7 @@ const SeedPhraseImportScreen = () => {
                       <Pressable
                         onPress={() =>
                           openInTab(
-                            'https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt',
+                            'https://raw.githubusercontent.com/bitcoin/bips/refs/heads/master/bip-0039/english.txt',
                             false
                           )
                         }
