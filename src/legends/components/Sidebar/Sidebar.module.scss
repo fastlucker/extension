@@ -56,7 +56,7 @@
           }
           .wheelTitle {
             font-size: 1.125rem;
-            font-weight: 600;
+            font-weight: 500;
             line-height: 1.5rem;
             text-transform: uppercase;
             color: $secondaryText;
@@ -67,6 +67,7 @@
           }
           .wheelButton {
             @include secondary-button;
+            font-size: 0.875rem;
             background: $primaryGradient;
             width: 100%;
             text-transform: none;
