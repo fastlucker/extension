@@ -5,14 +5,15 @@ import { View } from 'react-native'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import WarningIcon from '@common/assets/svg/WarningIcon'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import RouteStepsArrow from '@web/modules/swap-and-bridge/components/RouteStepsArrow'
+import RouteStepsToken from '@web/modules/swap-and-bridge/components/RouteStepsToken'
 
-import RouteStepsArrow from '../RouteStepsArrow'
-import RouteStepsToken from '../RouteStepsToken'
 import styles from './styles'
 
 const RouteStepsPlaceholder = ({
@@ -30,9 +31,12 @@ const RouteStepsPlaceholder = ({
   const getBadge = useMemo(() => {
     if (withBadge === 'loading')
       return (
-        <Text weight="medium" fontSize={12}>
-          {t('Fetching best route...')}
-        </Text>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <Spinner style={{ width: 16, height: 16, ...spacings.mrTy }} />
+          <Text weight="medium" fontSize={12}>
+            {t('Fetching best route...')}
+          </Text>
+        </View>
       )
     if (withBadge === 'no-route-found')
       return (
