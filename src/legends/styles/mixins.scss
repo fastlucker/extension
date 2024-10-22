@@ -5,6 +5,10 @@
   align-items: center;
   width: 100%;
   text-transform: uppercase;
+  background-color: $primaryBackground;
+  border: 2px solid $tertiaryBorder;
+  box-shadow: 0 2.5px 0 $tertiaryBorder;
+  color: $secondaryText;
   font-weight: 600;
 
   &:disabled {
@@ -19,32 +23,27 @@
 
 @mixin primary-button {
   @include button;
-  background-color: $primaryBackground;
-  border: 1px solid $primaryBorder;
-  box-shadow: 0 2px 1px #1d0a0a;
-  color: $accent;
-  font-weight: 700;
   height: 3.375rem;
+  color: $secondaryText;
 
-  &:active:not(:disabled) {
-    transform: translateY(0.125rem);
+  &:not(:disabled) {
+    &:hover {
+      background-color: $secondaryBackground;
+    }
+    &:active {
+      transform: translateY(0.125rem);
+      box-shadow: none;
+    }
   }
 }
 @mixin secondary-button {
   @include button;
-  background-color: $secondaryBackground;
-  border: 1px solid $secondaryBorder;
-  border-radius: $primaryBorderRadius;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   line-height: 1rem;
-  height: 2rem;
+  height: 2.25rem;
   width: 100%;
   text-transform: uppercase;
-  font-weight: 600;
 
   svg {
     font-size: 0.875rem;

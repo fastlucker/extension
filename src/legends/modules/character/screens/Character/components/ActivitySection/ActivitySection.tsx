@@ -10,6 +10,7 @@ import styles from './ActivitySection.module.scss'
 
 const ActivitySection = () => {
   const { activity, isLoading, error = 'test' } = useActivityContext()
+
   return (
     <div className={styles.wrapper}>
       <SectionHeading>Legends Activity</SectionHeading>
@@ -51,9 +52,8 @@ const ActivitySection = () => {
                   <td>{new Date(act.submittedAt).toLocaleString()}</td>
                   <td>{act.legends.totalXp}</td>
                   <td>
-                    {act.legends.activities.map((legendActivity, index) => (
-                      // eslint-disable-next-line react/no-array-index-key
-                      <div key={index}>
+                    {act.legends.activities?.map((legendActivity) => (
+                      <div key={legendActivity.action + legendActivity.xp}>
                         {legendActivity.action} (+{legendActivity.xp} xp)
                       </div>
                     ))}

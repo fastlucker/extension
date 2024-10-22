@@ -1,10 +1,13 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
 
 import Benzin from '@benzin/screens/BenzinScreen/components/Benzin/Benzin'
 import Buttons from '@benzin/screens/BenzinScreen/components/Buttons'
 import useBenzin from '@benzin/screens/BenzinScreen/hooks/useBenzin'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Button from '@common/components/Button'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper'
@@ -15,7 +18,7 @@ const BenzinScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const actionsState = useActionsControllerState()
-
+  const { theme } = useTheme()
   const resolveAction = useCallback(() => {
     if (!actionsState.currentAction) return
     dispatch({
@@ -29,6 +32,12 @@ const BenzinScreen = () => {
 
   const state = useBenzin({ onOpenExplorer: resolveAction })
 
+  const pendingRequests = useMemo(() => {
+    if (!actionsState.visibleActionsQueue) return []
+
+    return actionsState.visibleActionsQueue.filter((a) => a.type !== 'benzin')
+  }, [actionsState.visibleActionsQueue])
+
   return (
     <TabLayoutContainer
       width="full"
@@ -40,8 +49,14 @@ const BenzinScreen = () => {
             onPress={resolveAction}
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}
-            text={t('Close')}
-          />
+            text={pendingRequests.length ? t('Proceed to Next Request') : t('Close')}
+          >
+            {!!pendingRequests.length && (
+              <View style={spacings.pl}>
+                <RightArrowIcon color={theme.primary} />
+              </View>
+            )}
+          </Button>
           {state?.handleOpenExplorer ? (
             <Buttons
               handleCopyText={state.handleCopyText}

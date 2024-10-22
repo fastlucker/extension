@@ -42,9 +42,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       return
     }
 
-    setIsLoading(true)
-    setCharacter(null)
-
     const characterResponse = await fetch(
       `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
     )

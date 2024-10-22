@@ -4,7 +4,8 @@ export type Activity = {
   submittedAt: string
   txns: { id: string; amount: number; status: string }[][] | null
   activities: LegendActivity[]
-  totalXp: number
+  totalXp: number | null
+  version: string | null
 }
 export type LegendActivity = {
   action: string
