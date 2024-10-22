@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Image, ImageProps, View, ViewStyle } from 'react-native'
 
+import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import useTheme from '@common/hooks/useTheme'
@@ -52,9 +53,11 @@ const TokenIcon: React.FC<Props> = ({
   ...props
 }) => {
   const { styles } = useTheme(getStyles)
-  const { networks } = useNetworksControllerState()
+  const { networks: controllerNetworks } = useNetworksControllerState()
   const [uriStatus, setUriStatus] = useState<UriStatus>(UriStatus.UNKNOWN)
   const [imageUrl, setImageUrl] = useState<string | undefined>()
+  // In the Benzin context, the networks controller is not defined, fallback to predefined networks
+  const networks = controllerNetworks || predefinedNetworks
 
   const network = useMemo(
     () =>
