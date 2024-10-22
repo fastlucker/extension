@@ -2,14 +2,12 @@ export type Activity = {
   txId: string
   network: string
   submittedAt: string
-  txns: [[]]
-  legends: {
-    activities: {
-      action: string
-      xp: number
-    }[]
-    totalXp: number
-  }
+  txns: { id: string; amount: number; status: string }[][] | null
+  activities: LegendActivity[]
+  totalXp: number
+}
+export type LegendActivity = {
+  action: string
+  xp: number
 }
 
-export type LegendActivity = Activity['legends']['activities'][0]

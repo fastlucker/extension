@@ -1,8 +1,8 @@
 import { BrowserProvider, Contract, getAddress, Interface } from 'ethers'
 import { useState } from 'react'
 
+import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import { isValidAddress } from '@ambire-common/services/address'
-import { LEGENDS_CONTRACT_ABI } from '@legends/constants/abis/legends'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useToast from '@legends/hooks/useToast'

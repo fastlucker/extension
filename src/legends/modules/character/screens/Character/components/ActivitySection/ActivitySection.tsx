@@ -1,9 +1,10 @@
 import React from 'react'
 
-import useActivityContext from '@legends/hooks/useActivityContext'
-import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { networks } from '@ambire-common/consts/networks'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Alert from '@legends/components/Alert'
+import useActivityContext from '@legends/hooks/useActivityContext'
+
 import SectionHeading from '../SectionHeading'
 import styles from './ActivitySection.module.scss'
 
