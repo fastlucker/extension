@@ -9,7 +9,7 @@ type Activity = {
   submittedAt: string
   txns: [[]]
   legends: {
-    activities: {
+    activities?: {
       action: string
       xp: number
     }[]
