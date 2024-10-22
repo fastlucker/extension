@@ -41,6 +41,7 @@ const overcomeNonceError = async (page) => {
 const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
 const TARGET_HEIGHT = 58.7
+const MAX_TIME_WAIT = 30000
 //--------------------------------------------------------------------------------------------------------------
 export async function makeValidTransaction(
   page,
@@ -166,8 +167,9 @@ const isParentDisabled = async (elHandle) => {
 }
 
 // Utility function to wait for the parent element to become enabled
-const waitForParentEnabled = async (page, elHandle, timeout = 500) => {
+const waitForParentEnabled = async (page, elHandle, timeout = 500, maxWaitTime = MAX_TIME_WAIT) => {
   let isDisabled = true
+  const startTime = Date.now()
 
   // Use a loop to repeatedly check if the element is enabled
   /* eslint-disable no-await-in-loop */
@@ -175,9 +177,19 @@ const waitForParentEnabled = async (page, elHandle, timeout = 500) => {
     isDisabled = await isParentDisabled(elHandle)
 
     if (isDisabled) {
+      const elapsedTime = Date.now() - startTime
+
+      // Break the loop if maxWaitTime exceeded
+      if (elapsedTime >= maxWaitTime) {
+        console.log('Timeout exceeded for enabling the button, breaking the loop')
+        break
+      }
+
       await page.waitForTimeout(timeout) // Wait for a defined timeout before rechecking
     }
   }
+
+  return !isDisabled
 }
 
 // Main function to handle clicking on elements that meet conditions
@@ -190,10 +202,14 @@ const clickMatchingElements = async (page, elementsHandles, targetHeight = TARGE
 
         if (heightMatches) {
           // Wait until the parent is enabled (aria-disabled = false)
-          await waitForParentEnabled(page, elHandle)
+          const isEnabled = await waitForParentEnabled(page, elHandle)
 
-          // Click the parent element once enabled
-          await elHandle.evaluate((el) => el.parentElement.click())
+          if (isEnabled) {
+            // Click the parent element once enabled
+            await elHandle.evaluate((el) => el.parentElement.click())
+          } else {
+            console.log(`Element did not become enabled within a ${MAX_TIME_WAIT / 1000} seconds`)
+          }
         }
       } catch (err) {
         console.error('Error while processing element:', err)
