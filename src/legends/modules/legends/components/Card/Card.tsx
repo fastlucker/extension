@@ -4,6 +4,7 @@ import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from '@legends/components/Modal'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
 import { EOA_ACCESSIBLE_CARDS, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
@@ -45,9 +46,11 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
 
-  const openActionModal = () => setIsActionModalOpen(true)
+  const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
-  const closeActionModal = () => setIsActionModalOpen(false)
+  const openActionModal = () => action.predefinedId === 'wheelOfFortune' ? setIsFortuneWheelModalOpen(true) : setIsActionModalOpen(true)
+
+  const closeActionModal = () => action.predefinedId === 'wheelOfFortune' ? setIsFortuneWheelModalOpen(false) : setIsActionModalOpen(false)
 
   return (
     <div className={`${styles.wrapper}`}>
@@ -60,6 +63,9 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
           action={action}
         />
       </Modal>
+      {action.predefinedId === 'wheelOfFortune' && (
+        <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
+      )}
       {isCompleted ? (
         <div className={styles.completed}>
           <span className={styles.completedText}>Completed</span>

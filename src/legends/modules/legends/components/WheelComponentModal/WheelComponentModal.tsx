@@ -26,7 +26,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   const [mustSpin, setMustSpin] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState(6)
   const [spinOfTheDay, setSpinOfTheDay] = useState(0)
-  const [txnHash, setTxnHash] = useState('')
+  const [isInProgress, setIsInProgress] = useState(false)
   const { connectedAccount, isConnectedAccountV2 } = useAccountContext()
   const { addToast } = useToast()
 
@@ -85,6 +85,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     const signer = await provider.getSigner()
 
     try {
+      setIsInProgress(true)
       const randomValueBytes = randomBytes(32)
       const randomValue = BigInt(hexlify(randomValueBytes))
 
@@ -92,7 +93,6 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         to: LEGENDS_CONTRACT_ADDRESS,
         data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('spinWheel', [randomValue])
       })
-      setTxnHash(tx.hash)
 
       const receipt = await tx.wait()
 
@@ -117,6 +117,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       console.error('Failed to broadcast transaction:', e)
       addToast('Failed to broadcast transaction', 'error')
       setMustSpin(false)
+    } finally {
+      setIsInProgress(false)
     }
   }, [connectedAccount, checkTransactionStatus, addToast, isConnectedAccountV2])
 
@@ -154,11 +156,11 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         />
         <button
           onClick={handleSpinClick}
-          disabled={mustSpin || !!spinOfTheDay || !!txnHash}
+          disabled={mustSpin || !!spinOfTheDay || !!isInProgress}
           type="button"
           className={styles.button}
         >
-          {txnHash && !mustSpin && !spinOfTheDay
+          {isInProgress && !mustSpin && !spinOfTheDay
             ? 'Awaiting Transaction Confirmation'
             : mustSpin
             ? 'Spinning'
