@@ -10,6 +10,7 @@ import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
 const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount: AccountId | null) =>
   banners.filter((banner) => {
@@ -38,11 +39,13 @@ export default function useBanners(): BannerInterface[] {
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
+  const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
 
   const allBanners = useMemo(() => {
     return [
       ...state.banners,
       ...actionBanners,
+      ...swapAndBridgeBanners,
       // Don't display portfolio banners when offline
       ...getCurrentAccountBanners(
         debouncedIsOffline ? [OFFLINE_BANNER] : portfolioBanners,
@@ -54,6 +57,7 @@ export default function useBanners(): BannerInterface[] {
   }, [
     state.banners,
     actionBanners,
+    swapAndBridgeBanners,
     debouncedIsOffline,
     portfolioBanners,
     selectedAccount,

@@ -14,6 +14,7 @@ import { PortfolioController } from '@ambire-common/controllers/portfolio/portfo
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
@@ -34,7 +35,8 @@ export const controllersNestedInMainMapping = {
   actions: ActionsController,
   addressBook: AddressBookController,
   domains: DomainsController,
-  invite: InviteController
+  invite: InviteController,
+  swapAndBridge: SwapAndBridgeController
 
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller

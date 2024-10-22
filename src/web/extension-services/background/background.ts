@@ -11,9 +11,11 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
@@ -26,9 +28,13 @@ import {
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import {
+  getActiveRoutesLowestServiceTime,
+  getActiveRoutesUpdateInterval
+} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
-import { RELAYER_URL, VELCRO_URL } from '@env'
+import { RELAYER_URL, SOCKET_API_KEY, VELCRO_URL } from '@env'
 import { browser } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -119,6 +125,8 @@ handleKeepAlive()
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
+    updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
+    updateSwapAndBridgeQuoteInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
@@ -188,6 +196,7 @@ handleKeepAlive()
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
+    socketApiKey: SOCKET_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -204,6 +213,9 @@ handleKeepAlive()
       ...windowManager,
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
+      },
+      sendWindowUiMessage: (params) => {
+        pm.send('> ui', { method: 'receiveOneTimeData', params })
       }
     },
     notificationManager
@@ -277,6 +289,58 @@ handleKeepAlive()
     }
 
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+  }
+
+  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: ActiveRoute[]) {
+    if (!activeRoutesInProgress || !activeRoutesInProgress.length) {
+      !!backgroundState.updateActiveRoutesInterval &&
+        clearTimeout(backgroundState.updateActiveRoutesInterval)
+      delete backgroundState.updateActiveRoutesInterval
+      return
+    }
+    if (backgroundState.updateActiveRoutesInterval) return
+
+    let minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress)
+
+    async function updateActiveRoutes() {
+      minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress!)
+      await mainCtrl.swapAndBridge.checkForNextUserTxForActiveRoutes()
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateActiveRoutesInterval = setTimeout(
+        updateActiveRoutes,
+        getActiveRoutesUpdateInterval(minServiceTime)
+      )
+    }
+
+    backgroundState.updateActiveRoutesInterval = setTimeout(
+      updateActiveRoutes,
+      getActiveRoutesUpdateInterval(minServiceTime)
+    )
+  }
+
+  function initSwapAndBridgeQuoteContinuousUpdate() {
+    if (mainCtrl.swapAndBridge.formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+      !!backgroundState.updateSwapAndBridgeQuoteInterval &&
+        clearTimeout(backgroundState.updateSwapAndBridgeQuoteInterval)
+      delete backgroundState.updateSwapAndBridgeQuoteInterval
+      return
+    }
+    if (backgroundState.updateSwapAndBridgeQuoteInterval) return
+
+    async function updateSwapAndBridgeQuote() {
+      if (mainCtrl.swapAndBridge.formStatus === SwapAndBridgeFormStatus.ReadyToSubmit)
+        await mainCtrl.swapAndBridge.updateQuote({
+          skipPreviousQuoteRemoval: true,
+          skipQuoteUpdateOnSameValues: false,
+          skipStatusUpdate: true
+        })
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
+    }
+
+    backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
   }
 
   async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
@@ -511,6 +575,10 @@ handleKeepAlive()
                 }
               }
             }
+            if (ctrlName === 'swapAndBridge') {
+              initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
+              initSwapAndBridgeQuoteContinuousUpdate()
+            }
           }, 'background')
         }
       }
@@ -640,6 +708,8 @@ handleKeepAlive()
 
                 const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
                 const keyIterator = new KeyIterator(params.privKeyOrSeed)
+
+                // if it enters here, it's from the default seed. We can init the account adder like so
                 if (keyIterator.subType === 'seed' && params.shouldPersist) {
                   await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
                 }
@@ -652,16 +722,16 @@ handleKeepAlive()
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
               }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
+              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE': {
                 if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-                const keystoreDefaultSeed = await mainCtrl.keystore.getDefaultSeed()
+                const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
 
-                if (!keystoreDefaultSeed) return
-                const keyIterator = new KeyIterator(keystoreDefaultSeed.seed)
+                if (!keystoreSavedSeed) return
+                const keyIterator = new KeyIterator(keystoreSavedSeed.seed)
                 await mainCtrl.accountAdder.init({
                   keyIterator,
                   pageSize: 5,
-                  hdPathTemplate: keystoreDefaultSeed.hdPathTemplate
+                  hdPathTemplate: keystoreSavedSeed.hdPathTemplate
                 })
 
                 return await mainCtrl.accountAdder.setPage({ page: 1 })
@@ -776,6 +846,19 @@ handleKeepAlive()
                   readyToAddKeys
                 )
               }
+              case 'IMPORT_SMART_ACCOUNT_JSON': {
+                // Add accounts first, because some of the next steps have validation
+                // if accounts exists.
+                await mainCtrl.accounts.addAccounts([params.readyToAddAccount])
+
+                // Then add keys, because some of the next steps could have validation
+                // if keys exists. Should be separate (not combined in Promise.all,
+                // since firing multiple keystore actions is not possible
+                // (the #wrapKeystoreAction listens for the first one to finish and
+                // skips the parallel one, if one is requested).
+
+                return await mainCtrl.keystore.addKeys(params.keys)
+              }
               case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
                 // Since these accounts are view-only, directly add them in the
                 // MainController, bypassing the AccountAdder flow.
@@ -785,11 +868,11 @@ handleKeepAlive()
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
               case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-                await mainCtrl.importSmartAccountFromDefaultSeed(params.seed)
+                await mainCtrl.importSmartAccountFromSavedSeed(params.seed)
                 break
               }
               case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
-                await mainCtrl.importSmartAccountFromDefaultSeed()
+                await mainCtrl.importSmartAccountFromSavedSeed()
                 break
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
@@ -849,6 +932,26 @@ handleKeepAlive()
                 return mainCtrl.initSignAccOp(params.actionId)
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
+
+              case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
+                return await mainCtrl.swapAndBridge.initForm(params.sessionId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
+                return mainCtrl.swapAndBridge.unloadScreen(params.sessionId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
+                return mainCtrl.swapAndBridge.updateForm(params)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
+                return await mainCtrl.swapAndBridge.switchFromAndToTokens()
+              case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
+                return mainCtrl.swapAndBridge.selectRoute(params.route)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
+                return await mainCtrl.buildSwapAndBridgeUserRequest()
+              case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
+                return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE':
+                return mainCtrl.swapAndBridge.removeActiveRoute(params.activeRouteId)
+              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST':
+                return mainCtrl.swapAndBridge.updatePortfolioTokenList(params)
+
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addOrUpdateAction(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
@@ -974,6 +1077,8 @@ handleKeepAlive()
                 // In the case we change the user's device password through the recovery process,
                 // we don't know the old password, which is why we send only the new password.
                 return await mainCtrl.keystore.changeKeystorePassword(params.newSecret)
+              case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
+                return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
 
               case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
                 return await mainCtrl.emailVault.getEmailVaultInfo(params.email)

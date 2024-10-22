@@ -10,7 +10,7 @@ interface Props extends SvgProps {
 
 const PendingIcon: React.FC<Props> = ({ width = 24, height = 24 }) => (
   <Svg width={width} height={height} viewBox="0 0 24 24">
-    <G id="Pending-2" data-name="Pending" transform="translate(78 849) rotate(180)">
+    <G id="Pending-2" transform="translate(78 849) rotate(180)">
       <Line
         y2="4"
         transform="translate(72.718 843.718) rotate(135)"

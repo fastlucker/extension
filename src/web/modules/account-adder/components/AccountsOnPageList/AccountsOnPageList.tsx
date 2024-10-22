@@ -72,14 +72,7 @@ const AccountsOnPageList = ({
   const [contentHeight, setContentHeight] = useState(0)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
-
-  // By default, hide empty accounts when user imports a SEED. That's because of
-  // the assumption users are less likely to be degens and might get confused by
-  // seeing many empty accounts. However, when interacting with hardware wallets,
-  // the assumption is that users are more advanced and might want to see all
-  // accounts. Side note: irrelevant for private key imports, as they are always
-  // importing only one (Basic) account and this option is hidden in this case.
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(subType === 'seed')
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(false)
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -209,8 +202,8 @@ const AccountsOnPageList = ({
     }
 
     if (subType === 'seed') {
-      return accountAdderState.isInitializedWithDefaultSeed
-        ? t('Import Accounts from Default Seed Phrase')
+      return accountAdderState.isInitializedWithSavedSeed
+        ? t('Import Accounts from Saved Seed Phrase')
         : t('Import Accounts from Seed Phrase')
     }
 
@@ -219,7 +212,7 @@ const AccountsOnPageList = ({
     }
 
     return t('Select Accounts To Import')
-  }, [accountAdderState.isInitializedWithDefaultSeed, keyType, subType, t])
+  }, [accountAdderState.isInitializedWithSavedSeed, keyType, subType, t])
 
   // Empty means it's not loading and no accounts on the current page are derived.
   // Should rarely happen - if the deriving request gets cancelled on the device

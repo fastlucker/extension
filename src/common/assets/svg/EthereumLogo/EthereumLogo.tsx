@@ -13,7 +13,7 @@ const EthereumLogo: React.FC<Props> = ({ width = 32, height = 32, ...rest }) => 
     <Path d="m16 6-6 9.9 6-2.72 5.955 2.73Z" fill="#8a92b2" />
     <Path d="M15.997 6v7.177l5.957 2.733Z" fill="#62688f" />
     <Path d="m10.027 17.03 5.97 8.4 5.974-8.4-5.974 3.526Z" fill="#8a92b2" />
-    <Path data-name="Path 55" d="m15.997 25.432 5.974-8.4-5.974 3.526Z" fill="#62688f" />
+    <Path d="m15.997 25.432 5.974-8.4-5.974 3.526Z" fill="#62688f" />
   </Svg>
 )
 

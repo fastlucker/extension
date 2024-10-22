@@ -22,7 +22,7 @@ const overcomeNonceError = async (page) => {
   let hasNonceError = false
   try {
     const nonceError = await page.waitForXPath(
-      '//*[contains(text(), "Perhaps wrong nonce set in Account op")]',
+      '//*[contains(text(), "Perhaps wrong nonce set in Account op") or contains(text(), "replacement transaction underpriced")]',
       { timeout: 3000 }
     )
 

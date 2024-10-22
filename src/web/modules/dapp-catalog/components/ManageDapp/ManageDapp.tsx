@@ -68,7 +68,7 @@ const ManageDapp = ({
             {n.name}
           </Text>
         ),
-        icon: <NetworkIcon id={n.id} size={30} />
+        icon: <NetworkIcon key={n.id} id={n.id} size={30} />
       })),
     [networks]
   )
