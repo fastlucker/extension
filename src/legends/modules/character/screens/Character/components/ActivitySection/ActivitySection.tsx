@@ -10,6 +10,7 @@ import styles from './ActivitySection.module.scss'
 
 const ActivitySection = () => {
   const { activity, isLoading, error = 'test' } = useActivityContext()
+  console.log(activity)
   return (
     <div className={styles.wrapper}>
       <SectionHeading>Legends Activity</SectionHeading>
