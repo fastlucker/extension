@@ -33,16 +33,16 @@ const TokenOrNft: FC<Props> = ({
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { addToast } = useToast()
   const [assetInfo, setAssetInfo] = useState<any>({})
-  const { networks: stateNetworks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { t } = useTranslation()
+  const { networks: controllerNetworks } = useNetworksControllerState()
   const { benzinNetworks, addNetwork } = useBenzinNetworksContext()
-  const actualNetworks = stateNetworks ?? benzinNetworks
-  const network = useMemo(() => {
-    return (
-      actualNetworks.find((n) => (chainId ? n.chainId === chainId : n.id === networkId)) || null
-    )
-  }, [actualNetworks, chainId, networkId])
+  // Component used across Benzin and Extension, make sure to always set networks
+  const networks = controllerNetworks ?? benzinNetworks
+  const network = useMemo(
+    () => networks.find((n) => (chainId ? n.chainId === chainId : n.id === networkId)) || null,
+    [networks, chainId, networkId]
+  )
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const TokenOrNft: FC<Props> = ({
         <Nft
           address={address}
           network={network}
-          networks={actualNetworks}
+          networks={networks}
           tokenId={value}
           nftInfo={assetInfo.nftInfo}
           hideSendNft
