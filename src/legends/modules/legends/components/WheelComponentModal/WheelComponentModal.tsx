@@ -129,7 +129,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   }
 
   const getButtonLabel = (isInProgress: boolean, mustSpin: boolean, spinOfTheDay: number): string => {
-    if (isInProgress) return 'Spinning...'
+    if (isInProgress) return 'Signing...'
     if (mustSpin) return 'Spinning...'
     if (spinOfTheDay) return 'Already Spun'
     return 'Spin the Wheel'

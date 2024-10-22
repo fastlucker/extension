@@ -3,7 +3,9 @@ export type Activity = {
   network: string
   submittedAt: string
   txns: { id: string; amount: number; status: string }[][] | null
-  activities: LegendActivity[]
+  legends: {
+    activities: LegendActivity[]
+  }
   totalXp: number | null
   version: string | null
 }
