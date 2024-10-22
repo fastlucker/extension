@@ -1,15 +1,19 @@
+import { ConsoleMessage } from 'puppeteer'
 import { FC, memo, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, ScrollView, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { getDeadlineText } from '@ambire-common/libs/humanizer/utils'
 import { isValidAddress } from '@ambire-common/services/address'
+import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import Address from '@common/components/Address'
 import MultistateToggleButton from '@common/components/MultistateToggleButton'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { getMessageAsText, simplifyTypedMessage } from '@common/utils/messageToString'
 
 import getStyles from './styles'
@@ -79,14 +83,35 @@ const FallbackVisualization: FC<{
             JSON.stringify(content, null, 4)}
           {content.kind === 'typedMessage' &&
             !showRawTypedMessage &&
-            simplifyTypedMessage(content.message).map((i, index: number) => (
-              <div style={index < 2 ? { maxWidth: '75%' } : {}} key={JSON.stringify(i)}>
-                <Text style={[i.type === 'key' && { fontWeight: 'bold' }]}>
-                  {'    '.repeat(i.n)}
-                  {isValidAddress(i.value) ? <Address address={i.value} /> : i.value}
-                </Text>
-              </div>
-            ))}
+            simplifyTypedMessage(content.message).map((i, index: number) => {
+              let componentToReturn = i.value
+              if (isValidAddress(i.value)) componentToReturn = <Address address={i.value} />
+              if (
+                parseInt(i.value, 10) * 1000 > new Date('01/01/2000').getTime() &&
+                parseInt(i.value, 10) * 1000 < new Date('01/01/2100').getTime()
+              )
+                componentToReturn = new Date(parseInt(i.value, 10) * 1000).toUTCString()
+              if (parseInt(i.value, 10)?.toString(16) === '1'.padEnd(65, '0'))
+                componentToReturn = (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Text weight="semiBold">Infinite amount </Text>
+                    <WarningFilledIcon width={15} height={15} />
+                  </View>
+                )
+              return (
+                <div style={index < 2 ? { maxWidth: '75%' } : {}} key={JSON.stringify(i)}>
+                  <Text style={[i.type === 'key' && { fontWeight: 'bold' }]}>
+                    {'    '.repeat(i.n)}
+                    {componentToReturn}
+                  </Text>
+                </div>
+              )
+            })}
           {content.kind !== 'typedMessage' &&
             (getMessageAsText(content.message) || t('(Empty message)'))}
         </Text>
