@@ -11,7 +11,7 @@ type Props = {
   onComplete: () => void
 }
 
-const SummonEOA: FC<Props> = ({ buttonText, onComplete }) => {
+const SummonAcc: FC<Props> = ({ buttonText, onComplete }) => {
   const { addToast } = useToast()
   const {
     inviteEOA,
@@ -56,4 +56,4 @@ const SummonEOA: FC<Props> = ({ buttonText, onComplete }) => {
   )
 }
 
-export default SummonEOA
+export default SummonAcc

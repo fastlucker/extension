@@ -21,4 +21,4 @@ const SwapIcon: React.FC<SvgProps> = ({
   </Svg>
 )
 
-export default SwapIcon
+export default React.memo(SwapIcon)

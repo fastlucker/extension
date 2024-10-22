@@ -15,6 +15,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
 const ControllersStateLoadedContext = createContext<{
@@ -44,6 +45,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const addressBookState = useAddressBookControllerState()
   const domainsControllerState = useDomainsControllerState()
   const inviteControllerState = useInviteControllerState()
+  const swapAndBridgeControllerState = useSwapAndBridgeControllerState()
 
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
@@ -106,6 +108,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(inviteControllerState).length,
     [inviteControllerState]
   )
+  const hasSwapAndBridgeState: boolean = useMemo(
+    () => !!Object.keys(swapAndBridgeControllerState).length,
+    [swapAndBridgeControllerState]
+  )
 
   useEffect(() => {
     if (areControllerStatesLoaded) return
@@ -131,7 +137,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasDappsState &&
       hasDomainsState &&
       hasAddressBookState &&
-      hasInviteState
+      hasInviteState &&
+      hasSwapAndBridgeState
     ) {
       clearTimeout(timeout)
       setAreControllerStatesLoaded(true)
@@ -155,7 +162,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     areControllerStatesLoaded,
     hasDomainsState,
     hasAddressBookState,
-    hasInviteState
+    hasInviteState,
+    hasSwapAndBridgeState
   ])
 
   return (

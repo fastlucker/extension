@@ -79,18 +79,19 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   const validateAndSetAccount = useCallback(
     async (address: string) => {
-      setConnectedAccount(address)
       const identity = await getIdentity(address, fetch as any, RELAYER_URL)
 
       if (!identity.creation) {
         if (!lastConnectedV2Account) {
           setError('You are trying to connect a non Ambire v2 account. Please switch your account!')
         }
+        setConnectedAccount(address)
         return
       }
 
       setError(null)
       setLastConnectedV2Account(address)
+      setConnectedAccount(address)
       localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
     },
     [lastConnectedV2Account]
@@ -129,7 +130,6 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       }
 
       await validateAndSetAccount(accounts[0])
-      setIsLoading(false)
     }
 
     getConnectedAccount()

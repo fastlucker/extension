@@ -1,6 +1,6 @@
 import { CardAction, CardFromResponse, CardType } from '@legends/modules/legends/types'
 
-import { CARD_PREDEFINED_ID } from '../constants'
+import { CARD_PREDEFINED_ID, EOA_ACCESSIBLE_CARDS } from '../constants'
 
 const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
   const totalAXp = a.xp.reduce((acc, xp) => acc + xp.to + xp.from, 0)
@@ -9,8 +9,12 @@ const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
   return totalBXp - totalAXp
 }
 
-const sortCards = (cards: CardFromResponse[]) => {
+const sortCards = (cards: CardFromResponse[], isConnectedAccountV2: boolean) => {
   return cards.sort((a, b) => {
+    // Display EOA/v1 accessible cards first if the account is not v2
+    if (!isConnectedAccountV2 && EOA_ACCESSIBLE_CARDS.includes(a.action.predefinedId || '')) {
+      return -1
+    }
     // Display Wheel of Fortune first
     if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
       return -1

@@ -1,8 +1,16 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { clickOnElement } from './clickOnElement'
 
-export async function triggerTransaction(page, extensionURL, browser, triggerTransactionSelector) {
-  await clickOnElement(page, triggerTransactionSelector)
+export async function triggerTransaction(
+  page,
+  extensionURL,
+  browser,
+  triggerTransactionSelector,
+  shouldClick = true
+) {
+  if (shouldClick) {
+    await clickOnElement(page, triggerTransactionSelector)
+  }
 
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionURL}/action-window.html#`)
