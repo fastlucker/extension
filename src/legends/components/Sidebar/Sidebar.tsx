@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
@@ -7,7 +7,9 @@ import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
 import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import useActivityContext from '@legends/hooks/useActivityContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
+import { isWheelSpinTodayAvailable } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import Link from './components/Link'
@@ -29,10 +31,16 @@ const NAVIGATION_LINKS = [
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
+  const { activity, isLoading } = useActivityContext()
 
   const handleModal = () => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
   }
+
+  const wheelSpinOfTheDay = useMemo(() => isWheelSpinTodayAvailable({ activity, isLoading }), [
+    activity,
+    isLoading
+  ])
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -51,7 +59,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             <div className={styles.wheelContent}>
               <span className={styles.wheelTitle}>Daily Legend</span>
               <span className={styles.wheelText}>Available Now</span>
-              <button onClick={handleModal} type="button" className={styles.wheelButton}>
+              <button onClick={handleModal} type="button" className={styles.wheelButton} disabled={wheelSpinOfTheDay}>
                 Spin the Wheel
               </button>
             </div>

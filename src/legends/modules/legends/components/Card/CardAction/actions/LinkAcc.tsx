@@ -1,9 +1,9 @@
 import { BrowserProvider, Contract, Interface } from 'ethers'
 import React, { FC, useCallback, useMemo, useState } from 'react'
 
+import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import Alert from '@legends/components/Alert'
 import Stepper from '@legends/components/Stepper'
-import { LEGENDS_CONTRACT_ABI } from '@legends/constants/abis/summon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useAccountContext from '@legends/hooks/useAccountContext'

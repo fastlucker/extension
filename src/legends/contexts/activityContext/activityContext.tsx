@@ -3,22 +3,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 
-type Activity = {
-  txId: string
-  network: string
-  submittedAt: string
-  txns: [[]]
-  legends: {
-    activities:
-      | {
-          action: string
-          xp: number
-        }[]
-      | null
-    totalXp: number | null
-    version: string | null
-  }
-}
+import { Activity } from './types'
 
 const ActivityContext = createContext<{
   activity: Activity[] | null

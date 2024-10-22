@@ -1,9 +1,12 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 
 import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from '@legends/components/Modal'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
+import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
+import { isWheelSpinTodayAvailable } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
 import { EOA_ACCESSIBLE_CARDS, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
@@ -39,15 +42,24 @@ const getBadgeType = (reward: number, type: CardXpType) => {
 
 const Card: FC<Props> = ({ title, image, description, children, xp, card, action }) => {
   const { isConnectedAccountV2 } = useAccountContext()
+  const { activity, isLoading } = useActivityContext()
+
   const isCompleted = card?.type === CardType.done
   const isRecurring = card?.type === CardType.recurring
   const shortenedDescription = description.length > 55 ? `${description.slice(0, 55)}...` : null
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
+ 
+  const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
-  const openActionModal = () => setIsActionModalOpen(true)
+  const openActionModal = () => action.predefinedId === 'wheelOfFortune' ? setIsFortuneWheelModalOpen(true) : setIsActionModalOpen(true)
 
-  const closeActionModal = () => setIsActionModalOpen(false)
+  const closeActionModal = () => action.predefinedId === 'wheelOfFortune' ? setIsFortuneWheelModalOpen(false) : setIsActionModalOpen(false)
+
+  const wheelSpinOfTheDay = useMemo(() => isWheelSpinTodayAvailable({ activity, isLoading }), [
+    activity,
+    isLoading
+  ])
 
   return (
     <div className={`${styles.wrapper}`}>
@@ -60,6 +72,9 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
           action={action}
         />
       </Modal>
+      {action.predefinedId === 'wheelOfFortune' && (
+        <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
+      )}
       {isCompleted ? (
         <div className={styles.completed}>
           <span className={styles.completedText}>Completed</span>
@@ -114,7 +129,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
         {!!action.type && (
           <button
             disabled={
-              !isConnectedAccountV2 && !EOA_ACCESSIBLE_CARDS.includes(action.predefinedId || '')
+              !isConnectedAccountV2 && !EOA_ACCESSIBLE_CARDS.includes(action.predefinedId || '') || (wheelSpinOfTheDay && action.predefinedId === 'wheelOfFortune')
             }
             className={styles.button}
             type="button"
