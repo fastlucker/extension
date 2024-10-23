@@ -180,6 +180,7 @@ const AccountsOnPageList = ({
             importStatus={acc.importStatus}
             onSelect={handleSelectAccount}
             onDeselect={handleDeselectAccount}
+            displayTypeBadge={false}
           />
         )
       })

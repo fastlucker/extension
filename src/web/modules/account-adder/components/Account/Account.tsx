@@ -40,7 +40,8 @@ const Account = ({
   onSelect,
   onDeselect,
   isDisabled,
-  importStatus
+  importStatus,
+  displayTypeBadge = true
 }: {
   account: AccountInterface & { usedOnNetworks: Network[] }
   type: 'basic' | 'smart' | 'linked'
@@ -52,6 +53,7 @@ const Account = ({
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
   importStatus: ImportStatus
+  displayTypeBadge?: boolean
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -113,6 +115,7 @@ const Account = ({
                     pfp={account.preferences.pfp}
                     size={24}
                     isSmart={isSmartAccount(account)}
+                    displayTypeBadge={displayTypeBadge}
                   />
                   <Text
                     fontSize={16}
