@@ -84,7 +84,8 @@ const WEB_ROUTES = {
   createSeedPhraseConfirm: 'create-seed-phrase/confirm',
   benzin: 'benzin',
   swapAndBridge: 'swap-and-bridge',
-  savedSeed: 'saved-seed'
+  savedSeed: 'saved-seed',
+  securityAndPrivacy: 'security-and-privacy'
 }
 
 const ROUTES = {

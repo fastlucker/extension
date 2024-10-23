@@ -17,6 +17,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import PasswordConfirmation from '../../components/PasswordConfirmation'
 import SettingsPageHeader from '../../components/SettingsPageHeader'
@@ -25,6 +26,7 @@ import getStyles from './styles'
 const SavedSeedScreen = () => {
   const { dispatch } = useBackgroundService()
   const [passwordConfirmed, setPasswordConfirmed] = useState<boolean>(false)
+  const keystoreState = useKeystoreControllerState()
   const [seed, setSeed] = useState<string | null>(null)
   const [blurred, setBlurred] = useState<boolean>(true)
   const { navigate } = useNavigation()
@@ -65,8 +67,18 @@ const SavedSeedScreen = () => {
     addToast('Copied to clipboard!')
   }, [addToast, seed])
 
-  const returnToDashboard = () => {
-    navigate(ROUTES.dashboard)
+  const returnToSecuritySettings = () => {
+    navigate(ROUTES.securityAndPrivacy)
+  }
+
+  if (!keystoreState.hasKeystoreSavedSeed) {
+    return (
+      <Alert
+        type="warning"
+        style={spacings.mtTy}
+        text={t("Currently, you don't have a saved seed in the extension")}
+      />
+    )
   }
 
   return (
@@ -120,7 +132,12 @@ const SavedSeedScreen = () => {
               )}
             />
           </View>
-          <Button type="secondary" style={spacings.mtTy} onPress={returnToDashboard} text="Back" />
+          <Button
+            type="secondary"
+            style={spacings.mtTy}
+            onPress={returnToSecuritySettings}
+            text="Back"
+          />
         </>
       )}
     </View>
