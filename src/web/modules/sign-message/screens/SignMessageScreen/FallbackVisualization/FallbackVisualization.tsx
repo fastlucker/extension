@@ -11,6 +11,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { getMessageAsText, simplifyTypedMessage } from '@common/utils/messageToString'
 
 import getStyles from './styles'
@@ -82,28 +83,29 @@ const FallbackVisualization: FC<{
             !showRawTypedMessage &&
             simplifyTypedMessage(content.message).map((i, index: number) => {
               let componentToReturn = i.value
-              if (isValidAddress(i.value)) componentToReturn = <Address address={i.value} />
-              if (
+
+              const isProbablyADateWIthinRange =
                 parseInt(i.value, 10) * 1000 > new Date('01/01/2000').getTime() &&
                 parseInt(i.value, 10) * 1000 < new Date('01/01/2100').getTime()
-              )
+              const isInfiniteAmount = parseInt(i.value, 10)?.toString(16) === '1'.padEnd(65, '0')
+
+              if (isValidAddress(i.value)) componentToReturn = <Address address={i.value} />
+              else if (isProbablyADateWIthinRange)
                 componentToReturn = new Date(parseInt(i.value, 10) * 1000).toUTCString()
-              if (parseInt(i.value, 10)?.toString(16) === '1'.padEnd(65, '0'))
+              else if (isInfiniteAmount)
                 componentToReturn = (
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <Text weight="semiBold">Infinite amount </Text>
-                    <WarningFilledIcon width={15} height={15} />
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Text weight="semiBold" style={[spacings.mrTy]}>
+                      Infinite amount
+                    </Text>
+                    <WarningFilledIcon width={16} height={16} />
                   </View>
                 )
               return (
                 <div style={index < 2 ? { maxWidth: '75%' } : {}} key={JSON.stringify(i)}>
-                  <Text style={[i.type === 'key' && { fontWeight: 'bold' }]}>
-                    {'    '.repeat(i.n)}
+                  <Text
+                    style={[i.type === 'key' && { fontWeight: 'bold' }, { marginLeft: i.n * 20 }]}
+                  >
                     {componentToReturn}
                   </Text>
                 </div>
