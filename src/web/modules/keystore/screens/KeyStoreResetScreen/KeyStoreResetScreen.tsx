@@ -88,7 +88,7 @@ const KeyStoreResetScreen = () => {
         params: { email, newPass: password }
       })
     })()
-  }, [dispatch, handleSubmit])
+  }, [dispatch, email, handleSubmit])
 
   useEffect(() => {
     if (keystoreState.isUnlocked) {
