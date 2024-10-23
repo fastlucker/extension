@@ -38,12 +38,6 @@ export const SETTINGS_LINKS = [
     path: ROUTES.generalSettings
   },
   {
-    key: 'security',
-    Icon: SidebarSecurityIcon,
-    label: 'Security & Privacy',
-    path: ROUTES.securityAndPrivacy
-  },
-  {
     key: 'accounts',
     Icon: React.memo(AccountsIcon),
     label: 'Accounts',
@@ -72,6 +66,12 @@ export const SETTINGS_LINKS = [
     Icon: React.memo(SignedMessageIcon),
     label: 'Signed Messages',
     path: ROUTES.signedMessages
+  },
+  {
+    key: 'security',
+    Icon: SidebarSecurityIcon,
+    label: 'Security & Privacy',
+    path: ROUTES.securityAndPrivacy
   },
   {
     key: 'device-password-change',
