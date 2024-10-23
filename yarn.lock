@@ -24164,6 +24164,11 @@ webpack-sources@^2.2.0:
     source-list-map "^2.0.1"
     source-map "^0.6.1"
 
+webpack-target-webextension@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/webpack-target-webextension/-/webpack-target-webextension-1.1.2.tgz#3966d69f754e7e270e253383314e48e2fbfab056"
+  integrity sha512-/BwCTlnkq4BmY4pD3HV2tLZVTMJhM+YslbJFi8Yl4GL8FsPsHvg0jcDs/XGtHwm59A9oK3Oiaz+0y1nJNZESrg==
+
 webpack@^5.64.4:
   version "5.84.1"
   resolved "https://registry.npmjs.org/webpack/-/webpack-5.84.1.tgz"

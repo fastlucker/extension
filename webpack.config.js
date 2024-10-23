@@ -7,7 +7,7 @@ const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 const webpack = require('webpack')
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
-
+const WebExtensionPlugin = require('webpack-target-webextension')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
@@ -259,18 +259,6 @@ module.exports = async function (env, argv) {
         transform: processManifest
       },
       {
-        from: './src/web/public/index.html',
-        to: 'index.html'
-      },
-      {
-        from: './src/web/public/action-window.html',
-        to: 'action-window.html'
-      },
-      {
-        from: './src/web/public/tab.html',
-        to: 'tab.html'
-      },
-      {
         from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
         to: 'browser-polyfill.min.js'
       },
@@ -288,8 +276,28 @@ module.exports = async function (env, argv) {
       ...defaultExpoConfigPlugins,
       new NodePolyfillPlugin(),
       new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'], process: 'process' }),
-
-      new CopyPlugin({ patterns: extensionCopyPatterns })
+      new HtmlWebpackPlugin({
+        template: './src/web/public/index.html',
+        filename: 'index.html',
+        inject: true,
+        chunks: ['main']
+      }),
+      new HtmlWebpackPlugin({
+        template: './src/web/public/action-window.html',
+        filename: 'action-window.html',
+        inject: true,
+        chunks: ['main']
+      }),
+      new HtmlWebpackPlugin({
+        template: './src/web/public/tab.html',
+        filename: 'tab.html',
+        inject: true,
+        chunks: ['main']
+      }),
+      new CopyPlugin({ patterns: extensionCopyPatterns }),
+      new WebExtensionPlugin({
+        background: { serviceWorkerEntry: 'background' }
+      })
     ]
 
     if (isGecko) {
@@ -302,10 +310,14 @@ module.exports = async function (env, argv) {
     }
 
     if (config.mode === 'production') {
-      // @TODO: The extension doesn't work with splitChunks out of the box, so disable it for now
-      delete config.optimization.splitChunks
       config.optimization.chunkIds = 'named' // Ensures same id for chunks across builds
       config.optimization.moduleIds = 'named' // Ensures same id for modules across builds
+      config.optimization.splitChunks.maxSize = 4 * 1024 * 1024 // ensures max file size of 4MB
+    }
+
+    config.experiments = {
+      asyncWebAssembly: true,
+      topLevelAwait: true
     }
 
     return config
@@ -411,7 +423,8 @@ module.exports = async function (env, argv) {
       }),
       new HtmlWebpackPlugin({
         template: './src/legends/public/index.html',
-        filename: 'index.html'
+        filename: 'index.html',
+        inject: 'body'
       }),
       new CopyPlugin({
         patterns: [
