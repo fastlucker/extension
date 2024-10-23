@@ -1,23 +1,20 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
-import useAccountContext from '@legends/hooks/useAccountContext'
-import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
+import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 
 import Podium from './components/Podium'
 import Row from './components/Row'
-import { getLeaderboard } from './helpers'
 import styles from './Leaderboard.module.scss'
 
 // TODO: Error and loading states
 const LeaderboardContainer: React.FC = () => {
-  const [loading, setLoading] = useState(true)
-
-  const [leaderboardData, setLeaderboardData] = useState<Array<LeaderboardEntry>>([])
-  const [userLeaderboardData, setUserLeaderboardData] = useState<LeaderboardEntry | null>(null)
-
-  const { lastConnectedV2Account } = useAccountContext()
+  const {
+    leaderboardData,
+    userLeaderboardData,
+    isLeaderboardLoading: loading
+  } = useLeaderboardContext()
 
   const tableRef = useRef<HTMLDivElement>(null)
 
@@ -25,39 +22,6 @@ const LeaderboardContainer: React.FC = () => {
   const currentUserRef = useRef<HTMLDivElement>(null)
 
   const [stickyPosition, setStickyPosition] = useState<'top' | 'bottom' | null>(null)
-
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        const { leaderboard, currentUser } = await getLeaderboard(
-          lastConnectedV2Account ?? undefined
-        )
-
-        setLeaderboardData(leaderboard)
-        currentUser && setUserLeaderboardData(currentUser)
-      } catch (error) {
-        console.error('Failed to fetch leaderboard:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchLeaderboard()
-  }, [lastConnectedV2Account])
-
-  const sortedData = useMemo(
-    () =>
-      [
-        ...leaderboardData,
-        (userLeaderboardData &&
-          !leaderboardData.find((user) => user.account === userLeaderboardData.account) &&
-          userLeaderboardData) ||
-          []
-      ]
-        .flat()
-        .sort((a, b) => b.xp - a.xp),
-    [leaderboardData, userLeaderboardData]
-  )
 
   useLayoutEffect(() => {
     const handleScroll = () => {
@@ -90,7 +54,7 @@ const LeaderboardContainer: React.FC = () => {
         pageElement.removeEventListener('scroll', handleScroll)
       }
     }
-  }, [currentUserRef, sortedData, userLeaderboardData])
+  }, [currentUserRef, leaderboardData, userLeaderboardData])
 
   return (
     <Page pageRef={pageRef}>
@@ -106,14 +70,14 @@ const LeaderboardContainer: React.FC = () => {
           <Spinner />
         ) : (
           <>
-            <Podium data={sortedData.slice(0, 3)} />
+            <Podium data={leaderboardData.slice(0, 3)} />
             <div ref={tableRef} className={styles.table}>
               <div className={styles.header}>
                 <h5 className={styles.cell}>player</h5>
                 <h5 className={styles.cell}>Level</h5>
                 <h5 className={styles.cell}>XP</h5>
               </div>
-              {sortedData.map((item) => (
+              {leaderboardData.map((item) => (
                 <Row
                   key={item.account}
                   {...item}
