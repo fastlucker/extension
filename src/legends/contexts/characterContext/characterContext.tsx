@@ -7,6 +7,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
+  characterName: string
   name: string
   description: string
   level: number
