@@ -78,4 +78,5 @@ describe('Test the stability of the extension', () => {
       }
     )
   })
+  // TODO: Write more tests that block velcro, the relayer and maybe more RPCs
 })
