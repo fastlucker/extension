@@ -13,8 +13,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-
-import SettingsPageHeader from '../SettingsPageHeader'
+import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 interface Props {
   onPasswordConfirmed: () => void
@@ -87,7 +86,7 @@ const PasswordConfirmation: React.FC<Props> = ({ onPasswordConfirmed }) => {
       <>
         <SettingsPageHeader title="Confirm password" />
         <Text fontSize={14} color={theme.secondaryText}>
-          {t('Please enter your device password to see your private key')}
+          {t('Please enter your device password to see your seed')}
         </Text>
         <Controller
           control={control}

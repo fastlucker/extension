@@ -1,8 +1,9 @@
 import React, { useContext, useEffect } from 'react'
 import { View } from 'react-native'
 
-import SettingsPageHeader from '../../components/SettingsPageHeader'
-import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
+import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
+
 import SavedSeedControlOption from './components/SavedSeedControlOption'
 
 const SecurityAndPrivacyScreen = () => {

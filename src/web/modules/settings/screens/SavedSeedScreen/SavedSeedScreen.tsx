@@ -18,9 +18,9 @@ import flexbox from '@common/styles/utils/flexbox'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import PasswordConfirmation from '@web/modules/settings/components/PasswordConfirmation'
+import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
-import PasswordConfirmation from '../../components/PasswordConfirmation'
-import SettingsPageHeader from '../../components/SettingsPageHeader'
 import getStyles from './styles'
 
 const SavedSeedScreen = () => {
@@ -42,15 +42,15 @@ const SavedSeedScreen = () => {
   }
 
   useEffect(() => {
-    const onReceiveOnTimeData = (data: any) => {
+    const onReceiveOneTimeData = (data: any) => {
       if (!data.seed) return
 
       setSeed(data.seed)
     }
 
-    eventBus.addEventListener('receiveOneTimeData', onReceiveOnTimeData)
+    eventBus.addEventListener('receiveOneTimeData', onReceiveOneTimeData)
 
-    return () => eventBus.removeEventListener('addToast', onReceiveOnTimeData)
+    return () => eventBus.removeEventListener('addToast', onReceiveOneTimeData)
   }, [])
 
   const toggleKeyVisibility = useCallback(async () => {
@@ -105,7 +105,7 @@ const SavedSeedScreen = () => {
               style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}
             >
               <Text fontSize={14} color={theme.secondaryText}>
-                Copy your seed
+                {t('Copy your seed')}
               </Text>
               <CopyIcon color={theme.secondaryText} style={spacings.mlTy} />
             </Pressable>

@@ -10,8 +10,8 @@ import spacings from '@common/styles/spacings'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import PasswordConfirmation from '@web/modules/settings/components/PasswordConfirmation'
 
-import PasswordConfirmation from '../../components/PasswordConfirmation'
 import PrivateKeyExport from './PrivateKeyExport'
 import SmartAccountExport from './SmartAccountExport'
 
@@ -41,15 +41,15 @@ const ExportKeyScreen = () => {
   )
 
   useEffect(() => {
-    const onReceiveOnTimeData = (data: any) => {
+    const onReceiveOneTimeData = (data: any) => {
       if (!data.privateKey) return
 
       setPrivateKey(data.privateKey)
     }
 
-    eventBus.addEventListener('receiveOneTimeData', onReceiveOnTimeData)
+    eventBus.addEventListener('receiveOneTimeData', onReceiveOneTimeData)
 
-    return () => eventBus.removeEventListener('addToast', onReceiveOnTimeData)
+    return () => eventBus.removeEventListener('addToast', onReceiveOneTimeData)
   }, [])
 
   const onPasswordConfirmed = () => {
