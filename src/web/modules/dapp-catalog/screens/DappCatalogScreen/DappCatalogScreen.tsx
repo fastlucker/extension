@@ -142,7 +142,9 @@ const DappCatalogScreen = () => {
   const renderItem = useCallback(({ item }: { item: Dapp }) => <DappItem {...item} />, [])
 
   useEffect(() => {
-    if (!initialDAppListState.length && state.dapps.length) {
+    const shouldDoInitialSet = !initialDAppListState.length && state.dapps.length
+    const aDAppWasRemoved = initialDAppListState.length > state.dapps.length
+    if (shouldDoInitialSet || aDAppWasRemoved) {
       setInitialDAppListState(state.dapps)
     }
   }, [initialDAppListState, state.dapps])

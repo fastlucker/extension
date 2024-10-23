@@ -11,18 +11,14 @@ import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import { AUTO_LOCK_TIMES } from '@web/extension-services/background/controllers/auto-lock'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
-import AutoLockOption from '@web/modules/settings/components/AutoLockOption/AutoLockOption'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 const DevicePasswordChangeSettingsScreen = () => {
@@ -30,8 +26,6 @@ const DevicePasswordChangeSettingsScreen = () => {
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const { navigate } = useNavigation()
-  const { maxWidthSize } = useWindowSize()
-  const { theme } = useTheme()
   const state = useKeystoreControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
@@ -76,11 +70,7 @@ const DevicePasswordChangeSettingsScreen = () => {
   }, [newPassword, trigger, addToast, t, getValues])
 
   useEffect(() => {
-    if (state.errorMessage) {
-      setError('password', {
-        message: state.errorMessage
-      })
-    }
+    if (state.errorMessage) setError('password', { message: state.errorMessage })
   }, [state.errorMessage, setError])
 
   useEffect(() => {
@@ -90,14 +80,13 @@ const DevicePasswordChangeSettingsScreen = () => {
     }
   }, [openModal, reset, state.statuses.changeKeystorePassword])
 
-  const handleChangeKeystorePassword = () => {
-    handleSubmit(({ password, newPassword: newPasswordFieldValue }) => {
+  const handleChangeKeystorePassword = handleSubmit(
+    ({ password, newPassword: newPasswordFieldValue }) =>
       dispatch({
         type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD',
         params: { secret: password, newSecret: newPasswordFieldValue }
       })
-    })()
-  }
+  )
 
   return (
     <>
@@ -113,7 +102,12 @@ const DevicePasswordChangeSettingsScreen = () => {
               testID="enter-current-pass-field"
               onBlur={onBlur}
               placeholder={t('Enter current password')}
-              onChangeText={onChange}
+              onChangeText={(val: string) => {
+                onChange(val)
+                if (state.errorMessage) {
+                  dispatch({ type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE' })
+                }
+              }}
               isValid={isValidPassword(value)}
               value={value}
               error={

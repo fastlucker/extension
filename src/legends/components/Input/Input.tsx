@@ -7,9 +7,10 @@ type Props = {
   state?: 'default' | 'error'
   placeholder?: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  value: string
 }
 
-const Input: FC<Props> = ({ placeholder, label, state = 'default', onChange }) => {
+const Input: FC<Props> = ({ placeholder, label, value, state = 'default', onChange }) => {
   return (
     <div className={styles.wrapper}>
       {label && (
@@ -23,6 +24,7 @@ const Input: FC<Props> = ({ placeholder, label, state = 'default', onChange }) =
         className={`${styles.input} ${styles[state]}`}
         id={label}
         type="text"
+        value={value}
       />
     </div>
   )

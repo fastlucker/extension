@@ -1,8 +1,8 @@
 import React, { FC, memo, useEffect, useMemo, useState } from 'react'
 
-import { extraNetworks, networks as hardcodedNetwork } from '@ambire-common/consts/networks'
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
+import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
@@ -33,17 +33,15 @@ const TokenOrNft: FC<Props> = ({
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { addToast } = useToast()
   const [assetInfo, setAssetInfo] = useState<any>({})
-  const { networks: stateNetworks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { t } = useTranslation()
-  const networks: Network[] = useMemo(
-    // @TODO: get rid of extraNetworks as they are no longer used in benzin
-    () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
-    [stateNetworks]
-  )
+  const { networks: controllerNetworks } = useNetworksControllerState()
+  const { benzinNetworks, addNetwork } = useBenzinNetworksContext()
+  // Component used across Benzin and Extension, make sure to always set networks
+  const networks = controllerNetworks ?? benzinNetworks
   const network = useMemo(
-    () => networks.find((n) => (chainId ? n.chainId === chainId : n.id === networkId)),
-    [networks, networkId, chainId]
+    () => networks.find((n) => (chainId ? n.chainId === chainId : n.id === networkId)) || null,
+    [networks, chainId, networkId]
   )
   const [isLoading, setIsLoading] = useState(true)
 
@@ -53,6 +51,10 @@ const TokenOrNft: FC<Props> = ({
   }, [])
 
   useEffect(() => {
+    if (addNetwork && chainId && !network) {
+      addNetwork(chainId)
+      return
+    }
     const tokenFromPortfolio = accountPortfolio?.tokens?.find(
       (token) =>
         token.address.toLowerCase() === address.toLowerCase() && token.networkId === network?.id
@@ -65,10 +67,20 @@ const TokenOrNft: FC<Props> = ({
     else if (network)
       resolveAssetInfo(address, network, (_assetInfo: any) => {
         setAssetInfo(_assetInfo)
-      }).catch(() => {
+      }).catch((e) => {
+        console.error(e)
         addToast(t('We were unable to fetch token info'), { type: 'error' })
       })
-  }, [address, network, addToast, accountPortfolio?.collections, accountPortfolio?.tokens, t])
+  }, [
+    address,
+    network,
+    addToast,
+    accountPortfolio?.collections,
+    accountPortfolio?.tokens,
+    t,
+    addNetwork,
+    chainId
+  ])
   return (
     <>
       {!assetInfo.nftInfo && !assetInfo.tokenInfo && isLoading && (
@@ -88,7 +100,7 @@ const TokenOrNft: FC<Props> = ({
       {(assetInfo?.tokenInfo || !isLoading) && !assetInfo.nftInfo && (
         <Token
           textSize={textSize}
-          network={network}
+          network={network ?? undefined}
           address={address}
           amount={value}
           tokenInfo={assetInfo?.tokenInfo}

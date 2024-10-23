@@ -7,6 +7,7 @@ import { NetworkId } from '@ambire-common/interfaces/network'
 import AddIcon from '@common/assets/svg/AddIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
+import Input from '@common/components/Input'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -42,6 +43,7 @@ const NetworksScreen = () => {
     open: openAddNetworkBottomSheet,
     close: closeAddNetworkBottomSheet
   } = useModalize()
+  const [search, setSearch] = useState('')
   const [selectedNetworkId, setSelectedNetworkId] = useState<NetworkId | null>(null)
   const filterByNetworkId = state?.filterByNetworkId || null
 
@@ -83,7 +85,7 @@ const NetworksScreen = () => {
       width="lg"
       hideFooterInPopup
     >
-      <View style={[flexbox.flex1, spacings.pv]}>
+      <View style={[flexbox.flex1, spacings.pb]}>
         <TabLayoutWrapperMainContent>
           <NetworkBottomSheet
             sheetRef={settingsBottomSheetRef}
@@ -95,8 +97,16 @@ const NetworksScreen = () => {
             sheetRef={addNetworkBottomSheetRef}
             closeBottomSheet={closeAddNetworkBottomSheet}
           />
+          <Input
+            autoFocus
+            containerStyle={spacings.mb}
+            value={search}
+            onChangeText={setSearch}
+            placeholder={t('Search for network')}
+          />
           <AllNetworksOption filterByNetworkId={filterByNetworkId} />
           <Networks
+            search={search}
             openBlockExplorer={openBlockExplorer}
             openSettingsBottomSheet={openSettingsBottomSheetWrapped}
             filterByNetworkId={filterByNetworkId}

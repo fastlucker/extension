@@ -11,9 +11,37 @@ import { confirmTransactionStatus } from '../common-helpers/confirmTransactionSt
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 import { SELECTORS } from './selectors/selectors'
 
+// When we run tests in GitHub Actions in parallel (with different PRs running tests simultaneously),
+// it's very likely that the nonce we use for the transaction may already have been used.
+// Since we can't run the tests sequentially, we've introduced this workaround to handle this scenario,
+// which will reload the sign-acc-op page if a `nonce too low` error is detected.
+// Upon reloading, our @ambire-app logic will retrieve the next available nonce.
+// Please note, this fix is only for E2E tests, as in a real-world scenario,
+// it's uncommon for a user to operate with the same account from multiple extension instances at the same time.
+const overcomeNonceError = async (page) => {
+  let hasNonceError = false
+  try {
+    const nonceError = await page.waitForXPath(
+      '//*[contains(text(), "Perhaps wrong nonce set in Account op") or contains(text(), "replacement transaction underpriced")]',
+      { timeout: 3000 }
+    )
+
+    hasNonceError = nonceError !== null
+  } catch {
+    hasNonceError = false
+  }
+
+  if (hasNonceError) {
+    await page.reload()
+    await overcomeNonceError(page)
+  }
+}
+
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
+const TARGET_HEIGHT = 58.7
+const MAX_TIME_WAIT = 30000
 //--------------------------------------------------------------------------------------------------------------
 export async function makeValidTransaction(
   page,
@@ -62,6 +90,9 @@ export async function makeValidTransaction(
   )
 
   if (shouldStopBeforeSign) return
+
+  await overcomeNonceError(newPage)
+
   // Check if select fee token is visible and select the token
   if (feeToken) {
     await selectFeeToken(newPage, feeToken)
@@ -107,9 +138,84 @@ async function prepareSwap(page) {
 
   await selectTokenInUni(page, 'token-option-137-USDC', 'USDC')
 
+  try {
+    await page.waitForXPath('//*[contains(text(), "Swapping on Polygon")]', {
+      timeout: 30000 // 30 seconds
+    })
+  } catch {
+    throw new Error(
+      "Uniswap couldn't switch the network to Polygon! This may have been caused by an RPC outage. Please re-run the test and check the RPC."
+    )
+  }
+
   await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
 
   await selectTokenInUni(page, 'token-option-137-USDT', 'USDT')
+}
+
+// Utility function to check if element's parent height matches the target
+const isParentHeightEqual = async (elHandle, targetHeight) => {
+  const heightOfParent = await elHandle.evaluate(
+    (el) => el.parentElement.getBoundingClientRect().height
+  )
+  return parseFloat(heightOfParent.toFixed(1)) === targetHeight
+}
+
+// Utility function to check if element's parent is disabled based on aria-disabled attribute
+const isParentDisabled = async (elHandle) => {
+  return elHandle.evaluate((el) => el.parentElement.getAttribute('aria-disabled') === 'true')
+}
+
+// Utility function to wait for the parent element to become enabled
+const waitForParentEnabled = async (page, elHandle, timeout = 500, maxWaitTime = MAX_TIME_WAIT) => {
+  let isDisabled = true
+  const startTime = Date.now()
+
+  // Use a loop to repeatedly check if the element is enabled
+  /* eslint-disable no-await-in-loop */
+  while (isDisabled) {
+    isDisabled = await isParentDisabled(elHandle)
+
+    if (isDisabled) {
+      const elapsedTime = Date.now() - startTime
+
+      // Break the loop if maxWaitTime exceeded
+      if (elapsedTime >= maxWaitTime) {
+        console.log('Timeout exceeded for enabling the button, breaking the loop')
+        break
+      }
+
+      await page.waitForTimeout(timeout) // Wait for a defined timeout before rechecking
+    }
+  }
+
+  return !isDisabled
+}
+
+// Main function to handle clicking on elements that meet conditions
+const clickMatchingElements = async (page, elementsHandles, targetHeight = TARGET_HEIGHT) => {
+  await Promise.all(
+    elementsHandles.map(async (elHandle) => {
+      try {
+        // Check if the parent's height matches the target height
+        const heightMatches = await isParentHeightEqual(elHandle, targetHeight)
+
+        if (heightMatches) {
+          // Wait until the parent is enabled (aria-disabled = false)
+          const isEnabled = await waitForParentEnabled(page, elHandle)
+
+          if (isEnabled) {
+            // Click the parent element once enabled
+            await elHandle.evaluate((el) => el.parentElement.click())
+          } else {
+            console.log(`Element did not become enabled within a ${MAX_TIME_WAIT / 1000} seconds`)
+          }
+        }
+      } catch (err) {
+        console.error('Error while processing element:', err)
+      }
+    })
+  )
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -123,8 +229,16 @@ export async function makeSwap(
 ) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
-  // Wait until modal with text "Introducing the Uniswap Extension." appears
-  await page.waitForXPath('//div[contains(text(), "Introducing the Uniswap Extension.")]')
+  const hasUnichainModal = await page.waitForSelector(
+    'xpath///span[contains(text(), "Introducing Unichain")]',
+    { timeout: 3000 }
+  )
+
+  if (hasUnichainModal) {
+    const dismissButton = await page.waitForSelector('xpath///span[contains(text(), "Dismiss")]')
+
+    await dismissButton.click()
+  }
 
   // Click somewhere just to hide the modal
   await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
@@ -178,31 +292,46 @@ export async function makeSwap(
     await prepareSwap(page)
   }
 
-  await typeText(page, '#swap-currency-output', '0.0001')
-  await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
+  await typeText(page, '[data-testid="amount-input-out"]', '0.0001')
+
+  // TODO: Temporary solution with a delay (the DOM element is not a btn anymore)
+  await clickOnElement(page, 'xpath///span[contains(text(), "Review")]', true, 3000)
+
+  await page.waitForSelector(
+    'xpath///span[contains(@class, "font_button") and contains(text(), "Swap")]',
+    {
+      visible: true,
+      timeout: 3000
+    }
+  )
+
+  const elementsHandles = await page.$x(
+    '//span[contains(@class, "font_button") and contains(text(), "Swap")]'
+  )
+
+  if (elementsHandles.length) await clickMatchingElements(page, elementsHandles)
+  else throw new Error('No elements found')
 
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="confirm-swap-button"]:not([disabled])'
+    '',
+    false
   )
 
   // Check for sign message window
   const result = await checkForSignMessageWindow(newPage, extensionURL, browser)
   const updatedPage = result.actionWindowPage
 
+  await overcomeNonceError(updatedPage)
+
   // Check if select fee token is visible and select the token
   if (feeToken) {
     await selectFeeToken(updatedPage, feeToken)
   }
 
-  if (shouldStopBeforeSign) {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 5000)
-    })
-    return
-  }
+  if (shouldStopBeforeSign) return
 
   // Sign and confirm the transaction
   await signTransaction(updatedPage, transactionRecorder)

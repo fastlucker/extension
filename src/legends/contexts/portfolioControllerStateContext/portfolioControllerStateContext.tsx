@@ -1,10 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import wait from '@ambire-common/utils/wait'
 import useAccountContext from '@legends/hooks/useAccountContext'
-
-const RELAYER_URL = 'https://staging-relayer.ambire.com'
 
 export type AccountPortfolio = {
   amount?: number
@@ -59,29 +56,22 @@ const getPortfolio = async (
 }
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
-  const { connectedAccount } = useAccountContext()
+  const { lastConnectedV2Account } = useAccountContext()
   const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>()
 
   const updateAccountPortfolio = useCallback(async (address: string) => {
-    const identity = await getIdentity(address, fetch as any, RELAYER_URL)
-
-    if (!identity.creation) {
-      setAccountPortfolio({ error: 'Ambire Legends requires an Ambire v2 account' })
-      return
-    }
-
     const portfolio = await getPortfolio(address)
 
     setAccountPortfolio(portfolio)
   }, [])
 
   useEffect(() => {
-    if (!connectedAccount) return
+    if (!lastConnectedV2Account) return
 
-    updateAccountPortfolio(connectedAccount).catch(() =>
+    updateAccountPortfolio(lastConnectedV2Account).catch(() =>
       setAccountPortfolio({ error: 'Unable to retrieve your portfolio. Please try again later.' })
     )
-  }, [connectedAccount, updateAccountPortfolio])
+  }, [lastConnectedV2Account, updateAccountPortfolio])
 
   return (
     <PortfolioControllerStateContext.Provider

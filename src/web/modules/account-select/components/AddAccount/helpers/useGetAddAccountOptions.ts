@@ -1,46 +1,54 @@
-import { useMemo } from 'react'
-
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
+import ImportAccountsFromSeedPhraseIcon from '@common/assets/svg/ImportAccountsFromSeedPhraseIcon'
 import ViewModeIcon from '@common/assets/svg/ViewModeIcon'
 import useNavigation from '@common/hooks/useNavigation'
-import { ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 const { isActionWindow } = getUiType()
 
 const useGetAddAccountOptions = ({
   navigate,
-  t
+  t,
+  hasKeystoreSavedSeed,
+  isReadyToStoreKeys
 }: {
   navigate: ReturnType<typeof useNavigation>['navigate']
   t: (str: string) => string
+  hasKeystoreSavedSeed: boolean
+  isReadyToStoreKeys: boolean
 }) => {
-  const navigateWrapped = (route: string) => {
+  const { dispatch } = useBackgroundService()
+
+  const navigateWrapped = (route: string, searchParams = {}) => {
     if (isActionWindow) {
-      openInternalPageInTab(route)
+      openInternalPageInTab(route, true, searchParams)
       return
     }
+    if (searchParams) {
+      navigate(route, { state: searchParams })
+      return
+    }
+
     navigate(route)
   }
 
-  const keystoreState = useKeystoreControllerState()
-  const mainState = useMainControllerState()
-  const { dispatch } = useBackgroundService()
-
-  const isAddNewSmartAccountLoading = useMemo(
-    () =>
-      mainState.statuses.importSmartAccountFromDefaultSeed !== 'INITIAL' ||
-      mainState.statuses.onAccountAdderSuccess !== 'INITIAL',
-    [mainState.statuses.importSmartAccountFromDefaultSeed, mainState.statuses.onAccountAdderSuccess]
-  )
+  const openAccountAdderWithSavedSeed = () => {
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE' })
+  }
 
   return [
+    {
+      key: 'hot-wallet',
+      text: t('Import existing accounts'),
+      icon: ImportAccountIcon,
+      onPress: () => navigateWrapped(ROUTES.importHotWallet),
+      testID: 'import-existing-wallet'
+    },
     {
       key: 'hw',
       text: t('Connect a hardware wallet'),
@@ -48,32 +56,26 @@ const useGetAddAccountOptions = ({
       onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect),
       testID: 'connect-hardware-wallet'
     },
-    {
-      key: 'hot-wallet',
-      text: t('Import an existing hot wallet'),
-      icon: ImportAccountIcon,
-      onPress: () => navigateWrapped(ROUTES.importHotWallet),
-      testID: 'import-existing-wallet'
-    },
-    {
-      key: 'create-wallet',
-      disabled: isAddNewSmartAccountLoading,
-      text: keystoreState.hasKeystoreDefaultSeed
-        ? isAddNewSmartAccountLoading
-          ? t('Importing a new Smart Account...')
-          : t('Import a new Smart Account from the default Seed Phrase')
-        : t('Create a new hot wallet'),
-      icon: CreateWalletIcon,
-      onPress: () => {
-        if (keystoreState.hasKeystoreDefaultSeed) {
-          dispatch({ type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE' })
-        } else {
-          navigateWrapped(ROUTES.createHotWallet)
+    !hasKeystoreSavedSeed
+      ? {
+          key: 'create-new-hot-wallet',
+          text: t('Create new hot wallets'),
+          icon: CreateWalletIcon,
+          onPress: () =>
+            isReadyToStoreKeys
+              ? navigateWrapped(ROUTES.createSeedPhrasePrepare)
+              : navigateWrapped(WEB_ROUTES.keyStoreSetup, { flow: 'create-seed' }),
+          testID: 'create-new-hot-wallet',
+          hasLargerBottomSpace: true
         }
-      },
-      hasLargerBottomSpace: true,
-      testID: 'create-new-wallet'
-    },
+      : {
+          key: 'import-from-saved-seed',
+          text: t('Import more hot wallets from saved seed'),
+          icon: ImportAccountsFromSeedPhraseIcon,
+          onPress: () => openAccountAdderWithSavedSeed(),
+          testID: 'import-from-saved-seed',
+          hasLargerBottomSpace: true
+        },
     {
       key: 'view-only',
       text: t('Watch an address'),

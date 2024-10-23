@@ -3,8 +3,12 @@ import React from 'react'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 
+import { DomainsContextProvider } from '../common/contexts/domainsContext'
 import { AccountContextProvider } from './contexts/accountContext'
+import { ActivityContextProvider } from './contexts/activityContext'
+import { CharacterContextProvider } from './contexts/characterContext'
 import { PortfolioControllerStateProvider } from './contexts/portfolioControllerStateContext'
+import { ToastContextProvider } from './contexts/toastsContext'
 import Router from './modules/router/Router'
 
 declare global {
@@ -16,11 +20,19 @@ declare global {
 const LegendsInit = () => {
   return (
     <PortalProvider>
-      <AccountContextProvider>
-        <PortfolioControllerStateProvider>
-          <Router />
-        </PortfolioControllerStateProvider>
-      </AccountContextProvider>
+      <ToastContextProvider>
+        <AccountContextProvider>
+          <CharacterContextProvider>
+            <ActivityContextProvider>
+              <PortfolioControllerStateProvider>
+                <DomainsContextProvider>
+                  <Router />
+                </DomainsContextProvider>
+              </PortfolioControllerStateProvider>
+            </ActivityContextProvider>
+          </CharacterContextProvider>
+        </AccountContextProvider>
+      </ToastContextProvider>
       <PortalHost name="global" />
     </PortalProvider>
   )

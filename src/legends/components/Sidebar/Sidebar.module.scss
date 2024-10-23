@@ -5,8 +5,8 @@
   z-index: 3;
   background-color: $secondaryBackground;
   border-right: 1px solid $primaryBorder;
-  width: 16.25rem;
-  padding: 0 1rem 1.5rem;
+  width: 18.875rem;
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -28,8 +28,52 @@
   .top {
     position: relative;
 
-    .spinButton {
-      @include secondary-button;
+    .wheelOfFortuneWrapper {
+      background: $primaryGradient;
+      border-radius: $secondaryBorderRadius;
+      padding: 0.25rem;
+      $innerBorderRadius: calc(#{$secondaryBorderRadius} - 0.25rem);
+
+      .wheelOfFortune {
+        display: flex;
+        background-color: $tertiaryBackground;
+        border-radius: $innerBorderRadius;
+
+        .wheelImage {
+          height: 7.5rem;
+          width: auto;
+          border-radius: $innerBorderRadius 0 0 $innerBorderRadius;
+        }
+
+        .wheelContent {
+          padding: 1rem;
+          padding-left: 0.75rem;
+          flex: 1;
+
+          .wheelTitle,
+          .wheelText {
+            display: block;
+          }
+          .wheelTitle {
+            font-size: 1.125rem;
+            font-weight: 500;
+            line-height: 1.5rem;
+            text-transform: uppercase;
+            color: $secondaryText;
+          }
+          .wheelText {
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+          }
+          .wheelButton {
+            @include secondary-button;
+            font-size: 0.875rem;
+            background: $primaryGradient;
+            width: 100%;
+            text-transform: none;
+          }
+        }
+      }
     }
 
     .closeButton {
@@ -52,8 +96,8 @@
     .logo {
       display: block;
       margin: 0 auto;
-      margin-bottom: 0.75rem;
-      width: 12.5rem;
+      margin-bottom: 2rem;
+      width: 10rem;
       height: auto;
     }
 

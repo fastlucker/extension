@@ -2,21 +2,22 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
+import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import styles from './WalletConnect.module.scss'
 
 const WalletConnect = () => {
   const navigate = useNavigate()
-  const { connectedAccount, requestAccounts } = useAccountContext()
+  const { lastConnectedV2Account, error, requestAccounts } = useAccountContext()
 
   useEffect(() => {
-    if (connectedAccount) {
-      navigate('/legends')
+    if (lastConnectedV2Account) {
+      navigate(LEGENDS_ROUTES.character)
     }
-  }, [connectedAccount, navigate])
+  }, [lastConnectedV2Account, navigate])
 
   // If it's connected, don't show the connect button
-  if (connectedAccount) return null
+  if (lastConnectedV2Account) return null
 
   if (!window.ambire)
     return (
@@ -35,6 +36,7 @@ const WalletConnect = () => {
 
   return (
     <>
+      {error && <p className={styles.error}>⚠️ {error}</p>}
       <button type="button" onClick={requestAccounts} className={styles.button}>
         Connect Ambire
       </button>

@@ -3,10 +3,19 @@ import { typeKeystorePassAndUnlock } from './typeKeystorePassAndUnlock'
 import { DEF_KEYSTORE_PASS } from '../config/constants'
 
 //----------------------------------------------------------------------------------------------
+/**
+ * Bootstraps the application with storage settings.
+ *
+ * @param {string} namespace - The namespace to be used.
+ * @param {Object} storageParams - Parameters to configure storage.
+ * @param {boolean} [shouldUnlockKeystoreManually=false] - If true, the keystore must be unlocked manually.
+ *
+ * @returns {Promise<void>} - A promise that resolves once the operation completes.
+ */
 export async function bootstrapWithStorage(
   namespace,
   storageParams,
-  withoutKeystorePreset = false
+  shouldUnlockKeystoreManually = false
 ) {
   // Initialize browser and page using bootstrap
   const { browser, page, recorder, extensionURL, serviceWorker } = await bootstrap(namespace)
@@ -28,7 +37,7 @@ export async function bootstrapWithStorage(
     isE2EStorageSet: true,
     isPinned: 'true',
     isSetupComplete: 'true',
-    ...(!withoutKeystorePreset && {
+    ...(!shouldUnlockKeystoreManually && {
       keyStoreUid: storageParams.parsedKeystoreUID,
       keystoreKeys: storageParams.parsedKeystoreKeys,
       keystoreSecrets: storageParams.parsedKeystoreSecrets
@@ -49,7 +58,7 @@ export async function bootstrapWithStorage(
    *
    * To prevent such long-lasting handles, we are catching the error and stopping the Jest process.
    */
-  if (!withoutKeystorePreset) {
+  if (!shouldUnlockKeystoreManually) {
     try {
       // Navigate to a specific URL if necessary
       await page.goto(`${extensionURL}/tab.html#/keystore-unlock`, { waitUntil: 'load' })

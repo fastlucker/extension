@@ -8,7 +8,7 @@ import AddIcon from '@common/assets/svg/AddIcon'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
-import ScrollableWrapper from '@common/components/ScrollableWrapper'
+import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useAccounts from '@common/hooks/useAccounts'
@@ -28,7 +28,15 @@ import getStyles from './styles'
 
 const AccountSelectScreen = () => {
   const { styles, theme } = useTheme(getStyles)
-  const { accounts, control } = useAccounts()
+  const {
+    accounts,
+    control,
+    selectedAccountIndex,
+    onContentSizeChange,
+    keyExtractor,
+    getItemLayout,
+    isReadyToScrollToSelectedAccount
+  } = useAccounts()
   const { navigate } = useNavigation()
   const { selectedAccount } = useAccountsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -40,6 +48,17 @@ const AccountSelectScreen = () => {
     (addr: AccountType['addr']) => setPendingToBeSetSelectedAccount(addr),
     []
   )
+
+  const renderItem = ({ item: account }: { item: AccountType }) => {
+    return (
+      <Account
+        onSelect={onAccountSelect}
+        key={account.addr}
+        account={account}
+        withSettings={false}
+      />
+    )
+  }
 
   useEffect(() => {
     // Navigate to the dashboard after the account is selected to avoid showing the dashboard
@@ -60,21 +79,22 @@ const AccountSelectScreen = () => {
     >
       <View style={[flexbox.flex1, spacings.pv]} ref={accountsContainerRef}>
         <Search control={control} placeholder="Search for account" style={styles.searchBar} />
-        <ScrollableWrapper style={styles.container}>
-          {accounts.length ? (
-            accounts.map((account) => (
-              <Account
-                onSelect={onAccountSelect}
-                key={account.addr}
-                account={account}
-                withSettings={false}
-              />
-            ))
-          ) : (
-            // @TODO: add a proper label
-            <Text>{t('No accounts found')}</Text>
-          )}
-        </ScrollableWrapper>
+        <ScrollableWrapper
+          type={WRAPPER_TYPES.FLAT_LIST}
+          style={[
+            styles.container,
+            {
+              opacity: isReadyToScrollToSelectedAccount ? 1 : 0
+            }
+          ]}
+          data={accounts}
+          renderItem={renderItem}
+          getItemLayout={getItemLayout}
+          onContentSizeChange={onContentSizeChange}
+          keyExtractor={keyExtractor}
+          initialScrollIndex={selectedAccountIndex}
+          ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
+        />
         <View style={[spacings.ptSm, { width: '100%' }]}>
           <Button
             testID="button-add-account"

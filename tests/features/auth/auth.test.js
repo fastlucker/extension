@@ -23,9 +23,8 @@ import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { typeText } from '../../common-helpers/typeText'
 import { checkStorageKeysExist } from '../../common-helpers/checkStorageKeysExist'
 import {
-  finishStoriesAndSelectAccount,
-  importAccountsFromSeedPhrase,
   wait,
+  importAccountsFromSeedPhrase,
   checkTextAreaHasValidInputByGivenText,
   importNewSAFromDefaultSeedAndPersonalizeIt,
   personalizeAccountName,
@@ -72,7 +71,7 @@ describe('auth', () => {
     const parsedInvitation = JSON.parse(inviteFromStorage.invite)
     expect(parsedInvitation.status).toBe(INVITE_STATUS_VERIFIED)
 
-    await setAmbKeyStore(page, SELECTORS.importPrivateBtn)
+    await setAmbKeyStore(page, SELECTORS.importPrivateBtn, false)
     await page.waitForSelector(SELECTORS.enterSeedPhraseField)
 
     const enterSeedPhraseFieldPlaceholder = await page.$eval(
@@ -100,22 +99,33 @@ describe('auth', () => {
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
-    const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page, undefined, false)
+    await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-    // Since v4.31.0, Ambire does NOT retrieve smart accounts from private keys.
-    expect(firstSelectedSmartAccount).toBeNull()
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
+
+    await page.waitForSelector(SELECTORS.checkbox, { visible: true })
+
+    const selectedAccount = await page.$eval(SELECTORS.addAccountField, (element) => {
+      return element.textContent
+    })
+
+    await clickOnElement(page, `${SELECTORS.buttonImportAccount}:not([disabled])`)
+    await page.waitForNavigation()
+
+    const currentUrl = page.url()
+    expect(currentUrl).toContain('/account-personalize')
 
     // Click on "Save and Continue" button
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
 
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
-    // Wait for account addresses to load
-    await wait(2000)
+
+    // Wait for selector to be visible
+    await page.waitForSelector(SELECTORS.account)
 
     // Verify that selected accounts exist on the page
-    await checkAccountDetails(page, SELECTORS.account, [firstSelectedBasicAccount])
+    await checkAccountDetails(page, SELECTORS.account, [selectedAccount])
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -254,33 +264,18 @@ describe('auth', () => {
     await page.waitForFunction(() => window.location.href.includes('/get-started'))
 
     // Create new hot wallet with seed phrase
-    await createHotWalletWithSeedPhrase(page, serviceWorker)
-
-    // Wait for dashboard screen to be loaded
-    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
-    // Close Pin Ambire extension modal
-    await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
+    await createHotWalletWithSeedPhrase(page, serviceWorker, extensionURL)
 
     // Import one new SA from default seed
-    await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[0])
-
-    await wait(2000)
-
-    // Wait for dashboard screen to be loaded
-    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
-
-    // Import one more new SA from default seed
-    await importNewSAFromDefaultSeedAndPersonalizeIt(page, TEST_ACCOUNT_NAMES[1])
+    await importNewSAFromDefaultSeedAndPersonalizeIt(page, extensionURL)
 
     // Get accounts from storage
-    const importedAccounts = await serviceWorker.evaluate(() =>
-      chrome.storage.local.get('accounts')
+    const addedAccounts = await page.$$eval(SELECTORS.account, (elements) =>
+      elements.map((element) => element.innerText)
     )
 
-    const parsedImportedAccounts = JSON.parse(importedAccounts.accounts)
-
-    // Checks if exact 3 accounts have been added
-    expect(parsedImportedAccounts.length).toBe(3)
+    // Checks if exact 4 accounts have been added
+    expect(addedAccounts.length).toBe(4)
   })
   //--------------------------------------------------------------------------------------------------------------
   it('should importing account from different HD paths', async () => {
@@ -294,15 +289,12 @@ describe('auth', () => {
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    // so that the modal appears
-    await wait(500)
-
-    await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
+    await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn, true, 500)
 
     await page.waitForFunction(() => window.location.href.includes('/account-adder'))
     // Do the onboarding
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
-    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
 
     // Select BIP 44 Ledger Live and select import account
     await selectHdPathAndAddAccount(page, SELECTORS.optionBip44LedgerLive)
@@ -310,30 +302,22 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
 
     // Click on account select button
-    await clickOnElement(page, SELECTORS.accountSelectBtn)
+    // We add a delay because there is a loading animation in the header (when closing the PinExtension tooltip),
+    // and Puppeteer registers the click, but it is not applied to the React state.
+    await clickOnElement(page, SELECTORS.accountSelectBtn, true, 1000)
 
     // Wait for dashboard screen to be loaded
     await page.waitForFunction(() => window.location.href.includes('/account-select'))
     // Click on "Add Account"
     await clickOnElement(page, SELECTORS.buttonAddAccount)
 
-    await wait(1000)
-    // Click on "Import an existing hot wallet"
-    await clickOnElement(page, SELECTORS.importExistingWallet)
+    // Click on "Import a new Smart Account from the default Seed Phrase" button
+    // Note: Added a delay of 500ms because of the importing process
+    await clickOnElement(page, SELECTORS.importFromSavedSeed, true, 500)
 
-    // Wait for "Seed phrase proceed"
-    await page.waitForSelector(SELECTORS.buttonProceedSeedPhrase, {
-      visible: true
-    })
-
-    // Click on "Seed phrase proceed"
-    await clickOnElement(page, SELECTORS.buttonProceedSeedPhrase)
-
-    await wait(1000)
-
-    // Click on"Use default seed"
-    await clickOnElement(page, SELECTORS.useDefaultSeedBtn)
-
+    //
+    await page.waitForFunction(() => window.location.href.includes('/account-adder'))
+    // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
     await wait(2000)
     // Select Legacy Ledger My Ether Wallet My Crypto HD Path and select import account
     await selectHdPathAndAddAccount(page, SELECTORS.optionLegacyLedgerMyEtherWalletMyCrypto)
