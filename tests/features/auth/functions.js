@@ -237,7 +237,7 @@ export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, extension
 
   // Click on "Import a new Smart Account from the default Seed Phrase" button
   // Note: Added a delay of 500ms because of the importing process
-  await clickOnElement(page, SELECTORS.importFromSavedSeed, false, 500)
+  await clickOnElement(page, SELECTORS.importFromSavedSeed, true, 500)
 
   await finishStoriesAndSelectAccount(page, true, true)
 
@@ -412,7 +412,7 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   // so that the modal appears
   await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
 
-  await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
+  await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn, true, 500)
 
   const { firstSelectedAccount, secondSelectedAccount } = await finishStoriesAndSelectAccount(page)
 
