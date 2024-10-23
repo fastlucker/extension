@@ -5,9 +5,7 @@ import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import { useTranslation } from '@common/config/localization'
 import useAccounts from '@common/hooks/useAccounts'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -25,13 +23,6 @@ const ExportKeyScreen = () => {
   const { accounts } = useAccounts()
   const [passwordConfirmed, setPasswordConfirmed] = useState<boolean>(false)
   const [privateKey, setPrivateKey] = useState<string | null>(null)
-  const { navigate } = useNavigation()
-
-  // this shouldn't happen
-  // if the user doesn't have a keystore password set, navigate him to set it
-  useEffect(() => {
-    if (!keystoreState.hasPasswordSecret) navigate(WEB_ROUTES.devicePasswordSet)
-  }, [keystoreState.hasPasswordSecret, navigate])
 
   const { search } = useRoute()
   const params = new URLSearchParams(search)
