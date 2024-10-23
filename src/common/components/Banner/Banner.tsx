@@ -75,7 +75,10 @@ const Banner = React.memo(
     }, [CustomIcon, type])
 
     return (
-      <View style={[styles.container, { backgroundColor: theme[`${type}Background`] }, style]}>
+      <View
+        style={[styles.container, { backgroundColor: theme[`${type}Background`] }, style]}
+        testID={`dashboard-${type}-banner`}
+      >
         <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
           <View style={[spacings.mrSm]}>
             <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
