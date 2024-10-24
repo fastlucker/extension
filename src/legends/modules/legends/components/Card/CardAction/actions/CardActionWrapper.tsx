@@ -10,7 +10,7 @@ const CardActionWrapper = ({
   isLoading = false,
   loadingText = 'Loading...'
 }: {
-  children: React.ReactNode
+  children?: React.ReactNode
   onButtonClick: () => void
   buttonText: string
   disabled?: boolean
@@ -19,7 +19,7 @@ const CardActionWrapper = ({
 }) => {
   return (
     <div>
-      <div className={styles.modalAction}>{children}</div>
+      {children && <div className={styles.modalAction}>{children}</div>}
       <button
         disabled={disabled || isLoading}
         onClick={onButtonClick}
