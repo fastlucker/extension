@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
+import Alert from '@legends/components/Alert'
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -10,9 +11,9 @@ import Row from './components/Row'
 import { getLeaderboard } from './helpers'
 import styles from './Leaderboard.module.scss'
 
-// TODO: Error and loading states
 const LeaderboardContainer: React.FC = () => {
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const [leaderboardData, setLeaderboardData] = useState<Array<LeaderboardEntry>>([])
   const [userLeaderboardData, setUserLeaderboardData] = useState<LeaderboardEntry | null>(null)
@@ -28,15 +29,21 @@ const LeaderboardContainer: React.FC = () => {
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
+      setError(null)
       try {
-        const { leaderboard, currentUser } = await getLeaderboard(
-          lastConnectedV2Account ?? undefined
-        )
+        const response = await getLeaderboard(lastConnectedV2Account ?? undefined)
+        if (!response) {
+          throw new Error('Failed to fetch leaderboard data')
+        }
+        const { leaderboard, currentUser } = response
 
         setLeaderboardData(leaderboard)
         currentUser && setUserLeaderboardData(currentUser)
-      } catch (error) {
-        console.error('Failed to fetch leaderboard:', error)
+      } catch (е) {
+        console.error('Failed to fetch leaderboard:', е)
+        setError(
+          'Internal error while fetching leaderboard. Please reload the page or try again later.'
+        )
       } finally {
         setLoading(false)
       }
@@ -102,9 +109,8 @@ const LeaderboardContainer: React.FC = () => {
             through the ranks, and leave your mark among the top Legends!
           </p>
         </div>
-        {loading ? (
-          <Spinner />
-        ) : (
+        {loading && <Spinner />} {error && <Alert type="error" title={error} />}
+        {sortedData && sortedData.length ? (
           <>
             <Podium data={sortedData.slice(0, 3)} />
             <div ref={tableRef} className={styles.table}>
@@ -126,7 +132,7 @@ const LeaderboardContainer: React.FC = () => {
               ))}
             </div>
           </>
-        )}
+        ) : null}
       </div>
     </Page>
   )

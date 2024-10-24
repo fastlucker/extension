@@ -2,7 +2,9 @@ import { fetchCaught } from '@common/services/fetch'
 import { RELAYER_URL } from '@env'
 import { LeaderboardResponse } from '@legends/modules/leaderboard/types'
 
-export const getLeaderboard = async (currentUser?: string): Promise<LeaderboardResponse> => {
+export const getLeaderboard = async (
+  currentUser?: string
+): Promise<LeaderboardResponse | undefined> => {
   try {
     const res = await fetchCaught(
       `${RELAYER_URL}/legends/leaderboard${currentUser ? `?identity=${currentUser}` : ''}`
@@ -14,9 +16,6 @@ export const getLeaderboard = async (currentUser?: string): Promise<LeaderboardR
     return body
   } catch (e) {
     console.error('Error fetching leaderboard', e)
-    return {
-      leaderboard: [],
-      currentUser: { image: '', image_avatar: '', rank: 0, account: '', xp: 0, level: 0 }
-    }
+    throw e
   }
 }
