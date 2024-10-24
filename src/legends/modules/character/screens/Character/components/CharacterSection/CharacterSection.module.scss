@@ -41,10 +41,20 @@
       gap: 0.25rem;
       margin-bottom: 1.25rem;
 
-      .level {
-        font-size: 1rem;
-        font-weight: 600;
-        color: $secondaryText;
+      .levelInfo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .level {
+          font-size: 1rem;
+          font-weight: 600;
+          color: $secondaryText;
+        }
+
+        .xp {
+          font-size: 0.875rem;
+        }
       }
 
       .levelProgress {
@@ -57,29 +67,12 @@
 
         .levelProgressBar {
           height: 1.5rem;
-          min-width: 15%; // Otherwise the text won't be visible
           background-color: $accent;
           display: flex;
           align-items: center;
           justify-content: flex-end;
           white-space: nowrap;
           transition: width 0.3s ease;
-
-          .levelCurrentXp {
-            font-size: 0.75rem;
-            color: $alternativeText;
-            padding: 0 0.5rem;
-          }
-        }
-
-        .levelMaxXp {
-          position: absolute;
-          right: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 0.75rem;
-          color: $primaryText;
-          padding: 0 0.5rem;
         }
       }
     }

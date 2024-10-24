@@ -20,7 +20,6 @@ const CharacterSection = () => {
       />
     )
 
-  // TODO: Replace with actual character name
   const xpForNextLevel = Math.ceil(((character.level + 1) * 4.5) ** 2)
 
   return (
@@ -35,15 +34,17 @@ const CharacterSection = () => {
           {character?.characterName}
         </h1>
         <div className={styles.levelWrapper}>
-          <span className={styles.level}>Level {character.level}</span>
+          <div className={styles.levelInfo}>
+            <span className={styles.level}>Level {character.level}</span>
+            <span className={styles.xp}>
+              {character.xp} / {xpForNextLevel} XP
+            </span>
+          </div>
           <div className={styles.levelProgress}>
             <div
               className={styles.levelProgressBar}
               style={{ width: `${(character.xp / xpForNextLevel) * 100}%` }}
-            >
-              <span className={styles.levelCurrentXp}>{character.xp} XP</span>
-            </div>
-            <span className={styles.levelMaxXp}>{xpForNextLevel} XP</span>
+            />
           </div>
         </div>
         <p className={styles.characterAbout}>{character.description}</p>
