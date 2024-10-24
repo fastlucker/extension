@@ -1,9 +1,13 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import { formatUnits, JsonRpcProvider, ZeroAddress } from 'ethers'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
+import { estimateEOA } from '@ambire-common/libs/estimate/estimateEOA'
+import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -15,6 +19,7 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
@@ -64,6 +69,9 @@ const getSelectProps = ({
     amountSelectDisabled
   }
 }
+
+const ONE_MINUTE = 60 * 1000
+
 const SendForm = ({
   addressInputState,
   isSmartAccount = false,
@@ -81,6 +89,7 @@ const SendForm = ({
 }) => {
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
+  const { selectedAccount, accountStates, accounts } = useAccountsControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const {
     maxAmount,
@@ -97,6 +106,13 @@ const SendForm = ({
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const { search } = useRoute()
+  const [isEstimationLoading, setIsEstimationLoading] = useState(true)
+  const [estimation, setEstimation] = useState<null | {
+    gasUsed: bigint
+    gasPrice: bigint
+    networkId: string
+    updatedAt: number
+  }>(null)
 
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
 
@@ -129,10 +145,51 @@ const SendForm = ({
   )
 
   const setMaxAmount = useCallback(() => {
-    transferCtrl.update({
-      amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat
-    })
-  }, [amountFieldMode, maxAmount, maxAmountInFiat, transferCtrl])
+    const shouldDeductGas = selectedToken?.address === ZeroAddress && !isSmartAccount
+    const canDeductGas = estimation && estimation.networkId === selectedToken?.networkId
+
+    if (!shouldDeductGas || !canDeductGas) {
+      transferCtrl.update({
+        amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat
+      })
+
+      return
+    }
+
+    const gasDeductedAmountBigInt = selectedToken.amount - estimation.gasUsed * estimation.gasPrice
+    const gasDeductedAmount = formatUnits(gasDeductedAmountBigInt, selectedToken.decimals)
+
+    // Let the user see for himself that the amount is less than the gas fee
+    if (gasDeductedAmountBigInt > selectedToken.amount) {
+      transferCtrl.update({ amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat })
+      return
+    }
+
+    if (amountFieldMode === 'token') {
+      transferCtrl.update({ amount: gasDeductedAmount })
+      return
+    }
+
+    if (amountFieldMode === 'fiat') {
+      const tokenPrice = selectedToken.priceIn[0].price
+      const { tokenPriceBigInt, tokenPriceDecimals } = convertTokenPriceToBigInt(tokenPrice)
+
+      const gasDeductedAmountInFiat = formatUnits(
+        gasDeductedAmountBigInt * tokenPriceBigInt,
+        tokenPriceDecimals + selectedToken.decimals
+      )
+
+      transferCtrl.update({ amount: String(gasDeductedAmountInFiat) })
+    }
+  }, [
+    amountFieldMode,
+    estimation,
+    isSmartAccount,
+    maxAmount,
+    maxAmountInFiat,
+    selectedToken,
+    transferCtrl
+  ])
 
   const switchAmountFieldMode = useCallback(() => {
     transferCtrl.update({
@@ -152,6 +209,17 @@ const SendForm = ({
       isRecipientAddressUnknownAgreed: true
     })
   }, [transferCtrl])
+
+  const isMaxAmountEnabled = useMemo(() => {
+    if (!maxAmount) return false
+    if (isSmartAccount) return true
+
+    const isNativeSelected = selectedToken?.address === ZeroAddress
+
+    if (!isNativeSelected) return true
+
+    return !!estimation && !isEstimationLoading
+  }, [estimation, isEstimationLoading, isSmartAccount, maxAmount, selectedToken?.address])
 
   useEffect(() => {
     if (tokens?.length && !state.selectedToken) {
@@ -175,6 +243,94 @@ const SendForm = ({
       }
     }
   }, [tokens, selectedTokenFromUrl, state.selectedToken, transferCtrl])
+
+  useEffect(() => {
+    if (
+      estimation &&
+      estimation.networkId === selectedToken?.networkId &&
+      estimation.updatedAt > Date.now() - ONE_MINUTE
+    )
+      return
+    const networkData = networks.find((network) => network.id === selectedToken?.networkId)
+
+    if (!networkData) return
+
+    const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
+    if (isSmartAccount || !selectedAccount || !selectedAccountData || !selectedToken?.networkId)
+      return
+
+    const rpcUrl = networkData.selectedRpcUrl
+    const provider = new JsonRpcProvider(rpcUrl)
+
+    setIsEstimationLoading(true)
+
+    Promise.all([
+      getGasPriceRecommendations(provider, networkData, 'latest'),
+      estimateEOA(
+        selectedAccountData,
+        {
+          accountAddr: selectedAccount,
+          networkId: selectedToken.networkId,
+          signingKeyAddr: null,
+          signingKeyType: null,
+          nonce: accountStates[selectedAccount][selectedToken.networkId].nonce,
+          calls: [
+            {
+              to: '0x339d346173Af02df312ab0a6fD6520DE0E101Ac0',
+              value: selectedToken.amount,
+              data: '0x'
+            }
+          ],
+          gasLimit: null,
+          signature: null,
+          gasFeePayment: null,
+          accountOpToExecuteBefore: null
+        },
+        accountStates,
+        networkData,
+        provider,
+        [selectedToken],
+        '0x0000000000000000000000000000000000000001',
+        'latest'
+      )
+    ])
+      .then(([feeData, newEstimation]) => {
+        if (!feeData.gasPrice) return
+        const fastGasSpeed = feeData.gasPrice.find(({ name }) => name === 'fast')
+        const adjustedGasEstimate = BigInt(
+          Math.floor(
+            Number(newEstimation.gasUsed + newEstimation.feePaymentOptions[0].addedNative || 0n)
+          )
+        )
+
+        console.log('adjustedGasEstimate', feeData, newEstimation)
+        setEstimation({
+          gasUsed: adjustedGasEstimate,
+          // @ts-ignore
+          gasPrice: fastGasSpeed?.gasPrice || fastGasSpeed?.baseFeePerGas,
+          networkId: selectedToken.networkId,
+          updatedAt: Date.now()
+        })
+      })
+      .catch((error) => {
+        console.error('Failed to fetch gas data:', error)
+      })
+      .finally(() => {
+        setIsEstimationLoading(false)
+      })
+
+    return () => {
+      provider?.destroy()
+    }
+  }, [
+    accountStates,
+    accounts,
+    estimation,
+    isSmartAccount,
+    networks,
+    selectedAccount,
+    selectedToken
+  ])
 
   return (
     <ScrollableWrapper
@@ -212,7 +368,7 @@ const SendForm = ({
         maxAmountInFiat={maxAmountInFiat}
         switchAmountFieldMode={switchAmountFieldMode}
         disabled={disableForm || amountSelectDisabled}
-        isLoading={!accountPortfolio?.isAllReady}
+        isLoading={!accountPortfolio?.isAllReady || !isMaxAmountEnabled}
         isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
       />
       <View>
