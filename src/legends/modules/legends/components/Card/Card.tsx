@@ -68,7 +68,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
   )
 
   return (
-    <div className={`${styles.wrapper}`}>
+    <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
       <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen}>
         <Modal.Heading>{title}</Modal.Heading>
         <Modal.Text className={styles.modalText}>{description}</Modal.Text>
