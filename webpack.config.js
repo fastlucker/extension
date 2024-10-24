@@ -338,13 +338,12 @@ module.exports = async function (env, argv) {
       config.optimization.chunkIds = 'named' // Ensures same id for chunks across builds
       config.optimization.moduleIds = 'named' // Ensures same id for modules across builds
       config.optimization.splitChunks.maxSize = 4 * 1024 * 1024 // ensures max file size of 4MB
-    }
-
-    config.optimization.splitChunks = {
-      ...config.optimization.splitChunks,
-      chunks(chunk) {
-        // do not split into chunks the files that should be injected in webpages
-        return chunk.name !== 'ambire-inpage' && chunk.name !== 'ethereum-inpage'
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        chunks(chunk) {
+          // do not split into chunks the files that should be injected in webpages
+          return chunk.name !== 'ambire-inpage' && chunk.name !== 'ethereum-inpage'
+        }
       }
     }
 
