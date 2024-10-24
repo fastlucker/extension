@@ -2,12 +2,11 @@ import React, { FC } from 'react'
 
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import BronzeTrophy from '@legends/modules/leaderboard/screens/Leaderboard/BronzeTrophy'
+import GoldTrophy from '@legends/modules/leaderboard/screens/Leaderboard/GoldTrophy'
 import styles from '@legends/modules/leaderboard/screens/Leaderboard/Leaderboard.module.scss'
+import SilverTrophy from '@legends/modules/leaderboard/screens/Leaderboard/SilverTrophy'
 import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
-
-import BronzeTrophy from '../../BronzeTrophy'
-import GoldTrophy from '../../GoldTrophy'
-import SilverTrophy from '../../SilverTrophy'
 
 type Props = LeaderboardEntry & {
   stickyPosition: string | null

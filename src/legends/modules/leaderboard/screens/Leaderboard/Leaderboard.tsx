@@ -109,7 +109,8 @@ const LeaderboardContainer: React.FC = () => {
             through the ranks, and leave your mark among the top Legends!
           </p>
         </div>
-        {loading && <Spinner />} {error && <Alert type="error" title={error} />}
+        {loading && <Spinner />}
+        {error && <Alert type="error" title={error} />}
         {sortedData && sortedData.length ? (
           <>
             <Podium data={sortedData.slice(0, 3)} />
