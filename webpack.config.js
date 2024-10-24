@@ -71,7 +71,7 @@ module.exports = async function (env, argv) {
     const csp = "frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
 
     if (isGecko) {
-      manifest.background = { scripts: ['background.js'] }
+      manifest.background = { page: 'background.html' }
       manifest.host_permissions = [...manifest.host_permissions, '<all_urls>']
       manifest.browser_specific_settings = {
         gecko: {
@@ -197,7 +197,16 @@ module.exports = async function (env, argv) {
     path: path.resolve(__dirname, `build/${process.env.WEBPACK_BUILD_OUTPUT_PATH}`),
     // Defaults to using 'auto', but this is causing problems in some environments
     // like in certain browsers, when building (and running) in extension context.
-    publicPath: ''
+    publicPath: '',
+    environment: { dynamicImport: true }
+  }
+
+  if (isGecko) {
+    // By default, Webpack uses importScripts for loading chunks, which works only in web workers.
+    // However, Gecko-based browsers (like Firefox) still rely on background scripts instead of workers.
+    // To ensure compatibility, we switch to using JSONP for chunk loading and 'array-push' for chunk format.
+    config.output.chunkLoading = 'jsonp'
+    config.output.chunkFormat = 'array-push'
   }
 
   if (config.mode === 'production') {
@@ -279,28 +288,44 @@ module.exports = async function (env, argv) {
       new HtmlWebpackPlugin({
         template: './src/web/public/index.html',
         filename: 'index.html',
-        inject: true,
-        chunks: ['main']
+        inject: true, // to auto inject the main.js bundle in the body
+        chunks: ['main'] // include only chunks from the main entry
       }),
       new HtmlWebpackPlugin({
         template: './src/web/public/action-window.html',
         filename: 'action-window.html',
-        inject: true,
-        chunks: ['main']
+        inject: true, // to auto inject the main.js bundle in the body
+        chunks: ['main'] // include only chunks from the main entry
       }),
       new HtmlWebpackPlugin({
         template: './src/web/public/tab.html',
         filename: 'tab.html',
-        inject: true,
-        chunks: ['main']
+        inject: true, // to auto inject the main.js bundle in the body
+        chunks: ['main'] // include only chunks from the main entry
       }),
-      new CopyPlugin({ patterns: extensionCopyPatterns }),
-      new WebExtensionPlugin({
-        background: { serviceWorkerEntry: 'background' }
-      })
+      new CopyPlugin({ patterns: extensionCopyPatterns })
     ]
 
+    if (isWebkit) {
+      // This plugin enables code-splitting support for the service worker, allowing it to import chunks dynamically.
+      config.plugins.push(
+        new WebExtensionPlugin({
+          background: { serviceWorkerEntry: 'background' }
+        })
+      )
+    }
+
     if (isGecko) {
+      // Makes the code-splitting possible for the background entry
+      // Ensures that only chunks related to the background entry are included in the background HTML file, preventing unnecessary chunk imports
+      config.plugins.push(
+        new HtmlWebpackPlugin({
+          template: './src/web/public/background.html',
+          filename: 'background.html',
+          inject: true, // to auto inject the background.js bundle in the body
+          chunks: ['background'] // include only chunks from the background entry
+        })
+      )
       config.plugins.push(
         new AssetReplacePlugin({
           '#AMBIREINPAGE#': 'ambire-inpage',
@@ -313,6 +338,14 @@ module.exports = async function (env, argv) {
       config.optimization.chunkIds = 'named' // Ensures same id for chunks across builds
       config.optimization.moduleIds = 'named' // Ensures same id for modules across builds
       config.optimization.splitChunks.maxSize = 4 * 1024 * 1024 // ensures max file size of 4MB
+    }
+
+    config.optimization.splitChunks = {
+      ...config.optimization.splitChunks,
+      chunks(chunk) {
+        // do not split into chunks the files that should be injected in webpages
+        return chunk.name !== 'ambire-inpage' && chunk.name !== 'ethereum-inpage'
+      }
     }
 
     config.experiments = {
