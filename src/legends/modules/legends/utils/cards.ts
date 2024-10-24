@@ -10,30 +10,40 @@ const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
 }
 
 const sortCards = (cards: CardFromResponse[], isConnectedAccountV2: boolean) => {
-  return cards.sort((a, b) => {
-    // Display EOA/v1 accessible cards first if the account is not v2
-    if (!isConnectedAccountV2 && EOA_ACCESSIBLE_CARDS.includes(a.action.predefinedId || '')) {
-      return -1
-    }
-    // Display Wheel of Fortune first
-    if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
-      return -1
-    }
+  return cards
+    .map((card) => {
+      if (
+        (card.action && card.action.calls && card.action.calls.length === 0) ||
+        card.action.predefinedId === 'linkX'
+      ) {
+        return { ...card, disabled: true }
+      }
+      return card
+    })
+    .sort((a, b) => {
+      // Display EOA/v1 accessible cards first if the account is not v2
+      if (!isConnectedAccountV2 && EOA_ACCESSIBLE_CARDS.includes(a.action.predefinedId || '')) {
+        return -1
+      }
+      // Display Wheel of Fortune first
+      if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+        return -1
+      }
 
-    const order = {
-      [CardType.available]: 1,
-      [CardType.recurring]: 2,
-      [CardType.done]: 3
-    }
+      const order = {
+        [CardType.available]: 1,
+        [CardType.recurring]: 2,
+        [CardType.done]: 3
+      }
 
-    // Sort by card type
-    if (order[a.card.type] !== order[b.card.type]) {
-      return order[a.card.type] - order[b.card.type]
-    }
+      // Sort by card type
+      if (order[a.card.type] !== order[b.card.type]) {
+        return order[a.card.type] - order[b.card.type]
+      }
 
-    // Sort by highest XP
-    return sortByHighestXp(a, b)
-  })
+      // Sort by highest XP
+      return sortByHighestXp(a, b)
+    })
 }
 
 const handlePredefinedAction = (predefinedId?: string) => {
