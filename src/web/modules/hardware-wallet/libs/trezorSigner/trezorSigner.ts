@@ -205,24 +205,42 @@ class TrezorSigner implements KeystoreSigner {
     await this.#prepareForSigning()
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    const dataWithHashes = transformTypedData({ domain, types, message, primaryType }, true)
+    const normalizedTypes = { ...types, EIP712Domain: types.EIP712Domain ?? [] }
+    const normalizedDomain = {
+      name: domain.name ?? undefined,
+      version: domain.version ?? undefined,
+      chainId: domain.chainId ? Number(domain.chainId) : undefined,
+      verifyingContract: domain.verifyingContract ?? undefined,
+      salt:
+        typeof domain.salt === 'string'
+          ? new TextEncoder().encode(domain.salt).buffer
+          : domain.salt ?? undefined
+    }
+    const dataWithHashes = transformTypedData(
+      {
+        domain: normalizedDomain,
+        types: normalizedTypes,
+        message,
+        primaryType // TODO: How about PermitWitnessTransferFrom? Cast to 'EIP712Domain'?
+      },
+      true // Only v4 of typed data signing is supported by `transformTypedData`
+    )
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { domain_separator_hash, message_hash } = dataWithHashes
-
     const res = await this.#withNormalizedError(() =>
       this.controller!.walletSDK.ethereumSignTypedData({
         path,
         data: {
-          types,
+          types: normalizedTypes,
           message,
-          domain,
+          domain: normalizedDomain,
           primaryType
         },
         metamask_v4_compat: true,
         // Trezor 1 only supports blindly signing hashes
-        domain_separator_hash,
-        message_hash
-      } as any)
+        domain_separator_hash: domain_separator_hash ?? undefined,
+        message_hash: message_hash ?? undefined
+      })
     )
 
     if (!res.success)
