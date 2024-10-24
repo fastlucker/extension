@@ -109,7 +109,10 @@ const LeaderboardContainer: React.FC = () => {
             <Podium data={sortedData.slice(0, 3)} />
             <div ref={tableRef} className={styles.table}>
               <div className={styles.header}>
-                <h5 className={styles.cell}>player</h5>
+                <div className={styles.cell}>
+                  <h5>#</h5>
+                  <h5 className={styles.playerCell}>player</h5>
+                </div>
                 <h5 className={styles.cell}>Level</h5>
                 <h5 className={styles.cell}>XP</h5>
               </div>
