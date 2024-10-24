@@ -460,7 +460,7 @@ module.exports = async function (env, argv) {
       new HtmlWebpackPlugin({
         template: './src/legends/public/index.html',
         filename: 'index.html',
-        inject: 'body'
+        inject: true
       }),
       new CopyPlugin({
         patterns: [
