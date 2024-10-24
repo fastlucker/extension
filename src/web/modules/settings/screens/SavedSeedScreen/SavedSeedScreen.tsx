@@ -83,7 +83,12 @@ const SavedSeedScreen = () => {
 
   return (
     <View style={{ maxWidth: 440 }}>
-      {!passwordConfirmed && <PasswordConfirmation onPasswordConfirmed={onPasswordConfirmed} />}
+      {!passwordConfirmed && (
+        <PasswordConfirmation
+          onPasswordConfirmed={onPasswordConfirmed}
+          text="Please enter your device password to see your seed"
+        />
+      )}
       {passwordConfirmed && (
         <>
           <SettingsPageHeader title="Saved seed phrase" />

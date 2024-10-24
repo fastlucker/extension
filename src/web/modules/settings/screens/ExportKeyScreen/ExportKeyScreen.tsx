@@ -74,7 +74,16 @@ const ExportKeyScreen = () => {
 
   return (
     <View style={{ maxWidth: 440 }}>
-      {!passwordConfirmed && <PasswordConfirmation onPasswordConfirmed={onPasswordConfirmed} />}
+      {!passwordConfirmed && (
+        <PasswordConfirmation
+          onPasswordConfirmed={onPasswordConfirmed}
+          text={
+            isSA
+              ? 'Please enter your device password to export your smart account details'
+              : 'Please enter your device password to see your private key'
+          }
+        />
+      )}
       {passwordConfirmed && privateKey && !isSA && <PrivateKeyExport privateKey={privateKey} />}
       {passwordConfirmed && privateKey && isSA && (
         <SmartAccountExport account={account} privateKey={privateKey} />

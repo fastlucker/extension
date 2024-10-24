@@ -17,9 +17,10 @@ import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHea
 
 interface Props {
   onPasswordConfirmed: () => void
+  text: string
 }
 
-const PasswordConfirmation: React.FC<Props> = ({ onPasswordConfirmed }) => {
+const PasswordConfirmation: React.FC<Props> = ({ onPasswordConfirmed, text }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const keystoreState = useKeystoreControllerState()
@@ -86,7 +87,7 @@ const PasswordConfirmation: React.FC<Props> = ({ onPasswordConfirmed }) => {
       <>
         <SettingsPageHeader title="Confirm password" />
         <Text fontSize={14} color={theme.secondaryText}>
-          {t('Please enter your device password to see your seed')}
+          {t(text)}
         </Text>
         <Controller
           control={control}
