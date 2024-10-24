@@ -126,6 +126,10 @@ module.exports = async function (env, argv) {
   if (excludeCleanWebpackPlugin !== -1) {
     config.plugins.splice(excludeCleanWebpackPlugin, 1)
   }
+
+  // Exclude the predefined HtmlWebpackPlugin by @expo/webpack-config, and configure it manually,
+  // because it is throwing a build error: "CommandError: Conflict: Multiple
+  // assets emit different content to the same filename index.html"
   const excludeHtmlWebpackPlugin = config.plugins.findIndex(
     (plugin) => plugin.constructor.name === 'HtmlWebpackPlugin'
   )
