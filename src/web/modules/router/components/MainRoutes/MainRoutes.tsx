@@ -47,6 +47,8 @@ import ExportKeyScreen from '@web/modules/settings/screens/ExportKeyScreen'
 import GeneralSettingsScreen from '@web/modules/settings/screens/GeneralSettingsScreen'
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
+import SavedSeedScreen from '@web/modules/settings/screens/SavedSeedScreen'
+import SecurityAndPrivacyScreen from '@web/modules/settings/screens/SecurityAndPrivacyScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen'
 import TermsSettingsScreen from '@web/modules/settings/screens/TermsSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
@@ -130,8 +132,13 @@ const MainRoutes = () => {
               <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
               <Route element={<SettingsRoutesProvider />}>
                 <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
+                <Route
+                  path={WEB_ROUTES.securityAndPrivacy}
+                  element={<SecurityAndPrivacyScreen />}
+                />
                 <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
                 <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
+                <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
                 <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
                 <Route
                   path={WEB_ROUTES.transactions}

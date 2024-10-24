@@ -44,7 +44,7 @@ type Props = AccountKeyType & {
   showCopyAddr?: boolean
   account: Account
   keyIconColor?: string
-  isSettings?: boolean
+  showExportImport?: boolean
   closeDetails?: () => void
 }
 
@@ -64,7 +64,7 @@ const AccountKey: React.FC<Props> = ({
   openAddAccountBottomSheet,
   account,
   keyIconColor,
-  isSettings = false,
+  showExportImport = false,
   closeDetails
 }) => {
   const [isImporting, setIsImporting] = useState<boolean>(false)
@@ -117,14 +117,21 @@ const AccountKey: React.FC<Props> = ({
     navigate(`${ROUTES.exportKey}?accountAddr=${account.addr}&keyAddr=${addr}`)
   }
   const importKey = () => {
-    if (setIsImporting) setIsImporting(true)
+    setIsImporting(true)
   }
   const reimportAccount = () => {
     if (openAddAccountBottomSheet) openAddAccountBottomSheet()
   }
 
   return (
-    <>
+    <View
+      style={[
+        {
+          borderBottomWidth: isLast ? 0 : 1,
+          borderBottomColor: theme.secondaryBorder
+        }
+      ]}
+    >
       <View
         style={[
           spacings.phSm,
@@ -132,10 +139,6 @@ const AccountKey: React.FC<Props> = ({
           flexbox.directionRow,
           flexbox.justifySpaceBetween,
           flexbox.alignCenter,
-          {
-            borderBottomWidth: isLast ? 0 : 1,
-            borderBottomColor: theme.secondaryBorder
-          },
           style
         ]}
       >
@@ -191,7 +194,7 @@ const AccountKey: React.FC<Props> = ({
             </View>
           )}
         </View>
-        {isSettings && (
+        {showExportImport && (
           <View>
             {isImported ? (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
@@ -271,7 +274,7 @@ const AccountKey: React.FC<Props> = ({
           </View>
         )}
       </View>
-      {isSettings && isImporting && openAddAccountBottomSheet && (
+      {showExportImport && isImporting && openAddAccountBottomSheet && (
         <View style={[spacings.phSm, flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
           <Text>{t('To import this key, you will need to reimport the account')}</Text>
           <Button style={[spacings.mb0, spacings.mlTy]} onPress={reimportAccount} size="tiny">
@@ -281,7 +284,7 @@ const AccountKey: React.FC<Props> = ({
           </Button>
         </View>
       )}
-    </>
+    </View>
   )
 }
 

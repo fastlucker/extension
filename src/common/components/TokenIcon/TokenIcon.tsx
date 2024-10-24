@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Image, ImageProps, View, ViewStyle } from 'react-native'
 
+import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import useTheme from '@common/hooks/useTheme'
@@ -52,9 +53,12 @@ const TokenIcon: React.FC<Props> = ({
   ...props
 }) => {
   const { styles } = useTheme(getStyles)
-  const { networks } = useNetworksControllerState()
   const [uriStatus, setUriStatus] = useState<UriStatus>(UriStatus.UNKNOWN)
   const [imageUrl, setImageUrl] = useState<string | undefined>()
+  const { networks: controllerNetworks } = useNetworksControllerState()
+  const { benzinNetworks } = useBenzinNetworksContext()
+  // Component used across Benzin and Extension, make sure to always set networks
+  const networks = controllerNetworks ?? benzinNetworks
 
   const network = useMemo(
     () =>

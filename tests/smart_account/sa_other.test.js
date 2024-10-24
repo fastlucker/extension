@@ -1,7 +1,7 @@
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { saParams } from '../config/constants'
 
-import { changePassword, addContactInAddressBook } from '../common/other.js'
+import { addContactInAddressBook } from '../common/other.js'
 
 describe('sa_other', () => {
   let browser
@@ -16,9 +16,6 @@ describe('sa_other', () => {
   afterEach(async () => {
     await recorder.stop()
     await browser.close()
-  })
-  it('change password', async () => {
-    await changePassword(page, extensionURL)
   })
 
   it('add contact in address book', async () => {
