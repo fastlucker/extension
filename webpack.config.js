@@ -292,19 +292,19 @@ module.exports = async function (env, argv) {
       new HtmlWebpackPlugin({
         template: './src/web/public/index.html',
         filename: 'index.html',
-        inject: true, // to auto inject the main.js bundle in the body
+        inject: 'body', // to auto inject the main.js bundle in the body
         chunks: ['main'] // include only chunks from the main entry
       }),
       new HtmlWebpackPlugin({
         template: './src/web/public/action-window.html',
         filename: 'action-window.html',
-        inject: true, // to auto inject the main.js bundle in the body
+        inject: 'body', // to auto inject the main.js bundle in the body
         chunks: ['main'] // include only chunks from the main entry
       }),
       new HtmlWebpackPlugin({
         template: './src/web/public/tab.html',
         filename: 'tab.html',
-        inject: true, // to auto inject the main.js bundle in the body
+        inject: 'body', // to auto inject the main.js bundle in the body
         chunks: ['main'] // include only chunks from the main entry
       }),
       new CopyPlugin({ patterns: extensionCopyPatterns })
@@ -326,7 +326,7 @@ module.exports = async function (env, argv) {
         new HtmlWebpackPlugin({
           template: './src/web/public/background.html',
           filename: 'background.html',
-          inject: true, // to auto inject the background.js bundle in the body
+          inject: 'body', // to auto inject the background.js bundle in the body
           chunks: ['background'] // include only chunks from the background entry
         })
       )
@@ -345,7 +345,7 @@ module.exports = async function (env, argv) {
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
         chunks(chunk) {
-          // do not split into chunks the files that should be injected in webpages
+          // do not split into chunks the files that should be injected
           return chunk.name !== 'ambire-inpage' && chunk.name !== 'ethereum-inpage'
         }
       }
@@ -460,7 +460,7 @@ module.exports = async function (env, argv) {
       new HtmlWebpackPlugin({
         template: './src/legends/public/index.html',
         filename: 'index.html',
-        inject: true
+        inject: 'body'
       }),
       new CopyPlugin({
         patterns: [
