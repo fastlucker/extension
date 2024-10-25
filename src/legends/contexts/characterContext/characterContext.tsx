@@ -22,12 +22,14 @@ const CharacterContext = createContext<{
   mintCharacter: (type: number) => void
   isLoading: boolean
   isMinting: boolean
+  error: string | null
 }>({
   character: null,
   getCharacter: () => {},
   mintCharacter: () => {},
   isLoading: false,
-  isMinting: false
+  isMinting: false,
+  error: null
 })
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
@@ -35,6 +37,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const getCharacter = useCallback(async () => {
     if (!lastConnectedV2Account) {
@@ -43,12 +46,21 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       return
     }
 
-    const characterResponse = await fetch(
-      `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
-    )
+    try {
+      const characterResponse = await fetch(
+        `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
+      )
+
+      const characterJson = await characterResponse.json()
+
+      setCharacter(characterJson as Character)
+      setError(null)
+    } catch (e) {
+      setError(`Couldn't load the requested character: ${lastConnectedV2Account}`)
+      console.error(e)
+    }
 
     setIsLoading(false)
-    setCharacter(await characterResponse.json())
   }, [lastConnectedV2Account])
 
   const mintCharacter = useCallback(
@@ -109,9 +121,10 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
           getCharacter,
           mintCharacter,
           isLoading,
-          isMinting
+          isMinting,
+          error
         }),
-        [character, getCharacter, mintCharacter, isLoading, isMinting]
+        [character, getCharacter, mintCharacter, isLoading, isMinting, error]
       )}
     >
       {children}
