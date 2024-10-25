@@ -27,14 +27,28 @@
 
   .top {
     position: relative;
-
     .wheelOfFortuneWrapper {
       background: $primaryGradient;
+      background-size: 200% 200%;
+      animation: gradientAnimation 4s ease infinite;
+
+      @keyframes gradientAnimation {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
       border-radius: $secondaryBorderRadius;
       padding: 0.25rem;
       $innerBorderRadius: calc(#{$secondaryBorderRadius} - 0.25rem);
 
       .wheelOfFortune {
+        position: relative;
         display: flex;
         background-color: $tertiaryBackground;
         border-radius: $innerBorderRadius;
@@ -75,11 +89,25 @@
         }
       }
     }
+    .disabled {
+      opacity: 0.5;
+      animation: none;
+    }
+
+    .tooltip {
+      background-color: $tertiaryBackground;
+      border: 1px solid $primaryBorder;
+      border-radius: $primaryBorderRadius;
+      padding: 1.25rem 1.5rem;
+      font-size: 1rem;
+      color: $secondaryText;
+      opacity: 1;
+    }
 
     .closeButton {
       position: absolute;
       top: 1rem;
-      right: 0;
+      left: 0;
       display: flex;
       align-items: center;
       justify-content: center;

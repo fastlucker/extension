@@ -49,17 +49,23 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
   const shortenedDescription = description.length > 55 ? `${description.slice(0, 55)}...` : null
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
- 
+
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
-  const openActionModal = () => action.predefinedId === 'wheelOfFortune' ? setIsFortuneWheelModalOpen(true) : setIsActionModalOpen(true)
+  const openActionModal = () =>
+    action.predefinedId === 'wheelOfFortune'
+      ? setIsFortuneWheelModalOpen(true)
+      : setIsActionModalOpen(true)
 
-  const closeActionModal = () => action.predefinedId === 'wheelOfFortune' ? setIsFortuneWheelModalOpen(false) : setIsActionModalOpen(false)
+  const closeActionModal = () =>
+    action.predefinedId === 'wheelOfFortune'
+      ? setIsFortuneWheelModalOpen(false)
+      : setIsActionModalOpen(false)
 
-  const wheelSpinOfTheDay = useMemo(() => isWheelSpinTodayAvailable({ activity, isLoading }), [
-    activity,
-    isLoading
-  ])
+  const wheelSpinOfTheDay = useMemo(
+    () => isWheelSpinTodayAvailable({ activity, isLoading }),
+    [activity, isLoading]
+  )
 
   return (
     <div className={`${styles.wrapper}`}>
@@ -129,7 +135,9 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
         {!!action.type && (
           <button
             disabled={
-              !isConnectedAccountV2 && !EOA_ACCESSIBLE_CARDS.includes(action.predefinedId || '') || (wheelSpinOfTheDay && action.predefinedId === 'wheelOfFortune')
+              (!isConnectedAccountV2 &&
+                !EOA_ACCESSIBLE_CARDS.includes(action.predefinedId || '')) ||
+              (wheelSpinOfTheDay && action.predefinedId === 'wheelOfFortune')
             }
             className={styles.button}
             type="button"
