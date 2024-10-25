@@ -1,8 +1,10 @@
 import React from 'react'
 
-import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
+import useAccountContext from '@legends/hooks/useAccountContext'
+import BronzeTrophy from '@legends/modules/leaderboard/screens/Leaderboard/BronzeTrophy'
+import GoldTrophy from '@legends/modules/leaderboard/screens/Leaderboard/GoldTrophy'
+import SilverTrophy from '@legends/modules/leaderboard/screens/Leaderboard/SilverTrophy'
 import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
 import styles from './Podium.module.scss'
@@ -12,6 +14,7 @@ interface PodiumProps {
 }
 
 const Podium: React.FC<PodiumProps> = ({ data }) => {
+  const { lastConnectedV2Account } = useAccountContext()
   return (
     <div className={styles.podium}>
       {data.map((item, index) => (
@@ -20,10 +23,23 @@ const Podium: React.FC<PodiumProps> = ({ data }) => {
           className={`${styles.step} ${styles[`position${index + 1}`]}`}
         >
           <div className={styles.contentWrapper}>
-            {index === 0 && <FontAwesomeIcon className={styles.trophy} icon={faTrophy} />}
             <img src={item.image_avatar} alt="avatar" className={styles.avatar} />
-            <Address address={item.account} className={styles.name} maxAddressLength={11} />
+            {item.account === lastConnectedV2Account ? (
+              <div className={styles.currentUserWrapper}>
+                You
+                <div className={styles.currentUserContentWrapper}>
+                  (
+                  <Address className={styles.name} address={item.account} maxAddressLength={11} />)
+                </div>
+              </div>
+            ) : (
+              <Address address={item.account} className={styles.name} maxAddressLength={11} />
+            )}
             <h4 className={styles.xp}>{item.xp}</h4>
+
+            {index === 0 && <GoldTrophy width={32} height={29} />}
+            {index === 1 && <SilverTrophy />}
+            {index === 2 && <BronzeTrophy />}
           </div>
         </div>
       ))}

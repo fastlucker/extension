@@ -9,16 +9,19 @@ type LeaderboardContextType = {
   isLeaderboardLoading: boolean
   leaderboardData: Array<LeaderboardEntry>
   userLeaderboardData: LeaderboardEntry | null
+  error: string | null
 }
 
 const LeaderboardContext = createContext<LeaderboardContextType>({
   isLeaderboardLoading: true,
   leaderboardData: [],
-  userLeaderboardData: null
+  userLeaderboardData: null,
+  error: null
 })
 
 const LeaderboardContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true)
+  const [error, setError] = React.useState<string | null>(null)
   const [leaderboardData, setLeaderboardData] = useState<Array<LeaderboardEntry>>([])
   const [userLeaderboardData, setUserLeaderboardData] = useState<LeaderboardEntry | null>(null)
   const { lastConnectedV2Account } = useAccountContext()
@@ -26,14 +29,20 @@ const LeaderboardContextProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const { leaderboard, currentUser } = await getLeaderboard(
-          lastConnectedV2Account ?? undefined
-        )
+        setError(null)
+        const response = await getLeaderboard(lastConnectedV2Account ?? undefined)
 
-        setLeaderboardData(leaderboard)
-        currentUser && setUserLeaderboardData(currentUser)
-      } catch (error) {
-        console.error('Failed to fetch leaderboard:', error)
+        if (response) {
+          const { leaderboard, currentUser } = response
+          setLeaderboardData(leaderboard)
+          currentUser && setUserLeaderboardData(currentUser)
+        } else {
+          setError('Failed to fetch leaderboard')
+        }
+      } catch (e) {
+        console.error('Failed to fetch leaderboard:', e)
+        setError('Failed to fetch leaderboard')
+        throw e
       } finally {
         setLoading(false)
       }
@@ -60,9 +69,10 @@ const LeaderboardContextProvider = ({ children }: { children: React.ReactNode })
     () => ({
       isLeaderboardLoading: loading,
       leaderboardData: sortedData,
-      userLeaderboardData
+      userLeaderboardData,
+      error
     }),
-    [loading, sortedData, userLeaderboardData]
+    [loading, sortedData, userLeaderboardData, error]
   )
 
   return <LeaderboardContext.Provider value={value}>{children}</LeaderboardContext.Provider>

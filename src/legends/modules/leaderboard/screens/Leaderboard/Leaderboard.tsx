@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 
+import Alert from '@legends/components/Alert'
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
@@ -8,12 +9,12 @@ import Podium from './components/Podium'
 import Row from './components/Row'
 import styles from './Leaderboard.module.scss'
 
-// TODO: Error and loading states
 const LeaderboardContainer: React.FC = () => {
   const {
     leaderboardData,
     userLeaderboardData,
-    isLeaderboardLoading: loading
+    isLeaderboardLoading: loading,
+    error
   } = useLeaderboardContext()
 
   const tableRef = useRef<HTMLDivElement>(null)
@@ -66,14 +67,17 @@ const LeaderboardContainer: React.FC = () => {
             through the ranks, and leave your mark among the top Legends!
           </p>
         </div>
-        {loading ? (
-          <Spinner />
-        ) : (
+        {loading && <Spinner />}
+        {error && <Alert type="error" title={error} />}
+        {leaderboardData && leaderboardData.length ? (
           <>
             <Podium data={leaderboardData.slice(0, 3)} />
             <div ref={tableRef} className={styles.table}>
               <div className={styles.header}>
-                <h5 className={styles.cell}>player</h5>
+                <div className={styles.cell}>
+                  <h5>#</h5>
+                  <h5 className={styles.playerCell}>player</h5>
+                </div>
                 <h5 className={styles.cell}>Level</h5>
                 <h5 className={styles.cell}>XP</h5>
               </div>
@@ -87,7 +91,7 @@ const LeaderboardContainer: React.FC = () => {
               ))}
             </div>
           </>
-        )}
+        ) : null}
       </div>
     </Page>
   )
