@@ -54,13 +54,21 @@ export const getAccountPfpSource = (pfpId: string) => {
 
 interface Props {
   pfp: string
-  isSmart?: boolean
+  isSmart: boolean
   size?: number
   style?: ViewStyle
   showTooltip?: boolean
+  displayTypeBadge?: boolean
 }
 
-const Avatar: FC<Props> = ({ pfp, isSmart, size = 40, style, showTooltip = false }) => {
+const Avatar: FC<Props> = ({
+  pfp,
+  isSmart,
+  size = 40,
+  style,
+  showTooltip = false,
+  displayTypeBadge = true
+}) => {
   const selectedAccountPfp = getAccountPfpSource(pfp)
   const avatarType = getAvatarType(selectedAccountPfp)
   const borderRadius = size / 2
@@ -80,7 +88,7 @@ const Avatar: FC<Props> = ({ pfp, isSmart, size = 40, style, showTooltip = false
             borderRadius={borderRadius}
           />
         )}
-        {isSmart !== undefined && (
+        {displayTypeBadge && (
           <TypeBadge isSmart={isSmart} type={badgeType} showTooltip={showTooltip} />
         )}
       </View>

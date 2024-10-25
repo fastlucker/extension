@@ -1,24 +1,21 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 
 import Alert from '@legends/components/Alert'
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
-import useAccountContext from '@legends/hooks/useAccountContext'
-import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
+import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 
 import Podium from './components/Podium'
 import Row from './components/Row'
-import { getLeaderboard } from './helpers'
 import styles from './Leaderboard.module.scss'
 
 const LeaderboardContainer: React.FC = () => {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const [leaderboardData, setLeaderboardData] = useState<Array<LeaderboardEntry>>([])
-  const [userLeaderboardData, setUserLeaderboardData] = useState<LeaderboardEntry | null>(null)
-
-  const { lastConnectedV2Account } = useAccountContext()
+  const {
+    leaderboardData,
+    userLeaderboardData,
+    isLeaderboardLoading: loading,
+    error
+  } = useLeaderboardContext()
 
   const tableRef = useRef<HTMLDivElement>(null)
 
@@ -26,45 +23,6 @@ const LeaderboardContainer: React.FC = () => {
   const currentUserRef = useRef<HTMLDivElement>(null)
 
   const [stickyPosition, setStickyPosition] = useState<'top' | 'bottom' | null>(null)
-
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      setError(null)
-      try {
-        const response = await getLeaderboard(lastConnectedV2Account ?? undefined)
-        if (!response) {
-          throw new Error('Failed to fetch leaderboard data')
-        }
-        const { leaderboard, currentUser } = response
-
-        setLeaderboardData(leaderboard)
-        currentUser && setUserLeaderboardData(currentUser)
-      } catch (е) {
-        console.error('Failed to fetch leaderboard:', е)
-        setError(
-          'Internal error while fetching leaderboard. Please reload the page or try again later.'
-        )
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchLeaderboard()
-  }, [lastConnectedV2Account])
-
-  const sortedData = useMemo(
-    () =>
-      [
-        ...leaderboardData,
-        (userLeaderboardData &&
-          !leaderboardData.find((user) => user.account === userLeaderboardData.account) &&
-          userLeaderboardData) ||
-          []
-      ]
-        .flat()
-        .sort((a, b) => b.xp - a.xp),
-    [leaderboardData, userLeaderboardData]
-  )
 
   useLayoutEffect(() => {
     const handleScroll = () => {
@@ -97,7 +55,7 @@ const LeaderboardContainer: React.FC = () => {
         pageElement.removeEventListener('scroll', handleScroll)
       }
     }
-  }, [currentUserRef, sortedData, userLeaderboardData])
+  }, [currentUserRef, leaderboardData, userLeaderboardData])
 
   return (
     <Page pageRef={pageRef}>
@@ -111,9 +69,9 @@ const LeaderboardContainer: React.FC = () => {
         </div>
         {loading && <Spinner />}
         {error && <Alert type="error" title={error} />}
-        {sortedData && sortedData.length ? (
+        {leaderboardData && leaderboardData.length ? (
           <>
-            <Podium data={sortedData.slice(0, 3)} />
+            <Podium data={leaderboardData.slice(0, 3)} />
             <div ref={tableRef} className={styles.table}>
               <div className={styles.header}>
                 <div className={styles.cell}>
@@ -123,7 +81,7 @@ const LeaderboardContainer: React.FC = () => {
                 <h5 className={styles.cell}>Level</h5>
                 <h5 className={styles.cell}>XP</h5>
               </div>
-              {sortedData.map((item) => (
+              {leaderboardData.map((item) => (
                 <Row
                   key={item.account}
                   {...item}

@@ -13,6 +13,7 @@ interface Style {
   networkIcon: ViewStyle
   actionsContainer: ViewStyle
   action: ViewStyle
+  visibilityIcon: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -57,7 +58,9 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phMi,
       ...spacings.pvSm,
       ...common.borderRadiusPrimary
-    }
+    },
+    // @ts-ignore web style
+    visibilityIcon: { ...spacings.phMi, cursor: 'pointer' }
   })
 
 export default getStyles
