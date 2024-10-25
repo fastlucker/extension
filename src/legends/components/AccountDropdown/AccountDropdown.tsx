@@ -1,25 +1,27 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
+import { networks } from '@ambire-common/consts/networks'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 
 import styles from './AccountDropdown.module.scss'
 
 const AccountDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { connectedAccount, disconnectAccount } = useAccountContext()
+  const { lastConnectedV2Account, isConnectedAccountV2, disconnectAccount, chainId } =
+    useAccountContext()
+  const { character } = useCharacterContext()
+  const { userLeaderboardData } = useLeaderboardContext()
 
   const toggleIsOpen = () => setIsOpen((prev) => !prev)
 
-  const formatAddress = (address: string | null) => {
-    if (!address) return ''
-
-    const isEns = address.includes('.')
-    if (isEns) return address
-
-    return `${address.slice(0, 6)}...${address.slice(-4)}`
-  }
+  const networkData = useMemo(() => {
+    return networks.find((network) => network.chainId === chainId)
+  }, [chainId])
 
   // Hide the dropdown when the user clicks outside of it
   useEffect(() => {
@@ -38,15 +40,33 @@ const AccountDropdown = () => {
     }
   }, [])
 
+  if (!lastConnectedV2Account || !character) return null
+
   return (
-    <div className={styles.wrapper}>
-      <button className={styles.button} type="button" onClick={toggleIsOpen}>
+    <div className={`${styles.wrapper} ${isConnectedAccountV2 ? styles.connected : ''}`}>
+      <button
+        disabled={!isConnectedAccountV2}
+        className={styles.button}
+        type="button"
+        onClick={toggleIsOpen}
+      >
         <div className={styles.avatarWrapper}>
-          <img alt="avatar" className={styles.avatar} src="/images/logo.png" />
+          <img alt="avatar" className={styles.avatar} src={character.image_avatar} />
         </div>
         <div className={styles.account}>
-          <p className={styles.address}>{formatAddress(connectedAccount)}</p>
-          <p className={styles.levelAndRank}>Level 7 / Rank 203</p>
+          <Address
+            skeletonClassName={styles.addressSkeleton}
+            className={styles.address}
+            address={lastConnectedV2Account}
+            maxAddressLength={12}
+          />
+          {isConnectedAccountV2 ? (
+            <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
+              Level {character.level} / Rank {userLeaderboardData?.rank || 'N/A'}
+            </p>
+          ) : (
+            <p className={styles.levelAndRank}>V2 Disconnected</p>
+          )}
         </div>
         <FontAwesomeIcon
           className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}
@@ -54,7 +74,9 @@ const AccountDropdown = () => {
         />
       </button>
       <div className={`${styles.dropdown} ${isOpen ? styles.open : ''}`}>
-        <p className={styles.network}>Connected on Base Network</p>
+        <p className={styles.network}>
+          Connected on {networkData?.name || `Unknown Network (${String(chainId)})`}
+        </p>
         <button className={styles.disconnectButton} type="button" onClick={disconnectAccount}>
           Disconnect
         </button>

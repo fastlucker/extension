@@ -122,7 +122,9 @@ const Estimation = ({
     const isInitialValueSet = !!payValue
     const canPayFeeAfterNotBeingAbleToPayInitially =
       payValue?.value === NO_FEE_OPTIONS.value && defaultFeeOption.value !== NO_FEE_OPTIONS.value
-    if (!isInitialValueSet || canPayFeeAfterNotBeingAbleToPayInitially) {
+    const feeOptionNoLongerViable = payValue?.disabled !== defaultFeeOption.disabled
+
+    if (!isInitialValueSet || canPayFeeAfterNotBeingAbleToPayInitially || feeOptionNoLongerViable) {
       setFeeOption(defaultFeeOption)
     }
   }, [

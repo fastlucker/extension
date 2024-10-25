@@ -70,7 +70,6 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       if (!tokenInfo || !submittedAccountOp.gasFeePayment?.amount) return
 
       const fee = parseFloat(formatUnits(feeTokenAmount, tokenInfo.decimals))
-      console.log(`${formatDecimals(fee)} ${tokenInfo.symbol}`, feeTokenAddress)
 
       setFeeFormattedValue(`${formatDecimals(fee)} ${tokenInfo.symbol}`)
     }).catch((e) => {

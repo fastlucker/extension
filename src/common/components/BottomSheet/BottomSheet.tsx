@@ -21,6 +21,7 @@ interface Props {
   closeBottomSheet?: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   onBackdropPress?: () => void
   onClosed?: () => void
+  onOpen?: () => void
   children?: React.ReactNode
   // Preferences
   type?: 'modal' | 'bottom-sheet'
@@ -33,6 +34,7 @@ interface Props {
   autoWidth?: boolean
   autoOpen?: boolean
   shouldBeClosableOnDrag?: boolean
+  customZIndex?: number
 }
 
 const ANIMATION_DURATION: number = 250
@@ -50,13 +52,15 @@ const BottomSheet: React.FC<Props> = ({
   style = {},
   containerInnerWrapperStyles = {},
   onClosed,
+  onOpen,
   onBackdropPress,
   flatListProps,
   scrollViewProps,
   backgroundColor = 'secondaryBackground',
   autoWidth = false,
   autoOpen = false,
-  shouldBeClosableOnDrag = true
+  shouldBeClosableOnDrag = true,
+  customZIndex
 }) => {
   const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
   const isModal = type === 'modal'
@@ -123,6 +127,7 @@ const BottomSheet: React.FC<Props> = ({
         <Backdrop
           isVisible={isBackdropVisible}
           isBottomSheetVisible={isOpen}
+          customZIndex={customZIndex ? customZIndex - 1 : undefined}
           onPress={() => {
             closeBottomSheet()
             !!onBackdropPress && onBackdropPress()
@@ -145,7 +150,13 @@ const BottomSheet: React.FC<Props> = ({
           isPopup && isModal ? { height: '100%' } : {},
           style
         ]}
-        rootStyle={[styles.root, isPopup && isModal ? spacings.phSm : {}]}
+        rootStyle={[
+          styles.root,
+          isPopup && isModal ? spacings.phSm : {},
+          {
+            zIndex: customZIndex || styles.root.zIndex
+          }
+        ]}
         handleStyle={[
           styles.dragger,
           isModal
@@ -192,6 +203,7 @@ const BottomSheet: React.FC<Props> = ({
         onOpen={() => {
           setIsOpen(true)
           setIsBackdropVisible(true)
+          !!onOpen && onOpen()
         }}
         onClose={() => setIsOpen(false)}
         onClosed={() => !!onClosed && onClosed()}

@@ -8,8 +8,9 @@ import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
-import { Key, KeyPreferences } from '@ambire-common/interfaces/keystore'
+import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -40,8 +41,8 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: { privKeyOrSeed: string; shouldPersist?: boolean }
 }
-type MainControllerAccountAdderInitFromDefaultSeedPhraseAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE'
+type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE'
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -87,7 +88,7 @@ type CreateNewSeedPhraseAndAddFirstSmartAccount = {
   type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT'
   params: { seed: string }
 }
-type AddNextSmartAccountFromDefaultSeedPhraseAction = {
+type AddNextSmartAccountFromSavedSeedPhraseAction = {
   type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE'
 }
 type MainControllerRemoveAccount = {
@@ -307,6 +308,13 @@ type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
   params: { newSecret: string }
 }
+type KeystoreControllerSendPrivateKeyOverChannel = {
+  type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
+  params: { keyAddr: string }
+}
+type KeystoreControllerSendSeedOverChannel = {
+  type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
+}
 
 type EmailVaultControllerGetInfoAction = {
   type: 'EMAIL_VAULT_CONTROLLER_GET_INFO'
@@ -364,6 +372,50 @@ type DappsControllerUpdateDappAction = {
 type DappsControllerRemoveDappAction = {
   type: 'DAPP_CONTROLLER_REMOVE_DAPP'
   params: Dapp['url']
+}
+
+type SwapAndBridgeControllerInitAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
+  params: { sessionId: string }
+}
+type SwapAndBridgeControllerUnloadScreenAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN'
+  params: { sessionId: string }
+}
+type SwapAndBridgeControllerUpdateFormAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM'
+  params: {
+    fromAmount?: string
+    fromAmountInFiat?: string
+    fromAmountFieldMode?: 'fiat' | 'token'
+    fromChainId?: bigint | number
+    fromSelectedToken?: TokenResult | null
+    toChainId?: bigint | number
+    toSelectedToken?: SocketAPIToken | null
+    routePriority?: 'output' | 'time'
+  }
+}
+type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
+}
+type SwapAndBridgeControllerSelectRouteAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE'
+  params: { route: SocketAPIRoute }
+}
+type SwapAndBridgeControllerSubmitFormAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
+}
+type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
+  params: { activeRouteId: number }
+}
+type SwapAndBridgeControllerRemoveActiveRouteAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE'
+  params: { activeRouteId: number }
+}
+type SwapAndBridgeControllerUpdatePortfolioTokenListAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST'
+  params: TokenResult[]
 }
 
 type ActionsControllerAddToActionsQueue = {
@@ -461,13 +513,18 @@ type MainControllerTraceCallAction = {
   params: { estimation: EstimateResult }
 }
 
+type ImportSmartAccountJson = {
+  type: 'IMPORT_SMART_ACCOUNT_JSON'
+  params: { readyToAddAccount: Account; keys: ReadyToAddKeys['internal'] }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
-  | MainControllerAccountAdderInitFromDefaultSeedPhraseAction
+  | MainControllerAccountAdderInitFromSavedSeedPhraseAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
@@ -484,7 +541,7 @@ export type Action =
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | CreateNewSeedPhraseAndAddFirstSmartAccount
-  | AddNextSmartAccountFromDefaultSeedPhraseAction
+  | AddNextSmartAccountFromSavedSeedPhraseAction
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
@@ -518,6 +575,7 @@ export type Action =
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
   | KeystoreControllerChangePasswordFromRecoveryAction
+  | KeystoreControllerSendPrivateKeyOverChannel
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
   | EmailVaultControllerCancelConfirmationAction
@@ -531,6 +589,15 @@ export type Action =
   | DappsControllerAddDappAction
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
+  | SwapAndBridgeControllerInitAction
+  | SwapAndBridgeControllerUnloadScreenAction
+  | SwapAndBridgeControllerUpdateFormAction
+  | SwapAndBridgeControllerSwitchFromAndToTokensAction
+  | SwapAndBridgeControllerSelectRouteAction
+  | SwapAndBridgeControllerSubmitFormAction
+  | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
+  | SwapAndBridgeControllerRemoveActiveRouteAction
+  | SwapAndBridgeControllerUpdatePortfolioTokenListAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
@@ -550,3 +617,5 @@ export type Action =
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction
   | MainControllerTraceCallAction
+  | ImportSmartAccountJson
+  | KeystoreControllerSendSeedOverChannel

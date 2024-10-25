@@ -1,6 +1,7 @@
 @import './reset.scss';
 @import './normalize.scss';
 @import './base.scss';
+@import './typography.scss';
 
 // Scale down rems
 html {
@@ -62,6 +63,7 @@ a {
 }
 
 a:hover,
-button:hover {
+button:hover,
+button:disabled {
   opacity: 0.6;
 }

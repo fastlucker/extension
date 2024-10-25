@@ -19,7 +19,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...spacings.phTy,
       ...spacings.prSm,
-      ...spacings.pvTy,
+      ...spacings.pvMi,
       marginBottom: SPACING_MI / 2,
       borderRadius: BORDER_RADIUS_PRIMARY,
       borderWidth: 1,

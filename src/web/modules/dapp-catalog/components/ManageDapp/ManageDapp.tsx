@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 import { IHandles } from 'react-native-modalize/lib/options'
 
 import predefinedDapps from '@ambire-common/consts/dappCatalog.json'
@@ -9,6 +10,9 @@ import { Network } from '@ambire-common/interfaces/network'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Dialog from '@common/components/Dialog'
+import DialogButton from '@common/components/Dialog/DialogButton'
+import DialogFooter from '@common/components/Dialog/DialogFooter'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
@@ -45,6 +49,7 @@ const ManageDapp = ({
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
+  const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
   const { networks } = useNetworksControllerState()
   const { state } = useDappsControllerState()
 
@@ -63,7 +68,7 @@ const ManageDapp = ({
             {n.name}
           </Text>
         ),
-        icon: <NetworkIcon id={n.id} size={30} />
+        icon: <NetworkIcon key={n.id} id={n.id} size={30} />
       })),
     [networks]
   )
@@ -92,26 +97,44 @@ const ManageDapp = ({
     )
   }, [dapp?.url, state.dapps])
 
+  const promptRemoveDApp = useCallback(() => {
+    openDialog()
+  }, [openDialog])
+
   const removeDappFromCatalog = () => {
-    // eslint-disable-next-line no-alert
-    const isSure = window.confirm(
-      dapp?.isConnected
-        ? t(
-            `Are you sure you want to remove ${dapp?.name} from your Dapp Catalog. This action will also disconnect the dApp from Ambire Wallet.`
-          )
-        : t(`Are you sure you want to remove ${dapp?.name} from your Dapp Catalog.`)
-    )
-
-    if (!isSure) return
-
     dispatch({
       type: 'DAPP_CONTROLLER_REMOVE_DAPP',
       params: dapp?.url!
     })
+    closeDialog()
+    closeBottomSheet()
   }
 
   return (
     <BottomSheet id="dapp-footer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+      <Dialog
+        dialogRef={dialogRef}
+        id="remove-dapp"
+        title={t('Remove dApp')}
+        text={
+          dapp?.isConnected
+            ? t(
+                `Are you sure you want to remove ${dapp?.name} from your dApp Catalog. This action will also disconnect the dApp from Ambire Wallet.`
+              )
+            : t(`Are you sure you want to remove ${dapp?.name} from your dApp Catalog.`)
+        }
+        closeDialog={closeDialog}
+      >
+        <DialogFooter horizontalAlignment="justifyEnd">
+          <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
+          <DialogButton
+            style={spacings.ml}
+            text={t('Remove')}
+            type="danger"
+            onPress={removeDappFromCatalog}
+          />
+        </DialogFooter>
+      </Dialog>
       <View style={[spacings.mbLg, spacings.ptSm]}>
         <DappControl
           dapp={dapp}
@@ -148,7 +171,7 @@ const ManageDapp = ({
             textStyle={{ color: theme.errorDecorative }}
             text={t('Remove from dApp Catalog')}
             hasBottomSpacing={false}
-            onPress={removeDappFromCatalog}
+            onPress={promptRemoveDApp}
           >
             <DeleteIcon
               color={theme.errorDecorative}

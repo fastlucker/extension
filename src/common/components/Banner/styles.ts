@@ -23,6 +23,7 @@ const getStyles = () =>
     },
     content: {
       ...flexbox.directionRow,
+      ...flexbox.alignCenter,
       ...flexbox.flex1,
       ...spacings.plSm,
       borderLeftWidth: 6,

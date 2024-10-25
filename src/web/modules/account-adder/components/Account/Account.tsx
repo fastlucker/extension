@@ -4,7 +4,7 @@ import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface, ImportStatus } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
-import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
+import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Avatar from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
@@ -40,7 +40,8 @@ const Account = ({
   onSelect,
   onDeselect,
   isDisabled,
-  importStatus
+  importStatus,
+  displayTypeBadge = true
 }: {
   account: AccountInterface & { usedOnNetworks: Network[] }
   type: 'basic' | 'smart' | 'linked'
@@ -52,6 +53,7 @@ const Account = ({
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
   importStatus: ImportStatus
+  displayTypeBadge?: boolean
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -103,10 +105,18 @@ const Account = ({
 
         <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
+            <View
+              style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}
+              testID="add-account-field"
+            >
               {isAccountImported ? (
                 <>
-                  <Avatar pfp={account.preferences.pfp} size={24} />
+                  <Avatar
+                    pfp={account.preferences.pfp}
+                    size={24}
+                    isSmart={isSmartAccount(account)}
+                    displayTypeBadge={displayTypeBadge}
+                  />
                   <Text
                     fontSize={16}
                     weight="medium"
@@ -116,7 +126,7 @@ const Account = ({
                     {account.preferences.label}
                   </Text>
                   <Text
-                    testID="add-account"
+                    testID={`add-account-${account.addr}`}
                     fontSize={14}
                     appearance="secondaryText"
                     style={spacings.mrMi}
@@ -129,7 +139,7 @@ const Account = ({
                 </>
               ) : (
                 <Text
-                  testID="add-account"
+                  testID={`add-account-${account.addr}`}
                   fontSize={16}
                   appearance="primaryText"
                   style={spacings.mrMi}

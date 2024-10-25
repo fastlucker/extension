@@ -1,0 +1,13 @@
+@import '@legends/styles/base.scss';
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+.spinnerContainer {
+  padding-top: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

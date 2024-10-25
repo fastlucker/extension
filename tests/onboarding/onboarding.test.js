@@ -1,5 +1,4 @@
 import { completeOnboardingSteps } from '../common-helpers/completeOnboardingSteps'
-// import { clickOnElement } from '../common-helpers/clickOnElement'
 import { bootstrap } from '../common-helpers/bootstrap'
 import { INVITE_STORAGE_ITEM } from '../constants/constants'
 

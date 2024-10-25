@@ -13,13 +13,13 @@ import {
   isIdentifiedByTxn,
   pollTxnId
 } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
+import formatDecimals from '@common/utils/formatDecimals'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
-import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
-import formatDecimals from '@common/utils/formatDecimals'
 
 import { RequestRes, Web3WalletPermission } from './types'
 
@@ -148,30 +148,8 @@ export class ProviderController {
 
   @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
   ethSendTransaction = async (request: ProviderRequest) => {
-    const { session } = request
     const { requestRes } = cloneDeep(request)
-
-    if (requestRes?.submittedAccountOp) {
-      const dappNetwork = this.getDappNetwork(session.origin)
-      const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
-      const txnId = await pollTxnId(
-        requestRes.submittedAccountOp.identifiedBy,
-        network,
-        this.mainCtrl.fetch,
-        this.mainCtrl.callRelayer
-      )
-      if (!txnId) throw new Error('Transaction failed!')
-
-      // delay just for better UX
-      // when the action-window is closed and the user views the dapp, we wait for the user
-      // to see the actual update in the dapp's UI once the request is resolved.
-      //
-      // do this only if we don't have to fetch the txnId
-      if (isIdentifiedByTxn(requestRes.submittedAccountOp.identifiedBy)) await delayPromise(400)
-
-      return txnId
-    }
-
+    if (requestRes?.hash) return requestRes.hash
     throw new Error('Transaction failed!')
   }
 
