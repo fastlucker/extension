@@ -20,31 +20,30 @@ const CharacterSection = () => {
       />
     )
 
-  // TODO: Replace with actual character name
-  const characterName = character.characterType
+  const xpForNextLevel = Math.ceil(((character.level + 1) * 4.5) ** 2)
 
   return (
     <section className={styles.wrapper}>
       <div className={styles.characterInfo}>
         <span className={styles.kicker}>YOUR CHARACTER</span>
-        <div className={styles.characterNameAndLevel}>
-          <h1
-            className={`${styles.characterName} ${
-              characterName.length > LONG_NAME_THRESHOLD ? styles.small : ''
-            }`}
-          >
-            {characterName}
-          </h1>
-          <div className={styles.levelWrapper}>
-            <div className={styles.innerCircle}>
-              <span className={styles.level}>{character.level}</span>
-            </div>
+        <h1
+          className={`${styles.characterName} ${
+            character?.characterName.length > LONG_NAME_THRESHOLD ? styles.small : ''
+          }`}
+        >
+          {character?.characterName}
+        </h1>
+        <div className={styles.levelWrapper}>
+          <div className={styles.levelInfo}>
+            <span className={styles.level}>Level {character.level}</span>
+            <span className={styles.xp}>
+              {character.xp} / {xpForNextLevel} XP
+            </span>
+          </div>
+          <div className={styles.levelProgress}>
             <div
-              className={styles.outerCircle}
-              style={{
-                // @SCSS-VAR: $accent, $tertiaryBackground
-                background: `conic-gradient(#e75132 0% ${character.level}%, #eaddc9 ${character.level}% 100%)`
-              }}
+              className={styles.levelProgressBar}
+              style={{ width: `${(character.xp / xpForNextLevel) * 100}%` }}
             />
           </div>
         </div>
