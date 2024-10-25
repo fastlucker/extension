@@ -15,7 +15,7 @@ import {
 } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
 import { getRpcProvider } from '@ambire-common/services/provider'
-import { APP_VERSION } from '@common/config/env'
+import { APP_VERSION, isProd } from '@common/config/env'
 import formatDecimals from '@common/utils/formatDecimals'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
@@ -50,6 +50,21 @@ export class ProviderController {
     this.isUnlocked = this.mainCtrl.keystore.isReadyToStoreKeys
       ? this.mainCtrl.keystore.isUnlocked
       : true
+  }
+
+  _internalGetAccounts = (origin: string) => {
+    const WHITELISTED_ORIGINS = ['https://legends.ambire.com', 'https://legendi.ambire.com']
+
+    if (!isProd) {
+      // Legends local dev
+      WHITELISTED_ORIGINS.push('http://localhost:19006')
+    }
+
+    if (WHITELISTED_ORIGINS.includes(origin)) {
+      return this.mainCtrl.accounts.accounts
+    }
+
+    return this.mainCtrl.accounts.selectedAccount ? [this.mainCtrl.accounts.selectedAccount] : []
   }
 
   getDappNetwork = (origin: string) => {
@@ -90,9 +105,8 @@ export class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    const account = this.mainCtrl.accounts.selectedAccount
-      ? [this.mainCtrl.accounts.selectedAccount]
-      : []
+    const account = this._internalGetAccounts(origin)
+
     this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
@@ -127,7 +141,7 @@ export class ProviderController {
       return []
     }
 
-    return this.mainCtrl.accounts.selectedAccount ? [this.mainCtrl.accounts.selectedAccount] : []
+    return this._internalGetAccounts(origin)
   }
 
   ethCoinbase = async ({ session: { origin } }: DappProviderRequest) => {

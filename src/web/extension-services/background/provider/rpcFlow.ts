@@ -25,6 +25,7 @@ const flowContext = flow
   .use(async ({ request, mainCtrl, mapMethod }, next) => {
     const { method, params } = request
     const providerCtrl = new ProviderController(mainCtrl)
+    console.log('providerCtrl', providerCtrl)
     if (!(providerCtrl as any)[mapMethod]) {
       if (method.startsWith('eth_') || method === 'net_version') {
         return providerCtrl.ethRpc(request)
@@ -45,6 +46,8 @@ const flowContext = flow
     } = request
 
     const providerCtrl = new ProviderController(mainCtrl)
+    console.log('providerCtrl', providerCtrl)
+
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       const isUnlock = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
 
@@ -76,6 +79,7 @@ const flowContext = flow
       session: { origin, name, icon }
     } = request
     const providerCtrl = new ProviderController(mainCtrl)
+    console.log('providerCtrl', providerCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       if (!mainCtrl.dapps.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
@@ -117,6 +121,8 @@ const flowContext = flow
   .use(async (props, next) => {
     const { request, mainCtrl, mapMethod } = props
     const providerCtrl = new ProviderController(mainCtrl)
+    console.log('providerCtrl', providerCtrl)
+
     const [requestType, condition] =
       Reflect.getMetadata('ACTION_REQUEST', providerCtrl, mapMethod) || []
     if (requestType && (!condition || !condition(props))) {
@@ -136,6 +142,7 @@ const flowContext = flow
   })
   .use(async ({ request, mainCtrl, mapMethod, requestRes }) => {
     const providerCtrl = new ProviderController(mainCtrl)
+    console.log('providerCtrl', providerCtrl)
 
     return Promise.resolve((providerCtrl as any)[mapMethod]({ ...request, requestRes }))
   })
