@@ -26,14 +26,7 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
   }
 
   if (action.type === CardActionType.calls) {
-    return (
-      <SendAccOp
-        action={action}
-        onComplete={() => {
-          alert('TODO')
-        }}
-      />
-    )
+    return <SendAccOp action={action} onComplete={onComplete} />
   }
 
   return <div>Invalid action type</div>

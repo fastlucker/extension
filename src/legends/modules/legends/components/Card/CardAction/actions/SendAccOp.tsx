@@ -46,14 +46,17 @@ const SendAccOp: FC<Props> = ({ onComplete, action }) => {
       }
     })
 
+    // TODO - Debug why `wallet_sendCalls` Promise doesn't resolve.
+    // Because of this, we complete the Step action earlier here, as if we place it after the Promise,
+    // completion won't be invoked.
+    setIsInProgress(false)
+    onComplete()
+
     await window.ambire.request({
       method: 'wallet_sendCalls',
       params: [{ calls: formattedCalls, from: await signer.getAddress() }]
     })
-
-    setIsInProgress(false)
-    onComplete()
-  }, [lastConnectedV2Account, changeNetworkToBase])
+  }, [lastConnectedV2Account, changeNetworkToBase, onComplete, action.calls])
 
   return (
     <CardActionButton
