@@ -1,10 +1,11 @@
 import React, { FC, useCallback, useState } from 'react'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
+import { ETHEREUM_CHAIN_ID } from '@legends/constants/network'
 
 import { CardAction } from '@legends/modules/legends/types'
 import { BrowserProvider } from 'ethers'
-import CardActionWrapper from './CardActionWrapper'
+import CardActionButton from './CardActionButton'
 
 type Props = {
   onComplete: () => void
@@ -20,7 +21,7 @@ const SendAccOp: FC<Props> = ({ onComplete, action }) => {
     try {
       await window.ambire.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: 1 }] // TODO - pass chain id
+        params: [{ chainId: ETHEREUM_CHAIN_ID }]
       })
     } catch (e) {
       console.error(e)
@@ -51,10 +52,11 @@ const SendAccOp: FC<Props> = ({ onComplete, action }) => {
     })
 
     setIsInProgress(false)
+    onComplete()
   }, [lastConnectedV2Account, changeNetworkToBase])
 
   return (
-    <CardActionWrapper
+    <CardActionButton
       isLoading={isInProgress}
       loadingText="Signing..."
       buttonText="Proceed"
