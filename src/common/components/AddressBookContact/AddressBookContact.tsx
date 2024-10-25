@@ -93,7 +93,11 @@ const AddressBookContact: FC<Props> = ({
   }, [closeTooltip])
 
   const isSmart = useMemo(() => {
-    return account ? isSmartAccount(account) : undefined
+    return account ? isSmartAccount(account) : false
+  }, [account])
+
+  const displayTypeBadge = useMemo(() => {
+    return !!account
   }, [account])
 
   return (
@@ -114,7 +118,7 @@ const AddressBookContact: FC<Props> = ({
       testID={testID}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        <Avatar pfp={address} size={32} isSmart={isSmart} />
+        <Avatar pfp={address} size={32} isSmart={isSmart} displayTypeBadge={displayTypeBadge} />
         <View>
           {isEditable ? (
             <Editable

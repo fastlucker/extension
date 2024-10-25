@@ -1,22 +1,26 @@
 import React, { useContext, useEffect } from 'react'
+import { View } from 'react-native'
 
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-import TermsComponent from '@web/modules/terms/components'
 
-const TermsSettingsScreen = () => {
+import SavedSeedControlOption from './components/SavedSeedControlOption'
+
+const SecurityAndPrivacyScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
 
   useEffect(() => {
-    setCurrentSettingsPage('terms-of-service')
+    setCurrentSettingsPage('security')
   }, [setCurrentSettingsPage])
 
   return (
     <>
-      <SettingsPageHeader title="Terms of Service" />
-      <TermsComponent />
+      <SettingsPageHeader title="Security & Privacy" />
+      <View>
+        <SavedSeedControlOption />
+      </View>
     </>
   )
 }
 
-export default React.memo(TermsSettingsScreen)
+export default SecurityAndPrivacyScreen

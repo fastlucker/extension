@@ -15,7 +15,7 @@ interface Props {
   account: Account
   openAddAccountBottomSheet?: () => void
   keyIconColor?: string
-  isSettings?: boolean
+  showExportImport?: boolean
 }
 
 const AccountKeys: FC<Props> = ({
@@ -23,7 +23,7 @@ const AccountKeys: FC<Props> = ({
   account,
   openAddAccountBottomSheet,
   keyIconColor,
-  isSettings
+  showExportImport
 }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
@@ -90,7 +90,7 @@ const AccountKeys: FC<Props> = ({
               account={account}
               openAddAccountBottomSheet={openAddAccountBottomSheet}
               keyIconColor={keyIconColor}
-              isSettings={isSettings}
+              showExportImport={showExportImport}
             />
           )
         })}

@@ -1079,6 +1079,8 @@ handleKeepAlive()
                 return await mainCtrl.keystore.changeKeystorePassword(params.newSecret)
               case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
                 return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
+              case 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL':
+                return await mainCtrl.keystore.sendSeedToUi()
 
               case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
                 return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
