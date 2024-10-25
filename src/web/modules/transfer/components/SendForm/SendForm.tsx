@@ -108,8 +108,7 @@ const SendForm = ({
   const { search } = useRoute()
   const [isEstimationLoading, setIsEstimationLoading] = useState(true)
   const [estimation, setEstimation] = useState<null | {
-    gasUsed: bigint
-    gasPrice: bigint
+    totalGasWei: bigint
     networkId: string
     updatedAt: number
   }>(null)
@@ -156,11 +155,11 @@ const SendForm = ({
       return
     }
 
-    const gasDeductedAmountBigInt = selectedToken.amount - estimation.gasUsed * estimation.gasPrice
+    const gasDeductedAmountBigInt = selectedToken.amount - estimation.totalGasWei
     const gasDeductedAmount = formatUnits(gasDeductedAmountBigInt, selectedToken.decimals)
 
     // Let the user see for himself that the amount is less than the gas fee
-    if (gasDeductedAmountBigInt > selectedToken.amount) {
+    if (gasDeductedAmountBigInt < 0n) {
       transferCtrl.update({ amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat })
       return
     }
@@ -276,7 +275,7 @@ const SendForm = ({
           nonce: accountStates[selectedAccount][selectedToken.networkId].nonce,
           calls: [
             {
-              to: '0x339d346173Af02df312ab0a6fD6520DE0E101Ac0',
+              to: ZeroAddress,
               value: selectedToken.amount,
               data: '0x'
             }
@@ -296,23 +295,30 @@ const SendForm = ({
     ])
       .then(([feeData, newEstimation]) => {
         if (!feeData.gasPrice) return
-        const fastGasSpeed = feeData.gasPrice.find(({ name }) => name === 'fast')
-        const adjustedGasEstimate = BigInt(
-          Math.floor(
-            Number(newEstimation.gasUsed + newEstimation.feePaymentOptions[0].addedNative || 0n)
-          )
-        )
+        const apeGasSpeed = feeData.gasPrice.find(({ name }) => name === 'ape')
+        // @ts-ignore
+        const gasPrice = apeGasSpeed?.gasPrice || apeGasSpeed?.baseFeePerGas
+        const addedNative = newEstimation.feePaymentOptions[0].addedNative || 0n
 
-        console.log('adjustedGasEstimate', feeData, newEstimation)
+        let totalGasWei = newEstimation.gasUsed * gasPrice + addedNative
+
+        // Add 20% to the gas fee for optimistic networks
+        if (addedNative) {
+          totalGasWei = (totalGasWei * 120n) / 100n
+        } else {
+          // Add 10% to the gas fee for all other networks
+          totalGasWei = (totalGasWei * 110n) / 100n
+        }
+
         setEstimation({
-          gasUsed: adjustedGasEstimate,
-          // @ts-ignore
-          gasPrice: fastGasSpeed?.gasPrice || fastGasSpeed?.baseFeePerGas,
+          totalGasWei,
           networkId: selectedToken.networkId,
           updatedAt: Date.now()
         })
       })
       .catch((error) => {
+        // Expected error
+        if (error?.message.includes('cancelled request')) return
         console.error('Failed to fetch gas data:', error)
       })
       .finally(() => {
