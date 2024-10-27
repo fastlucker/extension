@@ -1,27 +1,19 @@
-import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
+import { CardFromResponse, CardType } from '@legends/modules/legends/types'
 
 interface WheelSpinOfTheDayParams {
-    activity: Activity[] | null;
-    isLoading: boolean;
+  legends: CardFromResponse[] | null
+  isLegendsLoading: boolean
 }
 
-export const isWheelSpinTodayAvailable = ({ activity, isLoading }: WheelSpinOfTheDayParams): boolean => {
-    const now = new Date();
-    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    if (!activity || isLoading) return false;
-    const transaction: Activity | null = activity.find(
-        (txn: Activity) => {
-        const submittedDate = new Date(txn.submittedAt);
-        return (
-            submittedDate >= yesterday &&
-            submittedDate <= now &&
-            txn.legends.activities &&
-            txn.legends.activities.some((acc: LegendActivity) =>
-            acc.action.startsWith('WheelOfFortune')
-            )
-        );
-        }
-    ) ?? null;
+export const isWheelSpinTodayAvailable = ({
+  legends,
+  isLegendsLoading
+}: WheelSpinOfTheDayParams): boolean => {
+  if (!legends || isLegendsLoading) return false
+  const cardwheelOfFortune: CardFromResponse | null =
+    legends.find((card: CardFromResponse) => {
+      return card.action.predefinedId === 'wheelOfFortune' && card.card.type === CardType.done
+    }) ?? null
 
-    return !!transaction;
+  return !!cardwheelOfFortune
 }

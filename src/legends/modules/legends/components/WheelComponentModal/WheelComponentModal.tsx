@@ -9,7 +9,9 @@ import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
 import useToast from '@legends/hooks/useToast'
+import { useLegends } from '@legends/modules/legends/hooks'
 
 import styles from './WheelComponentModal.module.scss'
 import wheelData from './wheelData'
@@ -27,8 +29,10 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   const [prizeNumber, setPrizeNumber] = useState(6)
   const [spinOfTheDay, setSpinOfTheDay] = useState(0)
   const [isInProgress, setIsInProgress] = useState(false)
+  const { getActivity } = useActivityContext()
   const { connectedAccount, isConnectedAccountV2 } = useAccountContext()
   const { addToast } = useToast()
+  const { getLegends } = useLegends()
 
   const checkTransactionStatus = useCallback(async () => {
     if (spinOfTheDay === 1) return true
@@ -61,6 +65,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         setPrizeNumber(spinWheelActivityIndex)
         setMustSpin(true)
         setSpinOfTheDay(1)
+        getActivity()
+        getLegends()
         return true
       }
     } catch (error) {
@@ -70,7 +76,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     }
 
     return false
-  }, [connectedAccount, spinOfTheDay, addToast])
+  }, [connectedAccount, spinOfTheDay, addToast, getActivity, getLegends])
 
   const broadcastTransaction = useCallback(async () => {
     if (!connectedAccount || !isConnectedAccountV2 || !window.ambire) return
@@ -128,7 +134,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     }
   }
 
-  const getButtonLabel = (isInProgress: boolean, mustSpin: boolean, spinOfTheDay: number): string => {
+  const getButtonLabel = (): string => {
     if (isInProgress) return 'Signing...'
     if (mustSpin) return 'Spinning...'
     if (spinOfTheDay) return 'Already Spun'
@@ -167,7 +173,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           type="button"
           className={styles.button}
         >
-          {getButtonLabel(isInProgress, mustSpin, spinOfTheDay)}
+          {getButtonLabel()}
         </button>
       </div>
     </Modal>

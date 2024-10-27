@@ -11,6 +11,7 @@ type UseLegendsReturnType = {
   isLoading: boolean
   error: string | null
   completedCount: number
+  getLegends: () => void
 }
 
 const useLegends = (): UseLegendsReturnType => {
@@ -22,28 +23,25 @@ const useLegends = (): UseLegendsReturnType => {
 
   const completedCount = legends.filter((card) => card.card.type === CardType.done).length
 
+  const fetchData = async () => {
+    setError(null)
+    try {
+      const rawCards = await fetchGet(
+        `${RELAYER_URL}/legends/cards?identity=${lastConnectedV2Account}`
+      )
+
+      const sortedCards = sortCards(rawCards, isConnectedAccountV2)
+      setLegends(sortedCards)
+    } catch (e: any) {
+      console.error(e)
+      // handle error
+      setError('Internal error while fetching legends. Please reload the page or try again later.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
   useEffect(() => {
     if (!lastConnectedV2Account) return
-
-    const fetchData = async () => {
-      setError(null)
-      try {
-        const rawCards = await fetchGet(
-          `${RELAYER_URL}/legends/cards?identity=${lastConnectedV2Account}`
-        )
-
-        const sortedCards = sortCards(rawCards, isConnectedAccountV2)
-        setLegends(sortedCards)
-      } catch (e: any) {
-        console.error(e)
-        // handle error
-        setError(
-          'Internal error while fetching legends. Please reload the page or try again later.'
-        )
-      } finally {
-        setIsLoading(false)
-      }
-    }
 
     fetchData()
   }, [isConnectedAccountV2, lastConnectedV2Account])
@@ -52,7 +50,8 @@ const useLegends = (): UseLegendsReturnType => {
     legends,
     error,
     isLoading,
-    completedCount
+    completedCount,
+    getLegends: fetchData
   }
 }
 

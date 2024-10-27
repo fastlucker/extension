@@ -1,8 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Tooltip } from 'react-tooltip'
+import { Tooltip, TooltipRefProps } from 'react-tooltip'
 
-// import Tooltip from '@common/components/Tooltip'
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons/faCircleUser'
 import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
@@ -12,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import useActivityContext from '@legends/hooks/useActivityContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { isWheelSpinTodayAvailable } from '@legends/modules/legends/components/WheelComponentModal/helpers'
+import { useLegends } from '@legends/modules/legends/hooks'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import Link from './components/Link'
@@ -36,6 +36,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
   const { activity, isLoading } = useActivityContext()
+  const { legends, isLoading: isLegendsLoading } = useLegends()
   const containerRef = useRef(null)
 
   const handleModal = () => {
@@ -43,8 +44,8 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   }
 
   const wheelSpinOfTheDay = useMemo(
-    () => isWheelSpinTodayAvailable({ activity, isLoading }),
-    [activity, isLoading]
+    () => isWheelSpinTodayAvailable({ legends, isLegendsLoading }),
+    [legends, isLegendsLoading]
   )
 
   const closeTooltip = useCallback(() => {
@@ -95,16 +96,18 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             </div>
           </div>
         </div>
-        <Tooltip
-          id="wheel-tooltip"
-          openOnClick
-          closeEvents={{ click: true }}
-          className={styles.tooltip}
-          ref={tooltipRef}
-        >
-          {' '}
-          Spin the wheel is available once a day. Come back tomorrow!
-        </Tooltip>
+        {wheelSpinOfTheDay && (
+          <Tooltip
+            id="wheel-tooltip"
+            openOnClick
+            closeEvents={{ click: true }}
+            className={styles.tooltip}
+            ref={tooltipRef}
+          >
+            {' '}
+            Spin the wheel is available once a day. Come back tomorrow!
+          </Tooltip>
+        )}
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
