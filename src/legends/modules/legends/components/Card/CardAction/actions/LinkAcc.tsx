@@ -1,4 +1,4 @@
-import { BrowserProvider, Contract, Interface } from 'ethers'
+import { BrowserProvider, Contract, Interface, ZeroAddress } from 'ethers'
 import React, { FC, useCallback, useMemo, useState } from 'react'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
@@ -45,7 +45,7 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
   const [isInProgress, setIsInProgress] = useState(false)
   const [v1OrBasicSignature, setV1OrBasicSignature] = useState('')
   const [messageSignedForV2Account, setMessageSignedForV2Account] = useState('')
-
+  const [v1OrEoaAddress, setV1OrEoaAddress] = useState('')
   const activeStep = useMemo(() => {
     if (v1OrBasicSignature && isConnectedAccountV2) return STEPS.SIGN_TRANSACTION
     if (v1OrBasicSignature) return STEPS.CONNECT_V2_ACCOUNT
@@ -79,9 +79,11 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
 
   const signV1OrBasicAccountMessage = useCallback(async () => {
     if (!lastConnectedV2Account) return
+    if (!connectedAccount) return
 
     try {
       setIsInProgress(true)
+      setV1OrEoaAddress(connectedAccount)
       const signature = await window.ambire.request({
         method: 'personal_sign',
         params: [`Assign to Ambire Legends ${lastConnectedV2Account}`, connectedAccount]
@@ -109,8 +111,8 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
 
       await contract.linkAndAcceptInvite(
         lastConnectedV2Account,
-        connectedAccount,
-        lastConnectedV2Account,
+        v1OrEoaAddress,
+        ZeroAddress,
         v1OrBasicSignature
       )
       onComplete()
@@ -121,7 +123,14 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
     } finally {
       setIsInProgress(false)
     }
-  }, [lastConnectedV2Account, connectedAccount, v1OrBasicSignature, onComplete, addToast])
+  }, [
+    lastConnectedV2Account,
+    connectedAccount,
+    v1OrBasicSignature,
+    onComplete,
+    addToast,
+    v1OrEoaAddress
+  ])
 
   const onButtonClick = useCallback(async () => {
     if (!lastConnectedV2Account) return

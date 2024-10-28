@@ -57,4 +57,8 @@ const openInternalPageInTab = async (route?: string, useWebapi = true, searchPar
   }
 }
 
-export { createTab, openIndexPage, getCurrentTab, openInternalPageInTab }
+const getAllOpenedTabs = async (): Promise<Tabs.Tab[]> => {
+  return browser.tabs.query({})
+}
+
+export { createTab, openIndexPage, getCurrentTab, openInternalPageInTab, getAllOpenedTabs }

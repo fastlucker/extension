@@ -1,21 +1,19 @@
 import { fetchCaught } from '@common/services/fetch'
-import { browser } from '@web/constants/browserapi'
 
 const showEmailVaultInterest = async (
+  extensionInstanceId: string | null,
   accountCount: number,
   addToast: (text: string, opts?: { type?: 'error' }) => void
 ) => {
   try {
-    const instanceId = browser.runtime.id
-
-    if (!instanceId) throw new Error('No instance ID found')
-
+    if (!extensionInstanceId) throw new Error('Extension instance ID is missing')
     await fetchCaught(
-      `https://relayer.ambire.com/v2/getActions/createEmailAccount/${instanceId}/${accountCount}`
+      `https://relayer.ambire.com/v2/getActions/createEmailAccount/${extensionInstanceId}/${accountCount}`
     )
     addToast('Successfully registered interest in email-recoverable accounts')
-  } catch {
+  } catch (e) {
     addToast('Failed to register interest in email-recoverable accounts', { type: 'error' })
+    console.error(e)
   }
 }
 
