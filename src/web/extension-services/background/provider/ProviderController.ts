@@ -53,15 +53,25 @@ export class ProviderController {
   }
 
   _internalGetAccounts = (origin: string) => {
-    const WHITELISTED_ORIGINS = ['https://legends.ambire.com', 'https://legendi.ambire.com']
+    const WHITELISTED_ORIGINS = ['https://legends.ambire.com', 'https://legends-staging.ambire.com']
 
     if (!isProd) {
       // Legends local dev
       WHITELISTED_ORIGINS.push('http://localhost:19006')
+      WHITELISTED_ORIGINS.push('http://localhost:19007')
     }
 
     if (WHITELISTED_ORIGINS.includes(origin)) {
-      return this.mainCtrl.accounts.accounts
+      const allOtherAccountAddresses = this.mainCtrl.accounts.accounts.reduce((prevValue, acc) => {
+        if (acc.addr !== this.mainCtrl.accounts.selectedAccount) {
+          prevValue.push(acc.addr)
+        }
+
+        return prevValue
+      }, [] as string[])
+
+      // Selected account goes first in the list
+      return [this.mainCtrl.accounts.selectedAccount, ...allOtherAccountAddresses]
     }
 
     return this.mainCtrl.accounts.selectedAccount ? [this.mainCtrl.accounts.selectedAccount] : []

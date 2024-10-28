@@ -54,6 +54,7 @@ const WEB_ROUTES = {
   dappConnectRequest: 'dapp-connect-request',
   watchAsset: 'watch-asset',
   addChain: 'add-chain',
+  switchAccount: 'switch-account',
   hardwareWalletSelect: 'hardware-wallet/select',
   hardwareWalletReconnect: 'hardware-wallet/reconnect',
   hardwareWalletLedger: 'hardware-wallet/ledger',

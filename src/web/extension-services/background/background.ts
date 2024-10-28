@@ -895,6 +895,8 @@ handleKeepAlive()
                 return mainCtrl.rejectUserRequest(params.err, params.id)
               case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
                 return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
+              case 'MAIN_CONTROLLER_RESOLVE_SWITCH_ACCOUNT_REQUEST':
+                return await mainCtrl.resolveSwitchAccountAction(params.actionId)
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOpAction(
                   params.err,
