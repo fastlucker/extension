@@ -214,10 +214,10 @@ class TrezorSigner implements KeystoreSigner {
       version: _domain.version ?? undefined,
       chainId: _domain.chainId ? Number(_domain.chainId) : undefined,
       verifyingContract: _domain.verifyingContract ?? undefined,
-      salt:
-        typeof _domain.salt === 'string'
-          ? new TextEncoder().encode(_domain.salt).buffer // TODO: Never tested.
-          : _domain.salt ?? undefined
+      // Cast to ArrayBuffer, because of a type mismatch. Trying to convert an incoming string
+      // to ArrayBuffer breaks the Trezor SDK (new TextEncoder().encode(_domain.salt).buffer),
+      // so leaving it as is because this is getting handled all right.
+      salt: (_domain.salt ?? undefined) as ArrayBuffer | undefined
     }
     // Cast to being key of the normalized types, TS doesn't catch this automatically
     const primaryType = _primaryType as keyof typeof types
