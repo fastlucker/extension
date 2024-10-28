@@ -61,6 +61,8 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
+import { handleCleanDappSessions } from './handlers/handleCleanDappSessions'
+
 function stateDebug(event: string, stateToLog: object) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
@@ -190,6 +192,8 @@ handleKeepAlive()
     // which already provides a native and well-optimized fetch API.
     return fetch(url, initWithCustomHeaders)
   }
+
+  await handleCleanDappSessions()
 
   mainCtrl = new MainController({
     storage,
