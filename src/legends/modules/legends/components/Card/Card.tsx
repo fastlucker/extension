@@ -75,7 +75,14 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
       )}
       {isCompleted ? (
         <div className={styles.completed}>
-          <span className={styles.completedText}>Completed</span>
+          <span className={styles.completedText}>
+            Completed <br />
+            {action.predefinedId === 'wheelOfFortune' ? (
+              <span className={styles.completedTextAvailable}>{`Available in ${
+                24 - new Date().getHours()
+              } hours`}</span>
+            ) : null}
+          </span>
         </div>
       ) : null}
       <div className={styles.imageAndBadges}>

@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { fetchGet } from '@common/services/fetch'
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
+import { isWheelSpinTodayDone } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardType } from '@legends/modules/legends/types'
 import { sortCards } from '@legends/modules/legends/utils'
 
@@ -12,6 +14,7 @@ type UseLegendsReturnType = {
   error: string | null
   completedCount: number
   getLegends: () => void
+  wheelSpinOfTheDay: boolean
 }
 
 const useLegends = (): UseLegendsReturnType => {
@@ -20,10 +23,15 @@ const useLegends = (): UseLegendsReturnType => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [legends, setLegends] = useState<CardFromResponse[]>([])
+  const { activity } = useActivityContext()
 
   const completedCount = legends.filter((card) => card.card.type === CardType.done).length
+  const wheelSpinOfTheDay = useMemo(
+    () => isWheelSpinTodayDone({ legends, activity }),
+    [legends, activity]
+  )
 
-  const fetchData = async () => {
+  const getLegends = async () => {
     setError(null)
     try {
       const rawCards = await fetchGet(
@@ -43,7 +51,7 @@ const useLegends = (): UseLegendsReturnType => {
   useEffect(() => {
     if (!lastConnectedV2Account) return
 
-    fetchData()
+    getLegends()
   }, [isConnectedAccountV2, lastConnectedV2Account])
 
   return {
@@ -51,7 +59,8 @@ const useLegends = (): UseLegendsReturnType => {
     error,
     isLoading,
     completedCount,
-    getLegends: fetchData
+    getLegends,
+    wheelSpinOfTheDay
   }
 }
 

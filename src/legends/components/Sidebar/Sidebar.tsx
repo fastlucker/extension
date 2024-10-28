@@ -9,7 +9,6 @@ import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import { isWheelSpinTodayAvailable } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { useLegends } from '@legends/modules/legends/hooks'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
@@ -34,17 +33,12 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const { legends, isLoading: isLegendsLoading } = useLegends()
+  const { wheelSpinOfTheDay } = useLegends()
   const containerRef = useRef(null)
 
   const handleModal = () => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
   }
-
-  const wheelSpinOfTheDay = useMemo(
-    () => isWheelSpinTodayAvailable({ legends, isLegendsLoading }),
-    [legends, isLegendsLoading]
-  )
 
   const closeTooltip = useCallback(() => {
     tooltipRef?.current?.close()
@@ -101,8 +95,8 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             className={styles.tooltip}
             ref={tooltipRef}
           >
-            {' '}
-            Spin the wheel is available once a day. Come back tomorrow!
+            Spin the wheel is available once a day. Come back after {24 - new Date().getHours()}{' '}
+            hours!
           </Tooltip>
         )}
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
