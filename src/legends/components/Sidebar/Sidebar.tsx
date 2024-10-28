@@ -8,7 +8,9 @@ import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
 import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import useActivityContext from '@legends/hooks/useActivityContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
+import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { useLegends } from '@legends/modules/legends/hooks'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
@@ -30,6 +32,12 @@ const NAVIGATION_LINKS = [
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const tooltipRef = useRef<TooltipRefProps>(null)
+  const { activity } = useActivityContext()
+
+  const hoursUntilMidnight = useMemo(
+    () => (activity ? calculateHoursUntilMidnight(activity) : 0),
+    [activity]
+  )
 
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
@@ -95,8 +103,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             className={styles.tooltip}
             ref={tooltipRef}
           >
-            Spin the wheel is available once a day. Come back after {24 - new Date().getHours()}{' '}
-            hours!
+            Lucksmith is available once a day. Come back after {hoursUntilMidnight} hours!
           </Tooltip>
         )}
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />

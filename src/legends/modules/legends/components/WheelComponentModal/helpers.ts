@@ -6,6 +6,19 @@ interface WheelSpinOfTheDayParams {
   activity: Activity[] | null
 }
 
+export const calculateHoursUntilMidnight = (activity: Activity[]) => {
+  const submittedAt = activity && activity[0].submittedAt
+
+  const submittedAtOffset = submittedAt
+    ? new Date(submittedAt).getTimezoneOffset()
+    : new Date().getTimezoneOffset()
+
+  const adjustedNow = new Date(new Date().getTime() - submittedAtOffset * 60000)
+
+  // Calculate hours and minutes left until midnight in the adjusted timezone
+  return 23 - adjustedNow.getUTCHours()
+}
+
 export const isWheelSpinTodayDone = ({ legends, activity }: WheelSpinOfTheDayParams): boolean => {
   if (!legends || !legends.length) return true
   const today = new Date().toISOString().split('T')[0]

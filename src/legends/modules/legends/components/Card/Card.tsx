@@ -1,10 +1,12 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 
 import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from '@legends/components/Modal'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
+import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
 import { EOA_ACCESSIBLE_CARDS, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
@@ -40,6 +42,7 @@ const getBadgeType = (reward: number, type: CardXpType) => {
 
 const Card: FC<Props> = ({ title, image, description, children, xp, card, action }) => {
   const { isConnectedAccountV2 } = useAccountContext()
+  const { activity } = useActivityContext()
 
   const isCompleted = card?.type === CardType.done
   const isRecurring = card?.type === CardType.recurring
@@ -58,6 +61,11 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
     action.predefinedId === 'wheelOfFortune'
       ? setIsFortuneWheelModalOpen(false)
       : setIsActionModalOpen(false)
+
+  const hoursUntilMidnight = useMemo(
+    () => (activity ? calculateHoursUntilMidnight(activity) : 0),
+    [activity]
+  )
 
   return (
     <div className={`${styles.wrapper}`}>
@@ -78,9 +86,9 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
           <span className={styles.completedText}>
             Completed <br />
             {action.predefinedId === 'wheelOfFortune' ? (
-              <span className={styles.completedTextAvailable}>{`Available in ${
-                24 - new Date().getHours()
-              } hours`}</span>
+              <span
+                className={styles.completedTextAvailable}
+              >{`Available in ${hoursUntilMidnight} hours`}</span>
             ) : null}
           </span>
         </div>
