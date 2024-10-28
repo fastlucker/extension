@@ -74,7 +74,7 @@ const AddressBookDropdown: FC<Props> = ({
         {walletAccountsSourcedContacts.length > 0 ? (
           <>
             <TitleAndIcon title={t('My Wallets')} icon={WalletFilledIcon} />
-            {walletAccountsSourcedContacts.map((contact) => (
+            {walletAccountsSourcedContacts.map((contact, index) => (
               <AddressBookContact
                 testID={`address-book-my-wallet-contact-${index + 1}`}
                 key={contact.address}

@@ -73,7 +73,10 @@ export const TEST_IDS = {
   addAccountField: 'add-account-field',
   importExistingSeedBtn: 'import-existing-seed-btn',
   createSeedBtn: 'create-seed-btn',
-  importFromSavedSeed: 'import-from-saved-seed'
+  importFromSavedSeed: 'import-from-saved-seed',
+  nativeTokenPolygonDyn: 'token-0x0000000000000000000000000000000000000000-polygon',
+  topUpButton: 'top-up-button',
+  tokenSend: 'token-send'
 }
 
 export const SELECTORS = Object.fromEntries(
