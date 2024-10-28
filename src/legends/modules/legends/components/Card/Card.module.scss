@@ -7,7 +7,7 @@
   min-height: 27.5rem;
   background-color: $secondaryBackground;
   border-radius: $secondaryBorderRadius;
-
+  
   .completed {
     background-color: rgba(0, 0, 0, 0.5); // TODO: Use a variable
     position: absolute;
@@ -29,6 +29,7 @@
     }
   }
 
+ 
   .imageAndBadges {
     position: relative;
     width: 100%;
@@ -135,6 +136,10 @@
       }
     }
   }
+}
+
+.disabled {
+  opacity: 0.5;
 }
 
 .modalText {

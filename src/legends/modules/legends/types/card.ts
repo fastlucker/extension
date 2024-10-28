@@ -38,4 +38,5 @@ export interface CardFromResponse {
     type: CardType
   }
   image: string
+  disabled?: boolean
 }

@@ -19,62 +19,60 @@
       font-weight: 600;
       color: $tertiaryText;
     }
-    .characterNameAndLevel {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+
+    .characterName {
       margin-bottom: 0.25rem;
+      flex: 1;
+      font-family: $secondaryFont;
+      font-size: 4rem;
+      line-height: 1.2;
+      font-weight: 500;
+      color: $primaryText;
+      text-transform: capitalize;
 
-      .characterName {
-        flex: 1;
-        font-family: $secondaryFont;
-        font-size: 4rem;
-        line-height: 1;
-        font-weight: 500;
-        color: $primaryText;
-        text-transform: capitalize;
+      &.small {
+        font-size: 3rem;
+      }
+    }
 
-        &.small {
-          font-size: 3rem;
+    .levelWrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-bottom: 1.25rem;
+
+      .levelInfo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .level {
+          font-size: 1rem;
+          font-weight: 600;
+          color: $secondaryText;
+        }
+
+        .xp {
+          font-size: 0.875rem;
         }
       }
 
-      /* Container for the circular progress bar */
-      .levelWrapper {
+      .levelProgress {
+        flex: 1;
+        background-color: $secondaryBackground;
+        border-radius: 0.25rem;
+        overflow: hidden;
         position: relative;
-        width: 2.5rem;
-        height: 2.5rem;
+        min-width: 20rem;
 
-        /* Outer progress circle */
-        .outerCircle {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-        }
-
-        /* Inner white circle */
-        .innerCircle {
-          position: absolute;
-          z-index: 3;
-          top: 10%;
-          left: 10%;
-          width: 80%;
-          height: 80%;
-          background-color: $primaryBackground;
-          border-radius: 50%;
+        .levelProgressBar {
+          height: 1.5rem;
+          background-color: $accent;
           display: flex;
           align-items: center;
-          justify-content: center;
-
-          /* Level number in the middle */
-          .level {
-            color: $primaryText;
-            font-family: $primaryFont;
-            font-size: 1.5rem;
-            line-height: 1;
-            font-weight: 500;
-          }
+          justify-content: flex-end;
+          white-space: nowrap;
+          transition: width 0.3s ease;
         }
       }
     }

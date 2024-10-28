@@ -27,8 +27,20 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
   const { maxWidthSize } = useWindowSize()
 
   const summary = useMemo(() => {
-    const calls = state?.stepsState?.calls
+    if (!state || !state.stepsState) return []
+    const calls = state.stepsState.calls
     if (!calls) return []
+
+    // if there's an userOpHash & txnId but no callData decoded,
+    // it means handleOps has not been called directly and we cannot decode
+    // the data correctly
+    if (
+      state.txnId &&
+      state.userOpHash &&
+      state.stepsState.userOp &&
+      state.stepsState.userOp.callData === ''
+    )
+      return []
 
     return calls.map((call, i) => (
       <TransactionSummary
@@ -46,7 +58,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
         size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
       />
     ))
-  }, [state?.stepsState?.calls, state?.network, state?.handleOpenExplorer])
+  }, [state])
 
   if (state && !state?.isInitialized)
     return (
