@@ -1235,15 +1235,14 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
     // eslint-disable-next-line no-await-in-loop
     await wait(200)
   }
-  const sessionId = meta.sender?.tab?.id
-  if (sessionId === undefined || !meta.sender?.url) {
+  const tabId = meta.sender?.tab?.id
+  if (tabId === undefined || !meta.sender?.url) {
     return
   }
 
   const origin = getOriginFromUrl(meta.sender.url)
-  const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
-  session.setMessenger(bridgeMessenger)
-
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
   // Temporarily resolves the subscription methods as successful
   // but the rpc block subscription is actually not implemented because it causes app crashes
   if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
@@ -1279,7 +1278,7 @@ try {
       // eslint-disable-next-line no-await-in-loop
       await wait(200)
     }
-    const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
+    const sessionKeys = Object.keys(mainCtrl.dapps.dappSessions || {})
     // eslint-disable-next-line no-restricted-syntax
     for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
       mainCtrl.dapps.deleteDappSession(key)
