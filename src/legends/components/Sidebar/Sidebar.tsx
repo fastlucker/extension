@@ -8,7 +8,6 @@ import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
 import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import useActivityContext from '@legends/hooks/useActivityContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { isWheelSpinTodayAvailable } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { useLegends } from '@legends/modules/legends/hooks'
@@ -35,7 +34,6 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const { activity, isLoading } = useActivityContext()
   const { legends, isLoading: isLegendsLoading } = useLegends()
   const containerRef = useRef(null)
 
@@ -99,7 +97,6 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         {wheelSpinOfTheDay && (
           <Tooltip
             id="wheel-tooltip"
-            openOnClick
             closeEvents={{ click: true }}
             className={styles.tooltip}
             ref={tooltipRef}

@@ -9,7 +9,7 @@ export const isWheelSpinTodayAvailable = ({
   legends,
   isLegendsLoading
 }: WheelSpinOfTheDayParams): boolean => {
-  if (!legends || isLegendsLoading) return false
+  if (!legends || isLegendsLoading) return true
   const cardwheelOfFortune: CardFromResponse | null =
     legends.find((card: CardFromResponse) => {
       return card.action.predefinedId === 'wheelOfFortune' && card.card.type === CardType.done
