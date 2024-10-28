@@ -5,6 +5,7 @@ import {
   ExternalSignerController,
   KeystoreSigner
 } from '@ambire-common/interfaces/keystore'
+import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import {
   getMessageFromTrezorErrorCode,
   normalizeTrezorMessage
@@ -197,32 +198,32 @@ class TrezorSigner implements KeystoreSigner {
   }
 
   signTypedData: KeystoreSigner['signTypedData'] = async ({
-    domain,
-    types,
+    domain: _domain,
+    types: _types,
     message,
-    primaryType
-  }) => {
+    primaryType: _primaryType
+  }: TypedMessage) => {
     await this.#prepareForSigning()
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    const normalizedTypes = { ...types, EIP712Domain: types.EIP712Domain ?? [] }
-    const normalizedDomain = {
-      name: domain.name ?? undefined,
-      version: domain.version ?? undefined,
-      chainId: domain.chainId ? Number(domain.chainId) : undefined,
-      verifyingContract: domain.verifyingContract ?? undefined,
+    // Normalize the types to match the Trezor expected types
+    const types = { ..._types, EIP712Domain: _types.EIP712Domain ?? [] }
+    // Normalize the domain object to match the expected Trezor's domain object
+    const domain = {
+      name: _domain.name ?? undefined,
+      version: _domain.version ?? undefined,
+      chainId: _domain.chainId ? Number(_domain.chainId) : undefined,
+      verifyingContract: _domain.verifyingContract ?? undefined,
       salt:
-        typeof domain.salt === 'string'
-          ? new TextEncoder().encode(domain.salt).buffer
-          : domain.salt ?? undefined
+        typeof _domain.salt === 'string'
+          ? new TextEncoder().encode(_domain.salt).buffer // TODO: Never tested.
+          : _domain.salt ?? undefined
     }
+    // Cast to being key of the normalized types, TS doesn't catch this automatically
+    const primaryType = _primaryType as keyof typeof types
+
     const dataWithHashes = transformTypedData(
-      {
-        domain: normalizedDomain,
-        types: normalizedTypes,
-        message,
-        primaryType // TODO: How about PermitWitnessTransferFrom? Cast to 'EIP712Domain'?
-      },
+      { domain, types, message, primaryType },
       true // Only v4 of typed data signing is supported by `transformTypedData`
     )
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -230,12 +231,7 @@ class TrezorSigner implements KeystoreSigner {
     const res = await this.#withNormalizedError(() =>
       this.controller!.walletSDK.ethereumSignTypedData({
         path,
-        data: {
-          types: normalizedTypes,
-          message,
-          domain: normalizedDomain,
-          primaryType
-        },
+        data: { types, message, domain, primaryType },
         metamask_v4_compat: true,
         // Trezor 1 only supports blindly signing hashes
         domain_separator_hash: domain_separator_hash ?? undefined,
