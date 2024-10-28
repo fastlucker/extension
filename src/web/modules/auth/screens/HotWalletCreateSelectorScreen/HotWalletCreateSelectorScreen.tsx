@@ -16,6 +16,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import HotWalletCreateCards from '@web/modules/auth/components/HotWalletCreateCards'
 import { showEmailVaultInterest } from '@web/modules/auth/utils/emailVault'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 
 const HotWalletCreateSelectorScreen = () => {
   const { t } = useTranslation()
@@ -23,11 +24,11 @@ const HotWalletCreateSelectorScreen = () => {
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { accounts } = useAccountsControllerState()
-  const { isReadyToStoreKeys } = useKeystoreControllerState()
+  const { isReadyToStoreKeys, keyStoreUid } = useKeystoreControllerState()
 
   const onOptionPress = async (flow: 'email' | 'create-seed') => {
     if (flow === 'email') {
-      await showEmailVaultInterest(accounts.length, addToast)
+      await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
       // @TODO: Implement email vault
       return
     }

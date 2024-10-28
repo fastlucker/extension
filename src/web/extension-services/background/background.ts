@@ -47,6 +47,7 @@ import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorCon
 import LatticeSigner from '@web/modules/hardware-wallet/libs/LatticeSigner'
 import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
@@ -147,9 +148,9 @@ handleKeepAlive()
     // As of v4.26.0, custom extension-specific headers. TBD for the other apps.
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
     initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
-    const sliceOfKeyStoreUid = mainCtrl.keystore.keyStoreUid?.substring(10, 21) || ''
+    const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
     const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
-    initWithCustomHeaders.headers['x-app-source'] = sliceOfKeyStoreUid + inviteVerifiedCode
+    initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
 
     // As of v4.36.0, for metric purposes, pass the account keys count as an
     // additional param for the batched velcro discovery requests.
