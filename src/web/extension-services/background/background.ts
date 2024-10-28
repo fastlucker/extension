@@ -22,6 +22,7 @@ import {
   getActiveRoutesUpdateInterval
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import wait from '@ambire-common/utils/wait'
+import { isProd } from '@common/config/env'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, SOCKET_API_KEY, VELCRO_URL } from '@env'
 import { browser } from '@web/constants/browserapi'
@@ -775,7 +776,9 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
   // It makes Puppeteer tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
   if (process.env.IS_TESTING === 'true') return
-  browser.runtime.setUninstallURL('https://www.ambire.com/uninstall')
+  if (isProd) {
+    browser.runtime.setUninstallURL('https://www.ambire.com/uninstall')
+  }
   if (reason === 'install') {
     setTimeout(() => {
       const extensionURL = browser.runtime.getURL('tab.html')
