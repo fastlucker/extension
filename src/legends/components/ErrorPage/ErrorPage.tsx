@@ -4,8 +4,8 @@ import Alert from '../Alert'
 import styles from './ErrorPage.module.scss'
 
 type Props = {
-  title: string
-  error: string
+  title?: string
+  error?: string
 }
 
 const ErrorPage: FC<Props> = ({ title, error }) => {
@@ -24,9 +24,11 @@ const ErrorPage: FC<Props> = ({ title, error }) => {
           Please reload the page. If the problem persists, please contact support.
         </h2>
       </div>
-      <div className={styles.mb}>
-        <Alert type="error" title={title} message={error} />
-      </div>
+      {title && error ? (
+        <div className={styles.mb}>
+          <Alert type="error" title={title} message={error} />
+        </div>
+      ) : null}
       <button onClick={onButtonClick} type="button" className={styles.button}>
         Reload
       </button>
