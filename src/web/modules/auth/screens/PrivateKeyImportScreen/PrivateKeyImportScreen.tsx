@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
@@ -115,7 +116,7 @@ const PrivateKeyImportScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Import your private Key')}>
+        <Panel title={t('Import your private key')}>
           <Controller
             control={control}
             rules={{ validate: (value) => handleValidation(value), required: true }}
@@ -140,6 +141,11 @@ const PrivateKeyImportScreen = () => {
                 />
               )
             }}
+          />
+          <Alert
+            title="No smart accounts"
+            text="Private keys are for basic accounts. To start using smart accounts, please create/import a seed or connect a hardware wallet"
+            type="warning"
           />
         </Panel>
       </TabLayoutWrapperMainContent>
