@@ -5,6 +5,7 @@ import {
   ExternalSignerController,
   KeystoreSigner
 } from '@ambire-common/interfaces/keystore'
+import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import {
   getMessageFromTrezorErrorCode,
   normalizeTrezorMessage
@@ -197,32 +198,45 @@ class TrezorSigner implements KeystoreSigner {
   }
 
   signTypedData: KeystoreSigner['signTypedData'] = async ({
-    domain,
-    types,
+    domain: _domain,
+    types: _types,
     message,
-    primaryType
-  }) => {
+    primaryType: _primaryType
+  }: TypedMessage) => {
     await this.#prepareForSigning()
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    const dataWithHashes = transformTypedData({ domain, types, message, primaryType }, true)
+    // Normalize the types to match the Trezor expected types
+    const types = { ..._types, EIP712Domain: _types.EIP712Domain ?? [] }
+    // Normalize the domain object to match the expected Trezor's domain object
+    const domain = {
+      name: _domain.name ?? undefined,
+      version: _domain.version ?? undefined,
+      chainId: _domain.chainId ? Number(_domain.chainId) : undefined,
+      verifyingContract: _domain.verifyingContract ?? undefined,
+      salt:
+        typeof _domain.salt === 'string'
+          ? new TextEncoder().encode(_domain.salt).buffer // TODO: Never tested.
+          : _domain.salt ?? undefined
+    }
+    // Cast to being key of the normalized types, TS doesn't catch this automatically
+    const primaryType = _primaryType as keyof typeof types
+
+    const dataWithHashes = transformTypedData(
+      { domain, types, message, primaryType },
+      true // Only v4 of typed data signing is supported by `transformTypedData`
+    )
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { domain_separator_hash, message_hash } = dataWithHashes
-
     const res = await this.#withNormalizedError(() =>
       this.controller!.walletSDK.ethereumSignTypedData({
         path,
-        data: {
-          types,
-          message,
-          domain,
-          primaryType
-        },
+        data: { types, message, domain, primaryType },
         metamask_v4_compat: true,
         // Trezor 1 only supports blindly signing hashes
-        domain_separator_hash,
-        message_hash
-      } as any)
+        domain_separator_hash: domain_separator_hash ?? undefined,
+        message_hash: message_hash ?? undefined
+      })
     )
 
     if (!res.success)
