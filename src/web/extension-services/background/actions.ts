@@ -312,6 +312,9 @@ type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
   params: { keyAddr: string }
 }
+type KeystoreControllerDeleteSavedSeed = {
+  type: 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED'
+}
 type KeystoreControllerSendSeedOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
 }
@@ -619,3 +622,4 @@ export type Action =
   | MainControllerTraceCallAction
   | ImportSmartAccountJson
   | KeystoreControllerSendSeedOverChannel
+  | KeystoreControllerDeleteSavedSeed

@@ -38,7 +38,7 @@ const SavedSeedControlOption = () => {
         style={{
           width: 80
         }}
-        text={t('View')}
+        text={t('Manage')}
         disabled={!keystoreState.hasKeystoreSavedSeed}
         onPress={goToSavedSeed}
       />

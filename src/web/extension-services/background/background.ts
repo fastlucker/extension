@@ -1081,6 +1081,8 @@ handleKeepAlive()
                 return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
               case 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL':
                 return await mainCtrl.keystore.sendSeedToUi()
+              case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':
+                return await mainCtrl.keystore.deleteSavedSeed()
 
               case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
                 return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
