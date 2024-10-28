@@ -25,9 +25,12 @@ import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, SOCKET_API_KEY, VELCRO_URL } from '@env'
 import { browser } from '@web/constants/browserapi'
+import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
+import { handleActions } from '@web/extension-services/background/handlers/handleActions'
+import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
@@ -45,9 +48,6 @@ import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
-
-import { handleActions } from './handlers/handleActions'
-import { handleCleanDappSessions } from './handlers/handleCleanDappSessions'
 
 function stateDebug(event: string, stateToLog: object) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
@@ -657,12 +657,11 @@ handleKeepAlive()
       initPortfolioContinuousUpdate()
 
       // @ts-ignore
-      pm.addListener(port.id, async (messageType, { type, params }) => {
+      pm.addListener(port.id, async (messageType, action: Action) => {
+        const { type } = action
         try {
           if (messageType === '> background' && type) {
-            await handleActions({
-              params,
-              type,
+            await handleActions(action, {
               pm,
               mainCtrl,
               ledgerCtrl,

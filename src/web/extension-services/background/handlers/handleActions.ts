@@ -10,6 +10,7 @@ import { Network } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
+import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { PortMessenger } from '@web/extension-services/messengers'
@@ -21,27 +22,28 @@ import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIter
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 
-export const handleActions = async ({
-  params,
-  type,
-  pm,
-  mainCtrl,
-  ledgerCtrl,
-  trezorCtrl,
-  latticeCtrl,
-  walletStateCtrl,
-  autoLockCtrl
-}: {
-  params: any
-  type: any
-  pm: PortMessenger
-  mainCtrl: MainController
-  ledgerCtrl: LedgerController
-  trezorCtrl: TrezorController
-  latticeCtrl: LatticeController
-  walletStateCtrl: WalletStateController
-  autoLockCtrl: AutoLockController
-}) => {
+export const handleActions = async (
+  action: Action,
+  {
+    pm,
+    mainCtrl,
+    ledgerCtrl,
+    trezorCtrl,
+    latticeCtrl,
+    walletStateCtrl,
+    autoLockCtrl
+  }: {
+    pm: PortMessenger
+    mainCtrl: MainController
+    ledgerCtrl: LedgerController
+    trezorCtrl: TrezorController
+    latticeCtrl: LatticeController
+    walletStateCtrl: WalletStateController
+    autoLockCtrl: AutoLockController
+  }
+) => {
+  // @ts-ignore
+  const { type, params } = action
   switch (type) {
     case 'INIT_CONTROLLER_STATE': {
       if (params.controller === ('main' as any)) {
