@@ -288,9 +288,9 @@ const Tokens = ({
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
+        !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
         ...(initTab?.tokens ? sortedTokens : []),
         !sortedTokens.length && accountPortfolio?.isAllReady ? 'empty' : '',
-        !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
         'footer'
       ]}
       renderItem={renderItem}
