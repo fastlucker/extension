@@ -2,14 +2,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-param-reassign */
 
-import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
-
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
-
-const connectButtonReplacementCtrl = new ConnectButtonReplacementController({
-  isEIP6963: false
-})
-
 export interface Interceptor {
   onRequest?: (data: any) => any
   onResponse?: (res: any, data: any) => any
@@ -59,25 +52,6 @@ const setAmbireProvider = () => {
       configurable: false,
       enumerable: true,
       get() {
-        // script to determine whether the page is a dapp or not
-        // (only pages that are dapps should read the ethereum provider)
-        // the provider is called from multiple instances (current page and other extensions)
-        // we need only the calls from the current page
-        if (!connectButtonReplacementCtrl.doesWebpageReadOurProvider) {
-          try {
-            throw new Error()
-          } catch (error: any) {
-            const stack = error.stack // Parse the stack trace to get the caller info
-            if (stack) {
-              const callerPage = stack.split('\n')[2].trim()
-              if (callerPage.includes(window.location.hostname)) {
-                connectButtonReplacementCtrl.doesWebpageReadOurProvider = true
-                connectButtonReplacementCtrl.init()
-              }
-            }
-          }
-        }
-
         return window.ambire
       }
     })
@@ -90,25 +64,6 @@ const setAmbireProvider = () => {
 if (ambireIsOpera) {
   const ambireProxy = new Proxy(window.ambire, {
     get(target, property, receiver) {
-      // script to determine whether the page is a dapp or not
-      // (only pages that are dapps should read the ethereum provider)
-      // the provider is called from multiple instances (current page and other extensions)
-      // we need only the calls from the current page
-      if (!connectButtonReplacementCtrl.doesWebpageReadOurProvider) {
-        try {
-          throw new Error()
-        } catch (error: any) {
-          const stack = error.stack // Parse the stack trace to get the caller info
-          if (stack) {
-            const callerPage = stack.split('\n')[2].trim()
-            if (callerPage.includes(window.location.hostname)) {
-              connectButtonReplacementCtrl.doesWebpageReadOurProvider = true
-              connectButtonReplacementCtrl.init()
-            }
-          }
-        }
-      }
-
       return Reflect.get(target, property, receiver)
     }
   })
@@ -121,9 +76,5 @@ if (ambireIsOpera) {
   if (canDefine) setAmbireProvider()
   if (!window.web3) window.web3 = { currentProvider: window.ambire }
 }
-
-window.addEventListener<any>('eip6963:requestProvider', () => {
-  connectButtonReplacementCtrl.update({ isEIP6963: true })
-})
 
 window.dispatchEvent(new Event('ethereum#initialized'))
