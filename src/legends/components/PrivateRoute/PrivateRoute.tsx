@@ -4,10 +4,11 @@ import { Navigate, Outlet } from 'react-router-dom'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
+import ErrorPage from '@legends/components/ErrorPage'
 
 const PrivateRoute = () => {
   const { connectedAccount, lastConnectedV2Account, isLoading } = useAccountContext()
-  const { character, isLoading: isCharacterLoading } = useCharacterContext()
+  const { character, isLoading: isCharacterLoading, error: characterError } = useCharacterContext()
 
   if (isLoading) return null
 
@@ -16,6 +17,8 @@ const PrivateRoute = () => {
   // the user should be able to access screens which will display the state
   // of the v2 account.
   if (!connectedAccount || !lastConnectedV2Account) return <Navigate to="/" />
+
+  if (characterError) return <ErrorPage title="Character loading error" error={characterError} />
 
   // Don't allow loading the Outlet component if the character is not loaded or is in the process of loading.
   if (!character || isCharacterLoading) return null
