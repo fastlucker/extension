@@ -15,7 +15,7 @@ const ErrorPage: FC<Props> = ({ title = 'Oops. Something went wrong!', error }) 
   return (
     <div className={styles.wrapper}>
       <div className={styles.mbLg}>
-        <img src="/images/logo.png" alt="Ambire Logo" className={styles.logo} />
+        <img src="/images/logo.png" alt="Legends Logo" className={styles.logo} />
       </div>
       <div className={styles.mb}>
         <h1 className={styles.title}>{title}</h1>
