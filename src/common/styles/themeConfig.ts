@@ -142,6 +142,7 @@ export const iconColors = {
   secondary: colors.martinique,
   danger: '#EA0129',
   favorite: '#ffbc00',
+  dark: '#141833',
   black: '#000',
   white: '#fff'
 }

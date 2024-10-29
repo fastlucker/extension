@@ -1,13 +1,16 @@
-import React, { FC } from 'react'
+import { keccak256, toUtf8Bytes } from 'ethers'
+import React, { FC, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
-import { Call } from '@ambire-common/libs/accountOp/types'
+import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { stringify } from '@ambire-common/libs/richJson/richJson'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
@@ -15,13 +18,34 @@ import PendingTransactionsSkeleton from './PendingTransactionsSkeleton'
 import getStyles from './styles'
 
 interface Props {
-  callsToVisualize: (IrCall | Call)[]
   network?: Network
 }
 
-const PendingTransactions: FC<Props> = ({ callsToVisualize, network }) => {
+const PendingTransactions: FC<Props> = ({ network }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
+  const { accountOp } = useSignAccountOpControllerState() || {}
+  const oldAccountOpRelevantInfoHash = React.useRef<string>('')
+  const [callsToVisualize, setCallsToVisualize] = React.useState<IrCall[]>([])
+
+  useEffect(() => {
+    if (!accountOp) return
+    const actualDependencyArrayAsString = stringify([
+      accountOp.calls,
+      accountOp.networkId,
+      accountOp.accountAddr
+    ])
+    const newAccountOpRelevantInfoHash = keccak256(toUtf8Bytes(actualDependencyArrayAsString))
+
+    const hasAccountOpChangedSincePrevRender =
+      oldAccountOpRelevantInfoHash.current !== newAccountOpRelevantInfoHash
+
+    if (!hasAccountOpChangedSincePrevRender) return
+
+    setCallsToVisualize(humanizeAccountOp(accountOp, {}))
+
+    oldAccountOpRelevantInfoHash.current = newAccountOpRelevantInfoHash
+  }, [accountOp])
 
   return (
     <View style={styles.transactionsContainer}>

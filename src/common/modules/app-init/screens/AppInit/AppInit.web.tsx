@@ -37,6 +37,7 @@ import { NetworksControllerStateProvider } from '@web/contexts/networksControlle
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
 import { ProvidersControllerStateProvider } from '@web/contexts/providersControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
+import { SwapAndBridgeControllerStateProvider } from '@web/contexts/swapAndBridgeControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
 
 const Router = isExtension ? HashRouter : BrowserRouter
@@ -72,24 +73,26 @@ const AppInit = () => {
                                                 <DappsControllerStateProvider>
                                                   <DomainsControllerStateProvider>
                                                     <AddressBookControllerStateProvider>
-                                                      <ControllersStateLoadedProvider>
-                                                        <LoaderProvider>
-                                                          <StorageProvider>
-                                                            <KeyboardProvider>
-                                                              <NetInfoProvider>
-                                                                <AuthProvider>
-                                                                  <BiometricsProvider>
-                                                                    <PrivateModeProvider>
-                                                                      <AppRouter />
-                                                                    </PrivateModeProvider>
-                                                                    <PortalHost name="global" />
-                                                                  </BiometricsProvider>
-                                                                </AuthProvider>
-                                                              </NetInfoProvider>
-                                                            </KeyboardProvider>
-                                                          </StorageProvider>
-                                                        </LoaderProvider>
-                                                      </ControllersStateLoadedProvider>
+                                                      <SwapAndBridgeControllerStateProvider>
+                                                        <ControllersStateLoadedProvider>
+                                                          <LoaderProvider>
+                                                            <StorageProvider>
+                                                              <KeyboardProvider>
+                                                                <NetInfoProvider>
+                                                                  <AuthProvider>
+                                                                    <BiometricsProvider>
+                                                                      <PrivateModeProvider>
+                                                                        <AppRouter />
+                                                                      </PrivateModeProvider>
+                                                                      <PortalHost name="global" />
+                                                                    </BiometricsProvider>
+                                                                  </AuthProvider>
+                                                                </NetInfoProvider>
+                                                              </KeyboardProvider>
+                                                            </StorageProvider>
+                                                          </LoaderProvider>
+                                                        </ControllersStateLoadedProvider>
+                                                      </SwapAndBridgeControllerStateProvider>
                                                     </AddressBookControllerStateProvider>
                                                   </DomainsControllerStateProvider>
                                                 </DappsControllerStateProvider>

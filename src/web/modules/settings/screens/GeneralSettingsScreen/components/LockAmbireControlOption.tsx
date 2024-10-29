@@ -33,6 +33,7 @@ const LockAmbireControlOption = () => {
       renderIcon={<LockIcon color={theme.primaryText} />}
     >
       <Button
+        testID="lock-extension-button"
         size="small"
         hasBottomSpacing={false}
         style={{

@@ -5,7 +5,7 @@ import { useModalize } from 'react-native-modalize'
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
-import Banner from '@common/components/Banner'
+import Banner, { BannerButton } from '@common/components/Banner'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Panel from '@common/components/Panel'
@@ -35,6 +35,7 @@ import Card from '@web/modules/auth/components/Card'
 import Stories from '@web/modules/auth/components/Stories'
 import { STORY_CARD_WIDTH } from '@web/modules/auth/components/Stories/styles'
 import { TERMS_VERSION } from '@web/modules/terms/screens/Terms'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 
 import HotWalletCreateCards from '../../components/HotWalletCreateCards'
 import { ONBOARDING_VERSION } from '../../components/Stories/Stories'
@@ -47,7 +48,7 @@ const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { addToast } = useToast()
-  const keystoreState = useKeystoreControllerState()
+  const { isReadyToStoreKeys, keyStoreUid } = useKeystoreControllerState()
   const { accounts } = useAccountsControllerState()
   const {
     ref: hotWalletModalRef,
@@ -104,10 +105,10 @@ const GetStartedScreen = () => {
         return
       }
       if (flow === 'email') {
-        await showEmailVaultInterest(accounts.length, addToast)
+        await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
         return
       }
-      if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
+      if (!isReadyToStoreKeys && flow !== 'hw') {
         navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
         return
       }
@@ -119,7 +120,7 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
-    [keystoreState.isReadyToStoreKeys, openHotWalletModal, navigate, accounts.length, addToast]
+    [isReadyToStoreKeys, openHotWalletModal, navigate, accounts.length, addToast]
   )
 
   const handleSetStoriesCompleted = () => {
@@ -259,7 +260,7 @@ const GetStartedScreen = () => {
                   // @ts-ignore
                   style={[spacings.mb0, { width: '100%' }]}
                   renderButtons={
-                    <Banner.Button
+                    <BannerButton
                       onPress={() =>
                         openInTab(
                           'https://help.ambire.com/hc/en-us/articles/15468208978332-How-to-add-your-v1-account-to-Ambire-Wallet-extension',

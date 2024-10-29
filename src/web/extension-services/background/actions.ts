@@ -10,6 +10,7 @@ import { Account, AccountPreferences, AccountStates } from '@ambire-common/inter
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -311,6 +312,9 @@ type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
   params: { keyAddr: string }
 }
+type KeystoreControllerSendSeedOverChannel = {
+  type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
+}
 
 type EmailVaultControllerGetInfoAction = {
   type: 'EMAIL_VAULT_CONTROLLER_GET_INFO'
@@ -368,6 +372,50 @@ type DappsControllerUpdateDappAction = {
 type DappsControllerRemoveDappAction = {
   type: 'DAPP_CONTROLLER_REMOVE_DAPP'
   params: Dapp['url']
+}
+
+type SwapAndBridgeControllerInitAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
+  params: { sessionId: string }
+}
+type SwapAndBridgeControllerUnloadScreenAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN'
+  params: { sessionId: string }
+}
+type SwapAndBridgeControllerUpdateFormAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM'
+  params: {
+    fromAmount?: string
+    fromAmountInFiat?: string
+    fromAmountFieldMode?: 'fiat' | 'token'
+    fromChainId?: bigint | number
+    fromSelectedToken?: TokenResult | null
+    toChainId?: bigint | number
+    toSelectedToken?: SocketAPIToken | null
+    routePriority?: 'output' | 'time'
+  }
+}
+type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
+}
+type SwapAndBridgeControllerSelectRouteAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE'
+  params: { route: SocketAPIRoute }
+}
+type SwapAndBridgeControllerSubmitFormAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
+}
+type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
+  params: { activeRouteId: number }
+}
+type SwapAndBridgeControllerRemoveActiveRouteAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE'
+  params: { activeRouteId: number }
+}
+type SwapAndBridgeControllerUpdatePortfolioTokenListAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST'
+  params: TokenResult[]
 }
 
 type ActionsControllerAddToActionsQueue = {
@@ -541,6 +589,15 @@ export type Action =
   | DappsControllerAddDappAction
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
+  | SwapAndBridgeControllerInitAction
+  | SwapAndBridgeControllerUnloadScreenAction
+  | SwapAndBridgeControllerUpdateFormAction
+  | SwapAndBridgeControllerSwitchFromAndToTokensAction
+  | SwapAndBridgeControllerSelectRouteAction
+  | SwapAndBridgeControllerSubmitFormAction
+  | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
+  | SwapAndBridgeControllerRemoveActiveRouteAction
+  | SwapAndBridgeControllerUpdatePortfolioTokenListAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
@@ -561,3 +618,4 @@ export type Action =
   | InviteControllerVerifyAction
   | MainControllerTraceCallAction
   | ImportSmartAccountJson
+  | KeystoreControllerSendSeedOverChannel

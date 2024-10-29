@@ -21,6 +21,7 @@ interface Props {
   closeBottomSheet?: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   onBackdropPress?: () => void
   onClosed?: () => void
+  onOpen?: () => void
   children?: React.ReactNode
   // Preferences
   type?: 'modal' | 'bottom-sheet'
@@ -51,6 +52,7 @@ const BottomSheet: React.FC<Props> = ({
   style = {},
   containerInnerWrapperStyles = {},
   onClosed,
+  onOpen,
   onBackdropPress,
   flatListProps,
   scrollViewProps,
@@ -201,6 +203,7 @@ const BottomSheet: React.FC<Props> = ({
         onOpen={() => {
           setIsOpen(true)
           setIsBackdropVisible(true)
+          !!onOpen && onOpen()
         }}
         onClose={() => setIsOpen(false)}
         onClosed={() => !!onClosed && onClosed()}

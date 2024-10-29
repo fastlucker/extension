@@ -56,7 +56,7 @@ const CreateSeedPhraseConfirmScreen = () => {
   })
 
   useEffect(() => {
-    updateStepperState('secure-seed', 'create-seed')
+    updateStepperState(WEB_ROUTES.createSeedPhraseConfirm, 'create-seed')
   }, [updateStepperState])
 
   const onSubmit = handleSubmit(() => {
@@ -77,7 +77,7 @@ const CreateSeedPhraseConfirmScreen = () => {
       accountAdderState.type === 'internal' &&
       accountAdderState.subType === 'seed'
     ) {
-      navigate(WEB_ROUTES.accountAdder)
+      navigate(WEB_ROUTES.accountAdder, { state: { hideBack: true } })
     }
   }, [accountAdderState.isInitialized, accountAdderState.subType, accountAdderState.type, navigate])
 
