@@ -85,7 +85,8 @@ const WEB_ROUTES = {
   benzin: 'benzin',
   swapAndBridge: 'swap-and-bridge',
   savedSeed: 'saved-seed',
-  securityAndPrivacy: 'settings/security-and-privacy'
+  securityAndPrivacy: 'settings/security-and-privacy',
+  saveImportedSeed: 'save-imported-seed'
 }
 
 const ROUTES = {

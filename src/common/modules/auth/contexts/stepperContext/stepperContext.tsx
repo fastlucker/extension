@@ -35,6 +35,14 @@ export const STEPPER_FLOWS = {
     [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   },
+  'seed-with-option-to-save': {
+    [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
+    [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
+    [WEB_ROUTES.importSeedPhrase]: 'Enter your\nseed phrase',
+    [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP,
+    [WEB_ROUTES.saveImportedSeed]: 'Save your\n imported seed'
+  },
   'create-seed': {
     'select-recovery': 'Select the\nrecovery option',
     [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
