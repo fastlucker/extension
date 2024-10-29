@@ -1,8 +1,10 @@
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { saParams } from '../config/constants'
+import { SELECTORS } from '../common/selectors/selectors'
 
 import {
   makeValidTransaction,
+  checkTokenBalanceClickOnGivenActionInDashboard,
   makeSwap,
   sendFundsGreaterThanBalance,
   sendFundsToSmartContract,
@@ -27,7 +29,13 @@ describe('sa_transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
+  // TODO: probably we don't need this test because we already duplicate it in transfer.test.js
   it('Make valid transaction', async () => {
+    await checkTokenBalanceClickOnGivenActionInDashboard(
+      page,
+      SELECTORS.nativeTokenPolygonDyn,
+      SELECTORS.tokenSend
+    )
     await makeValidTransaction(page, extensionURL, browser, {
       feeToken:
         '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]',

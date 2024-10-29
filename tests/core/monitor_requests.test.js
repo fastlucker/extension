@@ -1,10 +1,15 @@
 /* eslint-disable import/no-unresolved */
 import { networks } from '@ambire-common/consts/networks'
 import { getBackgroundRequestsByType, monitorRequests } from '../common/requests.js'
-import { makeSwap, makeValidTransaction } from '../common/transactions.js'
+import {
+  makeSwap,
+  makeValidTransaction,
+  checkTokenBalanceClickOnGivenActionInDashboard
+} from '../common/transactions.js'
 import { baParams } from '../config/constants'
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { clickOnElement } from '../common-helpers/clickOnElement'
+import { SELECTORS } from '../common/selectors/selectors.js'
 
 describe('Monitor network requests and make sure only necessary requests are made', () => {
   let browser
@@ -50,6 +55,11 @@ describe('Monitor network requests and make sure only necessary requests are mad
 
   it('sign account op request created through transfer', async () => {
     const httpRequests = await monitorRequests(serviceWorker.client, async () => {
+      await checkTokenBalanceClickOnGivenActionInDashboard(
+        page,
+        SELECTORS.nativeTokenPolygonDyn,
+        SELECTORS.tokenSend
+      )
       await makeValidTransaction(page, extensionURL, browser, {
         shouldStopBeforeSign: true
       })
