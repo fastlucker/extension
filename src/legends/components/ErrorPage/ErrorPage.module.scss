@@ -25,11 +25,16 @@
     font-weight: 700;
   }
 
-  .subtitle {
+  .error {
     font-size: 1.25rem;
     line-height: 1.625rem;
     font-weight: 700;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.10rem;
+    margin-top: 2rem;
   }
 
   .button {

@@ -1,6 +1,5 @@
 import React, { FC } from 'react'
 
-import Alert from '../Alert'
 import styles from './ErrorPage.module.scss'
 
 type Props = {
@@ -8,7 +7,7 @@ type Props = {
   error?: string
 }
 
-const ErrorPage: FC<Props> = ({ title, error }) => {
+const ErrorPage: FC<Props> = ({ title = 'Oops. Something went wrong!', error }) => {
   const onButtonClick = () => {
     window.location.reload()
   }
@@ -19,16 +18,12 @@ const ErrorPage: FC<Props> = ({ title, error }) => {
         <img src="/images/logo.png" alt="Ambire Logo" className={styles.logo} />
       </div>
       <div className={styles.mb}>
-        <h1 className={styles.title}>Oops. Something went wrong!</h1>
-        <h2 className={styles.subtitle}>
-          Please reload the page. If the problem persists, please contact support.
-        </h2>
+        <h1 className={styles.title}>{title}</h1>
+        {error && <h2 className={styles.error}>{error}</h2>}
+        <h3 className={styles.subtitle}>
+          Please reload the page. If the issue continues, contact support for assistance.
+        </h3>
       </div>
-      {title && error ? (
-        <div className={styles.mb}>
-          <Alert type="error" title={title} message={error} />
-        </div>
-      ) : null}
       <button onClick={onButtonClick} type="button" className={styles.button}>
         Reload
       </button>
