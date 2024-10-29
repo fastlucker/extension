@@ -18,6 +18,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -25,7 +26,7 @@ const PrivateKeyImportScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
-  // const { dispatch } = useBackgroundService()
+  const { dispatch } = useBackgroundService()
   const keystoreState = useKeystoreControllerState()
   const { updateStepperState } = useStepper()
 
@@ -34,22 +35,25 @@ const PrivateKeyImportScreen = () => {
   }, [updateStepperState])
 
   useEffect(() => {
-    if (keystoreState.hasKeystoreSavedSeed) navigate(WEB_ROUTES.dashboard)
-  }, [keystoreState.hasKeystoreSavedSeed, navigate])
+    if (keystoreState.hasKeystoreSavedSeed || !keystoreState.hasKeystoreTempSeed)
+      navigate(WEB_ROUTES.dashboard)
+  }, [keystoreState.hasKeystoreSavedSeed, keystoreState.hasKeystoreTempSeed, navigate])
 
   const handleSaveSeedAndProceed = useCallback(() => {
-    // dispatch({
-    //   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-    //   params: { privKeyOrSeed: seedPhrase, shouldPersist: true }
-    // })
-  }, [])
+    dispatch({
+      type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP',
+      params: { shouldPersist: true }
+    })
+    navigate(WEB_ROUTES.dashboard)
+  }, [dispatch, navigate])
 
   const handleDoNotSaveSeedAndProceed = useCallback(() => {
-    // dispatch({
-    //   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-    //   params: { privKeyOrSeed: seedPhrase }
-    // })
-  }, [])
+    dispatch({
+      type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP',
+      params: { shouldPersist: false }
+    })
+    navigate(WEB_ROUTES.dashboard)
+  }, [dispatch, navigate])
 
   return (
     <TabLayoutContainer

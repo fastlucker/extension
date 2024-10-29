@@ -163,7 +163,7 @@ const SavedSeedScreen = () => {
                 size="sm"
                 type="warning"
                 title={t(
-                  'Warning: Never reveal your seed. Anyone with access to it can steal any assets held in any accounts derived from it'
+                  'Keep your seed phrase safe and private. Anyone with access to it can control all accounts derived from it.'
                 )}
               />
             </View>
@@ -175,7 +175,7 @@ const SavedSeedScreen = () => {
               titleWeight="semiBold"
               title="Remove saved seed"
               text={t(
-                'Deleting the saved seed will NOT remove any accounts imported from it. Also, it will allow you to save another one in the extension. However, the seed will no longer be available as a backup here. Make sure you have a copy of it stored in a safe place before deleting it.'
+                "Deleting the saved seed will not remove any accounts imported from it. It will let you save a new one, but the deleted seed will not be backed up in the extension.\nMake sure you've stored a copy in a safe place before deleting it."
               )}
             />
             <Button type="danger" style={spacings.mtTy} text="Delete" onPress={() => open()} />

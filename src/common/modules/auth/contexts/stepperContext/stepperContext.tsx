@@ -41,7 +41,7 @@ export const STEPPER_FLOWS = {
     [WEB_ROUTES.importSeedPhrase]: 'Enter your\nseed phrase',
     [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP,
-    [WEB_ROUTES.saveImportedSeed]: 'Save your\n imported seed'
+    [WEB_ROUTES.saveImportedSeed]: 'Optionally save\n your seed'
   },
   'create-seed': {
     'select-recovery': 'Select the\nrecovery option',

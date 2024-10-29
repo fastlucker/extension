@@ -8,6 +8,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
@@ -23,6 +24,7 @@ const useAccountAdder = ({ keySubType }: Props) => {
   const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
+  const keystoreState = useKeystoreControllerState()
 
   useEffect(() => {
     return () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
@@ -51,10 +53,14 @@ const useAccountAdder = ({ keySubType }: Props) => {
   )
 
   useEffect(() => {
-    const step: keyof typeof STEPPER_FLOWS = keySubType || 'hw'
+    let step: keyof typeof STEPPER_FLOWS = keySubType || 'hw'
+
+    if (step === 'seed' && !keystoreState.hasKeystoreSavedSeed) {
+      step = 'seed-with-option-to-save'
+    }
 
     updateStepperState(WEB_ROUTES.accountAdder, step)
-  }, [keySubType, updateStepperState])
+  }, [keySubType, updateStepperState, keystoreState.hasKeystoreSavedSeed])
 
   useEffect(() => {
     if (!accountAdderState.isInitialized) {

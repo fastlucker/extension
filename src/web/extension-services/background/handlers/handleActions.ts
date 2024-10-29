@@ -87,6 +87,9 @@ export const handleActions = async (
       if (keyIterator.subType === 'seed' && params.shouldPersist) {
         await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
       }
+      if (keyIterator.subType === 'seed' && params.shouldAddToTemp) {
+        await mainCtrl.keystore.addSeedToTemp({ seed: params.privKeyOrSeed, hdPathTemplate })
+      }
 
       await mainCtrl.accountAdder.init({
         keyIterator,
@@ -432,8 +435,13 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
       return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
-    case 'KEYSTORE_CONTROLLER_LOCK':
+    case 'KEYSTORE_CONTROLLER_LOCK': {
+      // flush temporary seeds that haven't been persisted to storage, if any
+      // have been left by chancee
+      await mainCtrl.keystore.deleteTempSeed()
+
       return mainCtrl.keystore.lock()
+    }
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
       return mainCtrl.keystore.resetErrorState()
     case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
@@ -448,6 +456,12 @@ export const handleActions = async (
       return await mainCtrl.keystore.sendSeedToUi()
     case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':
       return await mainCtrl.keystore.deleteSavedSeed()
+    case 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP': {
+      if (params.shouldPersist) {
+        return await mainCtrl.keystore.moveTempSeed()
+      }
+      return await mainCtrl.keystore.deleteTempSeed()
+    }
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
       return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
