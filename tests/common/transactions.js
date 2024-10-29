@@ -132,18 +132,18 @@ export async function makeValidTransaction(
     shouldStopBeforeSign = false,
     shouldSendButtonBeDisabled = false,
     shouldUseAddressBookRecipient = false,
-    shouldTopUpGasTang = false
+    shouldTopUpGasTank = false
   } = {}
 ) {
   await page.waitForFunction(() => window.location.href.includes('/transfer'))
 
-  if (shouldTopUpGasTang) {
+  if (shouldTopUpGasTank) {
     await prepareGasTankTopUp(page, recipient, tokenAmount)
   } else {
     await prepareTransaction(page, recipient, tokenAmount, shouldUseAddressBookRecipient)
   }
 
-  if (shouldSendButtonBeDisabled && !shouldTopUpGasTang) {
+  if (shouldSendButtonBeDisabled && !shouldTopUpGasTank) {
     const isDisabled = await isAriaDisabled(page, SELECTORS.transferButtonConfirm)
 
     expect(isDisabled).toBe(true)

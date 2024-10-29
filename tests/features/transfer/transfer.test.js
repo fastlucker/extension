@@ -78,7 +78,7 @@ describe('transfer', () => {
       feeToken: FEE_TOKEN_POL_SELECTOR,
       shouldStopBeforeSign: true,
       shouldSendButtonBeDisabled: true,
-      shouldTopUpGasTang: true
+      shouldTopUpGasTank: true
     })
   })
 })
