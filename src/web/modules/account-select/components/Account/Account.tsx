@@ -39,7 +39,7 @@ const Account = ({
   maxAccountAddrLength = 42,
   withSettings = true,
   renderRightChildren,
-  isSettings = false,
+  showExportImport = false,
   openAddAccountBottomSheet
 }: {
   account: AccountInterface
@@ -47,7 +47,7 @@ const Account = ({
   maxAccountAddrLength?: number
   withSettings?: boolean
   renderRightChildren?: () => React.ReactNode
-  isSettings?: boolean
+  showExportImport?: boolean
   openAddAccountBottomSheet?: () => void
 }) => {
   const { addr, preferences } = account
@@ -63,15 +63,15 @@ const Account = ({
     property: 'backgroundColor',
     values: {
       from: theme.primaryBackground,
-      to: !isSettings ? theme.secondaryBackground : theme.primaryBackground
+      to: !showExportImport ? theme.secondaryBackground : theme.primaryBackground
     },
-    forceHoveredStyle: !isSettings && addr === selectedAccount
+    forceHoveredStyle: !showExportImport && addr === selectedAccount
   })
 
   const { ref: sheetRef, open: openKeysBottomSheet, close: closeBottomSheet } = useModalize()
 
   const selectAccount = useCallback(() => {
-    if (isSettings) {
+    if (showExportImport) {
       return
     }
 
@@ -83,7 +83,7 @@ const Account = ({
     }
 
     onSelect && onSelect(addr)
-  }, [addr, dispatch, onSelect, selectedAccount, isSettings])
+  }, [addr, dispatch, onSelect, selectedAccount, showExportImport])
 
   const removeAccount = useCallback(() => {
     dispatch({
@@ -144,7 +144,7 @@ const Account = ({
       {...bindAnim}
       testID="account"
       // @ts-ignore
-      style={isSettings ? { cursor: 'default' } : {}}
+      style={showExportImport ? { cursor: 'default' } : {}}
     >
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
@@ -190,16 +190,16 @@ const Account = ({
         </View>
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
           {renderRightChildren && renderRightChildren()}
-          {isSettings && (
+          {showExportImport && (
             <AccountKeysBottomSheet
               sheetRef={sheetRef}
               account={account}
               closeBottomSheet={closeBottomSheet}
               openAddAccountBottomSheet={openAddAccountBottomSheet}
-              isSettings={isSettings}
+              showExportImport={showExportImport}
             />
           )}
-          {isSettings && <Dropdown data={SUBMENU_OPTIONS} onSelect={onDropdownSelect} />}
+          {showExportImport && <Dropdown data={SUBMENU_OPTIONS} onSelect={onDropdownSelect} />}
         </View>
       </Animated.View>
       <Dialog

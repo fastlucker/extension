@@ -35,6 +35,7 @@ import Card from '@web/modules/auth/components/Card'
 import Stories from '@web/modules/auth/components/Stories'
 import { STORY_CARD_WIDTH } from '@web/modules/auth/components/Stories/styles'
 import { TERMS_VERSION } from '@web/modules/terms/screens/Terms'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 
 import HotWalletCreateCards from '../../components/HotWalletCreateCards'
 import { ONBOARDING_VERSION } from '../../components/Stories/Stories'
@@ -47,7 +48,7 @@ const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { addToast } = useToast()
-  const keystoreState = useKeystoreControllerState()
+  const { isReadyToStoreKeys, keyStoreUid } = useKeystoreControllerState()
   const { accounts } = useAccountsControllerState()
   const {
     ref: hotWalletModalRef,
@@ -104,10 +105,10 @@ const GetStartedScreen = () => {
         return
       }
       if (flow === 'email') {
-        await showEmailVaultInterest(accounts.length, addToast)
+        await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
         return
       }
-      if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
+      if (!isReadyToStoreKeys && flow !== 'hw') {
         navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
         return
       }
@@ -119,7 +120,7 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
-    [keystoreState.isReadyToStoreKeys, openHotWalletModal, navigate, accounts.length, addToast]
+    [isReadyToStoreKeys, openHotWalletModal, navigate, accounts.length, addToast]
   )
 
   const handleSetStoriesCompleted = () => {

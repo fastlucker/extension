@@ -8,6 +8,7 @@ import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
+import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
 import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
@@ -312,6 +313,9 @@ type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
   params: { keyAddr: string }
 }
+type KeystoreControllerSendSeedOverChannel = {
+  type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
+}
 
 type EmailVaultControllerGetInfoAction = {
   type: 'EMAIL_VAULT_CONTROLLER_GET_INFO'
@@ -326,7 +330,7 @@ type EmailVaultControllerCancelConfirmationAction = {
 }
 type EmailVaultControllerHandleMagicLinkKeyAction = {
   type: 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY'
-  params: { email: string }
+  params: { email: string; flow: MagicLinkFlow }
 }
 type EmailVaultControllerRecoverKeystoreAction = {
   type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE'
@@ -615,3 +619,4 @@ export type Action =
   | InviteControllerVerifyAction
   | MainControllerTraceCallAction
   | ImportSmartAccountJson
+  | KeystoreControllerSendSeedOverChannel

@@ -6,25 +6,14 @@ import 'setimmediate'
 
 import { nanoid } from 'nanoid'
 
-import {
-  BIP44_STANDARD_DERIVATION_TEMPLATE,
-  HD_PATH_TEMPLATE_TYPE
-} from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
-import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
-import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import {
-  getAccountKeysCount,
-  getDefaultKeyLabel,
-  getExistingKeyLabel
-} from '@ambire-common/libs/keys/keys'
+import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -33,12 +22,16 @@ import {
   getActiveRoutesUpdateInterval
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import wait from '@ambire-common/utils/wait'
+import { isProd } from '@common/config/env'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, SOCKET_API_KEY, VELCRO_URL } from '@env'
 import { browser } from '@web/constants/browserapi'
+import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
+import { handleActions } from '@web/extension-services/background/handlers/handleActions'
+import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
@@ -48,16 +41,13 @@ import { notificationManager } from '@web/extension-services/background/webapi/n
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
-import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 import LatticeSigner from '@web/modules/hardware-wallet/libs/LatticeSigner'
-import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
-import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
@@ -158,9 +148,9 @@ handleKeepAlive()
     // As of v4.26.0, custom extension-specific headers. TBD for the other apps.
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
     initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
-    const sliceOfKeyStoreUid = mainCtrl.keystore.keyStoreUid?.substring(10, 21) || ''
+    const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
     const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
-    initWithCustomHeaders.headers['x-app-source'] = sliceOfKeyStoreUid + inviteVerifiedCode
+    initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
 
     // As of v4.36.0, for metric purposes, pass the account keys count as an
     // additional param for the batched velcro discovery requests.
@@ -190,6 +180,8 @@ handleKeepAlive()
     // which already provides a native and well-optimized fetch API.
     return fetch(url, initWithCustomHeaders)
   }
+
+  await handleCleanDappSessions()
 
   mainCtrl = new MainController({
     storage,
@@ -667,525 +659,19 @@ handleKeepAlive()
       initPortfolioContinuousUpdate()
 
       // @ts-ignore
-      pm.addListener(port.id, async (messageType, { type, params }) => {
+      pm.addListener(port.id, async (messageType, action: Action) => {
+        const { type } = action
         try {
           if (messageType === '> background' && type) {
-            switch (type) {
-              case 'INIT_CONTROLLER_STATE': {
-                if (params.controller === ('main' as any)) {
-                  pm.send('> ui', { method: 'main', params: mainCtrl })
-                } else if (params.controller === ('walletState' as any)) {
-                  pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
-                } else if (params.controller === ('autoLock' as any)) {
-                  pm.send('> ui', { method: 'autoLock', params: autoLockCtrl })
-                } else {
-                  pm.send('> ui', {
-                    method: params.controller,
-                    params: (mainCtrl as any)[params.controller]
-                  })
-                }
-                break
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-                return await mainCtrl.handleAccountAdderInitLedger(LedgerKeyIterator)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                const { walletSDK } = trezorCtrl
-                await mainCtrl.accountAdder.init({
-                  keyIterator: new TrezorKeyIterator({ walletSDK }),
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
-                })
-
-                return await mainCtrl.accountAdder.setPage({ page: 1 })
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
-                return await mainCtrl.handleAccountAdderInitLattice(LatticeKeyIterator)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
-                const keyIterator = new KeyIterator(params.privKeyOrSeed)
-
-                // if it enters here, it's from the default seed. We can init the account adder like so
-                if (keyIterator.subType === 'seed' && params.shouldPersist) {
-                  await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
-                }
-
-                await mainCtrl.accountAdder.init({
-                  keyIterator,
-                  pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
-                  hdPathTemplate
-                })
-
-                return await mainCtrl.accountAdder.setPage({ page: 1 })
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-                const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
-
-                if (!keystoreSavedSeed) return
-                const keyIterator = new KeyIterator(keystoreSavedSeed.seed)
-                await mainCtrl.accountAdder.init({
-                  keyIterator,
-                  pageSize: 5,
-                  hdPathTemplate: keystoreSavedSeed.hdPathTemplate
-                })
-
-                return await mainCtrl.accountAdder.setPage({ page: 1 })
-              }
-              case 'MAIN_CONTROLLER_TRACE_CALL': {
-                return await mainCtrl.traceCall(params.estimation)
-              }
-              case 'MAIN_CONTROLLER_ADD_NETWORK': {
-                return await mainCtrl.addNetwork(params)
-              }
-              case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
-                return await mainCtrl.removeNetwork(params)
-              }
-              case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
-                return await mainCtrl.accounts.updateAccountPreferences(params)
-              }
-              case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
-                return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
-              }
-              case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
-                return await mainCtrl.networks.setNetworkToAddOrUpdate(null)
-              }
-              case 'KEYSTORE_CONTROLLER_UPDATE_KEY_PREFERENCES': {
-                return await mainCtrl.keystore.updateKeyPreferences(params)
-              }
-              case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
-                return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
-              }
-              case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
-                return await mainCtrl.accounts.selectAccount(params.accountAddr)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
-                return mainCtrl.accountAdder.selectAccount(params.account)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
-                return mainCtrl.accountAdder.deselectAccount(params.account)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED': {
-                if (mainCtrl.accountAdder.isInitialized) {
-                  mainCtrl.accountAdder.reset()
-                }
-                break
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
-                return await mainCtrl.accountAdder.setPage(params)
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
-                return await mainCtrl.accountAdder.setHDPathTemplate(params)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
-                const readyToAddKeys: ReadyToAddKeys = {
-                  internal: [],
-                  external: []
-                }
-
-                if (mainCtrl.accountAdder.type === 'internal') {
-                  readyToAddKeys.internal =
-                    mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
-                } else {
-                  // External keys flow
-                  const keyType = mainCtrl.accountAdder.type as ExternalKey['type']
-
-                  const deviceIds: { [key in ExternalKey['type']]: string } = {
-                    ledger: ledgerCtrl.deviceId,
-                    trezor: trezorCtrl.deviceId,
-                    lattice: latticeCtrl.deviceId
-                  }
-
-                  const deviceModels: { [key in ExternalKey['type']]: string } = {
-                    ledger: ledgerCtrl.deviceModel,
-                    trezor: trezorCtrl.deviceModel,
-                    lattice: latticeCtrl.deviceModel
-                  }
-
-                  const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                    ({ account, accountKeys }) =>
-                      accountKeys.map(({ addr, index }, i) => ({
-                        addr,
-                        type: keyType,
-                        label: `${
-                          HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountAdder.type as Key['type']]
-                        } ${
-                          getExistingKeyLabel(
-                            mainCtrl.keystore.keys,
-                            addr,
-                            mainCtrl.accountAdder.type as Key['type']
-                          ) ||
-                          getDefaultKeyLabel(
-                            mainCtrl.keystore.keys.filter((key) =>
-                              account.associatedKeys.includes(key.addr)
-                            ),
-                            i
-                          )
-                        }`,
-                        dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
-                        meta: {
-                          deviceId: deviceIds[keyType],
-                          deviceModel: deviceModels[keyType],
-                          // always defined in the case of external keys
-                          hdPathTemplate: mainCtrl.accountAdder
-                            .hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                          index,
-                          createdAt: new Date().getTime()
-                        }
-                      }))
-                  )
-
-                  readyToAddKeys.external = readyToAddExternalKeys
-                }
-
-                return await mainCtrl.accountAdder.addAccounts(
-                  mainCtrl.accountAdder.selectedAccounts,
-                  readyToAddKeys
-                )
-              }
-              case 'IMPORT_SMART_ACCOUNT_JSON': {
-                // Add accounts first, because some of the next steps have validation
-                // if accounts exists.
-                await mainCtrl.accounts.addAccounts([params.readyToAddAccount])
-
-                // Then add keys, because some of the next steps could have validation
-                // if keys exists. Should be separate (not combined in Promise.all,
-                // since firing multiple keystore actions is not possible
-                // (the #wrapKeystoreAction listens for the first one to finish and
-                // skips the parallel one, if one is requested).
-
-                return await mainCtrl.keystore.addKeys(params.keys)
-              }
-              case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
-                // Since these accounts are view-only, directly add them in the
-                // MainController, bypassing the AccountAdder flow.
-                await mainCtrl.accounts.addAccounts(params.accounts)
-                break
-              }
-              // This flow interacts manually with the AccountAdder controller so that it can
-              // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
-              case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-                await mainCtrl.importSmartAccountFromSavedSeed(params.seed)
-                break
-              }
-              case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
-                await mainCtrl.importSmartAccountFromSavedSeed()
-                break
-              }
-              case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
-                return await mainCtrl.removeAccount(params.accountAddr)
-              }
-              case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
-                return await mainCtrl.buildTransferUserRequest(
-                  params.amount,
-                  params.recipientAddress,
-                  params.selectedToken,
-                  params.executionType
-                )
-              case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
-                return await mainCtrl.addUserRequest(params)
-              case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-                return mainCtrl.removeUserRequest(params.id)
-              case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
-                return mainCtrl.resolveUserRequest(params.data, params.id)
-              case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-                return mainCtrl.rejectUserRequest(params.err, params.id)
-              case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
-                return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
-              case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
-                return mainCtrl.rejectAccountOpAction(
-                  params.err,
-                  params.actionId,
-                  params.shouldOpenNextAction
-                )
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
-                return await mainCtrl.signMessage.init(params)
-              }
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
-                return mainCtrl.signMessage.reset()
-              case 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE': {
-                mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
-                return await mainCtrl.handleSignMessage()
-              }
-              case 'MAIN_CONTROLLER_ACTIVITY_INIT':
-                return mainCtrl.activity.init(params?.filters)
-              case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
-                return mainCtrl.activity.setFilters(params.filters)
-              case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
-                return mainCtrl.activity.setAccountsOpsPagination(params.pagination)
-              case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION':
-                return mainCtrl.activity.setSignedMessagesPagination(params.pagination)
-              case 'MAIN_CONTROLLER_ACTIVITY_RESET':
-                return mainCtrl.activity.reset()
-
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
-                return mainCtrl?.signAccountOp?.update(params)
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
-                return mainCtrl?.signAccountOp?.updateStatus(params.status)
-              case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
-                return await mainCtrl.handleSignAndBroadcastAccountOp()
-              }
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
-                return mainCtrl.initSignAccOp(params.actionId)
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
-                return mainCtrl.destroySignAccOp()
-
-              case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
-                return await mainCtrl.swapAndBridge.initForm(params.sessionId)
-              case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
-                return mainCtrl.swapAndBridge.unloadScreen(params.sessionId)
-              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
-                return mainCtrl.swapAndBridge.updateForm(params)
-              case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
-                return await mainCtrl.swapAndBridge.switchFromAndToTokens()
-              case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
-                return mainCtrl.swapAndBridge.selectRoute(params.route)
-              case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
-                return await mainCtrl.buildSwapAndBridgeUserRequest()
-              case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
-                return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
-              case 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE':
-                return mainCtrl.swapAndBridge.removeActiveRoute(params.activeRouteId)
-              case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST':
-                return mainCtrl.swapAndBridge.updatePortfolioTokenList(params)
-
-              case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
-                return mainCtrl.actions.addOrUpdateAction(params)
-              case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
-                return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
-              case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
-                return mainCtrl.actions.focusActionWindow()
-              case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
-                return mainCtrl.actions.setCurrentActionById(params.actionId)
-              case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
-                return mainCtrl.actions.setCurrentActionByIndex(params.index)
-              case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
-                return mainCtrl.actions.setWindowLoaded()
-
-              case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
-                return await mainCtrl.reloadSelectedAccount()
-              }
-
-              case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
-                if (!mainCtrl.accounts.selectedAccount) return
-
-                return await mainCtrl.portfolio.getTemporaryTokens(
-                  mainCtrl.accounts.selectedAccount,
-                  params.networkId,
-                  params.additionalHint
-                )
-              }
-              case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
-                const token = params.token
-                let tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
-                const tokenIsNotInPreferences =
-                  (tokenPreferences?.length &&
-                    tokenPreferences.find(
-                      (_token) =>
-                        _token.address.toLowerCase() === token.address.toLowerCase() &&
-                        params.token.networkId === _token?.networkId
-                    )) ||
-                  false
-
-                if (!tokenIsNotInPreferences) {
-                  tokenPreferences.push(token)
-                } else {
-                  const updatedTokenPreferences = tokenPreferences.map((t: any) => {
-                    if (
-                      t.address.toLowerCase() === token.address.toLowerCase() &&
-                      t.networkId === token.networkId
-                    ) {
-                      return params.token
-                    }
-                    return t
-                  })
-                  tokenPreferences = updatedTokenPreferences.filter((t) => t.isHidden || t.standard)
-                }
-                const tokenNetwork: Network | undefined = mainCtrl.networks.networks.find(
-                  (n) => n.id === token.networkId
-                )
-
-                await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
-                return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts.selectedAccount || '',
-                  tokenNetwork,
-                  undefined,
-                  {
-                    forceUpdate: true
-                  }
-                )
-              }
-              case 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES': {
-                const tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
-
-                const tokenIsNotInPreferences =
-                  tokenPreferences.find(
-                    (_token) =>
-                      _token.address.toLowerCase() === params.token.address.toLowerCase() &&
-                      _token.networkId === params.token.networkId
-                  ) || false
-                if (!tokenIsNotInPreferences) return
-                const newTokenPreferences = tokenPreferences.filter(
-                  (_token) =>
-                    _token.address.toLowerCase() !== params.token.address.toLowerCase() ||
-                    _token.networkId !== params.token.networkId
-                )
-
-                const tokenNetwork: Network | undefined = mainCtrl.networks.networks.find(
-                  (n) => n.id === params.token.networkId
-                )
-
-                await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
-                return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts.selectedAccount || '',
-                  tokenNetwork,
-                  undefined,
-                  {
-                    forceUpdate: true
-                  }
-                )
-              }
-              case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
-                if (!mainCtrl.accounts.selectedAccount) return
-                return await mainCtrl.portfolio.updateTokenValidationByStandard(
-                  params.token,
-                  mainCtrl.accounts.selectedAccount
-                )
-              }
-              case 'KEYSTORE_CONTROLLER_ADD_SECRET':
-                return await mainCtrl.keystore.addSecret(
-                  params.secretId,
-                  params.secret,
-                  params.extraEntropy,
-                  params.leaveUnlocked
-                )
-              case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
-                return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
-              case 'KEYSTORE_CONTROLLER_LOCK':
-                return mainCtrl.keystore.lock()
-              case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
-                return mainCtrl.keystore.resetErrorState()
-              case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
-                return await mainCtrl.keystore.changeKeystorePassword(
-                  params.newSecret,
-                  params.secret
-                )
-              case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
-                // In the case we change the user's device password through the recovery process,
-                // we don't know the old password, which is why we send only the new password.
-                return await mainCtrl.keystore.changeKeystorePassword(params.newSecret)
-              case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
-                return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
-
-              case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
-                return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
-              case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
-                return await mainCtrl.emailVault.uploadKeyStoreSecret(params.email)
-              case 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY':
-                return await mainCtrl.emailVault.handleMagicLinkKey(params.email)
-              case 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION':
-                return mainCtrl.emailVault.cancelEmailConfirmation()
-              case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
-                return await mainCtrl.emailVault.recoverKeyStore(params.email, params.newPass)
-              case 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS':
-                return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
-              case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
-                return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
-              case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
-                return await mainCtrl.addressBook.addContact(params.name, params.address)
-              }
-              case 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT': {
-                const { address, newName } = params
-
-                const account = mainCtrl.accounts.accounts.find(
-                  ({ addr }) => addr.toLowerCase() === address.toLowerCase()
-                )
-
-                if (!account) {
-                  await mainCtrl.addressBook.renameManuallyAddedContact(address, newName)
-                  return
-                }
-
-                return await mainCtrl.accounts.updateAccountPreferences([
-                  {
-                    addr: address,
-                    preferences: {
-                      pfp: account.preferences.pfp,
-                      label: newName
-                    }
-                  }
-                ])
-              }
-              case 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT':
-                return await mainCtrl.addressBook.removeManuallyAddedContact(params.address)
-              case 'DOMAINS_CONTROLLER_REVERSE_LOOKUP':
-                return await mainCtrl.domains.reverseLookup(params.address)
-              case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
-                return mainCtrl.domains.saveResolvedReverseLookup(params)
-              case 'SET_IS_DEFAULT_WALLET': {
-                return await walletStateCtrl.setDefaultWallet(params.isDefaultWallet)
-              }
-              case 'SET_ONBOARDING_STATE': {
-                walletStateCtrl.onboardingState = params
-                break
-              }
-              case 'SET_IS_PINNED': {
-                walletStateCtrl.isPinned = params.isPinned
-                break
-              }
-              case 'SET_IS_SETUP_COMPLETE': {
-                walletStateCtrl.isSetupComplete = params.isSetupComplete
-                break
-              }
-              case 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME': {
-                autoLockCtrl.setLastActiveTime()
-                break
-              }
-              case 'AUTO_LOCK_CONTROLLER_SET_AUTO_LOCK_TIME': {
-                autoLockCtrl.autoLockTime = params
-                break
-              }
-
-              case 'INVITE_CONTROLLER_VERIFY': {
-                return await mainCtrl.invite.verify(params.code)
-              }
-
-              case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
-                mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
-                mainCtrl.dapps.updateDapp(params, { isConnected: false })
-                break
-              }
-              case 'CHANGE_CURRENT_DAPP_NETWORK': {
-                mainCtrl.dapps.updateDapp(params.origin, { chainId: params.chainId })
-                mainCtrl.dapps.broadcastDappSessionEvent(
-                  'chainChanged',
-                  {
-                    chain: `0x${params.chainId.toString(16)}`,
-                    networkVersion: `${params.chainId}`
-                  },
-                  params.origin
-                )
-                break
-              }
-              case 'DAPP_CONTROLLER_ADD_DAPP': {
-                return mainCtrl.dapps.addDapp(params)
-              }
-              case 'DAPP_CONTROLLER_UPDATE_DAPP': {
-                return mainCtrl.dapps.updateDapp(params.url, params.dapp)
-              }
-              case 'DAPP_CONTROLLER_REMOVE_DAPP': {
-                mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
-                return mainCtrl.dapps.removeDapp(params)
-              }
-
-              default:
-                return console.error(
-                  `Dispatched ${type} action, but handler in the extension background process not found!`
-                )
-            }
+            await handleActions(action, {
+              pm,
+              mainCtrl,
+              ledgerCtrl,
+              trezorCtrl,
+              latticeCtrl,
+              walletStateCtrl,
+              autoLockCtrl
+            })
           }
         } catch (err: any) {
           console.error(err)
@@ -1233,15 +719,14 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
     // eslint-disable-next-line no-await-in-loop
     await wait(200)
   }
-  const sessionId = meta.sender?.tab?.id
-  if (sessionId === undefined || !meta.sender?.url) {
+  const tabId = meta.sender?.tab?.id
+  if (tabId === undefined || !meta.sender?.url) {
     return
   }
 
   const origin = getOriginFromUrl(meta.sender.url)
-  const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
-  session.setMessenger(bridgeMessenger)
-
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
   // Temporarily resolves the subscription methods as successful
   // but the rpc block subscription is actually not implemented because it causes app crashes
   if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
@@ -1277,7 +762,7 @@ try {
       // eslint-disable-next-line no-await-in-loop
       await wait(200)
     }
-    const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
+    const sessionKeys = Object.keys(mainCtrl.dapps.dappSessions || {})
     // eslint-disable-next-line no-restricted-syntax
     for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
       mainCtrl.dapps.deleteDappSession(key)
@@ -1292,7 +777,9 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
   // It makes Puppeteer tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
   if (process.env.IS_TESTING === 'true') return
-  browser.runtime.setUninstallURL('https://www.ambire.com/uninstall')
+  if (isProd) {
+    browser.runtime.setUninstallURL('https://www.ambire.com/uninstall')
+  }
   if (reason === 'install') {
     setTimeout(() => {
       const extensionURL = browser.runtime.getURL('tab.html')

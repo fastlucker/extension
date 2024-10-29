@@ -14,7 +14,7 @@ interface Props {
   closeBottomSheet: () => void
   account: Account
   openAddAccountBottomSheet?: () => void
-  isSettings?: boolean
+  showExportImport?: boolean
 }
 
 const AccountKeysBottomSheet: FC<Props> = ({
@@ -22,7 +22,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
   closeBottomSheet,
   account,
   openAddAccountBottomSheet,
-  isSettings = false
+  showExportImport = false
 }) => {
   const [currentKeyDetails, setCurrentKeyDetails] = useState<AccountKeyType | null>(null)
 
@@ -41,7 +41,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           account={account}
           openAddAccountBottomSheet={openAddAccountBottomSheet}
           keyIconColor={iconColors.black}
-          isSettings={isSettings}
+          showExportImport={showExportImport}
         />
       ) : (
         <AccountKeyDetails
@@ -49,7 +49,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           closeDetails={closeCurrentKeyDetails}
           account={account}
           keyIconColor={iconColors.black}
-          isSettings={isSettings}
+          showExportImport={showExportImport}
         />
       )}
     </BottomSheet>

@@ -21,7 +21,7 @@ interface Props {
   closeDetails: () => void
   account: Account
   keyIconColor?: string
-  isSettings?: boolean
+  showExportImport?: boolean
 }
 
 const AccountKeyDetails: FC<Props> = ({
@@ -29,7 +29,7 @@ const AccountKeyDetails: FC<Props> = ({
   closeDetails,
   account,
   keyIconColor,
-  isSettings = false
+  showExportImport = false
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
@@ -126,7 +126,7 @@ const AccountKeyDetails: FC<Props> = ({
           {...details}
           account={account}
           keyIconColor={keyIconColor}
-          isSettings={isSettings}
+          showExportImport={showExportImport}
           closeDetails={closeDetails}
         />
         <View style={[spacings.phSm, spacings.pvSm, spacings.mtMi]}>
