@@ -3,6 +3,7 @@ import React, { useCallback, useState } from 'react'
 import { Wheel } from 'react-custom-roulette'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
+import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import { RELAYER_URL } from '@env'
 import Modal from '@legends/components/Modal'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
@@ -143,6 +144,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
 
   return (
     <Modal className={styles.modal} isOpen={isOpen} setIsOpen={setIsOpen}>
+      {!mustSpin && spinOfTheDay ? (
+        <ConfettiAnimation width={600} height={600} autoPlay className={styles.confetti} />
+      ) : null}
       <Modal.Heading className={styles.heading}>Spin the wheel</Modal.Heading>
       <Modal.Text className={styles.description}>
         To start spinning the wheel, you’ll need to sign a transaction. This helps us verify and
@@ -153,7 +157,10 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         <Wheel
           mustStartSpinning={mustSpin}
           prizeNumber={prizeNumber}
-          onStopSpinning={() => setMustSpin(false)}
+          onStopSpinning={() => {
+            setMustSpin(false)
+            addToast(`You received ${wheelData[prizeNumber].option} xp`, 'success')
+          }}
           data={wheelData}
           radiusLineColor="#BAAFAC"
           radiusLineWidth={1}

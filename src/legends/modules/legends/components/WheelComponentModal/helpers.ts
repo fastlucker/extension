@@ -20,13 +20,13 @@ export const calculateHoursUntilMidnight = (activity: Activity[]) => {
 }
 
 export const isWheelSpinTodayDone = ({ legends, activity }: WheelSpinOfTheDayParams): boolean => {
-  if (!legends || !legends.length) return true
   const today = new Date().toISOString().split('T')[0]
 
   const cardwheelOfFortune =
-    legends.find((card: CardFromResponse) => {
-      return card.action.predefinedId === 'wheelOfFortune' && card.card.type === CardType.done
-    }) ||
+    (legends &&
+      legends.find((card: CardFromResponse) => {
+        return card.action.predefinedId === 'wheelOfFortune' && card.card.type === CardType.done
+      })) ||
     (activity && activity.length
       ? (activity.find((txn: Activity) => {
           return (

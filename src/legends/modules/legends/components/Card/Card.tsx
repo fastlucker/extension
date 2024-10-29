@@ -16,7 +16,7 @@ import CardActionComponent from './CardAction'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'description' | 'xp' | 'image' | 'card' | 'action'
+  'title' | 'description' | 'xp' | 'image' | 'card' | 'action' | 'disabled'
 > & {
   children?: React.ReactNode | React.ReactNode[]
 }
@@ -40,7 +40,7 @@ const getBadgeType = (reward: number, type: CardXpType) => {
   return 'primary'
 }
 
-const Card: FC<Props> = ({ title, image, description, children, xp, card, action }) => {
+const Card: FC<Props> = ({ title, image, description, children, xp, card, action, disabled }) => {
   const { isConnectedAccountV2 } = useAccountContext()
   const { activity } = useActivityContext()
 
@@ -68,7 +68,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
   )
 
   return (
-    <div className={`${styles.wrapper}`}>
+    <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
       <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen}>
         <Modal.Heading>{title}</Modal.Heading>
         <Modal.Text className={styles.modalText}>{description}</Modal.Text>
@@ -142,7 +142,9 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
         {!!action.type && (
           <button
             disabled={
-              !isConnectedAccountV2 && !EOA_ACCESSIBLE_CARDS.includes(action.predefinedId || '')
+              (!isConnectedAccountV2 &&
+                !EOA_ACCESSIBLE_CARDS.includes(action.predefinedId || '')) ||
+              disabled
             }
             className={styles.button}
             type="button"

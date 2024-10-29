@@ -92,6 +92,7 @@ const AccountSelectScreen = () => {
           getItemLayout={getItemLayout}
           onContentSizeChange={onContentSizeChange}
           keyExtractor={keyExtractor}
+          maxToRenderPerBatch={20}
           initialScrollIndex={selectedAccountIndex}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />

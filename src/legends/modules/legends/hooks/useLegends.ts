@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { fetchGet } from '@common/services/fetch'
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useActivityContext from '@legends/hooks/useActivityContext'
@@ -31,28 +30,30 @@ const useLegends = (): UseLegendsReturnType => {
     [legends, activity]
   )
 
-  const getLegends = async () => {
+  const getLegends = useCallback(async () => {
     setError(null)
     try {
-      const rawCards = await fetchGet(
+      const rawCards = await fetch(
         `${RELAYER_URL}/legends/cards?identity=${lastConnectedV2Account}`
       )
 
-      const sortedCards = sortCards(rawCards, isConnectedAccountV2)
+      const cards = await rawCards.json()
+
+      const sortedCards = sortCards(cards, isConnectedAccountV2)
       setLegends(sortedCards)
     } catch (e: any) {
-      console.error(e)
       // handle error
       setError('Internal error while fetching legends. Please reload the page or try again later.')
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [lastConnectedV2Account, isConnectedAccountV2])
+
   useEffect(() => {
     if (!lastConnectedV2Account) return
 
     getLegends()
-  }, [isConnectedAccountV2, lastConnectedV2Account])
+  }, [isConnectedAccountV2, lastConnectedV2Account, getLegends])
 
   return {
     legends,
