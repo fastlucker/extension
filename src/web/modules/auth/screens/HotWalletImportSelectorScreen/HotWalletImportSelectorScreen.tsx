@@ -29,14 +29,14 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
-
-import { showEmailVaultInterest } from '../../utils/emailVault'
+import { showEmailVaultInterest } from '@web/modules/auth/utils/emailVault'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 
 const HotWalletImportSelectorScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { isReadyToStoreKeys, hasKeystoreSavedSeed } = useKeystoreControllerState()
+  const { isReadyToStoreKeys, hasKeystoreSavedSeed, keyStoreUid } = useKeystoreControllerState()
   const { addToast } = useToast()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { accounts } = useAccountsControllerState()
@@ -103,7 +103,7 @@ const HotWalletImportSelectorScreen = () => {
     }
 
     if (flow === 'email') {
-      await showEmailVaultInterest(accounts.length, addToast)
+      await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
       return
     }
 
