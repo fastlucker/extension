@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 
 import styles from './AccountDropdown.module.scss'
 
@@ -14,6 +15,7 @@ const AccountDropdown = () => {
   const { lastConnectedV2Account, isConnectedAccountV2, disconnectAccount, chainId } =
     useAccountContext()
   const { character } = useCharacterContext()
+  const { userLeaderboardData } = useLeaderboardContext()
 
   const toggleIsOpen = () => setIsOpen((prev) => !prev)
 
@@ -60,7 +62,7 @@ const AccountDropdown = () => {
           />
           {isConnectedAccountV2 ? (
             <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
-              Level {character.level} / Rank 203
+              Level {character.level} / Rank {userLeaderboardData?.rank || 'N/A'}
             </p>
           ) : (
             <p className={styles.levelAndRank}>V2 Disconnected</p>

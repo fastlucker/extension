@@ -313,6 +313,9 @@ type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
   params: { keyAddr: string }
 }
+type KeystoreControllerSendSeedOverChannel = {
+  type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
+}
 
 type EmailVaultControllerGetInfoAction = {
   type: 'EMAIL_VAULT_CONTROLLER_GET_INFO'
@@ -616,3 +619,4 @@ export type Action =
   | InviteControllerVerifyAction
   | MainControllerTraceCallAction
   | ImportSmartAccountJson
+  | KeystoreControllerSendSeedOverChannel

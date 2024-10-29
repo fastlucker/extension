@@ -40,6 +40,8 @@ const overcomeNonceError = async (page) => {
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
+const TARGET_HEIGHT = 58.7
+const MAX_TIME_WAIT = 30000
 //--------------------------------------------------------------------------------------------------------------
 export async function makeValidTransaction(
   page,
@@ -151,6 +153,71 @@ async function prepareSwap(page) {
   await selectTokenInUni(page, 'token-option-137-USDT', 'USDT')
 }
 
+// Utility function to check if element's parent height matches the target
+const isParentHeightEqual = async (elHandle, targetHeight) => {
+  const heightOfParent = await elHandle.evaluate(
+    (el) => el.parentElement.getBoundingClientRect().height
+  )
+  return parseFloat(heightOfParent.toFixed(1)) === targetHeight
+}
+
+// Utility function to check if element's parent is disabled based on aria-disabled attribute
+const isParentDisabled = async (elHandle) => {
+  return elHandle.evaluate((el) => el.parentElement.getAttribute('aria-disabled') === 'true')
+}
+
+// Utility function to wait for the parent element to become enabled
+const waitForParentEnabled = async (page, elHandle, timeout = 500, maxWaitTime = MAX_TIME_WAIT) => {
+  let isDisabled = true
+  const startTime = Date.now()
+
+  // Use a loop to repeatedly check if the element is enabled
+  /* eslint-disable no-await-in-loop */
+  while (isDisabled) {
+    isDisabled = await isParentDisabled(elHandle)
+
+    if (isDisabled) {
+      const elapsedTime = Date.now() - startTime
+
+      // Break the loop if maxWaitTime exceeded
+      if (elapsedTime >= maxWaitTime) {
+        console.log('Timeout exceeded for enabling the button, breaking the loop')
+        break
+      }
+
+      await page.waitForTimeout(timeout) // Wait for a defined timeout before rechecking
+    }
+  }
+
+  return !isDisabled
+}
+
+// Main function to handle clicking on elements that meet conditions
+const clickMatchingElements = async (page, elementsHandles, targetHeight = TARGET_HEIGHT) => {
+  await Promise.all(
+    elementsHandles.map(async (elHandle) => {
+      try {
+        // Check if the parent's height matches the target height
+        const heightMatches = await isParentHeightEqual(elHandle, targetHeight)
+
+        if (heightMatches) {
+          // Wait until the parent is enabled (aria-disabled = false)
+          const isEnabled = await waitForParentEnabled(page, elHandle)
+
+          if (isEnabled) {
+            // Click the parent element once enabled
+            await elHandle.evaluate((el) => el.parentElement.click())
+          } else {
+            console.log(`Element did not become enabled within a ${MAX_TIME_WAIT / 1000} seconds`)
+          }
+        }
+      } catch (err) {
+        console.error('Error while processing element:', err)
+      }
+    })
+  )
+}
+
 //--------------------------------------------------------------------------------------------------------------
 export async function makeSwap(
   page,
@@ -225,15 +292,32 @@ export async function makeSwap(
     await prepareSwap(page)
   }
 
-  await typeText(page, 'input#swap-currency-output', '0.0001')
+  await typeText(page, '[data-testid="amount-input-out"]', '0.0001')
 
-  await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
+  // TODO: Temporary solution with a delay (the DOM element is not a btn anymore)
+  await clickOnElement(page, 'xpath///span[contains(text(), "Review")]', true, 3000)
+
+  await page.waitForSelector(
+    'xpath///span[contains(@class, "font_button") and contains(text(), "Swap")]',
+    {
+      visible: true,
+      timeout: 3000
+    }
+  )
+
+  const elementsHandles = await page.$x(
+    '//span[contains(@class, "font_button") and contains(text(), "Swap")]'
+  )
+
+  if (elementsHandles.length) await clickMatchingElements(page, elementsHandles)
+  else throw new Error('No elements found')
 
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="confirm-swap-button"]:not([disabled])'
+    '',
+    false
   )
 
   // Check for sign message window
