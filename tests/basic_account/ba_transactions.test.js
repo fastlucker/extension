@@ -3,7 +3,6 @@ import { baParams } from '../config/constants'
 import { SELECTORS } from '../common/selectors/selectors'
 
 import {
-  makeValidTransaction,
   makeSwap,
   sendFundsGreaterThanBalance,
   sendFundsToSmartContract,
@@ -27,16 +26,6 @@ describe('ba_transactions', () => {
   afterEach(async () => {
     await recorder.stop()
     await browser.close()
-  })
-
-  // TODO: probably we don't need this test because we already duplicate it in transfer.test.js
-  it('Makes a valid transaction', async () => {
-    await checkTokenBalanceClickOnGivenActionInDashboard(
-      page,
-      SELECTORS.nativeTokenPolygonDyn,
-      SELECTORS.tokenSend
-    )
-    await makeValidTransaction(page, extensionURL, browser, { shouldStopBeforeSign: true })
   })
 
   it('(-) Sends POL tokens greater than the available balance', async () => {
