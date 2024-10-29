@@ -8,6 +8,9 @@ import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Alert from '@common/components/Alert'
 import useTheme from '@common/hooks/useTheme'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import AddAccount from '@web/modules/account-select/components/AddAccount'
+
+import BottomSheet from '../BottomSheet'
 
 interface Props {
   style?: ViewStyle
@@ -17,6 +20,7 @@ interface Props {
 const NoKeysToSignAlert: FC<Props> = ({ style, isTransaction = true }) => {
   const { accounts, selectedAccount } = useAccountsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { ref: addAccountsRef, open: openAddAccounts, close: closeAddAccounts } = useModalize()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const account = accounts.find(({ addr }) => addr === selectedAccount)
@@ -43,7 +47,16 @@ const NoKeysToSignAlert: FC<Props> = ({ style, isTransaction = true }) => {
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
         account={account}
+        showExportImport
+        openAddAccountBottomSheet={openAddAccounts}
       />
+      <BottomSheet
+        id="no-key-add-account"
+        sheetRef={addAccountsRef}
+        closeBottomSheet={closeAddAccounts}
+      >
+        <AddAccount />
+      </BottomSheet>
     </View>
   )
 }

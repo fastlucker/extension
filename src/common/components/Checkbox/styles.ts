@@ -2,6 +2,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
@@ -12,14 +13,14 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   container: {
-    flexDirection: 'row',
+    ...flexbox.directionRow,
     ...spacings.mb
   },
   checkboxWrapper: {
     // Because the rn-checkbox can't get smaller than 20
     //  it should be scaled down to ~18
     transform: [{ scale: 0.9 }],
-    ...spacings.mr
+    ...spacings.mrSm
   },
   checkbox: {
     width: 20,

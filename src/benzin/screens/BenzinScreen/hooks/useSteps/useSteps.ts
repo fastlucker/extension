@@ -58,6 +58,7 @@ export interface StepsData {
   txnId: string | null
   from: string | null
   originatedFrom: string | null
+  userOp: UserOperation | null
 }
 
 // if the transaction hash is found, we make the top url the real txn id
@@ -248,8 +249,9 @@ const useSteps = ({
         // as it will set incorrect data for sender (from)
         if (!txn) return
 
+        const failedToDecodeUserOp = userOpHash && txnId && userOp && userOp.callData === ''
         setTxnReceipt({
-          from: getSender(receipt, txn),
+          from: failedToDecodeUserOp ? null : getSender(receipt, txn),
           originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
@@ -293,7 +295,9 @@ const useSteps = ({
     refetchReceiptCounter,
     setActiveStep,
     userOpHash,
-    provider
+    provider,
+    txnId,
+    userOp
   ])
 
   // check for error reason
@@ -397,9 +401,22 @@ const useSteps = ({
 
     const sigHash = txn.data.slice(0, 10)
     const is060 = sigHash === handleOpsInterface.getFunction('handleOps')!.selector
-    const handleOpsData = is060
-      ? handleOpsInterface.decodeFunctionData('handleOps', txn.data)
-      : handleOps070.decodeFunctionData('handleOps', txn.data)
+    let handleOpsData = null
+    try {
+      handleOpsData = is060
+        ? handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+        : handleOps070.decodeFunctionData('handleOps', txn.data)
+    } catch (e) {
+      console.log('this txn is an userOp but does not call handleOps')
+      setUserOp({
+        sender: '',
+        callData: '',
+        hashStatus: 'not_found'
+      })
+    }
+
+    if (!handleOpsData) return
+
     const userOperations = handleOpsData[0]
     const abiCoder = new AbiCoder()
 
@@ -527,7 +544,8 @@ const useSteps = ({
     pendingTime,
     txnId: foundTxnId,
     from: txnReceipt.from,
-    originatedFrom: txnReceipt.originatedFrom
+    originatedFrom: txnReceipt.originatedFrom,
+    userOp
   }
 }
 

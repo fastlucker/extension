@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
-import useAccountContext from '@legends/hooks/useAccountContext'
 import Card from '@legends/modules/legends/components/Card'
 import Topbar from '@legends/modules/legends/components/Topbar'
 import { useLegends } from '@legends/modules/legends/hooks'
@@ -12,12 +11,8 @@ import styles from './Legends.module.scss'
 import { MOCK_FILTERS } from './mockData'
 
 const Legends = () => {
-  const { lastConnectedV2Account } = useAccountContext()
   const [selectedFilter, setSelectedFilter] = useState<Filter['value']>(MOCK_FILTERS[0].value)
-
-  const { legends, isLoading, completedCount } = useLegends({
-    connectedAccount: lastConnectedV2Account
-  })
+  const { legends, isLoading, completedCount } = useLegends()
 
   const selectFilter = (filter: Filter) => {
     setSelectedFilter(filter.value)
@@ -43,6 +38,7 @@ const Legends = () => {
               xp={card.xp}
               card={card.card}
               action={card.action}
+              disabled={card.disabled}
             />
           ))}
         </div>

@@ -7,6 +7,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
+  characterName: string
   name: string
   description: string
   level: number
@@ -41,9 +42,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       setIsLoading(false)
       return
     }
-
-    setIsLoading(true)
-    setCharacter(null)
 
     const characterResponse = await fetch(
       `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`

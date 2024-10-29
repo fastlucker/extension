@@ -12,7 +12,11 @@ const handleProviderRequests = async (
 ): Promise<any> => {
   const { method, params, session } = request
   if (method === 'tabCheckin') {
-    session.setProp({ origin: request.origin, name: params.name, icon: params.icon })
+    mainCtrl.dapps.setSessionProp(session.sessionId, {
+      origin: request.origin,
+      name: params.name,
+      icon: params.icon
+    })
     return
   }
 

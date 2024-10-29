@@ -170,6 +170,8 @@ const ambireProvider = new Proxy(provider, {
     return true
   }
 })
+
+export { ambireProvider }
 window.ambire = ambireProvider
 
 const announceEip6963Provider = (p: EthereumProvider) => {

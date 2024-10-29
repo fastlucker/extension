@@ -7,6 +7,7 @@ import { DomainsContextProvider } from '../common/contexts/domainsContext'
 import { AccountContextProvider } from './contexts/accountContext'
 import { ActivityContextProvider } from './contexts/activityContext'
 import { CharacterContextProvider } from './contexts/characterContext'
+import { LeaderboardContextProvider } from './contexts/leaderboardContext'
 import { PortfolioControllerStateProvider } from './contexts/portfolioControllerStateContext'
 import { ToastContextProvider } from './contexts/toastsContext'
 import Router from './modules/router/Router'
@@ -23,13 +24,15 @@ const LegendsInit = () => {
       <ToastContextProvider>
         <AccountContextProvider>
           <CharacterContextProvider>
-            <ActivityContextProvider>
-              <PortfolioControllerStateProvider>
-                <DomainsContextProvider>
-                  <Router />
-                </DomainsContextProvider>
-              </PortfolioControllerStateProvider>
-            </ActivityContextProvider>
+            <LeaderboardContextProvider>
+              <ActivityContextProvider>
+                <PortfolioControllerStateProvider>
+                  <DomainsContextProvider>
+                    <Router />
+                  </DomainsContextProvider>
+                </PortfolioControllerStateProvider>
+              </ActivityContextProvider>
+            </LeaderboardContextProvider>
           </CharacterContextProvider>
         </AccountContextProvider>
       </ToastContextProvider>

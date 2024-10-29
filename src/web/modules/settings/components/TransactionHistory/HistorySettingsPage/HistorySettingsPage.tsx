@@ -77,7 +77,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       networks.map((n) => ({
         value: n.id,
         label: <Text weight="medium">{n.name}</Text>,
-        icon: <NetworkIcon id={n.id} />
+        icon: <NetworkIcon key={n.id} id={n.id} />
       })),
     [networks]
   )

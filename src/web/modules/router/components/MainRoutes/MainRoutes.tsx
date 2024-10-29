@@ -47,11 +47,14 @@ import ExportKeyScreen from '@web/modules/settings/screens/ExportKeyScreen'
 import GeneralSettingsScreen from '@web/modules/settings/screens/GeneralSettingsScreen'
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
+import SavedSeedScreen from '@web/modules/settings/screens/SavedSeedScreen'
+import SecurityAndPrivacyScreen from '@web/modules/settings/screens/SecurityAndPrivacyScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen'
 import TermsSettingsScreen from '@web/modules/settings/screens/TermsSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
+import SwapAndBridgeScreen from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen'
 import Terms from '@web/modules/terms/screens/Terms'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
@@ -126,10 +129,16 @@ const MainRoutes = () => {
                   </TransferControllerStateProvider>
                 }
               />
+              <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
               <Route element={<SettingsRoutesProvider />}>
                 <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
+                <Route
+                  path={WEB_ROUTES.securityAndPrivacy}
+                  element={<SecurityAndPrivacyScreen />}
+                />
                 <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
                 <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
+                <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
                 <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
                 <Route
                   path={WEB_ROUTES.transactions}

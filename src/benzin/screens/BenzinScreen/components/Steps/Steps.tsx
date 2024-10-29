@@ -21,7 +21,7 @@ interface Props {
 }
 
 const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, summary }) => {
-  const { nativePrice, blockData, finalizedStatus, cost, calls, from, originatedFrom } = stepsState
+  const { nativePrice, blockData, finalizedStatus, cost, from, originatedFrom } = stepsState
 
   const stepRows: any = [
     {
@@ -85,9 +85,9 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
           testID="txn-progress-step"
         >
           {!!summary && summary}
-          {!!calls && !calls.length && stepsState.finalizedStatus?.status !== 'fetching' && (
+          {!summary.length && stepsState.finalizedStatus?.status !== 'fetching' && (
             <Text appearance="errorText" fontSize={14}>
-              Could not decode calldata
+              Could not decode calldata. Open the explorer for a better summarization
             </Text>
           )}
         </Step>

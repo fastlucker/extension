@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import { Session } from '@ambire-common/classes/session'
 import { DappsController } from '@ambire-common/controllers/dapps/dapps'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { isValidURL } from '@ambire-common/services/validations'
@@ -11,17 +10,12 @@ import useControllerState from '@web/hooks/useControllerState'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 // @ts-ignore
-interface DappControllerState extends DappsController {
-  dappsSessionMap: {
-    [k: string]: Session
-  }
-}
 
 const DappsControllerStateContext = createContext<{
-  state: DappControllerState
+  state: DappsController
   currentDapp: Dapp | null
 }>({
-  state: {} as DappControllerState,
+  state: {} as DappsController,
   currentDapp: null
 })
 
@@ -34,7 +28,7 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
     if (!tab.id || !tab.url) return
     const domain = getOriginFromUrl(tab.url)
     // @ts-ignore
-    const currentSession = newState.dappsSessionMap?.[`${tab.id}-${domain}`] || {}
+    const currentSession = newState.dappSessions?.[`${tab.id}-${domain}`] || {}
 
     const dapp = newState.dapps.find((d) => d.url === currentSession.origin)
 
@@ -60,7 +54,7 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
     <DappsControllerStateContext.Provider
       value={useMemo(
         () => ({
-          state: state as never as DappControllerState,
+          state,
           currentDapp
         }),
         [state, currentDapp]
