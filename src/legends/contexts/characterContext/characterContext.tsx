@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import LegendsNFT from '@contracts/compiled/LegendsNft.json'
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useToast from '@legends/hooks/useToast'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
@@ -22,19 +23,25 @@ const CharacterContext = createContext<{
   mintCharacter: (type: number) => void
   isLoading: boolean
   isMinting: boolean
+  error: string | null
 }>({
   character: null,
   getCharacter: () => {},
   mintCharacter: () => {},
   isLoading: false,
-  isMinting: false
+  isMinting: false,
+  error: null
 })
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { lastConnectedV2Account, isConnectedAccountV2 } = useAccountContext()
+  const { addToast } = useToast()
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
+  // In case of this error, a global <ErrorPage /> will be rendered in place of all other components,
+  // as loading a character is crucial for playing in Legends.
+  const [error, setError] = useState<string | null>(null)
 
   const getCharacter = useCallback(async () => {
     if (!lastConnectedV2Account) {
@@ -43,12 +50,21 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       return
     }
 
-    const characterResponse = await fetch(
-      `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
-    )
+    try {
+      const characterResponse = await fetch(
+        `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
+      )
+
+      const characterJson = await characterResponse.json()
+
+      setCharacter(characterJson as Character)
+      setError(null)
+    } catch (e) {
+      setError(`Couldn't load the requested character: ${lastConnectedV2Account}`)
+      console.error(e)
+    }
 
     setIsLoading(false)
-    setCharacter(await characterResponse.json())
   }, [lastConnectedV2Account])
 
   const mintCharacter = useCallback(
@@ -73,7 +89,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       // Create a contract instance
       const nftContract = new ethers.Contract(contractAddress, abi, signer)
 
-      // TODO: Keep the error in the state and render it in a component
       try {
         // Call the mint function and wait for the transaction response
         const tx = await nftContract.mint(type)
@@ -86,12 +101,12 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
           await getCharacter()
           setIsMinting(false)
         } else {
-          alert('Error selecting a character: The transaction failed!')
+          addToast('Error selecting a character: The transaction failed!', 'error')
         }
-      } catch (error) {
+      } catch (e) {
         setIsMinting(false)
-        alert('Error during minting process!')
-        console.log('Error during minting process:', error)
+        addToast('Error during minting process!', 'error')
+        console.log('Error during minting process:', e)
       }
     },
     [isConnectedAccountV2, getCharacter]
@@ -109,9 +124,10 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
           getCharacter,
           mintCharacter,
           isLoading,
-          isMinting
+          isMinting,
+          error
         }),
-        [character, getCharacter, mintCharacter, isLoading, isMinting]
+        [character, getCharacter, mintCharacter, isLoading, isMinting, error]
       )}
     >
       {children}

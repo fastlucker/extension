@@ -40,7 +40,7 @@ function getBackgroundRequestsByType(requests) {
 async function monitorRequests(
   client,
   requestInducingFunction,
-  { maxTimeBetweenRequests = 2000, throttleRequestsByMs = 0 } = {}
+  { maxTimeBetweenRequests = 2000, throttleRequestsByMs = 0, blockRequests = [] } = {}
 ) {
   const httpRequests = []
   let lastRequestTime = null
@@ -56,6 +56,11 @@ async function monitorRequests(
     httpRequests.push(request.url)
     // Synchronize updates to lastRequestTime to avoid race conditions
     lastRequestTime = Date.now()
+
+    if (blockRequests.some((blockRequest) => request.url.includes(blockRequest))) {
+      await client.send('Fetch.failRequest', { requestId, errorReason: 'Aborted' })
+      return
+    }
 
     if (throttleRequestsByMs) {
       await wait(throttleRequestsByMs)

@@ -454,7 +454,7 @@ export const handleActions = async (
     case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
       return await mainCtrl.emailVault.uploadKeyStoreSecret(params.email)
     case 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY':
-      return await mainCtrl.emailVault.handleMagicLinkKey(params.email)
+      return await mainCtrl.emailVault.handleMagicLinkKey(params.email, undefined, params.flow)
     case 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION':
       return mainCtrl.emailVault.cancelEmailConfirmation()
     case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
