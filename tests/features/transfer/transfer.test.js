@@ -1,16 +1,18 @@
-import { SELECTORS } from '../../common/selectors/selectors'
 import { saParams } from '../../config/constants'
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../../constants/constants'
+import {
+  POL_TOKEN_SELECTOR,
+  DASHBOARD_SEND_BTN_SELECTOR,
+  DASHBOARD_TOP_UP_BTN_SELECTOR,
+  FEE_TOKEN_POL_SELECTOR,
+  BIG_AMOUNT
+} from './constants'
 
 import {
   makeValidTransaction,
   checkTokenBalanceClickOnGivenActionInDashboard
 } from '../../common/transactions.js'
-
-const polTokenSelector = SELECTORS.nativeTokenPolygonDyn
-const dashboardSendBtn = SELECTORS.tokenSend
-const dashboardTopUpAction = SELECTORS.topUpButton
 
 describe('transfer', () => {
   let browser
@@ -28,7 +30,11 @@ describe('transfer', () => {
   })
 
   it('should build a transfer request to an address from the address book', async () => {
-    await checkTokenBalanceClickOnGivenActionInDashboard(page, polTokenSelector, dashboardSendBtn)
+    await checkTokenBalanceClickOnGivenActionInDashboard(
+      page,
+      POL_TOKEN_SELECTOR,
+      DASHBOARD_SEND_BTN_SELECTOR
+    )
 
     await makeValidTransaction(page, extensionURL, browser, {
       shouldStopBeforeSign: true,
@@ -37,35 +43,41 @@ describe('transfer', () => {
   })
 
   it('should build a transfer request to an unknown address', async () => {
-    await checkTokenBalanceClickOnGivenActionInDashboard(page, polTokenSelector, dashboardSendBtn)
+    await checkTokenBalanceClickOnGivenActionInDashboard(
+      page,
+      POL_TOKEN_SELECTOR,
+      DASHBOARD_SEND_BTN_SELECTOR
+    )
     await makeValidTransaction(page, extensionURL, browser, {
       shouldStopBeforeSign: true
     })
   })
 
   it('should not allow to build a transfer request with an amount exceeding the available token balance', async () => {
-    await checkTokenBalanceClickOnGivenActionInDashboard(page, polTokenSelector, dashboardSendBtn)
+    await checkTokenBalanceClickOnGivenActionInDashboard(
+      page,
+      POL_TOKEN_SELECTOR,
+      DASHBOARD_SEND_BTN_SELECTOR
+    )
     await makeValidTransaction(page, extensionURL, browser, {
       shouldStopBeforeSign: true,
       shouldSendButtonBeDisabled: true,
-      tokenAmount: '22222'
+      tokenAmount: BIG_AMOUNT
     })
   })
 
   it('should build a top-up gas tank request', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      polTokenSelector,
-      dashboardTopUpAction
+      POL_TOKEN_SELECTOR,
+      DASHBOARD_TOP_UP_BTN_SELECTOR
     )
 
     await makeValidTransaction(page, extensionURL, browser, {
       recipient: SMART_ACC_VIEW_ONLY_ADDRESS,
-      feeToken:
-        '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]',
+      feeToken: FEE_TOKEN_POL_SELECTOR,
       shouldStopBeforeSign: true,
       shouldSendButtonBeDisabled: true,
-      tokenAmount: '0.0001',
       shouldTopUpGasTang: true
     })
   })
