@@ -346,6 +346,10 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
   await selectPolToken(page)
 
+  // Wait for the max amount to load
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000)
+  })
   // Get the available balance
   const maxAvailableAmount = await page.evaluate(() => {
     const balance = document.querySelector('[data-testid="max-available-amount"]')
