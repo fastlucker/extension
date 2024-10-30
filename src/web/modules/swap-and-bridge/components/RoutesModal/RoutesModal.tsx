@@ -91,11 +91,6 @@ const RoutesModal = ({
     closeBottomSheet()
   }, [closeBottomSheet, dispatch, quote?.selectedRoute?.routeId, selectedRoute])
 
-  const isConfirmSelectionDisabled = useMemo(() => {
-    if (!selectedRoute) return false
-    return selectedRoute?.routeId === quote?.selectedRoute.routeId
-  }, [quote?.selectedRoute.routeId, selectedRoute])
-
   const selectedRouteIndex = useMemo(() => {
     if (!quote?.routes || !quote.routes.length) return 0
     if (!selectedRoute) return 0
@@ -160,7 +155,7 @@ const RoutesModal = ({
           text={t('Confirm')}
           size="large"
           onPress={handleConfirmRouteSelection}
-          disabled={isConfirmSelectionDisabled}
+          disabled={!selectedRoute}
           hasBottomSpacing={false}
         />
       </View>
