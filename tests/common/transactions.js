@@ -54,7 +54,12 @@ async function isAriaDisabled(page, selector) {
   return ariaDisabledValue === 'true'
 }
 
-async function prepareTransaction(page, recipient, amount, shouldUseAddressBookRecipient) {
+export async function prepareTransaction(
+  page,
+  recipient,
+  amount,
+  { shouldUseAddressBookRecipient = false, shouldSendButtonBeDisabled = false } = {}
+) {
   await page.waitForSelector(amountField)
   await selectPolToken(page)
   await typeText(page, amountField, amount)
@@ -77,6 +82,12 @@ async function prepareTransaction(page, recipient, amount, shouldUseAddressBookR
   } else {
     await clickOnElement(page, SELECTORS.addressEnsField)
     await clickOnElement(page, buildSelector(TEST_IDS.addressBookMyWalletContactDyn, 1))
+  }
+
+  if (shouldSendButtonBeDisabled) {
+    const isDisabled = await isAriaDisabled(page, SELECTORS.transferButtonConfirm)
+
+    expect(isDisabled).toBe(true)
   }
 }
 
@@ -109,16 +120,18 @@ async function handleTransaction(page, extensionURL, browser, feeToken, shouldSt
 
 export async function checkTokenBalanceClickOnGivenActionInDashboard(
   page,
-  selectToken,
-  selectAction
+  selectedToken,
+  selectedAction,
+  minBalance = 0.01
 ) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
-  await checkBalanceOfToken(page, selectToken, 0.01)
-
-  await clickOnElement(page, selectToken)
-
-  await clickOnElement(page, selectAction, true, 500)
+  // Check ths balance of the selected token if it's lower than 'minBalance' and throws an error if it is
+  await checkBalanceOfToken(page, selectedToken, minBalance)
+  // Click on the token, which opens the modal with actions
+  await clickOnElement(page, selectedToken)
+  // Click on given action
+  await clickOnElement(page, selectedAction, true, 500)
 }
 
 export async function makeValidTransaction(
@@ -130,7 +143,6 @@ export async function makeValidTransaction(
     recipient = SMART_ACC_VIEW_ONLY_ADDRESS,
     tokenAmount = '0.0001',
     shouldStopBeforeSign = false,
-    shouldSendButtonBeDisabled = false,
     shouldUseAddressBookRecipient = false,
     shouldTopUpGasTank = false
   } = {}
@@ -140,15 +152,9 @@ export async function makeValidTransaction(
   if (shouldTopUpGasTank) {
     await prepareGasTankTopUp(page, recipient, tokenAmount)
   } else {
-    await prepareTransaction(page, recipient, tokenAmount, shouldUseAddressBookRecipient)
-  }
-
-  if (shouldSendButtonBeDisabled && !shouldTopUpGasTank) {
-    const isDisabled = await isAriaDisabled(page, SELECTORS.transferButtonConfirm)
-
-    expect(isDisabled).toBe(true)
-
-    return
+    await prepareTransaction(page, recipient, tokenAmount, {
+      shouldUseAddressBookRecipient
+    })
   }
 
   await handleTransaction(page, extensionURL, browser, feeToken, shouldStopBeforeSign)

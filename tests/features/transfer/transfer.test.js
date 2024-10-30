@@ -10,6 +10,7 @@ import {
 } from './constants'
 
 import {
+  prepareTransaction,
   makeValidTransaction,
   checkTokenBalanceClickOnGivenActionInDashboard
 } from '../../common/transactions.js'
@@ -59,10 +60,8 @@ describe('transfer', () => {
       POL_TOKEN_SELECTOR,
       DASHBOARD_SEND_BTN_SELECTOR
     )
-    await makeValidTransaction(page, extensionURL, browser, {
-      shouldStopBeforeSign: true,
-      shouldSendButtonBeDisabled: true,
-      tokenAmount: BIG_AMOUNT
+    await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, BIG_AMOUNT, {
+      shouldSendButtonBeDisabled: true
     })
   })
 
@@ -77,7 +76,6 @@ describe('transfer', () => {
       recipient: SMART_ACC_VIEW_ONLY_ADDRESS,
       feeToken: FEE_TOKEN_POL_SELECTOR,
       shouldStopBeforeSign: true,
-      shouldSendButtonBeDisabled: true,
       shouldTopUpGasTank: true
     })
   })
