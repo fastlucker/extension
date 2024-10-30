@@ -9,9 +9,9 @@ import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import useActivityContext from '@legends/hooks/useActivityContext'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
-import { useLegends } from '@legends/modules/legends/hooks'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import Link from './components/Link'
@@ -41,7 +41,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const { wheelSpinOfTheDay } = useLegends()
+  const { wheelSpinOfTheDay } = useLegendsContext()
   const containerRef = useRef(null)
 
   const handleModal = () => {

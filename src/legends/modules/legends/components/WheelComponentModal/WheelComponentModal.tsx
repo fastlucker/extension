@@ -11,8 +11,8 @@ import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useActivityContext from '@legends/hooks/useActivityContext'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
-import { useLegends } from '@legends/modules/legends/hooks'
 
 import styles from './WheelComponentModal.module.scss'
 import wheelData from './wheelData'
@@ -33,7 +33,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   const { getActivity } = useActivityContext()
   const { connectedAccount, isConnectedAccountV2 } = useAccountContext()
   const { addToast } = useToast()
-  const { getLegends } = useLegends()
+  const { getLegends } = useLegendsContext()
 
   const checkTransactionStatus = useCallback(async () => {
     if (spinOfTheDay === 1) return true
@@ -145,7 +145,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   return (
     <Modal className={styles.modal} isOpen={isOpen} setIsOpen={setIsOpen}>
       {!mustSpin && spinOfTheDay ? (
-        <ConfettiAnimation width={800} height={600} autoPlay className={styles.confetti} />
+        <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
       ) : null}
       <Modal.Heading className={styles.heading}>Spin the wheel</Modal.Heading>
       <Modal.Text className={styles.description}>
