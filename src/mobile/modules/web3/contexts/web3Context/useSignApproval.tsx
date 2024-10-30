@@ -4,7 +4,7 @@
 // eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3, eth_signTypedData_v4
 import { useCallback, useEffect, useState } from 'react'
 
-import useAccounts from '@common/hooks/useAccounts'
+import useAccounts from '@common/hooks/useAccountsList'
 import useNetwork from '@common/hooks/useNetwork'
 
 import { APPROVAL_REQUESTS_STORAGE_KEY, UseSignApprovalProps } from './types'
