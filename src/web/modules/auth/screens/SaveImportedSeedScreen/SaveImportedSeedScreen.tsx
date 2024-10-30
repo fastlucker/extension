@@ -89,6 +89,7 @@ const PrivateKeyImportScreen = () => {
           </View>
           <View style={[flexbox.directionRow, spacings.mt2Xl]}>
             <Button
+              testID="save-seed-button"
               text="Save"
               onPress={handleSaveSeedAndProceed}
               type="primary"
@@ -96,6 +97,7 @@ const PrivateKeyImportScreen = () => {
               style={spacings.mrTy}
             />
             <Button
+              testID="do-not-save-seed-button"
               onPress={handleDoNotSaveSeedAndProceed}
               type="secondary"
               text="Don't save"
