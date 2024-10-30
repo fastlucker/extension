@@ -9,7 +9,7 @@ import {
 import { baParams } from '../config/constants'
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { clickOnElement } from '../common-helpers/clickOnElement'
-import { SELECTORS } from '../common/selectors/selectors.js'
+import { SELECTORS } from '../common/selectors/selectors.ts'
 
 describe('Monitor network requests and make sure only necessary requests are made', () => {
   let browser
