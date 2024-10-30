@@ -86,8 +86,7 @@ const SignMessageScreen = () => {
       networks.find((n) => {
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
-          ? n.chainId.toString() ===
-              signMessageState.messageToSign?.content.domain.chainId.toString()
+          ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
           : n.id === signMessageState.messageToSign?.networkId
       }),
     [networks, signMessageState.messageToSign]
