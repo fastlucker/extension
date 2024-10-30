@@ -70,8 +70,6 @@ const AccountSelectScreen = () => {
     }
   }, [selectedAccount, navigate, pendingToBeSetSelectedAccount])
 
-  // console.log(search, accounts.length, !search ? selectedAccountIndex : 0)
-
   return !pendingToBeSetSelectedAccount ? (
     <TabLayoutContainer
       header={<Header withPopupBackButton withAmbireLogo />}
