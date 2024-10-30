@@ -435,13 +435,8 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
       return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
-    case 'KEYSTORE_CONTROLLER_LOCK': {
-      // flush temporary seeds that haven't been persisted to storage, if any
-      // have been left by chancee
-      await mainCtrl.keystore.deleteTempSeed()
-
+    case 'KEYSTORE_CONTROLLER_LOCK':
       return mainCtrl.keystore.lock()
-    }
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
       return mainCtrl.keystore.resetErrorState()
     case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
@@ -460,7 +455,7 @@ export const handleActions = async (
       if (params.shouldPersist) {
         return await mainCtrl.keystore.addTempSeedToKeystoreSeeds()
       }
-      return await mainCtrl.keystore.deleteTempSeed()
+      return mainCtrl.keystore.deleteTempSeed()
     }
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
