@@ -109,14 +109,23 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
           params: { activeRouteId: action.meta.activeRouteId }
         })
       }
+
+      if (action.actionName === 'hide-activity-banner') {
+        dispatch({
+          type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
+          params: action.meta
+        })
+      }
     },
     [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]
   )
 
   const renderButtons = useMemo(
     () =>
-      actions.map((action) => {
-        const isReject = ERROR_ACTIONS.includes(action.actionName)
+      actions.map((action: Action) => {
+        const isReject =
+          ERROR_ACTIONS.includes(action.actionName) ||
+          ('meta' in action && 'isReject' in action.meta && action.meta.isReject)
         let actionText = action.label
         let isDisabled = false
 
