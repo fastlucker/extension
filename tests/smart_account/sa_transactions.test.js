@@ -3,7 +3,6 @@ import { saParams } from '../config/constants'
 import { SELECTORS } from '../common/selectors/selectors'
 
 import {
-  checkTokenBalanceClickOnGivenActionInDashboard,
   makeSwap,
   sendFundsGreaterThanBalance,
   sendFundsToSmartContract,

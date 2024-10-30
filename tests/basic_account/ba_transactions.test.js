@@ -6,8 +6,7 @@ import {
   makeSwap,
   sendFundsGreaterThanBalance,
   sendFundsToSmartContract,
-  signMessage,
-  checkTokenBalanceClickOnGivenActionInDashboard
+  signMessage
 } from '../common/transactions.js'
 
 describe('ba_transactions', () => {
