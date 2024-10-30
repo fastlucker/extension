@@ -115,7 +115,7 @@ const InputSendToken = ({
         leftIconStyle={amountFieldMode === 'token' ? spacings.pl0 : spacings.plTy}
         inputStyle={amountFieldMode === 'token' ? {} : spacings.plMi}
         onButtonPress={handleSetMaxAmount}
-        buttonProps={{ withBackground: true }}
+        buttonProps={{ withBackground: true, disabled: disabled || isLoading }}
         disabled={disabled}
       />
       <View
