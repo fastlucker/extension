@@ -5,7 +5,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import networks, { NetworkType } from '@common/constants/networks'
-import useAccounts from '@common/hooks/useAccounts'
+import useAccounts from '@common/hooks/useAccountsList'
 import useNetwork from '@common/hooks/useNetwork'
 import usePrevious from '@common/hooks/usePrevious'
 import getHostname from '@common/utils/getHostname'

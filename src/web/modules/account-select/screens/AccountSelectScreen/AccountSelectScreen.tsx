@@ -11,7 +11,7 @@ import Button from '@common/components/Button'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
-import useAccounts from '@common/hooks/useAccounts'
+import useAccountsList from '@common/hooks/useAccountsList'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import DashboardSkeleton from '@common/modules/dashboard/screens/Skeleton'
@@ -28,15 +28,15 @@ import getStyles from './styles'
 
 const AccountSelectScreen = () => {
   const { styles, theme } = useTheme(getStyles)
+  const flatlistRef = useRef(null)
   const {
     accounts,
     control,
-    selectedAccountIndex,
     onContentSizeChange,
     keyExtractor,
     getItemLayout,
     isReadyToScrollToSelectedAccount
-  } = useAccounts()
+  } = useAccountsList({ flatlistRef })
   const { navigate } = useNavigation()
   const { selectedAccount } = useAccountsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -70,6 +70,8 @@ const AccountSelectScreen = () => {
     }
   }, [selectedAccount, navigate, pendingToBeSetSelectedAccount])
 
+  // console.log(search, accounts.length, !search ? selectedAccountIndex : 0)
+
   return !pendingToBeSetSelectedAccount ? (
     <TabLayoutContainer
       header={<Header withPopupBackButton withAmbireLogo />}
@@ -87,13 +89,12 @@ const AccountSelectScreen = () => {
               opacity: isReadyToScrollToSelectedAccount ? 1 : 0
             }
           ]}
+          wrapperRef={flatlistRef}
           data={accounts}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
           onContentSizeChange={onContentSizeChange}
           keyExtractor={keyExtractor}
-          maxToRenderPerBatch={20}
-          initialScrollIndex={selectedAccountIndex}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />
         <View style={[spacings.ptSm, { width: '100%' }]}>
