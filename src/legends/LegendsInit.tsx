@@ -2,7 +2,9 @@ import React from 'react'
 
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
+import ErrorBoundary from 'react-native-error-boundary'
 
+import ErrorPage from './components/ErrorPage'
 import { DomainsContextProvider } from '../common/contexts/domainsContext'
 import { AccountContextProvider } from './contexts/accountContext'
 import { ActivityContextProvider } from './contexts/activityContext'
@@ -20,24 +22,26 @@ declare global {
 
 const LegendsInit = () => {
   return (
-    <PortalProvider>
-      <ToastContextProvider>
-        <AccountContextProvider>
-          <CharacterContextProvider>
-            <LeaderboardContextProvider>
-              <ActivityContextProvider>
-                <PortfolioControllerStateProvider>
-                  <DomainsContextProvider>
-                    <Router />
-                  </DomainsContextProvider>
-                </PortfolioControllerStateProvider>
-              </ActivityContextProvider>
-            </LeaderboardContextProvider>
-          </CharacterContextProvider>
-        </AccountContextProvider>
-      </ToastContextProvider>
-      <PortalHost name="global" />
-    </PortalProvider>
+    <ErrorBoundary FallbackComponent={() => <ErrorPage />}>
+      <PortalProvider>
+        <ToastContextProvider>
+          <AccountContextProvider>
+            <CharacterContextProvider>
+              <LeaderboardContextProvider>
+                <ActivityContextProvider>
+                  <PortfolioControllerStateProvider>
+                    <DomainsContextProvider>
+                      <Router />
+                    </DomainsContextProvider>
+                  </PortfolioControllerStateProvider>
+                </ActivityContextProvider>
+              </LeaderboardContextProvider>
+            </CharacterContextProvider>
+          </AccountContextProvider>
+        </ToastContextProvider>
+        <PortalHost name="global" />
+      </PortalProvider>
+    </ErrorBoundary>
   )
 }
 
