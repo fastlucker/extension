@@ -145,7 +145,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   return (
     <Modal className={styles.modal} isOpen={isOpen} setIsOpen={setIsOpen}>
       {!mustSpin && spinOfTheDay ? (
-        <ConfettiAnimation width={600} height={600} autoPlay className={styles.confetti} />
+        <ConfettiAnimation width={800} height={600} autoPlay className={styles.confetti} />
       ) : null}
       <Modal.Heading className={styles.heading}>Spin the wheel</Modal.Heading>
       <Modal.Text className={styles.description}>
