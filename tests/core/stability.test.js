@@ -35,7 +35,7 @@ const startSWAndUnlockKeystore = async (page, extensionURL, recorder, serviceWor
   }
 }
 
-describe('Test the stability of the extension', () => {
+describe("The extension works properly when crucial APIs aren't working from launch", () => {
   let browser
   let page
   let recorder
@@ -136,3 +136,5 @@ describe('Test the stability of the extension', () => {
   })
   // TODO: Write more tests that the relayer and maybe more RPCs
 })
+// TODO: Write more tests in which APIs fail mid-operation
+// describe('The extension works properly when crucial APIs stop working mid-operation', () => {})
