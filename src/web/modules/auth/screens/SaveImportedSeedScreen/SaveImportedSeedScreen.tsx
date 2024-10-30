@@ -8,6 +8,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -29,6 +30,7 @@ const PrivateKeyImportScreen = () => {
   const { dispatch } = useBackgroundService()
   const keystoreState = useKeystoreControllerState()
   const { updateStepperState } = useStepper()
+  const { addToast } = useToast()
 
   useEffect(() => {
     updateStepperState(WEB_ROUTES.saveImportedSeed, 'seed-with-option-to-save')
@@ -44,16 +46,18 @@ const PrivateKeyImportScreen = () => {
       type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP',
       params: { shouldPersist: true }
     })
+    addToast(t('Seed Phrase successfully saved'))
     navigate(WEB_ROUTES.dashboard)
-  }, [dispatch, navigate])
+  }, [dispatch, navigate, addToast, t])
 
   const handleDoNotSaveSeedAndProceed = useCallback(() => {
     dispatch({
       type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP',
       params: { shouldPersist: false }
     })
+    addToast(t('Seed Phrase NOT saved in the extension'), { type: 'warning' })
     navigate(WEB_ROUTES.dashboard)
-  }, [dispatch, navigate])
+  }, [dispatch, navigate, addToast, t])
 
   return (
     <TabLayoutContainer

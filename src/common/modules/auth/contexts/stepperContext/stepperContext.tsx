@@ -7,7 +7,14 @@ const ACCOUNT_ADDER_STEP = 'Select accounts\nto import'
 const DEVICE_PASSWORD_STEP = 'Set up a\ndevice password'
 const PERSONALIZE_STEP = 'Personalize\nyour accounts'
 
-export type StepperFlow = 'email' | 'hw' | 'private-key' | 'seed' | 'create-seed' | 'import-json'
+export type StepperFlow =
+  | 'email'
+  | 'hw'
+  | 'private-key'
+  | 'seed'
+  | 'create-seed'
+  | 'import-json'
+  | 'seed-with-option-to-save'
 
 export const STEPPER_FLOWS = {
   email: {
