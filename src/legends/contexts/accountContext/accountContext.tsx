@@ -116,7 +116,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     window.ambire?.on('chainChanged', onChainChanged)
 
     return () => {
-      window.ambire.removeListener('chainChanged', onChainChanged)
+      window.ambire?.removeListener('chainChanged', onChainChanged)
     }
   }, [getChainId])
 
@@ -148,7 +148,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     window.ambire?.on('accountsChanged', onAccountsChanged)
 
     return () => {
-      window.ambire.removeListener('accountsChanged', onAccountsChanged)
+      window.ambire?.removeListener('accountsChanged', onAccountsChanged)
     }
   }, [getConnectedAccount, handleDisconnectFromWallet, validateAndSetAccount])
 
