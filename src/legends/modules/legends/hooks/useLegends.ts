@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import { fetchGet } from '@common/services/fetch'
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import { CardFromResponse, CardType } from '@legends/modules/legends/types'
@@ -28,11 +27,13 @@ const useLegends = (): UseLegendsReturnType => {
     const fetchData = async () => {
       setError(null)
       try {
-        const rawCards = await fetchGet(
+        const rawCards = await fetch(
           `${RELAYER_URL}/legends/cards?identity=${lastConnectedV2Account}`
         )
 
-        const sortedCards = sortCards(rawCards, isConnectedAccountV2)
+        const cards = await rawCards.json()
+
+        const sortedCards = sortCards(cards, isConnectedAccountV2)
         setLegends(sortedCards)
       } catch (e: any) {
         console.error(e)

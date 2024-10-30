@@ -79,6 +79,9 @@ export const TEST_IDS = {
   tokenSend: 'token-send'
 }
 
-export const SELECTORS = Object.fromEntries(
+type SelectorKey = keyof typeof TEST_IDS
+type Selectors = { [K in SelectorKey]?: string }
+
+export const SELECTORS: Selectors = Object.fromEntries(
   Object.entries(TEST_IDS).map(([key, value]) => [key, buildSelector(value)])
 )
