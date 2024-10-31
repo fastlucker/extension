@@ -41,23 +41,27 @@ const PrivateKeyImportScreen = () => {
       navigate(WEB_ROUTES.dashboard)
   }, [keystoreState.hasKeystoreSavedSeed, keystoreState.hasKeystoreTempSeed, navigate])
 
+  useEffect(() => {
+    if (keystoreState.statuses.moveTempSeedToKeystoreSeeds === 'SUCCESS') {
+      addToast(t('Seed Phrase successfully saved'))
+      navigate(WEB_ROUTES.dashboard)
+    }
+  }, [keystoreState.statuses.moveTempSeedToKeystoreSeeds, navigate, addToast, t])
+
   const handleSaveSeedAndProceed = useCallback(() => {
     dispatch({
       type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP',
       params: { shouldPersist: true }
     })
-    addToast(t('Seed Phrase successfully saved'))
-    navigate(WEB_ROUTES.dashboard)
-  }, [dispatch, navigate, addToast, t])
+  }, [dispatch])
 
   const handleDoNotSaveSeedAndProceed = useCallback(() => {
     dispatch({
       type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP',
       params: { shouldPersist: false }
     })
-    addToast(t('Seed Phrase NOT saved in the extension'), { type: 'warning' })
     navigate(WEB_ROUTES.dashboard)
-  }, [dispatch, navigate, addToast, t])
+  }, [dispatch, navigate])
 
   return (
     <TabLayoutContainer
@@ -90,7 +94,7 @@ const PrivateKeyImportScreen = () => {
           <View style={[flexbox.directionRow, spacings.mt2Xl]}>
             <Button
               testID="save-seed-button"
-              text="Save"
+              text={t('Save')}
               onPress={handleSaveSeedAndProceed}
               type="primary"
               size="large"
@@ -100,7 +104,7 @@ const PrivateKeyImportScreen = () => {
               testID="do-not-save-seed-button"
               onPress={handleDoNotSaveSeedAndProceed}
               type="secondary"
-              text="Don't save"
+              text={t("Don't save")}
               size="large"
             />
           </View>
