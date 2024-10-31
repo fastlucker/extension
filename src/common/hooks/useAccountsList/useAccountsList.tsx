@@ -1,12 +1,17 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { FlatList } from 'react-native'
 
 import { Account as AccountType } from '@ambire-common/interfaces/account'
 import { findAccountDomainFromPartialDomain } from '@common/utils/domains'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 
-const useAccounts = () => {
+const useAccountsList = ({
+  flatlistRef
+}: {
+  flatlistRef?: React.RefObject<FlatList<AccountType>> | null
+} = {}) => {
   const { control, watch } = useForm({
     mode: 'all',
     defaultValues: {
@@ -14,13 +19,14 @@ const useAccounts = () => {
     }
   })
   const search = watch('search')
+  const [areAccountsRendered, setAreAccountsRendered] = useState(false)
   const [isReadyToScrollToSelectedAccount, setIsReadyToScrollToSelectedAccount] = useState(false)
   const { domains } = useDomainsControllerState()
-  const accountsState = useAccountsControllerState()
+  const { accounts, selectedAccount } = useAccountsControllerState()
 
-  const accounts = useMemo(
+  const filteredAccounts = useMemo(
     () =>
-      accountsState.accounts.filter((account) => {
+      accounts.filter((account) => {
         if (!search) return true
 
         const doesAddressMatch = account.addr.toLowerCase().includes(search.toLowerCase())
@@ -42,18 +48,19 @@ const useAccounts = () => {
           doesDomainMatch
         )
       }),
-    [accountsState.accounts, domains, search]
+    [accounts, domains, search]
   )
 
-  const selectedAccountIndex = accounts.findIndex(
-    (account) => account.addr === accountsState.selectedAccount
-  )
+  const selectedAccountIndex = accounts.findIndex((account) => account.addr === selectedAccount)
 
-  const onContentSizeChange = useCallback((_: any, contentHeight: number) => {
-    if (contentHeight > 0) {
-      setIsReadyToScrollToSelectedAccount(true)
-    }
-  }, [])
+  const onContentSizeChange = useCallback(
+    (_: any, contentHeight: number) => {
+      if (contentHeight > 0 && !areAccountsRendered) {
+        setAreAccountsRendered(true)
+      }
+    },
+    [areAccountsRendered]
+  )
 
   const keyExtractor = useCallback((account: AccountType) => account.addr, [])
 
@@ -66,10 +73,26 @@ const useAccounts = () => {
     []
   )
 
+  useEffect(() => {
+    if (
+      areAccountsRendered &&
+      selectedAccountIndex !== -1 &&
+      flatlistRef?.current &&
+      !isReadyToScrollToSelectedAccount
+    ) {
+      flatlistRef.current.scrollToIndex({
+        animated: false,
+        index: selectedAccountIndex
+      })
+      setIsReadyToScrollToSelectedAccount(true)
+    }
+  }, [areAccountsRendered, flatlistRef, isReadyToScrollToSelectedAccount, selectedAccountIndex])
+
   return {
-    accounts,
+    accounts: filteredAccounts,
     selectedAccountIndex,
     control,
+    search,
     onContentSizeChange,
     keyExtractor,
     getItemLayout,
@@ -77,4 +100,4 @@ const useAccounts = () => {
   }
 }
 
-export default useAccounts
+export default useAccountsList

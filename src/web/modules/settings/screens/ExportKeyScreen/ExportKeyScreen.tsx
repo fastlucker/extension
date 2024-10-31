@@ -4,10 +4,10 @@ import { View } from 'react-native'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import { useTranslation } from '@common/config/localization'
-import useAccounts from '@common/hooks/useAccounts'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import eventBus from '@web/extension-services/event/eventBus'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import PasswordConfirmation from '@web/modules/settings/components/PasswordConfirmation'
@@ -20,7 +20,7 @@ const ExportKeyScreen = () => {
   const { dispatch } = useBackgroundService()
   const keystoreState = useKeystoreControllerState()
 
-  const { accounts } = useAccounts()
+  const { accounts } = useAccountsControllerState()
   const [passwordConfirmed, setPasswordConfirmed] = useState<boolean>(false)
   const [privateKey, setPrivateKey] = useState<string | null>(null)
 
