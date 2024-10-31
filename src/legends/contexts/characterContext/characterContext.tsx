@@ -2,7 +2,7 @@ import { ethers } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import LegendsNFT from '@contracts/compiled/LegendsNft.json'
-import { RELAYER_URL } from '@env'
+import { LEGENDS_NFT_ADDRESS, RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 
@@ -84,10 +84,9 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       const signer = await provider.getSigner()
 
       const abi = LegendsNFT.abi
-      const contractAddress = '0x52d067EBB7b06F31AEB645Bd34f92c3Ac13a29ea'
 
       // Create a contract instance
-      const nftContract = new ethers.Contract(contractAddress, abi, signer)
+      const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
 
       try {
         // Call the mint function and wait for the transaction response
