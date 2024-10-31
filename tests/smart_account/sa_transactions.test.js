@@ -53,7 +53,8 @@ describe('sa_transactions', () => {
       await makeSwap(page, extensionURL, browser, {
         feeToken:
           '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]',
-        shouldStopBeforeSign: true
+        shouldStopBeforeSign: true,
+        swapButtonText: 'Swap and sign'
       })
     })
   })

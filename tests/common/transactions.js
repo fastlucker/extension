@@ -281,9 +281,7 @@ export async function makeSwap(
   page,
   extensionURL,
   browser,
-  { shouldStopBeforeSign, feeToken } = {
-    shouldStopBeforeSign: false
-  }
+  { feeToken, shouldStopBeforeSign = false, swapButtonText = 'Swap' } = {}
 ) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
@@ -356,7 +354,7 @@ export async function makeSwap(
   await clickOnElement(page, 'xpath///span[contains(text(), "Review")]', true, 3000)
 
   await page.waitForSelector(
-    'xpath///span[contains(@class, "font_button") and contains(text(), "Sign and swap")]',
+    `xpath///span[contains(@class, "font_button") and contains(text(), "${swapButtonText}")]`,
     {
       visible: true,
       timeout: 3000
@@ -364,7 +362,7 @@ export async function makeSwap(
   )
 
   const elementsHandles = await page.$x(
-    '//span[contains(@class, "font_button") and contains(text(), "Sign and swap")]'
+    `//span[contains(@class, "font_button") and contains(text(), "${swapButtonText}")]`
   )
 
   if (elementsHandles.length) await clickMatchingElements(page, elementsHandles)
