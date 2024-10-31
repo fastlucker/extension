@@ -356,7 +356,7 @@ export async function makeSwap(
   await clickOnElement(page, 'xpath///span[contains(text(), "Review")]', true, 3000)
 
   await page.waitForSelector(
-    'xpath///span[contains(@class, "font_button") and contains(text(), "Swap")]',
+    'xpath///span[contains(@class, "font_button") and contains(text(), "Sign and swap")]',
     {
       visible: true,
       timeout: 3000
@@ -364,7 +364,7 @@ export async function makeSwap(
   )
 
   const elementsHandles = await page.$x(
-    '//span[contains(@class, "font_button") and contains(text(), "Swap")]'
+    '//span[contains(@class, "font_button") and contains(text(), "Sign and swap")]'
   )
 
   if (elementsHandles.length) await clickMatchingElements(page, elementsHandles)
