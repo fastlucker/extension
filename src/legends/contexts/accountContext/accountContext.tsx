@@ -4,19 +4,17 @@ import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import { RELAYER_URL } from '@env'
 
 const accountContext = createContext<{
-  lastConnectedV2Account: string | null
   connectedAccount: string | null
+  nonV2Account: string | null
   chainId: bigint | null
-  isConnectedAccountV2: boolean
   isLoading: boolean
   error: string | null
   requestAccounts: () => void
   disconnectAccount: () => void
 }>({
-  lastConnectedV2Account: null,
   connectedAccount: null,
+  nonV2Account: null,
   chainId: null,
-  isConnectedAccountV2: false,
   isLoading: true,
   error: null,
   requestAccounts: () => {},
@@ -26,16 +24,14 @@ const accountContext = createContext<{
 const LOCAL_STORAGE_ACC_KEY = 'connectedAccount'
 
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
-  // We keep track of the last connected v2 account so users can access Legends with the
-  // state of the last connected account, even if they switch to a non-v2 account. This is
-  // useful for actions which require a message/transaction to be signed with a Basic Account/v1.
-  const [lastConnectedV2Account, setLastConnectedV2Account] = React.useState<string | null>(() => {
+  // We keep only V2 accounts
+  const [connectedAccount, setConnectedAccount] = React.useState<string | null>(() => {
     const storedAccount = localStorage.getItem(LOCAL_STORAGE_ACC_KEY)
 
     return storedAccount || null
   })
-  // Can be Basic Account/Ambire v1 or v2
-  const [connectedAccount, setConnectedAccount] = React.useState<string | null>(null)
+
+  const [nonV2Account, setNonV2Account] = React.useState<string | null>(null)
   const [chainId, setChainId] = React.useState<bigint | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -82,24 +78,21 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       const identity = await getIdentity(address, fetch as any, RELAYER_URL)
 
       if (!identity.creation) {
-        if (!lastConnectedV2Account) {
+        if (!connectedAccount) {
           setError('You are trying to connect a non Ambire v2 account. Please switch your account!')
         }
-        setConnectedAccount(address)
         return
       }
 
       setError(null)
-      setLastConnectedV2Account(address)
       setConnectedAccount(address)
       localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
     },
-    [lastConnectedV2Account]
+    [connectedAccount]
   )
 
   const handleDisconnectFromWallet = useCallback(() => {
     setConnectedAccount(null)
-    setLastConnectedV2Account(null)
     setIsLoading(false)
     localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
   }, [])
@@ -154,24 +147,15 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   const contextValue = useMemo(
     () => ({
-      lastConnectedV2Account,
       connectedAccount,
-      isConnectedAccountV2: connectedAccount === lastConnectedV2Account,
+      nonV2Account,
       error,
       requestAccounts,
       disconnectAccount,
       chainId,
       isLoading
     }),
-    [
-      lastConnectedV2Account,
-      connectedAccount,
-      error,
-      requestAccounts,
-      disconnectAccount,
-      chainId,
-      isLoading
-    ]
+    [connectedAccount, nonV2Account, error, requestAccounts, disconnectAccount, chainId, isLoading]
   )
 
   return <accountContext.Provider value={contextValue}>{children}</accountContext.Provider>

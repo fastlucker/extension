@@ -17,8 +17,7 @@ const CharacterSelect = () => {
     setCharacterId(id)
   }
 
-  if (!accountContext.connectedAccount || !accountContext.isConnectedAccountV2)
-    return <Navigate to="/" />
+  if (!accountContext.connectedAccount) return <Navigate to="/" />
   if (character && character.characterType !== 'unknown')
     return <Navigate to={LEGENDS_ROUTES.character} />
 

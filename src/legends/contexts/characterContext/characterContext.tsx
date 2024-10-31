@@ -34,7 +34,7 @@ const CharacterContext = createContext<{
 })
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
-  const { lastConnectedV2Account, isConnectedAccountV2 } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -44,7 +44,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const [error, setError] = useState<string | null>(null)
 
   const getCharacter = useCallback(async () => {
-    if (!lastConnectedV2Account) {
+    if (!connectedAccount) {
       setCharacter(null)
       setIsLoading(false)
       return
@@ -52,7 +52,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
 
     try {
       const characterResponse = await fetch(
-        `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
+        `${RELAYER_URL}/legends/nft-meta/${connectedAccount}`
       )
 
       const characterJson = await characterResponse.json()
@@ -60,17 +60,15 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       setCharacter(characterJson as Character)
       setError(null)
     } catch (e) {
-      setError(`Couldn't load the requested character: ${lastConnectedV2Account}`)
+      setError(`Couldn't load the requested character: ${connectedAccount}`)
       console.error(e)
     }
 
     setIsLoading(false)
-  }, [lastConnectedV2Account])
+  }, [connectedAccount])
 
   const mintCharacter = useCallback(
     async (type: number) => {
-      if (!isConnectedAccountV2 || !window.ambire) return
-
       // Switch to Base chain
       await window.ambire.request({
         method: 'wallet_switchEthereumChain',
@@ -109,7 +107,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
         console.log('Error during minting process:', e)
       }
     },
-    [isConnectedAccountV2, getCharacter]
+    [getCharacter]
   )
 
   useEffect(() => {

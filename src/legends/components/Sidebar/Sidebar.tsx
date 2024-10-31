@@ -37,10 +37,10 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
   }
 
-  const wheelSpinOfTheDay = useMemo(() => isWheelSpinTodayAvailable({ activity, isLoading }), [
-    activity,
-    isLoading
-  ])
+  const wheelSpinOfTheDay = useMemo(
+    () => isWheelSpinTodayAvailable({ activity, isLoading }),
+    [activity, isLoading]
+  )
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -59,7 +59,12 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             <div className={styles.wheelContent}>
               <span className={styles.wheelTitle}>Daily Legend</span>
               <span className={styles.wheelText}>Available Now</span>
-              <button onClick={handleModal} type="button" className={styles.wheelButton} disabled={wheelSpinOfTheDay}>
+              <button
+                onClick={handleModal}
+                type="button"
+                className={styles.wheelButton}
+                disabled={wheelSpinOfTheDay}
+              >
                 Spin the Wheel
               </button>
             </div>

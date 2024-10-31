@@ -13,7 +13,7 @@ type UseLegendsReturnType = {
 }
 
 const useLegends = (): UseLegendsReturnType => {
-  const { lastConnectedV2Account, isConnectedAccountV2 } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -22,18 +22,17 @@ const useLegends = (): UseLegendsReturnType => {
   const completedCount = legends.filter((card) => card.card.type === CardType.done).length
 
   useEffect(() => {
-    if (!lastConnectedV2Account) return
 
     const fetchData = async () => {
       setError(null)
       try {
         const rawCards = await fetch(
-          `${RELAYER_URL}/legends/cards?identity=${lastConnectedV2Account}`
+          `${RELAYER_URL}/legends/cards?identity=${connectedAccount}`
         )
 
         const cards = await rawCards.json()
 
-        const sortedCards = sortCards(cards, isConnectedAccountV2)
+        const sortedCards = sortCards(cards)
         setLegends(sortedCards)
       } catch (e: any) {
         console.error(e)
@@ -47,7 +46,7 @@ const useLegends = (): UseLegendsReturnType => {
     }
 
     fetchData()
-  }, [isConnectedAccountV2, lastConnectedV2Account])
+  }, [connectedAccount])
 
   return {
     legends,

@@ -27,7 +27,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   const [prizeNumber, setPrizeNumber] = useState(6)
   const [spinOfTheDay, setSpinOfTheDay] = useState(0)
   const [isInProgress, setIsInProgress] = useState(false)
-  const { connectedAccount, isConnectedAccountV2 } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
 
   const checkTransactionStatus = useCallback(async () => {
@@ -73,8 +73,6 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   }, [connectedAccount, spinOfTheDay, addToast])
 
   const broadcastTransaction = useCallback(async () => {
-    if (!connectedAccount || !isConnectedAccountV2 || !window.ambire) return
-
     // Switch to Base chain
     await window.ambire.request({
       method: 'wallet_switchEthereumChain',
@@ -120,7 +118,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     } finally {
       setIsInProgress(false)
     }
-  }, [connectedAccount, checkTransactionStatus, addToast, isConnectedAccountV2])
+  }, [connectedAccount, checkTransactionStatus, addToast])
 
   const handleSpinClick = async () => {
     if (!mustSpin) {
@@ -128,7 +126,11 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     }
   }
 
-  const getButtonLabel = (isInProgress: boolean, mustSpin: boolean, spinOfTheDay: number): string => {
+  const getButtonLabel = (
+    isInProgress: boolean,
+    mustSpin: boolean,
+    spinOfTheDay: number
+  ): string => {
     if (isInProgress) return 'Signing...'
     if (mustSpin) return 'Spinning...'
     if (spinOfTheDay) return 'Already Spun'

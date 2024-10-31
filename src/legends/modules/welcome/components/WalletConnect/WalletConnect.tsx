@@ -8,16 +8,16 @@ import styles from './WalletConnect.module.scss'
 
 const WalletConnect = () => {
   const navigate = useNavigate()
-  const { lastConnectedV2Account, error, requestAccounts } = useAccountContext()
+  const { connectedAccount, error, requestAccounts } = useAccountContext()
 
   useEffect(() => {
-    if (lastConnectedV2Account) {
+    if (connectedAccount) {
       navigate(LEGENDS_ROUTES.character)
     }
-  }, [lastConnectedV2Account, navigate])
+  }, [connectedAccount, navigate])
 
   // If it's connected, don't show the connect button
-  if (lastConnectedV2Account) return null
+  if (connectedAccount) return null
 
   if (!window.ambire)
     return (
