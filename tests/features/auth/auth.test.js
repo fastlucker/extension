@@ -8,7 +8,6 @@ import {
   TEST_ID_ENTER_SEED_PHRASE_FIELD_PLACEHOLDER,
   INVALID_SEEDS_12_WORDS,
   INVALID_SEEDS_24_WORDS,
-  SMART_ACC_VIEW_ONLY_ADDRESS,
   BASIC_ACC_VIEW_ONLY_ADDRESS,
   VIEW_ONLY_LABEL,
   INVALID_PRIV_KEYS,
@@ -37,6 +36,7 @@ import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { baPrivateKey, SEED_12_WORDS, SEED_24_WORDS } from '../../config/constants'
 import { buildSelector } from '../../common-helpers/buildSelector'
 import { SELECTORS, TEST_IDS } from '../../common/selectors/selectors'
+import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../../constants/constants'
 
 describe('auth', () => {
   let browser
