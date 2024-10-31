@@ -11,6 +11,7 @@ permissions:
   contents: write
 jobs:
   build:
+    environment: legends
     name: Build & Deploy Standalone Legends Staging
     runs-on: ubuntu-latest
     concurrency:
