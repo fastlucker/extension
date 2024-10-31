@@ -144,7 +144,7 @@ const PrivateKeyImportScreen = () => {
           />
           <Alert
             title="No smart accounts"
-            text="Private keys are for Basic accounts. To start using Smart accounts, please create/import a seed or connect a hardware wallet"
+            text="Private keys are for Basic Accounts. To start using Smart Accounts, please create/import a seed or connect a hardware wallet"
             type="warning"
           />
         </Panel>
