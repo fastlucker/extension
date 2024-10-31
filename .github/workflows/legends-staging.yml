@@ -41,6 +41,8 @@ jobs:
       - name: Build project 🛠️
         env:
           RELAYER_URL: 'https://staging-relayer.ambire.com'
+          LEGENDS_NFT_ADDRESS: '0xF51dF52d0a9BEeB7b6E4B6451e729108a115B863'
+
         run: yarn build:web:legends
 
       - name: Setup SSH agent
@@ -60,4 +62,3 @@ jobs:
           git add .
           git commit -m "Automated deploy from ambire-app"
           git push origin gh-pages --force
-
