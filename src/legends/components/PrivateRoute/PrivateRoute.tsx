@@ -7,16 +7,15 @@ import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 import ErrorPage from '@legends/components/ErrorPage'
 
 const PrivateRoute = () => {
-  const { connectedAccount, lastConnectedV2Account, isLoading } = useAccountContext()
+  const { connectedAccount, isLoading } = useAccountContext()
   const { character, isLoading: isCharacterLoading, error: characterError } = useCharacterContext()
 
   if (isLoading) return null
 
-  // If a wallet isn't connected at all or the user hasn't connect a v2 account,
-  // redirect to the welcome screen. Once a v2 account has been connected once,
-  // the user should be able to access screens which will display the state
-  // of the v2 account.
-  if (!connectedAccount || !lastConnectedV2Account) return <Navigate to="/" />
+  // If a wallet isn't connected a v2 account,redirect to the welcome screen.
+  // Once a v2 account has been connected once,
+  // the user should be able to access screens which will display the state of the v2 account.
+  if (!connectedAccount) return <Navigate to="/" />
 
   if (characterError) return <ErrorPage title="Character loading error" error={characterError} />
 
