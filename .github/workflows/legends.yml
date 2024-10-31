@@ -41,7 +41,7 @@ jobs:
       - name: Build project 🛠️
         env:
           RELAYER_URL: 'https://relayer.ambire.com'
-          LEGENDS_NFT_ADDRESS: '0xcfbAec203431045E9589F70375AC5F529EE55511'
+          LEGENDS_NFT_ADDRESS: ${{ vars.LEGENDS_NFT_ADDRESS }}
 
         run: yarn build:web:legends
 
