@@ -21,10 +21,17 @@
     z-index: 5;
     border-radius: $secondaryBorderRadius;
     user-select: none;
+    text-align: center;
 
     .completedText {
       font-size: 1.5rem;
       font-weight: 600;
+      color: $alternativeText;
+    }
+
+    .completedTextAvailable {
+      font-size: 1.2rem;
+      font-weight: 500;
       color: $alternativeText;
     }
   }

@@ -10,7 +10,6 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import AccountKeyIcons from '@common/components/AccountKeyIcons'
 import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
-import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -28,8 +27,7 @@ const AccountButton = () => {
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
-  const accountsState = useAccountsControllerState()
-  const { accounts } = useAccounts()
+  const { accounts, selectedAccount } = useAccountsControllerState()
   const [bindAddressAnim, addressAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -42,13 +40,13 @@ const AccountButton = () => {
   })
 
   const selectedAccountData = useMemo(
-    () => accountsState.accounts.find((a) => a.addr === accountsState.selectedAccount),
-    [accountsState.accounts, accountsState.selectedAccount]
+    () => accounts.find((a) => a.addr === selectedAccount),
+    [accounts, selectedAccount]
   )
 
   const handleCopyText = async () => {
     try {
-      await Clipboard.setStringAsync(accountsState.selectedAccount!)
+      await Clipboard.setStringAsync(selectedAccount!)
       addToast(t('Copied address to clipboard!') as string, { timeout: 2500 })
     } catch {
       addToast(t('Failed to copy address to clipboard!') as string, {
@@ -61,8 +59,8 @@ const AccountButton = () => {
   if (!selectedAccountData) return null
 
   const account = useMemo(
-    () => accounts.find((a) => a.addr === accountsState.selectedAccount),
-    [accounts, accountsState.selectedAccount]
+    () => accounts.find((a) => a.addr === selectedAccount),
+    [accounts, selectedAccount]
   )
 
   if (!account) return null
@@ -116,7 +114,7 @@ const AccountButton = () => {
         {...bindAddressAnim}
       >
         <Text color={theme.primaryBackground} style={spacings.mrMi} weight="medium" fontSize={14}>
-          ({shortenAddress(accountsState.selectedAccount!, 13)})
+          ({shortenAddress(selectedAccount!, 13)})
         </Text>
         <CopyIcon width={20} height={20} color={theme.primaryBackground} />
       </AnimatedPressable>
