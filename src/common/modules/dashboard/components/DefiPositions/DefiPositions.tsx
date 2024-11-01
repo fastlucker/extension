@@ -117,7 +117,7 @@ const DefiPositions: FC<Props> = ({
   const keyExtractor = useCallback((positionOrElement: any) => {
     if (typeof positionOrElement === 'string') return positionOrElement
 
-    return positionOrElement.additionalData.positionId.toString()
+    return positionOrElement.additionalData.positionId
   }, [])
 
   return (
