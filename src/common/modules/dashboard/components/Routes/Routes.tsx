@@ -30,7 +30,7 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       isExternal: false
     },
     {
-      testID: 'dashboard-button-swap',
+      testID: 'dashboard-button-swap-and-bridge',
       icon: SwapAndBridgeIcon,
       label: t('Swap & Bridge'),
       route: WEB_ROUTES.swapAndBridge,
