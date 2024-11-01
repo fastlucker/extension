@@ -12,6 +12,7 @@ import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext
 import { ActivityContextProvider } from '@legends/contexts/activityContext'
 import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
 import { DomainsContextProvider } from '@common/contexts/domainsContext'
+import { LegendsContextProvider } from '@legends/contexts/legendsContext'
 import { LEGENDS_ROUTES } from '../constants'
 
 // In LegendsInit.tsx, we've already declared some top-level contexts that all child components use.
@@ -28,11 +29,13 @@ import { LEGENDS_ROUTES } from '../constants'
 //              -> child Route.
 const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => (
   <LeaderboardContextProvider>
-    <ActivityContextProvider>
-      <PortfolioControllerStateProvider>
-        <DomainsContextProvider>{children}</DomainsContextProvider>
-      </PortfolioControllerStateProvider>
-    </ActivityContextProvider>
+    <LegendsContextProvider>
+      <ActivityContextProvider>
+        <PortfolioControllerStateProvider>
+          <DomainsContextProvider>{children}</DomainsContextProvider>
+        </PortfolioControllerStateProvider>
+      </ActivityContextProvider>
+    </LegendsContextProvider>
   </LeaderboardContextProvider>
 )
 
