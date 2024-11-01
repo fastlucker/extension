@@ -30,14 +30,14 @@ const SwapAndBridgeIcon: React.FC<SvgProps> = ({
     <Path
       stroke={color}
       strokeLinecap="round"
-      strokeWidth="1.5"
+      strokeWidth={strokeWidth}
       fill="none"
       d="M4.452 13.944v-1.715a2 2 0 0 1 2.253-2.15H17.06l-5.002-4.814"
     />
     <Path
       stroke={color}
       strokeLinecap="round"
-      strokeWidth="1.5"
+      strokeWidth={strokeWidth}
       fill="none"
       d="M21.538 12.055c0 .195.007 1.3 0 1.716a2 2 0 0 1-2.253 2.15H8.938l5 4.813"
     />
@@ -45,14 +45,14 @@ const SwapAndBridgeIcon: React.FC<SvgProps> = ({
     <Path
       stroke={color}
       strokeLinecap="round"
-      strokeWidth="1.5"
+      strokeWidth={strokeWidth}
       fill="none"
       d="M48.887 20.966v-12.2l-5.352 5.357"
     />
     <Path
       stroke={color}
       strokeLinecap="round"
-      strokeWidth="1.5"
+      strokeWidth={strokeWidth}
       fill="none"
       d="M53.112 5.033v12.2l5.352-5.357"
     />
