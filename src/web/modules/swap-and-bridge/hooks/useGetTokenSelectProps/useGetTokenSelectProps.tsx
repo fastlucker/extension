@@ -74,9 +74,10 @@ const useGetTokenSelectProps = ({
         ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
           (t as SocketAPIToken).symbol?.trim() || 'No symbol'
         : t.symbol
-      const name =
-        // Overprotective on purpose here, the API does return `null` values, although it shouldn't
-        isToToken ? (t as SocketAPIToken).name?.trim() || 'No name' : ''
+      const name = isToToken
+        ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
+          (t as SocketAPIToken).name?.trim() || 'No name'
+        : ''
 
       const label = isToToken ? (
         <View>
@@ -90,8 +91,7 @@ const useGetTokenSelectProps = ({
             </Text>
           </Text>
           <Text numberOfLines={1} fontSize={12}>
-            {/* Overprotective on purpose here, the API does return `null` values, although it shouldn't */}
-            {(t as SocketAPIToken).name?.trim() || 'No name'}
+            {name}
           </Text>
         </View>
       ) : (
