@@ -142,7 +142,7 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
-    [isReadyToStoreKeys, openHotWalletModal, navigate, accounts.length, addToast, keyStoreUid]
+    [isReadyToStoreKeys, openHotWalletModal, navigate, keyStoreUid, accounts.length, addToast]
   )
 
   const handleSetStoriesCompleted = () => {
@@ -278,7 +278,7 @@ const GetStartedScreen = () => {
                   text={t(
                     'If you are looking to import accounts from the web app (Ambire v1), please read this.'
                   )}
-                  type="info2"
+                  type="info"
                   // @ts-ignore
                   style={[spacings.mb0, { width: '100%' }]}
                   renderButtons={
@@ -290,7 +290,7 @@ const GetStartedScreen = () => {
                         )
                       }
                       text={t('Read more')}
-                      type="info2"
+                      type="secondary"
                     />
                   }
                 />

@@ -185,6 +185,7 @@ const HotWalletImportSelectorScreen = () => {
               onPress={() => onOptionPress('email')}
               isPartiallyDisabled
               titleStyle={[spacings.mb2Xl]}
+              isSecondary
             >
               <Alert
                 title=""
