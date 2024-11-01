@@ -70,18 +70,16 @@ const useGetTokenSelectProps = ({
     options = NO_TOKENS_ITEMS
   } else {
     options = tokens.map((t: SocketAPIToken | TokenResult) => {
-      const name = isToToken
-        ? t.symbol?.trim() ||
-          // Overprotective on purpose here, the API does return `null` values, although it shouldn't
-          (t as SocketAPIToken).name?.trim() ||
-          'No symbol'
+      const symbol = isToToken
+        ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
+          (t as SocketAPIToken).symbol?.trim() || 'No symbol'
         : t.symbol
 
       const label = isToToken ? (
         <View>
           <Text numberOfLines={1}>
             <Text fontSize={16} weight="medium">
-              {name}
+              {symbol}
             </Text>
             <Text fontSize={12} appearance="secondaryText">
               {' '}
@@ -89,13 +87,14 @@ const useGetTokenSelectProps = ({
             </Text>
           </Text>
           <Text numberOfLines={1} fontSize={12}>
+            {/* Overprotective on purpose here, the API does return `null` values, although it shouldn't */}
             {(t as SocketAPIToken).name?.trim() || 'No name'}
           </Text>
         </View>
       ) : (
         <Text>
           <Text fontSize={16} weight="medium">
-            {name}
+            {symbol}
           </Text>
           <Text fontSize={14} appearance="secondaryText">
             {' on '}
