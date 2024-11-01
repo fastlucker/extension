@@ -74,6 +74,9 @@ const useGetTokenSelectProps = ({
         ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
           (t as SocketAPIToken).symbol?.trim() || 'No symbol'
         : t.symbol
+      const name =
+        // Overprotective on purpose here, the API does return `null` values, although it shouldn't
+        isToToken ? (t as SocketAPIToken).name?.trim() || 'No name' : ''
 
       const label = isToToken ? (
         <View>
@@ -111,6 +114,7 @@ const useGetTokenSelectProps = ({
 
       return {
         value: getTokenId(t),
+        extraSearchProps: { symbol, name, address: t.address },
         label,
         icon: (
           <TokenIcon
