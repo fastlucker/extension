@@ -255,8 +255,6 @@ const SignAccountOpScreen = () => {
         updateControllerSigningStatus(SigningStatus.UpdatesPaused)
         return
       }
-
-      // if 4337 & paymaster,
       dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP' })
     },
     [
