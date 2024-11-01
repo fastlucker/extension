@@ -38,7 +38,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     id: 5,
-    name: 'Orc Warrior',
+    name: 'Orc Warrior?',
     description: '',
     image: orcWarrior
   }
