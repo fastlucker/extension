@@ -1,8 +1,10 @@
 import React from 'react'
+import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { getTokenId } from '@web/utils/token'
@@ -48,15 +50,13 @@ const useGetTokenSelectProps = ({
   token,
   networks,
   isLoading,
-  withNetworkName = true,
-  withNetworkIcon = true
+  isToToken = false
 }: {
   tokens: SocketAPIToken[] | TokenResult[]
   token: string
   networks: Network[]
   isLoading?: boolean
-  withNetworkName?: boolean
-  withNetworkIcon?: boolean
+  isToToken?: boolean
 }) => {
   let options: any = []
   let value = null
@@ -69,40 +69,65 @@ const useGetTokenSelectProps = ({
     value = NO_TOKENS_ITEMS[0]
     options = NO_TOKENS_ITEMS
   } else {
-    options = tokens.map((t: any) => ({
-      value: getTokenId(t),
-      label: (
-        <Text numberOfLines={1}>
-          <Text fontSize={16} weight="medium">
-            {t.symbol}
+    options = tokens.map((t: SocketAPIToken | TokenResult) => {
+      const name = isToToken
+        ? t.symbol?.trim() ||
+          // Overprotective on purpose here, the API does return `null` values, although it shouldn't
+          (t as SocketAPIToken).name?.trim() ||
+          'No symbol'
+        : t.symbol
+
+      const label = isToToken ? (
+        <View>
+          <Text numberOfLines={1}>
+            <Text fontSize={16} weight="medium">
+              {name}
+            </Text>
+            <Text fontSize={12} appearance="secondaryText">
+              {' '}
+              ({shortenAddress(t.address, 13)})
+            </Text>
           </Text>
-          {withNetworkName && (
-            <>
-              <Text fontSize={14} appearance="secondaryText">
-                {' on '}
-              </Text>
-              <Text fontSize={14} appearance="secondaryText">
-                {networks.find((n) => n.id === t.networkId || Number(n.chainId) === t.chainId)
-                  ?.name || 'Unknown network'}
-              </Text>
-            </>
-          )}
+          <Text numberOfLines={1} fontSize={12}>
+            {(t as SocketAPIToken).name?.trim() || 'No name'}
+          </Text>
+        </View>
+      ) : (
+        <Text>
+          <Text fontSize={16} weight="medium">
+            {name}
+          </Text>
+          <Text fontSize={14} appearance="secondaryText">
+            {' on '}
+          </Text>
+          <Text fontSize={14} appearance="secondaryText">
+            {networks.find((n) => n.id === (t as TokenResult).networkId)?.name || 'Unknown network'}
+          </Text>
         </Text>
-      ),
-      icon: (
-        <TokenIcon
-          key={`${t.networkId || t.chainId}-${t.address}`}
-          containerHeight={30}
-          containerWidth={30}
-          networkSize={12}
-          withContainer
-          withNetworkIcon={withNetworkIcon}
-          uri={t.icon}
-          address={t.address}
-          networkId={t.networkId || t.chainId}
-        />
       )
-    }))
+
+      const networkIdOrChainId = isToToken
+        ? (t as SocketAPIToken).chainId
+        : (t as TokenResult).networkId
+
+      return {
+        value: getTokenId(t),
+        label,
+        icon: (
+          <TokenIcon
+            key={`${networkIdOrChainId}-${t.address}`}
+            containerHeight={30}
+            containerWidth={30}
+            networkSize={12}
+            withContainer
+            withNetworkIcon={!isToToken}
+            uri={isToToken ? (t as SocketAPIToken).icon : undefined}
+            address={t.address}
+            networkId={networkIdOrChainId}
+          />
+        )
+      }
+    })
 
     if (!token) {
       value = NO_VALUE_SELECTED[0]
