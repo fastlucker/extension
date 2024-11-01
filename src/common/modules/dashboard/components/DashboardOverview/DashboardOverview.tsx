@@ -1,14 +1,11 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, View } from 'react-native'
 
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import FilterIcon from '@common/assets/svg/FilterIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
@@ -16,7 +13,6 @@ import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
 import Routes from '@common/modules/dashboard/components/Routes'
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -26,7 +22,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import { getUiType } from '@web/utils/uiType'
 
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
@@ -40,8 +35,6 @@ interface Props {
   }
   setDashboardOverviewSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>
 }
-
-const { isPopup } = getUiType()
 
 // We create a reusable height constant for both the Balance line-height and the Balance skeleton.
 // We want both components to have the same height; otherwise, clicking on the RefreshIcon causes a layout shift.
@@ -57,39 +50,16 @@ const DashboardOverview: FC<Props> = ({
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-  const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { selectedAccount } = useAccountsControllerState()
   const { accountPortfolio, startedLoadingAtTimestamp, state, resetAccountPortfolioLocalState } =
     usePortfolioControllerState()
-  const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
-    preset: 'opacity'
-  })
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
   const [isLoadingTakingTooLong, setIsLoadingTakingTooLong] = useState(false)
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
-
-  const filterByNetworkName = useMemo(() => {
-    if (!filterByNetworkId) return ''
-
-    if (filterByNetworkId === 'rewards') return 'Ambire Rewards Portfolio'
-    if (filterByNetworkId === 'gasTank') return 'Gas Tank Portfolio'
-
-    const network = networks.find((n) => n.id === filterByNetworkId)
-
-    let networkName = network?.name || 'Unknown Network'
-
-    networkName = `${networkName} Portfolio`
-
-    if (networkName.length > 20 && isPopup) {
-      networkName = `${networkName.slice(0, 20)}...`
-    }
-
-    return networkName
-  }, [filterByNetworkId, networks])
 
   const totalPortfolioAmount = useMemo(() => {
     if (!filterByNetworkId) return accountPortfolio?.totalAmount || 0
@@ -284,36 +254,6 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <AnimatedPressable
-                    style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
-                    onPress={() => {
-                      navigate(WEB_ROUTES.networks, {
-                        state: {
-                          filterByNetworkId,
-                          prevTab: window.location.hash.split('?')[1] || ''
-                        }
-                      })
-                    }}
-                    {...bindNetworkButtonAnim}
-                  >
-                    {filterByNetworkId ? (
-                      <FilterIcon
-                        color={theme.primaryBackground}
-                        width={16}
-                        height={16}
-                        style={spacings.mrMi}
-                      />
-                    ) : null}
-                    <Text fontSize={14} color={theme.primaryBackground} weight="medium">
-                      {filterByNetworkId ? filterByNetworkName : t('All Networks')}
-                    </Text>
-                    <DownArrowIcon
-                      style={spacings.mlSm}
-                      color={theme.primaryBackground}
-                      width={12}
-                      height={6.5}
-                    />
-                  </AnimatedPressable>
                   {!!warningMessage && (
                     <>
                       <WarningIcon

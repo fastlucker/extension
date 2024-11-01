@@ -8,8 +8,10 @@ import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs
 import Tabs from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tabs'
 import useBanners from '@common/modules/dashboard/hooks/useBanners'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { getUiType } from '@web/utils/uiType'
 
+import SelectNetwork from './SelectNetwork'
 import styles from './styles'
 
 const { isPopup } = getUiType()
@@ -46,7 +48,8 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }) => {
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
       <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
       {['tokens', 'collectibles'].includes(openTab) && (
-        <View style={{ margin: -2 }}>
+        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
+          <SelectNetwork />
           <Search
             containerStyle={{ flex: 1, maxWidth: isPopup ? 184 : 212 }}
             control={searchControl}
