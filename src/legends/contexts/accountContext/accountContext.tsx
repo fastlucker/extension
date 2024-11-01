@@ -78,13 +78,16 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       const identity = await getIdentity(address, fetch as any, RELAYER_URL)
 
       if (!identity.creation) {
-        if (!connectedAccount) {
+        if (connectedAccount) {
+          setNonV2Account(connectedAccount)
+        } else {
           setError('You are trying to connect a non Ambire v2 account. Please switch your account!')
         }
         return
       }
 
       setError(null)
+      setNonV2Account(null)
       setConnectedAccount(address)
       localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
     },

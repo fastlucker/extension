@@ -6,6 +6,8 @@ import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 
+console.log(RELAYER_URL)
+
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
   characterName: string

@@ -5,9 +5,10 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 import ErrorPage from '@legends/components/ErrorPage'
+import NonV2Modal from '@legends/components/NonV2Modal'
 
 const PrivateRoute = () => {
-  const { connectedAccount, isLoading } = useAccountContext()
+  const { connectedAccount, nonV2Account, isLoading } = useAccountContext()
   const { character, isLoading: isCharacterLoading, error: characterError } = useCharacterContext()
 
   if (isLoading) return null
@@ -24,7 +25,12 @@ const PrivateRoute = () => {
 
   if (character.characterType === 'unknown') return <Navigate to={LEGENDS_ROUTES.characterSelect} />
 
-  return <Outlet />
+  return (
+    <>
+      <NonV2Modal isOpen={!!nonV2Account} />
+      <Outlet />
+    </>
+  )
 }
 
 export default PrivateRoute
