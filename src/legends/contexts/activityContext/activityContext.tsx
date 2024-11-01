@@ -9,10 +9,12 @@ const ActivityContext = createContext<{
   activity: Activity[] | null
   isLoading: boolean
   error: string | null
+  getActivity: () => void
 }>({
   activity: null,
   isLoading: false,
-  error: null
+  error: null,
+  getActivity: () => {}
 })
 const ActivityContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
@@ -49,9 +51,10 @@ const ActivityContextProvider: React.FC<any> = ({ children }) => {
         () => ({
           activity,
           isLoading,
-          error
+          error,
+          getActivity
         }),
-        [activity, isLoading, error]
+        [activity, isLoading, error, getActivity]
       )}
     >
       {children}

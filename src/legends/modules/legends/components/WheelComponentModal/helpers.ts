@@ -1,29 +1,43 @@
 import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
+import { CardFromResponse, CardType } from '@legends/modules/legends/types'
 
 interface WheelSpinOfTheDayParams {
+  legends: CardFromResponse[] | null
   activity: Activity[] | null
-  isLoading: boolean
 }
 
-export const isWheelSpinTodayAvailable = ({
-  activity,
-  isLoading
-}: WheelSpinOfTheDayParams): boolean => {
-  const now = new Date()
-  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-  if (!activity || isLoading) return false
-  const transaction: Activity | null =
-    activity.find((txn: Activity) => {
-      const submittedDate = new Date(txn.submittedAt)
-      return (
-        submittedDate >= yesterday &&
-        submittedDate <= now &&
-        txn.legends.activities &&
-        txn.legends.activities.some((acc: LegendActivity) =>
-          acc.action.startsWith('WheelOfFortune')
-        )
-      )
-    }) ?? null
+export const calculateHoursUntilMidnight = (activity: Activity[]) => {
+  const submittedAt = activity && activity[0].submittedAt
 
-  return !!transaction
+  const submittedAtOffset = submittedAt
+    ? new Date(submittedAt).getTimezoneOffset()
+    : new Date().getTimezoneOffset()
+
+  const adjustedNow = new Date(new Date().getTime() - submittedAtOffset * 60000)
+
+  // Calculate hours and minutes left until midnight in the adjusted timezone
+  return 23 - adjustedNow.getUTCHours()
+}
+
+export const isWheelSpinTodayDone = ({ legends, activity }: WheelSpinOfTheDayParams): boolean => {
+  if (!legends || !legends.length) return true
+  const today = new Date().toISOString().split('T')[0]
+
+  const cardwheelOfFortune =
+    legends.find((card: CardFromResponse) => {
+      return card.action.predefinedId === 'wheelOfFortune' && card.card.type === CardType.done
+    }) ||
+    (activity && activity.length
+      ? (activity.find((txn: Activity) => {
+          return (
+            txn.legends.activities.find((acc: LegendActivity) =>
+              acc.action.startsWith('WheelOfFortune')
+            ) && txn.submittedAt.startsWith(today)
+          )
+        }) as unknown as CardFromResponse | null)
+      : null)
+  return !!cardwheelOfFortune
+}
+
+    return !!transaction;
 }

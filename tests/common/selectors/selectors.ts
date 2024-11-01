@@ -65,10 +65,18 @@ export const TEST_IDS = {
   collectionItem: 'collection-item',
   collectiblePicture: 'collectible-picture',
   collectibleRow: 'collectible-row',
+  addressBookMyWalletContactDyn: 'address-book-my-wallet-contact',
+  dashboardButtonSend: 'dashboard-button-send',
+  amountField: 'amount-field',
+  recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
+  transferButtonConfirm: 'transfer-button-confirm',
   addAccountField: 'add-account-field',
   importExistingSeedBtn: 'import-existing-seed-btn',
   createSeedBtn: 'create-seed-btn',
-  importFromSavedSeed: 'import-from-saved-seed'
+  importFromSavedSeed: 'import-from-saved-seed',
+  nativeTokenPolygonDyn: 'token-0x0000000000000000000000000000000000000000-polygon',
+  topUpButton: 'top-up-button',
+  tokenSend: 'token-send'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

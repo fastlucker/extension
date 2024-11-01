@@ -1,8 +1,8 @@
 import React from 'react'
+import ErrorBoundary from 'react-native-error-boundary'
 
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
-import ErrorBoundary from 'react-native-error-boundary'
 
 import ErrorPage from './components/ErrorPage'
 import { AccountContextProvider } from './contexts/accountContext'

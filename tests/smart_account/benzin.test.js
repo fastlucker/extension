@@ -1,3 +1,5 @@
+import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../constants/constants'
+
 // eslint-disable-next-line import/no-unresolved
 const { getBenzinUrlParams } = require('@benzin/screens/BenzinScreen/utils/url')
 const puppeteer = require('puppeteer')
@@ -159,7 +161,7 @@ describe.skip('Standalone Benzin tests', () => {
       '0.00010',
       'POL',
       'to',
-      '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C',
+      SMART_ACC_VIEW_ONLY_ADDRESS,
       'Send',
       '0.00010',
       'USDC',
