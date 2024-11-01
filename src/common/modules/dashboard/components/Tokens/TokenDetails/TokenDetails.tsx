@@ -23,6 +23,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -84,7 +85,7 @@ const TokenDetails = ({
         text: t('Swap or Bridge'),
         icon: SwapAndBridgeIcon,
         iconWidth: 86,
-        onPress: () => {},
+        onPress: () => navigate(WEB_ROUTES.swapAndBridge),
         isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
