@@ -1,13 +1,13 @@
 import { useContext } from 'react'
 
-import { SwapAndBridgeControllerStateContext } from '@web/contexts/swapAndBridgeControllerStateContext'
+import { DefiPositionsControllerStateContext } from '@web/contexts/defiPositionsControllerStateContext'
 
-export default function useSwapAndBridgeControllerState() {
-  const context = useContext(SwapAndBridgeControllerStateContext)
+export default function useDefiPositionsControllerState() {
+  const context = useContext(DefiPositionsControllerStateContext)
 
   if (!context) {
     throw new Error(
-      'useSwapAndBridgeControllerState must be used within a SwapAndBridgeControllerStateProvider'
+      'useDefiPositionsControllerState must be used within a DefiPositionsControllerStateProvider'
     )
   }
 
