@@ -6,21 +6,21 @@ import colors from '@common/styles/colors'
 const SwapAndBridgeIcon: React.FC<SvgProps> = ({
   width = 70,
   height = 26,
-  color = colors.martinique,
+  color = colors.white,
   strokeWidth = '1.5',
   ...rest
 }) => (
   <Svg width={width} height={height} viewBox="0 0 64 26" {...rest}>
     <Path fill="none" d="M26 0v26H0V0z" />
     <Path
-      stroke={color}
+      stroke={colors.martinique}
       strokeLinecap="round"
       strokeWidth={strokeWidth}
       fill="none"
       d="M4.453 13.944v-1.715a2 2 0 0 1 2.253-2.15h10.355l-5.002-4.814"
     />
     <Path
-      stroke={color}
+      stroke={colors.martinique}
       strokeLinecap="round"
       strokeWidth={strokeWidth}
       fill="none"
@@ -28,14 +28,14 @@ const SwapAndBridgeIcon: React.FC<SvgProps> = ({
     />
     <Path fill="none" d="M25.999 0v26h-26V0z" />
     <Path
-      stroke="#fff"
+      stroke={color}
       strokeLinecap="round"
       strokeWidth="1.5"
       fill="none"
       d="M4.452 13.944v-1.715a2 2 0 0 1 2.253-2.15H17.06l-5.002-4.814"
     />
     <Path
-      stroke="#fff"
+      stroke={color}
       strokeLinecap="round"
       strokeWidth="1.5"
       fill="none"
@@ -43,20 +43,20 @@ const SwapAndBridgeIcon: React.FC<SvgProps> = ({
     />
     <Path fill="none" d="M38 26V0h26v26z" />
     <Path
-      stroke="#fff"
+      stroke={color}
       strokeLinecap="round"
       strokeWidth="1.5"
       fill="none"
       d="M48.887 20.966v-12.2l-5.352 5.357"
     />
     <Path
-      stroke="#fff"
+      stroke={color}
       strokeLinecap="round"
       strokeWidth="1.5"
       fill="none"
       d="M53.112 5.033v12.2l5.352-5.357"
     />
-    <Path stroke="#fff" fill="none" d="M32.499 2v22" />
+    <Path stroke={color} fill="none" d="M32.499 2v22" />
   </Svg>
 )
 
