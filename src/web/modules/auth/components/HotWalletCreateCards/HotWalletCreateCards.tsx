@@ -36,6 +36,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
           buttonText={t('Show interest')}
           onPress={handleEmailPress}
           isPartiallyDisabled
+          isSecondary
         >
           <Alert
             title=""
