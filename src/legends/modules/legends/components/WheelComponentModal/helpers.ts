@@ -38,6 +38,3 @@ export const isWheelSpinTodayDone = ({ legends, activity }: WheelSpinOfTheDayPar
       : null)
   return !!cardwheelOfFortune
 }
-
-    return !!transaction;
-}
