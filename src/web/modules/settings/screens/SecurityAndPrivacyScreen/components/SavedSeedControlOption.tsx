@@ -6,7 +6,7 @@ import Button from '@common/components/Button'
 import ControlOption from '@common/components/ControlOption'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import { ROUTES } from '@common/modules/router/constants/common'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
@@ -17,8 +17,20 @@ const SavedSeedControlOption = () => {
   const keystoreState = useKeystoreControllerState()
 
   const goToSavedSeed = useCallback(() => {
-    navigate(ROUTES.savedSeed)
+    navigate(WEB_ROUTES.savedSeed)
   }, [navigate])
+
+  const goToCreateSeed = useCallback(() => {
+    keystoreState.isReadyToStoreKeys
+      ? navigate(WEB_ROUTES.createSeedPhrasePrepare)
+      : navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'create-seed' } })
+  }, [navigate, keystoreState.isReadyToStoreKeys])
+
+  const goToImportSeed = useCallback(() => {
+    keystoreState.isReadyToStoreKeys
+      ? navigate(WEB_ROUTES.importSeedPhrase)
+      : navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'seed' } })
+  }, [navigate, keystoreState.isReadyToStoreKeys])
 
   return (
     <ControlOption
@@ -31,17 +43,46 @@ const SavedSeedControlOption = () => {
       }
       renderIcon={<SeedPhraseIcon width={25} color={theme.primaryText} />}
     >
-      <Button
-        testID="show-saved-seed-button"
-        size="small"
-        hasBottomSpacing={false}
-        style={{
-          width: 80
-        }}
-        text={t('View')}
-        disabled={!keystoreState.hasKeystoreSavedSeed}
-        onPress={goToSavedSeed}
-      />
+      {keystoreState.hasKeystoreSavedSeed ? (
+        <Button
+          testID="show-saved-seed-button"
+          size="small"
+          hasBottomSpacing={false}
+          style={{
+            width: 80
+          }}
+          text={t('Manage')}
+          disabled={!keystoreState.hasKeystoreSavedSeed}
+          onPress={goToSavedSeed}
+        />
+      ) : (
+        <>
+          <Button
+            testID="create-saved-seed-button"
+            size="small"
+            hasBottomSpacing={false}
+            style={{
+              width: 80
+            }}
+            text={t('Create')}
+            onPress={goToCreateSeed}
+          />
+          <Button
+            type="outline"
+            testID="import-seed-button"
+            size="small"
+            hasBottomSpacing={false}
+            style={[
+              {
+                width: 80
+              },
+              spacings.mlTy
+            ]}
+            text={t('Import')}
+            onPress={goToImportSeed}
+          />
+        </>
+      )}
     </ControlOption>
   )
 }

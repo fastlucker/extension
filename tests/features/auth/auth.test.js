@@ -289,15 +289,13 @@ describe('auth', () => {
     // Click on Import button.
     await clickOnElement(page, SELECTORS.importBtn)
 
-    await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn, true, 500)
-
     await page.waitForFunction(() => window.location.href.includes('/account-adder'))
     // Do the onboarding
     await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
     await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
 
     // Select BIP 44 Ledger Live and select import account
-    await selectHdPathAndAddAccount(page, SELECTORS.optionBip44LedgerLive)
+    await selectHdPathAndAddAccount(page, SELECTORS.optionBip44LedgerLive, { shouldSaveSeed: true })
 
     await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
 
