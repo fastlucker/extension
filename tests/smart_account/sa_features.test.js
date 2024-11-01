@@ -9,11 +9,13 @@ import { confirmTransactionStatus } from '../common-helpers/confirmTransactionSt
 import { selectFeeToken } from '../common-helpers/selectFeeToken'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 import { SELECTORS } from '../common/selectors/selectors'
+import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../constants/constants'
 
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = '[data-testid="amount-field"]'
 
+// TODO: Remove this function, it's already moved to transactions.js
 // Helper functions for common operations
 async function prepareTransaction(page, recipient, amount) {
   await page.waitForSelector(amountField)
@@ -29,6 +31,7 @@ async function prepareTransaction(page, recipient, amount) {
   await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 }
 
+// TODO: Remove this function, it's already moved to transactions.js
 async function handleTransaction(page, extensionURL, browser, feeToken) {
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
@@ -65,24 +68,18 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
+  // TODO: fix this. check 'should build a top-up gas tank request' in transfer test
   // This test is skipped because Top up Gas Tank option is temporarily disabled.
   it.skip('Top up gas tank with 0.0001 POL', async () => {
     // Check if POL on Gas Tank are under 0.01
-    await checkBalanceOfToken(
-      page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-      0.01
-    )
+    await checkBalanceOfToken(page, SELECTORS.nativeTokenPolygonDyn, 0.01)
 
-    await clickOnElement(
-      page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]'
-    )
+    await clickOnElement(page, SELECTORS.nativeTokenPolygonDyn)
     await clickOnElement(page, '[data-testid="top-up-button"]')
 
     await page.waitForFunction(() => window.location.href.includes('/transfer'), { timeout: 60000 })
 
-    await prepareTransaction(page, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C', '0.0001')
+    await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, '0.0001')
     await handleTransaction(
       page,
       extensionURL,
@@ -101,7 +98,7 @@ describe('sa_features', () => {
     )
 
     await clickOnElement(page, '[data-testid="dashboard-button-send"]')
-    await prepareTransaction(page, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C', '0.0001')
+    await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, '0.0001')
     await handleTransaction(
       page,
       extensionURL,
@@ -113,14 +110,10 @@ describe('sa_features', () => {
   //--------------------------------------------------------------------------------------------------------------
   it('Pay transaction fee with basic account. Send 0.0001 POL on Polygon', async () => {
     // Check if POL on Polygon are under 0.0001
-    await checkBalanceOfToken(
-      page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-      0.0001
-    )
+    await checkBalanceOfToken(page, SELECTORS.nativeTokenPolygonDyn, 0.0001)
 
     await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
-    await prepareTransaction(page, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C', '0.0001')
+    await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, '0.0001')
     await handleTransaction(
       page,
       extensionURL,
@@ -132,14 +125,10 @@ describe('sa_features', () => {
   //--------------------------------------------------------------------------------------------------------------
   it('Make batched transaction', async () => {
     // Check if POL on Polygon are under 0.0015
-    await checkBalanceOfToken(
-      page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-      0.02
-    )
+    await checkBalanceOfToken(page, SELECTORS.nativeTokenPolygonDyn, 0.02)
 
     await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
-    await prepareTransaction(page, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C', '0.0001')
+    await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, '0.0001')
 
     const elementToClick = await page.waitForSelector('[data-testid="transfer-button-confirm"]')
     await elementToClick.click()
@@ -181,7 +170,7 @@ describe('sa_features', () => {
         )
       },
       {},
-      '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C',
+      SMART_ACC_VIEW_ONLY_ADDRESS,
       '0xe750Fff1AA867DFb52c9f98596a0faB5e05d30A6'
     )
     await selectFeeToken(
@@ -197,7 +186,7 @@ describe('sa_features', () => {
         return body.textContent.includes(text1) && body.textContent.includes(text2)
       },
       {},
-      '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C',
+      SMART_ACC_VIEW_ONLY_ADDRESS,
       '0xe750Fff1AA867DFb52c9f98596a0faB5e05d30A6'
     )
   })
@@ -245,7 +234,7 @@ describe('sa_features', () => {
     await typeText(page, '[data-testid="amount-field"]', '0.00000001')
 
     // Type the address of the recipient
-    await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
+    await typeText(page, recipientField, SMART_ACC_VIEW_ONLY_ADDRESS)
     await page.waitForXPath(
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
     )
@@ -289,11 +278,7 @@ describe('sa_features', () => {
       0.0000001
     )
     // Check if POL on Polygon are under 0.0015
-    await checkBalanceOfToken(
-      page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-      0.02
-    )
+    await checkBalanceOfToken(page, SELECTORS.nativeTokenPolygonDyn, 0.02)
     // Check if POL on Gas Tank are under 0.007
     await checkBalanceOfToken(
       page,

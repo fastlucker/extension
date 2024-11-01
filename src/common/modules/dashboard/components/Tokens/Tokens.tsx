@@ -223,7 +223,7 @@ const Tokens = ({
         return (
           <View style={spacings.ptTy}>
             {/* Display more skeleton items if there are no tokens */}
-            <Skeleton amount={sortedTokens.length ? 3 : 5} withHeader={false} />
+            <Skeleton amount={3} withHeader={false} />
           </View>
         )
 
@@ -288,9 +288,9 @@ const Tokens = ({
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
+        !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
         ...(initTab?.tokens ? sortedTokens : []),
         !sortedTokens.length && accountPortfolio?.isAllReady ? 'empty' : '',
-        !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
         'footer'
       ]}
       renderItem={renderItem}

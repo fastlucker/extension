@@ -4,7 +4,4 @@
 declare var isAskingForPermission: boolean
 declare var isAskingForLocalAuth: boolean
 
-// TODO: add types
-declare module 'adex-protocol-eth/js/IdentityProxyDeploy'
-
 declare module 'react-native-android-location-services-dialog-box'

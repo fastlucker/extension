@@ -30,6 +30,8 @@ interface Props {
   routeItemsLength: number
 }
 
+const ITEM_HEIGHT = 44
+
 const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
@@ -76,8 +78,8 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
       <View
         testID={routeItem.testID}
         style={{
-          width: 44,
-          height: 44,
+          height: ITEM_HEIGHT,
+          paddingHorizontal: 9, // this way it gets equal to ITEM_HEIGHT (when square), and flexible otherwise
           borderRadius: BORDER_RADIUS_PRIMARY,
           backgroundColor: isAccountBtnHovered ? NEUTRAL_BACKGROUND_HOVERED : NEUTRAL_BACKGROUND,
           ...flexbox.center,
@@ -91,7 +93,7 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
             transform: [{ scale: accountBtnAnimStyle.scaleX as number }]
           }}
         >
-          <routeItem.icon color={theme.primaryBackground} width={26} height={26} />
+          <routeItem.icon color={theme.primaryBackground} height={ITEM_HEIGHT} />
         </Animated.View>
       </View>
       <Text

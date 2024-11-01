@@ -95,6 +95,11 @@ const KeyStoreSetupScreen = () => {
         state: { backTo: WEB_ROUTES.importHotWallet }
       })
     }
+    if (flow === 'seed-with-option-to-save') {
+      navigate(WEB_ROUTES.importSeedPhrase, {
+        state: { backTo: WEB_ROUTES.importHotWallet }
+      })
+    }
   }, [flow, navigate])
 
   return (
