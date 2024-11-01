@@ -8,7 +8,6 @@ import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
-import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
