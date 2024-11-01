@@ -16,6 +16,7 @@ import getStyles from './styles'
 interface Props {
   hasEstimation: boolean
   slowRequest: boolean
+  slowPaymasterRequest: boolean
   isViewOnly: boolean
   rbfDetected: boolean
   bundlerFailure: boolean
@@ -24,6 +25,7 @@ interface Props {
 const Warnings: FC<Props> = ({
   hasEstimation,
   slowRequest,
+  slowPaymasterRequest,
   isViewOnly,
   rbfDetected,
   bundlerFailure
@@ -101,6 +103,15 @@ const Warnings: FC<Props> = ({
           />
         </View>
       ) : null}
+
+      {slowPaymasterRequest && (
+        <View style={spacings.ptTy}>
+          <Alert
+            type="warning"
+            title="Requesting the paymaster is taking an unexpectedly long time. Waiting for response..."
+          />
+        </View>
+      )}
 
       {!!signAccountOpState?.errors.length && !isViewOnly ? (
         <View style={spacings.ptTy}>

@@ -33,6 +33,7 @@ const Estimation = ({
   disabled,
   hasEstimation,
   slowRequest,
+  slowPaymasterRequest,
   isViewOnly
 }: Props) => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
@@ -252,6 +253,7 @@ const Estimation = ({
         <Warnings
           hasEstimation={hasEstimation}
           slowRequest={slowRequest}
+          slowPaymasterRequest={slowPaymasterRequest}
           isViewOnly={isViewOnly}
           rbfDetected={false}
           bundlerFailure={false}
@@ -340,6 +342,7 @@ const Estimation = ({
       <Warnings
         hasEstimation={hasEstimation}
         slowRequest={slowRequest}
+        slowPaymasterRequest={slowPaymasterRequest}
         isViewOnly={isViewOnly}
         rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
         bundlerFailure={

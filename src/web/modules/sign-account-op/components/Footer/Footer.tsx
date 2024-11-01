@@ -20,6 +20,7 @@ type Props = {
   isSignDisabled: boolean
   isAddToCartDisplayed: boolean
   isAddToCartDisabled: boolean
+  inProgressButtonText: string
 }
 
 const Footer = ({
@@ -29,7 +30,8 @@ const Footer = ({
   isSignLoading,
   isSignDisabled,
   isAddToCartDisplayed,
-  isAddToCartDisabled
+  isAddToCartDisabled,
+  inProgressButtonText
 }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -74,7 +76,7 @@ const Footer = ({
           testID="transaction-button-sign"
           type="primary"
           disabled={isSignDisabled}
-          text={isSignLoading ? t('Signing...') : t('Sign')}
+          text={isSignLoading ? inProgressButtonText : t('Sign')}
           onPress={onSign}
           hasBottomSpacing={false}
           size="large"
