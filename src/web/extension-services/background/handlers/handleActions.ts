@@ -452,7 +452,7 @@ export const handleActions = async (
     case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':
       return await mainCtrl.keystore.deleteSavedSeed()
     case 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP': {
-      if (params.shouldPersist) {
+      if (params.action === 'save') {
         return await mainCtrl.keystore.moveTempSeedToKeystoreSeeds()
       }
       return mainCtrl.keystore.deleteTempSeed()

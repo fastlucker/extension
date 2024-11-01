@@ -318,7 +318,7 @@ type KeystoreControllerDeleteSavedSeed = {
 }
 type KeystoreControllerMoveSeedFromTemp = {
   type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP'
-  params: { shouldPersist: boolean }
+  params: { action: 'save' | 'delete' }
 }
 type KeystoreControllerSendSeedOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'

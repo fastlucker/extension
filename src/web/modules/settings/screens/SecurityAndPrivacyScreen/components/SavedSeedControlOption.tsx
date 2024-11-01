@@ -43,7 +43,7 @@ const SavedSeedControlOption = () => {
       }
       renderIcon={<SeedPhraseIcon width={25} color={theme.primaryText} />}
     >
-      {keystoreState.hasKeystoreSavedSeed && (
+      {keystoreState.hasKeystoreSavedSeed ? (
         <Button
           testID="show-saved-seed-button"
           size="small"
@@ -55,8 +55,7 @@ const SavedSeedControlOption = () => {
           disabled={!keystoreState.hasKeystoreSavedSeed}
           onPress={goToSavedSeed}
         />
-      )}
-      {!keystoreState.hasKeystoreSavedSeed && (
+      ) : (
         <>
           <Button
             testID="create-saved-seed-button"

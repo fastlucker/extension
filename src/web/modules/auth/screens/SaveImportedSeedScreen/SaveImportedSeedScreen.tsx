@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import ImportAccountsFromSeedPhraseIcon from '@common/assets/svg/ImportAccountsFromSeedPhraseIcon'
@@ -15,6 +15,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import { delayPromise } from '@common/utils/promises'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -31,6 +32,8 @@ const PrivateKeyImportScreen = () => {
   const keystoreState = useKeystoreControllerState()
   const { updateStepperState } = useStepper()
   const { addToast } = useToast()
+  const [clickedSkip, setClickedSkip] = useState<boolean>(false)
+  const [clickedSave, setClickedSave] = useState<boolean>(false)
 
   useEffect(() => {
     updateStepperState(WEB_ROUTES.saveImportedSeed, 'seed-with-option-to-save')
@@ -51,17 +54,24 @@ const PrivateKeyImportScreen = () => {
   const handleSaveSeedAndProceed = useCallback(() => {
     dispatch({
       type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP',
-      params: { shouldPersist: true }
+      params: { action: 'save' }
     })
-  }, [dispatch])
+    setClickedSave(true)
+  }, [dispatch, setClickedSave])
 
-  const handleDoNotSaveSeedAndProceed = useCallback(() => {
+  const handleDoNotSaveSeedAndProceed = useCallback(async () => {
+    setClickedSkip(true)
+
     dispatch({
       type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP',
-      params: { shouldPersist: false }
+      params: { action: 'delete' }
     })
+
+    // wait a bit before navigating for better UX
+    await delayPromise(600)
+
     navigate(WEB_ROUTES.dashboard)
-  }, [dispatch, navigate])
+  }, [dispatch, navigate, setClickedSkip])
 
   return (
     <TabLayoutContainer
@@ -94,7 +104,7 @@ const PrivateKeyImportScreen = () => {
           <View style={[flexbox.directionRow, spacings.mt2Xl]}>
             <Button
               testID="save-seed-button"
-              text={t('Save')}
+              text={!clickedSave ? t('Save') : t('Saving...')}
               onPress={handleSaveSeedAndProceed}
               type="primary"
               size="large"
@@ -104,7 +114,7 @@ const PrivateKeyImportScreen = () => {
               testID="do-not-save-seed-button"
               onPress={handleDoNotSaveSeedAndProceed}
               type="secondary"
-              text={t("Don't save")}
+              text={!clickedSkip ? t('Skip') : t('Skipping...')}
               size="large"
             />
           </View>
