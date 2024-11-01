@@ -115,7 +115,7 @@ const SignAccountOpScreen = () => {
       if (signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster) {
         setSlowPaymasterRequest(true)
       }
-    }, 4000)
+    }, 3000)
 
     if (signAccountOpState?.status?.type !== SigningStatus.WaitingForPaymaster) {
       clearTimeout(timeout)
