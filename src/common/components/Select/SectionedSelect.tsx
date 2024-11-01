@@ -4,7 +4,7 @@ import { SectionList } from 'react-native'
 
 import EmptyListPlaceholder from './components/EmptyListPlaceholder'
 import SelectContainer from './components/SelectContainer'
-import { SectionedSelectProps } from './types'
+import { SectionedSelectProps, SelectValue } from './types'
 import useSelectInternal from './useSelectInternal'
 
 const SectionedSelect = ({
@@ -24,27 +24,47 @@ const SectionedSelect = ({
   const filteredSections = useMemo(() => {
     if (!search) return sections
 
-    const sectionsWithFilteredData = sections.map((section) => {
-      const filteredData = section.data.filter((o) => {
-        let found: boolean = o.value.toString().toLowerCase().includes(search.toLowerCase())
-        if (!found && typeof o.label === 'string') {
-          found = o.label.toLowerCase().includes(search.toLowerCase())
-        }
+    const normalizedSearchTerm = search.toLowerCase()
 
-        return found
-      })
+    const sectionsWithFilteredData = sections.map((section) => {
+      const { exactMatches, partialMatches } = section.data.reduce(
+        (result, o) => {
+          const { value, label, extraSearchProps } = o
+
+          const fieldsToBeSearchedInto = [
+            value.toString().toLowerCase(),
+            // In case the label is string, include it (could be any ReactNode)
+            typeof label === 'string' ? label.toLowerCase() : '',
+            ...(extraSearchProps
+              ? Object.values(extraSearchProps).map((field: unknown) => String(field).toLowerCase())
+              : [])
+          ]
+
+          // Prioritize exact matches, partial matches come after
+          const isExactMatch = fieldsToBeSearchedInto.some(
+            (field) => field === normalizedSearchTerm
+          )
+
+          if (isExactMatch) {
+            result.exactMatches.push(o)
+          } else if (fieldsToBeSearchedInto.some((field) => field.includes(normalizedSearchTerm))) {
+            result.partialMatches.push(o)
+          }
+
+          return result
+        },
+        { exactMatches: [] as SelectValue[], partialMatches: [] as SelectValue[] }
+      )
 
       return {
         ...section,
-        data: filteredData
+        data: [...exactMatches, ...partialMatches]
       }
     })
 
-    if (sectionsWithFilteredData.every((section) => section.data.length === 0)) {
-      return []
-    }
-
-    return sectionsWithFilteredData
+    return sectionsWithFilteredData.every((section) => section.data.length === 0)
+      ? []
+      : sectionsWithFilteredData
   }, [sections, search])
 
   return (
