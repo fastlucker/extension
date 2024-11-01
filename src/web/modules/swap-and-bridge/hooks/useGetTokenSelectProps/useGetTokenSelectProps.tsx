@@ -9,12 +9,12 @@ import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { getTokenId } from '@web/utils/token'
 
-const NO_TOKENS_ITEMS = [
+const getTokenOptionsEmptyState = (isToToken = false) => [
   {
     value: 'noTokens',
     label: (
       <Text weight="medium" fontSize={14}>
-        You don&apos;t have any tokens
+        {isToToken ? 'Failed to retrieve tokens' : "You don't have any tokens"}
       </Text>
     ),
     icon: null
@@ -66,8 +66,9 @@ const useGetTokenSelectProps = ({
     value = LOADING_TOKEN_ITEMS[0]
     options = LOADING_TOKEN_ITEMS
   } else if (tokens?.length === 0) {
-    value = NO_TOKENS_ITEMS[0]
-    options = NO_TOKENS_ITEMS
+    const noTokensEmptyState = getTokenOptionsEmptyState(isToToken)
+    value = noTokensEmptyState[0]
+    options = noTokensEmptyState
   } else {
     options = tokens.map((t: SocketAPIToken | TokenResult) => {
       const symbol = isToToken
