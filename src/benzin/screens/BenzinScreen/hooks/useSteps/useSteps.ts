@@ -435,7 +435,6 @@ const useSteps = ({
     const abiCoder = new AbiCoder()
 
     let hashFound = false
-    console.log({ aaaaaaaaaaaa: 1 })
     userOperations.forEach((opArray: any) => {
       const sender = opArray[0]
       const nonce = opArray[1]
@@ -444,13 +443,11 @@ const useSteps = ({
 
       let hash
       let paymasterAndData
-      console.log({ is060 })
       if (!is060) {
         const accountGasLimits = opArray[4]
         const preVerificationGas = opArray[5]
         const gasFees = opArray[6]
         paymasterAndData = opArray[7]
-        console.log({ paymasterAndData })
         const hashPaymasterAndData = keccak256(paymasterAndData)
         const packed = abiCoder.encode(
           ['address', 'uint256', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'bytes32', 'bytes32'],
@@ -467,14 +464,12 @@ const useSteps = ({
         )
         hash = keccak256(packed)
       } else {
-        console.log('060')
         const callGasLimit = opArray[4]
         const verificationGasLimit = opArray[5]
         const preVerificationGas = opArray[6]
         const maxFeePerGas = opArray[7]
         const maxPriorityFeePerGas = opArray[8]
         paymasterAndData = opArray[9]
-        console.log({ paymasterAndData })
         const hashPaymasterAndData = keccak256(paymasterAndData)
 
         const packed = abiCoder.encode(
@@ -516,7 +511,6 @@ const useSteps = ({
           ]
         )
       )
-      console.log(paymasterAndData)
       const paymaster = isAddress(paymasterAndData.slice(0, 42))
         ? getAddress(paymasterAndData.slice(0, 42))
         : ''
