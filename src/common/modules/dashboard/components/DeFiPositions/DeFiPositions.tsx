@@ -10,7 +10,7 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
-import useDefiPositionsControllerState from '@web/hooks/useSwapAndBridgeControllerState/useSwapAndBridgeControllerState'
+import useDefiPositionsControllerState from '@web/hooks/useDeFiPositionsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import DeFiPosition from './DeFiPosition/DeFiPosition'
