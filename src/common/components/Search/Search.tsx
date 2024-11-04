@@ -16,6 +16,7 @@ interface Props extends InputProps {
   control: Control<{ search: string }, any>
   setValue?: UseFormSetValue<{ search: string }>
   height?: number
+  hasLeftIcon?: boolean
 }
 
 const Search = ({
@@ -26,6 +27,7 @@ const Search = ({
   containerStyle = {},
   inputWrapperStyle = {},
   height = 40,
+  hasLeftIcon = true,
   ...rest
 }: Props) => {
   const { theme } = useTheme()
@@ -37,7 +39,7 @@ const Search = ({
       render={({ field: { onChange, onBlur, value } }) => (
         <Input
           containerStyle={[spacings.mb0, containerStyle]}
-          leftIcon={() => <SearchIcon color={theme.secondaryText} />}
+          {...(hasLeftIcon ? { leftIcon: () => <SearchIcon color={theme.secondaryText} /> } : {})}
           placeholder={placeholder}
           style={style}
           inputWrapperStyle={[{ height }, inputWrapperStyle]}

@@ -53,7 +53,7 @@ const SelectNetwork = () => {
   }, [filterByNetworkId, networks])
 
   return (
-    <View style={[styles.container, flexbox.directionRow, flexbox.alignCenter, spacings.mrSm]}>
+    <View style={[styles.container, flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
       <AnimatedPressable
         style={[
           flexbox.directionRow,
@@ -77,7 +77,7 @@ const SelectNetwork = () => {
         {filterByNetworkId ? (
           <FilterIcon color={theme.primaryBackground} width={16} height={16} />
         ) : null}
-        <Text fontSize={14} color={theme.primaryText}>
+        <Text fontSize={16} color={theme.secondaryText}>
           {filterByNetworkId ? filterByNetworkName : t('All Networks')}
         </Text>
         <DownArrowIcon color={theme.primaryText} width={12} height={6.5} />

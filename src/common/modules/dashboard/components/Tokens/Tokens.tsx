@@ -187,7 +187,8 @@ const Tokens = ({
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
             <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
-            <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
+            {/* TODO: fix zIndex: -1 */}
+            <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy, { zIndex: -1 }]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
                 {t('ASSET/AMOUNT')}
               </Text>

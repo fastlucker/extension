@@ -11,7 +11,7 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       height: 32,
-      width: 166,
+      width: 160,
       backgroundColor: theme.secondaryBackground,
       borderRadius: BORDER_RADIUS_PRIMARY,
       borderWidth: 1,
