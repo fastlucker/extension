@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
-import { AssetType } from '@ambire-common/libs/defiPositions/types'
+import { AssetType, Position } from '@ambire-common/libs/defiPositions/types'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   AccountState,
@@ -24,7 +24,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
-import useDefiPositionsControllerState from '@web/hooks/useSwapAndBridgeControllerState/useSwapAndBridgeControllerState'
+import useDefiPositionsControllerState from '@web/hooks/useDeFiPositionsControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -95,8 +95,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           let tokens = networkState.result.tokens || []
           let networkBalance = networkState.result.total?.usd || 0
           positions
-            .filter((p) => p.network.toLowerCase() === networkId)
-            .forEach((pos) => {
+            .filter((p: Position) => p.network.toLowerCase() === networkId)
+            .forEach((pos: Position) => {
               pos.assets.forEach((a) => {
                 const tokenInPortfolioIndex = tokens.findIndex((t) => {
                   return (
