@@ -64,12 +64,14 @@ const HotWalletImportSelectorScreen = () => {
 
   const handleImportSeed = useCallback(() => {
     if (!isReadyToStoreKeys) {
-      navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'seed' } })
+      navigate(WEB_ROUTES.keyStoreSetup, {
+        state: { flow: hasKeystoreSavedSeed ? 'seed' : 'seed-with-option-to-save' }
+      })
       return
     }
 
     navigate(WEB_ROUTES.importSeedPhrase)
-  }, [navigate, isReadyToStoreKeys])
+  }, [navigate, isReadyToStoreKeys, hasKeystoreSavedSeed])
 
   const handleCreateSeed = useCallback(() => {
     if (!isReadyToStoreKeys) {
@@ -183,6 +185,7 @@ const HotWalletImportSelectorScreen = () => {
               onPress={() => onOptionPress('email')}
               isPartiallyDisabled
               titleStyle={[spacings.mb2Xl]}
+              isSecondary
             >
               <Alert
                 title=""
