@@ -29,10 +29,11 @@ const Select = ({ setValue, value, options, testID, menuOptionHeight, ...props }
         ]
 
         // Prioritize exact matches, partial matches come after
-        const isExactMatch = fieldsToBeSearchedInto.some((field) => field === normalizedSearchTerm)
+        const isExactMatch = fieldsToBeSearchedInto.some((f) => f === normalizedSearchTerm)
+        const isPartialMatch = fieldsToBeSearchedInto.some((f) => f.includes(normalizedSearchTerm))
         if (isExactMatch) {
           result.exactMatches.push(o)
-        } else if (fieldsToBeSearchedInto.some((field) => field.includes(normalizedSearchTerm))) {
+        } else if (isPartialMatch) {
           result.partialMatches.push(o)
         }
 
