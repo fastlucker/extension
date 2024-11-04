@@ -139,7 +139,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
           <Button
             text={
               statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-                ? t('Building Transaction...')
+                ? t('Preparing...')
                 : t('Proceed to Next Step')
             }
             onPress={handleProceedToNextStep}
