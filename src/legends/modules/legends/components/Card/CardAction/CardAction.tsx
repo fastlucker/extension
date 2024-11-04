@@ -29,7 +29,8 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
     return <SendAccOp action={action} onComplete={onComplete} />
   }
 
-  return <div>Invalid action type</div>
+  // No specific action type, then we don't need to show an action component (button).
+  return null
 }
 
 export default CardActionComponent
