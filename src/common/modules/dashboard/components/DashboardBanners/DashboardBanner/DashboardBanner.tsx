@@ -129,7 +129,7 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
       actions.map((action: Action) => {
         const isReject =
           ERROR_ACTIONS.includes(action.actionName) ||
-          ('meta' in action && 'isReject' in action.meta && action.meta.isReject)
+          ('meta' in action && 'isHideStyle' in action.meta && action.meta.isHideStyle)
         let actionText = action.label
         let isDisabled = false
 
