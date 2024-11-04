@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { ActiveRoute, SocketAPIBridgeUserTx } from '@ambire-common/interfaces/swapAndBridge'
-import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { getIsBridgeTxn, getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
@@ -47,6 +47,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
       params: { activeRouteId: activeRoute.activeRouteId }
     })
   }, [activeRoute.activeRouteId, dispatch])
+
+  const isBridgeTxn = useMemo(
+    () => activeRoute.route.userTxs.some((userTx) => getIsBridgeTxn(userTx.userTxType)),
+    [activeRoute.route.userTxs]
+  )
 
   return (
     <Panel
@@ -140,7 +145,9 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
             text={
               statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
                 ? t('Preparing...')
-                : t('Proceed to Next Step')
+                : isBridgeTxn
+                ? t('Proceed to Next Step')
+                : t('Proceed')
             }
             onPress={handleProceedToNextStep}
             size="small"
