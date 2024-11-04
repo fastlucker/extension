@@ -11,7 +11,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Collections from '../Collections'
-import DefiPositions from '../DefiPositions'
+import DeFiPositions from '../DeFiPositions'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import Tokens from '../Tokens'
 
@@ -63,12 +63,13 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
         onScroll={onScroll}
         networks={networks}
       />
-      <DefiPositions
+
+      <DeFiPositions
+        filterByNetworkId={filterByNetworkId}
         openTab={openTab}
         setOpenTab={setOpenTab}
-        initTab={initTab}
-        filterByNetworkId={filterByNetworkId}
         onScroll={onScroll}
+        initTab={initTab}
       />
     </View>
   )
