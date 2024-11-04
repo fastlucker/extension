@@ -69,8 +69,8 @@ const AppInit = () => {
                                       <SignMessageControllerStateProvider>
                                         <ActivityControllerStateProvider>
                                           <ActionsControllerStateProvider>
-                                            <PortfolioControllerStateProvider>
-                                              <DefiPositionsControllerStateProvider>
+                                            <DefiPositionsControllerStateProvider>
+                                              <PortfolioControllerStateProvider>
                                                 <EmailVaultControllerStateProvider>
                                                   <DappsControllerStateProvider>
                                                     <DomainsControllerStateProvider>
@@ -99,8 +99,8 @@ const AppInit = () => {
                                                     </DomainsControllerStateProvider>
                                                   </DappsControllerStateProvider>
                                                 </EmailVaultControllerStateProvider>
-                                              </DefiPositionsControllerStateProvider>
-                                            </PortfolioControllerStateProvider>
+                                              </PortfolioControllerStateProvider>
+                                            </DefiPositionsControllerStateProvider>
                                           </ActionsControllerStateProvider>
                                         </ActivityControllerStateProvider>
                                       </SignMessageControllerStateProvider>
