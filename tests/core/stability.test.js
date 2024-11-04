@@ -6,6 +6,7 @@ import { clickOnElement } from '../common-helpers/clickOnElement'
 import { monitorRequests } from '../common/requests'
 import { makeValidTransaction } from '../common/transactions'
 import { typeKeystorePassAndUnlock } from '../common-helpers/typeKeystorePassAndUnlock'
+import { buildSelector } from '../common-helpers/buildSelector'
 
 const startSWAndUnlockKeystore = async (page, extensionURL, recorder, serviceWorker) => {
   const {
@@ -100,19 +101,19 @@ describe("The extension works properly when crucial APIs aren't working from lau
         // -- DAI on Arbitrum
         await checkBalanceOfToken(
           page,
-          '[data-testid="token-0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1-arbitrum"]',
+          buildSelector('token-0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1-arbitrum'),
           0
         )
         // -- USDC on Optimism
         await checkBalanceOfToken(
           page,
-          '[data-testid="token-0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85-optimism"]',
+          buildSelector('token-0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85-optimism'),
           0
         )
         // -- WALLET on Ethereum
         await checkBalanceOfToken(
           page,
-          '[data-testid="token-0x88800092fF476844f74dC2FC427974BBee2794Ae-ethereum"]',
+          buildSelector('token-0x88800092fF476844f74dC2FC427974BBee2794Ae-ethereum'),
           0
         )
 

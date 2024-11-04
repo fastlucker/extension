@@ -11,6 +11,7 @@ permissions:
   contents: write
 jobs:
   build:
+    environment: legends
     name: Build & Deploy Standalone Legends Staging
     runs-on: ubuntu-latest
     concurrency:
@@ -41,6 +42,8 @@ jobs:
       - name: Build project 🛠️
         env:
           RELAYER_URL: 'https://staging-relayer.ambire.com'
+          LEGENDS_NFT_ADDRESS: ${{ vars.LEGENDS_NFT_ADDRESS_STAGING }}
+
         run: yarn build:web:legends
 
       - name: Setup SSH agent
@@ -60,4 +63,3 @@ jobs:
           git add .
           git commit -m "Automated deploy from ambire-app"
           git push origin gh-pages --force
-

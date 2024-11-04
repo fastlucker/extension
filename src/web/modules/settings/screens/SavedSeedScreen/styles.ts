@@ -8,7 +8,7 @@ interface Style {
 const getStyles = () =>
   StyleSheet.create<Style>({
     // @ts-ignore web style
-    blurred: { filter: 'blur(3px)' },
+    blurred: { filter: 'blur(6px)' },
     // @ts-ignore web style
     notBlurred: { filter: 'blur(0px)' }
   })

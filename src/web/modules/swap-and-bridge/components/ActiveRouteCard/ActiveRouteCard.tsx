@@ -100,7 +100,8 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
                         appearance="primary"
                         style={spacings.mrTy}
                       >
-                        ~{formatTime((activeTransaction as SocketAPIBridgeUserTx)?.serviceTime)}
+                        {t('around')}{' '}
+                        {formatTime((activeTransaction as SocketAPIBridgeUserTx)?.serviceTime)}
                       </Text>
                       <Spinner style={{ width: 16, height: 16 }} />
                     </View>

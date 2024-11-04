@@ -14,7 +14,6 @@ import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -136,14 +135,10 @@ const SmartAccountImportScreen = () => {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { dispatch } = useBackgroundService()
-  const { accounts } = useAccounts()
   const { statuses } = useKeystoreControllerState()
   const { navigate } = useNavigation()
-  const accountsState = useAccountsControllerState()
-  const newAccounts: Account[] = useMemo(
-    () => accountsState.accounts.filter((a) => a.newlyAdded),
-    [accountsState.accounts]
-  )
+  const { accounts } = useAccountsControllerState()
+  const newAccounts: Account[] = useMemo(() => accounts.filter((a) => a.newlyAdded), [accounts])
 
   useEffect(() => {
     if (statuses.addKeys === 'SUCCESS') {

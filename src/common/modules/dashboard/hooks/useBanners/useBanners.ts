@@ -8,6 +8,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
@@ -40,6 +41,7 @@ export default function useBanners(): BannerInterface[] {
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
+  const { banners: keystoreBanners = [] } = useKeystoreControllerState()
 
   const allBanners = useMemo(() => {
     return [
@@ -52,7 +54,8 @@ export default function useBanners(): BannerInterface[] {
         selectedAccount
       ),
       ...activityBanners,
-      ...getCurrentAccountBanners(emailVaultBanners, selectedAccount)
+      ...getCurrentAccountBanners(emailVaultBanners, selectedAccount),
+      ...keystoreBanners
     ]
   }, [
     state.banners,
@@ -62,7 +65,8 @@ export default function useBanners(): BannerInterface[] {
     portfolioBanners,
     selectedAccount,
     activityBanners,
-    emailVaultBanners
+    emailVaultBanners,
+    keystoreBanners
   ])
 
   return allBanners

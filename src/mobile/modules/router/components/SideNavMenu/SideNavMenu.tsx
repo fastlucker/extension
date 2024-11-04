@@ -9,7 +9,6 @@ import DiscordIcon from '@common/assets/svg/DiscordIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
-import SwapIcon from '@common/assets/svg/SwapIcon'
 import TelegramIcon from '@common/assets/svg/TelegramIcon'
 import TransferIcon from '@common/assets/svg/TransferIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
@@ -68,7 +67,7 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: DashboardIcon, name: t('Dashboard'), route: ROUTES.dashboard },
     { Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn },
     { Icon: SendIcon, name: t('Send'), route: ROUTES.send },
-    { Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap },
+    // { Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap },
     { Icon: TransferIcon, name: t('Transactions'), route: ROUTES.transactions },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },

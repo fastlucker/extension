@@ -1,8 +1,8 @@
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { baParams } from '../config/constants'
+import { SELECTORS } from '../common/selectors/selectors'
 
 import {
-  makeValidTransaction,
   makeSwap,
   sendFundsGreaterThanBalance,
   sendFundsToSmartContract,
@@ -25,10 +25,6 @@ describe('ba_transactions', () => {
   afterEach(async () => {
     await recorder.stop()
     await browser.close()
-  })
-
-  it('Makes a valid transaction', async () => {
-    await makeValidTransaction(page, extensionURL, browser, { shouldStopBeforeSign: true })
   })
 
   it('(-) Sends POL tokens greater than the available balance', async () => {
