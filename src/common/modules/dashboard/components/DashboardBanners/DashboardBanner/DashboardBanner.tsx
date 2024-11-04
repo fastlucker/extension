@@ -109,6 +109,10 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
           params: { activeRouteId: action.meta.activeRouteId }
         })
       }
+
+      if (action.actionName === 'confirm-temp-seed') {
+        navigate(ROUTES.saveImportedSeed)
+      }
     },
     [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]
   )
