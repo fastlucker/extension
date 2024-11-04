@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
-import { Position } from '@ambire-common/libs/defiPositions/types'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
@@ -14,6 +13,7 @@ import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs
 import useDefiPositionsControllerState from '@web/hooks/useSwapAndBridgeControllerState/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+import DeFiPosition from './DeFiPosition/DeFiPosition'
 import styles from './styles'
 
 interface Props {
@@ -28,7 +28,7 @@ interface Props {
 
 const { isPopup } = getUiType()
 
-const DefiPositions: FC<Props> = ({
+const DeFiPositions: FC<Props> = ({
   openTab,
   setOpenTab,
   initTab,
@@ -92,15 +92,9 @@ const DefiPositions: FC<Props> = ({
 
       if (!initTab?.defi || !item || item === 'keep-this-to-avoid-key-warning') return null
 
-      const { network, providerName } = item as Position
+      console.log('item', item)
 
-      return (
-        <View>
-          <Text>
-            {providerName} on {network}
-          </Text>
-        </View>
-      )
+      return <DeFiPosition key={item.providerName + item.network} {...item} />
     },
     [
       control,
@@ -143,4 +137,4 @@ const DefiPositions: FC<Props> = ({
   )
 }
 
-export default React.memo(DefiPositions)
+export default React.memo(DeFiPositions)

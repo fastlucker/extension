@@ -129,6 +129,7 @@ const Collections: FC<Props> = ({
       filterByNetworkId,
       filteredPortfolioCollections.length,
       initTab?.collectibles,
+      networks,
       openCollectibleModal,
       openTab,
       searchValue,
