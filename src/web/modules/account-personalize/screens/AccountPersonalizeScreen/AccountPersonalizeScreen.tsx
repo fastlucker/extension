@@ -70,9 +70,13 @@ const AccountPersonalizeScreen = () => {
         params: data.accounts.map((a) => ({ addr: a.addr, preferences: a.preferences }))
       })
 
-      navigate('/')
+      if (stepperState?.currentFlow === 'seed-with-option-to-save') {
+        navigate(WEB_ROUTES.saveImportedSeed)
+      } else {
+        navigate('/')
+      }
     },
-    [navigate, dispatch]
+    [navigate, dispatch, stepperState]
   )
 
   return (
