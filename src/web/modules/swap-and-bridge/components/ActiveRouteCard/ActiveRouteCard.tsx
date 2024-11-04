@@ -48,10 +48,12 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
     })
   }, [activeRoute.activeRouteId, dispatch])
 
-  const isBridgeTxn = useMemo(
-    () => activeRoute.route.userTxs.some((userTx) => getIsBridgeTxn(userTx.userTxType)),
-    [activeRoute.route.userTxs]
-  )
+  const isNextTnxForBridging = useMemo(() => {
+    const isBridgeTxn = activeRoute.route.userTxs.some((userTx) =>
+      getIsBridgeTxn(userTx.userTxType)
+    )
+    return isBridgeTxn && activeRoute.route.currentUserTxIndex >= 1
+  }, [activeRoute.route.userTxs])
 
   return (
     <Panel
@@ -145,7 +147,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
             text={
               statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
                 ? t('Preparing...')
-                : isBridgeTxn
+                : isNextTnxForBridging
                 ? t('Proceed to Next Step')
                 : t('Proceed')
             }
