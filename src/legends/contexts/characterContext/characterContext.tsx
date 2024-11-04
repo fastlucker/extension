@@ -17,6 +17,7 @@ type Character = {
   xp: number
   image: string
   image_avatar: string
+  address: string
 }
 
 const CharacterContext = createContext<{
@@ -53,13 +54,17 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     }
 
     try {
-      const characterResponse = await fetch(
-        `${RELAYER_URL}/legends/nft-meta/${connectedAccount}`
-      )
+      setCharacter(null)
+      setIsLoading(true)
+
+      const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
 
       const characterJson = await characterResponse.json()
 
-      setCharacter(characterJson as Character)
+      setCharacter({
+        ...(characterJson as Character),
+        address: connectedAccount
+      })
       setError(null)
     } catch (e) {
       setError(`Couldn't load the requested character: ${connectedAccount}`)
@@ -115,23 +120,29 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     getCharacter()
   }, [getCharacter])
 
-  return (
-    <CharacterContext.Provider
-      value={useMemo(
-        () => ({
-          character,
-          getCharacter,
-          mintCharacter,
-          isLoading,
-          isMinting,
-          error
-        }),
-        [character, getCharacter, mintCharacter, isLoading, isMinting, error]
-      )}
-    >
-      {children}
-    </CharacterContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      character,
+      getCharacter,
+      mintCharacter,
+      isLoading,
+      isMinting,
+      error
+    }),
+    [character, getCharacter, mintCharacter, isLoading, isMinting, error]
   )
+
+  // Important: Short-circuit evaluation to prevent loading of child contexts/components
+  // in the case character's address mismatches the currently connected account.
+  // We should only load child contexts if the character's address matches the connected account.
+  // How can this mismatch occur?
+  // If we're connected to a v2 account, `character.address` and `connectedAccounts` should match.
+  // However, when switching to another v2 account without a character, there may be a brief delay as the new character is fetched.
+  // During this delay, child contexts could try to operate with the new `connectedAccount` but the previous `character`, which is incorrect.
+  // This validation ensures `connectedAccount` and `character` are always in sync.
+  if (character?.address !== connectedAccount) return null
+
+  return <CharacterContext.Provider value={contextValue}>{children}</CharacterContext.Provider>
 }
 
 export { CharacterContextProvider, CharacterContext }
