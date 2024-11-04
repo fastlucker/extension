@@ -53,6 +53,7 @@ const DeFiPositionHeader: FC<Props> = ({
         <Text fontSize={16} weight="semiBold" style={spacings.mrMi}>
           {providerName}
         </Text>
+        {/* TODO: Open dapp url on click */}
         <OpenIcon width={14} height={14} color={theme.secondaryText} />
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlLg]}>
           {healthRate && (
