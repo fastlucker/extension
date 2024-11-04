@@ -197,7 +197,7 @@ const RouteStepsPreview = ({
                   weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
                   appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
                 >
-                  {t('Estimation: ~{{time}}', {
+                  {t('Estimation: around {{time}}', {
                     time: formatTime(estimationInSeconds)
                   })}
                 </Text>
