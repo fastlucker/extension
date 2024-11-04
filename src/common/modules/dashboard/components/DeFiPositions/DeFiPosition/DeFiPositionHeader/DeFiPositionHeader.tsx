@@ -1,87 +1,24 @@
 import React, { FC } from 'react'
 import { Animated, View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
 import { Position } from '@ambire-common/libs/defiPositions/types'
-import AaveIcon from '@common/assets/svg/AaveIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
-import UniswapIcon from '@common/assets/svg/UniswapIcon'
-import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import getStyles from '@common/modules/dashboard/components/DeFiPositions/DeFiPosition/styles'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
-import getStyles from './styles'
+import Badge from './Badge'
+import ProtocolIcon from './ProtocolIcon'
 
 type Props = Omit<Position, 'assets' | 'positionType'> & {
   toggleExpanded: () => void
   isExpanded: boolean
   positionInUSD?: string
-}
-
-const POSITION_TO_ICON: {
-  [key: string]: FC
-} = {
-  'Uniswap V3': UniswapIcon,
-  'Uniswap V2': UniswapIcon,
-  'AAVE v3': AaveIcon,
-  'AAVE v2': AaveIcon,
-  'AAVE v1': AaveIcon
-}
-
-const Badge = ({ text, type }: { text: string; type: 'primary' | 'secondary' }) => {
-  const { theme } = useTheme()
-  return (
-    <View
-      style={{
-        ...spacings.phTy,
-        ...flexbox.justifyCenter,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: type === 'primary' ? theme.successBackground : theme.infoBackground
-      }}
-    >
-      <Text
-        fontSize={12}
-        weight="medium"
-        appearance={type === 'primary' ? 'successText' : 'infoText'}
-      >
-        {text}
-      </Text>
-    </View>
-  )
-}
-
-const ProtocolIcon = ({
-  providerName,
-  networkId
-}: {
-  providerName: string
-  networkId: Network['id']
-}) => {
-  const { theme } = useTheme()
-  const Icon = POSITION_TO_ICON[providerName]
-
-  return (
-    <View style={spacings.mrSm}>
-      <Icon />
-      <NetworkIcon
-        style={{
-          backgroundColor: theme.primaryBackground,
-          position: 'absolute',
-          left: -8,
-          top: -4
-        }}
-        scale={1}
-        id={networkId}
-        size={20}
-      />
-    </View>
-  )
 }
 
 const DeFiPositionHeader: FC<Props> = ({
