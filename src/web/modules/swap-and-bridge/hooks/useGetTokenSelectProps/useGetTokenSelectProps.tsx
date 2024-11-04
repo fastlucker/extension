@@ -9,12 +9,12 @@ import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { getTokenId } from '@web/utils/token'
 
-const NO_TOKENS_ITEMS = [
+const getTokenOptionsEmptyState = (isToToken = false) => [
   {
     value: 'noTokens',
     label: (
       <Text weight="medium" fontSize={14}>
-        You don&apos;t have any tokens
+        {isToToken ? 'Failed to retrieve tokens' : "You don't have any tokens"}
       </Text>
     ),
     icon: null
@@ -66,14 +66,19 @@ const useGetTokenSelectProps = ({
     value = LOADING_TOKEN_ITEMS[0]
     options = LOADING_TOKEN_ITEMS
   } else if (tokens?.length === 0) {
-    value = NO_TOKENS_ITEMS[0]
-    options = NO_TOKENS_ITEMS
+    const noTokensEmptyState = getTokenOptionsEmptyState(isToToken)
+    value = noTokensEmptyState[0]
+    options = noTokensEmptyState
   } else {
     options = tokens.map((t: SocketAPIToken | TokenResult) => {
       const symbol = isToToken
         ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
           (t as SocketAPIToken).symbol?.trim() || 'No symbol'
         : t.symbol
+      const name = isToToken
+        ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
+          (t as SocketAPIToken).name?.trim() || 'No name'
+        : ''
 
       const label = isToToken ? (
         <View>
@@ -87,8 +92,7 @@ const useGetTokenSelectProps = ({
             </Text>
           </Text>
           <Text numberOfLines={1} fontSize={12}>
-            {/* Overprotective on purpose here, the API does return `null` values, although it shouldn't */}
-            {(t as SocketAPIToken).name?.trim() || 'No name'}
+            {name}
           </Text>
         </View>
       ) : (
@@ -111,6 +115,7 @@ const useGetTokenSelectProps = ({
 
       return {
         value: getTokenId(t),
+        extraSearchProps: { symbol, name, address: t.address },
         label,
         icon: (
           <TokenIcon
