@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useState } from 'react'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
-import { ETHEREUM_CHAIN_ID } from '@legends/constants/network'
+import { BASE_CHAIN_ID } from '@legends/constants/network'
 
 import { CardAction } from '@legends/modules/legends/types'
 import { BrowserProvider } from 'ethers'
@@ -21,7 +21,7 @@ const SendAccOp: FC<Props> = ({ onComplete, action }) => {
     try {
       await window.ambire.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: ETHEREUM_CHAIN_ID }]
+        params: [{ chainId: BASE_CHAIN_ID }]
       })
     } catch (e) {
       console.error(e)
