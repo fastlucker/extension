@@ -3,7 +3,12 @@ import { baParams } from '../config/constants'
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { monitorRequests } from '../common/requests'
-import { makeValidTransaction } from '../common/transactions'
+import {
+  makeValidTransaction,
+  checkTokenBalanceClickOnGivenActionInDashboard
+} from '../common/transactions'
+import { buildSelector } from '../common-helpers/buildSelector'
+import { SELECTORS } from '../common/selectors/selectors'
 
 describe('Test the stability of the extension', () => {
   let browser
@@ -23,6 +28,8 @@ describe('Test the stability of the extension', () => {
     await recorder.stop()
     await browser.close()
   })
+
+  const polTokenSelector = buildSelector('token-0x0000000000000000000000000000000000000000-polygon')
 
   it('Should load and refresh portfolio with a bad Polygon RPC', async () => {
     await monitorRequests(
@@ -49,6 +56,11 @@ describe('Test the stability of the extension', () => {
     await monitorRequests(
       serviceWorker.client,
       async () => {
+        await checkTokenBalanceClickOnGivenActionInDashboard(
+          page,
+          polTokenSelector,
+          SELECTORS.tokenSend
+        )
         await makeValidTransaction(page, extensionURL, browser)
       },
       {
@@ -60,6 +72,11 @@ describe('Test the stability of the extension', () => {
     await monitorRequests(
       serviceWorker.client,
       async () => {
+        await checkTokenBalanceClickOnGivenActionInDashboard(
+          page,
+          polTokenSelector,
+          SELECTORS.tokenSend
+        )
         await makeValidTransaction(page, extensionURL, browser, {
           shouldStopBeforeSign: true
         })
