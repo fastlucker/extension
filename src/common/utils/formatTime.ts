@@ -5,8 +5,8 @@
  * Examples:
  * - 90061 seconds will be formatted as "1d 1h"
  * - 3600 seconds will be formatted as "1h"
- * - 61 seconds will be formatted as "1min, 1sec"
- * - 59 seconds will be formatted as "59sec"
+ * - 61 seconds will be formatted as "1 min, 1 sec"
+ * - 59 seconds will be formatted as "59 sec"
  */
 function formatTime(seconds: number) {
   let remainingSeconds = seconds
@@ -27,13 +27,13 @@ function formatTime(seconds: number) {
     return hours !== 0 ? `${days}d ${hours}h` : `${days}d`
   }
   if (hours > 0) {
-    return minutes !== 0 ? `${hours}h, ${minutes}min` : `${hours}h`
+    return minutes !== 0 ? `${hours}h, ${minutes} min` : `${hours}h`
   }
   if (minutes > 0) {
-    return remainingSeconds !== 0 ? `${minutes}min, ${remainingSeconds}sec` : `${minutes}min`
+    return remainingSeconds !== 0 ? `${minutes} min, ${remainingSeconds} sec` : `${minutes} min`
   }
 
-  return `${remainingSeconds}sec`
+  return `${remainingSeconds} sec`
 }
 
 export default formatTime
