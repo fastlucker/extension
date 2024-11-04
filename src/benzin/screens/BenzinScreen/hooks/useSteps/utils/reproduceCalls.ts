@@ -98,61 +98,55 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
     if (decoded) return decoded
   }
 
+  const non4337Matcher: {
+    [sigHash: string]: (data: string) => { to: string; data: string; value: bigint }[]
+  } = {
+    [executeInterface.getFunction('execute')!.selector]: getExecuteCalls,
+    [executeBySenderInterface.getFunction('executeBySender')!.selector]: getExecuteBySenderCalls,
+    [executeMultipleInterface.getFunction('executeMultiple')!.selector]: getExecuteMultipleCalls,
+    [deployAndExecuteInterface.getFunction('deployAndExecute')!.selector]: (txData: string) => {
+      const data = deployAndExecuteInterface.decodeFunctionData('deployAndExecute', txData)
+      return data[2].map((call: any) => transformToAccOpCall(call))
+    },
+    [deployAndExecuteMultipleInterface.getFunction('deployAndExecuteMultiple')!.selector]: (
+      txData: string
+    ) => {
+      const data = deployAndExecuteMultipleInterface.decodeFunctionData(
+        'deployAndExecuteMultiple',
+        txData
+      )
+      const calls: any = data[2].map((executeArgs: any) => executeArgs[0]).flat()
+      return calls.map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [quickAccManagerSendInterface.getFunction('send')!.selector]: (txData: string) => {
+      const data = quickAccManagerSendInterface.decodeFunctionData('send', txData)
+      return data[3].map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [quickAccManagerCancelInterface.getFunction('cancel')!.selector]: (txData: string) => {
+      const data = quickAccManagerCancelInterface.decodeFunctionData('cancel', txData)
+      return data[4].map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [quickAccManagerExecScheduledInterface.getFunction('execScheduled')!.selector]: (
+      txData: string
+    ) => {
+      const data = quickAccManagerExecScheduledInterface.decodeFunctionData('execScheduled', txData)
+      return data[3].map((call: any) => transformToAccOpCall(call))
+    },
+    // @non-ambire executeBatch
+    [executeBatchInterface.getFunction('executeBatch')!.selector]: getExecuteBatchCalls
+  }
+
   const sigHash = txn.data.slice(0, 10)
 
-  let parsedCalls = [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
+  let parsedCalls = non4337Matcher[sigHash]
+    ? non4337Matcher[sigHash](txn.data)
+    : [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
 
-  if (sigHash === executeInterface.getFunction('execute')!.selector) {
-    parsedCalls = getExecuteCalls(txn.data)
-  }
-
-  if (sigHash === executeBySenderInterface.getFunction('executeBySender')!.selector) {
-    parsedCalls = getExecuteBySenderCalls(txn.data)
-  }
-
-  if (sigHash === executeMultipleInterface.getFunction('executeMultiple')!.selector) {
-    parsedCalls = getExecuteMultipleCalls(txn.data)
-  }
-
-  if (sigHash === deployAndExecuteInterface.getFunction('deployAndExecute')!.selector) {
-    const data = deployAndExecuteInterface.decodeFunctionData('deployAndExecute', txn.data)
-    parsedCalls = data[2].map((call: any) => transformToAccOpCall(call))
-  }
-
-  if (
-    sigHash === deployAndExecuteMultipleInterface.getFunction('deployAndExecuteMultiple')!.selector
-  ) {
-    const data = deployAndExecuteMultipleInterface.decodeFunctionData(
-      'deployAndExecuteMultiple',
-      txn.data
-    )
-    const calls: any = data[2].map((executeArgs: any) => executeArgs[0]).flat()
-    parsedCalls = calls.map((call: any) => transformToAccOpCall(call))
-  }
-
-  // v1
-  if (sigHash === quickAccManagerSendInterface.getFunction('send')!.selector) {
-    const data = quickAccManagerSendInterface.decodeFunctionData('send', txn.data)
-    parsedCalls = data[3].map((call: any) => transformToAccOpCall(call))
-  }
-
-  // v1
-  if (sigHash === quickAccManagerCancelInterface.getFunction('cancel')!.selector) {
-    const data = quickAccManagerCancelInterface.decodeFunctionData('cancel', txn.data)
-    parsedCalls = data[4].map((call: any) => transformToAccOpCall(call))
-  }
-
-  // v1
-  if (sigHash === quickAccManagerExecScheduledInterface.getFunction('execScheduled')!.selector) {
-    const data = quickAccManagerExecScheduledInterface.decodeFunctionData('execScheduled', txn.data)
-    return data[3].map((call: any) => transformToAccOpCall(call))
-  }
-
-  // @non-ambire executeBatch
-  if (sigHash === executeBatchInterface.getFunction('executeBatch')!.selector) {
-    parsedCalls = getExecuteBatchCalls(txn.data)
-  }
   if (RELAYER_EXECUTOR_ADDRESSES.includes(txn.from)) parsedCalls = parsedCalls.slice(0, -1)
+
   return parsedCalls
 }
 
