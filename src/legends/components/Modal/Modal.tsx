@@ -14,7 +14,7 @@ type ComponentProps = {
 type ModalProps = ComponentProps & {
   isOpen: boolean
   setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
-  isClosable: boolean
+  isClosable?: boolean
 }
 
 const Heading: FC<ComponentProps> = ({ children, className }) => {
@@ -53,7 +53,7 @@ const Modal = ({ children, className, isOpen, setIsOpen, isClosable = true }: Mo
             <FontAwesomeIcon icon={faTimes} />
           </button>
         )}
-        {children}
+        {isOpen && children}
       </div>
     </div>
   )
