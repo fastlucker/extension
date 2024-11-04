@@ -1,5 +1,5 @@
 import { BrowserProvider, Contract, Interface, ZeroAddress } from 'ethers'
-import React, { FC, useCallback, useMemo, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import Alert from '@legends/components/Alert'
@@ -40,16 +40,16 @@ const STEPPER_STEPS = [
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
 const LinkAcc: FC<Props> = ({ onComplete }) => {
-  const { connectedAccount, nonV2Account } = useAccountContext()
+  const { connectedAccount, nonV2Account, setAllowNonV2Connection } = useAccountContext()
   const { addToast } = useToast()
   const [isInProgress, setIsInProgress] = useState(false)
   const [v1OrBasicSignature, setV1OrBasicSignature] = useState('')
   const [messageSignedForV2Account, setMessageSignedForV2Account] = useState('')
   const [v1OrEoaAddress, setV1OrEoaAddress] = useState('')
   const activeStep = useMemo(() => {
-    if (v1OrBasicSignature) return STEPS.SIGN_TRANSACTION
+    if (v1OrBasicSignature && !nonV2Account) return STEPS.SIGN_TRANSACTION
     if (v1OrBasicSignature) return STEPS.CONNECT_V2_ACCOUNT
-    if (!nonV2Account && !v1OrBasicSignature) return STEPS.SIGN_MESSAGE
+    if (nonV2Account && !v1OrBasicSignature) return STEPS.SIGN_MESSAGE
 
     return STEPS.CONNECT_V1_OR_BASIC_ACCOUNT
   }, [nonV2Account, v1OrBasicSignature])
@@ -64,6 +64,18 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
 
     return false
   }, [activeStep, nonV2Account, messageSignedForV2Account, connectedAccount])
+
+  // We don't allow non-v2 accounts to connect to Legends,
+  // except when the user needs to link an EOA/v1 account to their main v2 account.
+  // Therefore, we add this exception here, setting the `allowNonV2Connection` flag to true.
+  // Upon unmounting, we disallow it again.
+  useEffect(() => {
+    setAllowNonV2Connection(true)
+
+    return () => {
+      setAllowNonV2Connection(false)
+    }
+  }, [setAllowNonV2Connection])
 
   const changeNetworkToBase = useCallback(async () => {
     try {
@@ -114,6 +126,7 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
         ZeroAddress,
         v1OrBasicSignature
       )
+      setAllowNonV2Connection(false)
       onComplete()
       addToast('Successfully linked accounts', 'success')
     } catch (e) {

@@ -8,7 +8,7 @@ import ErrorPage from '@legends/components/ErrorPage'
 import NonV2Modal from '@legends/components/NonV2Modal'
 
 const PrivateRoute = () => {
-  const { connectedAccount, nonV2Account, isLoading } = useAccountContext()
+  const { connectedAccount, nonV2Account, allowNonV2Connection, isLoading } = useAccountContext()
   const { character, isLoading: isCharacterLoading, error: characterError } = useCharacterContext()
 
   if (isLoading) return null
@@ -27,7 +27,7 @@ const PrivateRoute = () => {
 
   return (
     <>
-      <NonV2Modal isOpen={!!nonV2Account} />
+      <NonV2Modal isOpen={!allowNonV2Connection && !!nonV2Account} />
       <Outlet />
     </>
   )

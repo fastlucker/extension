@@ -6,6 +6,8 @@ import { RELAYER_URL } from '@env'
 const accountContext = createContext<{
   connectedAccount: string | null
   nonV2Account: string | null
+  allowNonV2Connection: boolean
+  setAllowNonV2Connection: (arg: boolean) => void
   chainId: bigint | null
   isLoading: boolean
   error: string | null
@@ -14,6 +16,8 @@ const accountContext = createContext<{
 }>({
   connectedAccount: null,
   nonV2Account: null,
+  allowNonV2Connection: false,
+  setAllowNonV2Connection: () => {},
   chainId: null,
   isLoading: true,
   error: null,
@@ -32,6 +36,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   })
 
   const [nonV2Account, setNonV2Account] = React.useState<string | null>(null)
+  const [allowNonV2Connection, setAllowNonV2Connection] = React.useState<boolean>(false)
   const [chainId, setChainId] = React.useState<bigint | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -79,7 +84,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
       if (!identity.creation) {
         if (connectedAccount) {
-          setNonV2Account(connectedAccount)
+          setNonV2Account(address)
         } else {
           setError('You are trying to connect a non Ambire v2 account. Please switch your account!')
         }
@@ -152,13 +157,25 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     () => ({
       connectedAccount,
       nonV2Account,
+      allowNonV2Connection,
+      setAllowNonV2Connection,
       error,
       requestAccounts,
       disconnectAccount,
       chainId,
       isLoading
     }),
-    [connectedAccount, nonV2Account, error, requestAccounts, disconnectAccount, chainId, isLoading]
+    [
+      connectedAccount,
+      nonV2Account,
+      allowNonV2Connection,
+      setAllowNonV2Connection,
+      error,
+      requestAccounts,
+      disconnectAccount,
+      chainId,
+      isLoading
+    ]
   )
 
   return <accountContext.Provider value={contextValue}>{children}</accountContext.Provider>
