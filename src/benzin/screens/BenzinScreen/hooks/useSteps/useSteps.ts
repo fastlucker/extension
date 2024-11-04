@@ -2,6 +2,8 @@ import {
   AbiCoder,
   Block,
   formatEther,
+  getAddress,
+  isAddress,
   JsonRpcProvider,
   keccak256,
   TransactionReceipt,
@@ -42,7 +44,6 @@ interface Props {
   standardOptions: {
     fetch: Fetch
     callRelayer: any
-    parser: Function
   }
   setActiveStep: (step: ActiveStepType) => void
   provider: JsonRpcProvider | null
@@ -90,6 +91,19 @@ const setUrlToTxnId = (
       isInternal
     })}`
   )
+}
+
+const parseHumanizer = (humanizedCalls: IrCall[]): IrCall[] => {
+  // remove deadlines from humanizer
+  const finalParsedCalls = humanizedCalls.map((call) => {
+    const localCall: IrCall = { ...call }
+    localCall.fullVisualization = call.fullVisualization?.filter(
+      (visual) => visual.type !== 'deadline' && !visual.isHidden
+    )
+    localCall.warnings = call.warnings?.filter((warn) => warn.content !== 'Unknown address')
+    return localCall
+  })
+  return finalParsedCalls
 }
 
 const useSteps = ({
@@ -421,6 +435,7 @@ const useSteps = ({
     const abiCoder = new AbiCoder()
 
     let hashFound = false
+    console.log({ aaaaaaaaaaaa: 1 })
     userOperations.forEach((opArray: any) => {
       const sender = opArray[0]
       const nonce = opArray[1]
@@ -428,11 +443,15 @@ const useSteps = ({
       const hashCallData = keccak256(opArray[3])
 
       let hash
+      let paymasterAndData
+      console.log({ is060 })
       if (!is060) {
         const accountGasLimits = opArray[4]
         const preVerificationGas = opArray[5]
         const gasFees = opArray[6]
-        const hashPaymasterAndData = keccak256(opArray[7])
+        paymasterAndData = opArray[7]
+        console.log({ paymasterAndData })
+        const hashPaymasterAndData = keccak256(paymasterAndData)
         const packed = abiCoder.encode(
           ['address', 'uint256', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'bytes32', 'bytes32'],
           [
@@ -448,12 +467,16 @@ const useSteps = ({
         )
         hash = keccak256(packed)
       } else {
+        console.log('060')
         const callGasLimit = opArray[4]
         const verificationGasLimit = opArray[5]
         const preVerificationGas = opArray[6]
         const maxFeePerGas = opArray[7]
         const maxPriorityFeePerGas = opArray[8]
-        const hashPaymasterAndData = keccak256(opArray[9])
+        paymasterAndData = opArray[9]
+        console.log({ paymasterAndData })
+        const hashPaymasterAndData = keccak256(paymasterAndData)
+
         const packed = abiCoder.encode(
           [
             'address',
@@ -483,7 +506,6 @@ const useSteps = ({
 
         hash = keccak256(packed)
       }
-
       const finalHash = keccak256(
         abiCoder.encode(
           ['bytes32', 'address', 'uint256'],
@@ -494,13 +516,18 @@ const useSteps = ({
           ]
         )
       )
+      console.log(paymasterAndData)
+      const paymaster = isAddress(paymasterAndData.slice(0, 42))
+        ? getAddress(paymasterAndData.slice(0, 42))
+        : ''
 
       if (finalHash.toLowerCase() === userOpHash.toLowerCase()) {
         hashFound = true
         setUserOp({
           sender,
           callData: opArray[3],
-          hashStatus: 'found'
+          hashStatus: 'found',
+          paymaster
         })
       }
     })
@@ -531,9 +558,10 @@ const useSteps = ({
         accountOpToExecuteBefore: null
       }
       const humanizedCalls = humanizeAccountOp(accountOp, { network })
-      return standardOptions.parser(humanizedCalls)
+      return parseHumanizer(humanizedCalls)
     }
-  }, [network, txnReceipt, txn, userOpHash, standardOptions, userOp])
+    return null
+  }, [network, txnReceipt, txn, userOpHash, userOp])
 
   return {
     nativePrice,
