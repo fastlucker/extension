@@ -25,6 +25,7 @@ import HotWalletCreateSelectorScreen from '@web/modules/auth/screens/HotWalletCr
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
 import ImportSmartAccountJsonScreen from '@web/modules/auth/screens/ImportSmartAccountJson'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
+import SaveImportedSeedScreen from '@web/modules/auth/screens/SaveImportedSeedScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
 import HardwareWalletReconnectScreen from '@web/modules/hardware-wallet/screens/HardwareWalletReconnectScreen'
@@ -118,6 +119,7 @@ const MainRoutes = () => {
 
             <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
             <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
+            <Route path={WEB_ROUTES.saveImportedSeed} element={<SaveImportedSeedScreen />} />
 
             <Route path={WEB_ROUTES.keyStoreReset} element={<KeyStoreResetScreen />} />
             <Route element={<PrivateRoute />}>

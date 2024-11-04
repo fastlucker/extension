@@ -108,7 +108,9 @@ const Warnings: FC<Props> = ({
         <View style={spacings.ptTy}>
           <Alert
             type="warning"
-            title="Requesting the paymaster is taking an unexpectedly long time. Waiting for response..."
+            title={t(
+              'Requesting the paymaster is taking an unexpectedly long time. Waiting for response...'
+            )}
           />
         </View>
       )}

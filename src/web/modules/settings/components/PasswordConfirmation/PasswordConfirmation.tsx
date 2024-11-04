@@ -84,45 +84,42 @@ const PasswordConfirmation: React.FC<Props> = ({ onPasswordConfirmed, text }) =>
 
   return (
     <View style={{ maxWidth: 440 }}>
-      <>
-        <SettingsPageHeader title="Confirm password" />
-        <Text fontSize={14} color={theme.secondaryText}>
-          {t(text)}
-        </Text>
-        <Controller
-          control={control}
-          rules={{ validate: isValidPassword }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <InputPassword
-              testID="passphrase-field"
-              onBlur={onBlur}
-              placeholder={t('Enter Your Password')}
-              autoFocus
-              onChangeText={(val: string) => {
-                onChange(val)
-                if (keystoreState.errorMessage) {
-                  dispatch({ type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE' })
-                }
-              }}
-              isValid={isValidPassword(value)}
-              value={value}
-              onSubmitEditing={handleSubmit((data) => handleUnlock(data))}
-              containerStyle={{ ...spacings.mbLg, width: 342 }}
-              error={passwordFieldError}
-            />
-          )}
-          name="password"
-        />
-        <Button
-          testID="button-submit"
-          style={{ width: 342, ...spacings.mbLg }}
-          disabled={keystoreState.statuses.unlockWithSecret !== 'INITIAL' || !isValid}
-          text={
-            keystoreState.statuses.unlockWithSecret === 'LOADING' ? t('Submitting...') : t('Submit')
-          }
-          onPress={handleSubmit((data) => handleUnlock(data))}
-        />
-      </>
+      <SettingsPageHeader title="Confirm password" />
+      <Text fontSize={14} color={theme.secondaryText}>
+        {t(text)}
+      </Text>
+      <Controller
+        control={control}
+        rules={{ validate: isValidPassword }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <InputPassword
+            testID="passphrase-field"
+            onBlur={onBlur}
+            placeholder={t('Enter Your Password')}
+            autoFocus
+            onChangeText={(val: string) => {
+              onChange(val)
+              if (keystoreState.errorMessage) {
+                dispatch({ type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE' })
+              }
+            }}
+            isValid={isValidPassword(value)}
+            value={value}
+            onSubmitEditing={handleSubmit((data) => handleUnlock(data))}
+            error={passwordFieldError}
+          />
+        )}
+        name="password"
+      />
+      <Button
+        testID="button-submit"
+        style={{ width: 342, ...spacings.mbLg }}
+        disabled={keystoreState.statuses.unlockWithSecret !== 'INITIAL' || !isValid}
+        text={
+          keystoreState.statuses.unlockWithSecret === 'LOADING' ? t('Submitting...') : t('Submit')
+        }
+        onPress={handleSubmit((data) => handleUnlock(data))}
+      />
     </View>
   )
 }
