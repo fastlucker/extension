@@ -7,7 +7,7 @@ interface WheelSpinOfTheDayParams {
 }
 
 export const calculateHoursUntilMidnight = (activity: Activity[]) => {
-  const submittedAt = activity && activity[0].submittedAt
+  const submittedAt = activity && activity[0] && activity[0].submittedAt
 
   const submittedAtOffset = submittedAt
     ? new Date(submittedAt).getTimezoneOffset()
