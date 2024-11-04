@@ -1,4 +1,4 @@
-import orcWarrior from '../images/orcWarrior.png'
+import orcWarrior from '../images/orc-warrior.png'
 import penguinPaladin from '../images/penguin-paladin.png'
 import slimeCharacter from '../images/slime.png'
 import sorceressCharacter from '../images/sorceress.png'
@@ -38,7 +38,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     id: 5,
-    name: 'Orc Warrior?',
+    name: 'Orc Warrior',
     description: '',
     image: orcWarrior
   }
