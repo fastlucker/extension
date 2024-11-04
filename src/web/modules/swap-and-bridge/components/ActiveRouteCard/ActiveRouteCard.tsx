@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { ActiveRoute, SocketAPIBridgeUserTx } from '@ambire-common/interfaces/swapAndBridge'
-import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { getIsBridgeTxn, getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
@@ -47,6 +47,13 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
       params: { activeRouteId: activeRoute.activeRouteId }
     })
   }, [activeRoute.activeRouteId, dispatch])
+
+  const isNextTnxForBridging = useMemo(() => {
+    const isBridgeTxn = activeRoute.route.userTxs.some((userTx) =>
+      getIsBridgeTxn(userTx.userTxType)
+    )
+    return isBridgeTxn && activeRoute.route.currentUserTxIndex >= 1
+  }, [activeRoute.route.userTxs])
 
   return (
     <Panel
@@ -100,7 +107,8 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
                         appearance="primary"
                         style={spacings.mrTy}
                       >
-                        ~{formatTime((activeTransaction as SocketAPIBridgeUserTx)?.serviceTime)}
+                        {t('around')}{' '}
+                        {formatTime((activeTransaction as SocketAPIBridgeUserTx)?.serviceTime)}
                       </Text>
                       <Spinner style={{ width: 16, height: 16 }} />
                     </View>
@@ -139,8 +147,10 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
           <Button
             text={
               statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-                ? t('Building Transaction...')
-                : t('Proceed to Next Step')
+                ? t('Preparing...')
+                : isNextTnxForBridging
+                ? t('Proceed to Next Step')
+                : t('Proceed')
             }
             onPress={handleProceedToNextStep}
             size="small"

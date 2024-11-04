@@ -135,7 +135,7 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
 
         if (action.actionName === 'proceed-swap-and-bridge') {
           if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
-            actionText = 'Building Transaction...'
+            actionText = 'Preparing...'
             isDisabled = true
           }
         }
