@@ -1,33 +1,17 @@
 import React from 'react'
 
 import styles from '@legends/modules/legends/components/Card/Card.module.scss'
+import CardActionButton, { ButtonProps } from './CardActionButton'
 
-const CardActionWrapper = ({
-  children,
-  onButtonClick,
-  buttonText,
-  disabled = false,
-  isLoading = false,
-  loadingText = 'Loading...'
-}: {
+type WrapperProps = {
   children: React.ReactNode
-  onButtonClick: () => void
-  buttonText: string
-  disabled?: boolean
-  isLoading?: boolean
-  loadingText?: string
-}) => {
+} & ButtonProps
+
+const CardActionWrapper = ({ children, ...buttonProps }: WrapperProps) => {
   return (
     <div>
       <div className={styles.modalAction}>{children}</div>
-      <button
-        disabled={disabled || isLoading}
-        onClick={onButtonClick}
-        type="button"
-        className={styles.button}
-      >
-        {!isLoading ? buttonText : loadingText}
-      </button>
+      <CardActionButton {...buttonProps} />
     </div>
   )
 }

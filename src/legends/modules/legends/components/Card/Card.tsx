@@ -3,13 +3,12 @@ import React, { FC, useMemo, useState } from 'react'
 import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from '@legends/components/Modal'
-import useAccountContext from '@legends/hooks/useAccountContext'
 import useActivityContext from '@legends/hooks/useActivityContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
-import { EOA_ACCESSIBLE_CARDS, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
+import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import Badge from './Badge'
 import styles from './Card.module.scss'
 import CardActionComponent from './CardAction'
@@ -41,7 +40,6 @@ const getBadgeType = (reward: number, type: CardXpType) => {
 }
 
 const Card: FC<Props> = ({ title, image, description, children, xp, card, action, disabled }) => {
-  const { isConnectedAccountV2 } = useAccountContext()
   const { activity } = useActivityContext()
 
   const isCompleted = card?.type === CardType.done
@@ -141,11 +139,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
         </div>
         {!!action.type && (
           <button
-            disabled={
-              (!isConnectedAccountV2 &&
-                !EOA_ACCESSIBLE_CARDS.includes(action.predefinedId || '')) ||
-              disabled
-            }
+            disabled={disabled}
             className={styles.button}
             type="button"
             onClick={openActionModal}
