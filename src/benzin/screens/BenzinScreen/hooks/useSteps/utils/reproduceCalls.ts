@@ -1,6 +1,9 @@
 import { getAddress, isAddress, TransactionReceipt, TransactionResponse, ZeroAddress } from 'ethers'
 
-import { RELAYER_EXECUTOR_ADDRESSES } from '@ambire-common/consts/addresses'
+import {
+  RELAYER_EXECUTOR_ADDRESSES,
+  STAGING_RELAYER_EXECUTOR_ADDRESSES
+} from '@ambire-common/consts/addresses'
 import { AMBIRE_PAYMASTER } from '@ambire-common/consts/deploy'
 import {
   deployAndExecuteInterface,
@@ -145,7 +148,8 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
     ? non4337Matcher[sigHash](txn.data)
     : [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
 
-  if (RELAYER_EXECUTOR_ADDRESSES.includes(txn.from)) parsedCalls = parsedCalls.slice(0, -1)
+  if ([...RELAYER_EXECUTOR_ADDRESSES, ...STAGING_RELAYER_EXECUTOR_ADDRESSES].includes(txn.from))
+    parsedCalls = parsedCalls.slice(0, -1)
 
   return parsedCalls
 }
