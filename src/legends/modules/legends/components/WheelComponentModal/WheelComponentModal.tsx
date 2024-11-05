@@ -31,7 +31,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   const [spinOfTheDay, setSpinOfTheDay] = useState(0)
   const [isInProgress, setIsInProgress] = useState(false)
   const { getActivity } = useActivityContext()
-  const { connectedAccount, isConnectedAccountV2 } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
   const { getLegends } = useLegendsContext()
 
@@ -80,8 +80,6 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   }, [connectedAccount, spinOfTheDay, addToast, getActivity, getLegends])
 
   const broadcastTransaction = useCallback(async () => {
-    if (!connectedAccount || !isConnectedAccountV2 || !window.ambire) return
-
     // Switch to Base chain
     await window.ambire.request({
       method: 'wallet_switchEthereumChain',
@@ -127,7 +125,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     } finally {
       setIsInProgress(false)
     }
-  }, [connectedAccount, checkTransactionStatus, addToast, isConnectedAccountV2])
+  }, [connectedAccount, checkTransactionStatus, addToast])
 
   const handleSpinClick = async () => {
     if (!mustSpin) {
