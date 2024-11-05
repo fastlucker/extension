@@ -12,8 +12,7 @@ import styles from './AccountDropdown.module.scss'
 
 const AccountDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { connectedAccount, disconnectAccount, chainId } =
-    useAccountContext()
+  const { connectedAccount, disconnectAccount, chainId } = useAccountContext()
   const { character } = useCharacterContext()
   const { userLeaderboardData } = useLeaderboardContext()
 
@@ -42,12 +41,7 @@ const AccountDropdown = () => {
 
   return (
     <div className={`${styles.wrapper} ${connectedAccount ? styles.connected : ''}`}>
-      <button
-        disabled={!connectedAccount}
-        className={styles.button}
-        type="button"
-        onClick={toggleIsOpen}
-      >
+      <button className={styles.button} type="button" onClick={toggleIsOpen}>
         <div className={styles.avatarWrapper}>
           <img alt="avatar" className={styles.avatar} src={character!.image_avatar} />
         </div>
@@ -58,13 +52,9 @@ const AccountDropdown = () => {
             address={connectedAccount!}
             maxAddressLength={12}
           />
-          {connectedAccount ? (
-            <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
-              Level {character!.level} / Rank {userLeaderboardData?.rank || 'N/A'}
-            </p>
-          ) : (
-            <p className={styles.levelAndRank}>V2 Disconnected</p>
-          )}
+          <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
+            Level {character!.level} / Rank {userLeaderboardData?.rank || 'N/A'}
+          </p>
         </div>
         <FontAwesomeIcon
           className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}
