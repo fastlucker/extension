@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { View } from 'react-native'
 
-import { AssetType, Position } from '@ambire-common/libs/defiPositions/types'
+import { AssetType, Position, PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -11,9 +11,10 @@ import DeFiPositionAssets from './DeFiPositionAssets'
 import Badge from './DeFiPositionHeader/Badge'
 import getStyles from './styles'
 
-type Props = Position & {
-  positionInUsd?: string
-}
+type Props = Omit<PositionsByProvider, 'positions' | 'positionInUSD'> &
+  Position & {
+    positionInUSD?: string
+  }
 
 const ASSET_TYPE_TO_LABEL = {
   [AssetType.Borrow]: 'Borrowed',
@@ -21,11 +22,17 @@ const ASSET_TYPE_TO_LABEL = {
   [AssetType.Liquidity]: 'Supplied'
 }
 
+const POSITION_TYPE_TO_NAME = {
+  lending: 'Lending',
+  'liquidity-pool': 'Liquidity Pool'
+}
+
 const DeFiPositionExpanded: FC<Props> = ({
-  positionType,
+  type,
+  id,
   providerName,
   networkId,
-  positionInUsd,
+  positionInUSD,
   additionalData,
   assets
 }) => {
@@ -49,7 +56,7 @@ const DeFiPositionExpanded: FC<Props> = ({
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text fontSize={14} weight="semiBold">
-            {positionType}
+            {POSITION_TYPE_TO_NAME[type]}
           </Text>
           <Text
             fontSize={12}
@@ -57,7 +64,7 @@ const DeFiPositionExpanded: FC<Props> = ({
             style={[spacings.mlMi, spacings.mrTy]}
             selectable
           >
-            #{additionalData.positionId}
+            #{id}
           </Text>
           {typeof inRange === 'boolean' && (
             <Badge
@@ -67,7 +74,7 @@ const DeFiPositionExpanded: FC<Props> = ({
           )}
         </View>
         <Text fontSize={14} weight="semiBold">
-          {positionInUsd || '$-'}
+          {positionInUSD || '$-'}
         </Text>
       </View>
       {suppliedAssets.length > 0 && (

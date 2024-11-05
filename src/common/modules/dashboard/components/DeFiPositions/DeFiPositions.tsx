@@ -39,7 +39,7 @@ const DeFiPositions: FC<Props> = ({
   const { t } = useTranslation()
   const { theme } = useTheme()
   const searchValue = watch('search')
-  const { positions, updateDefiPositionsStatus } = useDefiPositionsControllerState()
+  const { selectedAccountPositions, isSelectedAccountLoading } = useDefiPositionsControllerState()
 
   useEffect(() => {
     setValue('search', '')
@@ -47,12 +47,12 @@ const DeFiPositions: FC<Props> = ({
 
   const filteredPositions = useMemo(
     () =>
-      (positions || []).filter(({ network, providerName }) => {
+      (selectedAccountPositions || []).filter(({ networkId, providerName }) => {
         let isMatchingNetwork = true
         let isMatchingSearch = true
 
         if (filterByNetworkId) {
-          isMatchingNetwork = network === filterByNetworkId
+          isMatchingNetwork = networkId === filterByNetworkId
         }
 
         if (searchValue) {
@@ -61,7 +61,7 @@ const DeFiPositions: FC<Props> = ({
 
         return isMatchingNetwork && isMatchingSearch
       }),
-    [positions, filterByNetworkId, searchValue]
+    [selectedAccountPositions, filterByNetworkId, searchValue]
   )
 
   const renderItem = useCallback(
@@ -111,7 +111,7 @@ const DeFiPositions: FC<Props> = ({
   const keyExtractor = useCallback((positionOrElement: any) => {
     if (typeof positionOrElement === 'string') return positionOrElement
 
-    return positionOrElement.additionalData.positionId
+    return positionOrElement.id
   }, [])
 
   return (
@@ -121,11 +121,11 @@ const DeFiPositions: FC<Props> = ({
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
-        updateDefiPositionsStatus === 'LOADING' && !positions?.length
+        isSelectedAccountLoading && !selectedAccountPositions?.length
           ? 'skeleton'
           : 'keep-this-to-avoid-key-warning',
         ...(initTab?.defi ? filteredPositions : []),
-        !filteredPositions.length ? 'empty' : ''
+        !isSelectedAccountLoading && !filteredPositions.length ? 'empty' : ''
       ]}
       renderItem={renderItem}
       keyExtractor={keyExtractor}

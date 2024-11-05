@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useMemo } from 'react'
 import { Animated, View } from 'react-native'
 
-import { Position } from '@ambire-common/libs/defiPositions/types'
+import { PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
@@ -17,10 +17,11 @@ import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover
 import Badge from './Badge'
 import ProtocolIcon from './ProtocolIcon'
 
-type Props = Omit<Position, 'assets' | 'positionType'> & {
+type Props = Omit<PositionsByProvider, 'type' | 'positionInUSD' | 'positions'> & {
   toggleExpanded: () => void
   isExpanded: boolean
   positionInUSD?: string
+  healthRate?: number
 }
 
 const HEALTH_RATE_LEVELS: {
@@ -47,7 +48,7 @@ const DeFiPositionHeader: FC<Props> = ({
   networkId,
   positionInUSD,
   isExpanded,
-  additionalData
+  healthRate
 }) => {
   const {
     state: { dapps }
@@ -64,8 +65,6 @@ const DeFiPositionHeader: FC<Props> = ({
   const [bindOpenIconAnim, openIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
-
-  const { healthRate, APY } = additionalData || {}
 
   const dappUrl = useMemo(() => {
     const providerNameWithoutVersion = providerName.split(' ')[0].toLowerCase()
@@ -105,7 +104,7 @@ const DeFiPositionHeader: FC<Props> = ({
               type={HEALTH_RATE_LEVELS.find((level) => level.to >= healthRate)?.color || 'success'}
             />
           )}
-          {APY && <Badge text={`Total APY: ${formatDecimals(APY)}`} type="info" />}
+          {/* @TODO: TOTAL APY {APY && <Badge text={`Total APY: ${formatDecimals(APY)}`} type="info" />} */}
         </View>
       </View>
       <View style={styles.positionData}>

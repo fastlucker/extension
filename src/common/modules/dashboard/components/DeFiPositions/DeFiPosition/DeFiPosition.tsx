@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react'
 import { View } from 'react-native'
 
-import { Position } from '@ambire-common/libs/defiPositions/types'
+import { PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
 import useTheme from '@common/hooks/useTheme'
 import formatDecimals from '@common/utils/formatDecimals'
 
@@ -9,17 +9,18 @@ import DeFiPositionExpanded from './DeFiPositionExpanded'
 import DeFiPositionHeader from './DeFiPositionHeader'
 import getStyles from './styles'
 
-const DeFiPosition: FC<Position> = ({
+const DeFiPosition: FC<PositionsByProvider> = ({
   providerName,
-  positionType,
-  assets,
+  positionInUSD,
+  type,
   networkId,
-  additionalData
+  positions
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const { styles, theme } = useTheme(getStyles)
 
-  const positionInUSDFormatted = formatDecimals(additionalData?.positionInUSD, 'value')
+  // @TODO
+  const positionInUSDFormatted = formatDecimals(positionInUSD, 'value')
 
   const toggleExpanded = () => {
     setIsExpanded((prev) => !prev)
@@ -39,19 +40,22 @@ const DeFiPosition: FC<Position> = ({
         networkId={networkId}
         toggleExpanded={toggleExpanded}
         isExpanded={isExpanded}
-        additionalData={additionalData}
         positionInUSD={positionInUSDFormatted}
+        healthRate={positions.length === 1 ? positions[0].additionalData.healthRate : undefined}
       />
-      {isExpanded && (
-        <DeFiPositionExpanded
-          positionType={positionType}
-          assets={assets}
-          providerName={providerName}
-          networkId={networkId}
-          additionalData={additionalData}
-          positionInUsd={positionInUSDFormatted}
-        />
-      )}
+      {isExpanded &&
+        positions.map(({ id, assets, additionalData }) => (
+          <DeFiPositionExpanded
+            key={id}
+            id={id}
+            type={type}
+            assets={assets}
+            providerName={providerName}
+            networkId={networkId}
+            additionalData={additionalData}
+            positionInUSD={positionInUSDFormatted}
+          />
+        ))}
     </View>
   )
 }
