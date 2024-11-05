@@ -80,21 +80,30 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   const validateAndSetAccount = useCallback(
     async (address: string) => {
-      const identity = await getIdentity(address, fetch as any, RELAYER_URL)
+      try {
+        const identity = await getIdentity(address, fetch as any, RELAYER_URL)
 
-      if (!identity.creation) {
-        if (connectedAccount) {
-          setNonV2Account(address)
-        } else {
-          setError('You are trying to connect a non Ambire v2 account. Please switch your account!')
+        if (!identity.creation) {
+          if (connectedAccount) {
+            setNonV2Account(address)
+          } else {
+            setError(
+              'You are trying to connect a non Ambire v2 account. Please switch your account!'
+            )
+          }
+          return
         }
-        return
-      }
 
-      setError(null)
-      setNonV2Account(null)
-      setConnectedAccount(address)
-      localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
+        setError(null)
+        setNonV2Account(null)
+        setConnectedAccount(address)
+        localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
+      } catch (e: any) {
+        setError(
+          "We are experiencing a back-end outage and couldn't validate the connected account's identity. Please reload the page, and if the problem persists, contact support."
+        )
+        console.log(e)
+      }
     },
     [connectedAccount]
   )
