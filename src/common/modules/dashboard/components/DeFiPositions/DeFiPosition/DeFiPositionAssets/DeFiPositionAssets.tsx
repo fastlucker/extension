@@ -52,7 +52,7 @@ const DeFiPositionAssets: FC<{
       <DeFiPositionAssetsHeader columns={columns} />
       <View style={spacings.ptMi}>
         {assets.map(({ symbol, amount, decimals, address, additionalData, priceIn }) => {
-          const price = priceIn?.[0]?.price || 0
+          const price = priceIn[0].price || 0
           const dollarValue = safeTokenAmountAndNumberMultiplication(amount, decimals, price)
           const dollarValueFormatted = formatDecimals(Number(dollarValue), 'value')
 

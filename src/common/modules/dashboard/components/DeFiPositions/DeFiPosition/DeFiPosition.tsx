@@ -52,7 +52,7 @@ const DeFiPosition: FC<PositionsByProvider> = ({
             providerName={providerName}
             networkId={networkId}
             additionalData={additionalData}
-            positionInUSD={positionInUSDFormatted}
+            positionInUSD={formatDecimals(additionalData.positionInUSD || 0, 'value')}
           />
         ))}
     </View>
