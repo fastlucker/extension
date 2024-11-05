@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 import { Animated, View } from 'react-native'
 
 import { Position } from '@ambire-common/libs/defiPositions/types'
@@ -10,7 +10,9 @@ import getStyles from '@common/modules/dashboard/components/DeFiPositions/DeFiPo
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useDappsControllerState from '@web/hooks/useDappsControllerState'
+import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 import Badge from './Badge'
 import ProtocolIcon from './ProtocolIcon'
@@ -29,6 +31,9 @@ const DeFiPositionHeader: FC<Props> = ({
   isExpanded,
   additionalData
 }) => {
+  const {
+    state: { dapps }
+  } = useDappsControllerState()
   const { styles, theme } = useTheme(getStyles)
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -38,8 +43,26 @@ const DeFiPositionHeader: FC<Props> = ({
     },
     forceHoveredStyle: isExpanded
   })
+  const [bindOpenIconAnim, openIconAnimStyle] = useHover({
+    preset: 'opacityInverted'
+  })
 
   const { healthRate, APY } = additionalData || {}
+
+  const dappUrl = useMemo(() => {
+    const providerNameWithoutVersion = providerName.split(' ')[0].toLowerCase()
+    const dapp = dapps.find((d) => d.name.toLowerCase().includes(providerNameWithoutVersion))
+
+    return dapp?.url
+  }, [dapps, providerName])
+
+  const openDAppUrl = useCallback(async () => {
+    try {
+      await openInTab(dappUrl, false)
+    } catch (e) {
+      console.error(e)
+    }
+  }, [dappUrl])
 
   return (
     <AnimatedPressable
@@ -48,13 +71,15 @@ const DeFiPositionHeader: FC<Props> = ({
       {...bindAnim}
     >
       <View style={styles.providerData}>
-        {/* TODO: Replace hard-coded networkId  */}
         <ProtocolIcon providerName={providerName} networkId={networkId} />
         <Text fontSize={16} weight="semiBold" style={spacings.mrMi}>
           {providerName}
         </Text>
-        {/* TODO: Open dapp url on click */}
-        <OpenIcon width={14} height={14} color={theme.secondaryText} />
+        {dappUrl && (
+          <AnimatedPressable onPress={openDAppUrl} style={openIconAnimStyle} {...bindOpenIconAnim}>
+            <OpenIcon width={14} height={14} color={theme.secondaryText} />
+          </AnimatedPressable>
+        )}
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlLg]}>
           {healthRate && (
             <Badge text={`Health Rate: ${formatDecimals(healthRate)}`} type="primary" />

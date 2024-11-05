@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { Position } from '@ambire-common/libs/defiPositions/types'
+import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
@@ -50,37 +51,45 @@ const DeFiPositionAssets: FC<{
     <View style={flexbox.flex1}>
       <DeFiPositionAssetsHeader columns={columns} />
       <View style={spacings.ptMi}>
-        {assets.map(({ symbol, amount, decimals, address, additionalData }) => (
-          <View
-            style={[flexbox.directionRow, spacings.phSm, spacings.pvTy, flexbox.alignCenter]}
-            key={address}
-          >
-            <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
-              <TokenIcon
-                width={24}
-                height={24}
-                withContainer={false}
-                networkId={networkId}
-                address={address}
-                withNetworkIcon={false}
-              />
-              <Text fontSize={14} weight="semiBold" style={spacings.mlTy}>
-                {symbol}
+        {assets.map(({ symbol, amount, decimals, address, additionalData, priceIn }) => {
+          const price = priceIn?.[0]?.price || 0
+          const dollarValue = safeTokenAmountAndNumberMultiplication(amount, decimals, price)
+          const dollarValueFormatted = formatDecimals(Number(dollarValue), 'value')
+
+          return (
+            <View
+              style={[flexbox.directionRow, spacings.phSm, spacings.pvTy, flexbox.alignCenter]}
+              key={address}
+            >
+              <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
+                <TokenIcon
+                  width={24}
+                  height={24}
+                  withContainer={false}
+                  networkId={networkId}
+                  address={address}
+                  withNetworkIcon={false}
+                />
+                <Text fontSize={14} weight="semiBold" style={spacings.mlTy}>
+                  {symbol}
+                </Text>
+              </View>
+              <Text style={flexbox.flex1} fontSize={14} weight="semiBold">
+                {formatDecimals(Number(formatUnits(amount, decimals)), 'amount')}
+              </Text>
+              {shouldDisplayAPY && (
+                <Text style={{ flex: 0.5 }} fontSize={14} weight="semiBold">
+                  {additionalData?.APY
+                    ? `${formatDecimals(additionalData?.APY, 'amount')}%`
+                    : 'N/A'}
+                </Text>
+              )}
+              <Text style={{ flex: 0.5, ...text.right }} fontSize={14} weight="semiBold">
+                {dollarValueFormatted}
               </Text>
             </View>
-            <Text style={flexbox.flex1} fontSize={14} weight="semiBold">
-              {formatDecimals(Number(formatUnits(amount, decimals)), 'amount')}
-            </Text>
-            {shouldDisplayAPY && (
-              <Text style={{ flex: 0.5 }} fontSize={14} weight="semiBold">
-                {additionalData?.APY ? `${formatDecimals(additionalData?.APY, 'amount')}%` : 'N/A'}
-              </Text>
-            )}
-            <Text style={{ flex: 0.5, ...text.right }} fontSize={14} weight="semiBold">
-              {additionalData?.positionInUSD || '$-'}
-            </Text>
-          </View>
-        ))}
+          )
+        })}
       </View>
     </View>
   )
