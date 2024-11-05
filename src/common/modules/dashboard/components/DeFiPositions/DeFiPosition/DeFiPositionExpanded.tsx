@@ -8,6 +8,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import DeFiPositionAssets from './DeFiPositionAssets'
+import Badge from './DeFiPositionHeader/Badge'
 import getStyles from './styles'
 
 type Props = Position & {
@@ -29,11 +30,10 @@ const DeFiPositionExpanded: FC<Props> = ({
   assets
 }) => {
   const { styles } = useTheme(getStyles)
-
+  const { inRange } = additionalData
   const suppliedAssets = assets.filter(
     (asset) => asset.type === AssetType.Liquidity || asset.type === AssetType.Collateral
   )
-
   const borrowedAssets = assets.filter((asset) => asset.type === AssetType.Borrow)
 
   return (
@@ -51,9 +51,20 @@ const DeFiPositionExpanded: FC<Props> = ({
           <Text fontSize={14} weight="semiBold">
             {positionType}
           </Text>
-          <Text fontSize={12} appearance="secondaryText" style={spacings.mlMi} selectable>
+          <Text
+            fontSize={12}
+            appearance="secondaryText"
+            style={[spacings.mlMi, spacings.mrTy]}
+            selectable
+          >
             #{additionalData.positionId}
           </Text>
+          {typeof inRange === 'boolean' && (
+            <Badge
+              text={inRange ? 'In Range' : 'Out of Range'}
+              type={inRange ? 'success' : 'error'}
+            />
+          )}
         </View>
         <Text fontSize={14} weight="semiBold">
           {positionInUsd || '$-'}

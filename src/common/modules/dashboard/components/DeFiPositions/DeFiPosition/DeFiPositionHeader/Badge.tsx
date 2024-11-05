@@ -5,7 +5,13 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-const Badge = ({ text, type }: { text: string; type: 'primary' | 'secondary' }) => {
+const Badge = ({
+  text,
+  type
+}: {
+  text: string
+  type: 'success' | 'info' | 'error' | 'warning'
+}) => {
   const { theme } = useTheme()
   return (
     <View
@@ -14,14 +20,10 @@ const Badge = ({ text, type }: { text: string; type: 'primary' | 'secondary' }) 
         ...flexbox.justifyCenter,
         height: 28,
         borderRadius: 14,
-        backgroundColor: type === 'primary' ? theme.successBackground : theme.infoBackground
+        backgroundColor: theme[`${type}Background`]
       }}
     >
-      <Text
-        fontSize={12}
-        weight="medium"
-        appearance={type === 'primary' ? 'successText' : 'infoText'}
-      >
+      <Text fontSize={12} weight="medium" appearance={`${type}Text`}>
         {text}
       </Text>
     </View>

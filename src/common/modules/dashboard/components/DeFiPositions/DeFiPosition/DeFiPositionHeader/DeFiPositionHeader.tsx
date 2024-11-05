@@ -23,6 +23,24 @@ type Props = Omit<Position, 'assets' | 'positionType'> & {
   positionInUSD?: string
 }
 
+const HEALTH_RATE_LEVELS: {
+  to: number
+  color: 'success' | 'info' | 'error' | 'warning'
+}[] = [
+  {
+    to: 1.2,
+    color: 'error'
+  },
+  {
+    to: 2.8,
+    color: 'warning'
+  },
+  {
+    to: 100,
+    color: 'success'
+  }
+]
+
 const DeFiPositionHeader: FC<Props> = ({
   providerName,
   toggleExpanded,
@@ -82,9 +100,12 @@ const DeFiPositionHeader: FC<Props> = ({
         )}
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlLg]}>
           {healthRate && (
-            <Badge text={`Health Rate: ${formatDecimals(healthRate)}`} type="primary" />
+            <Badge
+              text={`Health Rate: ${formatDecimals(healthRate)}`}
+              type={HEALTH_RATE_LEVELS.find((level) => level.to >= healthRate)?.color || 'success'}
+            />
           )}
-          {APY && <Badge text={`Total APY: ${formatDecimals(APY)}`} type="secondary" />}
+          {APY && <Badge text={`Total APY: ${formatDecimals(APY)}`} type="info" />}
         </View>
       </View>
       <View style={styles.positionData}>
