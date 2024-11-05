@@ -9,6 +9,7 @@ import useTheme from '@common/hooks/useTheme'
 import DefaultWalletControl from '@common/modules/dashboard/components/DefaultWalletControl'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import GasTankModal from '@web/components/GasTankModal'
 import ReceiveModal from '@web/components/ReceiveModal'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -28,6 +29,7 @@ const DashboardScreen = () => {
   const { styles } = useTheme(getStyles)
   const { state } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
+  const { ref: gasTankModalRef, open: openGasTankeModal, close: closeGasTankModal } = useModalize()
   const lastOffsetY = useRef(0)
   const scrollUpStartedAt = useRef(0)
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
@@ -79,10 +81,13 @@ const DashboardScreen = () => {
   return (
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
+      <GasTankModal modalRef={gasTankModalRef} handleClose={closeGasTankModal} />
+
       <View style={styles.container}>
         <View style={[flexbox.flex1, spacings.ptSm]}>
           <DashboardOverview
             openReceiveModal={openReceiveModal}
+            openGasTankModal={openGasTankeModal}
             animatedOverviewHeight={animatedOverviewHeight}
             dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}

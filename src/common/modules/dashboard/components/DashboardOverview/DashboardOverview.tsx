@@ -28,6 +28,7 @@ import getStyles from './styles'
 
 interface Props {
   openReceiveModal: () => void
+  openGasTankModal: () => void
   animatedOverviewHeight: Animated.Value
   dashboardOverviewSize: {
     width: number
@@ -42,6 +43,7 @@ const BALANCE_HEIGHT = 34
 
 const DashboardOverview: FC<Props> = ({
   openReceiveModal,
+  openGasTankModal,
   animatedOverviewHeight,
   dashboardOverviewSize,
   setDashboardOverviewSize
@@ -254,6 +256,9 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <AnimatedPressable onPress={() => openGasTankModal()}>
+                    <Text>Gat tank</Text>
+                  </AnimatedPressable>
                   {!!warningMessage && (
                     <>
                       <WarningIcon
