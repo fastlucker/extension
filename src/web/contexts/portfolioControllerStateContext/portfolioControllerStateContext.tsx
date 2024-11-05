@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
-import { AssetType, Position } from '@ambire-common/libs/defiPositions/types'
+import { AssetType, Position, PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   AccountState,
@@ -76,14 +76,17 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const accountsState = useAccountsControllerState()
   const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
   const actionState = useActionsControllerState()
-  const { positions } = useDefiPositionsControllerState()
+  const { state: defiPositionsState } = useDefiPositionsControllerState()
   const hasSignAccountOp = useMemo(
     () => !!actionState?.visibleActionsQueue?.filter((action) => action.type === 'accountOp'),
     [actionState?.visibleActionsQueue]
   )
 
-  const stateWithDefiPositions = useMemo(() => {
-    if (!accountsState.selectedAccount || !positions) return state
+  const portfolioStateWithDefiPositions = useMemo(() => {
+    if (!accountsState.selectedAccount || !defiPositionsState[accountsState.selectedAccount])
+      return state
+
+    const defiPositionsAccountState = defiPositionsState[accountsState.selectedAccount]
 
     const addDefiPositionsToPortfolio = (accountState: AccountState) => {
       if (!accountState) return accountState
@@ -94,9 +97,11 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         if (networkState?.result) {
           let tokens = networkState.result.tokens || []
           let networkBalance = networkState.result.total?.usd || 0
-          positions
-            .filter((p: Position) => p.networkId === networkId)
-            .forEach((pos: Position) => {
+
+          const positions = defiPositionsAccountState[networkId] || {}
+
+          positions.positionsByProvider?.forEach((posByProv: PositionsByProvider) => {
+            posByProv.positions.forEach((pos) => {
               pos.assets.forEach((a) => {
                 const tokenInPortfolioIndex = tokens.findIndex((t) => {
                   return (
@@ -131,7 +136,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
                     : undefined
 
                   networkBalance -= tokenBalanceUSD || 0 // deduct portfolio token balance
-                  if (pos.positionType === 'Liquidity Pool' && a.type === AssetType.Liquidity) {
+                  if (posByProv.type === 'liquidity-pool' && a.type === AssetType.Liquidity) {
                     networkBalance += assetBalanceUSD || 0
                   }
 
@@ -139,10 +144,11 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
                   tokens = tokens.filter((_, index) => index !== tokenInPortfolioIndex)
                 }
               })
-              if (pos.positionType === 'Lending') {
+              if (posByProv.type === 'lending') {
                 networkBalance += pos.additionalData.positionInUSD || 0
               }
             })
+          })
 
           // eslint-disable-next-line no-param-reassign
           accountState[networkId]!.result!.total.usd = networkBalance
@@ -170,7 +176,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     }
 
     return state
-  }, [accountsState.selectedAccount, positions, state])
+  }, [accountsState.selectedAccount, state, defiPositionsState])
 
   const [accountPortfolio, setAccountPortfolio] =
     useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
@@ -203,7 +209,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
     const newAccountPortfolio = calculateAccountPortfolio(
       accountsState.selectedAccount,
-      stateWithDefiPositions,
+      portfolioStateWithDefiPositions,
       prevAccountPortfolio?.current,
       hasSignAccountOp
     )
@@ -216,7 +222,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
       if (newAccountPortfolio.isAllReady) prevAccountPortfolio.current = newAccountPortfolio
     }
-  }, [accountsState.selectedAccount, account, stateWithDefiPositions, hasSignAccountOp])
+  }, [accountsState.selectedAccount, account, portfolioStateWithDefiPositions, hasSignAccountOp])
 
   useEffect(() => {
     if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
@@ -349,7 +355,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       value={useMemo(
         () => ({
           accountPortfolio,
-          state: stateWithDefiPositions,
+          state: portfolioStateWithDefiPositions,
           startedLoadingAtTimestamp,
           updateTokenPreferences,
           removeTokenPreferences,
@@ -369,7 +375,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           claimWalletRewards,
           claimEarlySupportersVesting,
           resetAccountPortfolioLocalState,
-          stateWithDefiPositions
+          portfolioStateWithDefiPositions
         ]
       )}
     >
