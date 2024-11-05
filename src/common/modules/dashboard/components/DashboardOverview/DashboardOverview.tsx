@@ -23,6 +23,7 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
+import GasTankButton from '../DashboardHeader/GasTankButton'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
 
@@ -256,9 +257,7 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <AnimatedPressable onPress={() => openGasTankModal()}>
-                    <Text>Gat tank</Text>
-                  </AnimatedPressable>
+                  <GasTankButton onPress={openGasTankModal} />
                   {!!warningMessage && (
                     <>
                       <WarningIcon
