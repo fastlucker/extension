@@ -9,7 +9,7 @@ const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
   return totalBXp - totalAXp
 }
 
-const sortCards = (cards: CardFromResponse[], isConnectedAccountV2: boolean) => {
+const sortCards = (cards: CardFromResponse[]) => {
   return cards
     .map((card) => {
       if (
@@ -29,10 +29,6 @@ const sortCards = (cards: CardFromResponse[], isConnectedAccountV2: boolean) => 
         return -1
       }
 
-      // Display EOA/v1 accessible cards first if the account is not v2
-      if (!isConnectedAccountV2 && EOA_ACCESSIBLE_CARDS.includes(a.action.predefinedId || '')) {
-        return -1
-      }
       // Display Wheel of Fortune first
       if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
         return -1

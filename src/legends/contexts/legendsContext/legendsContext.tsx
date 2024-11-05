@@ -26,7 +26,7 @@ const legendsContext = createContext<LegendsContextType>({
 })
 
 const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const { lastConnectedV2Account, isConnectedAccountV2 } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
 
   const { activity } = useActivityContext()
 
@@ -48,23 +48,22 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     setError(null)
     try {
       const rawCards = await fetch(
-        `${RELAYER_URL}/legends/cards?identity=${lastConnectedV2Account}`
+        `${RELAYER_URL}/legends/cards?identity=${connectedAccount}`
       )
 
       const cards = await rawCards.json()
-      const sortedCards = sortCards(cards, isConnectedAccountV2)
+      const sortedCards = sortCards(cards)
       setLegends(sortedCards)
     } catch (e: any) {
       setError('Internal error while fetching legends. Please reload the page or try again later.')
     } finally {
       setIsLoading(false)
     }
-  }, [lastConnectedV2Account, isConnectedAccountV2])
+  }, [connectedAccount])
 
   useEffect(() => {
-    if (!lastConnectedV2Account) return
     getLegends()
-  }, [isConnectedAccountV2, lastConnectedV2Account, getLegends])
+  }, [getLegends])
 
   const contextValue = useMemo(
     () => ({
