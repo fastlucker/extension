@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo } from 'react'
 
-import { DefiPositionsController } from '@ambire-common/controllers/defiPositions/defiPostions'
+import { DefiPositionsController } from '@ambire-common/controllers/defiPositions/defiPositions'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
