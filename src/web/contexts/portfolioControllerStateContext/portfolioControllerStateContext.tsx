@@ -95,7 +95,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           let tokens = networkState.result.tokens || []
           let networkBalance = networkState.result.total?.usd || 0
           positions
-            .filter((p: Position) => p.network.toLowerCase() === networkId)
+            .filter((p: Position) => p.networkId === networkId)
             .forEach((pos: Position) => {
               pos.assets.forEach((a) => {
                 const tokenInPortfolioIndex = tokens.findIndex((t) => {

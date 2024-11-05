@@ -20,7 +20,14 @@ const ASSET_TYPE_TO_LABEL = {
   [AssetType.Liquidity]: 'Supplied'
 }
 
-const DeFiPositionExpanded: FC<Props> = ({ positionType, network, positionInUsd, assets }) => {
+const DeFiPositionExpanded: FC<Props> = ({
+  positionType,
+  providerName,
+  networkId,
+  positionInUsd,
+  additionalData,
+  assets
+}) => {
   const { styles } = useTheme(getStyles)
 
   const suppliedAssets = assets.filter(
@@ -40,23 +47,30 @@ const DeFiPositionExpanded: FC<Props> = ({ positionType, network, positionInUsd,
           flexbox.justifySpaceBetween
         ]}
       >
-        <Text fontSize={14} weight="semiBold">
-          {positionType}
-        </Text>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <Text fontSize={14} weight="semiBold">
+            {positionType}
+          </Text>
+          <Text fontSize={12} appearance="secondaryText" style={spacings.mlMi} selectable>
+            #{additionalData.positionId}
+          </Text>
+        </View>
         <Text fontSize={14} weight="semiBold">
           {positionInUsd || '$-'}
         </Text>
       </View>
       {suppliedAssets.length > 0 && (
         <DeFiPositionAssets
-          networkId={network}
+          networkId={networkId}
+          providerName={providerName}
           assets={suppliedAssets}
           label={ASSET_TYPE_TO_LABEL[AssetType.Liquidity]}
         />
       )}
       {borrowedAssets.length > 0 && (
         <DeFiPositionAssets
-          networkId={network}
+          networkId={networkId}
+          providerName={providerName}
           assets={borrowedAssets}
           label={ASSET_TYPE_TO_LABEL[AssetType.Borrow]}
         />

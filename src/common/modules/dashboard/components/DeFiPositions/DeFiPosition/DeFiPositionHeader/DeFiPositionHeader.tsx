@@ -24,7 +24,7 @@ type Props = Omit<Position, 'assets' | 'positionType'> & {
 const DeFiPositionHeader: FC<Props> = ({
   providerName,
   toggleExpanded,
-  network,
+  networkId,
   positionInUSD,
   isExpanded,
   additionalData
@@ -49,7 +49,7 @@ const DeFiPositionHeader: FC<Props> = ({
     >
       <View style={styles.providerData}>
         {/* TODO: Replace hard-coded networkId  */}
-        <ProtocolIcon providerName={providerName} networkId="optimism" />
+        <ProtocolIcon providerName={providerName} networkId={networkId} />
         <Text fontSize={16} weight="semiBold" style={spacings.mrMi}>
           {providerName}
         </Text>

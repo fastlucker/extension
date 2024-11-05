@@ -7,13 +7,15 @@ import useTheme from '@common/hooks/useTheme'
 import getStyles from '@common/modules/dashboard/components/DeFiPositions/DeFiPosition/styles'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import text from '@common/styles/utils/text'
 
 type Props = {
-  label: string
+  columns: {
+    label: string
+    flex: number
+  }[]
 }
 
-const DeFiPositionAssetsHeader: FC<Props> = ({ label }) => {
+const DeFiPositionAssetsHeader: FC<Props> = ({ columns }) => {
   const { t } = useTranslation()
   const { theme } = useTheme(getStyles)
 
@@ -30,41 +32,20 @@ const DeFiPositionAssetsHeader: FC<Props> = ({ label }) => {
         }
       ]}
     >
-      <Text
-        style={[flexbox.flex1, text.uppercase]}
-        fontSize={12}
-        appearance="tertiaryText"
-        weight="medium"
-      >
-        {label}
-      </Text>
-      <Text style={flexbox.flex1} fontSize={12} appearance="tertiaryText" weight="medium">
-        {t('AMOUNT')}
-      </Text>
-
-      <Text
-        style={{
-          flex: 0.5
-        }}
-        fontSize={12}
-        appearance="tertiaryText"
-        weight="medium"
-      >
-        {t('APY')}
-      </Text>
-      <Text
-        style={[
-          {
-            flex: 0.5
-          },
-          text.right
-        ]}
-        fontSize={12}
-        appearance="tertiaryText"
-        weight="medium"
-      >
-        {t('USD VALUE')}
-      </Text>
+      {columns.map(({ label, flex }, index) => (
+        <Text
+          key={label}
+          style={{
+            flex,
+            textAlign: index === columns.length - 1 ? 'right' : 'left'
+          }}
+          fontSize={12}
+          appearance="tertiaryText"
+          weight="medium"
+        >
+          {t(label)}
+        </Text>
+      ))}
     </View>
   )
 }

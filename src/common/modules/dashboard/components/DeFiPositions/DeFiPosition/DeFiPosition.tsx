@@ -13,7 +13,7 @@ const DeFiPosition: FC<Position> = ({
   providerName,
   positionType,
   assets,
-  network,
+  networkId,
   additionalData
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -36,7 +36,7 @@ const DeFiPosition: FC<Position> = ({
     >
       <DeFiPositionHeader
         providerName={providerName}
-        network={network}
+        networkId={networkId}
         toggleExpanded={toggleExpanded}
         isExpanded={isExpanded}
         additionalData={additionalData}
@@ -47,7 +47,7 @@ const DeFiPosition: FC<Position> = ({
           positionType={positionType}
           assets={assets}
           providerName={providerName}
-          network={network}
+          networkId={networkId}
           additionalData={additionalData}
           positionInUsd={positionInUSDFormatted}
         />
