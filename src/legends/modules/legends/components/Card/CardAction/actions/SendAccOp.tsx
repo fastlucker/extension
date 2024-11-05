@@ -52,10 +52,15 @@ const SendAccOp: FC<Props> = ({ onComplete, action }) => {
     setIsInProgress(false)
     onComplete()
 
-    await window.ambire.request({
-      method: 'wallet_sendCalls',
-      params: [{ calls: formattedCalls, from: await signer.getAddress() }]
-    })
+    try {
+      await window.ambire.request({
+        method: 'wallet_sendCalls',
+        params: [{ calls: formattedCalls, from: await signer.getAddress() }]
+      })
+    } catch (e) {
+      console.error(e)
+      addToast('Failed to process the transaction!', 'error')
+    }
   }, [lastConnectedV2Account, changeNetworkToBase, onComplete, action.calls])
 
   return (
