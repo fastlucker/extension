@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { Position } from '@ambire-common/libs/defiPositions/types'
@@ -19,11 +19,14 @@ const DeFiPosition: FC<Position> = ({
   const [isExpanded, setIsExpanded] = useState(false)
   const { styles, theme } = useTheme(getStyles)
 
-  const positionInUSDFormatted = formatDecimals(additionalData?.positionInUSD, 'value')
+  const positionInUSDFormatted = useMemo(
+    () => formatDecimals(additionalData?.positionInUSD, 'value'),
+    [additionalData?.positionInUSD]
+  )
 
-  const toggleExpanded = () => {
+  const toggleExpanded = useCallback(() => {
     setIsExpanded((prev) => !prev)
-  }
+  }, [])
 
   return (
     <View
@@ -56,4 +59,4 @@ const DeFiPosition: FC<Position> = ({
   )
 }
 
-export default DeFiPosition
+export default React.memo(DeFiPosition)

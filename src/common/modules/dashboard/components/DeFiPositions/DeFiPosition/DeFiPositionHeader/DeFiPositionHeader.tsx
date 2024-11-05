@@ -120,4 +120,4 @@ const DeFiPositionHeader: FC<Props> = ({
   )
 }
 
-export default DeFiPositionHeader
+export default React.memo(DeFiPositionHeader)

@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -50,4 +50,4 @@ const DeFiPositionAssetsHeader: FC<Props> = ({ columns }) => {
   )
 }
 
-export default DeFiPositionAssetsHeader
+export default React.memo(DeFiPositionAssetsHeader)
