@@ -292,7 +292,7 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_ACTIVITY_RESET':
       return mainCtrl.activity.reset()
     case 'ACTIVITY_CONTROLLER_HIDE_BANNER':
-      return mainCtrl.activity.hideBanner(params)
+      return await mainCtrl.activity.hideBanner(params)
 
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
       return mainCtrl?.signAccountOp?.update(params)
