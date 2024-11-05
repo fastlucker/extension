@@ -1,5 +1,4 @@
 import React, { FC, useCallback, useState } from 'react'
-import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 
@@ -13,7 +12,6 @@ type Props = {
 }
 
 const SendAccOp: FC<Props> = ({ onComplete, action }) => {
-  const { lastConnectedV2Account } = useAccountContext()
   const { addToast } = useToast()
   const [isInProgress, setIsInProgress] = useState(false)
 
@@ -30,7 +28,6 @@ const SendAccOp: FC<Props> = ({ onComplete, action }) => {
   }, [addToast])
 
   const onButtonClick = useCallback(async () => {
-    if (!lastConnectedV2Account) return
     setIsInProgress(true)
 
     await changeNetworkToBase()
@@ -61,7 +58,7 @@ const SendAccOp: FC<Props> = ({ onComplete, action }) => {
       console.error(e)
       addToast('Failed to process the transaction!', 'error')
     }
-  }, [lastConnectedV2Account, changeNetworkToBase, onComplete, action.calls])
+  }, [changeNetworkToBase, onComplete, action.calls])
 
   return (
     <CardActionButton
