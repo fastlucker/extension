@@ -1,5 +1,5 @@
 import { formatUnits } from 'ethers'
-import { FC, useMemo } from 'react'
+import React, { FC, useMemo } from 'react'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
@@ -95,4 +95,4 @@ const DeFiPositionAssets: FC<{
   )
 }
 
-export default DeFiPositionAssets
+export default React.memo(DeFiPositionAssets)

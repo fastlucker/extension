@@ -113,6 +113,7 @@ handleKeepAlive()
     hasSignAccountOpCtrlInitialized: boolean
     portfolioLastUpdatedByIntervalAt: number
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
+    updateDefiPositionsInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
@@ -217,8 +218,8 @@ handleKeepAlive()
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
 
-  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
-  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
+  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000 // 1 minute
+  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000 // 10 minutes
   async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
@@ -267,6 +268,26 @@ handleKeepAlive()
       // Start the first update
       backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
     }
+  }
+
+  const ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL = 180000 // 3 minutes
+  const INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL = 600000 // 10 minutes
+  async function initDefiPositionsContinuousUpdate() {
+    if (backgroundState.updateDefiPositionsInterval)
+      clearTimeout(backgroundState.updateDefiPositionsInterval)
+
+    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
+    const updateInterval = isExtensionActive
+      ? ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
+      : INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL
+
+    async function updateDefiPositions() {
+      await mainCtrl.defiPositions.updatePositions()
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
+    }
+
+    backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
@@ -657,6 +678,7 @@ handleKeepAlive()
       }
 
       initPortfolioContinuousUpdate()
+      initDefiPositionsContinuousUpdate()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, action: Action) => {
@@ -696,6 +718,7 @@ handleKeepAlive()
         pm.dispose(port.id)
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
+        initDefiPositionsContinuousUpdate()
 
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -707,6 +730,7 @@ handleKeepAlive()
   })
 
   initPortfolioContinuousUpdate()
+  initDefiPositionsContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
   await clearHumanizerMetaObjectFromStorage(storage)
 })()

@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import React, { FC } from 'react'
 import { View } from 'react-native'
 
 import { AssetType, Position, PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
@@ -97,4 +97,4 @@ const DeFiPositionExpanded: FC<Props> = ({
   )
 }
 
-export default DeFiPositionExpanded
+export default React.memo(DeFiPositionExpanded)

@@ -1,3 +1,4 @@
+import React from 'react'
 import { View } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -30,4 +31,4 @@ const Badge = ({
   )
 }
 
-export default Badge
+export default React.memo(Badge)

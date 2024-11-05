@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import React, { FC } from 'react'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
@@ -45,4 +45,4 @@ const ProtocolIcon = ({
     </View>
   )
 }
-export default ProtocolIcon
+export default React.memo(ProtocolIcon)
