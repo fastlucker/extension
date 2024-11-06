@@ -46,8 +46,8 @@ const Row: FC<Props> = ({
   stickyPosition,
   currentUserRef
 }) => {
-  const { lastConnectedV2Account } = useAccountContext()
-  const isConnectedAccountRow = account === lastConnectedV2Account
+  const { connectedAccount } = useAccountContext()
+  const isConnectedAccountRow = account === connectedAccount
 
   return (
     <div
