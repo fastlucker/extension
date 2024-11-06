@@ -14,14 +14,13 @@ import useDefiPositionsControllerState from '@web/hooks/useDeFiPositionsControll
 import { getUiType } from '@web/utils/uiType'
 
 import DeFiPosition from './DeFiPosition/DeFiPosition'
+import DefiPositionsSkeleton from './DefiPositionsSkeleton'
 import styles from './styles'
 
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
-  initTab?: {
-    [key: string]: boolean
-  }
+  initTab?: { [key: string]: boolean }
   filterByNetworkId: NetworkId
   onScroll: FlatListProps<any>['onScroll']
 }
@@ -87,25 +86,14 @@ const DeFiPositions: FC<Props> = ({
       }
 
       if (item === 'skeleton') {
-        return <Text>TODO: Skeleton</Text>
+        return <DefiPositionsSkeleton amount={4} />
       }
 
       if (!initTab?.defi || !item || item === 'keep-this-to-avoid-key-warning') return null
 
-      console.log('item', item)
-
       return <DeFiPosition key={item.providerName + item.network} {...item} />
     },
-    [
-      control,
-      filterByNetworkId,
-      initTab?.defi,
-      openTab,
-      searchValue,
-      setOpenTab,
-      t,
-      theme.primaryBackground
-    ]
+    [control, filterByNetworkId, initTab?.defi, openTab, searchValue, setOpenTab, t, theme]
   )
 
   const keyExtractor = useCallback((positionOrElement: any) => {

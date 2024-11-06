@@ -56,7 +56,7 @@ const DeFiPositionHeader: FC<Props> = ({
   const { styles, theme } = useTheme(getStyles)
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
-    values: { from: theme.primaryBackground, to: theme.secondaryBackground },
+    values: { from: theme.quaternaryBackgroundSolid, to: theme.secondaryBackground },
     forceHoveredStyle: isExpanded
   })
   const [bindOpenIconAnim, openIconAnimStyle] = useHover({
