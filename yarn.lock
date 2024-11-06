@@ -18974,14 +18974,9 @@ schema-utils@^4.0.0:
     ajv-formats "^2.1.1"
     ajv-keywords "^5.1.0"
 
-scrypt-js@3.0.1, scrypt-js@^3.0.0:
+scrypt-js@3.0.1, scrypt-js@^3.0.0, scrypt-js@^3.0.1:
   version "3.0.1"
   resolved "https://registry.npmjs.org/scrypt-js/-/scrypt-js-3.0.1.tgz"
-  integrity sha512-cdwTTnqPu0Hyvf5in5asVdZocVDTNRmR7XEcJuIzMjJeSHybHl7vpB66AzwTaIg6CLSbtjcxc8fqcySfnTkccA==
-
-scrypt-js@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/scrypt-js/-/scrypt-js-3.0.1.tgz#d314a57c2aef69d1ad98a138a21fe9eafa9ee312"
   integrity sha512-cdwTTnqPu0Hyvf5in5asVdZocVDTNRmR7XEcJuIzMjJeSHybHl7vpB66AzwTaIg6CLSbtjcxc8fqcySfnTkccA==
 
 secp256k1@3.7.1:
@@ -21555,6 +21550,11 @@ webpack-sources@^2.2.0:
   dependencies:
     source-list-map "^2.0.1"
     source-map "^0.6.1"
+
+webpack-target-webextension@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/webpack-target-webextension/-/webpack-target-webextension-1.1.2.tgz#3966d69f754e7e270e253383314e48e2fbfab056"
+  integrity sha512-/BwCTlnkq4BmY4pD3HV2tLZVTMJhM+YslbJFi8Yl4GL8FsPsHvg0jcDs/XGtHwm59A9oK3Oiaz+0y1nJNZESrg==
 
 webpack@^5.64.4:
   version "5.84.1"

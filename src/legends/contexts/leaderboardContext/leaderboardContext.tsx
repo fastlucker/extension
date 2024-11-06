@@ -24,13 +24,13 @@ const LeaderboardContextProvider = ({ children }: { children: React.ReactNode })
   const [error, setError] = React.useState<string | null>(null)
   const [leaderboardData, setLeaderboardData] = useState<Array<LeaderboardEntry>>([])
   const [userLeaderboardData, setUserLeaderboardData] = useState<LeaderboardEntry | null>(null)
-  const { lastConnectedV2Account } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
         setError(null)
-        const response = await getLeaderboard(lastConnectedV2Account ?? undefined)
+        const response = await getLeaderboard(connectedAccount ?? undefined)
 
         if (response) {
           const { leaderboard, currentUser } = response
@@ -49,7 +49,7 @@ const LeaderboardContextProvider = ({ children }: { children: React.ReactNode })
     }
 
     fetchLeaderboard()
-  }, [lastConnectedV2Account])
+  }, [connectedAccount])
 
   const sortedData = useMemo(
     () =>

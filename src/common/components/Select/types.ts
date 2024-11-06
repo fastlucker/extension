@@ -26,6 +26,7 @@ export type CommonSelectProps = {
   withSearch?: boolean
   searchPlaceholder?: string
   testID?: string
+  extraSearchProps?: { [key: string]: string }
 }
 export type SelectProps = CommonSelectProps & {
   options: SelectValue[]
