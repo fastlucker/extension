@@ -47,6 +47,7 @@ export default function useBanners(): BannerInterface[] {
 
   const allBanners = useMemo(() => {
     return [
+      ...swapAndBridgeBanners,
       ...state.banners,
       ...actionBanners,
       ...swapAndBridgeBanners,
@@ -64,6 +65,7 @@ export default function useBanners(): BannerInterface[] {
     state.banners,
     actionBanners,
     swapAndBridgeBanners,
+    defiPositionsBanners,
     debouncedIsOffline,
     portfolioBanners,
     selectedAccount,

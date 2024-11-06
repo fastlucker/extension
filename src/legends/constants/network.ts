@@ -1,3 +1,2 @@
-const BASE_CHAIN_ID = '0x2105'
-
-export { BASE_CHAIN_ID }
+export const BASE_CHAIN_ID = 8453
+export const ETHEREUM_CHAIN_ID = 1

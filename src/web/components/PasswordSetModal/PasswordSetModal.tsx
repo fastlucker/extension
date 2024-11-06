@@ -26,6 +26,7 @@ const PasswordSetModal: FC<Props> = ({ modalRef, onPress }) => {
       id="password-set-modal"
       sheetRef={modalRef}
       autoWidth
+      shouldBeClosableOnDrag={false}
       style={{ paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
     >
       <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
