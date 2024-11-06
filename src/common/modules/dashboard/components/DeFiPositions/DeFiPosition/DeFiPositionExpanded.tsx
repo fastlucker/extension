@@ -25,6 +25,8 @@ const POSITION_TYPE_TO_NAME = {
   'liquidity-pool': 'Liquidity Pool'
 }
 
+const UUID_4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+
 const DeFiPositionExpanded: FC<Props> = ({
   type,
   id,
@@ -39,6 +41,7 @@ const DeFiPositionExpanded: FC<Props> = ({
     (asset) => asset.type === AssetType.Liquidity || asset.type === AssetType.Collateral
   )
   const borrowedAssets = assets.filter((asset) => asset.type === AssetType.Borrow)
+  const isIdGeneratedByUs = UUID_4_REGEX.test(id)
 
   return (
     <View>
@@ -55,14 +58,16 @@ const DeFiPositionExpanded: FC<Props> = ({
           <Text fontSize={14} weight="semiBold">
             {POSITION_TYPE_TO_NAME[type]}
           </Text>
-          <Text
-            fontSize={12}
-            appearance="secondaryText"
-            style={[spacings.mlMi, spacings.mrTy]}
-            selectable
-          >
-            #{id}
-          </Text>
+          {!isIdGeneratedByUs && (
+            <Text
+              fontSize={12}
+              appearance="secondaryText"
+              style={[spacings.mlMi, spacings.mrTy]}
+              selectable
+            >
+              #{id}
+            </Text>
+          )}
           {typeof inRange === 'boolean' && (
             <Badge
               text={inRange ? 'In Range' : 'Out of Range'}
