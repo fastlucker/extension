@@ -99,7 +99,7 @@ const DeFiPositions: FC<Props> = ({
   const keyExtractor = useCallback((positionOrElement: any) => {
     if (typeof positionOrElement === 'string') return positionOrElement
 
-    return positionOrElement.id
+    return `${positionOrElement.providerName}-${positionOrElement.networkId}`
   }, [])
 
   return (
