@@ -56,10 +56,7 @@ const DeFiPositionHeader: FC<Props> = ({
   const { styles, theme } = useTheme(getStyles)
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
-    values: {
-      from: theme.primaryBackground,
-      to: isExpanded ? theme.quaternaryBackground : theme.secondaryBackground
-    },
+    values: { from: theme.primaryBackground, to: theme.secondaryBackground },
     forceHoveredStyle: isExpanded
   })
   const [bindOpenIconAnim, openIconAnimStyle] = useHover({
@@ -84,7 +81,7 @@ const DeFiPositionHeader: FC<Props> = ({
   return (
     <AnimatedPressable
       onPress={toggleExpanded}
-      style={[styles.header, isExpanded ? styles.expandedHeaderStyle : {}, animStyle]}
+      style={[styles.header, animStyle, !!isExpanded && styles.expandedHeader]}
       {...bindAnim}
     >
       <View style={styles.providerData}>

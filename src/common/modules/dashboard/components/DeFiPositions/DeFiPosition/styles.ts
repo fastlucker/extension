@@ -7,19 +7,24 @@ import flexbox from '@common/styles/utils/flexbox'
 
 type Styles = {
   container: ViewStyle
+  expandedContainer: ViewStyle
   header: ViewStyle
-  expandedHeaderStyle: ViewStyle
+  expandedHeader: ViewStyle
   providerData: ViewStyle
   positionData: ViewStyle
-  expandedPosition: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Styles>({
     container: {
       ...common.borderRadiusPrimary,
+      ...spacings.mbTy,
       overflow: 'hidden',
-      ...spacings.mbMi
+      borderWidth: 1,
+      borderColor: 'transparent'
+    },
+    expandedContainer: {
+      borderColor: theme.primary
     },
     header: {
       ...flexbox.directionRow,
@@ -27,12 +32,10 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.justifySpaceBetween,
       ...spacings.pvSm,
       ...spacings.phSm,
-      ...common.borderRadiusPrimary,
-      borderWidth: 1,
-      borderColor: 'transparent'
+      ...common.borderRadiusPrimary
     },
-    expandedHeaderStyle: {
-      borderColor: theme.primary
+    expandedHeader: {
+      backgroundColor: theme.quaternaryBackground
     },
     providerData: {
       ...flexbox.directionRow,
@@ -41,9 +44,6 @@ const getStyles = (theme: ThemeProps) =>
     positionData: {
       ...flexbox.directionRow,
       ...flexbox.alignCenter
-    },
-    expandedPosition: {
-      ...spacings.pv
     }
   })
 

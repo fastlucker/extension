@@ -3,13 +3,11 @@ import { View } from 'react-native'
 
 import { AssetType, Position, PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
 import Text from '@common/components/Text'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import DeFiPositionAssets from './DeFiPositionAssets'
 import Badge from './DeFiPositionHeader/Badge'
-import getStyles from './styles'
 
 type Props = Omit<PositionsByProvider, 'positions' | 'positionInUSD'> &
   Position & {
@@ -36,7 +34,6 @@ const DeFiPositionExpanded: FC<Props> = ({
   additionalData,
   assets
 }) => {
-  const { styles } = useTheme(getStyles)
   const { inRange } = additionalData
   const suppliedAssets = assets.filter(
     (asset) => asset.type === AssetType.Liquidity || asset.type === AssetType.Collateral
@@ -44,11 +41,11 @@ const DeFiPositionExpanded: FC<Props> = ({
   const borrowedAssets = assets.filter((asset) => asset.type === AssetType.Borrow)
 
   return (
-    <View style={styles.expandedPosition}>
+    <View>
       <View
         style={[
           flexbox.directionRow,
-          spacings.mb,
+          spacings.pv,
           spacings.phSm,
           flexbox.alignCenter,
           flexbox.justifySpaceBetween

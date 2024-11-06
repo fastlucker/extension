@@ -48,9 +48,9 @@ const DeFiPositionAssets: FC<{
   }, [label, shouldDisplayAPY])
 
   return (
-    <View style={flexbox.flex1}>
+    <View>
       <DeFiPositionAssetsHeader columns={columns} />
-      <View style={spacings.ptMi}>
+      <View style={spacings.pvMi}>
         {assets.map(({ symbol, amount, decimals, address, additionalData, priceIn }) => {
           const price = priceIn[0].price || 0
           const dollarValue = safeTokenAmountAndNumberMultiplication(amount, decimals, price)

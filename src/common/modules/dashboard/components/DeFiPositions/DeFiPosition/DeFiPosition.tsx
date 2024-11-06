@@ -29,6 +29,7 @@ const DeFiPosition: FC<PositionsByProvider> = ({
     <View
       style={[
         styles.container,
+        !!isExpanded && styles.expandedContainer,
         {
           backgroundColor: isExpanded ? theme.secondaryBackground : theme.primaryBackground
         }
