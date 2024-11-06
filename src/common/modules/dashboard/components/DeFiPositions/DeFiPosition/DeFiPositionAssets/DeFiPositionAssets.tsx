@@ -4,7 +4,6 @@ import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { Position } from '@ambire-common/libs/defiPositions/types'
-import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
@@ -51,11 +50,7 @@ const DeFiPositionAssets: FC<{
     <View>
       <DeFiPositionAssetsHeader columns={columns} />
       <View style={spacings.pvMi}>
-        {assets.map(({ symbol, amount, decimals, address, additionalData, priceIn }) => {
-          const price = priceIn?.[0]?.price || 0
-          const dollarValue = safeTokenAmountAndNumberMultiplication(amount, decimals, price)
-          const dollarValueFormatted = formatDecimals(Number(dollarValue), 'value')
-
+        {assets.map(({ symbol, amount, decimals, address, additionalData, value }) => {
           return (
             <View
               style={[flexbox.directionRow, spacings.phSm, spacings.pvTy, flexbox.alignCenter]}
@@ -85,7 +80,7 @@ const DeFiPositionAssets: FC<{
                 </Text>
               )}
               <Text style={{ flex: 0.5, ...text.right }} fontSize={14} weight="semiBold">
-                {dollarValueFormatted}
+                {formatDecimals(value, 'value')}
               </Text>
             </View>
           )
