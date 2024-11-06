@@ -7,6 +7,7 @@ import useDebounce from '@common/hooks/useDebounce'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useDeFiPositionsControllerState from '@web/hooks/useDeFiPositionsControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -38,6 +39,7 @@ export default function useBanners(): BannerInterface[] {
     state: { banners: portfolioBanners = [] }
   } = usePortfolioControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
+  const { banners: defiPositionsBanners = [] } = useDeFiPositionsControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
@@ -48,6 +50,7 @@ export default function useBanners(): BannerInterface[] {
       ...state.banners,
       ...actionBanners,
       ...swapAndBridgeBanners,
+      ...defiPositionsBanners,
       // Don't display portfolio banners when offline
       ...getCurrentAccountBanners(
         debouncedIsOffline ? [OFFLINE_BANNER] : portfolioBanners,
