@@ -13,8 +13,8 @@ import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs
 import useDefiPositionsControllerState from '@web/hooks/useDeFiPositionsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import DeFiPosition from './DeFiPosition/DeFiPosition'
 import DefiPositionsSkeleton from './DefiPositionsSkeleton'
+import DeFiPosition from './DeFiProviderPosition'
 import styles from './styles'
 
 interface Props {

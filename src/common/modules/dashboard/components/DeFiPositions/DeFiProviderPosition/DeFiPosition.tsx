@@ -3,7 +3,8 @@ import { View } from 'react-native'
 
 import { AssetType, Position, PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
 import Text from '@common/components/Text'
-import spacings from '@common/styles/spacings'
+import useTheme from '@common/hooks/useTheme'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import DeFiPositionAssets from './DeFiPositionAssets'
@@ -12,6 +13,7 @@ import Badge from './DeFiPositionHeader/Badge'
 type Props = Omit<PositionsByProvider, 'positions' | 'positionInUSD'> &
   Position & {
     positionInUSD?: string
+    withTopBorder?: boolean
   }
 
 const ASSET_TYPE_TO_LABEL = {
@@ -27,8 +29,9 @@ const POSITION_TYPE_TO_NAME = {
 
 const UUID_4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 
-const DeFiPositionExpanded: FC<Props> = ({
+const DeFiPosition: FC<Props> = ({
   type,
+  withTopBorder,
   id,
   providerName,
   networkId,
@@ -42,14 +45,22 @@ const DeFiPositionExpanded: FC<Props> = ({
   )
   const borrowedAssets = assets.filter((asset) => asset.type === AssetType.Borrow)
   const isIdGeneratedByUs = UUID_4_REGEX.test(id)
+  const { theme } = useTheme()
 
+  console.log(withTopBorder)
   return (
-    <View>
+    <View
+      style={{
+        borderTopWidth: withTopBorder ? 1 : 0,
+        borderTopColor: theme.secondaryBorder,
+        paddingBottom: !withTopBorder ? SPACING_MI : 0
+      }}
+    >
       <View
         style={[
           flexbox.directionRow,
-          spacings.pv,
           spacings.phSm,
+          spacings.pvSm,
           flexbox.alignCenter,
           flexbox.justifySpaceBetween
         ]}
@@ -99,4 +110,4 @@ const DeFiPositionExpanded: FC<Props> = ({
   )
 }
 
-export default React.memo(DeFiPositionExpanded)
+export default React.memo(DeFiPosition)

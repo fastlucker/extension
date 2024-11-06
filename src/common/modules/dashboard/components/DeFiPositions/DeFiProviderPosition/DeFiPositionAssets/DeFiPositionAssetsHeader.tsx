@@ -4,7 +4,7 @@ import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import getStyles from '@common/modules/dashboard/components/DeFiPositions/DeFiPosition/styles'
+import getStyles from '@common/modules/dashboard/components/DeFiPositions/DeFiProviderPosition/styles'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 

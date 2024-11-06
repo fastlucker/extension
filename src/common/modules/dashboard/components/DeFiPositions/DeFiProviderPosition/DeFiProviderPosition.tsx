@@ -5,11 +5,11 @@ import { PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
 import useTheme from '@common/hooks/useTheme'
 import formatDecimals from '@common/utils/formatDecimals'
 
-import DeFiPositionExpanded from './DeFiPositionExpanded'
+import DeFiPosition from './DeFiPosition'
 import DeFiPositionHeader from './DeFiPositionHeader'
 import getStyles from './styles'
 
-const DeFiPosition: FC<PositionsByProvider> = ({
+const DeFiProviderPosition: FC<PositionsByProvider> = ({
   providerName,
   positionInUSD,
   type,
@@ -44,9 +44,10 @@ const DeFiPosition: FC<PositionsByProvider> = ({
         healthRate={positions.length === 1 ? positions[0].additionalData.healthRate : undefined}
       />
       {isExpanded &&
-        positions.map(({ id, assets, additionalData }) => (
-          <DeFiPositionExpanded
+        positions.map(({ id, assets, additionalData }, index) => (
+          <DeFiPosition
             key={id}
+            withTopBorder={index !== 0 && positions.length > 1}
             id={id}
             type={type}
             assets={assets}
@@ -60,4 +61,4 @@ const DeFiPosition: FC<PositionsByProvider> = ({
   )
 }
 
-export default React.memo(DeFiPosition)
+export default React.memo(DeFiProviderPosition)

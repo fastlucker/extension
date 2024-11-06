@@ -35,7 +35,9 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary
     },
     expandedHeader: {
-      backgroundColor: theme.quaternaryBackground
+      backgroundColor: theme.quaternaryBackground,
+      borderBottomRightRadius: 0,
+      borderBottomLeftRadius: 0
     },
     providerData: {
       ...flexbox.directionRow,

@@ -49,7 +49,7 @@ const DeFiPositionAssets: FC<{
   return (
     <View>
       <DeFiPositionAssetsHeader columns={columns} />
-      <View style={spacings.pvMi}>
+      <View style={spacings.ptMi}>
         {assets.map(({ symbol, amount, decimals, address, additionalData, value }) => {
           return (
             <View
