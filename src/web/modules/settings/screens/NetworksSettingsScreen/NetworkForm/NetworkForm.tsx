@@ -509,7 +509,6 @@ const NetworkForm = ({
   const handleAddRpcUrl = useCallback(
     async (value: string) => {
       const trimmedVal = value.trim()
-      console.log('trimmedVal', trimmedVal)
       await validateRpcUrlAndRecalculateFeatures(trimmedVal, watch('chainId'), 'add')
       if (!errors.rpcUrl) {
         setRpcUrls((p) => [trimmedVal, ...p])
