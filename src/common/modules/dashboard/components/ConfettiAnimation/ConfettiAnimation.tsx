@@ -8,14 +8,25 @@ import animation from './animation.json'
 const ConfettiAnimation = ({
   width,
   height,
+  style,
   ...rest
-}: { width: number; height: number } & Omit<LottieComponentProps, 'animationData'>) => {
+}: { width: number; height: number; style: React.CSSProperties } & Omit<
+  LottieComponentProps,
+  'animationData'
+>) => {
   return (
     <LottieView
-      {...rest}
       animationData={animation}
-      style={{ width, height, position: 'absolute', pointerEvents: 'none', alignSelf: 'center' }}
+      style={{
+        width,
+        height,
+        position: 'absolute',
+        pointerEvents: 'none',
+        alignSelf: 'center',
+        ...style
+      }}
       loop={false}
+      {...rest}
     />
   )
 }

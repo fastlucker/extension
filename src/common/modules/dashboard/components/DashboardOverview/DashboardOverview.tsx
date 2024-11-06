@@ -36,6 +36,12 @@ interface Props {
     height: number
   }
   setDashboardOverviewSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>
+  onGasTankButtonPosition: (position: {
+    x: number
+    y: number
+    width: number
+    height: number
+  }) => void
 }
 
 // We create a reusable height constant for both the Balance line-height and the Balance skeleton.
@@ -47,7 +53,8 @@ const DashboardOverview: FC<Props> = ({
   openGasTankModal,
   animatedOverviewHeight,
   dashboardOverviewSize,
-  setDashboardOverviewSize
+  setDashboardOverviewSize,
+  onGasTankButtonPosition
 }) => {
   const route = useRoute()
   const { dispatch } = useBackgroundService()
@@ -161,6 +168,15 @@ const DashboardOverview: FC<Props> = ({
     })
   }, [dispatch, resetAccountPortfolioLocalState])
 
+  const [buttonPosition, setButtonPosition] = useState(null)
+  console.log('buttonPosition', buttonPosition)
+
+  useEffect(() => {
+    if (buttonPosition) {
+      onGasTankButtonPosition(buttonPosition)
+    }
+  }, [buttonPosition, onGasTankButtonPosition])
+
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
       <View style={[styles.contentContainer]}>
@@ -257,7 +273,7 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <GasTankButton onPress={openGasTankModal} />
+                  <GasTankButton onPress={openGasTankModal} onPosition={setButtonPosition} />
                   {!!warningMessage && (
                     <>
                       <WarningIcon

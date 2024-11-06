@@ -16,6 +16,7 @@ import { getUiType } from '@web/utils/uiType'
 
 import DAppFooter from '../components/DAppFooter'
 import DashboardOverview from '../components/DashboardOverview'
+import CongratsFirstCashbackModal from '../components/DashboardOverview/CongratsFirstCashbackModal'
 import DashboardPages from '../components/DashboardPages'
 import PinExtension from '../components/PinExtension'
 import getStyles from './styles'
@@ -40,6 +41,13 @@ const DashboardScreen = () => {
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
+  const [isCongratsModalShown, setIsCongratsModalShown] = useState(false)
+  const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null>(null)
 
   const onScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -78,6 +86,15 @@ const DashboardScreen = () => {
     [animatedOverviewHeight, dashboardOverviewSize.height, lastOffsetY, scrollUpStartedAt]
   )
 
+  const handleGasTankButtonPosition = useCallback(
+    (bPosition: { x: number; y: number; width: number; height: number } | null) => {
+      if (bPosition) {
+        setGasTankButtonPosition(bPosition)
+      }
+    },
+    []
+  )
+
   return (
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
@@ -91,6 +108,7 @@ const DashboardScreen = () => {
             animatedOverviewHeight={animatedOverviewHeight}
             dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}
+            onGasTankButtonPosition={handleGasTankButtonPosition}
           />
           <DashboardPages
             tokenPreferences={state?.tokenPreferences}
@@ -102,6 +120,12 @@ const DashboardScreen = () => {
       </View>
       <PinExtension />
       <DefaultWalletControl />
+      {isCongratsModalShown && (
+        <CongratsFirstCashbackModal
+          onPress={() => setIsCongratsModalShown(false)}
+          position={gasTankButtonPosition}
+        />
+      )}
     </>
   )
 }

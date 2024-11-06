@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { View } from 'react-native'
 
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
@@ -12,19 +13,30 @@ import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
 type Props = {
   onPress: () => void
+  onPosition: (position: { x: number; y: number; width: number; height: number }) => void
 }
 
-const GasTankButton = ({ onPress }: Props) => {
+const GasTankButton = ({ onPress, onPosition }: Props) => {
   const { t } = useTranslation()
+  const buttonRef = useRef(null)
 
   const [bindGasTankBtnAim, removeTankBtnStyle] = useCustomHover({
     property: 'backgroundColor',
     values: { from: NEUTRAL_BACKGROUND_HOVERED, to: '#14183380' } // TODO: Remove hardcoded hex
   })
 
+  useEffect(() => {
+    if (buttonRef.current) {
+      buttonRef.current.measure((fx, fy, width, height, px, py) => {
+        onPosition({ x: px, y: py, width, height })
+      })
+    }
+  }, [onPosition])
+
   return (
     <View>
       <AnimatedPressable
+        ref={buttonRef}
         onPress={onPress}
         style={{
           ...flexbox.directionRow,
