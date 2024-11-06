@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
-import { AssetType, Position, PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
+import { PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   AccountState,
@@ -125,28 +125,14 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
                       )
                     : undefined
 
-                  const assetBalanceUSD = priceUSD
-                    ? Number(
-                        safeTokenAmountAndNumberMultiplication(
-                          BigInt(a.amount),
-                          Number(a.decimals),
-                          priceUSD
-                        )
-                      )
-                    : undefined
-
                   networkBalance -= tokenBalanceUSD || 0 // deduct portfolio token balance
-                  if (posByProv.type === 'liquidity-pool' && a.type === AssetType.Liquidity) {
-                    networkBalance += assetBalanceUSD || 0
-                  }
 
                   // eslint-disable-next-line no-param-reassign
                   tokens = tokens.filter((_, index) => index !== tokenInPortfolioIndex)
                 }
               })
-              if (posByProv.type === 'lending') {
-                networkBalance += pos.additionalData.positionInUSD || 0
-              }
+
+              networkBalance += posByProv.positionInUSD || 0
             })
           })
 
