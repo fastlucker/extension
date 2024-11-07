@@ -47,7 +47,6 @@ const DeFiPosition: FC<Props> = ({
   const isIdGeneratedByUs = UUID_4_REGEX.test(id)
   const { theme } = useTheme()
 
-  console.log(withTopBorder)
   return (
     <View
       style={{
