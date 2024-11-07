@@ -97,7 +97,7 @@ const DeFiPositionHeader: FC<Props> = ({
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlLg]}>
           {healthRate && (
             <Badge
-              text={`Health Rate: ${formatDecimals(healthRate)}`}
+              text={`Health Rate: ${healthRate <= 10 ? formatDecimals(healthRate) : '>10'}`}
               type={HEALTH_RATE_LEVELS.find((level) => level.to >= healthRate)?.color || 'success'}
             />
           )}
