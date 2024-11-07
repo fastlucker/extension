@@ -33,6 +33,7 @@ const Estimation = ({
   disabled,
   hasEstimation,
   slowRequest,
+  slowPaymasterRequest,
   isViewOnly
 }: Props) => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
@@ -122,7 +123,9 @@ const Estimation = ({
     const isInitialValueSet = !!payValue
     const canPayFeeAfterNotBeingAbleToPayInitially =
       payValue?.value === NO_FEE_OPTIONS.value && defaultFeeOption.value !== NO_FEE_OPTIONS.value
-    if (!isInitialValueSet || canPayFeeAfterNotBeingAbleToPayInitially) {
+    const feeOptionNoLongerViable = payValue?.disabled !== defaultFeeOption.disabled
+
+    if (!isInitialValueSet || canPayFeeAfterNotBeingAbleToPayInitially || feeOptionNoLongerViable) {
       setFeeOption(defaultFeeOption)
     }
   }, [
@@ -250,6 +253,7 @@ const Estimation = ({
         <Warnings
           hasEstimation={hasEstimation}
           slowRequest={slowRequest}
+          slowPaymasterRequest={slowPaymasterRequest}
           isViewOnly={isViewOnly}
           rbfDetected={false}
           bundlerFailure={false}
@@ -338,6 +342,7 @@ const Estimation = ({
       <Warnings
         hasEstimation={hasEstimation}
         slowRequest={slowRequest}
+        slowPaymasterRequest={slowPaymasterRequest}
         isViewOnly={isViewOnly}
         rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
         bundlerFailure={

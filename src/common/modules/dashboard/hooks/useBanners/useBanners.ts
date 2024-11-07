@@ -8,8 +8,10 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
 const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount: AccountId | null) =>
   banners.filter((banner) => {
@@ -38,9 +40,12 @@ export default function useBanners(): BannerInterface[] {
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
+  const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
+  const { banners: keystoreBanners = [] } = useKeystoreControllerState()
 
   const allBanners = useMemo(() => {
     return [
+      ...swapAndBridgeBanners,
       ...state.banners,
       ...actionBanners,
       // Don't display portfolio banners when offline
@@ -49,16 +54,19 @@ export default function useBanners(): BannerInterface[] {
         selectedAccount
       ),
       ...activityBanners,
-      ...getCurrentAccountBanners(emailVaultBanners, selectedAccount)
+      ...getCurrentAccountBanners(emailVaultBanners, selectedAccount),
+      ...keystoreBanners
     ]
   }, [
     state.banners,
     actionBanners,
+    swapAndBridgeBanners,
     debouncedIsOffline,
     portfolioBanners,
     selectedAccount,
     activityBanners,
-    emailVaultBanners
+    emailVaultBanners,
+    keystoreBanners
   ])
 
   return allBanners

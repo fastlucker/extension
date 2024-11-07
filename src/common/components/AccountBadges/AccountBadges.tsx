@@ -29,10 +29,6 @@ const AccountBadges: FC<Props> = ({ accountData }) => {
 
   return (
     <>
-      <BadgeWithPreset
-        preset={isSmartAccount ? 'smart-account' : 'basic-account'}
-        style={spacings.mlTy}
-      />
       {keystoreCtrl.keys.every((k) => !accountData?.associatedKeys.includes(k.addr)) && (
         <BadgeWithPreset preset="view-only" style={spacings.mlTy} />
       )}

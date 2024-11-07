@@ -22,11 +22,13 @@ interface Props {
   strokeWidth?: number
   isDisabled?: boolean
   testID?: string
+  iconWidth?: number
 }
 
 const TokenDetailsButton: FC<Props> = ({
   id,
   strokeWidth,
+  iconWidth = 32,
   text: btnText,
   isDisabled,
   onPress,
@@ -63,7 +65,7 @@ const TokenDetailsButton: FC<Props> = ({
         {isTokenInfo && isTokenInfoLoading ? (
           <Spinner style={{ width: 32, height: 32 }} />
         ) : (
-          <Icon color={theme.primary} width={32} height={32} strokeWidth={strokeWidth} />
+          <Icon color={theme.primary} width={iconWidth} height={32} strokeWidth={strokeWidth} />
         )}
       </View>
       <Text fontSize={14} weight="medium" style={text.center} numberOfLines={1}>

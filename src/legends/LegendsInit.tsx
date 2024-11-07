@@ -1,12 +1,12 @@
 import React from 'react'
+import ErrorBoundary from 'react-native-error-boundary'
 
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 
-import { DomainsContextProvider } from '../common/contexts/domainsContext'
+import ErrorPage from './components/ErrorPage'
 import { AccountContextProvider } from './contexts/accountContext'
 import { CharacterContextProvider } from './contexts/characterContext'
-import { PortfolioControllerStateProvider } from './contexts/portfolioControllerStateContext'
 import { ToastContextProvider } from './contexts/toastsContext'
 import Router from './modules/router/Router'
 
@@ -18,20 +18,18 @@ declare global {
 
 const LegendsInit = () => {
   return (
-    <PortalProvider>
-      <ToastContextProvider>
-        <AccountContextProvider>
-          <CharacterContextProvider>
-            <PortfolioControllerStateProvider>
-              <DomainsContextProvider>
-                <Router />
-              </DomainsContextProvider>
-            </PortfolioControllerStateProvider>
-          </CharacterContextProvider>
-        </AccountContextProvider>
-      </ToastContextProvider>
-      <PortalHost name="global" />
-    </PortalProvider>
+    <ErrorBoundary FallbackComponent={() => <ErrorPage />}>
+      <PortalProvider>
+        <ToastContextProvider>
+          <AccountContextProvider>
+            <CharacterContextProvider>
+              <Router />
+            </CharacterContextProvider>
+          </AccountContextProvider>
+        </ToastContextProvider>
+        <PortalHost name="global" />
+      </PortalProvider>
+    </ErrorBoundary>
   )
 }
 

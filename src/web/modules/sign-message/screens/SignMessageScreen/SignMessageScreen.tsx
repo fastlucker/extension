@@ -7,7 +7,6 @@ import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
-import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
@@ -87,8 +86,7 @@ const SignMessageScreen = () => {
       networks.find((n) => {
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
-          ? n.chainId.toLocaleString() ===
-              signMessageState.messageToSign?.content.domain.chainId.toLocaleString()
+          ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
           : n.id === signMessageState.messageToSign?.networkId
       }),
     [networks, signMessageState.messageToSign]
@@ -97,10 +95,9 @@ const SignMessageScreen = () => {
     () => selectedAccountKeyStoreKeys.length === 0,
     [selectedAccountKeyStoreKeys.length]
   )
-  const humanizedMessage: IrMessage | null = useMemo(() => {
-    return signMessageState?.messageToSign?.content?.kind === 'typedMessage'
-      ? humanizeMessage(signMessageState.messageToSign)
-      : signMessageState.messageToSign
+  const humanizedMessage = useMemo(() => {
+    if (!signMessageState?.messageToSign) return
+    return humanizeMessage(signMessageState.messageToSign)
   }, [signMessageState])
 
   const visualizeHumanized = useMemo(
@@ -213,7 +210,7 @@ const SignMessageScreen = () => {
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
   // loading spinner instead (would better be a skeleton, but whatever).
-  if (!signMessageState.isInitialized) {
+  if (!signMessageState.isInitialized || !selectedAccountFull) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />
@@ -241,6 +238,7 @@ const SignMessageScreen = () => {
         selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
         handleChooseSigningKey={handleSign}
         handleClose={() => setIsChooseSignerShown(false)}
+        account={selectedAccountFull}
       />
       {isViewOnly && (
         <View style={styles.noKeysToSignAlert}>

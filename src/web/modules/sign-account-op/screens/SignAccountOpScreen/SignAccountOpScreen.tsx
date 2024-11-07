@@ -6,8 +6,6 @@ import { useModalize } from 'react-native-modalize'
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
-import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
@@ -54,6 +52,7 @@ const SignAccountOpScreen = () => {
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
+  const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(false)
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
   const {
@@ -89,6 +88,7 @@ const SignAccountOpScreen = () => {
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
     signAccountOpState?.status?.type === SigningStatus.UpdatesPaused ||
+    signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster ||
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
@@ -109,6 +109,23 @@ const SignAccountOpScreen = () => {
       clearTimeout(timeout)
     }
   }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster) {
+        setSlowPaymasterRequest(true)
+      }
+    }, 3000)
+
+    if (signAccountOpState?.status?.type !== SigningStatus.WaitingForPaymaster) {
+      clearTimeout(timeout)
+      setSlowPaymasterRequest(false)
+    }
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [signAccountOpState?.status?.type])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
@@ -180,12 +197,6 @@ const SignAccountOpScreen = () => {
   const handleAddToCart = useCallback(() => {
     closeCurrentWindow()
   }, [])
-
-  const humanizedCalls: IrCall[] | null = useMemo(
-    () =>
-      signAccountOpState?.accountOp ? humanizeAccountOp(signAccountOpState.accountOp, {}) : null,
-    [signAccountOpState?.accountOp]
-  )
 
   useEffect(() => {
     const destroy = () => {
@@ -388,6 +399,11 @@ const SignAccountOpScreen = () => {
             // because they can't sign it anyway
             isAddToCartDisabled={isSignLoading || (!signAccountOpState?.readyToSign && !isViewOnly)}
             onSign={onSignButtonClick}
+            inProgressButtonText={
+              signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
+                ? t('Sending...')
+                : t('Signing...')
+            }
           />
         }
       >
@@ -398,6 +414,7 @@ const SignAccountOpScreen = () => {
             handleClose={() => setIsChooseSignerShown(false)}
             selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
             handleChooseSigningKey={handleChangeSigningKey}
+            account={signAccountOpState.account}
           />
         ) : null}
         <TabLayoutWrapperMainContent scrollEnabled={false}>
@@ -407,7 +424,7 @@ const SignAccountOpScreen = () => {
                 network={network}
                 isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
               />
-              <PendingTransactions callsToVisualize={humanizedCalls || []} network={network} />
+              <PendingTransactions network={network} />
             </View>
             <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
             <Estimation
@@ -415,6 +432,7 @@ const SignAccountOpScreen = () => {
               disabled={isSignLoading}
               hasEstimation={!!hasEstimation}
               slowRequest={slowRequest}
+              slowPaymasterRequest={slowPaymasterRequest}
               isViewOnly={isViewOnly}
             />
 

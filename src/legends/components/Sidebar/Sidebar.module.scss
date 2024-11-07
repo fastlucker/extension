@@ -1,12 +1,24 @@
 @import '@legends/styles/base.scss';
 
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .wrapper {
   position: absolute;
   z-index: 3;
   background-color: $secondaryBackground;
   border-right: 1px solid $primaryBorder;
-  width: 16.25rem;
-  padding: 1rem 1.5rem;
+  width: 18.875rem;
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -27,15 +39,76 @@
 
   .top {
     position: relative;
+    .wheelOfFortuneWrapper {
+      background: $primaryGradient;
+      background-size: 200% 200%;
+      animation: gradientAnimation 4s ease infinite;
 
-    .spinButton {
-      @include secondary-button;
+      border-radius: $secondaryBorderRadius;
+      padding: 0.25rem;
+      $innerBorderRadius: calc(#{$secondaryBorderRadius} - 0.25rem);
+
+      .wheelOfFortune {
+        position: relative;
+        display: flex;
+        background-color: $tertiaryBackground;
+        border-radius: $innerBorderRadius;
+
+        .wheelImage {
+          height: 7.5rem;
+          width: auto;
+          border-radius: $innerBorderRadius 0 0 $innerBorderRadius;
+        }
+
+        .wheelContent {
+          padding: 1rem;
+          padding-left: 0.75rem;
+          flex: 1;
+
+          .wheelTitle,
+          .wheelText {
+            display: block;
+          }
+          .wheelTitle {
+            font-size: 1.125rem;
+            font-weight: 500;
+            line-height: 1.5rem;
+            text-transform: uppercase;
+            color: $secondaryText;
+          }
+          .wheelText {
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+          }
+          .wheelButton {
+            @include secondary-button;
+            font-size: 0.875rem;
+            background: $primaryGradient;
+            width: 100%;
+            text-transform: none;
+          }
+        }
+      }
+    }
+    .disabled {
+      opacity: 0.5;
+      animation: none;
+    }
+
+    .tooltip {
+      background-color: $tertiaryBackground;
+      border: 1px solid $primaryBorder;
+      border-radius: $primaryBorderRadius;
+      padding: 1.25rem 1.5rem;
+      font-size: 1rem;
+      color: $secondaryText;
+      opacity: 1;
     }
 
     .closeButton {
       position: absolute;
       top: 1rem;
-      right: 0;
+      left: 0;
       display: flex;
       align-items: center;
       justify-content: center;

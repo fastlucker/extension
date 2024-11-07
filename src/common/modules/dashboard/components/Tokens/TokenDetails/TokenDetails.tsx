@@ -1,30 +1,29 @@
-import { getAddress, ZeroAddress } from 'ethers'
+import { getAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
-import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
-import SwapIcon from '@common/assets/svg/SwapIcon'
+import SwapAndBridgeIcon from '@common/assets/svg/SwapAndBridgeIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
+import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
-import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -48,7 +47,7 @@ const TokenDetails = ({
   handleClose: () => void
   tokenPreferences: CustomToken[]
 }) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
@@ -82,36 +81,11 @@ const TokenDetails = ({
         testID: 'token-send'
       },
       {
-        id: 'swap',
-        text: t('Swap'),
-        icon: SwapIcon,
-        onPress: async ({ networkId, address }: TokenResult) => {
-          const networkData = networks.find((n) => n.id === networkId)
-
-          if (!networkData) {
-            addToast(t('Network not found'), { type: 'error' })
-            return
-          }
-
-          let inputCurrency = address
-
-          if (address === ZeroAddress) {
-            // Uniswap doesn't select the native token if you pass its address
-            inputCurrency = 'native'
-          }
-
-          // Change the current dapp network to the selected one,
-          // otherwise uniswap will select the token from the current network
-          dispatch({
-            type: 'CHANGE_CURRENT_DAPP_NETWORK',
-            params: {
-              chainId: Number(networkData.chainId),
-              origin: 'https://app.uniswap.org'
-            }
-          })
-
-          await createTab(`https://app.uniswap.org/swap?inputCurrency=${inputCurrency}`)
-        },
+        id: 'swap-or-bridge',
+        text: t('Swap or Bridge'),
+        icon: SwapAndBridgeIcon,
+        iconWidth: 86,
+        onPress: () => navigate(WEB_ROUTES.swapAndBridge),
         isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
@@ -150,29 +124,6 @@ const TokenDetails = ({
         onPress: () => {},
         isDisabled: true,
         strokeWidth: 1
-      },
-      {
-        id: 'bridge',
-        text: t('Bridge'),
-        icon: BridgeIcon,
-        onPress: async ({ networkId, address }) => {
-          const networkData = networks.find((network) => network.id === networkId)
-
-          if (networkData) {
-            let formattedAddress = address
-
-            if (address === ZeroAddress) {
-              // Bungee expects the native address to be formatted as 0xeee...eee
-              formattedAddress = `0x${'e'.repeat(40)}`
-            }
-
-            await createTab(
-              `${BRIDGE_URL}?fromChainId=${networkData?.chainId}&fromTokenAddress=${formattedAddress}`
-            )
-          }
-        },
-        isDisabled: isGasTankOrRewardsToken,
-        strokeWidth: 1.5
       },
       {
         id: 'withdraw',
@@ -282,6 +233,10 @@ const TokenDetails = ({
         token: newToken
       }
     })
+
+    // The modal closes anyway so it's better to close it right
+    // after hiding the token
+    handleClose()
   }
   if (!token) return null
 
@@ -328,12 +283,16 @@ const TokenDetails = ({
             </View>
             {!onGasTank && !isRewards && !isVesting && (
               <View style={[flexbox.alignSelfEnd]}>
-                <Toggle
-                  isOn={isHidden}
-                  onToggle={handleHideToken}
-                  label={isHidden ? t('Show Token') : t('Hide Token')}
-                  toggleStyle={spacings.mrTy}
-                />
+                <Pressable
+                  style={[flexbox.directionRow, flexbox.alignCenter]}
+                  onPress={handleHideToken}
+                  disabled={isHidden}
+                >
+                  <Text weight="medium" fontSize={12}>
+                    {t('Hide')}
+                  </Text>
+                  <VisibilityIcon color={theme.successDecorative} style={styles.visibilityIcon} />
+                </Pressable>
               </View>
             )}
           </View>
@@ -388,6 +347,7 @@ const TokenDetails = ({
             token={token}
             isTokenInfoLoading={isTokenInfoLoading}
             handleClose={handleClose}
+            iconWidth={action.iconWidth}
           />
         ))}
       </View>

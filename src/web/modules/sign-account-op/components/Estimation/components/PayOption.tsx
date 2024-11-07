@@ -95,7 +95,13 @@ const PayOption = ({
       {isPaidByAnotherAccount && (
         <View style={[flexbox.alignEnd]}>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <Avatar size={16} pfp={feeOption.paidBy} style={spacings.prTy} />
+            <Avatar
+              size={16}
+              pfp={feeOption.paidBy}
+              style={spacings.prTy}
+              isSmart={false}
+              displayTypeBadge={false}
+            />
             <Text fontSize={10} weight="semiBold" numberOfLines={1}>
               {paidByLabel}
             </Text>

@@ -7,12 +7,19 @@ const ACCOUNT_ADDER_STEP = 'Select accounts\nto import'
 const DEVICE_PASSWORD_STEP = 'Set up a\ndevice password'
 const PERSONALIZE_STEP = 'Personalize\nyour accounts'
 
-export type StepperFlow = 'email' | 'hw' | 'private-key' | 'seed' | 'create-seed'
+export type StepperFlow =
+  | 'email'
+  | 'hw'
+  | 'private-key'
+  | 'seed'
+  | 'create-seed'
+  | 'import-json'
+  | 'seed-with-option-to-save'
 
 export const STEPPER_FLOWS = {
   email: {
     [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
-    [WEB_ROUTES.createEmailVault]: 'Create Email\nVault',
+    // [WEB_ROUTES.createEmailVault]: 'Create Email\nVault',
     'email-confirmation': 'Email\nConfirmation',
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   },
@@ -35,11 +42,25 @@ export const STEPPER_FLOWS = {
     [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   },
+  'seed-with-option-to-save': {
+    [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
+    [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
+    [WEB_ROUTES.importSeedPhrase]: 'Enter your\nseed phrase',
+    [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP,
+    [WEB_ROUTES.saveImportedSeed]: 'Optionally save\n your seed'
+  },
   'create-seed': {
     'select-recovery': 'Select the\nrecovery option',
     [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
     'secure-seed': 'Secure your\nseed phrase',
     [WEB_ROUTES.createSeedPhraseConfirm]: 'Confirm your\nseed phrase',
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
+  },
+  'import-json': {
+    [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
+    [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
+    [WEB_ROUTES.importSmartAccountJson]: 'Import your\njson backup',
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   }
 }

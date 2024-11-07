@@ -14,6 +14,7 @@ import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import PasswordRecoverySettingsIcon from '@common/assets/svg/PasswordRecoverySettingsIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
+import SidebarSecurityIcon from '@common/assets/svg/SidebarSecurityIcon'
 import SignedMessageIcon from '@common/assets/svg/SignedMessageIcon'
 import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -65,6 +66,12 @@ export const SETTINGS_LINKS = [
     Icon: React.memo(SignedMessageIcon),
     label: 'Signed Messages',
     path: ROUTES.signedMessages
+  },
+  {
+    key: 'security',
+    Icon: SidebarSecurityIcon,
+    label: 'Security & Privacy',
+    path: ROUTES.securityAndPrivacy
   },
   {
     key: 'device-password-change',

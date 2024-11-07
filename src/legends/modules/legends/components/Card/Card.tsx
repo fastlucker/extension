@@ -1,19 +1,21 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 
 import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from '@legends/components/Modal'
-import useAccountContext from '@legends/hooks/useAccountContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
+import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
+import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
-import { EOA_ACCESSIBLE_CARDS, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
+import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import Badge from './Badge'
 import styles from './Card.module.scss'
 import CardActionComponent from './CardAction'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'description' | 'xp' | 'image' | 'card' | 'action'
+  'title' | 'description' | 'xp' | 'image' | 'card' | 'action' | 'disabled'
 > & {
   children?: React.ReactNode | React.ReactNode[]
 }
@@ -37,20 +39,34 @@ const getBadgeType = (reward: number, type: CardXpType) => {
   return 'primary'
 }
 
-const Card: FC<Props> = ({ title, image, description, children, xp, card, action }) => {
-  const { isConnectedAccountV2 } = useAccountContext()
+const Card: FC<Props> = ({ title, image, description, children, xp, card, action, disabled }) => {
+  const { activity } = useActivityContext()
+
   const isCompleted = card?.type === CardType.done
   const isRecurring = card?.type === CardType.recurring
   const shortenedDescription = description.length > 55 ? `${description.slice(0, 55)}...` : null
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
 
-  const openActionModal = () => setIsActionModalOpen(true)
+  const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
-  const closeActionModal = () => setIsActionModalOpen(false)
+  const openActionModal = () =>
+    action.predefinedId === 'wheelOfFortune'
+      ? setIsFortuneWheelModalOpen(true)
+      : setIsActionModalOpen(true)
+
+  const closeActionModal = () =>
+    action.predefinedId === 'wheelOfFortune'
+      ? setIsFortuneWheelModalOpen(false)
+      : setIsActionModalOpen(false)
+
+  const hoursUntilMidnight = useMemo(
+    () => (activity ? calculateHoursUntilMidnight(activity) : 0),
+    [activity]
+  )
 
   return (
-    <div className={`${styles.wrapper}`}>
+    <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
       <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen}>
         <Modal.Heading>{title}</Modal.Heading>
         <Modal.Text className={styles.modalText}>{description}</Modal.Text>
@@ -60,9 +76,19 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
           action={action}
         />
       </Modal>
+      {action.predefinedId === 'wheelOfFortune' && (
+        <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
+      )}
       {isCompleted ? (
         <div className={styles.completed}>
-          <span className={styles.completedText}>Completed</span>
+          <span className={styles.completedText}>
+            Completed <br />
+            {action.predefinedId === 'wheelOfFortune' ? (
+              <span
+                className={styles.completedTextAvailable}
+              >{`Available in ${hoursUntilMidnight} hours`}</span>
+            ) : null}
+          </span>
         </div>
       ) : null}
       <div className={styles.imageAndBadges}>
@@ -113,9 +139,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
         </div>
         {!!action.type && (
           <button
-            disabled={
-              !isConnectedAccountV2 && !EOA_ACCESSIBLE_CARDS.includes(action.predefinedId || '')
-            }
+            disabled={disabled}
             className={styles.button}
             type="button"
             onClick={openActionModal}

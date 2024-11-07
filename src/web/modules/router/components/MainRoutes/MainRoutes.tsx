@@ -23,7 +23,9 @@ import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
 import HotWalletCreateSelectorScreen from '@web/modules/auth/screens/HotWalletCreateSelectorScreen'
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
+import ImportSmartAccountJsonScreen from '@web/modules/auth/screens/ImportSmartAccountJson'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
+import SaveImportedSeedScreen from '@web/modules/auth/screens/SaveImportedSeedScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
 import HardwareWalletReconnectScreen from '@web/modules/hardware-wallet/screens/HardwareWalletReconnectScreen'
@@ -42,14 +44,18 @@ import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomToke
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
+import ExportKeyScreen from '@web/modules/settings/screens/ExportKeyScreen'
 import GeneralSettingsScreen from '@web/modules/settings/screens/GeneralSettingsScreen'
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
+import SavedSeedScreen from '@web/modules/settings/screens/SavedSeedScreen'
+import SecurityAndPrivacyScreen from '@web/modules/settings/screens/SecurityAndPrivacyScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen'
 import TermsSettingsScreen from '@web/modules/settings/screens/TermsSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
+import SwapAndBridgeScreen from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen'
 import Terms from '@web/modules/terms/screens/Terms'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
@@ -91,6 +97,10 @@ const MainRoutes = () => {
 
             <Route path={WEB_ROUTES.importPrivateKey} element={<PrivateKeyImportScreen />} />
             <Route path={WEB_ROUTES.importSeedPhrase} element={<SeedPhraseImportScreen />} />
+            <Route
+              path={WEB_ROUTES.importSmartAccountJson}
+              element={<ImportSmartAccountJsonScreen />}
+            />
 
             <Route path={WEB_ROUTES.createHotWallet} element={<HotWalletCreateSelectorScreen />} />
 
@@ -109,6 +119,7 @@ const MainRoutes = () => {
 
             <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
             <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
+            <Route path={WEB_ROUTES.saveImportedSeed} element={<SaveImportedSeedScreen />} />
 
             <Route path={WEB_ROUTES.keyStoreReset} element={<KeyStoreResetScreen />} />
             <Route element={<PrivateRoute />}>
@@ -120,9 +131,16 @@ const MainRoutes = () => {
                   </TransferControllerStateProvider>
                 }
               />
+              <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
               <Route element={<SettingsRoutesProvider />}>
                 <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
+                <Route
+                  path={WEB_ROUTES.securityAndPrivacy}
+                  element={<SecurityAndPrivacyScreen />}
+                />
                 <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
+                <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
+                <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
                 <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
                 <Route
                   path={WEB_ROUTES.transactions}

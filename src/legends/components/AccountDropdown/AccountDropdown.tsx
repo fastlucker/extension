@@ -6,14 +6,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 
 import styles from './AccountDropdown.module.scss'
 
 const AccountDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { lastConnectedV2Account, isConnectedAccountV2, disconnectAccount, chainId } =
-    useAccountContext()
+  const { connectedAccount, disconnectAccount, chainId } = useAccountContext()
   const { character } = useCharacterContext()
+  const { userLeaderboardData } = useLeaderboardContext()
 
   const toggleIsOpen = () => setIsOpen((prev) => !prev)
 
@@ -38,33 +39,22 @@ const AccountDropdown = () => {
     }
   }, [])
 
-  if (!lastConnectedV2Account || !character) return null
-
   return (
-    <div className={`${styles.wrapper} ${isConnectedAccountV2 ? styles.connected : ''}`}>
-      <button
-        disabled={!isConnectedAccountV2}
-        className={styles.button}
-        type="button"
-        onClick={toggleIsOpen}
-      >
+    <div className={`${styles.wrapper} ${connectedAccount ? styles.connected : ''}`}>
+      <button className={styles.button} type="button" onClick={toggleIsOpen}>
         <div className={styles.avatarWrapper}>
-          <img alt="avatar" className={styles.avatar} src={character.image_avatar} />
+          <img alt="avatar" className={styles.avatar} src={character!.image_avatar} />
         </div>
         <div className={styles.account}>
           <Address
             skeletonClassName={styles.addressSkeleton}
             className={styles.address}
-            address={lastConnectedV2Account}
+            address={connectedAccount!}
             maxAddressLength={12}
           />
-          {isConnectedAccountV2 ? (
-            <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
-              Level {character.level} / Rank 203
-            </p>
-          ) : (
-            <p className={styles.levelAndRank}>V2 Disconnected</p>
-          )}
+          <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
+            Level {character!.level} / Rank {userLeaderboardData?.rank || 'N/A'}
+          </p>
         </div>
         <FontAwesomeIcon
           className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}

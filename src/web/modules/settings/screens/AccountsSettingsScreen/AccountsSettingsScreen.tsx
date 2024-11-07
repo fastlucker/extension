@@ -8,7 +8,7 @@ import Button from '@common/components/Button'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
-import useAccounts from '@common/hooks/useAccounts/useAccounts'
+import useAccountsList from '@common/hooks/useAccountsList'
 import useElementSize from '@common/hooks/useElementSize'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
@@ -22,15 +22,7 @@ import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const {
-    accounts,
-    control,
-    selectedAccountIndex,
-    onContentSizeChange,
-    keyExtractor,
-    getItemLayout,
-    isReadyToScrollToSelectedAccount
-  } = useAccounts()
+  const { accounts, control, onContentSizeChange, keyExtractor, getItemLayout } = useAccountsList()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const accountsContainerRef = useRef(null)
   const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
@@ -65,10 +57,12 @@ const AccountsSettingsScreen = () => {
           key={account.addr}
           account={account}
           maxAccountAddrLength={shortenAccountAddr()}
+          showExportImport
+          openAddAccountBottomSheet={openBottomSheet}
         />
       )
     },
-    [onSelectAccount, shortenAccountAddr]
+    [onSelectAccount, shortenAccountAddr, openBottomSheet]
   )
 
   return (
@@ -79,18 +73,12 @@ const AccountsSettingsScreen = () => {
       <View style={flexbox.flex1} ref={accountsContainerRef}>
         <ScrollableWrapper
           type={WRAPPER_TYPES.FLAT_LIST}
-          style={[
-            spacings.mb,
-            {
-              opacity: isReadyToScrollToSelectedAccount ? 1 : 0
-            }
-          ]}
+          style={[spacings.mb]}
           data={accounts}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
           onContentSizeChange={onContentSizeChange}
           keyExtractor={keyExtractor}
-          initialScrollIndex={selectedAccountIndex}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />
       </View>

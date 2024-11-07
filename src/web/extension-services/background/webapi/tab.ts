@@ -35,12 +35,30 @@ export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
   return tab
 }
 
-const openInternalPageInTab = async (route?: string, useWebapi = true) => {
+const routeableSearchParams = ['flow', 'goBack']
+
+const openInternalPageInTab = async (route?: string, useWebapi = true, searchParams = {}) => {
   if (useWebapi) {
-    openInTab(`./tab.html${route ? `#/${route}` : ''}`)
+    const searchToParams = searchParams
+      ? `${Object.keys(searchParams)
+          .map((key) =>
+            routeableSearchParams.indexOf(key) !== -1 ? `${key}=${searchParams[key]}` : ''
+          )
+          .filter((value: string) => value)
+          .join('&')}`
+      : ''
+
+    /* eslint-disable @typescript-eslint/no-floating-promises */
+    openInTab(
+      `./tab.html${route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''}`
+    )
   } else {
     window.open(`./tab.html${route ? `#/${route}` : ''}`)
   }
 }
 
-export { createTab, openIndexPage, getCurrentTab, openInternalPageInTab }
+const getAllOpenedTabs = async (): Promise<Tabs.Tab[]> => {
+  return browser.tabs.query({})
+}
+
+export { createTab, openIndexPage, getCurrentTab, openInternalPageInTab, getAllOpenedTabs }

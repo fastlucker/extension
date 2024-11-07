@@ -4,22 +4,24 @@ import { useModalize } from 'react-native-modalize'
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
-import Banner from '@common/components/Banner'
+import Banner, { BannerButton } from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import RPCSelectBottomSheet from './RPCSelectBottomSheet'
 
-const ERROR_ACTIONS = ['reject-accountOp']
+const ERROR_ACTIONS = ['reject-accountOp', 'reject-swap-and-bridge']
 
 const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions = [] }) => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { visibleActionsQueue } = useActionsControllerState()
+  const { statuses } = useMainControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const Icon = useMemo(() => {
@@ -90,25 +92,65 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
       if (action.actionName === 'select-rpc-url') {
         handleOpenBottomSheet()
       }
+
+      if (
+        action.actionName === 'reject-swap-and-bridge' ||
+        action.actionName === 'close-swap-and-bridge'
+      ) {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+          params: { activeRouteId: action.meta.activeRouteId }
+        })
+      }
+
+      if (action.actionName === 'proceed-swap-and-bridge') {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
+          params: { activeRouteId: action.meta.activeRouteId }
+        })
+      }
+
+      if (action.actionName === 'hide-activity-banner') {
+        dispatch({
+          type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
+          params: action.meta
+        })
+      }
+
+      if (action.actionName === 'confirm-temp-seed') {
+        navigate(ROUTES.saveImportedSeed)
+      }
     },
     [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]
   )
 
   const renderButtons = useMemo(
     () =>
-      actions.map((action) => {
-        const isReject = ERROR_ACTIONS.includes(action.actionName)
+      actions.map((action: Action) => {
+        const isReject =
+          ERROR_ACTIONS.includes(action.actionName) ||
+          ('meta' in action && 'isHideStyle' in action.meta && action.meta.isHideStyle)
+        let actionText = action.label
+        let isDisabled = false
+
+        if (action.actionName === 'proceed-swap-and-bridge') {
+          if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
+            actionText = 'Preparing...'
+            isDisabled = true
+          }
+        }
 
         return (
-          <Banner.Button
+          <BannerButton
             key={action.actionName}
             isReject={isReject}
-            text={action.label}
+            text={actionText}
+            disabled={isDisabled}
             onPress={() => handleActionPress(action)}
           />
         )
       }),
-    [actions, handleActionPress]
+    [actions, handleActionPress, statuses.buildSwapAndBridgeUserRequest]
   )
 
   return (

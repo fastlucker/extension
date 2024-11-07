@@ -64,7 +64,7 @@ const AllNetworksOption: FC<Props> = ({ filterByNetworkId }) => {
           {/* @ts-ignore */}
           <NetworksIcon width={20} height={20} />
         </View>
-        <Text style={spacings.mlMi} fontSize={16}>
+        <Text style={spacings.mlTy} fontSize={16}>
           {t('All Networks')}
         </Text>
       </View>

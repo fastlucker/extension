@@ -8,6 +8,7 @@ import { ToastProvider } from '@common/contexts/toastContext'
 import useFonts from '@common/hooks/useFonts'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 
+import { BenzinNetworksContextProvider } from './context'
 import BenzinScreen from './screens/BenzinScreen'
 
 const BenzinInit = () => {
@@ -22,8 +23,10 @@ const BenzinInit = () => {
           <SafeAreaProvider>
             <ToastProvider>
               <DomainsContextProvider>
-                <BenzinScreen />
-                <PortalHost name="global" />
+                <BenzinNetworksContextProvider>
+                  <BenzinScreen />
+                  <PortalHost name="global" />
+                </BenzinNetworksContextProvider>
               </DomainsContextProvider>
             </ToastProvider>
           </SafeAreaProvider>

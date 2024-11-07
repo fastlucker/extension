@@ -1,16 +1,13 @@
+import { wordlists } from 'bip39'
 import { Mnemonic } from 'ethers'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
+import { Pressable, View } from 'react-native'
 
-import ImportAccountsFromSeedPhraseIcon from '@common/assets/svg/ImportAccountsFromSeedPhraseIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
-import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
-import DualChoiceModal from '@common/components/DualChoiceModal'
 import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
@@ -31,10 +28,13 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Stepper from '@web/modules/router/components/Stepper'
+
+import getStyles from './styles'
 
 const arrayWithEmptyString = (length: number) => new Array(length).fill({ value: '' })
 
@@ -68,7 +68,7 @@ const SeedPhraseImportScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const accountAdderCtrlState = useAccountAdderControllerState()
   const keystoreState = useKeystoreControllerState()
@@ -76,9 +76,7 @@ const SeedPhraseImportScreen = () => {
     watch,
     control,
     handleSubmit,
-    clearErrors,
     getValues,
-    setError,
     setValue,
     formState: { isValid, errors }
   } = useForm({
@@ -89,44 +87,41 @@ const SeedPhraseImportScreen = () => {
     }
   })
   const { maxWidthSize } = useWindowSize()
-
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'seedFields'
   })
-
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-
-  const seedPhrase =
-    watch('seedFields')
-      ?.map((field) => field.value?.trim())
-      .join(' ') || ''
+  const [seedPhraseStatus, setSeedPhraseStatus] = useState<'incomplete' | 'valid' | 'invalid'>(
+    'incomplete'
+  )
 
   useEffect(() => {
-    updateStepperState(WEB_ROUTES.importSeedPhrase, 'seed')
-  }, [updateStepperState])
+    updateStepperState(
+      WEB_ROUTES.importSeedPhrase,
+      keystoreState.hasKeystoreSavedSeed ? 'seed' : 'seed-with-option-to-save'
+    )
+  }, [updateStepperState, keystoreState.hasKeystoreSavedSeed])
 
   useEffect(() => {
     const { unsubscribe } = watch((value) => {
       const formattedSeed = value.seedFields?.map((field) => field.value?.trim()).join(' ') || ''
 
       // Some fields are empty
-      if (value.seedFields?.filter((field) => field.value).length !== value.seedLength?.value)
-        return
-
-      // Invalid seed phrase
-      if (!Mnemonic.isValidMnemonic(formattedSeed)) {
-        setError('seedFields', {
-          type: 'custom',
-          message: t('Invalid Seed Phrase. Please review every field carefully.')
-        })
+      if (value.seedFields?.filter((field) => field.value).length !== value.seedLength?.value) {
+        setSeedPhraseStatus('incomplete')
         return
       }
 
-      clearErrors('seedFields')
+      // Invalid seed phrase
+      if (!Mnemonic.isValidMnemonic(formattedSeed)) {
+        setSeedPhraseStatus('invalid')
+        return
+      }
+
+      setSeedPhraseStatus('valid')
     })
     return () => unsubscribe()
-  }, [watch, setError, clearErrors, t])
+  }, [watch, t])
 
   useEffect(() => {
     if (
@@ -148,31 +143,15 @@ const SeedPhraseImportScreen = () => {
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ seedFields }) => {
       const formattedSeed = seedFields.map((field) => field.value).join(' ')
-
-      if (!keystoreState.hasKeystoreDefaultSeed) {
-        openBottomSheet()
-      } else {
-        dispatch({
-          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-          params: { privKeyOrSeed: formattedSeed }
-        })
-      }
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        params: {
+          privKeyOrSeed: formattedSeed,
+          shouldAddToTemp: !keystoreState.hasKeystoreSavedSeed
+        }
+      })
     })()
-  }, [dispatch, handleSubmit, keystoreState.hasKeystoreDefaultSeed, openBottomSheet])
-
-  const handleSaveSeedAndProceed = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-      params: { privKeyOrSeed: seedPhrase, shouldPersist: true }
-    })
-  }, [dispatch, seedPhrase])
-
-  const handleDoNotSaveSeedAndProceed = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-      params: { privKeyOrSeed: seedPhrase }
-    })
-  }, [dispatch, seedPhrase])
+  }, [dispatch, handleSubmit, keystoreState.hasKeystoreSavedSeed])
 
   const updateFieldsLength = useCallback(
     (newLength: number) => {
@@ -249,6 +228,19 @@ const SeedPhraseImportScreen = () => {
     [fields, setValue, addToast, updateFieldsLength, t]
   )
 
+  const validateSeedPhraseWord = useCallback(
+    (value: string) => {
+      const couldValueBeAPastedSeed = value.split(' ').length > 1
+
+      // If the value contains multiple words, it could be a pasted seed phrase
+      // Don't display errors in this case, otherwise an error flashes when pasting
+      if (!value || couldValueBeAPastedSeed) return undefined
+      if (!wordlists.english.includes(value)) return t('invalid-bip39-word')
+      return undefined
+    },
+    [t]
+  )
+
   return (
     <TabLayoutContainer
       width="md"
@@ -267,7 +259,7 @@ const SeedPhraseImportScreen = () => {
             text={t('Import')}
             size="large"
             hasBottomSpacing={false}
-            disabled={!isValid || !!errors.seedFields?.message}
+            disabled={!isValid || seedPhraseStatus !== 'valid'}
             onPress={handleFormSubmit}
           >
             <View style={spacings.pl}>
@@ -320,91 +312,97 @@ const SeedPhraseImportScreen = () => {
                 key={field.id}
                 style={[
                   flexbox.directionRow,
-                  flexbox.alignCenter,
                   (index + 1) % 4 !== 0 ? spacings.pr : {},
-                  spacings.mb,
+                  spacings.mbTy,
                   { width: '25%' }
                 ]}
               >
-                <Text fontSize={14} weight="medium" style={[{ width: 24 }]}>
+                <Text fontSize={14} weight="medium" style={[{ marginTop: 10, width: 24 }]}>
                   {index + 1}.
                 </Text>
-                <Controller
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <Input
-                      testID={`seed-phrase-field-${index + 1}`}
-                      value={value}
-                      editable
-                      numberOfLines={1}
-                      inputWrapperStyle={{ height: 40 }}
-                      inputStyle={{ height: 38 }}
-                      placeholder={t('Word {{index}}', { index: index + 1 })}
-                      containerStyle={[spacings.mb0, flexbox.flex1]}
-                      placeholderTextColor={theme.secondaryText}
-                      // any type, because nativeEvent?.inputType is web only
-                      onChange={(e: any) => {
-                        if (!isWeb) return onChange(e)
-                        const prevValue = getValues(`seedFields.${index}.value`)
-                        const newValueWithoutPrevValue = e.nativeEvent.text.replace(prevValue, '')
+                <View
+                  style={[
+                    flexbox.flex1,
+                    {
+                      height: 64
+                    }
+                  ]}
+                >
+                  <Controller
+                    control={control}
+                    rules={{
+                      required: true,
+                      validate: validateSeedPhraseWord
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <Input
+                        testID={`seed-phrase-field-${index + 1}`}
+                        value={value}
+                        editable
+                        numberOfLines={1}
+                        inputWrapperStyle={{ height: 40 }}
+                        inputStyle={{ height: 38 }}
+                        placeholder={t('Word {{index}}', { index: index + 1 })}
+                        containerStyle={spacings.mb0}
+                        placeholderTextColor={theme.secondaryText}
+                        // @ts-ignore
+                        isValid={errors.seedFields?.[index] ? false : undefined}
+                        // any type, because nativeEvent?.inputType is web only
+                        onChange={(e: any) => {
+                          if (!isWeb) return onChange(e)
+                          const prevValue = getValues(`seedFields.${index}.value`)
+                          const newValueWithoutPrevValue = e.nativeEvent.text.replace(prevValue, '')
 
-                        if (e.nativeEvent?.inputType === 'insertFromPaste') {
-                          handlePaste(newValueWithoutPrevValue)
+                          if (e.nativeEvent?.inputType === 'insertFromPaste') {
+                            handlePaste(newValueWithoutPrevValue)
+                          }
+                          onChange(e)
+                        }}
+                        onSubmitEditing={handleFormSubmit}
+                        onBlur={onBlur}
+                      />
+                    )}
+                    name={`seedFields.${index}.value`}
+                  />
+                  {/* @ts-ignore */}
+                  {errors.seedFields?.[index]?.value?.message === 'invalid-bip39-word' && (
+                    <Text fontSize={10} appearance="errorText" style={styles.errorText}>
+                      {t('Invalid ')}
+                      <Pressable
+                        onPress={() =>
+                          openInTab(
+                            'https://raw.githubusercontent.com/bitcoin/bips/refs/heads/master/bip-0039/english.txt',
+                            false
+                          )
                         }
-                        onChange(e)
-                      }}
-                      onSubmitEditing={handleFormSubmit}
-                      onBlur={onBlur}
-                    />
+                      >
+                        <Text
+                          fontSize={10}
+                          appearance="errorText"
+                          style={{
+                            textDecorationLine: 'underline'
+                          }}
+                          weight="medium"
+                        >
+                          {t('BIP39')}
+                        </Text>
+                      </Pressable>
+                      {t(' word')}
+                    </Text>
                   )}
-                  name={`seedFields.${index}.value`}
-                />
+                </View>
               </View>
             ))}
           </View>
-          {errors.seedFields?.message ? (
-            <Alert type="error" title={errors.seedFields?.message} />
+
+          {seedPhraseStatus === 'invalid' ? (
+            <Alert
+              type="error"
+              title={t('Invalid Seed Phrase. Please review every field carefully.')}
+            />
           ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
-      {!keystoreState.hasKeystoreDefaultSeed && (
-        <BottomSheet
-          id="import-seed-phrase"
-          sheetRef={sheetRef}
-          closeBottomSheet={closeBottomSheet}
-          backgroundColor="secondaryBackground"
-          style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
-          type="modal"
-        >
-          <DualChoiceModal
-            title={t('Save as default Seed Phrase')}
-            description={
-              <View>
-                <Text style={spacings.mbTy} appearance="secondaryText">
-                  {t(
-                    'Do you want to save it as a default Seed Phrase for this Ambire Wallet extension?'
-                  )}
-                </Text>
-                <Text appearance="secondaryText">
-                  {t(
-                    'This will allow you to easily import more Smart Accounts from this Seed Phrase.'
-                  )}
-                </Text>
-              </View>
-            }
-            Icon={ImportAccountsFromSeedPhraseIcon}
-            onSecondaryButtonPress={handleDoNotSaveSeedAndProceed}
-            onPrimaryButtonPress={handleSaveSeedAndProceed}
-            secondaryButtonText={t('No')}
-            primaryButtonText={
-              keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Yes')
-            }
-            secondaryButtonTestID="do-not-save-seed-button"
-            primaryButtonTestID="save-seed-button"
-          />
-        </BottomSheet>
-      )}
     </TabLayoutContainer>
   )
 }

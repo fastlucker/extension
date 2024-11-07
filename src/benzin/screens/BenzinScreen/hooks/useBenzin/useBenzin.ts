@@ -1,38 +1,24 @@
 import { setStringAsync } from 'expo-clipboard'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { AccountOpIdentifiedBy } from '@ambire-common/libs/accountOp/submittedAccountOp'
-import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
+import { getRpcProvider } from '@ambire-common/services/provider'
+import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import { RELAYER_URL } from '@env'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
-import useBenzinGetNetwork from './useBenzinGetNetwork'
-import useBenzinGetProvider from './useBenzinGetProvider'
-
-const parseHumanizer = (humanizedCalls: IrCall[]) => {
-  // remove deadlines from humanizer
-  const finalParsedCalls = humanizedCalls.map((call) => {
-    const localCall = { ...call }
-    localCall.fullVisualization = call.fullVisualization?.filter(
-      (visual) => visual.type !== 'deadline' && !visual.isHidden
-    )
-    localCall.warnings = call.warnings?.filter((warn) => warn.content !== 'Unknown address')
-    return localCall
-  })
-  return finalParsedCalls
-}
 const fetch = window.fetch.bind(window) as any
 const standardOptions = {
   fetch,
-  callRelayer: relayerCall.bind({ url: RELAYER_URL, fetch }),
-  parser: parseHumanizer
+  callRelayer: relayerCall.bind({ url: RELAYER_URL, fetch })
 }
 
 interface Props {
@@ -77,8 +63,16 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   } = getParams(route?.search)
 
   const chainId = getChainId(networkId, paramChainId)
-  const { network, isNetworkLoading } = useBenzinGetNetwork({ chainId })
-  const { provider } = useBenzinGetProvider({ network })
+  const { networks } = useNetworksControllerState()
+  const { benzinNetworks, loadingBenzinNetworks = [], addNetwork } = useBenzinNetworksContext()
+  const bigintChainId = BigInt(chainId || '') || 0n
+  const actualNetworks = networks ?? benzinNetworks
+  const network = actualNetworks.find((n) => n.chainId === bigintChainId) || null
+  const provider =
+    network && chainId
+      ? getRpcProvider(network.rpcUrls, bigintChainId, network.selectedRpcUrl)
+      : null
+  const isNetworkLoading = loadingBenzinNetworks.includes(bigintChainId)
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
   const isInitialized = !isNetworkLoading
 
@@ -97,6 +91,12 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
     return { type: 'Transaction', identifier: txnId as string }
   }, [relayerId, userOpHash, txnId])
+
+  useEffect(() => {
+    if (!network && bigintChainId) {
+      addNetwork(bigintChainId)
+    }
+  }, [bigintChainId, network, isNetworkLoading, addNetwork])
 
   const handleCopyText = useCallback(async () => {
     try {

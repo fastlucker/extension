@@ -6,18 +6,19 @@
   ... React code
 */
 // Make sure you update the hardcoded values in the React code as well.
-$primaryText: #333131;
-$secondaryText: #5c5954;
-$tertiaryText: #79766f;
+$primaryText: #292116;
+$secondaryText: #524634;
+$tertiaryText: #93897a;
 $alternativeText: #efefef;
-$primaryBorder: #baafac;
-$secondaryBorder: #2a3041;
-$primaryBackground: #f1eee5;
-$secondaryBackground: #f2e9db;
-$tertiaryBackground: #eaddc9;
+$primaryBorder: #ebdeca;
+$secondaryBorder: #c9c5be;
+$tertiaryBorder: #706048;
+$primaryBackground: #faf6f0;
+$secondaryBackground: #f5ede2;
+$tertiaryBackground: #efe3d3;
 $accent: #e75132;
 $secondaryAccent: #1c510b;
-$bronzeBackground: #f9dbc5;
+$bronzeBackground: #F5D4B5;
 $bronzeDecorative: #d08d4c;
 $bronzeText: #8a6037;
 $silverBackground: #e8e6e3;
@@ -36,6 +37,15 @@ $success: #4e9200;
 $warning: #ba8315;
 $error: #e33535;
 $info: #1a66df;
+
+$primaryGradient: linear-gradient(
+  90deg,
+  #d8b98c 0%,
+  #ffe8c6 27%,
+  #fff 46%,
+  #f7d7a7 65%,
+  #7f643d 100%
+);
 
 // Typography
 $primaryFont: 'Sentient', serif;

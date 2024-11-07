@@ -2,17 +2,20 @@ import { ethers } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import LegendsNFT from '@contracts/compiled/LegendsNft.json'
-import { RELAYER_URL } from '@env'
+import { LEGENDS_NFT_ADDRESS, RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useToast from '@legends/hooks/useToast'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
+  characterName: string
   name: string
   description: string
   level: number
   xp: number
   image: string
   image_avatar: string
+  address: string
 }
 
 const CharacterContext = createContext<{
@@ -21,42 +24,56 @@ const CharacterContext = createContext<{
   mintCharacter: (type: number) => void
   isLoading: boolean
   isMinting: boolean
+  error: string | null
 }>({
   character: null,
   getCharacter: () => {},
   mintCharacter: () => {},
   isLoading: false,
-  isMinting: false
+  isMinting: false,
+  error: null
 })
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
-  const { lastConnectedV2Account, isConnectedAccountV2 } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
+  const { addToast } = useToast()
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
+  // In case of this error, a global <ErrorPage /> will be rendered in place of all other components,
+  // as loading a character is crucial for playing in Legends.
+  const [error, setError] = useState<string | null>(null)
 
   const getCharacter = useCallback(async () => {
-    if (!lastConnectedV2Account) {
+    if (!connectedAccount) {
       setCharacter(null)
       setIsLoading(false)
       return
     }
 
-    setIsLoading(true)
-    setCharacter(null)
+    try {
+      setCharacter(null)
+      setIsLoading(true)
 
-    const characterResponse = await fetch(
-      `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
-    )
+      const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
+
+      const characterJson = await characterResponse.json()
+
+      setCharacter({
+        ...(characterJson as Character),
+        address: connectedAccount
+      })
+      setError(null)
+    } catch (e) {
+      setError(`Couldn't load the requested character: ${connectedAccount}`)
+      console.error(e)
+    }
 
     setIsLoading(false)
-    setCharacter(await characterResponse.json())
-  }, [lastConnectedV2Account])
+  }, [connectedAccount])
 
   const mintCharacter = useCallback(
     async (type: number) => {
-      if (!isConnectedAccountV2 || !window.ambire) return
-
       // Switch to Base chain
       await window.ambire.request({
         method: 'wallet_switchEthereumChain',
@@ -70,12 +87,10 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       const signer = await provider.getSigner()
 
       const abi = LegendsNFT.abi
-      const contractAddress = '0x52d067EBB7b06F31AEB645Bd34f92c3Ac13a29ea'
 
       // Create a contract instance
-      const nftContract = new ethers.Contract(contractAddress, abi, signer)
+      const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
 
-      // TODO: Keep the error in the state and render it in a component
       try {
         // Call the mint function and wait for the transaction response
         const tx = await nftContract.mint(type)
@@ -88,37 +103,44 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
           await getCharacter()
           setIsMinting(false)
         } else {
-          alert('Error selecting a character: The transaction failed!')
+          addToast('Error selecting a character: The transaction failed!', 'error')
         }
-      } catch (error) {
+      } catch (e) {
         setIsMinting(false)
-        alert('Error during minting process!')
-        console.log('Error during minting process:', error)
+        addToast('Error during minting process!', 'error')
+        console.log('Error during minting process:', e)
       }
     },
-    [isConnectedAccountV2, getCharacter]
+    [getCharacter]
   )
 
   useEffect(() => {
     getCharacter()
   }, [getCharacter])
 
-  return (
-    <CharacterContext.Provider
-      value={useMemo(
-        () => ({
-          character,
-          getCharacter,
-          mintCharacter,
-          isLoading,
-          isMinting
-        }),
-        [character, getCharacter, mintCharacter, isLoading, isMinting]
-      )}
-    >
-      {children}
-    </CharacterContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      character,
+      getCharacter,
+      mintCharacter,
+      isLoading,
+      isMinting,
+      error
+    }),
+    [character, getCharacter, mintCharacter, isLoading, isMinting, error]
   )
+
+  // Important: Short-circuit evaluation to prevent loading of child contexts/components
+  // in the case character's address mismatches the currently connected account.
+  // We should only load child contexts if the character's address matches the connected account.
+  // How can this mismatch occur?
+  // If we're connected to a v2 account, `character.address` and `connectedAccounts` should match.
+  // However, when switching to another v2 account without a character, there may be a brief delay as the new character is fetched.
+  // During this delay, child contexts could try to operate with the new `connectedAccount` but the previous `character`, which is incorrect.
+  // This validation ensures `connectedAccount` and `character` are always in sync.
+  if (character && character.address !== connectedAccount) return null
+
+  return <CharacterContext.Provider value={contextValue}>{children}</CharacterContext.Provider>
 }
 
 export { CharacterContextProvider, CharacterContext }

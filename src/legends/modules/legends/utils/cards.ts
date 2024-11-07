@@ -1,6 +1,6 @@
 import { CardAction, CardFromResponse, CardType } from '@legends/modules/legends/types'
 
-import { CARD_PREDEFINED_ID } from '../constants'
+import { CARD_PREDEFINED_ID, EOA_ACCESSIBLE_CARDS } from '../constants'
 
 const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
   const totalAXp = a.xp.reduce((acc, xp) => acc + xp.to + xp.from, 0)
@@ -10,26 +10,44 @@ const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
 }
 
 const sortCards = (cards: CardFromResponse[]) => {
-  return cards.sort((a, b) => {
-    // Display Wheel of Fortune first
-    if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
-      return -1
-    }
+  return cards
+    .map((card) => {
+      if (
+        (card.action && card.action.calls && card.action.calls.length === 0) ||
+        card.action.predefinedId === 'linkX'
+      ) {
+        return { ...card, disabled: true }
+      }
+      return card
+    })
+    .sort((a, b) => {
+      // Display disabled cards last
+      if (a.disabled && !b.disabled) {
+        return 1
+      }
+      if (!a.disabled && b.disabled) {
+        return -1
+      }
 
-    const order = {
-      [CardType.available]: 1,
-      [CardType.recurring]: 2,
-      [CardType.done]: 3
-    }
+      // Display Wheel of Fortune first
+      if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+        return -1
+      }
 
-    // Sort by card type
-    if (order[a.card.type] !== order[b.card.type]) {
-      return order[a.card.type] - order[b.card.type]
-    }
+      const order = {
+        [CardType.available]: 1,
+        [CardType.recurring]: 2,
+        [CardType.done]: 3
+      }
 
-    // Sort by highest XP
-    return sortByHighestXp(a, b)
-  })
+      // Sort by card type
+      if (order[a.card.type] !== order[b.card.type]) {
+        return order[a.card.type] - order[b.card.type]
+      }
+
+      // Sort by highest XP
+      return sortByHighestXp(a, b)
+    })
 }
 
 const handlePredefinedAction = (predefinedId?: string) => {
