@@ -11,17 +11,17 @@ interface CharacterLoadingModalProps {
   errorMessage: string | null
 }
 
+const MESSAGES = [
+  'Initializing character setup...',
+  'Connecting to the blockchain, please sign your transaction so we can proceed',
+  'Securing NFT...',
+  'Finalizing details...'
+]
 const CharacterLoadingModal: React.FC<CharacterLoadingModalProps> = ({
   loadingMessageId,
   isOpen,
   errorMessage
 }) => {
-  const messages = [
-    'Initializing character setup...',
-    'Connecting to the blockchain, please sign your transaction so we can proceed',
-    'Securing NFT...',
-    'Finalizing details...'
-  ]
   return (
     <Modal isOpen={isOpen} isClosable={false} className={styles.modal}>
       <div className={styles.modalContent}>
@@ -33,12 +33,11 @@ const CharacterLoadingModal: React.FC<CharacterLoadingModalProps> = ({
           your adventure!
         </Modal.Text>
         {!errorMessage && <Spinner />}
-        <p className={styles.message}>{messages[loadingMessageId]}</p>
-
+        <p className={styles.message}>{MESSAGES[loadingMessageId]}</p>
         <div className={styles.progressBarContainer}>
           <div
             className={styles.progress}
-            style={{ width: `${(loadingMessageId / (messages.length - 1)) * 100}%` }}
+            style={{ width: `${(loadingMessageId / (MESSAGES.length - 1)) * 100}%` }}
           />
         </div>
 
