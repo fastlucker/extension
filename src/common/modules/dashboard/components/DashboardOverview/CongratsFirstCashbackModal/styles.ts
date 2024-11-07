@@ -1,6 +1,6 @@
-import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_MI, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'

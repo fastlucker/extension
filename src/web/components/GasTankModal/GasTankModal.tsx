@@ -8,6 +8,7 @@ import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
@@ -27,6 +28,7 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
 
   return (
     <BottomSheet
@@ -63,7 +65,6 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
             </Pressable>
           </View>
           <View style={styles.balancesWrapper}>
-            {/* Left part */}
             <View style={{ ...flexbox.alignStart }}>
               <Text fontSize={12} appearance="secondaryText" style={{ ...spacings.pbTy }}>
                 {t('Gas Tank Balance')}
@@ -75,7 +76,6 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
                 </Text>
               </View>
             </View>
-            {/* Right part */}
             <View style={styles.rightPartWrapper}>
               <View style={styles.rightPartInnerWrapper}>
                 <Text fontSize={12} appearance="successText">
@@ -104,6 +104,12 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
           size="large"
           hasBottomSpacing={false}
           textStyle={{ ...spacings.prSm }}
+          // TODO: We have to check available tokens then select the first eligible one for top up
+          onPress={() =>
+            navigate(
+              'transfer?networkId=ethereum&address=0x0000000000000000000000000000000000000000&isTopUp'
+            )
+          }
         >
           <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />
         </Button>

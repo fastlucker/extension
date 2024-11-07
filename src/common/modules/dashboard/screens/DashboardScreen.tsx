@@ -30,7 +30,7 @@ const DashboardScreen = () => {
   const { styles } = useTheme(getStyles)
   const { state } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
-  const { ref: gasTankModalRef, open: openGasTankeModal, close: closeGasTankModal } = useModalize()
+  const { ref: gasTankModalRef, open: openGasTankModal, close: closeGasTankModal } = useModalize()
   const lastOffsetY = useRef(0)
   const scrollUpStartedAt = useRef(0)
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
@@ -104,7 +104,7 @@ const DashboardScreen = () => {
         <View style={[flexbox.flex1, spacings.ptSm]}>
           <DashboardOverview
             openReceiveModal={openReceiveModal}
-            openGasTankModal={openGasTankeModal}
+            openGasTankModal={openGasTankModal}
             animatedOverviewHeight={animatedOverviewHeight}
             dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}

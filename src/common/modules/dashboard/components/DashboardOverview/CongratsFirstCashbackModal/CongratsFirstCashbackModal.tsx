@@ -25,7 +25,7 @@ type Props = {
 
 const CongratsFirstCashbackModal = ({ onPress, position }: Props) => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
 
   const cashbackValue = 0.05
@@ -98,7 +98,7 @@ const CongratsFirstCashbackModal = ({ onPress, position }: Props) => {
           </View>
         </View>
       </View>
-      {/* <View
+      <View
         style={[
           {
             position: 'absolute',
@@ -108,7 +108,7 @@ const CongratsFirstCashbackModal = ({ onPress, position }: Props) => {
             backgroundColor: theme.backdrop
           }
         ]}
-      /> */}
+      />
     </>
   ) : null
 }
