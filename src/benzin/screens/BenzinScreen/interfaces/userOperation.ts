@@ -1,5 +1,6 @@
 export interface UserOperation {
   sender: string
   callData: string
-  hashStatus: string
+  hashStatus: 'found' | 'not_found'
+  paymaster?: string
 }

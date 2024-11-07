@@ -4,7 +4,6 @@ import { Linking } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { AccountOpIdentifiedBy } from '@ambire-common/libs/accountOp/submittedAccountOp'
-import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
@@ -16,23 +15,10 @@ import useToast from '@common/hooks/useToast'
 import { RELAYER_URL } from '@env'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
-const parseHumanizer = (humanizedCalls: IrCall[]) => {
-  // remove deadlines from humanizer
-  const finalParsedCalls = humanizedCalls.map((call) => {
-    const localCall = { ...call }
-    localCall.fullVisualization = call.fullVisualization?.filter(
-      (visual) => visual.type !== 'deadline' && !visual.isHidden
-    )
-    localCall.warnings = call.warnings?.filter((warn) => warn.content !== 'Unknown address')
-    return localCall
-  })
-  return finalParsedCalls
-}
 const fetch = window.fetch.bind(window) as any
 const standardOptions = {
   fetch,
-  callRelayer: relayerCall.bind({ url: RELAYER_URL, fetch }),
-  parser: parseHumanizer
+  callRelayer: relayerCall.bind({ url: RELAYER_URL, fetch })
 }
 
 interface Props {
