@@ -110,6 +110,13 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
         })
       }
 
+      if (action.actionName === 'hide-activity-banner') {
+        dispatch({
+          type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
+          params: action.meta
+        })
+      }
+
       if (action.actionName === 'confirm-temp-seed') {
         navigate(ROUTES.saveImportedSeed)
       }
@@ -119,8 +126,10 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
 
   const renderButtons = useMemo(
     () =>
-      actions.map((action) => {
-        const isReject = ERROR_ACTIONS.includes(action.actionName)
+      actions.map((action: Action) => {
+        const isReject =
+          ERROR_ACTIONS.includes(action.actionName) ||
+          ('meta' in action && 'isHideStyle' in action.meta && action.meta.isHideStyle)
         let actionText = action.label
         let isDisabled = false
 
