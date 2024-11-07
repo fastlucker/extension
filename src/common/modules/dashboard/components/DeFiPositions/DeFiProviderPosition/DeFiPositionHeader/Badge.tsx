@@ -21,7 +21,7 @@ const Badge = ({
         ...flexbox.justifyCenter,
         height: 28,
         borderRadius: 14,
-        backgroundColor: theme[`${type}Background`]
+        backgroundColor: `${String(theme[`${type}Decorative`])}14`
       }}
     >
       <Text fontSize={12} weight="medium" appearance={`${type}Text`}>
