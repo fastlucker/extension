@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { View } from 'react-native'
 
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
@@ -7,6 +7,7 @@ import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
@@ -14,9 +15,10 @@ import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 type Props = {
   onPress: () => void
   onPosition: (position: { x: number; y: number; width: number; height: number }) => void
+  gasTankTotalBalanceInUsd: number
 }
 
-const GasTankButton = ({ onPress, onPosition }: Props) => {
+const GasTankButton = ({ onPress, onPosition, gasTankTotalBalanceInUsd }: Props) => {
   const { t } = useTranslation()
   const buttonRef = useRef(null)
 
@@ -24,6 +26,11 @@ const GasTankButton = ({ onPress, onPosition }: Props) => {
     property: 'backgroundColor',
     values: { from: NEUTRAL_BACKGROUND_HOVERED, to: '#14183380' } // TODO: Remove hardcoded hex
   })
+
+  const gasTankTotalBalanceInUsdFormatted = useMemo(
+    () => formatDecimals(gasTankTotalBalanceInUsd, 'price'),
+    [gasTankTotalBalanceInUsd]
+  )
 
   useEffect(() => {
     if (buttonRef.current) {
@@ -50,7 +57,7 @@ const GasTankButton = ({ onPress, onPosition }: Props) => {
       >
         <GasTankIcon width={20} color="white" />
         <Text style={[spacings.mlTy]} color="white" weight="number_bold" fontSize={12}>
-          $25.23
+          {gasTankTotalBalanceInUsdFormatted}
         </Text>
         <Text style={[spacings.mlTy, { opacity: 0.57 }]} fontSize={12} color="white">
           {t('on Gas Tank')}

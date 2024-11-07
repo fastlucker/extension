@@ -82,6 +82,13 @@ const DashboardOverview: FC<Props> = ({
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
+  const gasTankTotalBalanceInUsd = useMemo(() => {
+    if (!selectedAccount) return 0
+    const selectedAccountGasTankTotal = state?.latest?.[selectedAccount]?.gasTank?.result?.total
+
+    return Number(selectedAccountGasTankTotal?.usd) || 0
+  }, [selectedAccount, state.latest])
+
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
     totalPortfolioAmount,
     'price'
@@ -168,8 +175,12 @@ const DashboardOverview: FC<Props> = ({
     })
   }, [dispatch, resetAccountPortfolioLocalState])
 
-  const [buttonPosition, setButtonPosition] = useState(null)
-  console.log('buttonPosition', buttonPosition)
+  const [buttonPosition, setButtonPosition] = useState<{
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null>(null)
 
   useEffect(() => {
     if (buttonPosition) {
@@ -273,7 +284,11 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <GasTankButton onPress={openGasTankModal} onPosition={setButtonPosition} />
+                  <GasTankButton
+                    onPress={openGasTankModal}
+                    onPosition={setButtonPosition}
+                    gasTankTotalBalanceInUsd={gasTankTotalBalanceInUsd}
+                  />
                   {!!warningMessage && (
                     <>
                       <WarningIcon
