@@ -26,20 +26,6 @@ $smallerSlideSize: 12rem;
     position: relative;
     margin-bottom: 2rem;
 
-    &::before {
-      content: '';
-      position: absolute;
-      bottom: -0.625rem;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 16rem;
-      height: 3.5rem;
-      border-radius: 50%;
-      background-color: $tertiaryBackground;
-      z-index: 1;
-      box-shadow: inset 0 0.25rem 0.25rem $primaryBorder;
-    }
-
     .slide {
       position: relative;
       display: flex;
