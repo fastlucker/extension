@@ -13,6 +13,7 @@ type Props = {
   disabled: boolean
   hasEstimation: boolean
   slowRequest: boolean
+  slowPaymasterRequest: boolean
   isViewOnly: boolean
 }
 

@@ -91,20 +91,6 @@
     .characterRelativeWrapper {
       position: relative;
 
-      &::before {
-        content: '';
-        position: absolute;
-        bottom: -2rem;
-        left: 52%;
-        transform: translateX(-50%);
-        width: 23.375rem;
-        height: 5.875rem;
-        border-radius: 50%;
-        background-color: $tertiaryBackground;
-        z-index: 1;
-        box-shadow: inset 0 0.25rem 0.25rem $secondaryBorder;
-      }
-
       .characterImage {
         position: relative;
         z-index: 2;
