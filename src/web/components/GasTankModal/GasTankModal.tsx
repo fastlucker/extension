@@ -104,12 +104,7 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
           size="large"
           hasBottomSpacing={false}
           textStyle={{ ...spacings.prSm }}
-          // TODO: We have to check available tokens then select the first eligible one for top up
-          onPress={() =>
-            navigate(
-              'transfer?networkId=ethereum&address=0x0000000000000000000000000000000000000000&isTopUp'
-            )
-          }
+          onPress={() => navigate('transfer?isTopUp')}
         >
           <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />
         </Button>
