@@ -21,9 +21,10 @@ type Character = {
 const CharacterContext = createContext<{
   character: Character | null
   getCharacter: () => void
-  mintCharacter: (type: number) => void
+  mintCharacter: (type: number, setLoadingMessageId: (id: number) => void) => void
   isLoading: boolean
   isMinting: boolean
+  isMinted: boolean
   error: string | null
 }>({
   character: null,
@@ -31,6 +32,7 @@ const CharacterContext = createContext<{
   mintCharacter: () => {},
   isLoading: false,
   isMinting: false,
+  isMinted: false,
   error: null
 })
 
@@ -40,6 +42,8 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
+  const [isMinted, setIsMinted] = useState(false)
+
   // In case of this error, a global <ErrorPage /> will be rendered in place of all other components,
   // as loading a character is crucial for playing in Legends.
   const [error, setError] = useState<string | null>(null)
@@ -73,7 +77,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   }, [connectedAccount])
 
   const mintCharacter = useCallback(
-    async (type: number) => {
+    async (type: number, setLoadingMessageId: (id: number) => void) => {
       // Switch to Base chain
       await window.ambire.request({
         method: 'wallet_switchEthereumChain',
@@ -81,6 +85,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       })
 
       setIsMinting(true)
+      setLoadingMessageId(1)
 
       const provider = new ethers.BrowserProvider(window.ambire)
 
@@ -97,8 +102,11 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
 
         // Wait for the transaction to be mined
         const receipt = await tx.wait()
+        setLoadingMessageId(2)
 
         if (receipt.status === 1) {
+          setLoadingMessageId(3)
+          setIsMinted(true)
           // Transaction was successful, call getCharacter
           await getCharacter()
           setIsMinting(false)
@@ -111,7 +119,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
         console.log('Error during minting process:', e)
       }
     },
-    [getCharacter]
+    [getCharacter, addToast]
   )
 
   useEffect(() => {
@@ -125,9 +133,10 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       mintCharacter,
       isLoading,
       isMinting,
+      isMinted,
       error
     }),
-    [character, getCharacter, mintCharacter, isLoading, isMinting, error]
+    [character, getCharacter, mintCharacter, isLoading, isMinting, isMinted, error]
   )
 
   // Important: Short-circuit evaluation to prevent loading of child contexts/components
