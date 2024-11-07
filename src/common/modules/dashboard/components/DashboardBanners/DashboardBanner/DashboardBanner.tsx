@@ -109,20 +109,33 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
           params: { activeRouteId: action.meta.activeRouteId }
         })
       }
+
+      if (action.actionName === 'hide-activity-banner') {
+        dispatch({
+          type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
+          params: action.meta
+        })
+      }
+
+      if (action.actionName === 'confirm-temp-seed') {
+        navigate(ROUTES.saveImportedSeed)
+      }
     },
     [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]
   )
 
   const renderButtons = useMemo(
     () =>
-      actions.map((action) => {
-        const isReject = ERROR_ACTIONS.includes(action.actionName)
+      actions.map((action: Action) => {
+        const isReject =
+          ERROR_ACTIONS.includes(action.actionName) ||
+          ('meta' in action && 'isHideStyle' in action.meta && action.meta.isHideStyle)
         let actionText = action.label
         let isDisabled = false
 
         if (action.actionName === 'proceed-swap-and-bridge') {
           if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
-            actionText = 'Building Transaction...'
+            actionText = 'Preparing...'
             isDisabled = true
           }
         }

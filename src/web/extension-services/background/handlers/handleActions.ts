@@ -87,6 +87,9 @@ export const handleActions = async (
       if (keyIterator.subType === 'seed' && params.shouldPersist) {
         await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
       }
+      if (keyIterator.subType === 'seed' && params.shouldAddToTemp) {
+        await mainCtrl.keystore.addSeedToTemp({ seed: params.privKeyOrSeed, hdPathTemplate })
+      }
 
       await mainCtrl.accountAdder.init({
         keyIterator,
@@ -288,6 +291,8 @@ export const handleActions = async (
       return mainCtrl.activity.setSignedMessagesPagination(params.pagination)
     case 'MAIN_CONTROLLER_ACTIVITY_RESET':
       return mainCtrl.activity.reset()
+    case 'ACTIVITY_CONTROLLER_HIDE_BANNER':
+      return await mainCtrl.activity.hideBanner(params)
 
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
       return mainCtrl?.signAccountOp?.update(params)
@@ -446,6 +451,14 @@ export const handleActions = async (
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
     case 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL':
       return await mainCtrl.keystore.sendSeedToUi()
+    case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':
+      return await mainCtrl.keystore.deleteSavedSeed()
+    case 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP': {
+      if (params.action === 'save') {
+        return await mainCtrl.keystore.moveTempSeedToKeystoreSeeds()
+      }
+      return mainCtrl.keystore.deleteTempSeed()
+    }
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
       return await mainCtrl.emailVault.getEmailVaultInfo(params.email)

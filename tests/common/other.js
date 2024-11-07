@@ -1,6 +1,7 @@
 import { typeText } from '../common-helpers/typeText'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { SELECTORS } from './selectors/selectors'
+import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../constants/constants'
 
 export async function addContactInAddressBook(page, extensionURL) {
   await page.goto(`${extensionURL}/tab.html#/settings/address-book`, {
@@ -8,7 +9,7 @@ export async function addContactInAddressBook(page, extensionURL) {
   })
 
   const addName = 'First Address'
-  const addAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
+  const addAddress = SMART_ACC_VIEW_ONLY_ADDRESS
   // 0xC254b41be9582...          dD3F8092D4ea6C
 
   await typeText(page, '[data-testid="contact-name-field"]', addName)

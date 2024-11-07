@@ -3,12 +3,15 @@ import React, { useCallback, useState } from 'react'
 import { Wheel } from 'react-custom-roulette'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
+import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import { RELAYER_URL } from '@env'
 import Modal from '@legends/components/Modal'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 
 import styles from './WheelComponentModal.module.scss'
@@ -27,8 +30,10 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   const [prizeNumber, setPrizeNumber] = useState(6)
   const [spinOfTheDay, setSpinOfTheDay] = useState(0)
   const [isInProgress, setIsInProgress] = useState(false)
-  const { connectedAccount, isConnectedAccountV2 } = useAccountContext()
+  const { getActivity } = useActivityContext()
+  const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
+  const { getLegends } = useLegendsContext()
 
   const checkTransactionStatus = useCallback(async () => {
     if (spinOfTheDay === 1) return true
@@ -61,6 +66,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         setPrizeNumber(spinWheelActivityIndex)
         setMustSpin(true)
         setSpinOfTheDay(1)
+        getActivity()
+        getLegends()
         return true
       }
     } catch (error) {
@@ -70,11 +77,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     }
 
     return false
-  }, [connectedAccount, spinOfTheDay, addToast])
+  }, [connectedAccount, spinOfTheDay, addToast, getActivity, getLegends])
 
   const broadcastTransaction = useCallback(async () => {
-    if (!connectedAccount || !isConnectedAccountV2 || !window.ambire) return
-
     // Switch to Base chain
     await window.ambire.request({
       method: 'wallet_switchEthereumChain',
@@ -120,7 +125,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     } finally {
       setIsInProgress(false)
     }
-  }, [connectedAccount, checkTransactionStatus, addToast, isConnectedAccountV2])
+  }, [connectedAccount, checkTransactionStatus, addToast])
 
   const handleSpinClick = async () => {
     if (!mustSpin) {
@@ -128,7 +133,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     }
   }
 
-  const getButtonLabel = (isInProgress: boolean, mustSpin: boolean, spinOfTheDay: number): string => {
+  const getButtonLabel = (): string => {
     if (isInProgress) return 'Signing...'
     if (mustSpin) return 'Spinning...'
     if (spinOfTheDay) return 'Already Spun'
@@ -137,6 +142,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
 
   return (
     <Modal className={styles.modal} isOpen={isOpen} setIsOpen={setIsOpen}>
+      {!mustSpin && spinOfTheDay ? (
+        <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
+      ) : null}
       <Modal.Heading className={styles.heading}>Spin the wheel</Modal.Heading>
       <Modal.Text className={styles.description}>
         To start spinning the wheel, you’ll need to sign a transaction. This helps us verify and
@@ -147,7 +155,10 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         <Wheel
           mustStartSpinning={mustSpin}
           prizeNumber={prizeNumber}
-          onStopSpinning={() => setMustSpin(false)}
+          onStopSpinning={() => {
+            setMustSpin(false)
+            addToast(`You received ${wheelData[prizeNumber].option} xp`, 'success')
+          }}
           data={wheelData}
           radiusLineColor="#BAAFAC"
           radiusLineWidth={1}
@@ -167,7 +178,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           type="button"
           className={styles.button}
         >
-          {getButtonLabel(isInProgress, mustSpin, spinOfTheDay)}
+          {getButtonLabel()}
         </button>
       </div>
     </Modal>

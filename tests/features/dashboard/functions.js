@@ -1,7 +1,7 @@
-import { clickOnElement } from '../common-helpers/clickOnElement'
-import { SELECTORS } from './selectors/selectors'
+import { clickOnElement } from '../../common-helpers/clickOnElement'
+import { SELECTORS } from '../../common/selectors/selectors'
+import { TOKEN_SYMBOLS } from './constants'
 
-//--------------------------------------------------------------------------------------------------------------
 export async function checkBalanceInAccount(page) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   await page.waitForSelector(SELECTORS.fullBalance)
@@ -19,41 +19,38 @@ export async function checkBalanceInAccount(page) {
   expect(parseFloat(availableAmountNum)).toBeGreaterThan(0)
 }
 
-//--------------------------------------------------------------------------------------------------------------
-export async function checkNetworks(page) {
+export async function checkIfTokensExist(page) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   await page.waitForSelector(SELECTORS.fullBalance)
 
-  // Verify that USDC, ETH, WALLET
-  const text = await page.$eval('*', (el) => el.innerText)
+  const innerTextOfTheWholePage = await page.$eval('*', (el) => el.innerText)
 
-  expect(text).toMatch(/\bUSDC\b/)
-  expect(text).toMatch(/\bETH\b/)
-  expect(text).toMatch(/\bWALLET\b/)
+  TOKEN_SYMBOLS.forEach((symbol) => {
+    expect(innerTextOfTheWholePage).toMatch(new RegExp(`\\b${symbol}\\b`))
+  })
 }
 
-//--------------------------------------------------------------------------------------------------------------
 export async function checkCollectibleItem(page) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   // Click on "Collectibles" button
-  await clickOnElement(page, '[data-testid="tab-nft"]')
-  await page.waitForSelector('[data-testid="collection-item"]')
+  await clickOnElement(page, SELECTORS.tabNft)
+  await page.waitForSelector(SELECTORS.collectionItem)
 
   // Get the text content of the first item
   const firstCollectiblesItem = await page.$$eval(
-    '[data-testid="collection-item"]',
+    SELECTORS.collectionItem,
     (element) => element[0].textContent
   )
 
   // Click on the first item
-  await page.waitForSelector('[data-testid="collectible-picture"]', {
+  await page.waitForSelector(SELECTORS.collectiblePicture, {
     visible: true
   })
-  const collectiblePicture = await page.$('[data-testid="collectible-picture"]')
+  const collectiblePicture = await page.$(SELECTORS.collectiblePicture)
   await collectiblePicture.click()
 
   // Get the text of the modal and verify that the name of the first collectible item is included
-  const modalText = await page.$eval('[data-testid="collectible-row"]', (el) => el.textContent)
+  const modalText = await page.$eval(SELECTORS.collectibleRow, (el) => el.textContent)
 
   expect(modalText).toContain(firstCollectiblesItem)
 }

@@ -40,7 +40,7 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: { privKeyOrSeed: string; shouldPersist?: boolean }
+  params: { privKeyOrSeed: string; shouldPersist?: boolean; shouldAddToTemp?: boolean }
 }
 type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE'
@@ -214,6 +214,10 @@ type MainControllerActivitySetSignedMessagesPaginationAction = {
 type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
+type MainControllerActivityHideBanner = {
+  type: 'ACTIVITY_CONTROLLER_HIDE_BANNER'
+  params: { addr: string; network: string; timestamp: number }
+}
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
@@ -312,6 +316,13 @@ type KeystoreControllerChangePasswordFromRecoveryAction = {
 type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
   params: { keyAddr: string }
+}
+type KeystoreControllerDeleteSavedSeed = {
+  type: 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED'
+}
+type KeystoreControllerMoveSeedFromTemp = {
+  type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP'
+  params: { action: 'save' | 'delete' }
 }
 type KeystoreControllerSendSeedOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
@@ -620,3 +631,6 @@ export type Action =
   | MainControllerTraceCallAction
   | ImportSmartAccountJson
   | KeystoreControllerSendSeedOverChannel
+  | MainControllerActivityHideBanner
+  | KeystoreControllerDeleteSavedSeed
+  | KeystoreControllerMoveSeedFromTemp

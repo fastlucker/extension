@@ -9,28 +9,22 @@ const ActivityContext = createContext<{
   activity: Activity[] | null
   isLoading: boolean
   error: string | null
+  getActivity: () => void
 }>({
   activity: null,
   isLoading: false,
-  error: null
+  error: null,
+  getActivity: () => {}
 })
 const ActivityContextProvider: React.FC<any> = ({ children }) => {
-  const { lastConnectedV2Account } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
   const [activity, setActivity] = useState<Activity[] | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const getActivity = useCallback(async () => {
-    if (!lastConnectedV2Account) {
-      setActivity(null)
-      setIsLoading(false)
-      return
-    }
-
     try {
-      const activityResponse = await fetch(
-        `${RELAYER_URL}/legends/activity/${lastConnectedV2Account}`
-      )
+      const activityResponse = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
 
       const response = await activityResponse.json()
 
@@ -45,7 +39,7 @@ const ActivityContextProvider: React.FC<any> = ({ children }) => {
     }
 
     setIsLoading(false)
-  }, [lastConnectedV2Account])
+  }, [connectedAccount])
 
   useEffect(() => {
     getActivity()
@@ -57,9 +51,10 @@ const ActivityContextProvider: React.FC<any> = ({ children }) => {
         () => ({
           activity,
           isLoading,
-          error
+          error,
+          getActivity
         }),
-        [activity, isLoading, error]
+        [activity, isLoading, error, getActivity]
       )}
     >
       {children}
