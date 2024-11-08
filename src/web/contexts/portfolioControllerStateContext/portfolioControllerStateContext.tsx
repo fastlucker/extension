@@ -83,9 +83,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   )
 
   const portfolioStateWithDefiPositions = useMemo(() => {
-    if (!accountsState.selectedAccount || !defiPositionsState[accountsState.selectedAccount])
+    if (!accountsState.selectedAccount || !defiPositionsState?.[accountsState.selectedAccount])
       return state
-
     const defiPositionsAccountState = defiPositionsState[accountsState.selectedAccount]
 
     const addDefiPositionsToPortfolio = (accountState: AccountState) => {
