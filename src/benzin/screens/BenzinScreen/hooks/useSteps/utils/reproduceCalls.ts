@@ -1,5 +1,10 @@
-import { TransactionReceipt, TransactionResponse, ZeroAddress } from 'ethers'
+import { getAddress, isAddress, TransactionReceipt, TransactionResponse, ZeroAddress } from 'ethers'
 
+import {
+  RELAYER_EXECUTOR_ADDRESSES,
+  STAGING_RELAYER_EXECUTOR_ADDRESSES
+} from '@ambire-common/consts/addresses'
+import { AMBIRE_PAYMASTER } from '@ambire-common/consts/deploy'
 import {
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
@@ -13,8 +18,7 @@ import {
   handleOpsInterface,
   quickAccManagerCancelInterface,
   quickAccManagerExecScheduledInterface,
-  quickAccManagerSendInterface,
-  transferInterface
+  quickAccManagerSendInterface
 } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
@@ -24,37 +28,6 @@ export const userOpSigHashes = {
   executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector,
   executeCall: executeCallInterface.getFunction('execute')!.selector,
   executeBatch: executeBatchInterface.getFunction('executeBatch')!.selector
-}
-
-const feeCollector = '0x942f9CE5D9a33a82F88D233AEb3292E680230348'
-
-const filterFeeCollectorCalls = (calls: any, callArray: any, index: number): boolean => {
-  // if calls are exactly one, it means no fee collector calls
-  const callsLength = calls.length
-  if (callsLength === 1) return true
-
-  // this is for the case where we do a native top up but have
-  // transformed the native to wrapped. We shouldn't filter out
-  if (
-    index + 1 === callsLength && // the fee call
-    calls[callsLength - 2][0].toLowerCase() === callArray[0].toLowerCase() && // the same address
-    callArray[2].slice(0, 10) === transferInterface.getFunction('transfer')!.selector &&
-    transferInterface.decodeFunctionData('transfer', callArray[2])[1] === calls[callsLength - 2][1]
-  ) {
-    return true
-  }
-
-  // a fee collector call is one that is at the end of the calls array
-  if (
-    index + 1 === callsLength &&
-    callArray[2].slice(0, 10) === transferInterface.getFunction('transfer')!.selector &&
-    transferInterface.decodeFunctionData('transfer', callArray[2])[0] === feeCollector
-  ) {
-    return false
-  }
-  if (index + 1 === callsLength && callArray[0] === feeCollector) return false
-
-  return true
 }
 
 const transformToAccOpCall = (call: any) => {
@@ -67,24 +40,18 @@ const transformToAccOpCall = (call: any) => {
 
 const getExecuteCalls = (callData: string) => {
   const data = executeInterface.decodeFunctionData('execute', callData)
-  return data[0]
-    .filter((call: any, index: number) => filterFeeCollectorCalls(data[0], call, index))
-    .map((call: any) => transformToAccOpCall(call))
+  return data[0].map((call: any) => transformToAccOpCall(call))
 }
 
 const getExecuteBySenderCalls = (callData: string) => {
   const data = executeBySenderInterface.decodeFunctionData('executeBySender', callData)
-  return data[0]
-    .filter((call: any, index: number) => filterFeeCollectorCalls(data[0], call, index))
-    .map((call: any) => transformToAccOpCall(call))
+  return data[0].map((call: any) => transformToAccOpCall(call))
 }
 
 const getExecuteMultipleCalls = (callData: string) => {
   const data = executeMultipleInterface.decodeFunctionData('executeMultiple', callData)
   const calls = data[0].map((executeArgs: any) => executeArgs[0]).flat()
-  return calls
-    .filter((call: any, index: number) => filterFeeCollectorCalls(calls, call, index))
-    .map((call: any) => transformToAccOpCall(call))
+  return calls.map((call: any) => transformToAccOpCall(call))
 }
 
 const getExecuteCallCalls = (callData: string) => {
@@ -109,128 +76,82 @@ const getExecuteBatchCalls = (callData: string) => {
 }
 
 const decodeUserOp = (userOp: UserOperation) => {
-  const callData = userOp.callData
+  const { callData, paymaster } = userOp
+  if (!callData) return null
   const callDataSigHash = callData.slice(0, 10)
-
-  if (callDataSigHash === userOpSigHashes.executeBySender) {
-    return getExecuteBySenderCalls(callData)
+  const matcher = {
+    [userOpSigHashes.executeBySender]: getExecuteBySenderCalls,
+    [userOpSigHashes.execute]: getExecuteCalls,
+    [userOpSigHashes.executeMultiple]: getExecuteMultipleCalls,
+    [userOpSigHashes.executeCall]: getExecuteCallCalls,
+    [executeUnknownWalletInterface.getFunction('execute')!.selector]: getExecuteUnknownWalletCalls,
+    [userOpSigHashes.executeBatch]: getExecuteBatchCalls
   }
+  let decodedCalls
+  if (matcher[callDataSigHash]) decodedCalls = matcher[callDataSigHash](callData)
 
-  if (callDataSigHash === userOpSigHashes.execute) {
-    return getExecuteCalls(callData)
-  }
-
-  if (callDataSigHash === userOpSigHashes.executeMultiple) {
-    return getExecuteMultipleCalls(callData)
-  }
-
-  if (callDataSigHash === userOpSigHashes.executeCall) {
-    return getExecuteCallCalls(callData)
-  }
-
-  if (callDataSigHash === executeUnknownWalletInterface.getFunction('execute')!.selector) {
-    return getExecuteUnknownWalletCalls(callData)
-  }
-
-  if (callDataSigHash === userOpSigHashes.executeBatch) {
-    return getExecuteBatchCalls(callData)
-  }
-}
-
-const decodeUserOpWithoutUserOpHash = (txnData: string, is070 = false) => {
-  const handleOpsData = is070
-    ? handleOps070.decodeFunctionData('handleOps', txnData)
-    : handleOpsInterface.decodeFunctionData('handleOps', txnData)
-  const sigHashValues = Object.values(userOpSigHashes)
-  const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-  // if there's more than 1 user op, we cannot guess which is the
-  // correct one. We do not guess
-  if (!userOps.length || userOps.length > 1) return null
-
-  return decodeUserOp({
-    sender: '',
-    callData: userOps[0][3],
-    hashStatus: 'not_found'
-  })
+  if (isAddress(paymaster) && getAddress(paymaster) === AMBIRE_PAYMASTER)
+    decodedCalls = decodedCalls.slice(0, -1)
+  return decodedCalls
 }
 
 const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) => {
-  if (userOp && userOp.hashStatus === 'found') return decodeUserOp(userOp)
+  if (userOp && userOp.hashStatus === 'found') {
+    const decoded = decodeUserOp(userOp)
+    if (decoded) return decoded
+  }
+
+  const non4337Matcher: {
+    [sigHash: string]: (data: string) => { to: string; data: string; value: bigint }[]
+  } = {
+    [executeInterface.getFunction('execute')!.selector]: getExecuteCalls,
+    [executeBySenderInterface.getFunction('executeBySender')!.selector]: getExecuteBySenderCalls,
+    [executeMultipleInterface.getFunction('executeMultiple')!.selector]: getExecuteMultipleCalls,
+    [deployAndExecuteInterface.getFunction('deployAndExecute')!.selector]: (txData: string) => {
+      const data = deployAndExecuteInterface.decodeFunctionData('deployAndExecute', txData)
+      return data[2].map((call: any) => transformToAccOpCall(call))
+    },
+    [deployAndExecuteMultipleInterface.getFunction('deployAndExecuteMultiple')!.selector]: (
+      txData: string
+    ) => {
+      const data = deployAndExecuteMultipleInterface.decodeFunctionData(
+        'deployAndExecuteMultiple',
+        txData
+      )
+      const calls: any = data[2].map((executeArgs: any) => executeArgs[0]).flat()
+      return calls.map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [quickAccManagerSendInterface.getFunction('send')!.selector]: (txData: string) => {
+      const data = quickAccManagerSendInterface.decodeFunctionData('send', txData)
+      return data[3].map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [quickAccManagerCancelInterface.getFunction('cancel')!.selector]: (txData: string) => {
+      const data = quickAccManagerCancelInterface.decodeFunctionData('cancel', txData)
+      return data[4].map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [quickAccManagerExecScheduledInterface.getFunction('execScheduled')!.selector]: (
+      txData: string
+    ) => {
+      const data = quickAccManagerExecScheduledInterface.decodeFunctionData('execScheduled', txData)
+      return data[3].map((call: any) => transformToAccOpCall(call))
+    },
+    // @non-ambire executeBatch
+    [executeBatchInterface.getFunction('executeBatch')!.selector]: getExecuteBatchCalls
+  }
 
   const sigHash = txn.data.slice(0, 10)
 
-  if (sigHash === executeInterface.getFunction('execute')!.selector) {
-    return getExecuteCalls(txn.data)
-  }
+  let parsedCalls = non4337Matcher[sigHash]
+    ? non4337Matcher[sigHash](txn.data)
+    : [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
 
-  if (sigHash === executeBySenderInterface.getFunction('executeBySender')!.selector) {
-    return getExecuteBySenderCalls(txn.data)
-  }
+  if ([...RELAYER_EXECUTOR_ADDRESSES, ...STAGING_RELAYER_EXECUTOR_ADDRESSES].includes(txn.from))
+    parsedCalls = parsedCalls.slice(0, -1)
 
-  if (sigHash === executeMultipleInterface.getFunction('executeMultiple')!.selector) {
-    return getExecuteMultipleCalls(txn.data)
-  }
-
-  if (sigHash === deployAndExecuteInterface.getFunction('deployAndExecute')!.selector) {
-    const data = deployAndExecuteInterface.decodeFunctionData('deployAndExecute', txn.data)
-    return data[2]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[2], call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  if (
-    sigHash === deployAndExecuteMultipleInterface.getFunction('deployAndExecuteMultiple')!.selector
-  ) {
-    const data = deployAndExecuteMultipleInterface.decodeFunctionData(
-      'deployAndExecuteMultiple',
-      txn.data
-    )
-    const calls: any = data[2].map((executeArgs: any) => executeArgs[0]).flat()
-    return calls
-      .filter((call: any, index: number) => filterFeeCollectorCalls(calls, call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  // v1
-  if (sigHash === quickAccManagerSendInterface.getFunction('send')!.selector) {
-    const data = quickAccManagerSendInterface.decodeFunctionData('send', txn.data)
-    return data[3]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[3], call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  // v1
-  if (sigHash === quickAccManagerCancelInterface.getFunction('cancel')!.selector) {
-    const data = quickAccManagerCancelInterface.decodeFunctionData('cancel', txn.data)
-    return data[4]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[4], call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  // v1
-  if (sigHash === quickAccManagerExecScheduledInterface.getFunction('execScheduled')!.selector) {
-    const data = quickAccManagerExecScheduledInterface.decodeFunctionData('execScheduled', txn.data)
-    return data[3]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[3], call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
-    const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data)
-    if (decodedUserOp) return decodedUserOp
-  }
-
-  if (sigHash === handleOps070.getFunction('handleOps')!.selector) {
-    const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data, true)
-    if (decodedUserOp) return decodedUserOp
-  }
-
-  // @non-ambire executeBatch
-  if (sigHash === executeBatchInterface.getFunction('executeBatch')!.selector) {
-    return getExecuteBatchCalls(txn.data)
-  }
-
-  return [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
+  return parsedCalls
 }
 
 export const getSender = (receipt: TransactionReceipt, txn: TransactionResponse) => {

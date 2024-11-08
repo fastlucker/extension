@@ -9,7 +9,7 @@ import SectionHeading from '../SectionHeading'
 import styles from './ActivitySection.module.scss'
 
 const ActivitySection = () => {
-  const { activity, isLoading, error = 'test' } = useActivityContext()
+  const { activity, isLoading, error } = useActivityContext()
 
   return (
     <div className={styles.wrapper}>

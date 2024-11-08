@@ -45,9 +45,9 @@ export default function useBanners(): BannerInterface[] {
 
   const allBanners = useMemo(() => {
     return [
+      ...swapAndBridgeBanners,
       ...state.banners,
       ...actionBanners,
-      ...swapAndBridgeBanners,
       // Don't display portfolio banners when offline
       ...getCurrentAccountBanners(
         debouncedIsOffline ? [OFFLINE_BANNER] : portfolioBanners,
