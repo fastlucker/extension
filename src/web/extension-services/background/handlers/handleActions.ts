@@ -138,7 +138,7 @@ export const handleActions = async (
       return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
     }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
-      return await mainCtrl.accounts.selectAccount(params.accountAddr)
+      return await mainCtrl.selectAccount(params.accountAddr)
     }
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
       return mainCtrl.accountAdder.selectAccount(params.account)
