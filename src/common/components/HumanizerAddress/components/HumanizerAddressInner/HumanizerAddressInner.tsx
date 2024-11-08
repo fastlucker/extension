@@ -32,12 +32,20 @@ const HumanizerAddressInner: FC<Props> = ({
   const { contacts = [] } = useAddressBookControllerState()
   const checksummedAddress = useMemo(() => getAddress(address), [address])
 
-  const account = accountsState.accounts.find((a) => a.addr === checksummedAddress)
-  const tokenInPortfolio = accountPortfolio.tokens.find(
-    (token) => token.address.toLowerCase() === address.toLowerCase()
-  )
-  const hardcodedTokenSymbol = humanizerInfo?.token?.symbol
-  const hardcodedName = humanizerInfo?.name
+  const account = useMemo(() => {
+    if (!accountsState?.accounts) return undefined
+    return accountsState.accounts.find((a) => a.addr === checksummedAddress)
+  }, [accountsState?.accounts, checksummedAddress])
+  const tokenInPortfolio = useMemo(() => {
+    if (!accountPortfolio?.tokens) return undefined
+    return accountPortfolio.tokens.find(
+      (token) => token.address.toLowerCase() === address.toLowerCase()
+    )
+  }, [accountPortfolio?.tokens, address])
+
+  const hardcodedTokenSymbol = useMemo(() => humanizerInfo?.token?.symbol, [humanizerInfo])
+  const hardcodedName = useMemo(() => humanizerInfo?.name, [humanizerInfo?.name])
+
   let tokenLabel = ''
 
   if (tokenInPortfolio) {
