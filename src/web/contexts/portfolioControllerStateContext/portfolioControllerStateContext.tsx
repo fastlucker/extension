@@ -83,7 +83,14 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   )
 
   const portfolioStateWithDefiPositions = useMemo(() => {
-    if (!accountsState.selectedAccount || !defiPositionsState?.[accountsState.selectedAccount])
+    if (
+      !accountsState.selectedAccount ||
+      !defiPositionsState?.[accountsState.selectedAccount] ||
+      !state.latest ||
+      !state.pending ||
+      !state.latest[accountsState.selectedAccount] ||
+      !state.pending[accountsState.selectedAccount]
+    )
       return state
     const defiPositionsAccountState = defiPositionsState[accountsState.selectedAccount]
 
