@@ -34,6 +34,7 @@ const GasTankButton = ({ onPress, onPosition, gasTankTotalBalanceInUsd }: Props)
 
   useEffect(() => {
     if (buttonRef.current) {
+      // TODO: add a type
       buttonRef.current.measure((fx, fy, width, height, px, py) => {
         onPosition({ x: px, y: py, width, height })
       })

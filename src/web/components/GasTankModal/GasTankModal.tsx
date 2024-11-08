@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -13,7 +13,10 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -29,6 +32,20 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { selectedAccount } = useAccountsControllerState()
+  const { state } = usePortfolioControllerState()
+
+  const gasTankTotalBalanceInUsd = useMemo(() => {
+    if (!selectedAccount) return 0
+    const selectedAccountGasTankTotal = state?.latest?.[selectedAccount]?.gasTank?.result?.total
+
+    return Number(selectedAccountGasTankTotal?.usd) || 0
+  }, [selectedAccount, state.latest])
+
+  const gasTankTotalBalanceInUsdFormatted = useMemo(
+    () => formatDecimals(gasTankTotalBalanceInUsd, 'price'),
+    [gasTankTotalBalanceInUsd]
+  )
 
   return (
     <BottomSheet
@@ -72,7 +89,7 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
               <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
                 <GasTankIcon width={32} />
                 <Text fontSize={32} weight="number_bold" appearance="primaryText">
-                  $250.25
+                  {gasTankTotalBalanceInUsdFormatted}
                 </Text>
               </View>
             </View>
