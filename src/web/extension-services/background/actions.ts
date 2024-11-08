@@ -214,6 +214,10 @@ type MainControllerActivitySetSignedMessagesPaginationAction = {
 type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
+type MainControllerActivityHideBanner = {
+  type: 'ACTIVITY_CONTROLLER_HIDE_BANNER'
+  params: { addr: string; network: string; timestamp: number }
+}
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
@@ -627,5 +631,6 @@ export type Action =
   | MainControllerTraceCallAction
   | ImportSmartAccountJson
   | KeystoreControllerSendSeedOverChannel
+  | MainControllerActivityHideBanner
   | KeystoreControllerDeleteSavedSeed
   | KeystoreControllerMoveSeedFromTemp
