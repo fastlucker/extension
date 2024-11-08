@@ -5,7 +5,7 @@ import { NativeScrollEvent, ScrollView, View } from 'react-native'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { isValidAddress } from '@ambire-common/services/address'
 import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
-import Address from '@common/components/Address'
+import HumanizerAddress from '@common/components/HumanizerAddress'
 import MultistateToggleButton from '@common/components/MultistateToggleButton'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -89,7 +89,8 @@ const FallbackVisualization: FC<{
                 parseInt(i.value, 10) * 1000 < new Date('01/01/2100').getTime()
               const isInfiniteAmount = parseInt(i.value, 10)?.toString(16) === '1'.padEnd(65, '0')
 
-              if (isValidAddress(i.value)) componentToReturn = <Address address={i.value} />
+              if (isValidAddress(i.value))
+                componentToReturn = <HumanizerAddress address={i.value} />
               else if (isProbablyADateWIthinRange)
                 componentToReturn = new Date(parseInt(i.value, 10) * 1000).toUTCString()
               else if (isInfiniteAmount)

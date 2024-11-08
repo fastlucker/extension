@@ -4,7 +4,7 @@ import { Image, Linking, View } from 'react-native'
 
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
-import Address from '@common/components/Address'
+import HumanizerAddress from '@common/components/HumanizerAddress'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -59,7 +59,7 @@ const Info: FC<Props> = () => {
         messageToSign?.content?.domain?.verifyingContract &&
         typeof messageToSign?.content?.domain?.verifyingContract === 'string' && (
           <View style={styles.verifyingContract}>
-            <Address
+            <HumanizerAddress
               fontSize={maxWidthSize('xl') ? 14 : 12}
               style={{ maxWidth: '100%' }}
               address={messageToSign.content.domain.verifyingContract}
