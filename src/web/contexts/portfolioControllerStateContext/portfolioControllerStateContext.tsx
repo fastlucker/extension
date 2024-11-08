@@ -25,6 +25,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useDefiPositionsControllerState from '@web/hooks/useDeFiPositionsControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -74,7 +75,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const { dispatch } = useBackgroundService()
   const { isOffline } = useConnectivity()
   const accountsState = useAccountsControllerState()
-  const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
+  const { account } = useSelectedAccountControllerState()
   const actionState = useActionsControllerState()
   const { state: defiPositionsState } = useDefiPositionsControllerState()
   const hasSignAccountOp = useMemo(
@@ -83,10 +84,9 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   )
 
   const portfolioStateWithDefiPositions = useMemo(() => {
-    if (!accountsState.selectedAccount || !defiPositionsState[accountsState.selectedAccount])
-      return state
+    if (!account || !defiPositionsState[account.addr]) return state
 
-    const defiPositionsAccountState = defiPositionsState[accountsState.selectedAccount]
+    const defiPositionsAccountState = defiPositionsState[account.addr]
 
     const addDefiPositionsToPortfolio = (accountState: AccountState) => {
       if (!accountState) return accountState
@@ -146,23 +146,19 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       return accountState
     }
 
-    const latestAccountState = addDefiPositionsToPortfolio(
-      state.latest[accountsState.selectedAccount]
-    )
-    const pendingAccountState = addDefiPositionsToPortfolio(
-      state.pending[accountsState.selectedAccount]
-    )
+    const latestAccountState = addDefiPositionsToPortfolio(state.latest[account.addr])
+    const pendingAccountState = addDefiPositionsToPortfolio(state.pending[account.addr])
 
     if (latestAccountState) {
-      state.latest[accountsState.selectedAccount] = latestAccountState
+      state.latest[account.addr] = latestAccountState
     }
 
     if (pendingAccountState) {
-      state.pending[accountsState.selectedAccount] = pendingAccountState
+      state.pending[account.addr] = pendingAccountState
     }
 
     return state
-  }, [accountsState.selectedAccount, state, defiPositionsState])
+  }, [account, state, defiPositionsState])
 
   const [accountPortfolio, setAccountPortfolio] =
     useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
@@ -188,13 +184,13 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     // Set an initial empty state for accountPortfolio
     resetAccountPortfolioLocalState()
-  }, [accountsState.selectedAccount, resetAccountPortfolioLocalState])
+  }, [account, resetAccountPortfolioLocalState])
 
   useEffect(() => {
-    if (!accountsState.selectedAccount || !account) return
+    if (!account) return
 
     const newAccountPortfolio = calculateAccountPortfolio(
-      accountsState.selectedAccount,
+      account.addr,
       portfolioStateWithDefiPositions,
       prevAccountPortfolio?.current,
       hasSignAccountOp
@@ -208,7 +204,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
       if (newAccountPortfolio.isAllReady) prevAccountPortfolio.current = newAccountPortfolio
     }
-  }, [accountsState.selectedAccount, account, portfolioStateWithDefiPositions, hasSignAccountOp])
+  }, [account, portfolioStateWithDefiPositions, hasSignAccountOp])
 
   useEffect(() => {
     if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
@@ -296,14 +292,13 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const claimWalletRewards = useCallback(
     (token: TokenResultInterface) => {
-      if (!accountsState.selectedAccount || !account) return
+      if (!account) return
 
-      const claimableRewardsData =
-        state.latest[accountsState.selectedAccount].rewards?.result?.claimableRewardsData
+      const claimableRewardsData = state.latest[account.addr].rewards?.result?.claimableRewardsData
 
       if (!claimableRewardsData) return
       const userRequest: UserRequest = buildClaimWalletRequest({
-        selectedAccount: accountsState.selectedAccount,
+        selectedAccount: account.addr,
         selectedToken: token,
         claimableRewardsData
       })
@@ -312,19 +307,18 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         params: userRequest
       })
     },
-    [dispatch, account, accountsState.selectedAccount, state.latest]
+    [dispatch, account, state.latest]
   )
 
   const claimEarlySupportersVesting = useCallback(
     (token: TokenResultInterface) => {
-      if (!accountsState.selectedAccount || !account) return
+      if (!account) return
 
-      const addrVestingData =
-        state.latest[accountsState.selectedAccount].rewards?.result?.addrVestingData
+      const addrVestingData = state.latest[account.addr].rewards?.result?.addrVestingData
 
       if (!addrVestingData) return
       const userRequest: UserRequest = buildMintVestingRequest({
-        selectedAccount: accountsState.selectedAccount,
+        selectedAccount: account.addr,
         selectedToken: token,
         addrVestingData
       })
@@ -333,7 +327,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         params: userRequest
       })
     },
-    [dispatch, account, accountsState.selectedAccount, state.latest]
+    [dispatch, account, state.latest]
   )
 
   return (

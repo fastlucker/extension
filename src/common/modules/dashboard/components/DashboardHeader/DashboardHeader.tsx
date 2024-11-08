@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
@@ -9,8 +9,8 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useHover from '@web/hooks/useHover'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
@@ -20,12 +20,7 @@ import getStyles from './styles'
 const { isPopup } = getUiType()
 
 const DashboardHeader = () => {
-  const accountsState = useAccountsControllerState()
-
-  const selectedAccountData = useMemo(
-    () => accountsState.accounts.find((a) => a.addr === accountsState.selectedAccount),
-    [accountsState.accounts, accountsState.selectedAccount]
-  )
+  const { account } = useSelectedAccountControllerState()
 
   const [bindBurgerAnim, burgerAnimStyle] = useHover({
     preset: 'opacity'
@@ -40,7 +35,7 @@ const DashboardHeader = () => {
   // Temporary measure because UX was found to be confusing
   const ENABLE_MAXIMIZE = false
 
-  if (!selectedAccountData) return null
+  if (!account) return null
 
   return (
     <View

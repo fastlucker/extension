@@ -520,7 +520,7 @@ handleKeepAlive()
                   mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
                   mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
-                    mainCtrl.accounts.selectedAccount
+                    mainCtrl.selectedAccount.account?.addr
                   ])
                 }
                 backgroundState.isUnlocked = controller.isUnlocked

@@ -341,10 +341,10 @@ export const handleActions = async (
     }
 
     case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
-      if (!mainCtrl.accounts.selectedAccount) return
+      if (!mainCtrl.selectedAccount.account) return
 
       return await mainCtrl.portfolio.getTemporaryTokens(
-        mainCtrl.accounts.selectedAccount,
+        mainCtrl.selectedAccount.account.addr,
         params.networkId,
         params.additionalHint
       )
@@ -381,7 +381,7 @@ export const handleActions = async (
 
       await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
       return await mainCtrl.portfolio.updateSelectedAccount(
-        mainCtrl.accounts.selectedAccount || '',
+        mainCtrl.selectedAccount.account?.addr || '',
         tokenNetwork,
         undefined,
         {
@@ -411,7 +411,7 @@ export const handleActions = async (
 
       await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
       return await mainCtrl.portfolio.updateSelectedAccount(
-        mainCtrl.accounts.selectedAccount || '',
+        mainCtrl.selectedAccount.account?.addr || '',
         tokenNetwork,
         undefined,
         {
@@ -420,10 +420,10 @@ export const handleActions = async (
       )
     }
     case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
-      if (!mainCtrl.accounts.selectedAccount) return
+      if (!mainCtrl.selectedAccount.account) return
       return await mainCtrl.portfolio.updateTokenValidationByStandard(
         params.token,
-        mainCtrl.accounts.selectedAccount
+        mainCtrl.selectedAccount.account.addr
       )
     }
     case 'KEYSTORE_CONTROLLER_ADD_SECRET':
