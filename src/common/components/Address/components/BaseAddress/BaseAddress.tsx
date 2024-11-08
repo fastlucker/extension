@@ -1,3 +1,4 @@
+import { ZeroAddress } from 'ethers'
 import * as Clipboard from 'expo-clipboard'
 import React, { FC, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -53,14 +54,20 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
     if (!network) return
 
     try {
+      console.log(address, ZeroAddress, address === ZeroAddress)
+      let targetUrl = `${network?.explorerUrl}/address/${address}`
+
+      if (address === ZeroAddress) {
+        targetUrl = `https://www.coingecko.com/en/coins/${network.nativeAssetId}`
+      }
       // openInTab doesn't work in Standalone Benzin
       if (!isExtension) {
-        await Linking.openURL(`${network?.explorerUrl}/address/${address}`)
+        await Linking.openURL(targetUrl)
         return
       }
       // Close the action-window if this address is opened in one, otherwise
       // the user will have to minimize it to see the explorer.
-      await openInTab(`${network?.explorerUrl}/address/${address}`, isActionWindow)
+      await openInTab(targetUrl, isActionWindow)
     } catch {
       addToast(t('Failed to open explorer'), {
         type: 'error'
