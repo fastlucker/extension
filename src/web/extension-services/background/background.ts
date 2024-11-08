@@ -361,7 +361,11 @@ handleKeepAlive()
       clearTimeout(backgroundState.accountStateLatestInterval)
 
     const updateAccountState = async () => {
-      await mainCtrl.accounts.updateAccountStates('latest')
+      if (!mainCtrl.accounts.selectedAccount) {
+        console.error('No selected account to latest state')
+        return
+      }
+      await mainCtrl.accounts.updateAccountState(mainCtrl.accounts.selectedAccount, 'latest')
       backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
     }
 
@@ -370,16 +374,34 @@ handleKeepAlive()
   }
 
   async function initPendingAccountStateContinuousUpdate(intervalLength: number) {
+    if (!mainCtrl.accounts.selectedAccount) {
+      console.error('No selected account to update pending state')
+      return
+    }
+
     if (backgroundState.accountStatePendingInterval)
       clearTimeout(backgroundState.accountStatePendingInterval)
 
     const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
       .map((op) => op.networkId)
       .filter((networkId, index, self) => self.indexOf(networkId) === index)
-    await mainCtrl.accounts.updateAccountStates('pending', networksToUpdate)
+    await mainCtrl.accounts.updateAccountState(
+      mainCtrl.accounts.selectedAccount,
+      'pending',
+      networksToUpdate
+    )
 
     const updateAccountState = async (networkIds: NetworkId[]) => {
-      await mainCtrl.accounts.updateAccountStates('pending', networkIds)
+      if (!mainCtrl.accounts.selectedAccount) {
+        console.error('No selected account to update pending state')
+        return
+      }
+
+      await mainCtrl.accounts.updateAccountState(
+        mainCtrl.accounts.selectedAccount,
+        'pending',
+        networkIds
+      )
 
       // if there are no more broadcastedButNotConfirmed ops for the network,
       // remove the timeout
