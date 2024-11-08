@@ -4,9 +4,13 @@ import { baParams, DEF_KEYSTORE_PASS } from '../config/constants'
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { monitorRequests } from '../common/requests'
-import { makeValidTransaction } from '../common/transactions'
+import {
+  checkTokenBalanceClickOnGivenActionInDashboard,
+  makeValidTransaction
+} from '../common/transactions'
 import { typeKeystorePassAndUnlock } from '../common-helpers/typeKeystorePassAndUnlock'
 import { buildSelector } from '../common-helpers/buildSelector'
+import { DASHBOARD_SEND_BTN_SELECTOR, POL_TOKEN_SELECTOR } from '../features/transfer/constants'
 
 const startSWAndUnlockKeystore = async (page, extensionURL, recorder, serviceWorker) => {
   const {
@@ -84,6 +88,11 @@ describe("The extension works properly when crucial APIs aren't working from lau
       serviceWorker.client,
       async () => {
         await startSWAndUnlockKeystore(page, extensionURL, recorder, serviceWorker)
+        await checkTokenBalanceClickOnGivenActionInDashboard(
+          page,
+          POL_TOKEN_SELECTOR,
+          DASHBOARD_SEND_BTN_SELECTOR
+        )
         await makeValidTransaction(page, extensionURL, browser)
       },
       {
