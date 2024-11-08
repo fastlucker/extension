@@ -84,8 +84,8 @@ const AppInit = () => {
                                                                     <BiometricsProvider>
                                                                       <PrivateModeProvider>
                                                                         <AppRouter />
-                                                                        <PortalHost name="global" />
                                                                       </PrivateModeProvider>
+                                                                      <PortalHost name="global" />
                                                                     </BiometricsProvider>
                                                                   </AuthProvider>
                                                                 </NetInfoProvider>
