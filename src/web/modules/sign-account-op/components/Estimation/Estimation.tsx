@@ -84,23 +84,29 @@ const Estimation = ({
 
   // Only Hardware Wallet signatures are needed manually as the keys of
   // hot wallets are stored in the extension
-  const isASecondSignatureNeeded = useMemo(() => {
+  const areTwoHWSignaturesRequired = useMemo(() => {
     const paidBy = payValue?.paidBy
 
     if (!paidBy || paidBy === signAccountOpState?.accountOp.accountAddr) return false
 
-    const accountData = accounts.find((account) => account.addr === paidBy)
-
-    if (!accountData) return false
-
-    const associatedKeys = accountData.associatedKeys || []
-    const importedKeyTypes = Array.from(
-      new Set(keys.filter(({ addr }) => associatedKeys.includes(addr)).map((key) => key.type))
+    const paidByAccountData = accounts.find((account) => account.addr === paidBy)
+    const selectedAccountData = accounts.find(
+      (account) => account.addr === signAccountOpState?.accountOp.accountAddr
     )
+    if (!paidByAccountData || !selectedAccountData) return false
 
-    const hasHardwareKey = importedKeyTypes.some((type) => type !== 'internal')
+    const selectedAccountAssociatedKeys = selectedAccountData?.associatedKeys || []
+    const paidByAssociatedKeys = paidByAccountData.associatedKeys || []
+    const selectedAccountImportedKeys = Array.from(
+      new Set(keys.filter(({ addr }) => selectedAccountAssociatedKeys.includes(addr)))
+    )
+    const paidByImportedKeys = Array.from(
+      new Set(keys.filter(({ addr }) => paidByAssociatedKeys.includes(addr)))
+    )
+    const isSelectedAccountHW = selectedAccountImportedKeys.some(({ type }) => type !== 'internal')
+    const isPaidByHW = paidByImportedKeys.some(({ type }) => type !== 'internal')
 
-    return hasHardwareKey
+    return isSelectedAccountHW && isPaidByHW
   }, [accounts, keys, payValue?.paidBy, signAccountOpState?.accountOp.accountAddr])
 
   const setFeeOption = useCallback(
@@ -291,7 +297,7 @@ const Estimation = ({
         label={t('Pay fee with')}
         sections={feeOptionSelectSections}
         renderSectionHeader={renderFeeOptionSectionHeader}
-        containerStyle={isASecondSignatureNeeded ? spacings.mbTy : spacings.mb}
+        containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}
         value={payValue || NO_FEE_OPTIONS}
         disabled={
           disabled ||
@@ -302,7 +308,7 @@ const Estimation = ({
         withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
         stickySectionHeadersEnabled
       />
-      {isASecondSignatureNeeded && (
+      {areTwoHWSignaturesRequired && (
         <Alert
           size="sm"
           text={t(
