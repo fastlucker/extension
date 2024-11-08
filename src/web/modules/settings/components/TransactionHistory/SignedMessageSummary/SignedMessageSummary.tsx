@@ -5,6 +5,7 @@ import { SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
+import { visualizeContent } from '@common/components/HumanizedVisualization/HumanizedVisualization'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -19,28 +20,9 @@ interface Props {
   style?: ViewStyle
 }
 
-const convertHexToString = (content: string | Uint8Array) => {
-  if (typeof content !== 'string') return null
-
-  try {
-    const hexString = content.toString()
-    let str = ''
-    for (let i = 0; i < hexString.length; i += 2) {
-      str += String.fromCharCode(parseInt(hexString.slice(i, i + 2), 16))
-    }
-
-    return str
-  } catch (e) {
-    console.error('Error converting hex to string', e)
-    return null
-  }
-}
-
 const getParsedSignedMessageContent = (content: SignedMessage['content']) => {
   if (content.kind === 'message') {
-    const decodedHexString = convertHexToString(content.message)
-
-    return decodedHexString || content.message
+    return visualizeContent(content.kind, content.message)
   }
 
   return JSON.stringify(content, null, 4)
