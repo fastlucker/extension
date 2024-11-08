@@ -54,8 +54,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
     if (!network) return
 
     try {
-      console.log(address, ZeroAddress, address === ZeroAddress)
-      let targetUrl = `${network?.explorerUrl}/address/${address}`
+      let targetUrl = `${network.explorerUrl}/address/${address}`
 
       if (address === ZeroAddress) {
         targetUrl = `https://www.coingecko.com/en/coins/${network.nativeAssetId}`
