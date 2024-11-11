@@ -52,6 +52,7 @@ const SignAccountOpScreen = () => {
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
+  const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(false)
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
   const {
@@ -87,6 +88,7 @@ const SignAccountOpScreen = () => {
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
     signAccountOpState?.status?.type === SigningStatus.UpdatesPaused ||
+    signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster ||
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
@@ -107,6 +109,23 @@ const SignAccountOpScreen = () => {
       clearTimeout(timeout)
     }
   }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster) {
+        setSlowPaymasterRequest(true)
+      }
+    }, 3000)
+
+    if (signAccountOpState?.status?.type !== SigningStatus.WaitingForPaymaster) {
+      clearTimeout(timeout)
+      setSlowPaymasterRequest(false)
+    }
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [signAccountOpState?.status?.type])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
@@ -380,6 +399,11 @@ const SignAccountOpScreen = () => {
             // because they can't sign it anyway
             isAddToCartDisabled={isSignLoading || (!signAccountOpState?.readyToSign && !isViewOnly)}
             onSign={onSignButtonClick}
+            inProgressButtonText={
+              signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
+                ? t('Sending...')
+                : t('Signing...')
+            }
           />
         }
       >
@@ -408,6 +432,7 @@ const SignAccountOpScreen = () => {
               disabled={isSignLoading}
               hasEstimation={!!hasEstimation}
               slowRequest={slowRequest}
+              slowPaymasterRequest={slowPaymasterRequest}
               isViewOnly={isViewOnly}
             />
 
