@@ -50,7 +50,10 @@ const executeCallInterface = new Interface([
 const executeBatchInterface = new Interface(['function executeBatch(address[] apps, bytes[] data)'])
 
 // unknown wallet for now
-const executeUnknownWalletInterface = new Interface(['function execute(address, uint256, bytes)'])
+const executeUnknownWalletInterface = new Interface([
+  'function execute(address, uint256, bytes)',
+  'function executeBatch((address,uint256,bytes)[])'
+])
 
 export {
   executeInterface,

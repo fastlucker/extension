@@ -39,16 +39,11 @@ export const userOpSigHashes = {
   executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector,
   executeCall: executeCallInterface.getFunction('execute')!.selector,
   executeBatch: executeBatchInterface.getFunction('executeBatch')!.selector,
-  executeUnknownWalletInterface: executeUnknownWalletInterface.getFunction('execute')!.selector
+  executeUnknownWalletInterface: executeUnknownWalletInterface.getFunction('execute')!.selector,
+  unknownWalletExecuteBatch: executeUnknownWalletInterface.getFunction('executeBatch')!.selector
 }
 
-const transformToAccOpCall = (call: any) => {
-  return {
-    to: call[0],
-    value: BigInt(call[1]),
-    data: call[2]
-  }
-}
+const transformToAccOpCall = (call: any) => ({ to: call[0], value: BigInt(call[1]), data: call[2] })
 
 const getExecuteCalls = (callData: string) => {
   const data = executeInterface.decodeFunctionData('execute', callData)
@@ -87,6 +82,11 @@ const getExecuteBatchCalls = (callData: string) => {
   return calls
 }
 
+const getUnknownWalletExecuteBatch = (callData: string) => {
+  const [rawCalls] = executeUnknownWalletInterface.decodeFunctionData('executeBatch', callData)
+  return rawCalls.map(transformToAccOpCall)
+}
+
 export const decodeUserOp = (userOp: UserOperation): Call[] => {
   const { callData, paymaster } = userOp
 
@@ -97,7 +97,8 @@ export const decodeUserOp = (userOp: UserOperation): Call[] => {
     [userOpSigHashes.executeMultiple]: getExecuteMultipleCalls,
     [userOpSigHashes.executeCall]: getExecuteCallCalls,
     [userOpSigHashes.executeUnknownWalletInterface]: getExecuteUnknownWalletCalls,
-    [userOpSigHashes.executeBatch]: getExecuteBatchCalls
+    [userOpSigHashes.executeBatch]: getExecuteBatchCalls,
+    [userOpSigHashes.unknownWalletExecuteBatch]: getUnknownWalletExecuteBatch
   }
   let decodedCalls = [{ to: userOp.sender, data: userOp.callData, value: 0n }]
   if (matcher[callDataSigHash]) decodedCalls = matcher[callDataSigHash](callData)
@@ -278,9 +279,6 @@ export const entryPointTxnSplit: {
           [hash, '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789', network.chainId]
         )
       )
-      // todo add parsing for
-      // executeBatch(address[],uint256[],bytes[])
-      // http://localhost:19006/?networkId=ethereum&txnId=0xd3a7113f662314733dfd64dfe879775722d687f7bde737b2a3c8e1726e80622c&userOpHash=0xed49431fb016fbb81a56e43b1f05a0a7bc2fa5f3326bf3af2f30c22955ea28fb
 
       // @TODO fix link
       const url: string = `http://localhost:19006/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
