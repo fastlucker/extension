@@ -21,7 +21,6 @@ import spacings from '@common/styles/spacings'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
@@ -91,8 +90,7 @@ const SendForm = ({
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
   const { accountStates } = useAccountsControllerState()
-  const { account } = useSelectedAccountControllerState()
-  const { accountPortfolio } = usePortfolioControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
   const {
     maxAmount,
     maxAmountInFiat,
@@ -334,10 +332,10 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
-      {(!state.selectedToken && tokens.length) || !accountPortfolio?.isAllReady ? (
+      {(!state.selectedToken && tokens.length) || !portfolio?.isAllReady ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
-            {!accountPortfolio?.isAllReady
+            {!portfolio?.isAllReady
               ? t('Loading tokens...')
               : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           </Text>
@@ -366,7 +364,7 @@ const SendForm = ({
         maxAmountInFiat={maxAmountInFiat}
         switchAmountFieldMode={switchAmountFieldMode}
         disabled={disableForm || amountSelectDisabled}
-        isLoading={!accountPortfolio?.isAllReady || !isMaxAmountEnabled}
+        isLoading={!portfolio?.isAllReady || !isMaxAmountEnabled}
         isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
       />
       <View>

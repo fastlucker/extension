@@ -21,6 +21,7 @@ import spacings, { SPACING_2XL, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import {
   getTokenEligibility,
   getTokenFromPortfolio,
@@ -40,6 +41,7 @@ const AddToken = () => {
   const { networks } = useNetworksControllerState()
   const { addToast } = useToast()
   const portfolio = usePortfolioControllerState()
+  const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
 
   const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
 
@@ -93,9 +95,8 @@ const AddToken = () => {
   )
 
   const portfolioToken = useMemo(
-    () =>
-      getTokenFromPortfolio({ address }, network, portfolio?.accountPortfolio, tokenInPreferences),
-    [portfolio, tokenInPreferences, network, address]
+    () => getTokenFromPortfolio({ address }, network, selectedAccountPortfolio, tokenInPreferences),
+    [selectedAccountPortfolio, tokenInPreferences, network, address]
   )
 
   const handleAddToken = useCallback(async () => {
@@ -125,7 +126,7 @@ const AddToken = () => {
       // Check if token is already in portfolio
       const isTokenInHints = await handleTokenIsInPortfolio(
         tokenInPreferences,
-        portfolio.accountPortfolio,
+        selectedAccountPortfolio,
         network,
         { address }
       )

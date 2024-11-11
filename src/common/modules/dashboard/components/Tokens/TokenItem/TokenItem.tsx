@@ -42,8 +42,8 @@ const TokenItem = ({
   tokenPreferences: CustomToken[]
   testID?: string
 }) => {
-  const { accountPortfolio, claimWalletRewards, claimEarlySupportersVesting } =
-    usePortfolioControllerState()
+  const { claimWalletRewards, claimEarlySupportersVesting } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const {
     symbol,
     address,
@@ -66,17 +66,17 @@ const TokenItem = ({
   })
   const tokenId = getTokenId(token)
 
-  const pendingLastKnownNonce = accountPortfolio.simulationNonces[token.networkId]
+  const pendingLastKnownNonce = portfolio.simulationNonces[token.networkId]
   const activityNonce = activityState?.lastKnownNonce[token.networkId]
   const tokenAmounts = useMemo(
     () =>
-      accountPortfolio.tokenAmounts.find(
+      portfolio.tokenAmounts.find(
         (tokenAmount) =>
           tokenAmount.address === token.address &&
           tokenAmount.networkId === token.networkId &&
           !token.flags.onGasTank
       ),
-    [accountPortfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
+    [portfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
   )
 
   const {

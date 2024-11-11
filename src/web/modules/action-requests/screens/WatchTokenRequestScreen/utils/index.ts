@@ -3,8 +3,8 @@ import { ZeroAddress } from 'ethers'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { Network } from '@ambire-common/interfaces/network'
 import { RPCProviders } from '@ambire-common/interfaces/provider'
+import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
-import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import { TokenData } from '@web/modules/action-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen' // Polygon MATIC token address
 
 const selectNetwork = async (
@@ -73,7 +73,7 @@ const getTokenFromPreferences = (
 
 const handleTokenIsInPortfolio = async (
   tokenInPreferences: CustomToken | undefined,
-  accountPortfolio: AccountPortfolio | null,
+  accountPortfolio: SelectedAccountPortfolio | null,
   tokenNetwork: Network,
   tokenData: { address: string } | CustomToken
 ) => {
@@ -94,7 +94,7 @@ const handleTokenIsInPortfolio = async (
 const getTokenFromPortfolio = (
   tokenData: { address: string } | CustomToken,
   tokenNetwork: Network | undefined,
-  accountPortfolio: AccountPortfolio | null,
+  accountPortfolio: SelectedAccountPortfolio | null,
   tokenInPreferences: CustomToken | undefined
 ) =>
   (tokenData &&

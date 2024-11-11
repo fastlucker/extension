@@ -60,8 +60,8 @@ const DashboardOverview: FC<Props> = ({
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { account } = useSelectedAccountControllerState()
-  const { accountPortfolio, startedLoadingAtTimestamp, state, resetAccountPortfolioLocalState } =
-    usePortfolioControllerState()
+  const { startedLoadingAtTimestamp } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -92,15 +92,12 @@ const DashboardOverview: FC<Props> = ({
   }, [filterByNetworkId, networks])
 
   const totalPortfolioAmount = useMemo(() => {
-    if (!filterByNetworkId) return accountPortfolio?.totalAmount || 0
+    if (!filterByNetworkId) return portfolio?.totalBalance || 0
 
     if (!account) return 0
 
-    const selectedAccountPortfolio =
-      state?.latest?.[account.addr]?.[filterByNetworkId]?.result?.total
-
-    return Number(selectedAccountPortfolio?.usd) || 0
-  }, [accountPortfolio?.totalAmount, filterByNetworkId, account, state.latest])
+    return Number(portfolio?.latestStateByNetworks?.[filterByNetworkId]?.result?.total?.usd) || 0
+  }, [portfolio, filterByNetworkId, account])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
     totalPortfolioAmount,
@@ -108,12 +105,13 @@ const DashboardOverview: FC<Props> = ({
   ).split('.')
 
   const networksWithCriticalErrors: string[] = useMemo(() => {
-    if (!account || !state.latest[account.addr] || state.latest[account.addr]?.isLoading) return []
+    if (!account || !portfolio.latestStateByNetworks || portfolio.latestStateByNetworks?.isLoading)
+      return []
 
     const networkNames: string[] = []
 
-    Object.keys(state.latest[account.addr]).forEach((networkId) => {
-      const networkState = state.latest[account.addr][networkId]
+    Object.keys(portfolio.latestStateByNetworks).forEach((networkId) => {
+      const networkState = portfolio.latestStateByNetworks[networkId]
 
       if (networkState?.criticalError) {
         let networkName
@@ -129,7 +127,7 @@ const DashboardOverview: FC<Props> = ({
     })
 
     return networkNames
-  }, [account, state.latest, networks])
+  }, [account, portfolio, networks])
 
   const warningMessage = useMemo(() => {
     if (isLoadingTakingTooLong) {
@@ -162,7 +160,7 @@ const DashboardOverview: FC<Props> = ({
     checkIsLoadingTakingTooLong()
 
     const interval = setInterval(() => {
-      if (accountPortfolio?.isAllReady) {
+      if (portfolio?.isAllReady) {
         clearInterval(interval)
         setIsLoadingTakingTooLong(false)
         return
@@ -174,14 +172,13 @@ const DashboardOverview: FC<Props> = ({
     return () => {
       clearInterval(interval)
     }
-  }, [accountPortfolio?.isAllReady, startedLoadingAtTimestamp])
+  }, [portfolio?.isAllReady, startedLoadingAtTimestamp])
 
   const reloadAccount = useCallback(() => {
-    resetAccountPortfolioLocalState()
     dispatch({
       type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
     })
-  }, [dispatch, resetAccountPortfolioLocalState])
+  }, [dispatch])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -229,7 +226,7 @@ const DashboardOverview: FC<Props> = ({
             >
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-                  {!accountPortfolio?.isAllReady ? (
+                  {!portfolio?.isAllReady ? (
                     <SkeletonLoader
                       lowOpacity
                       width={200}
@@ -266,11 +263,11 @@ const DashboardOverview: FC<Props> = ({
                     style={[spacings.mlTy, refreshButtonAnimStyle]}
                     onPress={reloadAccount}
                     {...bindRefreshButtonAnim}
-                    disabled={!accountPortfolio?.isAllReady}
+                    disabled={!portfolio?.isAllReady}
                     testID="refresh-button"
                   >
                     <RefreshIcon
-                      spin={!accountPortfolio?.isAllReady}
+                      spin={!portfolio?.isAllReady}
                       color={theme.primaryBackground}
                       width={16}
                       height={16}

@@ -48,7 +48,7 @@ const useSwapAndBridgeForm = () => {
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { accountPortfolio } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const { theme } = useTheme()
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
@@ -120,13 +120,13 @@ const useSwapAndBridgeForm = () => {
     dispatch({
       type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST',
       params:
-        accountPortfolio?.tokens.filter((token) => {
+        portfolio?.tokens.filter((token) => {
           const hasAmount = Number(getTokenAmount(token)) > 0
 
           return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
         }) || []
     })
-  }, [accountPortfolio?.tokens, dispatch])
+  }, [portfolio?.tokens, dispatch])
 
   const {
     options: fromTokenOptions,

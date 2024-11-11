@@ -1,52 +1,19 @@
-import { getAddress } from 'ethers'
-import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
-import { PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
-import {
-  AccountState,
-  CollectionResult as CollectionResultInterface,
-  NetworkNonces as NetworkNoncesInterface,
-  TokenAmount as TokenAmountInterface,
-  TokenResult as TokenResultInterface
-} from '@ambire-common/libs/portfolio/interfaces'
-import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
+import { TokenResult as TokenResultInterface } from '@ambire-common/libs/portfolio/interfaces'
 import {
   buildClaimWalletRequest,
   buildMintVestingRequest
 } from '@ambire-common/libs/transfer/userRequest'
-import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
-import useConnectivity from '@common/hooks/useConnectivity'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
-import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
-import useDefiPositionsControllerState from '@web/hooks/useDeFiPositionsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
-export interface AccountPortfolio {
-  tokens: TokenResultInterface[]
-  collections: CollectionResultInterface[]
-  totalAmount: number
-  isAllReady: boolean
-  simulationNonces: NetworkNoncesInterface
-  tokenAmounts: TokenAmountInterface[]
-}
-
-const DEFAULT_ACCOUNT_PORTFOLIO = {
-  tokens: [],
-  collections: [],
-  totalAmount: 0,
-  isAllReady: false,
-  simulationNonces: {},
-  tokenAmounts: []
-}
-
 const PortfolioControllerStateContext = createContext<{
-  accountPortfolio: AccountPortfolio
   state: PortfolioController
   startedLoadingAtTimestamp: null | number
   getTemporaryTokens: (networkId: NetworkId, tokenId: CustomToken['address']) => void
@@ -55,9 +22,7 @@ const PortfolioControllerStateContext = createContext<{
   checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
   claimWalletRewards: (token: TokenResultInterface) => void
   claimEarlySupportersVesting: (token: TokenResultInterface) => void
-  resetAccountPortfolioLocalState: () => void
 }>({
-  accountPortfolio: DEFAULT_ACCOUNT_PORTFOLIO,
   state: {} as any,
   startedLoadingAtTimestamp: null,
   getTemporaryTokens: () => {},
@@ -65,119 +30,17 @@ const PortfolioControllerStateContext = createContext<{
   removeTokenPreferences: () => {},
   checkToken: () => {},
   claimWalletRewards: () => {},
-  claimEarlySupportersVesting: () => {},
-  resetAccountPortfolioLocalState: () => {}
+  claimEarlySupportersVesting: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'portfolio'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
-  const { isOffline } = useConnectivity()
-  const accountsState = useAccountsControllerState()
+  // const { isOffline } = useConnectivity()
   const { account } = useSelectedAccountControllerState()
-  const actionState = useActionsControllerState()
-  const { state: defiPositionsState } = useDefiPositionsControllerState()
-  const hasSignAccountOp = useMemo(
-    () => !!actionState?.visibleActionsQueue?.filter((action) => action.type === 'accountOp'),
-    [actionState?.visibleActionsQueue]
-  )
-
-  const portfolioStateWithDefiPositions = useMemo(() => {
-    if (
-      !account ||
-      !defiPositionsState?.[account.addr] ||
-      !state.latest ||
-      !state.pending ||
-      !state.latest[account.addr] ||
-      !state.pending[account.addr]
-    )
-      return state
-    const defiPositionsAccountState = defiPositionsState[account.addr]
-
-    const addDefiPositionsToPortfolio = (accountState: AccountState) => {
-      if (!accountState) return accountState
-
-      Object.keys(accountState).forEach((networkId) => {
-        const networkState = accountState[networkId]
-
-        if (networkState?.result) {
-          let tokens = networkState.result.tokens || []
-          let networkBalance = networkState.result.total?.usd || 0
-
-          const positions = defiPositionsAccountState[networkId] || {}
-
-          positions.positionsByProvider?.forEach((posByProv: PositionsByProvider) => {
-            posByProv.positions.forEach((pos) => {
-              pos.assets.forEach((a) => {
-                const tokenInPortfolioIndex = tokens.findIndex((t) => {
-                  return (
-                    getAddress(t.address) === getAddress(a.address) && t.networkId === networkId
-                  )
-                })
-
-                if (tokenInPortfolioIndex !== -1) {
-                  const tokenInPortfolio = tokens[tokenInPortfolioIndex]
-                  const priceUSD = tokenInPortfolio.priceIn.find(
-                    ({ baseCurrency }: { baseCurrency: string }) =>
-                      baseCurrency.toLowerCase() === 'usd'
-                  )?.price
-                  const tokenBalanceUSD = priceUSD
-                    ? Number(
-                        safeTokenAmountAndNumberMultiplication(
-                          BigInt(tokenInPortfolio.amount),
-                          tokenInPortfolio.decimals,
-                          priceUSD
-                        )
-                      )
-                    : undefined
-
-                  networkBalance -= tokenBalanceUSD || 0 // deduct portfolio token balance
-
-                  // eslint-disable-next-line no-param-reassign
-                  tokens = tokens.filter((_, index) => index !== tokenInPortfolioIndex)
-                }
-              })
-
-              networkBalance += posByProv.positionInUSD || 0
-            })
-          })
-
-          // eslint-disable-next-line no-param-reassign
-          accountState[networkId]!.result!.total.usd = networkBalance
-          // eslint-disable-next-line no-param-reassign
-          accountState[networkId]!.result!.tokens = tokens
-        }
-      })
-
-      return accountState
-    }
-
-    const latestAccountState = addDefiPositionsToPortfolio(state.latest[account.addr])
-    const pendingAccountState = addDefiPositionsToPortfolio(state.pending[account.addr])
-
-    if (latestAccountState) {
-      state.latest[account.addr] = latestAccountState
-    }
-
-    if (pendingAccountState) {
-      state.pending[account.addr] = pendingAccountState
-    }
-
-    return state
-  }, [account, state, defiPositionsState])
-
-  const [accountPortfolio, setAccountPortfolio] =
-    useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
 
   const [startedLoadingAtTimestamp, setStartedLoadingAtTimestamp] = useState<number | null>(null)
-  const prevAccountPortfolio = useRef<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
-
-  const resetAccountPortfolioLocalState = useCallback(() => {
-    setAccountPortfolio(DEFAULT_ACCOUNT_PORTFOLIO)
-    prevAccountPortfolio.current = DEFAULT_ACCOUNT_PORTFOLIO
-    setStartedLoadingAtTimestamp(null)
-  }, [])
 
   useEffect(() => {
     if (!Object.keys(state).length) {
@@ -188,65 +51,42 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, state])
 
-  useEffect(() => {
-    // Set an initial empty state for accountPortfolio
-    resetAccountPortfolioLocalState()
-  }, [account, resetAccountPortfolioLocalState])
+  // TODO:
+  // useEffect(() => {
+  //   if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
+  //     setStartedLoadingAtTimestamp(null)
+  //     return
+  //   }
 
-  useEffect(() => {
-    if (!account) return
+  //   if (!startedLoadingAtTimestamp && !accountPortfolio.isAllReady) {
+  //     setStartedLoadingAtTimestamp(Date.now())
+  //   }
+  // }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
 
-    const newAccountPortfolio = calculateAccountPortfolio(
-      account.addr,
-      portfolioStateWithDefiPositions,
-      prevAccountPortfolio?.current,
-      hasSignAccountOp
-    )
+  // TODO:
+  // useEffect(() => {
+  //   if (!account || !state.latest || !state.latest[account.addr]) return
 
-    if (
-      newAccountPortfolio.isAllReady ||
-      (!prevAccountPortfolio?.current?.tokens?.length && newAccountPortfolio.tokens.length)
-    ) {
-      setAccountPortfolio(newAccountPortfolio)
-
-      if (newAccountPortfolio.isAllReady) prevAccountPortfolio.current = newAccountPortfolio
-    }
-  }, [account, portfolioStateWithDefiPositions, hasSignAccountOp])
-
-  useEffect(() => {
-    if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
-      setStartedLoadingAtTimestamp(null)
-      return
-    }
-
-    if (!startedLoadingAtTimestamp && !accountPortfolio.isAllReady) {
-      setStartedLoadingAtTimestamp(Date.now())
-    }
-  }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
-
-  useEffect(() => {
-    if (!account || !state.latest || !state.latest[account.addr]) return
-
-    if (
-      !isOffline &&
-      state.latest[account.addr].ethereum?.criticalError &&
-      state.latest[account.addr].polygon?.criticalError &&
-      state.latest[account.addr].optimism?.criticalError &&
-      accountPortfolio.isAllReady &&
-      accountsState?.statuses?.updateAccountState === 'INITIAL'
-    ) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
-      })
-    }
-  }, [
-    account,
-    accountPortfolio.isAllReady,
-    accountsState?.statuses?.updateAccountState,
-    dispatch,
-    isOffline,
-    state.latest
-  ])
+  //   if (
+  //     !isOffline &&
+  //     state.latest[account.addr].ethereum?.criticalError &&
+  //     state.latest[account.addr].polygon?.criticalError &&
+  //     state.latest[account.addr].optimism?.criticalError &&
+  //     accountPortfolio.isAllReady &&
+  //     accountsState?.statuses?.updateAccountState === 'INITIAL'
+  //   ) {
+  //     dispatch({
+  //       type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+  //     })
+  //   }
+  // }, [
+  //   account,
+  //   accountPortfolio.isAllReady,
+  //   accountsState?.statuses?.updateAccountState,
+  //   dispatch,
+  //   isOffline,
+  //   state.latest
+  // ])
 
   const getTemporaryTokens = useCallback(
     (networkId: NetworkId, tokenId: string) => {
@@ -341,28 +181,24 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     <PortfolioControllerStateContext.Provider
       value={useMemo(
         () => ({
-          accountPortfolio,
-          state: portfolioStateWithDefiPositions,
+          state,
           startedLoadingAtTimestamp,
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
           getTemporaryTokens,
           claimWalletRewards,
-          claimEarlySupportersVesting,
-          resetAccountPortfolioLocalState
+          claimEarlySupportersVesting
         }),
         [
-          accountPortfolio,
+          state,
           startedLoadingAtTimestamp,
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
           getTemporaryTokens,
           claimWalletRewards,
-          claimEarlySupportersVesting,
-          resetAccountPortfolioLocalState,
-          portfolioStateWithDefiPositions
+          claimEarlySupportersVesting
         ]
       )}
     >
