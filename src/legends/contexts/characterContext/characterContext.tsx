@@ -18,21 +18,16 @@ type Character = {
   address: string
 }
 
-const CharacterContext = createContext<{
+type CharacterContextValue = {
   character: Character | null
   getCharacter: () => void
   mintCharacter: (type: number) => void
   isLoading: boolean
   isMinting: boolean
   error: string | null
-}>({
-  character: null,
-  getCharacter: () => {},
-  mintCharacter: () => {},
-  isLoading: false,
-  isMinting: false,
-  error: null
-})
+}
+
+const CharacterContext = createContext<CharacterContextValue>({} as CharacterContextValue)
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
@@ -52,7 +47,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     }
 
     try {
-      setCharacter(null)
       setIsLoading(true)
 
       const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
@@ -65,11 +59,12 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       })
       setError(null)
     } catch (e) {
-      setError(`Couldn't load the requested character: ${connectedAccount}`)
       console.error(e)
-    }
 
-    setIsLoading(false)
+      throw e
+    } finally {
+      setIsLoading(false)
+    }
   }, [connectedAccount])
 
   const mintCharacter = useCallback(
@@ -111,12 +106,14 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
         console.log('Error during minting process:', e)
       }
     },
-    [getCharacter]
+    [addToast, getCharacter]
   )
 
   useEffect(() => {
-    getCharacter()
-  }, [getCharacter])
+    getCharacter().catch(() => {
+      setError(`Couldn't load the requested character: ${connectedAccount}`)
+    })
+  }, [connectedAccount, getCharacter])
 
   const contextValue = useMemo(
     () => ({

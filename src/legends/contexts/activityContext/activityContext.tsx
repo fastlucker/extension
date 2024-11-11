@@ -5,17 +5,14 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 
 import { Activity } from './types'
 
-const ActivityContext = createContext<{
+type ActivityContextType = {
   activity: Activity[] | null
   isLoading: boolean
   error: string | null
-  getActivity: () => void
-}>({
-  activity: null,
-  isLoading: false,
-  error: null,
-  getActivity: () => {}
-})
+  getActivity: () => Promise<number>
+}
+
+const ActivityContext = createContext<ActivityContextType>({} as ActivityContextType)
 const ActivityContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
   const [activity, setActivity] = useState<Activity[] | null>(null)
@@ -30,36 +27,35 @@ const ActivityContextProvider: React.FC<any> = ({ children }) => {
 
       setActivity(response)
       setError(null)
+
+      return response.length as number
     } catch (e) {
-      setIsLoading(false)
       setActivity(null)
 
       console.error(e)
-      setError("Couldn't fetch Character's activity! Please try again later!")
+      throw e
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }, [connectedAccount])
 
   useEffect(() => {
-    getActivity()
+    getActivity().catch(() =>
+      setError("Couldn't fetch Character's activity! Please try again later!")
+    )
   }, [getActivity])
 
-  return (
-    <ActivityContext.Provider
-      value={useMemo(
-        () => ({
-          activity,
-          isLoading,
-          error,
-          getActivity
-        }),
-        [activity, isLoading, error, getActivity]
-      )}
-    >
-      {children}
-    </ActivityContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      activity,
+      isLoading,
+      error,
+      getActivity
+    }),
+    [activity, isLoading, error, getActivity]
   )
+
+  return <ActivityContext.Provider value={contextValue}>{children}</ActivityContext.Provider>
 }
 
 export { ActivityContextProvider, ActivityContext }
