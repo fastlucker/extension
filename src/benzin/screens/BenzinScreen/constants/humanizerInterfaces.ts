@@ -17,7 +17,7 @@ const deployAndExecuteMultipleInterface = new Interface([
   'function deployAndExecuteMultiple(bytes calldata code, uint256 salt, tuple(tuple(address, uint256, bytes)[] calls, bytes signature)[] calldata toExec) external returns (address)'
 ])
 
-const handleOpsInterface = new Interface([
+const handleOps060 = new Interface([
   'function handleOps(tuple(address, uint256, bytes, bytes, uint256, uint256, uint256, uint256, uint256, bytes, bytes)[] calldata ops, address payable beneficiary) public'
 ])
 
@@ -58,7 +58,6 @@ export {
   transferInterface,
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
-  handleOpsInterface,
   executeBySenderInterface,
   quickAccManagerSendInterface,
   quickAccManagerCancelInterface,
@@ -66,5 +65,6 @@ export {
   executeCallInterface,
   executeBatchInterface,
   executeUnknownWalletInterface,
+  handleOps060,
   handleOps070
 }

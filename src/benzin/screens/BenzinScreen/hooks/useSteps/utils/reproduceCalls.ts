@@ -26,8 +26,8 @@ import {
   executeInterface,
   executeMultipleInterface,
   executeUnknownWalletInterface,
+  handleOps060,
   handleOps070,
-  handleOpsInterface,
   quickAccManagerCancelInterface,
   quickAccManagerExecScheduledInterface,
   quickAccManagerSendInterface
@@ -90,8 +90,7 @@ const getExecuteBatchCalls = (callData: string) => {
 
 export const decodeUserOp = (userOp: UserOperation): Call[] => {
   const { callData, paymaster } = userOp
-  // @TODO
-  if (!callData) return []
+
   const callDataSigHash = callData.slice(0, 10)
   const matcher = {
     [userOpSigHashes.executeBySender]: getExecuteBySenderCalls,
@@ -166,8 +165,8 @@ export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
 export const getSender = (receipt: TransactionReceipt, txn: TransactionResponse) => {
   const sigHash = txn.data.slice(0, 10)
 
-  if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
-    const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+  if (sigHash === handleOps060.getFunction('handleOps')!.selector) {
+    const handleOpsData = handleOps060.decodeFunctionData('handleOps', txn.data)
     const sigHashValues = Object.values(userOpSigHashes)
     const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
     if (userOps.length) {
@@ -200,16 +199,16 @@ export const entryPointTxnSplit: {
     const [ops] = handleOps070.decodeFunctionData('handleOps', txn.data)
     const abiCoder = new AbiCoder()
 
-    return ops.map((op: any): IrCall => {
-      const sender = op[0]
-      const nonce = op[1]
-      const hashInitCode = keccak256(op[2])
-      const hashCallData = keccak256(op[3])
+    return ops.map((opArray: any): IrCall => {
+      const sender = opArray[0]
+      const nonce = opArray[1]
+      const hashInitCode = keccak256(opArray[2])
+      const hashCallData = keccak256(opArray[3])
 
-      const accountGasLimits = op[4]
-      const preVerificationGas = op[5]
-      const gasFees = op[6]
-      const paymasterAndData = op[7]
+      const accountGasLimits = opArray[4]
+      const preVerificationGas = opArray[5]
+      const gasFees = opArray[6]
+      const paymasterAndData = opArray[7]
       const hashPaymasterAndData = keccak256(paymasterAndData)
 
       const packed = abiCoder.encode(
@@ -237,7 +236,83 @@ export const entryPointTxnSplit: {
       // @TODO fix link
       const url: string = `http://localhost:19006/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
       return {
-        to: ZeroAddress,
+        to: sender,
+        data: '0x',
+        value: 0n,
+        fullVisualization: [
+          getLink(url, '4337 operation'),
+          getLabel('from'),
+          getAddressVisualization(sender)
+        ]
+      }
+    })
+  },
+
+  [handleOps060.getFunction('handleOps')!.selector]: (
+    txn: TransactionResponse,
+    network: Network,
+    txId: string
+  ) => {
+    const [ops] = handleOps060.decodeFunctionData('handleOps', txn.data)
+    const abiCoder = new AbiCoder()
+
+    return ops.map((opArray: any): IrCall => {
+      const sender = opArray[0]
+      const nonce = opArray[1]
+      const hashInitCode = keccak256(opArray[2])
+      const hashCallData = keccak256(opArray[3])
+
+      const callGasLimit = opArray[4]
+      const verificationGasLimit = opArray[5]
+      const preVerificationGas = opArray[6]
+      const maxFeePerGas = opArray[7]
+      const maxPriorityFeePerGas = opArray[8]
+      const paymasterAndData = opArray[9]
+      const hashPaymasterAndData = keccak256(paymasterAndData)
+
+      const packed = abiCoder.encode(
+        [
+          'address',
+          'uint256',
+          'bytes32',
+          'bytes32',
+          'uint256',
+          'uint256',
+          'uint256',
+          'uint256',
+          'uint256',
+          'bytes32'
+        ],
+        [
+          sender,
+          nonce,
+          hashInitCode,
+          hashCallData,
+          callGasLimit,
+          verificationGasLimit,
+          preVerificationGas,
+          maxFeePerGas,
+          maxPriorityFeePerGas,
+          hashPaymasterAndData
+        ]
+      )
+
+      const hash = keccak256(packed)
+
+      const finalHash = keccak256(
+        abiCoder.encode(
+          ['bytes32', 'address', 'uint256'],
+          [hash, '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789', network.chainId]
+        )
+      )
+      // todo add parsing for
+      // executeBatch(address[],uint256[],bytes[])
+      // http://localhost:19006/?networkId=ethereum&txnId=0xd3a7113f662314733dfd64dfe879775722d687f7bde737b2a3c8e1726e80622c&userOpHash=0xed49431fb016fbb81a56e43b1f05a0a7bc2fa5f3326bf3af2f30c22955ea28fb
+
+      // @TODO fix link
+      const url: string = `http://localhost:19006/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
+      return {
+        to: sender,
         data: '0x',
         value: 0n,
         fullVisualization: [

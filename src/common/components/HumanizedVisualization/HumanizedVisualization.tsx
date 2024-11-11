@@ -103,6 +103,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'image' && item.content) {
           return (
             <ManifestImage
+              key={key}
               uri={item.content}
               containerStyle={spacings.mrSm}
               size={36}
