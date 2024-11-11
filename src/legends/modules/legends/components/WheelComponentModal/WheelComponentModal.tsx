@@ -10,7 +10,6 @@ import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import useActivityContext from '@legends/hooks/useActivityContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 
@@ -26,17 +25,16 @@ interface WheelComponentProps {
 
 let fetchTryCount = 0
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
-  const [mustSpin, setMustSpin] = useState(false)
-  const [prizeNumber, setPrizeNumber] = useState(6)
-  const [spinOfTheDay, setSpinOfTheDay] = useState(0)
-  const [isInProgress, setIsInProgress] = useState(false)
-  const { getActivity } = useActivityContext()
+  const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
+  const [wheelState, setWheelState] = useState<
+    'initial' | 'signing' | 'waiting-txn' | 'calculating-reward' | 'spinning' | 'spun'
+  >('initial')
   const { connectedAccount } = useAccountContext()
+  const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
-  const { getLegends } = useLegendsContext()
 
   const checkTransactionStatus = useCallback(async () => {
-    if (spinOfTheDay === 1) return true
+    if (wheelState === 'spinning' || wheelState === 'spun') return true
     try {
       fetchTryCount += 1
       const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
@@ -64,20 +62,16 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
 
       if (spinWheelActivityIndex !== -1) {
         setPrizeNumber(spinWheelActivityIndex)
-        setMustSpin(true)
-        setSpinOfTheDay(1)
-        getActivity()
-        getLegends()
+        setWheelState('spinning')
         return true
       }
     } catch (error) {
       console.error('Error fetching transaction status:', error)
-      addToast('Error fetching transaction status', 'error')
       return false
     }
 
     return false
-  }, [connectedAccount, spinOfTheDay, addToast, getActivity, getLegends])
+  }, [wheelState, connectedAccount])
 
   const broadcastTransaction = useCallback(async () => {
     // Switch to Base chain
@@ -90,7 +84,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     const signer = await provider.getSigner()
 
     try {
-      setIsInProgress(true)
+      setWheelState('signing')
       const randomValueBytes = randomBytes(32)
       const randomValue = BigInt(hexlify(randomValueBytes))
 
@@ -99,16 +93,23 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('spinWheel', [randomValue])
       })
 
+      setWheelState('waiting-txn')
       const receipt = await tx.wait()
 
       if (receipt && receipt.status === 1) {
+        setWheelState('calculating-reward')
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
           const intervalId = setInterval(async () => {
             if (fetchTryCount >= 10) {
               clearInterval(intervalId)
               console.error('Failed to fetch transaction status after 10 attempts')
-              addToast('Failed to fetch transaction status', 'error')
+              addToast(
+                "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
+                'error'
+              )
+              setWheelState('spun')
+              await onLegendComplete()
               return
             }
             const found = await checkTransactionStatus()
@@ -121,28 +122,37 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     } catch (e) {
       console.error('Failed to broadcast transaction:', e)
       addToast('Failed to broadcast transaction', 'error')
-      setMustSpin(false)
-    } finally {
-      setIsInProgress(false)
+      setWheelState('initial')
     }
-  }, [connectedAccount, checkTransactionStatus, addToast])
+  }, [checkTransactionStatus, addToast, onLegendComplete])
 
   const handleSpinClick = async () => {
-    if (!mustSpin) {
+    if (wheelState === 'initial') {
       await broadcastTransaction()
     }
   }
 
   const getButtonLabel = (): string => {
-    if (isInProgress) return 'Signing...'
-    if (mustSpin) return 'Spinning...'
-    if (spinOfTheDay) return 'Already Spun'
-    return 'Spin the Wheel'
+    switch (wheelState) {
+      case 'signing':
+        return 'Signing...'
+      case 'waiting-txn':
+        return 'Waiting for transaction...'
+      case 'calculating-reward':
+        return 'Calculating reward...'
+      case 'spinning':
+        return 'Spinning...'
+      case 'spun':
+        if (!prizeNumber) return 'We are unable to retrieve your prize at the moment'
+        return `You won ${wheelData[prizeNumber].option} xp`
+      default:
+        return 'Spin the Wheel'
+    }
   }
 
   return (
     <Modal className={styles.modal} isOpen={isOpen} setIsOpen={setIsOpen}>
-      {!mustSpin && spinOfTheDay ? (
+      {wheelState === 'spun' ? (
         <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
       ) : null}
       <Modal.Heading className={styles.heading}>Spin the wheel</Modal.Heading>
@@ -153,10 +163,20 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       </Modal.Text>
       <div className={styles.wheelContainer}>
         <Wheel
-          mustStartSpinning={mustSpin}
-          prizeNumber={prizeNumber}
-          onStopSpinning={() => {
-            setMustSpin(false)
+          // TODO: Figure out why the wheel starts spinning a couple of times
+          // before the actual spin. The most likely cause is component rerendering.
+          mustStartSpinning={wheelState === 'spinning'}
+          prizeNumber={prizeNumber ?? 6}
+          onStopSpinning={async () => {
+            setWheelState('spun')
+            await onLegendComplete()
+            if (!prizeNumber) {
+              addToast(
+                "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
+                'error'
+              )
+              return
+            }
             addToast(`You received ${wheelData[prizeNumber].option} xp`, 'success')
           }}
           data={wheelData}
@@ -174,7 +194,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         />
         <button
           onClick={handleSpinClick}
-          disabled={mustSpin || !!spinOfTheDay || !!isInProgress}
+          disabled={wheelState !== 'initial'}
           type="button"
           className={styles.button}
         >
