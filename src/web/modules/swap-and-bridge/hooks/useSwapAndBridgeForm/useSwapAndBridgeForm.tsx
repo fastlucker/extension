@@ -14,10 +14,10 @@ import Text from '@common/components/Text'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import formatDecimals from '@common/utils/formatDecimals'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTokenSelectProps'
 import { getTokenId } from '@web/utils/token'
@@ -41,7 +41,7 @@ const useSwapAndBridgeForm = () => {
     toChainId,
     updateToTokenListStatus
   } = useSwapAndBridgeControllerState()
-  const { selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const debouncedDispatchUpdateFormRef = useRef<_.DebouncedFunc<(value: string) => void>>()
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
@@ -266,10 +266,10 @@ const useSwapAndBridgeForm = () => {
   const pendingRoutes = useMemo(() => {
     return (
       (activeRoutes || [])
-        .filter((r) => getAddress(r.route.userAddress) === selectedAccount)
+        .filter((r) => getAddress(r.route.userAddress) === account?.addr)
         .reverse() || []
     )
-  }, [activeRoutes, selectedAccount])
+  }, [activeRoutes, account])
 
   return {
     sessionId,

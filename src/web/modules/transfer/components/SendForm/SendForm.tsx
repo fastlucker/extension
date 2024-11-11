@@ -22,6 +22,7 @@ import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
 import { getTokenId } from '@web/utils/token'
@@ -89,7 +90,8 @@ const SendForm = ({
 }) => {
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
-  const { selectedAccount, accountStates, accounts } = useAccountsControllerState()
+  const { accountStates } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const {
     maxAmount,
@@ -254,9 +256,7 @@ const SendForm = ({
 
     if (!networkData) return
 
-    const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
-    if (isSmartAccount || !selectedAccount || !selectedAccountData || !selectedToken?.networkId)
-      return
+    if (isSmartAccount || !account || !selectedToken?.networkId) return
 
     const rpcUrl = networkData.selectedRpcUrl
     const provider = new JsonRpcProvider(rpcUrl)
@@ -266,13 +266,13 @@ const SendForm = ({
     Promise.all([
       getGasPriceRecommendations(provider, networkData, 'latest'),
       estimateEOA(
-        selectedAccountData,
+        account,
         {
-          accountAddr: selectedAccount,
+          accountAddr: account.addr,
           networkId: selectedToken.networkId,
           signingKeyAddr: null,
           signingKeyType: null,
-          nonce: accountStates[selectedAccount][selectedToken.networkId].nonce,
+          nonce: accountStates[account.addr][selectedToken.networkId].nonce,
           calls: [
             {
               to: ZeroAddress,
@@ -328,15 +328,7 @@ const SendForm = ({
     return () => {
       provider?.destroy()
     }
-  }, [
-    accountStates,
-    accounts,
-    estimation,
-    isSmartAccount,
-    networks,
-    selectedAccount,
-    selectedToken
-  ])
+  }, [accountStates, estimation, isSmartAccount, networks, account, selectedToken])
 
   return (
     <ScrollableWrapper

@@ -14,6 +14,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState/useMainCon
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
@@ -35,6 +36,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const networksState = useNetworksControllerState()
   const providersState = useProvidersControllerState()
   const accountsState = useAccountsControllerState()
+  const selectedAccountState = useSelectedAccountControllerState()
   const walletState = useWalletStateController()
   const signMessageState = useSignMessageControllerState()
   const actionsState = useActionsControllerState()
@@ -62,6 +64,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const hasAccountsState: boolean = useMemo(
     () => !!Object.keys(accountsState).length,
     [accountsState]
+  )
+  const hasSelectedAccountState: boolean = useMemo(
+    () => !!Object.keys(selectedAccountState).length,
+    [selectedAccountState]
   )
   const hasWalletState: boolean = useMemo(
     () => !!Object.keys(walletState).length && !!walletState?.isReady,
@@ -126,6 +132,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasNetworksState &&
       hasProvidersState &&
       hasAccountsState &&
+      hasSelectedAccountState &&
       hasWalletState &&
       hasAccountAdderState &&
       hasKeystoreState &&
@@ -150,6 +157,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasNetworksState,
     hasProvidersState,
     hasAccountsState,
+    hasSelectedAccountState,
     hasWalletState,
     hasAccountAdderState,
     hasKeystoreState,

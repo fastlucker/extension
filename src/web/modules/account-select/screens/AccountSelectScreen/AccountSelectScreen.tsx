@@ -21,6 +21,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 
@@ -38,7 +39,7 @@ const AccountSelectScreen = () => {
     isReadyToScrollToSelectedAccount
   } = useAccountsList({ flatlistRef })
   const { navigate } = useNavigation()
-  const { selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
   const accountsContainerRef = useRef(null)
@@ -49,26 +50,19 @@ const AccountSelectScreen = () => {
     []
   )
 
-  const renderItem = ({ item: account }: { item: AccountType }) => {
-    return (
-      <Account
-        onSelect={onAccountSelect}
-        key={account.addr}
-        account={account}
-        withSettings={false}
-      />
-    )
+  const renderItem = ({ item: acc }: { item: AccountType }) => {
+    return <Account onSelect={onAccountSelect} key={acc.addr} account={acc} withSettings={false} />
   }
 
   useEffect(() => {
     // Navigate to the dashboard after the account is selected to avoid showing the dashboard
     // of the previously selected account.
-    if (!selectedAccount || !pendingToBeSetSelectedAccount) return
+    if (!account || !pendingToBeSetSelectedAccount) return
 
-    if (selectedAccount === pendingToBeSetSelectedAccount) {
+    if (account.addr === pendingToBeSetSelectedAccount) {
       navigate(ROUTES.dashboard)
     }
-  }, [selectedAccount, navigate, pendingToBeSetSelectedAccount])
+  }, [account, navigate, pendingToBeSetSelectedAccount])
 
   return !pendingToBeSetSelectedAccount ? (
     <TabLayoutContainer

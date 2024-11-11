@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC } from 'react'
 import { View } from 'react-native'
 
 import { isSmartAccount } from '@ambire-common/libs/account/account'
@@ -15,7 +15,7 @@ import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import { tabLayoutWidths } from '../TabLayoutWrapper'
@@ -31,11 +31,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true }) => {
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
-  const accountsState = useAccountsControllerState()
-
-  const account = useMemo(() => {
-    return accountsState.accounts.find((acc) => acc.addr === accountsState.selectedAccount)
-  }, [accountsState.accounts, accountsState.selectedAccount])
+  const { account } = useSelectedAccountControllerState()
 
   const { isLoading, ens, ud } = useReverseLookup({ address: account?.addr || '' })
 

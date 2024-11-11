@@ -16,10 +16,10 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -32,7 +32,7 @@ interface Props {
 const { isPopup } = getUiType()
 
 const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
-  const { selectedAccount, accounts } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { keys } = useKeystoreControllerState()
   const { t } = useTranslation()
@@ -41,13 +41,12 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const qrCodeRef: any = useRef(null)
   const { addToast } = useToast()
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
-  const selectedAccountData = accounts.find(({ addr }) => addr === selectedAccount)
-  const isViewOnly = getIsViewOnly(keys, selectedAccountData?.associatedKeys || [])
+  const isViewOnly = getIsViewOnly(keys, account?.associatedKeys || [])
 
   const handleCopyAddress = () => {
-    if (!selectedAccount) return
+    if (!account) return
 
-    Clipboard.setStringAsync(selectedAccount)
+    Clipboard.setStringAsync(account.addr)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
 
@@ -63,10 +62,10 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
       <ModalHeader handleClose={handleClose} withBackButton={isPopup} title="Receive Assets" />
       <View style={styles.content}>
         <View style={styles.qrCodeContainer}>
-          {!!selectedAccount && !qrCodeError && (
+          {!!account && !qrCodeError && (
             <View style={styles.qrCode}>
               <QRCode
-                value={selectedAccount}
+                value={account.addr}
                 size={160}
                 quietZone={10}
                 getRef={qrCodeRef}
@@ -87,7 +86,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             {...bindAnim}
           >
             <Text selectable numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
-              {selectedAccount}
+              {account?.addr}
             </Text>
             <CopyIcon style={spacings.mlTy} />
           </AnimatedPressable>

@@ -13,10 +13,10 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, DURATIONS, useCustomHover, useMultiHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
 
 interface Props {
@@ -36,7 +36,7 @@ const Network: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { state } = useRoute()
   const { networks } = useNetworksControllerState()
-  const { selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const portfolioControllerState = usePortfolioControllerState()
   const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({
     values: [
@@ -66,8 +66,8 @@ const Network: FC<Props> = ({
   })
 
   const portfolioByNetworks = useMemo(
-    () => (selectedAccount ? portfolioControllerState.state.latest[selectedAccount] : {}),
-    [selectedAccount, portfolioControllerState.state.latest]
+    () => (account ? portfolioControllerState.state.latest[account.addr] : {}),
+    [account, portfolioControllerState.state.latest]
   )
 
   const navigateAndFilterDashboard = () => {

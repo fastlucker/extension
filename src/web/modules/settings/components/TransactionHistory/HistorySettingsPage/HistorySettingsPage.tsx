@@ -27,6 +27,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
@@ -44,7 +45,8 @@ interface Props {
 const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const { networks } = useNetworksControllerState()
   const activityState = useActivityControllerState()
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { accounts } = useAccountsControllerState()
+  const { account: accountData } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
   const [page, setPage] = useState(1)
   const { t } = useTranslation()
@@ -61,7 +63,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       : activityState.accountsOps?.itemsTotal) || 0
 
   const [account, setAccount] = useState<Account>(
-    accounts.filter((acc) => acc.addr === selectedAccount)[0]
+    accounts.filter((acc) => acc.addr === accountData?.addr)[0]
   )
   const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
 
@@ -139,7 +141,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
         }
       }
     })
-  }, [dispatch, account, network, activityState.isInitialized, selectedAccount])
+  }, [dispatch, account, network, activityState.isInitialized, accountData])
 
   useEffect(() => {
     if (!activityState.isInitialized) return
@@ -239,4 +241,4 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   )
 }
 
-export default HistorySettingsPage
+export default React.memo(HistorySettingsPage)

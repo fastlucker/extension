@@ -16,9 +16,9 @@ import useSelect from '@common/hooks/useSelect'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { findAccountDomainFromPartialDomain } from '@common/utils/domains'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import AddContactBottomSheet from './AddContactBottomSheet'
 import AddressBookDropdown from './AddressBookDropdown'
@@ -64,7 +64,7 @@ const Recipient: React.FC<Props> = ({
   isSWWarningAgreed,
   selectedTokenSymbol
 }) => {
-  const { selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const actualAddress = ensAddress || uDAddress || address
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -184,7 +184,7 @@ const Recipient: React.FC<Props> = ({
           }
           isRecipientAddressUnknown={isRecipientAddressUnknown}
           isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
-          isRecipientAddressSameAsSender={actualAddress === selectedAccount}
+          isRecipientAddressSameAsSender={actualAddress === account?.addr}
           addressValidationMsg={addressValidationMsg}
           onAddToAddressBook={openBottomSheet}
           isSWWarningVisible={isSWWarningVisible}
