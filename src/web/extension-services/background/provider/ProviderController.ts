@@ -90,8 +90,8 @@ export class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    const account = this.mainCtrl.accounts.selectedAccount
-      ? [this.mainCtrl.accounts.selectedAccount]
+    const account = this.mainCtrl.selectedAccount.account
+      ? [this.mainCtrl.selectedAccount.account.addr]
       : []
     this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
@@ -99,7 +99,11 @@ export class ProviderController {
   }
 
   getPortfolioBalance = async ({ session: { origin } }: DappProviderRequest) => {
-    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
+    if (
+      !this.mainCtrl.dapps.hasPermission(origin) ||
+      !this.isUnlocked ||
+      !this.mainCtrl.selectedAccount.account
+    ) {
       return null
     }
 
@@ -108,7 +112,7 @@ export class ProviderController {
     )
 
     const portfolio = calculateAccountPortfolio(
-      this.mainCtrl.accounts.selectedAccount,
+      this.mainCtrl.selectedAccount.account.addr,
       this.mainCtrl.portfolio,
       undefined,
       hasSignAccOp
@@ -127,7 +131,7 @@ export class ProviderController {
       return []
     }
 
-    return this.mainCtrl.accounts.selectedAccount ? [this.mainCtrl.accounts.selectedAccount] : []
+    return this.mainCtrl.selectedAccount.account ? [this.mainCtrl.selectedAccount.account.addr] : []
   }
 
   ethCoinbase = async ({ session: { origin } }: DappProviderRequest) => {
@@ -135,7 +139,7 @@ export class ProviderController {
       return null
     }
 
-    return this.mainCtrl.accounts.selectedAccount || null
+    return this.mainCtrl.selectedAccount.account?.addr || null
   }
 
   @Reflect.metadata('SAFE', true)
