@@ -18,9 +18,20 @@ const CharacterSelect = () => {
   const accountContext = useAccountContext()
   const [loadingMessageId, setLoadingMessageId] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(true)
-  const { character, mintCharacter, isMinting, isMinted } = useCharacterContext()
+  const { character, isLoading, mintCharacter, checkIfCharacterIsMinted, isMinting, isMinted } =
+    useCharacterContext()
   const [navigateToCharacter, setNavigateToCharacter] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const isNftMinted = await checkIfCharacterIsMinted()
+      if (isNftMinted) {
+        setNavigateToCharacter(true)
+      }
+    }
+    fetchData()
+  }, [checkIfCharacterIsMinted])
 
   useEffect(() => {
     if (character && character.characterType !== 'unknown') {
@@ -35,7 +46,7 @@ const CharacterSelect = () => {
         'error'
       )
     }
-  }, [character, isMinting, isMinted, addToast])
+  }, [character, isLoading, isMinting, isMinted, addToast])
 
   const onCharacterChange = (id: number) => {
     setCharacterId(id)

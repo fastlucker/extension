@@ -22,6 +22,7 @@ const CharacterContext = createContext<{
   character: Character | null
   getCharacter: () => void
   mintCharacter: (type: number, setLoadingMessageId: (id: number) => void) => void
+  checkIfCharacterIsMinted: () => Promise<boolean>
   isLoading: boolean
   isMinting: boolean
   isMinted: boolean
@@ -30,6 +31,7 @@ const CharacterContext = createContext<{
   character: null,
   getCharacter: () => {},
   mintCharacter: () => {},
+  checkIfCharacterIsMinted: async () => false,
   isLoading: false,
   isMinting: false,
   isMinted: false,
@@ -76,6 +78,24 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     setIsLoading(false)
   }, [connectedAccount])
 
+  const checkIfCharacterIsMinted = useCallback(async () => {
+    const provider = new ethers.BrowserProvider(window.ambire)
+
+    const signer = await provider.getSigner()
+
+    const abi = LegendsNFT.abi
+    const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
+
+    try {
+      // Check if the user already owns an NFT
+      const characterMinted = await nftContract.balanceOf(signer.getAddress())
+      return characterMinted > 0
+    } catch (e) {
+      console.error('Error checking mint status:', e)
+      return false
+    }
+  }, [])
+
   const mintCharacter = useCallback(
     async (type: number, setLoadingMessageId: (id: number) => void) => {
       // Switch to Base chain
@@ -109,6 +129,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
           setIsMinted(true)
           // Transaction was successful, call getCharacter
           await getCharacter()
+
           setIsMinting(false)
         } else {
           addToast('Error selecting a character: The transaction failed!', 'error')
@@ -134,9 +155,19 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       isLoading,
       isMinting,
       isMinted,
-      error
+      error,
+      checkIfCharacterIsMinted
     }),
-    [character, getCharacter, mintCharacter, isLoading, isMinting, isMinted, error]
+    [
+      character,
+      getCharacter,
+      mintCharacter,
+      isLoading,
+      isMinting,
+      isMinted,
+      error,
+      checkIfCharacterIsMinted
+    ]
   )
 
   // Important: Short-circuit evaluation to prevent loading of child contexts/components
