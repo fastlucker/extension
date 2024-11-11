@@ -169,7 +169,6 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           prizeNumber={prizeNumber ?? 6}
           onStopSpinning={async () => {
             setWheelState('spun')
-            await onLegendComplete()
             if (!prizeNumber) {
               addToast(
                 "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
@@ -178,6 +177,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
               return
             }
             addToast(`You received ${wheelData[prizeNumber].option} xp`, 'success')
+            await onLegendComplete()
           }}
           data={wheelData}
           radiusLineColor="#BAAFAC"
