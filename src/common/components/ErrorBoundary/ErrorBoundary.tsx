@@ -1,5 +1,5 @@
-import React from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import React, { useCallback } from 'react'
+import { Pressable, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 import useTheme from '@common/hooks/useTheme'
 import { useTranslation } from '@common/config/localization'
@@ -12,6 +12,9 @@ import text from '@common/styles/utils/text'
 import { PortalHost } from '@gorhom/portal'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import { Trans } from 'react-i18next'
+import CopyIcon from '@common/assets/svg/CopyIcon'
+import * as Clipboard from 'expo-clipboard'
+import useToast from '@common/hooks/useToast'
 import AmbireLogoHorizontal from '../AmbireLogoHorizontal'
 import Button from '../Button'
 import Text from '../Text'
@@ -24,6 +27,19 @@ const ErrorBoundary = ({ error }: Props) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { addToast } = useToast()
+
+  const handleCopyError = useCallback(async () => {
+    try {
+      await Clipboard.setStringAsync(error.stack!)
+      addToast(t('Error copied to clipboard!') as string, { timeout: 2500 })
+    } catch {
+      addToast(t('Failed to copy error to clipboard!') as string, {
+        timeout: 2500,
+        type: 'error'
+      })
+    }
+  }, [addToast, error])
 
   // Please note that we also need to render `<PortalHost name="global" />` here.
   // If an error occurs, AppInit -> PortalHost will not be rendered because `ErrorBoundary` is a top-level component,
@@ -60,11 +76,11 @@ const ErrorBoundary = ({ error }: Props) => {
           {t('Error Details')}
         </Text>
 
-        <Text style={{ ...spacings.mb, textAlign: 'center' }}>
+        <Text style={{ ...spacings.mbTy, textAlign: 'center' }}>
           {t('This report provides technical details.')}
         </Text>
 
-        <Text style={{ ...spacings.mb, textAlign: 'center' }}>
+        <Text style={{ ...spacings.mbTy, textAlign: 'center' }}>
           <Trans i18nKey="errorBoundaryHeading">
             Please share it with{' '}
             <TouchableOpacity onPress={() => openInTab('https://help.ambire.com/hc')}>
@@ -75,6 +91,16 @@ const ErrorBoundary = ({ error }: Props) => {
             for faster assistance.
           </Trans>
         </Text>
+
+        <Pressable
+          onPress={handleCopyError}
+          style={[flexbox.directionRow, flexbox.alignSelfEnd, spacings.mbTy]}
+        >
+          <Text fontSize={12} weight="medium" color={theme.secondaryText}>
+            {t('Copy')}
+          </Text>
+          <CopyIcon color={theme.secondaryText} style={spacings.mlTy} width={18} height={18} />
+        </Pressable>
 
         <ScrollableWrapper>
           <Text
