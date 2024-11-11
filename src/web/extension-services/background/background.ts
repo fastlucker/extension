@@ -361,11 +361,11 @@ handleKeepAlive()
       clearTimeout(backgroundState.accountStateLatestInterval)
 
     const updateAccountState = async () => {
-      if (!mainCtrl.accounts.selectedAccount) {
+      if (!mainCtrl.selectedAccount.account) {
         console.error('No selected account to latest state')
         return
       }
-      await mainCtrl.accounts.updateAccountState(mainCtrl.accounts.selectedAccount, 'latest')
+      await mainCtrl.accounts.updateAccountState(mainCtrl.selectedAccount.account.addr, 'latest')
       backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
     }
 
@@ -374,7 +374,7 @@ handleKeepAlive()
   }
 
   async function initPendingAccountStateContinuousUpdate(intervalLength: number) {
-    if (!mainCtrl.accounts.selectedAccount) {
+    if (!mainCtrl.selectedAccount.account) {
       console.error('No selected account to update pending state')
       return
     }
@@ -386,19 +386,19 @@ handleKeepAlive()
       .map((op) => op.networkId)
       .filter((networkId, index, self) => self.indexOf(networkId) === index)
     await mainCtrl.accounts.updateAccountState(
-      mainCtrl.accounts.selectedAccount,
+      mainCtrl.selectedAccount.account.addr,
       'pending',
       networksToUpdate
     )
 
     const updateAccountState = async (networkIds: NetworkId[]) => {
-      if (!mainCtrl.accounts.selectedAccount) {
+      if (!mainCtrl.selectedAccount.account) {
         console.error('No selected account to update pending state')
         return
       }
 
       await mainCtrl.accounts.updateAccountState(
-        mainCtrl.accounts.selectedAccount,
+        mainCtrl.selectedAccount.account.addr,
         'pending',
         networkIds
       )
