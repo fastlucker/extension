@@ -67,6 +67,19 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     }
   }, [connectedAccount])
 
+  // The transaction may be confirmed but the relayer may not have updated the character's metadata yet.
+  const pollForCharacterAfterMint = useCallback(async () => {
+    const interval = setInterval(() => {
+      if (character?.characterType !== 'unknown') {
+        clearInterval(interval)
+        return
+      }
+      getCharacter()
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [character?.characterType, getCharacter])
+
   const mintCharacter = useCallback(
     async (type: number) => {
       // Switch to Base chain
@@ -95,7 +108,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
 
         if (receipt.status === 1) {
           // Transaction was successful, call getCharacter
-          await getCharacter()
+          await pollForCharacterAfterMint()
           setIsMinting(false)
         } else {
           addToast('Error selecting a character: The transaction failed!', 'error')
@@ -106,7 +119,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
         console.log('Error during minting process:', e)
       }
     },
-    [addToast, getCharacter]
+    [addToast, pollForCharacterAfterMint]
   )
 
   useEffect(() => {
