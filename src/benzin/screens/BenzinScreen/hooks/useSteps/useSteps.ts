@@ -32,7 +32,12 @@ import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOpera
 
 import { getBenzinUrlParams } from '../../utils/url'
 import { parseLogs } from './utils/parseLogs'
-import reproduceCalls, { getSender } from './utils/reproduceCalls'
+import {
+  decodeUserOp,
+  entryPointTxnSplit,
+  getSender,
+  reproduceCallsFromTxn
+} from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
 
@@ -535,7 +540,10 @@ const useSteps = ({
   }, [network, txn, userOpHash, userOp])
 
   const calls: IrCall[] | null = useMemo(() => {
+    if (!txnId) return null
     if (userOpHash && !userOp) return null
+    if (network && !userOp && txn && entryPointTxnSplit[txn.data.slice(0, 10)])
+      return entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId)
 
     if (network && txnReceipt.from && txn) {
       setCost(formatEther(txnReceipt.actualGasCost!.toString()))
@@ -545,7 +553,7 @@ const useSteps = ({
         signingKeyAddr: txnReceipt.from!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
-        calls: reproduceCalls(txn, userOp),
+        calls: userOp ? decodeUserOp(userOp) : reproduceCallsFromTxn(txn),
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,

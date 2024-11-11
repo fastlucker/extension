@@ -1,10 +1,22 @@
-import { getAddress, isAddress, TransactionReceipt, TransactionResponse, ZeroAddress } from 'ethers'
+import {
+  AbiCoder,
+  getAddress,
+  isAddress,
+  keccak256,
+  TransactionReceipt,
+  TransactionResponse,
+  ZeroAddress
+} from 'ethers'
 
 import {
   RELAYER_EXECUTOR_ADDRESSES,
   STAGING_RELAYER_EXECUTOR_ADDRESSES
 } from '@ambire-common/consts/addresses'
-import { AMBIRE_PAYMASTER } from '@ambire-common/consts/deploy'
+import { AMBIRE_PAYMASTER, ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
+import { Network } from '@ambire-common/interfaces/network'
+import { Call } from '@ambire-common/libs/accountOp/types'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { getAddressVisualization, getLabel, getLink } from '@ambire-common/libs/humanizer/utils'
 import {
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
@@ -27,7 +39,8 @@ export const userOpSigHashes = {
   execute: executeInterface.getFunction('execute')!.selector,
   executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector,
   executeCall: executeCallInterface.getFunction('execute')!.selector,
-  executeBatch: executeBatchInterface.getFunction('executeBatch')!.selector
+  executeBatch: executeBatchInterface.getFunction('executeBatch')!.selector,
+  executeUnknownWalletInterface: executeUnknownWalletInterface.getFunction('execute')!.selector
 }
 
 const transformToAccOpCall = (call: any) => {
@@ -75,19 +88,20 @@ const getExecuteBatchCalls = (callData: string) => {
   return calls
 }
 
-const decodeUserOp = (userOp: UserOperation) => {
+export const decodeUserOp = (userOp: UserOperation): Call[] => {
   const { callData, paymaster } = userOp
-  if (!callData) return null
+  // @TODO
+  if (!callData) return []
   const callDataSigHash = callData.slice(0, 10)
   const matcher = {
     [userOpSigHashes.executeBySender]: getExecuteBySenderCalls,
     [userOpSigHashes.execute]: getExecuteCalls,
     [userOpSigHashes.executeMultiple]: getExecuteMultipleCalls,
     [userOpSigHashes.executeCall]: getExecuteCallCalls,
-    [executeUnknownWalletInterface.getFunction('execute')!.selector]: getExecuteUnknownWalletCalls,
+    [userOpSigHashes.executeUnknownWalletInterface]: getExecuteUnknownWalletCalls,
     [userOpSigHashes.executeBatch]: getExecuteBatchCalls
   }
-  let decodedCalls
+  let decodedCalls = [{ to: userOp.sender, data: userOp.callData, value: 0n }]
   if (matcher[callDataSigHash]) decodedCalls = matcher[callDataSigHash](callData)
 
   if (isAddress(paymaster) && getAddress(paymaster) === AMBIRE_PAYMASTER)
@@ -95,12 +109,7 @@ const decodeUserOp = (userOp: UserOperation) => {
   return decodedCalls
 }
 
-const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) => {
-  if (userOp && userOp.hashStatus === 'found') {
-    const decoded = decodeUserOp(userOp)
-    if (decoded) return decoded
-  }
-
+export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
   const non4337Matcher: {
     [sigHash: string]: (data: string) => { to: string; data: string; value: bigint }[]
   } = {
@@ -180,4 +189,63 @@ export const getSender = (receipt: TransactionReceipt, txn: TransactionResponse)
   return receipt.from
 }
 
-export default reproduceCalls
+export const entryPointTxnSplit: {
+  [sigHash: string]: (txn: TransactionResponse, network: Network, txId: string) => IrCall[]
+} = {
+  [handleOps070.getFunction('handleOps')!.selector]: (
+    txn: TransactionResponse,
+    network: Network,
+    txId: string
+  ) => {
+    const [ops] = handleOps070.decodeFunctionData('handleOps', txn.data)
+    const abiCoder = new AbiCoder()
+
+    return ops.map((op: any): IrCall => {
+      const sender = op[0]
+      const nonce = op[1]
+      const hashInitCode = keccak256(op[2])
+      const hashCallData = keccak256(op[3])
+
+      const accountGasLimits = op[4]
+      const preVerificationGas = op[5]
+      const gasFees = op[6]
+      const paymasterAndData = op[7]
+      const hashPaymasterAndData = keccak256(paymasterAndData)
+
+      const packed = abiCoder.encode(
+        ['address', 'uint256', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'bytes32', 'bytes32'],
+        [
+          sender,
+          nonce,
+          hashInitCode,
+          hashCallData,
+          accountGasLimits,
+          preVerificationGas,
+          gasFees,
+          hashPaymasterAndData
+        ]
+      )
+      const hash = keccak256(packed)
+
+      const finalHash = keccak256(
+        abiCoder.encode(
+          ['bytes32', 'address', 'uint256'],
+          [hash, ERC_4337_ENTRYPOINT, network.chainId]
+        )
+      )
+
+      // @TODO fix link
+      const url: string = `http://localhost:19006/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
+      return {
+        to: ZeroAddress,
+        data: '0x',
+        value: 0n,
+        fullVisualization: [
+          getLink(url, '4337 operation'),
+          getLabel('from'),
+          getAddressVisualization(sender)
+        ]
+      }
+    })
+  }
+}

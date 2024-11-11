@@ -130,6 +130,15 @@ const HumanizedVisualization: FC<Props> = ({
             />
           )
         }
+        if (item.type === 'link') {
+          return (
+            <a style={{ maxWidth: '100%', marginRight }} key={key} href={item.url!}>
+              <Text fontSize={textSize} weight="semiBold" appearance="successText">
+                {item.content}
+              </Text>
+            </a>
+          )
+        }
         if (item.content) {
           return (
             <Text
