@@ -28,21 +28,12 @@ const useInviteEOA = () => {
   }
 
   const inviteEOA = async () => {
+    setEoaAddress('')
     const checksummedAddress = getAddress(eoaAddress)
-
-    try {
-      setEoaAddress('')
-
-      const provider = new BrowserProvider(window.ethereum)
-      const signer = await provider.getSigner()
-
-      const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, LEGENDS_CONTRACT_INTERFACE, signer)
-
-      await contract.invite(checksummedAddress)
-    } catch (e: any) {
-      addToast('Failed to invite EOA address', 'error')
-      console.error(e)
-    }
+    const provider = new BrowserProvider(window.ethereum)
+    const signer = await provider.getSigner()
+    const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, LEGENDS_CONTRACT_INTERFACE, signer)
+    await contract.invite(checksummedAddress)
   }
 
   return {
