@@ -18,20 +18,33 @@ const CharacterSelect = () => {
   const accountContext = useAccountContext()
   const [loadingMessageId, setLoadingMessageId] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(true)
-  const { character, isLoading, mintCharacter, checkIfCharacterIsMinted, isMinting, isMinted } =
-    useCharacterContext()
+  const {
+    character,
+    isLoading,
+    mintCharacter,
+    checkIfCharacterIsMinted,
+    getCharacter,
+    isMinting,
+    isMinted
+  } = useCharacterContext()
   const [navigateToCharacter, setNavigateToCharacter] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     const fetchData = async () => {
       const isNftMinted = await checkIfCharacterIsMinted()
-      if (isNftMinted) {
-        setNavigateToCharacter(true)
+      if (isNftMinted && (!character || character?.characterType === 'unknown')) {
+        getCharacter()
+        setErrorMessage(
+          'Character is already minted but could not be retrieved. Please try again or refresh the page.'
+        )
+        addToast(
+          'Character is already minted but could not be retrieved. Please try again or refresh the page.'
+        )
       }
     }
     fetchData()
-  }, [checkIfCharacterIsMinted])
+  }, [checkIfCharacterIsMinted, isMinting, isMinted, character, addToast, getCharacter])
 
   useEffect(() => {
     if (character && character.characterType !== 'unknown') {
