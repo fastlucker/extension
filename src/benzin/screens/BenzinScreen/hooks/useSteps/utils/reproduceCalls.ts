@@ -208,7 +208,7 @@ export const entryPointTxnSplit: {
       )
 
       // @TODO fix link
-      const url: string = `http://localhost:19006/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
+      const url: string = `https://benzin.ambire.com/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
       return {
         to: sender,
         data: '0x',
@@ -281,7 +281,7 @@ export const entryPointTxnSplit: {
       )
 
       // @TODO fix link
-      const url: string = `http://localhost:19006/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
+      const url: string = `https://benzin.ambire.com/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
       return {
         to: sender,
         data: '0x',
