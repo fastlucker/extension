@@ -72,9 +72,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     // Don't reinit the controller if it already exists. Only update its properties
-    if (transferCtrl) return
-
-    if (!account) return
+    if (transferCtrl || !account) return
 
     transferCtrlRef.current = new TransferController(
       storage,
