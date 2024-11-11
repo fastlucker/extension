@@ -18,7 +18,7 @@
 .text {
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: $primaryText;
 }
 
 .message {
@@ -30,7 +30,7 @@
 
 .progressBarContainer {
   width: 100%;
-  background-color: #e0e0e0;
+  background-color: $primaryBackground;
   border-radius: $primaryBorderRadius;
   overflow: hidden;
   margin-top: 1rem;
@@ -46,11 +46,4 @@
     width: 0;
     transition: width 0.3s ease;
   }
-}
-
-.progressText {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #666;
-  margin-top: 0.5rem;
 }
