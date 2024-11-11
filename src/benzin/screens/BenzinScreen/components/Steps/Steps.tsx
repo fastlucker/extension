@@ -34,14 +34,12 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
     }
   ]
 
-  if (from) {
-    stepRows.push({
-      label: 'Sender',
-      value: from
-    })
-  }
-
-  if (from && originatedFrom && originatedFrom.toLowerCase() !== from.toLowerCase()) {
+  if (originatedFrom) {
+    if (from)
+      stepRows.push({
+        label: 'Sender',
+        value: from
+      })
     stepRows.push({
       label: 'Originated from',
       value: originatedFrom

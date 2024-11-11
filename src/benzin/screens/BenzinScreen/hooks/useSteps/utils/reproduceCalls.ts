@@ -3,7 +3,6 @@ import {
   getAddress,
   isAddress,
   keccak256,
-  TransactionReceipt,
   TransactionResponse,
   ZeroAddress
 } from 'ethers'
@@ -160,32 +159,6 @@ export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
     parsedCalls = parsedCalls.slice(0, -1)
 
   return parsedCalls
-}
-
-export const getSender = (receipt: TransactionReceipt, txn: TransactionResponse) => {
-  const sigHash = txn.data.slice(0, 10)
-
-  if (sigHash === handleOps060.getFunction('handleOps')!.selector) {
-    const handleOpsData = handleOps060.decodeFunctionData('handleOps', txn.data)
-    const sigHashValues = Object.values(userOpSigHashes)
-    const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-    if (userOps.length) {
-      return userOps[0][0]
-    }
-  }
-
-  if (sigHash === handleOps070.getFunction('handleOps')!.selector) {
-    const handleOpsData = handleOps070.decodeFunctionData('handleOps', txn.data)
-    const sigHashValues = Object.values(userOpSigHashes)
-    const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-    if (userOps.length) {
-      return userOps[0][0]
-    }
-  }
-
-  if (Object.values(userOpSigHashes).includes(sigHash)) return receipt.to
-
-  return receipt.from
 }
 
 export const entryPointTxnSplit: {

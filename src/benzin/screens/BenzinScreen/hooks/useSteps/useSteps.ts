@@ -32,12 +32,7 @@ import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOpera
 
 import { getBenzinUrlParams } from '../../utils/url'
 import { parseLogs } from './utils/parseLogs'
-import {
-  decodeUserOp,
-  entryPointTxnSplit,
-  getSender,
-  reproduceCallsFromTxn
-} from './utils/reproduceCalls'
+import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
 
@@ -124,10 +119,9 @@ const useSteps = ({
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [txnReceipt, setTxnReceipt] = useState<{
     actualGasCost: null | BigInt
-    from: null | string
     originatedFrom: null | string
     blockNumber: null | BigInt
-  }>({ actualGasCost: null, from: null, originatedFrom: null, blockNumber: null })
+  }>({ actualGasCost: null, originatedFrom: null, blockNumber: null })
   const [blockData, setBlockData] = useState<null | Block>(null)
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
@@ -268,9 +262,7 @@ const useSteps = ({
         // as it will set incorrect data for sender (from)
         if (!txn) return
 
-        const failedToDecodeUserOp = userOpHash && txnId && userOp && userOp.callData === ''
         setTxnReceipt({
-          from: failedToDecodeUserOp ? null : getSender(receipt, txn),
           originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
@@ -547,11 +539,11 @@ const useSteps = ({
     if (userOp?.hashStatus !== 'found' && txn && entryPointTxnSplit[txn.data.slice(0, 10)])
       return entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId)
 
-    if (txnReceipt.from && txn) {
+    if (txnReceipt.originatedFrom && txn) {
       const accountOp: AccountOp = {
-        accountAddr: txnReceipt.from!,
+        accountAddr: txnReceipt.originatedFrom!,
         networkId: network.id,
-        signingKeyAddr: txnReceipt.from!, // irrelevant
+        signingKeyAddr: txnReceipt.originatedFrom!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
         calls: userOp ? decodeUserOp(userOp) : reproduceCallsFromTxn(txn),
@@ -573,7 +565,7 @@ const useSteps = ({
     calls,
     pendingTime,
     txnId: foundTxnId,
-    from: txnReceipt.from,
+    from: userOp?.sender || null,
     originatedFrom: txnReceipt.originatedFrom,
     userOp
   }
