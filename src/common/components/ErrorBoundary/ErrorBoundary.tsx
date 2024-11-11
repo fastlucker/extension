@@ -9,8 +9,9 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import colors from '@common/styles/colors'
 import { PortalHost } from '@gorhom/portal'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
+import { Trans } from 'react-i18next'
 import AmbireLogoHorizontal from '../AmbireLogoHorizontal'
 import Button from '../Button'
 import Text from '../Text'
@@ -59,10 +60,20 @@ const ErrorBoundary = ({ error }: Props) => {
           {t('Error Details')}
         </Text>
 
-        <Text style={spacings.mb}>
-          {t(
-            'This report provides technical details. Please share it with our support team for faster assistance.'
-          )}
+        <Text style={{ ...spacings.mb, textAlign: 'center' }}>
+          {t('This report provides technical details.')}
+        </Text>
+
+        <Text style={{ ...spacings.mb, textAlign: 'center' }}>
+          <Trans i18nKey="errorBoundaryHeading">
+            Please share it with{' '}
+            <TouchableOpacity onPress={() => openInTab('https://help.ambire.com/hc')}>
+              <Text weight="medium" color={theme.primary}>
+                our support team
+              </Text>
+            </TouchableOpacity>{' '}
+            for faster assistance.
+          </Trans>
         </Text>
 
         <ScrollableWrapper>
@@ -73,7 +84,11 @@ const ErrorBoundary = ({ error }: Props) => {
               common.borderRadiusPrimary,
               spacings.pvMd,
               spacings.phMd,
-              { backgroundColor: colors.wheat }
+              {
+                backgroundColor: theme.warningBackground,
+                borderColor: theme.warningDecorative,
+                borderWidth: 1
+              }
             ]}
           >
             {error.stack}
@@ -129,12 +144,7 @@ const ErrorBoundary = ({ error }: Props) => {
           >
             <Text fontSize={14} style={[text.center, spacings.mbMd]}>
               {t('If the problem persists, please contact us via our')}
-              <TouchableOpacity
-                onPress={() => {
-                  // @ts-ignore, window can't be null
-                  window.open('https://help.ambire.com/hc', '_blank').focus()
-                }}
-              >
+              <TouchableOpacity onPress={() => openInTab('https://help.ambire.com/hc')}>
                 <Text fontSize={14} weight="medium" color={theme.primary}>
                   {' '}
                   {t('Help Center')}

@@ -23,7 +23,6 @@ const colors = {
   mustard: '#FFBC00',
   darkMustard: '#8C6800',
   husk: '#B89C4B',
-  wheat: '#F5D4B5',
   brown: '#944901',
   lightBrown: '#94490114',
   pirateGold: '#ca7e04',
