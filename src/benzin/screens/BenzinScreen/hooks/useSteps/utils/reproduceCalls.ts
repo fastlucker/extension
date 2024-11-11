@@ -207,7 +207,6 @@ export const entryPointTxnSplit: {
         )
       )
 
-      // @TODO fix link
       const url: string = `https://benzin.ambire.com/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
       return {
         to: sender,
@@ -280,7 +279,6 @@ export const entryPointTxnSplit: {
         )
       )
 
-      // @TODO fix link
       const url: string = `https://benzin.ambire.com/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
       return {
         to: sender,
