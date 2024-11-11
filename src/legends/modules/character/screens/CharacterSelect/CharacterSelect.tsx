@@ -30,36 +30,30 @@ const CharacterSelect = () => {
   const [navigateToCharacter, setNavigateToCharacter] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const isNftMinted = await checkIfCharacterIsMinted()
-      if (isNftMinted && (!character || character?.characterType === 'unknown')) {
-        getCharacter()
-        setErrorMessage(
-          'Character is already minted but could not be retrieved. Please try again or refresh the page.'
-        )
-        addToast(
-          'Character is already minted but could not be retrieved. Please try again or refresh the page.'
-        )
-      }
-    }
-    fetchData()
-  }, [checkIfCharacterIsMinted, isMinting, isMinted, character, addToast, getCharacter])
+  const fetchIsNftMinted = async () => checkIfCharacterIsMinted()
 
   useEffect(() => {
-    if (character && character.characterType !== 'unknown') {
-      setIsModalOpen(false)
-      setNavigateToCharacter(true)
-    } else if (!isMinting && !character && isMinted) {
-      setErrorMessage(
-        'Minting failed or the character could not be retrieved. Please try again or refresh the page.'
-      )
-      addToast(
-        'Minting failed or the character could not be retrieved. Please try again or refresh the page.',
-        'error'
-      )
+    const handleCharacterState = async () => {
+      const isNftMinted = await fetchIsNftMinted()
+      if (character && character.characterType !== 'unknown') {
+        setIsModalOpen(false)
+        setNavigateToCharacter(true)
+      } else if (!isMinting && !character && isMinted && !isNftMinted) {
+        const errorMsg =
+          'Minting failed or the character could not be retrieved. Please try again or refresh the page.'
+        setErrorMessage(errorMsg)
+        addToast(errorMsg, 'error')
+      } else if (isNftMinted && (!character || character?.characterType === 'unknown')) {
+        getCharacter()
+        const errorMsg =
+          'Character is already minted but could not be retrieved. Please try again or refresh the page.'
+        setErrorMessage(errorMsg)
+        addToast(errorMsg)
+      }
     }
-  }, [character, isLoading, isMinting, isMinted, addToast])
+
+    handleCharacterState()
+  }, [character, fetchIsNftMinted, getCharacter, isLoading, isMinting, isMinted, addToast])
 
   const onCharacterChange = (id: number) => {
     setCharacterId(id)
