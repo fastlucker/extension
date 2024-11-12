@@ -31,6 +31,7 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import Account from '@web/modules/account-adder/components/Account'
 import ChangeHdPath from '@web/modules/account-adder/components/ChangeHdPath'
 import {
@@ -65,6 +66,7 @@ const AccountsOnPageList = ({
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
   const keystoreState = useKeystoreControllerState()
+  const { networks } = useNetworksControllerState()
   const accountAdderState = useAccountAdderControllerState()
   const [onlySmartAccountsVisible, setOnlySmartAccountsVisible] = useState(!!subType)
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
@@ -214,6 +216,12 @@ const AccountsOnPageList = ({
 
     return t('Select Accounts To Import')
   }, [accountAdderState.isInitializedWithSavedSeed, keyType, subType, t])
+
+  const networkNamesWithAccountStateError = useMemo(() => {
+    return accountAdderState.networksWithAccountStateError.map((networkId) => {
+      return networks.find((network) => network.id === networkId)?.name
+    })
+  }, [accountAdderState.networksWithAccountStateError, networks])
 
   // Empty means it's not loading and no accounts on the current page are derived.
   // Should rarely happen - if the deriving request gets cancelled on the device
@@ -389,6 +397,15 @@ const AccountsOnPageList = ({
           </View>
         )}
         <View style={flexbox.flex1}>
+          {!!networkNamesWithAccountStateError.length && (
+            <Alert
+              type="warning"
+              style={spacings.mbTy}
+              title={`We cannot determine if your accounts are used on ${networkNamesWithAccountStateError.join(
+                ', '
+              )}`}
+            />
+          )}
           <ScrollableWrapper
             style={shouldEnablePagination && spacings.mbLg}
             contentContainerStyle={{
