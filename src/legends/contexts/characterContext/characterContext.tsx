@@ -1,10 +1,7 @@
-import { ethers } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import LegendsNFT from '@contracts/compiled/LegendsNft.json'
-import { LEGENDS_NFT_ADDRESS, RELAYER_URL } from '@env'
+import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import useToast from '@legends/hooks/useToast'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
@@ -21,30 +18,19 @@ type Character = {
 const CharacterContext = createContext<{
   character: Character | null
   getCharacter: () => void
-  mintCharacter: (type: number, setLoadingMessageId: (id: number) => void) => void
-  checkIfCharacterIsMinted: () => Promise<boolean>
   isLoading: boolean
-  isMinting: boolean
-  isMinted: boolean
   error: string | null
 }>({
   character: null,
   getCharacter: () => {},
-  mintCharacter: () => {},
-  checkIfCharacterIsMinted: async () => false,
   isLoading: false,
-  isMinting: false,
-  isMinted: false,
   error: null
 })
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
-  const { addToast } = useToast()
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [isMinting, setIsMinting] = useState(false)
-  const [isMinted, setIsMinted] = useState(false)
 
   // In case of this error, a global <ErrorPage /> will be rendered in place of all other components,
   // as loading a character is crucial for playing in Legends.
@@ -65,6 +51,11 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
 
       const characterJson = await characterResponse.json()
 
+      if (characterJson.characterType === 'unknown') {
+        setIsLoading(false)
+        return
+      }
+
       setCharacter({
         ...(characterJson as Character),
         address: connectedAccount
@@ -78,96 +69,18 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     setIsLoading(false)
   }, [connectedAccount])
 
-  const checkIfCharacterIsMinted = useCallback(async () => {
-    const provider = new ethers.BrowserProvider(window.ambire)
-
-    const signer = await provider.getSigner()
-
-    const abi = LegendsNFT.abi
-    const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
-
-    try {
-      // Check if the user already owns an NFT
-      const characterMinted = await nftContract.balanceOf(signer.getAddress())
-      return characterMinted > 0
-    } catch (e) {
-      console.error('Error checking mint status:', e)
-      return false
-    }
-  }, [])
-
-  const mintCharacter = useCallback(
-    async (type: number, setLoadingMessageId: (id: number) => void) => {
-      // Switch to Base chain
-      await window.ambire.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x2105' }] // chainId must be in hexadecimal numbers
-      })
-
-      setIsMinting(true)
-      setLoadingMessageId(1)
-
-      const provider = new ethers.BrowserProvider(window.ambire)
-
-      const signer = await provider.getSigner()
-
-      const abi = LegendsNFT.abi
-
-      // Create a contract instance
-      const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
-
-      try {
-        // Call the mint function and wait for the transaction response
-        const tx = await nftContract.mint(type)
-
-        // Wait for the transaction to be mined
-        const receipt = await tx.wait()
-        setLoadingMessageId(2)
-
-        if (receipt.status === 1) {
-          setLoadingMessageId(3)
-          setIsMinted(true)
-          // Transaction was successful, call getCharacter
-          await getCharacter()
-
-          setIsMinting(false)
-        } else {
-          addToast('Error selecting a character: The transaction failed!', 'error')
-        }
-      } catch (e) {
-        setIsMinting(false)
-        addToast('Error during minting process!', 'error')
-        console.log('Error during minting process:', e)
-      }
-    },
-    [getCharacter, addToast]
-  )
-
   useEffect(() => {
     getCharacter()
-  }, [getCharacter])
+  }, [getCharacter, connectedAccount])
 
   const contextValue = useMemo(
     () => ({
       character,
       getCharacter,
-      mintCharacter,
       isLoading,
-      isMinting,
-      isMinted,
-      error,
-      checkIfCharacterIsMinted
+      error
     }),
-    [
-      character,
-      getCharacter,
-      mintCharacter,
-      isLoading,
-      isMinting,
-      isMinted,
-      error,
-      checkIfCharacterIsMinted
-    ]
+    [character, getCharacter, isLoading, error]
   )
 
   // Important: Short-circuit evaluation to prevent loading of child contexts/components

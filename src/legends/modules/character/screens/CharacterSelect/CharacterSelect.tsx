@@ -10,32 +10,29 @@ import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 import styles from './CharacterSelect.module.scss'
 import CharacterLoadingModal from './components/CharacterLoadingModal'
 import CharacterSlider from './components/CharacterSlider'
+import useMintCharacter from './hooks/useMintCharacter'
 
 const CharacterSelect = () => {
   const { addToast } = useToast()
 
   const [characterId, setCharacterId] = useState(1)
   const accountContext = useAccountContext()
-  const [loadingMessageId, setLoadingMessageId] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(true)
-  const {
-    character,
-    isLoading,
-    mintCharacter,
-    checkIfCharacterIsMinted,
-    getCharacter,
-    isMinting,
-    isMinted
-  } = useCharacterContext()
   const [navigateToCharacter, setNavigateToCharacter] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+
+  const { character, isLoading, getCharacter } = useCharacterContext()
+  const { isMinting, isMinted, loadingMessage, mintCharacter, checkIfCharacterIsMinted } =
+    useMintCharacter()
 
   const fetchIsNftMinted = async () => checkIfCharacterIsMinted()
 
   useEffect(() => {
     const handleCharacterState = async () => {
       const isNftMinted = await fetchIsNftMinted()
-      if (character && character.characterType !== 'unknown') {
+
+      if (isLoading) return
+      if (character) {
         setIsModalOpen(false)
         setNavigateToCharacter(true)
       } else if (!isMinting && !character && isMinted && !isNftMinted) {
@@ -43,17 +40,17 @@ const CharacterSelect = () => {
           'Minting failed or the character could not be retrieved. Please try again or refresh the page.'
         setErrorMessage(errorMsg)
         addToast(errorMsg, 'error')
-      } else if (isNftMinted && (!character || character?.characterType === 'unknown')) {
+      } else if (isNftMinted && !character) {
         getCharacter()
         const errorMsg =
           'Character is already minted but could not be retrieved. Please try again or refresh the page.'
         setErrorMessage(errorMsg)
-        addToast(errorMsg)
+        addToast(errorMsg, 'error')
       }
     }
 
     handleCharacterState()
-  }, [character, fetchIsNftMinted, getCharacter, isLoading, isMinting, isMinted, addToast])
+  }, [character, isLoading, isMinting, isMinted, addToast])
 
   const onCharacterChange = (id: number) => {
     setCharacterId(id)
@@ -77,7 +74,7 @@ const CharacterSelect = () => {
         <CharacterSlider initialCharacterId={characterId} onCharacterChange={onCharacterChange} />
 
         <button
-          onClick={() => mintCharacter(characterId, setLoadingMessageId)}
+          onClick={() => mintCharacter(characterId)}
           type="button"
           disabled={isMinting}
           className={styles.saveButton}
@@ -88,7 +85,7 @@ const CharacterSelect = () => {
         {isMinting && (
           <CharacterLoadingModal
             isOpen={isModalOpen}
-            loadingMessageId={loadingMessageId}
+            loadingMessage={loadingMessage}
             errorMessage={errorMessage}
           />
         )}

@@ -6,7 +6,7 @@ import Spinner from '@legends/components/Spinner'
 import styles from './CharacterLoadingModal.module.scss'
 
 interface CharacterLoadingModalProps {
-  loadingMessageId: number
+  loadingMessage: string
   isOpen: boolean
   errorMessage: string | null
 }
@@ -18,7 +18,7 @@ const MESSAGES = [
   'Finalizing details...'
 ]
 const CharacterLoadingModal: React.FC<CharacterLoadingModalProps> = ({
-  loadingMessageId,
+  loadingMessage,
   isOpen,
   errorMessage
 }) => {
@@ -33,11 +33,13 @@ const CharacterLoadingModal: React.FC<CharacterLoadingModalProps> = ({
           your adventure!
         </Modal.Text>
         {!errorMessage && <Spinner />}
-        <p className={styles.message}>{MESSAGES[loadingMessageId]}</p>
+        <p className={styles.message}>{loadingMessage}</p>
         <div className={styles.progressBarContainer}>
           <div
             className={styles.progress}
-            style={{ width: `${(loadingMessageId / (MESSAGES.length - 1)) * 100}%` }}
+            style={{
+              width: `${(MESSAGES.indexOf(loadingMessage) / (MESSAGES.length - 1)) * 100}%`
+            }}
           />
         </div>
 
