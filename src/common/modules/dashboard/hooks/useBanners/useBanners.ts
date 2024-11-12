@@ -73,19 +73,5 @@ export default function useBanners(): BannerInterface[] {
     keystoreBanners
   ])
 
-  console.log({
-    allBanners,
-    main: state.banners,
-    actionBanners,
-    swapAndBridgeBanners,
-    defiPositionsBanners,
-    debouncedIsOffline,
-    portfolioBanners,
-    account,
-    activityBanners,
-    emailVaultBanners,
-    keystoreBanners
-  })
-
   return allBanners
 }
