@@ -24,7 +24,6 @@ import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -60,8 +59,7 @@ const DashboardOverview: FC<Props> = ({
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { account } = useSelectedAccountControllerState()
-  const { startedLoadingAtTimestamp } = usePortfolioControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
+  const { portfolio, portfolioStartedLoadingAtTimestamp } = useSelectedAccountControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -146,13 +144,13 @@ const DashboardOverview: FC<Props> = ({
   // Compare the current timestamp with the timestamp when the loading started
   // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
   useEffect(() => {
-    if (!startedLoadingAtTimestamp) {
+    if (!portfolioStartedLoadingAtTimestamp) {
       setIsLoadingTakingTooLong(false)
       return
     }
 
     const checkIsLoadingTakingTooLong = () => {
-      const takesMoreThan5Seconds = Date.now() - startedLoadingAtTimestamp > 5000
+      const takesMoreThan5Seconds = Date.now() - portfolioStartedLoadingAtTimestamp > 5000
 
       setIsLoadingTakingTooLong(takesMoreThan5Seconds)
     }
@@ -172,12 +170,10 @@ const DashboardOverview: FC<Props> = ({
     return () => {
       clearInterval(interval)
     }
-  }, [portfolio?.isAllReady, startedLoadingAtTimestamp])
+  }, [portfolio?.isAllReady, portfolioStartedLoadingAtTimestamp])
 
   const reloadAccount = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
-    })
+    dispatch({ type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT' })
   }, [dispatch])
 
   return (

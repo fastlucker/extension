@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkId } from '@ambire-common/interfaces/network'
@@ -15,16 +15,14 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 
 const PortfolioControllerStateContext = createContext<{
   state: PortfolioController
-  startedLoadingAtTimestamp: null | number
   getTemporaryTokens: (networkId: NetworkId, tokenId: CustomToken['address']) => void
   updateTokenPreferences: (token: CustomToken) => void
   removeTokenPreferences: (token: CustomToken) => void
-  checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
+  checkToken: (token: { address: string; networkId: NetworkId }) => void
   claimWalletRewards: (token: TokenResultInterface) => void
   claimEarlySupportersVesting: (token: TokenResultInterface) => void
 }>({
   state: {} as any,
-  startedLoadingAtTimestamp: null,
   getTemporaryTokens: () => {},
   updateTokenPreferences: () => {},
   removeTokenPreferences: () => {},
@@ -37,65 +35,19 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'portfolio'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
-  // const { isOffline } = useConnectivity()
   const { account } = useSelectedAccountControllerState()
-
-  const [startedLoadingAtTimestamp, setStartedLoadingAtTimestamp] = useState<number | null>(null)
 
   useEffect(() => {
     if (!Object.keys(state).length) {
-      dispatch({
-        type: 'INIT_CONTROLLER_STATE',
-        params: { controller }
-      })
+      dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller } })
     }
   }, [dispatch, state])
-
-  // TODO:
-  // useEffect(() => {
-  //   if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
-  //     setStartedLoadingAtTimestamp(null)
-  //     return
-  //   }
-
-  //   if (!startedLoadingAtTimestamp && !accountPortfolio.isAllReady) {
-  //     setStartedLoadingAtTimestamp(Date.now())
-  //   }
-  // }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
-
-  // TODO:
-  // useEffect(() => {
-  //   if (!account || !state.latest || !state.latest[account.addr]) return
-
-  //   if (
-  //     !isOffline &&
-  //     state.latest[account.addr].ethereum?.criticalError &&
-  //     state.latest[account.addr].polygon?.criticalError &&
-  //     state.latest[account.addr].optimism?.criticalError &&
-  //     accountPortfolio.isAllReady &&
-  //     accountsState?.statuses?.updateAccountState === 'INITIAL'
-  //   ) {
-  //     dispatch({
-  //       type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
-  //     })
-  //   }
-  // }, [
-  //   account,
-  //   accountPortfolio.isAllReady,
-  //   accountsState?.statuses?.updateAccountState,
-  //   dispatch,
-  //   isOffline,
-  //   state.latest
-  // ])
 
   const getTemporaryTokens = useCallback(
     (networkId: NetworkId, tokenId: string) => {
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS',
-        params: {
-          networkId,
-          additionalHint: tokenId
-        }
+        params: { networkId, additionalHint: tokenId }
       })
     },
     [dispatch]
@@ -105,9 +57,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     async (token: CustomToken) => {
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
-        params: {
-          token
-        }
+        params: { token }
       })
     },
     [dispatch]
@@ -117,9 +67,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     (token: CustomToken) => {
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES',
-        params: {
-          token
-        }
+        params: { token }
       })
     },
     [dispatch]
@@ -129,9 +77,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     (token: { networkId: NetworkId; address: string }) => {
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN',
-        params: {
-          token
-        }
+        params: { token }
       })
     },
     [dispatch]
@@ -182,7 +128,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       value={useMemo(
         () => ({
           state,
-          startedLoadingAtTimestamp,
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
@@ -192,7 +137,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         }),
         [
           state,
-          startedLoadingAtTimestamp,
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
