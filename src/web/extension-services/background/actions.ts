@@ -250,6 +250,14 @@ type PortfolioControllerCheckToken = {
     token: { address: TokenResult['address']; networkId: NetworkId }
   }
 }
+
+type PortfolioControllerUpdateConfettiToShown = {
+  type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
+  params: {
+    accountAddr: Account['addr']
+  }
+}
+
 type MainControllerSignAccountOpInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT'
   params: {
@@ -581,6 +589,7 @@ export type Action =
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences
   | PortfolioControllerCheckToken
+  | PortfolioControllerUpdateConfettiToShown
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction

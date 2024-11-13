@@ -80,6 +80,7 @@ const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: P
   const tokens = useMemo(
     () =>
       (accountPortfolio?.tokens || [])
+        .filter((token) => !token.flags.onGasTank) // Hide gas tank tokens from the list
         .filter((token) => {
           if (!filterByNetworkId) return true
           if (filterByNetworkId === 'rewards') return token.flags.rewardsType

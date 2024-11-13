@@ -428,6 +428,9 @@ export const handleActions = async (
         mainCtrl.accounts.selectedAccount
       )
     }
+    case 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN': {
+      return await mainCtrl.portfolio.setShouldShowConfettiToFalse(params.accountAddr)
+    }
     case 'KEYSTORE_CONTROLLER_ADD_SECRET':
       return await mainCtrl.keystore.addSecret(
         params.secretId,

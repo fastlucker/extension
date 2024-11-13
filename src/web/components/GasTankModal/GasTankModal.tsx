@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -32,15 +33,21 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { selectedAccount } = useAccountsControllerState()
+  const { accounts, selectedAccount } = useAccountsControllerState()
   const { state } = usePortfolioControllerState()
 
+  const account = useMemo(
+    () => accounts.find((acc) => acc.addr === selectedAccount),
+    [accounts, selectedAccount]
+  )
+  const isSA = useMemo(() => isSmartAccount(account), [account])
+
   const gasTankTotalBalanceInUsd = useMemo(() => {
-    if (!selectedAccount) return 0
+    if (!selectedAccount || !isSA) return 0
     const selectedAccountGasTankTotal = state?.latest?.[selectedAccount]?.gasTank?.result?.total
 
     return Number(selectedAccountGasTankTotal?.usd) || 0
-  }, [selectedAccount, state.latest])
+  }, [selectedAccount, state.latest, isSA])
 
   const gasTankTotalBalanceInUsdFormatted = useMemo(
     () => formatDecimals(gasTankTotalBalanceInUsd, 'price'),

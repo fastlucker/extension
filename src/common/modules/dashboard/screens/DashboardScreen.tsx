@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { Animated, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -11,6 +11,9 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import GasTankModal from '@web/components/GasTankModal'
 import ReceiveModal from '@web/components/ReceiveModal'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import DAppFooter from '../components/DAppFooter'
@@ -27,6 +30,7 @@ export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 const DashboardScreen = () => {
   const route = useRoute()
   const { styles } = useTheme(getStyles)
+  const { dispatch } = useBackgroundService()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const { ref: gasTankModalRef, open: openGasTankModal, close: closeGasTankModal } = useModalize()
   const lastOffsetY = useRef(0)
@@ -39,7 +43,14 @@ const DashboardScreen = () => {
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
-  const [isCongratsModalShown, setIsCongratsModalShown] = useState(false)
+  const { selectedAccount } = useAccountsControllerState()
+  const { state } = usePortfolioControllerState()
+
+  const shouldPopsUpConfetti = useMemo(() => {
+    if (!selectedAccount) return false
+    return state?.latest?.[selectedAccount]?.gasTank?.result?.tokens[0].shouldPopsUpConfetti
+  }, [selectedAccount, state?.latest])
+  const [isCongratsModalShown, setIsCongratsModalShown] = useState(shouldPopsUpConfetti)
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
     x: number
     y: number
@@ -93,6 +104,14 @@ const DashboardScreen = () => {
     []
   )
 
+  const handleCangratsModalBtnPressed = useCallback(() => {
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
+      params: { accountAddr: selectedAccount! }
+    })
+    setIsCongratsModalShown(false)
+  }, [dispatch, selectedAccount])
+
   return (
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
@@ -116,7 +135,7 @@ const DashboardScreen = () => {
       <DefaultWalletControl />
       {isCongratsModalShown && (
         <CongratsFirstCashbackModal
-          onPress={() => setIsCongratsModalShown(false)}
+          onPress={handleCangratsModalBtnPressed}
           position={gasTankButtonPosition}
         />
       )}
