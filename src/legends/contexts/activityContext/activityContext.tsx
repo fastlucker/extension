@@ -9,7 +9,7 @@ type ActivityContextType = {
   activity: Activity[] | null
   isLoading: boolean
   error: string | null
-  getActivity: () => Promise<number>
+  getActivity: () => Promise<void>
 }
 
 const ActivityContext = createContext<ActivityContextType>({} as ActivityContextType)
@@ -27,8 +27,6 @@ const ActivityContextProvider: React.FC<any> = ({ children }) => {
 
       setActivity(response)
       setError(null)
-
-      return response.length as number
     } catch (e) {
       setActivity(null)
 
