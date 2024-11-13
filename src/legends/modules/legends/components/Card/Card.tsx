@@ -4,6 +4,7 @@ import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Modal from '@legends/components/Modal'
 import useActivityContext from '@legends/hooks/useActivityContext'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
@@ -41,6 +42,7 @@ const getBadgeType = (reward: number, type: CardXpType) => {
 
 const Card: FC<Props> = ({ title, image, description, children, xp, card, action, disabled }) => {
   const { activity } = useActivityContext()
+  const { onLegendComplete } = useLegendsContext()
 
   const isCompleted = card?.type === CardType.done
   const isRecurring = card?.type === CardType.recurring
@@ -60,6 +62,11 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
       ? setIsFortuneWheelModalOpen(false)
       : setIsActionModalOpen(false)
 
+  const onLegendCompleteWrapped = async () => {
+    await onLegendComplete()
+    closeActionModal()
+  }
+
   const hoursUntilMidnight = useMemo(
     () => (activity ? calculateHoursUntilMidnight(activity) : 0),
     [activity]
@@ -71,7 +78,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
         <Modal.Heading>{title}</Modal.Heading>
         <Modal.Text className={styles.modalText}>{description}</Modal.Text>
         <CardActionComponent
-          onComplete={closeActionModal}
+          onComplete={onLegendCompleteWrapped}
           buttonText={buttonText}
           action={action}
         />

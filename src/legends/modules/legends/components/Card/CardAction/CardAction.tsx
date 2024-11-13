@@ -3,8 +3,8 @@ import React, { FC } from 'react'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType } from '@legends/modules/legends/types'
 
-import SendAccOp from './actions/SendAccOp'
 import LinkAcc from './actions/LinkAcc'
+import SendAccOp from './actions/SendAccOp'
 import SummonAcc from './actions/SummonAcc'
 
 type Props = {
@@ -19,7 +19,7 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
       return <SummonAcc onComplete={onComplete} buttonText={buttonText} />
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.LinkAccount) {
-      return <LinkAcc onComplete={onComplete} buttonText={buttonText} />
+      return <LinkAcc onComplete={onComplete} />
     }
 
     return <div>Unhandled action predefinedId ${action.predefinedId}</div>
