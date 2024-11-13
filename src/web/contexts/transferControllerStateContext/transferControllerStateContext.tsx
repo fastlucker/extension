@@ -12,7 +12,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 type ContextReturn = {
@@ -41,7 +40,8 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   const { contacts } = useAddressBookControllerState()
   const { search } = useRoute()
   const [state, setState] = useState<TransferController>({} as TransferController)
-  const { accountPortfolio } = usePortfolioControllerState()
+
+  const { portfolio } = useSelectedAccountControllerState()
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
   const transferCtrlRef = useRef<TransferController | null>(null)
   const transferCtrl = transferCtrlRef.current
@@ -50,7 +50,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const tokens = useMemo(
     () =>
-      accountPortfolio?.tokens.filter((token) => {
+      portfolio?.tokens.filter((token) => {
         const hasAmount = Number(getTokenAmount(token)) > 0
         const isTopUp = selectedTokenFromUrl?.isTopUp
 
@@ -67,7 +67,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
         return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
       }) || [],
-    [accountPortfolio?.tokens, networks, selectedTokenFromUrl?.isTopUp]
+    [portfolio?.tokens, networks, selectedTokenFromUrl?.isTopUp]
   )
 
   useEffect(() => {

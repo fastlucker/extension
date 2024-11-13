@@ -7,17 +7,10 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import {
-  AccountOpIdentifiedBy,
-  fetchTxnId,
-  isIdentifiedByTxn,
-  pollTxnId
-} from '@ambire-common/libs/accountOp/submittedAccountOp'
-import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
+import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import formatDecimals from '@common/utils/formatDecimals'
-import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
@@ -102,26 +95,19 @@ export class ProviderController {
     if (
       !this.mainCtrl.dapps.hasPermission(origin) ||
       !this.isUnlocked ||
-      !this.mainCtrl.selectedAccount.account
+      !this.mainCtrl.selectedAccount.account ||
+      !this.mainCtrl.selectedAccount.portfolio
     ) {
       return null
     }
 
-    const hasSignAccOp = !!this.mainCtrl.actions?.visibleActionsQueue?.filter(
-      (action) => action.type === 'accountOp'
-    )
-
-    const portfolio = calculateAccountPortfolio(
-      this.mainCtrl.selectedAccount.account.addr,
-      this.mainCtrl.portfolio,
-      undefined,
-      hasSignAccOp
-    )
-
     return {
-      amount: portfolio.totalAmount,
-      amountFormatted: formatDecimals(portfolio.totalAmount, 'price'),
-      isReady: portfolio.isAllReady
+      amount: this.mainCtrl.selectedAccount.portfolio.totalBalance,
+      amountFormatted: formatDecimals(
+        this.mainCtrl.selectedAccount.portfolio.totalBalance,
+        'price'
+      ),
+      isReady: this.mainCtrl.selectedAccount.portfolio.isAllReady
     }
   }
 
