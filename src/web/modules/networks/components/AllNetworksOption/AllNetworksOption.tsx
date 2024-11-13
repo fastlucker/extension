@@ -12,7 +12,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
 
 interface Props {
@@ -24,7 +24,7 @@ const AllNetworksOption: FC<Props> = ({ filterByNetworkId }) => {
   const { t } = useTranslation()
   const { state } = useRoute()
   const { theme, styles } = useTheme(getStyles)
-  const portfolioControllerState = usePortfolioControllerState()
+  const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
   const [bindAnim, animStyle] = useMultiHover({
     values: [
       {
@@ -69,12 +69,10 @@ const AllNetworksOption: FC<Props> = ({ filterByNetworkId }) => {
         </Text>
       </View>
       <Text fontSize={!filterByNetworkId ? 20 : 16} weight="semiBold">
-        {`$${formatDecimals(
-          Number(portfolioControllerState.accountPortfolio?.totalAmount || 0)
-        )}` || '$-'}
+        {`$${formatDecimals(Number(selectedAccountPortfolio?.totalBalance || 0))}` || '$-'}
       </Text>
     </AnimatedPressable>
   )
 }
 
-export default AllNetworksOption
+export default React.memo(AllNetworksOption)

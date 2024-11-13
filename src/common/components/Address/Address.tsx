@@ -8,7 +8,7 @@ import { useTranslation } from '@common/config/localization'
 import { isExtension } from '@web/constants/browserapi'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import BaseAddress from './components/BaseAddress'
 import { BenzinDomainsAddress, DomainsAddress } from './components/DomainsAddress'
@@ -22,7 +22,7 @@ interface Props extends TextProps {
 const HUMANIZER_META = humanizerInfo as HumanizerMeta
 
 const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
-  const { accountPortfolio } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const accountsState = useAccountsControllerState()
   const { t } = useTranslation()
   const { contacts = [] } = useAddressBookControllerState()
@@ -33,11 +33,9 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
     return accountsState.accounts.find((a) => a.addr === checksummedAddress)
   }, [accountsState?.accounts, checksummedAddress])
   const tokenInPortfolio = useMemo(() => {
-    if (!accountPortfolio?.tokens) return undefined
-    return accountPortfolio.tokens.find(
-      (token) => token.address.toLowerCase() === address.toLowerCase()
-    )
-  }, [accountPortfolio?.tokens, address])
+    if (!portfolio?.tokens) return undefined
+    return portfolio.tokens.find((token) => token.address.toLowerCase() === address.toLowerCase())
+  }, [portfolio?.tokens, address])
 
   const hardcodedTokenSymbol = HUMANIZER_META.knownAddresses[address.toLowerCase()]?.token?.symbol
   const hardcodedName = HUMANIZER_META.knownAddresses[address.toLowerCase()]?.name
