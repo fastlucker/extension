@@ -8,7 +8,7 @@ import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import { SPACING_TY } from '@common/styles/spacings'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import Nft from './components/Nft'
 import Token from './components/Token'
@@ -33,7 +33,8 @@ const TokenOrNft: FC<Props> = ({
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { addToast } = useToast()
   const [assetInfo, setAssetInfo] = useState<any>({})
-  const { accountPortfolio } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
+
   const { t } = useTranslation()
   const { networks: controllerNetworks } = useNetworksControllerState()
   const { benzinNetworks, addNetwork } = useBenzinNetworksContext()
@@ -55,11 +56,11 @@ const TokenOrNft: FC<Props> = ({
       addNetwork(chainId)
       return
     }
-    const tokenFromPortfolio = accountPortfolio?.tokens?.find(
+    const tokenFromPortfolio = portfolio?.tokens?.find(
       (token) =>
         token.address.toLowerCase() === address.toLowerCase() && token.networkId === network?.id
     )
-    const nftFromPortfolio = accountPortfolio?.collections?.find(
+    const nftFromPortfolio = portfolio?.collections?.find(
       (c) => c.address.toLowerCase() === address.toLowerCase() && c.networkId === network?.id
     )
     if (tokenFromPortfolio || nftFromPortfolio)
@@ -75,8 +76,8 @@ const TokenOrNft: FC<Props> = ({
     address,
     network,
     addToast,
-    accountPortfolio?.collections,
-    accountPortfolio?.tokens,
+    portfolio?.collections,
+    portfolio?.tokens,
     t,
     addNetwork,
     chainId

@@ -29,9 +29,9 @@ import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
 
 import TokenDetailsButton from './Button'
@@ -52,7 +52,7 @@ const TokenDetails = ({
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { isOffline } = useConnectivity()
-  const { selectedAccount, accounts } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
@@ -64,8 +64,7 @@ const TokenDetails = ({
   const isGasTankOrRewardsToken = token?.flags.onGasTank || !!token?.flags.rewardsType
   const isAmountZero = token && getTokenAmount(token) === 0n
   const canToToppedUp = token?.flags.canTopUpGasTank
-  const selectedAccountData = accounts.find((acc) => acc.addr === selectedAccount)
-  const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
+  const isSmartAccount = account ? getIsSmartAccount(account) : false
   const tokenId = token ? getTokenId(token) : ''
 
   const actions = useMemo(
@@ -167,7 +166,6 @@ const TokenDetails = ({
       hasTokenInfo,
       navigate,
       networks,
-      dispatch,
       addToast,
       token,
       handleClose

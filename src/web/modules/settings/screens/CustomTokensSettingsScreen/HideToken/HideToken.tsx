@@ -9,6 +9,7 @@ import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import HideTokenTokenItem from './TokenItem'
 
@@ -16,6 +17,7 @@ const HideToken = () => {
   const { t } = useTranslation()
 
   const portfolio = usePortfolioControllerState()
+  const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
   const [isLoading, setIsLoading] = useState<{
     [token: string]: boolean
   }>({})
@@ -62,7 +64,7 @@ const HideToken = () => {
 
   const tokens = useMemo(
     () =>
-      portfolio.accountPortfolio?.tokens
+      selectedAccountPortfolio?.tokens
         .filter(
           (token) =>
             (token.amount > 0n ||
@@ -103,7 +105,7 @@ const HideToken = () => {
 
           return 0
         }),
-    [portfolio.accountPortfolio?.tokens, portfolio.state.tokenPreferences, searchValue]
+    [selectedAccountPortfolio, portfolio.state.tokenPreferences, searchValue]
   )
 
   const renderItem = useCallback(

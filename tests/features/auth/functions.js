@@ -45,7 +45,7 @@ export async function finishStoriesAndSelectAccount(
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
   if (!skipStories) {
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 1500)
     await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
   }
 

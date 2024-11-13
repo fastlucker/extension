@@ -10,10 +10,9 @@ import Spinner from '@common/components/Spinner'
 import useRoute from '@common/hooks/useRoute'
 import flexbox from '@common/styles/utils/flexbox'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 type ContextReturn = {
   state: TransferController
@@ -36,12 +35,13 @@ export const getInfoFromSearch = (search: string | undefined) => {
 }
 
 const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
-  const accountsState = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { contacts } = useAddressBookControllerState()
   const { search } = useRoute()
   const [state, setState] = useState<TransferController>({} as TransferController)
-  const { accountPortfolio } = usePortfolioControllerState()
+
+  const { portfolio } = useSelectedAccountControllerState()
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
   const transferCtrlRef = useRef<TransferController | null>(null)
   const transferCtrl = transferCtrlRef.current
@@ -50,7 +50,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const tokens = useMemo(
     () =>
-      accountPortfolio?.tokens.filter((token) => {
+      portfolio?.tokens.filter((token) => {
         const hasAmount = Number(getTokenAmount(token)) > 0
         const isTopUp = selectedTokenFromUrl?.isTopUp
 
@@ -67,27 +67,21 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
         return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
       }) || [],
-    [accountPortfolio?.tokens, networks, selectedTokenFromUrl?.isTopUp]
+    [portfolio?.tokens, networks, selectedTokenFromUrl?.isTopUp]
   )
 
   useEffect(() => {
     // Don't reinit the controller if it already exists. Only update its properties
-    if (transferCtrl) return
-
-    const selectedAccountData = accountsState.accounts.find(
-      (acc) => acc.addr === accountsState.selectedAccount
-    )
-
-    if (!selectedAccountData) return
+    if (transferCtrl || !account) return
 
     transferCtrlRef.current = new TransferController(
       storage,
       humanizerInfo as HumanizerMeta,
-      selectedAccountData,
+      account,
       networks
     )
     forceUpdate()
-  }, [forceUpdate, accountsState.accounts, accountsState.selectedAccount, networks, transferCtrl])
+  }, [forceUpdate, account, networks, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return
@@ -97,15 +91,10 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [transferCtrl])
 
   useEffect(() => {
-    const selectedAccountData = accountsState.accounts.find(
-      (acc) => acc.addr === accountsState.selectedAccount
-    )
-    if (!selectedAccountData || !transferCtrl) return
+    if (!account || !transferCtrl) return
 
-    transferCtrl.update({
-      selectedAccountData
-    })
-  }, [accountsState.accounts, accountsState.selectedAccount, transferCtrl])
+    transferCtrl.update({ selectedAccountData: account })
+  }, [account, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return

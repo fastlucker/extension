@@ -13,6 +13,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 const PayOption = ({
   feeOption,
@@ -22,7 +23,8 @@ const PayOption = ({
   disabledReason?: string
 }) => {
   const { t } = useTranslation()
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { accounts } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
 
   const iconSize = 24
@@ -47,7 +49,7 @@ const PayOption = ({
     return networks.find((n) => n.id === feeOption.token.networkId)?.name || ''
   }, [feeOption.token.flags.onGasTank, feeOption.token.networkId, networks])
 
-  const isPaidByAnotherAccount = feeOption.paidBy !== selectedAccount
+  const isPaidByAnotherAccount = feeOption.paidBy !== account?.addr
 
   const paidByLabel = useMemo(() => {
     return paidByAccountData?.preferences.label

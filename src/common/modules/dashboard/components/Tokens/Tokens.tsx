@@ -16,7 +16,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -64,10 +64,7 @@ const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: P
   const { navigate } = useNavigation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
-  const {
-    accountPortfolio,
-    state: { tokenPreferences }
-  } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',
     defaultValues: {
@@ -79,7 +76,7 @@ const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: P
 
   const tokens = useMemo(
     () =>
-      (accountPortfolio?.tokens || [])
+      (portfolio?.tokens || [])
         .filter((token) => !token.flags.onGasTank) // Hide gas tank tokens from the list
         .filter((token) => {
           if (!filterByNetworkId) return true
@@ -96,7 +93,7 @@ const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: P
 
           return doesAddressMatch || doesSymbolMatch
         }),
-    [accountPortfolio?.tokens, filterByNetworkId, searchValue]
+    [portfolio?.tokens, filterByNetworkId, searchValue]
   )
 
   const userHasNoBalance = useMemo(() => !tokens.some(hasAmount), [tokens])
@@ -122,7 +119,7 @@ const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: P
             hasTokenAmount ||
             isInPreferences ||
             // Don't display pinned tokens until we are sure the user has no balance
-            (isPinned && userHasNoBalance && accountPortfolio?.isAllReady)
+            (isPinned && userHasNoBalance && portfolio?.isAllReady)
           )
         })
         .sort((a, b) => {
@@ -169,7 +166,7 @@ const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: P
 
           return 0
         }),
-    [tokens, networks, tokenPreferences, userHasNoBalance, accountPortfolio?.isAllReady]
+    [tokens, networks, tokenPreferences, userHasNoBalance, portfolio?.isAllReady]
   )
 
   const navigateToAddCustomToken = useCallback(() => {
@@ -224,7 +221,7 @@ const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: P
         )
 
       if (item === 'footer') {
-        return accountPortfolio?.isAllReady &&
+        return portfolio?.isAllReady &&
           // A trick to render the button once all tokens have been rendered. Otherwise
           // there will be layout shifts
           index === sortedTokens.length + 3 ? (
@@ -260,7 +257,7 @@ const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: P
       t,
       searchValue,
       filterByNetworkId,
-      accountPortfolio?.isAllReady,
+      portfolio?.isAllReady,
       navigateToAddCustomToken
     ]
   )
@@ -284,9 +281,9 @@ const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: P
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
-        !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
+        !portfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
         ...(initTab?.tokens ? sortedTokens : []),
-        !sortedTokens.length && accountPortfolio?.isAllReady ? 'empty' : '',
+        !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',
         'footer'
       ]}
       renderItem={renderItem}
