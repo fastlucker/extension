@@ -322,8 +322,6 @@ export const handleActions = async (
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.swapAndBridge.removeActiveRoute(params.activeRouteId)
-    case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST':
-      return mainCtrl.swapAndBridge.updatePortfolioTokenList(params)
 
     case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
       return mainCtrl.actions.addOrUpdateAction(params)
