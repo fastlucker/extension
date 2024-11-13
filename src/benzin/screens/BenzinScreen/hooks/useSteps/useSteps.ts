@@ -541,7 +541,7 @@ const useSteps = ({
 
     if (txnReceipt.originatedFrom && txn) {
       const accountOp: AccountOp = {
-        accountAddr: txnReceipt.originatedFrom!,
+        accountAddr: userOp?.sender || txnReceipt.originatedFrom!,
         networkId: network.id,
         signingKeyAddr: txnReceipt.originatedFrom!, // irrelevant
         signingKeyType: 'internal', // irrelevant
