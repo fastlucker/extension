@@ -19,11 +19,11 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -42,8 +42,8 @@ const TokenItem = ({
   tokenPreferences: CustomToken[]
   testID?: string
 }) => {
-  const { accountPortfolio, claimWalletRewards, claimEarlySupportersVesting } =
-    usePortfolioControllerState()
+  const { claimWalletRewards, claimEarlySupportersVesting } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const {
     symbol,
     address,
@@ -52,7 +52,7 @@ const TokenItem = ({
   } = token
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const activityState = useActivityControllerState()
 
   const { styles, theme } = useTheme(getStyles)
@@ -66,22 +66,17 @@ const TokenItem = ({
   })
   const tokenId = getTokenId(token)
 
-  const account = useMemo(
-    () => accounts.find((acc) => acc.addr === selectedAccount),
-    [accounts, selectedAccount]
-  )
-
-  const pendingLastKnownNonce = accountPortfolio.simulationNonces[token.networkId]
+  const pendingLastKnownNonce = portfolio.simulationNonces[token.networkId]
   const activityNonce = activityState?.lastKnownNonce[token.networkId]
   const tokenAmounts = useMemo(
     () =>
-      accountPortfolio.tokenAmounts.find(
+      portfolio.tokenAmounts.find(
         (tokenAmount) =>
           tokenAmount.address === token.address &&
           tokenAmount.networkId === token.networkId &&
           !token.flags.onGasTank
       ),
-    [accountPortfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
+    [portfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
   )
 
   const {
@@ -105,7 +100,7 @@ const TokenItem = ({
 
   // By design, we should simulate only for SA on the DashboardScreen
   const isPending = useMemo(() => {
-    if (!isSmartAccount(account)) return false
+    if (!isSmartAccount(account || undefined)) return false
 
     return !!hasPendingBadges
   }, [account, hasPendingBadges])

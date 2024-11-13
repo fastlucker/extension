@@ -24,6 +24,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import {
   getTokenEligibility,
@@ -51,6 +52,7 @@ const WatchTokenRequestScreen = () => {
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const portfolio = usePortfolioControllerState()
+  const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { providers } = useProvidersControllerState()
 
@@ -114,13 +116,8 @@ const WatchTokenRequestScreen = () => {
 
   const portfolioToken = useMemo(
     () =>
-      getTokenFromPortfolio(
-        tokenData,
-        tokenNetwork,
-        portfolio?.accountPortfolio,
-        tokenInPreferences
-      ),
-    [portfolio, tokenInPreferences, tokenNetwork, tokenData]
+      getTokenFromPortfolio(tokenData, tokenNetwork, selectedAccountPortfolio, tokenInPreferences),
+    [selectedAccountPortfolio, tokenInPreferences, tokenNetwork, tokenData]
   )
 
   const handleTokenType = async (networkId: NetworkId) => {
@@ -160,7 +157,7 @@ const WatchTokenRequestScreen = () => {
         // Check if token is already in portfolio
         const isTokenInHints = await handleTokenIsInPortfolio(
           tokenInPreferences,
-          portfolio.accountPortfolio,
+          selectedAccountPortfolio,
           tokenNetwork,
           tokenData
         )
@@ -197,7 +194,7 @@ const WatchTokenRequestScreen = () => {
     tokenTypeEligibility,
     temporaryToken,
     tokenInPreferences,
-    portfolio.accountPortfolio,
+    selectedAccountPortfolio,
     portfolio.state.validTokens.erc20
   ])
 

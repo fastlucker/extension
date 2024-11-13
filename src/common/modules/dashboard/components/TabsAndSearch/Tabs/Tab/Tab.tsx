@@ -8,7 +8,7 @@ import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens
 import spacings from '@common/styles/spacings'
 import { getAvatarColors } from '@common/utils/avatars'
 import mixHexColors from '@common/utils/mixHexColors'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import getStyles from './styles'
 
@@ -35,8 +35,8 @@ const Tab = ({
 }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
-  const { selectedAccount } = useAccountsControllerState()
-  const avatarColors = getAvatarColors(selectedAccount || '')
+  const { account } = useSelectedAccountControllerState()
+  const avatarColors = getAvatarColors(account?.addr || '')
 
   const isActive = openTab === tab
 

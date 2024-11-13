@@ -14,7 +14,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import RPCSelectBottomSheet from './RPCSelectBottomSheet'
 
-const ERROR_ACTIONS = ['reject-accountOp', 'reject-swap-and-bridge']
+const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge']
 
 const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions = [] }) => {
   const { dispatch } = useBackgroundService()
@@ -93,17 +93,14 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
         handleOpenBottomSheet()
       }
 
-      if (
-        action.actionName === 'reject-swap-and-bridge' ||
-        action.actionName === 'close-swap-and-bridge'
-      ) {
+      if (action.actionName === 'reject-bridge' || action.actionName === 'close-bridge') {
         dispatch({
           type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE',
           params: { activeRouteId: action.meta.activeRouteId }
         })
       }
 
-      if (action.actionName === 'proceed-swap-and-bridge') {
+      if (action.actionName === 'proceed-bridge') {
         dispatch({
           type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
           params: { activeRouteId: action.meta.activeRouteId }
@@ -133,7 +130,7 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
         let actionText = action.label
         let isDisabled = false
 
-        if (action.actionName === 'proceed-swap-and-bridge') {
+        if (action.actionName === 'proceed-bridge') {
           if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
             actionText = 'Preparing...'
             isDisabled = true

@@ -1,4 +1,4 @@
-import { formatUnits, MaxUint256 } from 'ethers'
+import { formatUnits, MaxUint256, ZeroAddress } from 'ethers'
 import React, { FC, memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable } from 'react-native'
@@ -35,7 +35,13 @@ const InnerToken: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const openExplorer = useCallback(async () => {
-    if (network) await Linking.openURL(`${network.explorerUrl}/address/${address}`)
+    let targetUrl = `${network?.explorerUrl}/address/${address}`
+
+    if (address === ZeroAddress) {
+      targetUrl = `https://www.coingecko.com/en/coins/${network?.nativeAssetId}`
+    }
+
+    if (network) await Linking.openURL(targetUrl)
   }, [network, address])
 
   const shouldDisplayUnlimitedAmount = useMemo(() => {

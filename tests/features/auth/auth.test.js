@@ -101,7 +101,7 @@ describe('auth', () => {
 
     await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 1500)
     await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
 
     await page.waitForSelector(SELECTORS.checkbox, { visible: true })
@@ -291,7 +291,7 @@ describe('auth', () => {
 
     await page.waitForFunction(() => window.location.href.includes('/account-adder'))
     // Do the onboarding
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 1500)
     await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
 
     // Select BIP 44 Ledger Live and select import account
