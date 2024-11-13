@@ -4,7 +4,8 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
-import ErrorBoundary from '@common/components/ErrorBoundary'
+import ErrorComponent from '@common/components/ErrorBoundary'
+import ErrorBoundary from 'react-native-error-boundary'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConnectivityProvider } from '@common/contexts/connectivityContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -56,7 +57,7 @@ const AppInit = () => {
           <ConnectivityProvider>
             <SafeAreaProvider>
               <ToastProvider>
-                <ErrorBoundary>
+                <ErrorBoundary FallbackComponent={ErrorComponent}>
                   <BackgroundServiceProvider>
                     <MainControllerStateProvider>
                       <NetworksControllerStateProvider>
