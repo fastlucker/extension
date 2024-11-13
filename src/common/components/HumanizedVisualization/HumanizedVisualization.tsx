@@ -18,7 +18,7 @@ import { COLLECTIBLE_SIZE } from '../Collectible/styles'
 import ChainVisualization from './ChainVisualization/ChainVisualization'
 import DeadlineItem from './DeadlineItem'
 
-const visualizeContent = (kind: string, content?: string | Uint8Array) => {
+export const visualizeContent = (kind: string, content?: string | Uint8Array) => {
   if ((kind === 'message' && !content) || content === '0x') {
     return 'Empty message '
   }

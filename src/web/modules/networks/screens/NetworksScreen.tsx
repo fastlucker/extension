@@ -20,7 +20,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Networks from '@web/modules/networks/components/Networks'
 
 import AddNetworkBottomSheet from '../components/AddNetworkBottomSheet'
@@ -32,7 +32,7 @@ const NetworksScreen = () => {
   const { addToast } = useToast()
   const { state } = useRoute()
   const { theme } = useTheme()
-  const { selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const {
     ref: settingsBottomSheetRef,
     open: openSettingsBottomSheet,
@@ -70,7 +70,7 @@ const NetworksScreen = () => {
     }
 
     try {
-      await createTab(`${url}/address/${selectedAccount}`)
+      await createTab(`${url}/address/${account?.addr}`)
     } catch {
       addToast(t('Failed to open block explorer in a new tab.'), {
         type: 'info'
@@ -129,4 +129,4 @@ const NetworksScreen = () => {
   )
 }
 
-export default NetworksScreen
+export default React.memo(NetworksScreen)

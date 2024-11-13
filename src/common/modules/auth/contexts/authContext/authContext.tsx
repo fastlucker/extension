@@ -3,6 +3,7 @@ import React, { createContext, Dispatch, useEffect, useMemo, useState } from 're
 
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 type AuthContextData = {
   authStatus: AUTH_STATUS
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextData>({
 const AuthProvider: React.FC = ({ children }: any) => {
   const [authStatus, setAuthStatus] = useState<AUTH_STATUS>(AUTH_STATUS.LOADING)
   const accountsState = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
 
   useEffect(() => {
     // authStatus = AUTH_STATUS.LOADING while mainCtrlState not initialized in the context yet
@@ -28,10 +30,10 @@ const AuthProvider: React.FC = ({ children }: any) => {
       return
     }
 
-    if (accountsState.selectedAccount) {
+    if (account) {
       setAuthStatus(AUTH_STATUS.AUTHENTICATED)
     }
-  }, [accountsState?.accounts?.length, accountsState.accounts, accountsState.selectedAccount])
+  }, [accountsState.accounts, account])
 
   return (
     <AuthContext.Provider

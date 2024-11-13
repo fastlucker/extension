@@ -21,11 +21,11 @@ import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacin
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import RefreshIcon from './RefreshIcon'
@@ -59,7 +59,7 @@ const DashboardOverview: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
-  const { selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { accountPortfolio, startedLoadingAtTimestamp, state, resetAccountPortfolioLocalState } =
     usePortfolioControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
@@ -94,13 +94,13 @@ const DashboardOverview: FC<Props> = ({
   const totalPortfolioAmount = useMemo(() => {
     if (!filterByNetworkId) return accountPortfolio?.totalAmount || 0
 
-    if (!selectedAccount) return 0
+    if (!account) return 0
 
     const selectedAccountPortfolio =
-      state?.latest?.[selectedAccount]?.[filterByNetworkId]?.result?.total
+      state?.latest?.[account.addr]?.[filterByNetworkId]?.result?.total
 
     return Number(selectedAccountPortfolio?.usd) || 0
-  }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
+  }, [accountPortfolio?.totalAmount, filterByNetworkId, account, state.latest])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
     totalPortfolioAmount,
@@ -108,17 +108,12 @@ const DashboardOverview: FC<Props> = ({
   ).split('.')
 
   const networksWithCriticalErrors: string[] = useMemo(() => {
-    if (
-      !selectedAccount ||
-      !state.latest[selectedAccount] ||
-      state.latest[selectedAccount]?.isLoading
-    )
-      return []
+    if (!account || !state.latest[account.addr] || state.latest[account.addr]?.isLoading) return []
 
     const networkNames: string[] = []
 
-    Object.keys(state.latest[selectedAccount]).forEach((networkId) => {
-      const networkState = state.latest[selectedAccount][networkId]
+    Object.keys(state.latest[account.addr]).forEach((networkId) => {
+      const networkState = state.latest[account.addr][networkId]
 
       if (networkState?.criticalError) {
         let networkName
@@ -134,7 +129,7 @@ const DashboardOverview: FC<Props> = ({
     })
 
     return networkNames
-  }, [selectedAccount, state.latest, networks])
+  }, [account, state.latest, networks])
 
   const warningMessage = useMemo(() => {
     if (isLoadingTakingTooLong) {
@@ -148,7 +143,7 @@ const DashboardOverview: FC<Props> = ({
     }
 
     return undefined
-  }, [isLoadingTakingTooLong, networksWithCriticalErrors])
+  }, [isLoadingTakingTooLong, networksWithCriticalErrors, t])
 
   // Compare the current timestamp with the timestamp when the loading started
   // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
@@ -216,7 +211,7 @@ const DashboardOverview: FC<Props> = ({
           <Gradients
             width={dashboardOverviewSize.width}
             height={dashboardOverviewSize.height}
-            selectedAccount={selectedAccount}
+            selectedAccount={account?.addr || null}
           />
           <View style={{ zIndex: 2 }}>
             <DashboardHeader />

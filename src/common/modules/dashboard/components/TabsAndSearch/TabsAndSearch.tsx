@@ -19,7 +19,11 @@ const getSearchPlaceholder = (openTab: TabType, t: TFunction) => {
     return t('Search')
   }
 
-  return openTab === 'tokens' ? t('Search for tokens') : t('Search for NFTs')
+  if (openTab === 'tokens') return t('Search for tokens')
+  if (openTab === 'collectibles') return t('Search for NFTs')
+  if (openTab === 'defi') return t('Search for DeFi positions')
+
+  return t('Search')
 }
 
 interface Props {
@@ -45,7 +49,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }) => {
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
       <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-      {['tokens', 'collectibles'].includes(openTab) && (
+      {['tokens', 'collectibles', 'defi'].includes(openTab) && (
         <View style={{ margin: -2 }}>
           <Search
             containerStyle={{ flex: 1, maxWidth: isPopup ? 184 : 212 }}
