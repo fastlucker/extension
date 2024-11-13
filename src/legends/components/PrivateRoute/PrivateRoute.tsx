@@ -9,7 +9,7 @@ import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 const PrivateRoute = () => {
   const { connectedAccount, nonV2Account, allowNonV2Connection, isLoading } = useAccountContext()
-  const { character, isLoading: isCharacterLoading, error: characterError } = useCharacterContext()
+  const { character, error: characterError, isLoading: isCharacterLoading } = useCharacterContext()
 
   if (isLoading) return null
 

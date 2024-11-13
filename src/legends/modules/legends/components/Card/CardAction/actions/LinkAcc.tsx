@@ -135,7 +135,14 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
     } finally {
       setIsInProgress(false)
     }
-  }, [connectedAccount, v1OrBasicSignature, onComplete, addToast, v1OrEoaAddress])
+  }, [
+    connectedAccount,
+    v1OrEoaAddress,
+    v1OrBasicSignature,
+    setAllowNonV2Connection,
+    onComplete,
+    addToast
+  ])
 
   const onButtonClick = useCallback(async () => {
     await changeNetworkToBase()

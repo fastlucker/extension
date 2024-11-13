@@ -15,17 +15,14 @@ type Character = {
   address: string
 }
 
-const CharacterContext = createContext<{
+type CharacterContextValue = {
   character: Character | null
   getCharacter: () => void
   isLoading: boolean
   error: string | null
-}>({
-  character: null,
-  getCharacter: () => {},
-  isLoading: false,
-  error: null
-})
+}
+
+const CharacterContext = createContext<CharacterContextValue>({} as CharacterContextValue)
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
@@ -44,7 +41,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     }
 
     try {
-      setCharacter(null)
       setIsLoading(true)
 
       const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
@@ -62,16 +58,19 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       })
       setError(null)
     } catch (e) {
-      setError(`Couldn't load the requested character: ${connectedAccount}`)
       console.error(e)
-    }
 
-    setIsLoading(false)
+      throw e
+    } finally {
+      setIsLoading(false)
+    }
   }, [connectedAccount])
 
   useEffect(() => {
-    getCharacter()
-  }, [getCharacter, connectedAccount])
+    getCharacter().catch(() => {
+      setError(`Couldn't load the requested character: ${connectedAccount}`)
+    })
+  }, [connectedAccount, getCharacter])
 
   const contextValue = useMemo(
     () => ({

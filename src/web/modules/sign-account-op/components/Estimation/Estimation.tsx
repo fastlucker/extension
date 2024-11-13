@@ -18,6 +18,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Fee from '@web/modules/sign-account-op/components/Fee'
 import Warnings from '@web/modules/sign-account-op/components/Warnings'
 
@@ -41,7 +42,8 @@ const Estimation = ({
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { minWidthSize } = useWindowSize()
-  const { accountStates } = useAccountsControllerState()
+  const { keys } = useKeystoreControllerState()
+  const { accountStates, accounts } = useAccountsControllerState()
   const isSmartAccount = getIsSmartAccount(signAccountOpState?.account)
 
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
@@ -79,8 +81,33 @@ const Estimation = ({
   )
 
   const [payValue, setPayValue] = useState<FeeOption | null>(null)
-  const isFeePaidByEOA =
-    payValue?.paidBy && payValue?.paidBy !== signAccountOpState?.accountOp?.accountAddr
+
+  // Only Hardware Wallet signatures are needed manually as the keys of
+  // hot wallets are stored in the extension
+  const areTwoHWSignaturesRequired = useMemo(() => {
+    const paidBy = payValue?.paidBy
+
+    if (!paidBy || paidBy === signAccountOpState?.accountOp.accountAddr) return false
+
+    const paidByAccountData = accounts.find((account) => account.addr === paidBy)
+    const selectedAccountData = accounts.find(
+      (account) => account.addr === signAccountOpState?.accountOp.accountAddr
+    )
+    if (!paidByAccountData || !selectedAccountData) return false
+
+    const selectedAccountAssociatedKeys = selectedAccountData?.associatedKeys || []
+    const paidByAssociatedKeys = paidByAccountData.associatedKeys || []
+    const selectedAccountImportedKeys = Array.from(
+      new Set(keys.filter(({ addr }) => selectedAccountAssociatedKeys.includes(addr)))
+    )
+    const paidByImportedKeys = Array.from(
+      new Set(keys.filter(({ addr }) => paidByAssociatedKeys.includes(addr)))
+    )
+    const isSelectedAccountHW = selectedAccountImportedKeys.some(({ type }) => type !== 'internal')
+    const isPaidByHW = paidByImportedKeys.some(({ type }) => type !== 'internal')
+
+    return isSelectedAccountHW && isPaidByHW
+  }, [accounts, keys, payValue?.paidBy, signAccountOpState?.accountOp.accountAddr])
 
   const setFeeOption = useCallback(
     (localPayValue: any) => {
@@ -270,7 +297,7 @@ const Estimation = ({
         label={t('Pay fee with')}
         sections={feeOptionSelectSections}
         renderSectionHeader={renderFeeOptionSectionHeader}
-        containerStyle={isFeePaidByEOA ? spacings.mbTy : spacings.mb}
+        containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}
         value={payValue || NO_FEE_OPTIONS}
         disabled={
           disabled ||
@@ -281,11 +308,11 @@ const Estimation = ({
         withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
         stickySectionHeadersEnabled
       />
-      {isFeePaidByEOA && (
+      {areTwoHWSignaturesRequired && (
         <Alert
           size="sm"
           text={t(
-            'You’ve opt in to pay the transaction with Basic account, the signing process would require 2 signatures - one by the smart account and one by the Basic account, that would broadcast the transaction.'
+            "You've opt in to pay the transaction with Basic account, controlled by a Hardware Wallet, the signing process would require 2 signatures - one by the smart account and one by the Basic account, that would broadcast the transaction."
           )}
           style={spacings.mbSm}
         />

@@ -23,11 +23,11 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
@@ -46,7 +46,7 @@ const SignMessageScreen = () => {
   const signStatus = signMessageState.statuses.sign
   const [hasReachedBottom, setHasReachedBottom] = useState<boolean | null>(null)
   const keystoreState = useKeystoreControllerState()
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { isLedgerConnected } = useLedger()
@@ -70,15 +70,9 @@ const SignMessageScreen = () => {
     return signMessageAction.userRequest
   }, [signMessageAction])
 
-  const selectedAccountFull = useMemo(
-    () => accounts.find((acc) => acc.addr === selectedAccount),
-    [accounts, selectedAccount]
-  )
-
   const selectedAccountKeyStoreKeys = useMemo(
-    () =>
-      keystoreState.keys.filter((key) => selectedAccountFull?.associatedKeys.includes(key.addr)),
-    [keystoreState.keys, selectedAccountFull?.associatedKeys]
+    () => keystoreState.keys.filter((key) => account?.associatedKeys.includes(key.addr)),
+    [keystoreState.keys, account?.associatedKeys]
   )
 
   const network = useMemo(
@@ -210,7 +204,7 @@ const SignMessageScreen = () => {
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
   // loading spinner instead (would better be a skeleton, but whatever).
-  if (!signMessageState.isInitialized || !selectedAccountFull) {
+  if (!signMessageState.isInitialized || !account) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />
@@ -238,7 +232,7 @@ const SignMessageScreen = () => {
         selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
         handleChooseSigningKey={handleSign}
         handleClose={() => setIsChooseSignerShown(false)}
-        account={selectedAccountFull}
+        account={account}
       />
       {isViewOnly && (
         <View style={styles.noKeysToSignAlert}>

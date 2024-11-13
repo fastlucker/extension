@@ -20,28 +20,47 @@ export async function bootstrapWithStorage(
   // Initialize browser and page using bootstrap
   const { browser, page, recorder, extensionURL, serviceWorker } = await bootstrap(namespace)
 
+  const {
+    parsedKeystoreAccounts: accounts,
+    parsedIsDefaultWallet: isDefaultWallet,
+    parsedKeyPreferences: keyPreferences,
+    parsedNetworkPreferences: networkPreferences,
+    parsedNetworksWithAssetsByAccount: networksWithAssetsByAccount,
+    parsedOnboardingState: onboardingState,
+    envPermission: permission,
+    parsedPreviousHints: previousHints,
+    envSelectedAccount: selectedAccount,
+    envTermState: termsState,
+    parsedTokenItems: tokenIcons,
+    invite,
+    parsedKeystoreUID: keyStoreUid,
+    parsedKeystoreKeys: keystoreKeys,
+    parsedKeystoreSecrets: keystoreSecrets,
+    ...rest
+  } = storageParams
+
   const storageParamsMapped = {
-    accountPreferences: storageParams.parsedKeystoreAccountsPreferences,
-    accounts: storageParams.parsedKeystoreAccounts,
-    isDefaultWallet: storageParams.parsedIsDefaultWallet,
-    keyPreferences: storageParams.parsedKeyPreferences,
-    networkPreferences: storageParams.parsedNetworkPreferences,
-    networksWithAssetsByAccount: storageParams.parsedNetworksWithAssetsByAccount,
-    onboardingState: storageParams.parsedOnboardingState,
-    permission: storageParams.envPermission,
-    previousHints: storageParams.parsedPreviousHints,
-    selectedAccount: storageParams.envSelectedAccount,
-    termsState: storageParams.envTermState,
-    tokenIcons: storageParams.parsedTokenItems,
-    invite: storageParams.invite,
+    accounts,
+    isDefaultWallet,
+    keyPreferences,
+    networkPreferences,
+    networksWithAssetsByAccount,
+    onboardingState,
+    permission,
+    previousHints,
+    selectedAccount,
+    termsState,
+    tokenIcons,
+    invite,
     isE2EStorageSet: true,
     isPinned: 'true',
     isSetupComplete: 'true',
     ...(!shouldUnlockKeystoreManually && {
-      keyStoreUid: storageParams.parsedKeystoreUID,
-      keystoreKeys: storageParams.parsedKeystoreKeys,
-      keystoreSecrets: storageParams.parsedKeystoreSecrets
-    })
+      keyStoreUid,
+      keystoreKeys,
+      keystoreSecrets
+    }),
+    ...rest
   }
 
   await serviceWorker.evaluate((params) => chrome.storage.local.set(params), storageParamsMapped)

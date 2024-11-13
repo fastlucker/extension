@@ -16,8 +16,8 @@ import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 import getStyles from './styles'
@@ -27,7 +27,8 @@ const AccountButton = () => {
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
-  const { accounts, selectedAccount } = useAccountsControllerState()
+
+  const { account } = useSelectedAccountControllerState()
   const [bindAddressAnim, addressAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -39,14 +40,11 @@ const AccountButton = () => {
     }
   })
 
-  const selectedAccountData = useMemo(
-    () => accounts.find((a) => a.addr === selectedAccount),
-    [accounts, selectedAccount]
-  )
+  if (!account) return null
 
   const handleCopyText = async () => {
     try {
-      await Clipboard.setStringAsync(selectedAccount!)
+      await Clipboard.setStringAsync(account.addr)
       addToast(t('Copied address to clipboard!') as string, { timeout: 2500 })
     } catch {
       addToast(t('Failed to copy address to clipboard!') as string, {
@@ -55,15 +53,6 @@ const AccountButton = () => {
       })
     }
   }
-
-  if (!selectedAccountData) return null
-
-  const account = useMemo(
-    () => accounts.find((a) => a.addr === selectedAccount),
-    [accounts, selectedAccount]
-  )
-
-  if (!account) return null
 
   return (
     <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
@@ -82,11 +71,7 @@ const AccountButton = () => {
       >
         <>
           <View style={styles.accountButtonInfo}>
-            <Avatar
-              pfp={selectedAccountData.preferences.pfp}
-              size={32}
-              isSmart={isSmartAccount(account)}
-            />
+            <Avatar pfp={account.preferences.pfp} size={32} isSmart={isSmartAccount(account)} />
             <Text
               numberOfLines={1}
               weight="semiBold"
@@ -94,7 +79,7 @@ const AccountButton = () => {
               color={theme.primaryBackground}
               fontSize={14}
             >
-              {selectedAccountData.preferences.label}
+              {account.preferences.label}
             </Text>
 
             <AccountKeyIcons isExtended={false} account={account} />
@@ -114,7 +99,7 @@ const AccountButton = () => {
         {...bindAddressAnim}
       >
         <Text color={theme.primaryBackground} style={spacings.mrMi} weight="medium" fontSize={14}>
-          ({shortenAddress(selectedAccount!, 13)})
+          ({shortenAddress(account.addr, 13)})
         </Text>
         <CopyIcon width={20} height={20} color={theme.primaryBackground} />
       </AnimatedPressable>
@@ -122,4 +107,4 @@ const AccountButton = () => {
   )
 }
 
-export default AccountButton
+export default React.memo(AccountButton)

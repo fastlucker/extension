@@ -6,11 +6,6 @@ import { LEGENDS_NFT_ADDRESS } from '@env'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useToast from '@legends/hooks/useToast'
 
-interface Character {
-  id: number
-  name: string
-  attributes: Record<string, any>
-}
 enum CharacterLoadingMessage {
   Initial = 'Initializing character setup...',
   Signing = 'Connecting to the blockchain, please sign your transaction so we can proceed',
@@ -21,7 +16,7 @@ enum CharacterLoadingMessage {
 const useMintCharacter = () => {
   const { addToast } = useToast()
 
-  const { getCharacter } = useCharacterContext()
+  const { getCharacter, character } = useCharacterContext()
 
   const [isMinting, setIsMinting] = useState(false)
   const [isMinted, setIsMinted] = useState(false)
@@ -47,6 +42,19 @@ const useMintCharacter = () => {
       return false
     }
   }, [])
+
+  // The transaction may be confirmed but the relayer may not have updated the character's metadata yet.
+  const pollForCharacterAfterMint = useCallback(async () => {
+    const interval = setInterval(() => {
+      if (character?.characterType !== 'unknown') {
+        clearInterval(interval)
+        return
+      }
+      getCharacter()
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [character?.characterType, getCharacter])
 
   const mintCharacter = useCallback(
     async (type: number) => {
@@ -79,8 +87,9 @@ const useMintCharacter = () => {
         if (receipt.status === 1) {
           setLoadingMessage(CharacterLoadingMessage.Minted)
           setIsMinted(true)
+
           // Transaction was successful, call getCharacter
-          await getCharacter()
+          await pollForCharacterAfterMint()
 
           setIsMinting(false)
         } else {

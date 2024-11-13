@@ -45,12 +45,7 @@ const Collections: FC<Props> = ({
   const { t } = useTranslation()
   const { theme } = useTheme()
   const [selectedCollectible, setSelectedCollectible] = useState<SelectedCollectible | null>(null)
-  const { control, watch, setValue } = useForm({
-    mode: 'all',
-    defaultValues: {
-      search: ''
-    }
-  })
+  const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const searchValue = watch('search')
 
   const closeCollectibleModal = useCallback(() => {
@@ -134,6 +129,7 @@ const Collections: FC<Props> = ({
       filterByNetworkId,
       filteredPortfolioCollections.length,
       initTab?.collectibles,
+      networks,
       openCollectibleModal,
       openTab,
       searchValue,

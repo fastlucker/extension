@@ -113,6 +113,7 @@ handleKeepAlive()
     hasSignAccountOpCtrlInitialized: boolean
     portfolioLastUpdatedByIntervalAt: number
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
+    updateDefiPositionsInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
@@ -217,8 +218,8 @@ handleKeepAlive()
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
 
-  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
-  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
+  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000 // 1 minute
+  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000 // 10 minutes
   async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
@@ -267,6 +268,26 @@ handleKeepAlive()
       // Start the first update
       backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
     }
+  }
+
+  const ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL = 180000 // 3 minutes
+  const INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL = 600000 // 10 minutes
+  async function initDefiPositionsContinuousUpdate() {
+    if (backgroundState.updateDefiPositionsInterval)
+      clearTimeout(backgroundState.updateDefiPositionsInterval)
+
+    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
+    const updateInterval = isExtensionActive
+      ? ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
+      : INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL
+
+    async function updateDefiPositions() {
+      await mainCtrl.defiPositions.updatePositions()
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
+    }
+
+    backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
@@ -340,7 +361,11 @@ handleKeepAlive()
       clearTimeout(backgroundState.accountStateLatestInterval)
 
     const updateAccountState = async () => {
-      await mainCtrl.accounts.updateAccountStates('latest')
+      if (!mainCtrl.selectedAccount.account) {
+        console.error('No selected account to latest state')
+        return
+      }
+      await mainCtrl.accounts.updateAccountState(mainCtrl.selectedAccount.account.addr, 'latest')
       backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
     }
 
@@ -349,16 +374,34 @@ handleKeepAlive()
   }
 
   async function initPendingAccountStateContinuousUpdate(intervalLength: number) {
+    if (!mainCtrl.selectedAccount.account) {
+      console.error('No selected account to update pending state')
+      return
+    }
+
     if (backgroundState.accountStatePendingInterval)
       clearTimeout(backgroundState.accountStatePendingInterval)
 
     const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
       .map((op) => op.networkId)
       .filter((networkId, index, self) => self.indexOf(networkId) === index)
-    await mainCtrl.accounts.updateAccountStates('pending', networksToUpdate)
+    await mainCtrl.accounts.updateAccountState(
+      mainCtrl.selectedAccount.account.addr,
+      'pending',
+      networksToUpdate
+    )
 
     const updateAccountState = async (networkIds: NetworkId[]) => {
-      await mainCtrl.accounts.updateAccountStates('pending', networkIds)
+      if (!mainCtrl.selectedAccount.account) {
+        console.error('No selected account to update pending state')
+        return
+      }
+
+      await mainCtrl.accounts.updateAccountState(
+        mainCtrl.selectedAccount.account.addr,
+        'pending',
+        networkIds
+      )
 
       // if there are no more broadcastedButNotConfirmed ops for the network,
       // remove the timeout
@@ -499,7 +542,7 @@ handleKeepAlive()
                   mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
                   mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
-                    mainCtrl.accounts.selectedAccount
+                    mainCtrl.selectedAccount.account?.addr
                   ])
                 }
                 backgroundState.isUnlocked = controller.isUnlocked
@@ -657,6 +700,7 @@ handleKeepAlive()
       }
 
       initPortfolioContinuousUpdate()
+      initDefiPositionsContinuousUpdate()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, action: Action) => {
@@ -696,6 +740,7 @@ handleKeepAlive()
         pm.dispose(port.id)
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
+        initDefiPositionsContinuousUpdate()
 
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -707,6 +752,7 @@ handleKeepAlive()
   })
 
   initPortfolioContinuousUpdate()
+  initDefiPositionsContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
   await clearHumanizerMetaObjectFromStorage(storage)
 })()
