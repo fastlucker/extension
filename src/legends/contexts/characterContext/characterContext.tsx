@@ -28,7 +28,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-
   // In case of this error, a global <ErrorPage /> will be rendered in place of all other components,
   // as loading a character is crucial for playing in Legends.
   const [error, setError] = useState<string | null>(null)
@@ -42,13 +41,13 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
 
     try {
       setIsLoading(true)
-
       const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
 
       const characterJson = await characterResponse.json()
 
       if (characterJson.characterType === 'unknown') {
         setIsLoading(false)
+        setCharacter(null)
         return
       }
 

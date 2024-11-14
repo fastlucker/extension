@@ -21,27 +21,36 @@ const CharacterSelect = () => {
   const [navigateToCharacter, setNavigateToCharacter] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const { character, isLoading, getCharacter } = useCharacterContext()
-  const { isMinting, isMinted, loadingMessage, mintCharacter, checkIfCharacterIsMinted } =
+  const { character, isLoading } = useCharacterContext()
+  const { isMinting, isMintedDate, loadingMessage, mintCharacter, checkIfCharacterIsMinted } =
     useMintCharacter()
-
-  const fetchIsNftMinted = async () => checkIfCharacterIsMinted()
 
   useEffect(() => {
     const handleCharacterState = async () => {
-      const isNftMinted = await fetchIsNftMinted()
+      const isNftMinted = await checkIfCharacterIsMinted()
 
       if (isLoading) return
+
       if (character) {
         setIsModalOpen(false)
         setNavigateToCharacter(true)
-      } else if (!isMinting && !character && isMinted && !isNftMinted) {
+        return
+      }
+
+      if (isMintedDate && !isMinting && !character && !isNftMinted) {
         const errorMsg =
           'Minting failed or the character could not be retrieved. Please try again or refresh the page.'
         setErrorMessage(errorMsg)
         addToast(errorMsg, 'error')
-      } else if (isNftMinted && !character) {
-        getCharacter()
+        return
+      }
+
+      if (
+        isNftMinted &&
+        !character &&
+        isMintedDate &&
+        new Date().getTime() - new Date(isMintedDate).getTime() > 60000
+      ) {
         const errorMsg =
           'Character is already minted but could not be retrieved. Please try again or refresh the page.'
         setErrorMessage(errorMsg)
@@ -50,7 +59,7 @@ const CharacterSelect = () => {
     }
 
     handleCharacterState()
-  }, [character, isLoading, isMinting, isMinted, addToast])
+  }, [character, isLoading, isMinting, isMintedDate, checkIfCharacterIsMinted, addToast])
 
   const onCharacterChange = (id: number) => {
     setCharacterId(id)

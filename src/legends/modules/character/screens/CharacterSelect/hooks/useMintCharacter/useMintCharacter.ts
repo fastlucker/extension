@@ -18,9 +18,8 @@ const useMintCharacter = () => {
 
   const { getCharacter, character } = useCharacterContext()
 
-  const [isMinting, setIsMinting] = useState(false)
-  const [isMinted, setIsMinted] = useState(false)
-
+  const [isMinting, setIsMinting] = useState(null)
+  const [isMintedDate, setIsMintedDate] = useState(0)
   const [loadingMessage, setLoadingMessage] = useState<CharacterLoadingMessage>(
     CharacterLoadingMessage.Initial
   )
@@ -46,7 +45,7 @@ const useMintCharacter = () => {
   // The transaction may be confirmed but the relayer may not have updated the character's metadata yet.
   const pollForCharacterAfterMint = useCallback(async () => {
     const interval = setInterval(() => {
-      if (character?.characterType !== 'unknown') {
+      if (character && character?.characterType !== 'unknown') {
         clearInterval(interval)
         return
       }
@@ -54,7 +53,7 @@ const useMintCharacter = () => {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [character?.characterType, getCharacter])
+  }, [character, getCharacter])
 
   const mintCharacter = useCallback(
     async (type: number) => {
@@ -86,8 +85,7 @@ const useMintCharacter = () => {
 
         if (receipt.status === 1) {
           setLoadingMessage(CharacterLoadingMessage.Minted)
-          setIsMinted(true)
-
+          setIsMintedDate(Date.now())
           // Transaction was successful, call getCharacter
           await pollForCharacterAfterMint()
 
@@ -101,11 +99,11 @@ const useMintCharacter = () => {
         console.log('Error during minting process:', e)
       }
     },
-    [getCharacter, addToast]
+    [addToast, setIsMintedDate, pollForCharacterAfterMint]
   )
   return {
     isMinting,
-    isMinted,
+    isMintedDate,
     loadingMessage,
     mintCharacter,
     checkIfCharacterIsMinted

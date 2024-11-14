@@ -11,7 +11,7 @@ const PrivateRoute = () => {
   const { connectedAccount, nonV2Account, allowNonV2Connection, isLoading } = useAccountContext()
   const { character, error: characterError, isLoading: isCharacterLoading } = useCharacterContext()
 
-  if (isLoading) return null
+  if (isLoading || isCharacterLoading) return null
 
   // If a wallet isn't connected a v2 account,redirect to the welcome screen.
   // Once a v2 account has been connected once,
@@ -21,7 +21,6 @@ const PrivateRoute = () => {
   if (characterError) return <ErrorPage title="Character loading error" error={characterError} />
 
   // Don't allow loading the Outlet component if the character is not loaded or is in the process of loading.
-  if (isCharacterLoading) return null
 
   if (!character && !isCharacterLoading) return <Navigate to={LEGENDS_ROUTES.characterSelect} />
 
