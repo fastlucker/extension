@@ -20,7 +20,6 @@ import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import GasTankButton from '../DashboardHeader/GasTankButton'
@@ -61,9 +60,8 @@ const DashboardOverview: FC<Props> = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
-  const { state } = usePortfolioControllerState()
-  const { account } = useSelectedAccountControllerState()
-  const { portfolio, portfolioStartedLoadingAtTimestamp } = useSelectedAccountControllerState()
+  const { account, portfolio, portfolioStartedLoadingAtTimestamp } =
+    useSelectedAccountControllerState()
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -79,13 +77,6 @@ const DashboardOverview: FC<Props> = ({
 
     return Number(portfolio?.latestStateByNetworks?.[filterByNetworkId]?.result?.total?.usd) || 0
   }, [portfolio, filterByNetworkId, account])
-
-  const gasTankTotalBalanceInUsd = useMemo(() => {
-    if (!account?.addr) return 0
-    const selectedAccountGasTankTotal = state?.latest?.[account.addr]?.gasTank?.result?.total
-
-    return Number(selectedAccountGasTankTotal?.usd) || 0
-  }, [account?.addr, state.latest])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
     totalPortfolioAmount,
@@ -278,7 +269,8 @@ const DashboardOverview: FC<Props> = ({
                   <GasTankButton
                     onPress={openGasTankModal}
                     onPosition={setButtonPosition}
-                    gasTankTotalBalanceInUsd={gasTankTotalBalanceInUsd}
+                    portfolio={portfolio}
+                    account={account}
                   />
                   {!!warningMessage && (
                     <>

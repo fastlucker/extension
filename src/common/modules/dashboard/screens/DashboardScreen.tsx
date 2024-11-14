@@ -43,13 +43,13 @@ const DashboardScreen = () => {
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
-  const { account } = useSelectedAccountControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
   const { state } = usePortfolioControllerState()
 
   const shouldPopsUpConfetti = useMemo(() => {
     if (!account) return false
-    return state?.latest?.[account.addr]?.gasTank?.result?.tokens[0].shouldPopsUpConfetti
-  }, [account, state?.latest])
+    return portfolio?.latestStateByNetworks?.gasTank?.result?.tokens[0].shouldPopsUpConfetti
+  }, [account, portfolio])
   const [isCongratsModalShown, setIsCongratsModalShown] = useState(shouldPopsUpConfetti)
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
     x: number

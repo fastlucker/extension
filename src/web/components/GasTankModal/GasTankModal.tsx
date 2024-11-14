@@ -16,7 +16,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -103,6 +102,7 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
                   {t('Total Saved')}:
                 </Text>
                 <Text fontSize={14} appearance="successText">
+                  {/* TODO: remove hardcoded value */}
                   $234.23
                 </Text>
               </View>
@@ -111,6 +111,7 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
                   {t('Total Cashback')}:
                 </Text>
                 <Text fontSize={14} appearance="primary">
+                  {/* TODO: remove hardcoded value */}
                   $21.23
                 </Text>
               </View>

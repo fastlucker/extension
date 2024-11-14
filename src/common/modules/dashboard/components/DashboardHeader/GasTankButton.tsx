@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { View } from 'react-native'
 
+import { Account } from '@ambire-common/interfaces/account'
+import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import Text from '@common/components/Text'
@@ -11,26 +13,32 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
 type Props = {
   onPress: () => void
   onPosition: (position: { x: number; y: number; width: number; height: number }) => void
-  gasTankTotalBalanceInUsd: number
+  portfolio: SelectedAccountPortfolio
+  account: Account | null
 }
 
-const GasTankButton = ({ onPress, onPosition, gasTankTotalBalanceInUsd }: Props) => {
+const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
   const { t } = useTranslation()
   const buttonRef = useRef(null)
   const { theme } = useTheme()
-  const { account } = useSelectedAccountControllerState()
 
   const [bindGasTankBtnAim, removeTankBtnStyle] = useCustomHover({
     property: 'backgroundColor',
     values: { from: NEUTRAL_BACKGROUND_HOVERED, to: '#14183380' } // TODO: Remove hardcoded hex
   })
+
+  const gasTankTotalBalanceInUsd = useMemo(() => {
+    if (!account?.addr) return 0
+    const selectedAccountGasTankTotal = portfolio?.latestStateByNetworks?.gasTank?.result?.total
+
+    return Number(selectedAccountGasTankTotal?.usd) || 0
+  }, [account?.addr, portfolio.latestStateByNetworks])
 
   const gasTankTotalBalanceInUsdFormatted = useMemo(
     () => formatDecimals(gasTankTotalBalanceInUsd, 'price'),
