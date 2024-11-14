@@ -73,6 +73,5 @@ export default function useBanners(): BannerInterface[] {
     keystoreBanners
   ])
 
-  console.log('allBanners', allBanners)
   return allBanners
 }
