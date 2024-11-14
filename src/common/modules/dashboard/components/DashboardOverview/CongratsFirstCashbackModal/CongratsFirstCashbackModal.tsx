@@ -7,10 +7,12 @@ import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 
 import ConfettiAnimation from '../../ConfettiAnimation'
+import BackdropWithHole from './BackdropWithHole'
 import getStyles from './styles'
 
 type Props = {
@@ -98,16 +100,13 @@ const CongratsFirstCashbackModal = ({ onPress, position }: Props) => {
           </View>
         </View>
       </View>
-      <View
-        style={[
-          {
-            position: 'absolute',
-            alignSelf: 'center',
-            height: '100%',
-            width: '100%',
-            backgroundColor: theme.backdrop
-          }
-        ]}
+      <BackdropWithHole
+        x={position.x}
+        y={position.y}
+        width={position.width}
+        height={position.height}
+        bgColor={theme.backdrop}
+        borderRadius={BORDER_RADIUS_PRIMARY}
       />
     </>
   ) : null
