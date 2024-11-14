@@ -1,8 +1,9 @@
-import { ethers } from 'ethers'
-import { useCallback, useState } from 'react'
+import { ethers, ZeroAddress, zeroPadValue } from 'ethers'
+import { useCallback, useEffect, useState } from 'react'
 
 import LegendsNFT from '@contracts/compiled/LegendsNft.json'
 import { LEGENDS_NFT_ADDRESS } from '@env'
+import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useToast from '@legends/hooks/useToast'
 
@@ -13,18 +14,60 @@ enum CharacterLoadingMessage {
   Minted = 'Finalizing details...'
 }
 
+const MINT_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+const BASE_BLOCK_TIME_SECONDS = 2
+const FIVE_MINUTES_IN_BLOCKS = (5 * 60) / BASE_BLOCK_TIME_SECONDS
+
+async function getMintingTimestamp(provider: any, accountAddress: string, tokenId: number) {
+  const currentBlock = await provider.getBlockNumber()
+  const hexTokenId = `0x${tokenId.toString(16)}`
+  const filter = {
+    address: LEGENDS_NFT_ADDRESS,
+    topics: [
+      MINT_TOPIC,
+      zeroPadValue(ZeroAddress, 32),
+      zeroPadValue(accountAddress, 32),
+      zeroPadValue(hexTokenId, 32)
+    ],
+    fromBlock: currentBlock - FIVE_MINUTES_IN_BLOCKS,
+    toBlock: currentBlock
+  }
+
+  const events = await provider.getLogs(filter)
+
+  if (events.length > 0) {
+    const mintEvent = events[0]
+    const block = await provider.getBlock(mintEvent.blockNumber)
+    if (!block) return 0
+
+    return block.timestamp * 1000 // ms
+  }
+
+  return 'past-block-watch'
+}
+
+type MintedAt = number | 'past-block-watch' | null
+
 const useMintCharacter = () => {
   const { addToast } = useToast()
-
+  const { connectedAccount } = useAccountContext()
   const { getCharacter, character } = useCharacterContext()
 
-  const [isMinting, setIsMinting] = useState(null)
-  const [isMintedDate, setIsMintedDate] = useState(0)
+  const [isCheckingMintStatus, setIsCheckingMintStatus] = useState(true)
+  const [isMinting, setIsMinting] = useState(false)
+  const [isMinted, setIsMinted] = useState(false)
+  const [mintedAt, setMintedAt] = useState<MintedAt>(null)
   const [loadingMessage, setLoadingMessage] = useState<CharacterLoadingMessage>(
     CharacterLoadingMessage.Initial
   )
 
-  const checkIfCharacterIsMinted = useCallback(async () => {
+  const getCharacterNFTData = useCallback(async () => {
+    if (!connectedAccount)
+      return {
+        mintedAt: null,
+        isMinted: false
+      }
+
     const provider = new ethers.BrowserProvider(window.ambire)
 
     const signer = await provider.getSigner()
@@ -33,14 +76,35 @@ const useMintCharacter = () => {
     const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
 
     try {
+      let mintedAtTimestamp: MintedAt = null
       // Check if the user already owns an NFT
       const characterMinted = await nftContract.balanceOf(signer.getAddress())
-      return characterMinted > 0
+
+      if (characterMinted) {
+        const nftTokenId = await nftContract.tokenOfOwnerByIndex(signer.getAddress(), 0)
+
+        mintedAtTimestamp = await getMintingTimestamp(provider, connectedAccount, nftTokenId).catch(
+          (e) => {
+            console.error(e)
+
+            return null
+          }
+        )
+      }
+
+      return {
+        mintedAt: mintedAtTimestamp,
+        isMinted: characterMinted
+      }
+      // return characterMinted
     } catch (e) {
       console.error('Error checking mint status:', e)
-      return false
+      return {
+        mintedAt: null,
+        isMinted: false
+      }
     }
-  }, [])
+  }, [connectedAccount])
 
   // The transaction may be confirmed but the relayer may not have updated the character's metadata yet.
   const pollForCharacterAfterMint = useCallback(async () => {
@@ -79,17 +143,17 @@ const useMintCharacter = () => {
         // Call the mint function and wait for the transaction response
         const tx = await nftContract.mint(type)
 
+        setLoadingMessage(CharacterLoadingMessage.Minting)
         // Wait for the transaction to be mined
         const receipt = await tx.wait()
-        setLoadingMessage(CharacterLoadingMessage.Minting)
 
         if (receipt.status === 1) {
           setLoadingMessage(CharacterLoadingMessage.Minted)
-          setIsMintedDate(Date.now())
           // Transaction was successful, call getCharacter
           await pollForCharacterAfterMint()
-
-          setIsMinting(false)
+          // Purposely not setting isMinting to false as we want to
+          // keep the modal displayed until the character is loaded
+          // in state
         } else {
           addToast('Error selecting a character: The transaction failed!', 'error')
         }
@@ -99,14 +163,33 @@ const useMintCharacter = () => {
         console.log('Error during minting process:', e)
       }
     },
-    [addToast, setIsMintedDate, pollForCharacterAfterMint]
+    [addToast, pollForCharacterAfterMint]
   )
+
+  useEffect(() => {
+    setIsCheckingMintStatus(true)
+    getCharacterNFTData()
+      .then(({ mintedAt: newMintedAt, isMinted: newIsMinted }) => {
+        setMintedAt(newMintedAt)
+        setIsMinted(newIsMinted)
+      })
+      .catch((e) => {
+        setIsMinted(false)
+        setMintedAt(null)
+        console.error(e)
+      })
+      .finally(() => {
+        setIsCheckingMintStatus(false)
+      })
+  }, [getCharacterNFTData])
+
   return {
     isMinting,
-    isMintedDate,
+    mintedAt,
     loadingMessage,
     mintCharacter,
-    checkIfCharacterIsMinted
+    isMinted,
+    isCheckingMintStatus
   }
 }
 
