@@ -8,6 +8,7 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Styles {
   container: ViewStyle
   contentContainer: ViewStyle
+  arrow: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -35,7 +36,18 @@ const getStyles = (theme: ThemeProps) =>
     contentContainer: {
       backgroundColor: theme.primaryBackground,
       ...flexbox.flex1
-    }
+    },
+    arrow: {
+      width: 0,
+      height: 0,
+      marginLeft: -1,
+      borderTopWidth: 8,
+      borderTopColor: 'transparent',
+      borderBottomWidth: 8,
+      borderBottomColor: 'transparent',
+      borderRightWidth: 8,
+      borderRightColor: theme.primaryBackground, 
+    },
   })
 
 export default getStyles

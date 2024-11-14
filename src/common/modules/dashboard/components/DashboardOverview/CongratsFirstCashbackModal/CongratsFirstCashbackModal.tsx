@@ -37,7 +37,7 @@ const CongratsFirstCashbackModal = ({ onPress, position }: Props) => {
       <View
         style={[
           styles.container,
-          position ? { top: position.y - 50, left: position.x + position.width + 10 } : {}
+          position ? { top: position.y - 50, left: position.x + position.width + 15 } : {}
         ]}
       >
         <ConfettiAnimation width={200} height={200} style={{ zIndex: 10 }} autoPlay loop />
@@ -100,6 +100,17 @@ const CongratsFirstCashbackModal = ({ onPress, position }: Props) => {
           </View>
         </View>
       </View>
+      <View
+        style={[
+          styles.arrow,
+          {
+            zIndex: 101,
+            position: 'absolute',
+            top: position.y + 6,
+            left: position.x + position.width + 8
+          }
+        ]}
+      />
       <BackdropWithHole
         x={position.x}
         y={position.y}
