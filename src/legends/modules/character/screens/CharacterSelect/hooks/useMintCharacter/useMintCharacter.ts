@@ -1,5 +1,5 @@
 import { ethers, ZeroAddress, zeroPadValue } from 'ethers'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import LegendsNFT from '@contracts/compiled/LegendsNft.json'
 import { LEGENDS_NFT_ADDRESS } from '@env'
@@ -61,6 +61,11 @@ const useMintCharacter = () => {
     CharacterLoadingMessage.Initial
   )
 
+  const characterRef = useRef(character)
+  useEffect(() => {
+    characterRef.current = character
+  }, [character])
+
   const getCharacterNFTData = useCallback(async () => {
     if (!connectedAccount)
       return {
@@ -96,7 +101,6 @@ const useMintCharacter = () => {
         mintedAt: mintedAtTimestamp,
         isMinted: characterMinted
       }
-      // return characterMinted
     } catch (e) {
       console.error('Error checking mint status:', e)
       return {
@@ -107,17 +111,19 @@ const useMintCharacter = () => {
   }, [connectedAccount])
 
   // The transaction may be confirmed but the relayer may not have updated the character's metadata yet.
-  const pollForCharacterAfterMint = useCallback(async () => {
-    const interval = setInterval(() => {
-      if (character && character?.characterType !== 'unknown') {
-        clearInterval(interval)
+  const pollForCharacterAfterMint = useCallback(() => {
+    const checkCharacter = async () => {
+      await getCharacter()
+
+      if (characterRef.current) {
         return
       }
-      getCharacter()
-    }, 1000)
 
-    return () => clearInterval(interval)
-  }, [character, getCharacter])
+      setTimeout(checkCharacter, 1000)
+    }
+
+    checkCharacter()
+  }, [getCharacter, characterRef])
 
   const mintCharacter = useCallback(
     async (type: number) => {
