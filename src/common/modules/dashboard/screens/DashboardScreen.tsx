@@ -11,9 +11,9 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import GasTankModal from '@web/components/GasTankModal'
 import ReceiveModal from '@web/components/ReceiveModal'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import DAppFooter from '../components/DAppFooter'
@@ -43,13 +43,13 @@ const DashboardScreen = () => {
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
-  const { selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { state } = usePortfolioControllerState()
 
   const shouldPopsUpConfetti = useMemo(() => {
-    if (!selectedAccount) return false
-    return state?.latest?.[selectedAccount]?.gasTank?.result?.tokens[0].shouldPopsUpConfetti
-  }, [selectedAccount, state?.latest])
+    if (!account) return false
+    return state?.latest?.[account.addr]?.gasTank?.result?.tokens[0].shouldPopsUpConfetti
+  }, [account, state?.latest])
   const [isCongratsModalShown, setIsCongratsModalShown] = useState(shouldPopsUpConfetti)
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
     x: number
@@ -107,10 +107,10 @@ const DashboardScreen = () => {
   const handleCangratsModalBtnPressed = useCallback(() => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
-      params: { accountAddr: selectedAccount! }
+      params: { accountAddr: account!.addr }
     })
     setIsCongratsModalShown(false)
-  }, [dispatch, selectedAccount])
+  }, [dispatch, account])
 
   return (
     <>
@@ -127,7 +127,11 @@ const DashboardScreen = () => {
             setDashboardOverviewSize={setDashboardOverviewSize}
             onGasTankButtonPosition={handleGasTankButtonPosition}
           />
-          <DashboardPages filterByNetworkId={filterByNetworkId} onScroll={onScroll} />
+          <DashboardPages
+            tokenPreferences={state?.tokenPreferences}
+            filterByNetworkId={filterByNetworkId}
+            onScroll={onScroll}
+          />
         </View>
         {!!isPopup && <DAppFooter />}
       </View>

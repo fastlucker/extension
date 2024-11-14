@@ -5,6 +5,7 @@ import { FlatListProps, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Button from '@common/components/Button'
@@ -31,6 +32,7 @@ interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   filterByNetworkId: NetworkId
+  tokenPreferences: CustomToken[]
   initTab?: {
     [key: string]: boolean
   }
@@ -59,7 +61,14 @@ const calculateTokenBalance = (token: TokenResult) => {
 
 const { isPopup } = getUiType()
 
-const Tokens = ({ filterByNetworkId, openTab, setOpenTab, initTab, onScroll }: Props) => {
+const Tokens = ({
+  filterByNetworkId,
+  tokenPreferences,
+  openTab,
+  setOpenTab,
+  initTab,
+  onScroll
+}: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()

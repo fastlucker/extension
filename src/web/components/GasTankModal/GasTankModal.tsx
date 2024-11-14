@@ -18,6 +18,7 @@ import formatDecimals from '@common/utils/formatDecimals'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -33,21 +34,17 @@ const GasTankModal = ({ modalRef, handleClose }: Props) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { state } = usePortfolioControllerState()
 
-  const account = useMemo(
-    () => accounts.find((acc) => acc.addr === selectedAccount),
-    [accounts, selectedAccount]
-  )
   const isSA = useMemo(() => isSmartAccount(account), [account])
 
   const gasTankTotalBalanceInUsd = useMemo(() => {
-    if (!selectedAccount || !isSA) return 0
-    const selectedAccountGasTankTotal = state?.latest?.[selectedAccount]?.gasTank?.result?.total
+    if (!account || !isSA) return 0
+    const selectedAccountGasTankTotal = state?.latest?.[account.addr]?.gasTank?.result?.total
 
     return Number(selectedAccountGasTankTotal?.usd) || 0
-  }, [selectedAccount, state.latest, isSA])
+  }, [account, state.latest, isSA])
 
   const gasTankTotalBalanceInUsdFormatted = useMemo(
     () => formatDecimals(gasTankTotalBalanceInUsd, 'price'),

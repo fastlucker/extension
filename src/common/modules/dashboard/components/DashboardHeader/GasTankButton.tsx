@@ -10,8 +10,8 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
@@ -25,7 +25,7 @@ const GasTankButton = ({ onPress, onPosition, gasTankTotalBalanceInUsd }: Props)
   const { t } = useTranslation()
   const buttonRef = useRef(null)
   const { theme } = useTheme()
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
 
   const [bindGasTankBtnAim, removeTankBtnStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -35,11 +35,6 @@ const GasTankButton = ({ onPress, onPosition, gasTankTotalBalanceInUsd }: Props)
   const gasTankTotalBalanceInUsdFormatted = useMemo(
     () => formatDecimals(gasTankTotalBalanceInUsd, 'price'),
     [gasTankTotalBalanceInUsd]
-  )
-
-  const account = useMemo(
-    () => accounts.find((acc) => acc.addr === selectedAccount),
-    [accounts, selectedAccount]
   )
 
   const isSA = useMemo(() => isSmartAccount(account), [account])

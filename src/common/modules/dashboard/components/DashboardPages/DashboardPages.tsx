@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
@@ -16,12 +17,13 @@ import Tokens from '../Tokens'
 
 interface Props {
   filterByNetworkId: NetworkId
+  tokenPreferences: CustomToken[]
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 const { isTab } = getUiType()
 
-const DashboardPages = ({ filterByNetworkId, onScroll }: Props) => {
+const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props) => {
   const route = useRoute()
 
   const [openTab, setOpenTab] = useState(() => {
@@ -47,6 +49,7 @@ const DashboardPages = ({ filterByNetworkId, onScroll }: Props) => {
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
         filterByNetworkId={filterByNetworkId}
+        tokenPreferences={tokenPreferences}
         openTab={openTab}
         setOpenTab={setOpenTab}
         onScroll={onScroll}
