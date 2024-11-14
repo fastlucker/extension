@@ -2,6 +2,8 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
+import { Account } from '@ambire-common/interfaces/account'
+import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
@@ -16,8 +18,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -25,25 +25,25 @@ import getStyles from './styles'
 type Props = {
   modalRef: any
   handleClose: () => void
+  portfolio: SelectedAccountPortfolio
+  account: Account | null
 }
 
-const GasTankModal = ({ modalRef, handleClose }: Props) => {
+const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { isPopup } = getUiType()
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { account } = useSelectedAccountControllerState()
-  const { state } = usePortfolioControllerState()
 
   const isSA = useMemo(() => isSmartAccount(account), [account])
 
   const gasTankTotalBalanceInUsd = useMemo(() => {
-    if (!account || !isSA) return 0
-    const selectedAccountGasTankTotal = state?.latest?.[account.addr]?.gasTank?.result?.total
+    if (!account?.addr || !isSA) return 0
+    const selectedAccountGasTankTotal = portfolio?.latestStateByNetworks?.gasTank?.result?.total
 
     return Number(selectedAccountGasTankTotal?.usd) || 0
-  }, [account, state.latest, isSA])
+  }, [account?.addr, portfolio.latestStateByNetworks, isSA])
 
   const gasTankTotalBalanceInUsdFormatted = useMemo(
     () => formatDecimals(gasTankTotalBalanceInUsd, 'price'),

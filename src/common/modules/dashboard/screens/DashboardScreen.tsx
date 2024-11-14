@@ -43,7 +43,8 @@ const DashboardScreen = () => {
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
-  const { account, portfolio } = useSelectedAccountControllerState()
+  const { account, portfolio, portfolioStartedLoadingAtTimestamp } =
+    useSelectedAccountControllerState()
   const { state } = usePortfolioControllerState()
 
   const shouldPopsUpConfetti = useMemo(() => {
@@ -115,7 +116,12 @@ const DashboardScreen = () => {
   return (
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
-      <GasTankModal modalRef={gasTankModalRef} handleClose={closeGasTankModal} />
+      <GasTankModal
+        modalRef={gasTankModalRef}
+        handleClose={closeGasTankModal}
+        portfolio={portfolio}
+        account={account}
+      />
 
       <View style={styles.container}>
         <View style={[flexbox.flex1, spacings.ptSm]}>
@@ -126,6 +132,9 @@ const DashboardScreen = () => {
             dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}
             onGasTankButtonPosition={handleGasTankButtonPosition}
+            portfolio={portfolio}
+            account={account}
+            portfolioStartedLoadingAtTimestamp={portfolioStartedLoadingAtTimestamp}
           />
           <DashboardPages
             tokenPreferences={state?.tokenPreferences}

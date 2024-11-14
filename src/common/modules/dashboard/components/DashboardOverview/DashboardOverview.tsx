@@ -1,6 +1,8 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, View } from 'react-native'
 
+import { Account } from '@ambire-common/interfaces/account'
+import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -20,7 +22,6 @@ import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import GasTankButton from '../DashboardHeader/GasTankButton'
 import RefreshIcon from './RefreshIcon'
@@ -41,6 +42,9 @@ interface Props {
     width: number
     height: number
   }) => void
+  portfolio: SelectedAccountPortfolio
+  account: Account | null
+  portfolioStartedLoadingAtTimestamp: number | null
 }
 
 // We create a reusable height constant for both the Balance line-height and the Balance skeleton.
@@ -53,15 +57,18 @@ const DashboardOverview: FC<Props> = ({
   animatedOverviewHeight,
   dashboardOverviewSize,
   setDashboardOverviewSize,
-  onGasTankButtonPosition
+  onGasTankButtonPosition,
+  portfolio,
+  account,
+  portfolioStartedLoadingAtTimestamp
 }) => {
   const route = useRoute()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
-  const { account, portfolio, portfolioStartedLoadingAtTimestamp } =
-    useSelectedAccountControllerState()
+  // const { account, portfolio, portfolioStartedLoadingAtTimestamp } =
+  //   useSelectedAccountControllerState()
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
