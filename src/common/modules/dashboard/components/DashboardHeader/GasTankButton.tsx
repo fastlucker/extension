@@ -48,11 +48,26 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
   const isSA = useMemo(() => isSmartAccount(account), [account])
 
   useEffect(() => {
-    if (buttonRef.current) {
-      // TODO: add a type
-      buttonRef.current.measure((fx, fy, width, height, px, py) => {
-        onPosition({ x: px, y: py, width, height })
-      })
+    const measureButton = () => {
+      if (buttonRef.current) {
+        buttonRef.current.measure(
+          (fx: number, fy: number, width: number, height: number, px: number, py: number) => {
+            onPosition({ x: px, y: py, width, height })
+          }
+        )
+      }
+    }
+
+    measureButton()
+
+    const handleResize = () => {
+      measureButton()
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
     }
   }, [onPosition])
 
