@@ -107,6 +107,8 @@ const CongratsFirstCashbackModal = ({ onPress, position }: Props) => {
         height={position.height}
         bgColor={theme.backdrop}
         borderRadius={BORDER_RADIUS_PRIMARY}
+        borderColor={theme.primaryLight}
+        borderWidth={1}
       />
     </>
   ) : null
