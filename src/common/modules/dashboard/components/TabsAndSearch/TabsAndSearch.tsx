@@ -94,14 +94,16 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }: Props)
             <SearchIcon color={theme.tertiaryText} width={16} />
           </AnimatedPressable>
           {isSearchVisible && (
-            <Search
-              containerStyle={[styles.searchContainer]}
-              inputWrapperStyle={[styles.searchInputWrapper]}
-              control={searchControl}
-              height={32}
-              placeholder={getSearchPlaceholder(openTab, t)}
-              hasLeftIcon={false}
-            />
+            <View style={[styles.searchContainer]}>
+              <Search
+                borderWrapperStyle={styles.borderWrapper}
+                inputWrapperStyle={styles.searchInputWrapper}
+                control={searchControl}
+                height={32}
+                placeholder={getSearchPlaceholder(openTab, t)}
+                hasLeftIcon={false}
+              />
+            </View>
           )}
         </View>
       )}

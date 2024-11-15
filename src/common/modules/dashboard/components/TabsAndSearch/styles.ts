@@ -11,6 +11,7 @@ type Style = {
   searchContainer: ViewStyle
   searchIconWrapper: ViewStyle
   searchInputWrapper: ViewStyle
+  borderWrapper: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -37,14 +38,14 @@ const getStyles = (theme: ThemeProps) =>
       left: 0,
       right: 0,
       marginTop: 5,
-      zIndex: 10,
-      borderWidth: 1,
       borderColor: theme.primaryBorder,
       ...common.borderRadiusPrimary,
       ...common.shadowPrimary
     },
     searchInputWrapper: {
-      backgroundColor: theme.primaryBackground,
+      backgroundColor: theme.primaryBackground
+    },
+    borderWrapper: {
       borderWidth: 0,
       borderRadius: 0
     }
