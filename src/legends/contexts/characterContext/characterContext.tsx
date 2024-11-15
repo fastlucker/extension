@@ -1,10 +1,7 @@
-import { ethers } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import LegendsNFT from '@contracts/compiled/LegendsNft.json'
-import { LEGENDS_NFT_ADDRESS, RELAYER_URL } from '@env'
+import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import useToast from '@legends/hooks/useToast'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
@@ -21,9 +18,7 @@ type Character = {
 type CharacterContextValue = {
   character: Character | null
   getCharacter: () => void
-  mintCharacter: (type: number) => void
   isLoading: boolean
-  isMinting: boolean
   error: string | null
 }
 
@@ -31,10 +26,8 @@ const CharacterContext = createContext<CharacterContextValue>({} as CharacterCon
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
-  const { addToast } = useToast()
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [isMinting, setIsMinting] = useState(false)
   // In case of this error, a global <ErrorPage /> will be rendered in place of all other components,
   // as loading a character is crucial for playing in Legends.
   const [error, setError] = useState<string | null>(null)
@@ -48,10 +41,15 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
 
     try {
       setIsLoading(true)
-
       const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
 
       const characterJson = await characterResponse.json()
+
+      if (characterJson.characterType === 'unknown') {
+        setIsLoading(false)
+        setCharacter(null)
+        return
+      }
 
       setCharacter({
         ...(characterJson as Character),
@@ -67,61 +65,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     }
   }, [connectedAccount])
 
-  // The transaction may be confirmed but the relayer may not have updated the character's metadata yet.
-  const pollForCharacterAfterMint = useCallback(async () => {
-    const interval = setInterval(() => {
-      if (character?.characterType !== 'unknown') {
-        clearInterval(interval)
-        return
-      }
-      getCharacter()
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [character?.characterType, getCharacter])
-
-  const mintCharacter = useCallback(
-    async (type: number) => {
-      // Switch to Base chain
-      await window.ambire.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x2105' }] // chainId must be in hexadecimal numbers
-      })
-
-      setIsMinting(true)
-
-      const provider = new ethers.BrowserProvider(window.ambire)
-
-      const signer = await provider.getSigner()
-
-      const abi = LegendsNFT.abi
-
-      // Create a contract instance
-      const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
-
-      try {
-        // Call the mint function and wait for the transaction response
-        const tx = await nftContract.mint(type)
-
-        // Wait for the transaction to be mined
-        const receipt = await tx.wait()
-
-        if (receipt.status === 1) {
-          // Transaction was successful, call getCharacter
-          await pollForCharacterAfterMint()
-          setIsMinting(false)
-        } else {
-          addToast('Error selecting a character: The transaction failed!', 'error')
-        }
-      } catch (e) {
-        setIsMinting(false)
-        addToast('Error during minting process!', 'error')
-        console.log('Error during minting process:', e)
-      }
-    },
-    [addToast, pollForCharacterAfterMint]
-  )
-
   useEffect(() => {
     getCharacter().catch(() => {
       setError(`Couldn't load the requested character: ${connectedAccount}`)
@@ -132,12 +75,10 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     () => ({
       character,
       getCharacter,
-      mintCharacter,
       isLoading,
-      isMinting,
       error
     }),
-    [character, getCharacter, mintCharacter, isLoading, isMinting, error]
+    [character, getCharacter, isLoading, error]
   )
 
   // Important: Short-circuit evaluation to prevent loading of child contexts/components
