@@ -61,6 +61,8 @@ const useMintCharacter = () => {
     CharacterLoadingMessage.Initial
   )
 
+  // Reference to the current character state to avoid stale closures in
+  // async function below pollForCharacterAfterMint
   const characterRef = useRef(character)
   useEffect(() => {
     characterRef.current = character
