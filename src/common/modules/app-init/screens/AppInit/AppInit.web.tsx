@@ -1,11 +1,11 @@
 // @ts-nocheck TODO: fix provider types
 
 import React from 'react'
+import ErrorBoundary from 'react-native-error-boundary'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import ErrorComponent from '@common/components/ErrorBoundary'
-import ErrorBoundary from 'react-native-error-boundary'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConnectivityProvider } from '@common/contexts/connectivityContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -29,7 +29,6 @@ import { AutoLockControllerStateProvider } from '@web/contexts/autoLockControlle
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
 import { DappsControllerStateProvider } from '@web/contexts/dappsControllerStateContext'
-import { DefiPositionsControllerStateProvider } from '@web/contexts/defiPositionsControllerStateContext'
 import { DomainsControllerStateProvider } from '@web/contexts/domainsControllerStateContext'
 import { EmailVaultControllerStateProvider } from '@web/contexts/emailVaultControllerStateContext'
 import { InviteControllerStateProvider } from '@web/contexts/inviteControllerStateContext'
@@ -72,38 +71,36 @@ const AppInit = () => {
                                         <SignMessageControllerStateProvider>
                                           <ActivityControllerStateProvider>
                                             <ActionsControllerStateProvider>
-                                              <DefiPositionsControllerStateProvider>
-                                                <PortfolioControllerStateProvider>
-                                                  <EmailVaultControllerStateProvider>
-                                                    <DappsControllerStateProvider>
-                                                      <DomainsControllerStateProvider>
-                                                        <AddressBookControllerStateProvider>
-                                                          <SwapAndBridgeControllerStateProvider>
-                                                            <ControllersStateLoadedProvider>
-                                                              <LoaderProvider>
-                                                                <StorageProvider>
-                                                                  <KeyboardProvider>
-                                                                    <NetInfoProvider>
-                                                                      <AuthProvider>
-                                                                        <BiometricsProvider>
-                                                                          <PrivateModeProvider>
-                                                                            <AppRouter />
-                                                                          </PrivateModeProvider>
-                                                                          <PortalHost name="global" />
-                                                                        </BiometricsProvider>
-                                                                      </AuthProvider>
-                                                                    </NetInfoProvider>
-                                                                  </KeyboardProvider>
-                                                                </StorageProvider>
-                                                              </LoaderProvider>
-                                                            </ControllersStateLoadedProvider>
-                                                          </SwapAndBridgeControllerStateProvider>
-                                                        </AddressBookControllerStateProvider>
-                                                      </DomainsControllerStateProvider>
-                                                    </DappsControllerStateProvider>
-                                                  </EmailVaultControllerStateProvider>
-                                                </PortfolioControllerStateProvider>
-                                              </DefiPositionsControllerStateProvider>
+                                              <PortfolioControllerStateProvider>
+                                                <EmailVaultControllerStateProvider>
+                                                  <DappsControllerStateProvider>
+                                                    <DomainsControllerStateProvider>
+                                                      <AddressBookControllerStateProvider>
+                                                        <SwapAndBridgeControllerStateProvider>
+                                                          <ControllersStateLoadedProvider>
+                                                            <LoaderProvider>
+                                                              <StorageProvider>
+                                                                <KeyboardProvider>
+                                                                  <NetInfoProvider>
+                                                                    <AuthProvider>
+                                                                      <BiometricsProvider>
+                                                                        <PrivateModeProvider>
+                                                                          <AppRouter />
+                                                                        </PrivateModeProvider>
+                                                                        <PortalHost name="global" />
+                                                                      </BiometricsProvider>
+                                                                    </AuthProvider>
+                                                                  </NetInfoProvider>
+                                                                </KeyboardProvider>
+                                                              </StorageProvider>
+                                                            </LoaderProvider>
+                                                          </ControllersStateLoadedProvider>
+                                                        </SwapAndBridgeControllerStateProvider>
+                                                      </AddressBookControllerStateProvider>
+                                                    </DomainsControllerStateProvider>
+                                                  </DappsControllerStateProvider>
+                                                </EmailVaultControllerStateProvider>
+                                              </PortfolioControllerStateProvider>
                                             </ActionsControllerStateProvider>
                                           </ActivityControllerStateProvider>
                                         </SignMessageControllerStateProvider>
