@@ -4,7 +4,6 @@ import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { getUiType } from '@web/utils/uiType'
 
 type Style = {
   containerInnerWrapper: ViewStyle
@@ -16,7 +15,6 @@ type Style = {
   buttonWrapper: ViewStyle
 }
 
-const { isTab } = getUiType()
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
