@@ -51,15 +51,21 @@ const RPCSelectBottomSheet: FC<Props> = ({ sheetRef, banner, closeBottomSheet, o
 
   const handleSelectRpcUrl = useCallback(
     (url: string) => {
-      const id = network?.id
-      if (id) {
+      if (network) {
         dispatch({
-          type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
-          params: { network: { selectedRpcUrl: url }, networkId: id }
+          type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+          params: { rpcUrl: url, chainId: BigInt(network.chainId) }
         })
+        // dispatch on next tick
+        setTimeout(() => {
+          dispatch({
+            type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
+            params: { network: { selectedRpcUrl: url }, networkId: network.id }
+          })
+        }, 1)
       }
     },
-    [network?.id, dispatch]
+    [network, dispatch]
   )
 
   return (
