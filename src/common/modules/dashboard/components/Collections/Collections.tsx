@@ -12,7 +12,7 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Collection from './Collection'
@@ -40,7 +40,7 @@ const Collections: FC<Props> = ({
   filterByNetworkId,
   networks
 }) => {
-  const { accountPortfolio } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -62,7 +62,7 @@ const Collections: FC<Props> = ({
 
   const filteredPortfolioCollections = useMemo(
     () =>
-      (accountPortfolio?.collections || []).filter(({ name, address, networkId, collectibles }) => {
+      (portfolio?.collections || []).filter(({ name, address, networkId, collectibles }) => {
         let isMatchingNetwork = true
         let isMatchingSearch = true
 
@@ -78,7 +78,7 @@ const Collections: FC<Props> = ({
 
         return isMatchingNetwork && isMatchingSearch && collectibles.length
       }),
-    [accountPortfolio?.collections, filterByNetworkId, searchValue]
+    [portfolio?.collections, filterByNetworkId, searchValue]
   )
 
   const renderItem = useCallback(
@@ -164,8 +164,8 @@ const Collections: FC<Props> = ({
         data={[
           'header',
           ...(initTab?.collectibles ? filteredPortfolioCollections : []),
-          !filteredPortfolioCollections.length && accountPortfolio?.isAllReady ? 'empty' : '',
-          !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning'
+          !filteredPortfolioCollections.length && portfolio?.isAllReady ? 'empty' : '',
+          !portfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning'
         ]}
         renderItem={renderItem}
         keyExtractor={keyExtractor}

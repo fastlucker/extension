@@ -10,7 +10,7 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
-import useDefiPositionsControllerState from '@web/hooks/useDeFiPositionsControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import DefiPositionsSkeleton from './DefiPositionsSkeleton'
@@ -38,7 +38,7 @@ const DeFiPositions: FC<Props> = ({
   const { t } = useTranslation()
   const { theme } = useTheme()
   const searchValue = watch('search')
-  const { selectedAccountPositions, isSelectedAccountLoading } = useDefiPositionsControllerState()
+  const { defiPositions, areDefiPositionsLoading } = useSelectedAccountControllerState()
 
   useEffect(() => {
     setValue('search', '')
@@ -46,7 +46,7 @@ const DeFiPositions: FC<Props> = ({
 
   const filteredPositions = useMemo(
     () =>
-      (selectedAccountPositions || []).filter(({ networkId, providerName }) => {
+      defiPositions.filter(({ networkId, providerName }) => {
         let isMatchingNetwork = true
         let isMatchingSearch = true
 
@@ -60,7 +60,7 @@ const DeFiPositions: FC<Props> = ({
 
         return isMatchingNetwork && isMatchingSearch
       }),
-    [selectedAccountPositions, filterByNetworkId, searchValue]
+    [defiPositions, filterByNetworkId, searchValue]
   )
 
   const renderItem = useCallback(
@@ -109,11 +109,11 @@ const DeFiPositions: FC<Props> = ({
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
-        isSelectedAccountLoading && !selectedAccountPositions?.length
+        areDefiPositionsLoading && !defiPositions?.length
           ? 'skeleton'
           : 'keep-this-to-avoid-key-warning',
         ...(initTab?.defi ? filteredPositions : []),
-        !isSelectedAccountLoading && !filteredPositions.length ? 'empty' : ''
+        !areDefiPositionsLoading && !filteredPositions.length ? 'empty' : ''
       ]}
       renderItem={renderItem}
       keyExtractor={keyExtractor}

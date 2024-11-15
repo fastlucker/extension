@@ -24,7 +24,7 @@ import formatDecimals from '@common/utils/formatDecimals'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import ActiveRouteCard from '@web/modules/swap-and-bridge/components/ActiveRouteCard'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
@@ -87,7 +87,7 @@ const SwapAndBridgeScreen = () => {
     shouldEnableRoutesSelection
   } = useSwapAndBridgeControllerState()
   const { statuses } = useMainControllerState()
-  const { accountPortfolio } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
 
@@ -249,7 +249,7 @@ const SwapAndBridgeScreen = () => {
                   </View>
                   {!fromTokenAmountSelectDisabled && (
                     <MaxAmount
-                      isLoading={!accountPortfolio?.isAllReady}
+                      isLoading={!portfolio?.isAllReady}
                       maxAmount={Number(maxFromAmount)}
                       maxAmountInFiat={Number(maxFromAmountInFiat)}
                       selectedTokenSymbol={fromSelectedToken?.symbol || ''}
