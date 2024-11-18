@@ -11,7 +11,6 @@ const MainControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'main'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
-  console.log('main state', state)
   useEffect(() => {
     dispatch({
       type: 'INIT_CONTROLLER_STATE',
