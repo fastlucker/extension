@@ -72,7 +72,7 @@ const Network: FC<Props> = ({
   }
 
   const networkData = networks.find((network) => network.id === networkId)
-  const networkBalance = portfolio.latestStateByNetworks?.[networkId]?.result?.total
+  const networkBalance = portfolio.latest?.[networkId]?.result?.total
   let networkName = networkData?.name
 
   if (networkId === 'rewards') {

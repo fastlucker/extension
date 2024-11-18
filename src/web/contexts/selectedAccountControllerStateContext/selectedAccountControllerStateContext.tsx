@@ -25,13 +25,13 @@ const SelectedAccountControllerStateProvider: React.FC<any> = ({ children }) => 
 
   useEffect(() => {
     if (!state) return
-    if (!state.account || !state.portfolio.latestStateByNetworks) return
+    if (!state.account || !state.portfolio.latest) return
 
     if (
       !isOffline &&
-      state.portfolio.latestStateByNetworks.ethereum?.criticalError &&
-      state.portfolio.latestStateByNetworks.polygon?.criticalError &&
-      state.portfolio.latestStateByNetworks.optimism?.criticalError &&
+      state.portfolio.latest.ethereum?.criticalError &&
+      state.portfolio.latest.polygon?.criticalError &&
+      state.portfolio.latest.optimism?.criticalError &&
       state.portfolio.isAllReady &&
       accountsState?.statuses?.updateAccountState === 'INITIAL'
     ) {
