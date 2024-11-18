@@ -7,6 +7,7 @@ import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAcco
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
+import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
@@ -85,6 +86,8 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
             </Pressable>
           </View>
           <View style={styles.balancesWrapper}>
+            {!isSA && <View style={styles.overlay} />}
+
             <View style={{ ...flexbox.alignStart }}>
               <Text fontSize={12} appearance="secondaryText" style={{ ...spacings.pbTy }}>
                 {t('Gas Tank Balance')}
@@ -118,17 +121,29 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
             </View>
           </View>
         </View>
+        {!isSA && (
+          <Alert
+            type="info"
+            isTypeLabelHidden
+            style={spacings.mtXl}
+            title={t('Info')}
+            titleWeight="semiBold"
+            text={t(
+              'The Gas Tank feature is not available for Basic Accounts. If you want to use the full potential of the Gas Tank, create a Smart Account.'
+            )}
+          />
+        )}
       </View>
       <View style={styles.buttonWrapper}>
         <Button
           type="primary"
-          text={t('Top Up Gas Tank')}
+          text={isSA ? t('Top Up Gas Tank') : t('Create Smart Account')}
           size="large"
           hasBottomSpacing={false}
           textStyle={{ ...spacings.prSm }}
-          onPress={() => navigate('transfer?isTopUp')}
+          onPress={() => (isSA ? navigate('transfer?isTopUp') : navigate('account-select'))}
         >
-          <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />
+          {isSA && <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />}
         </Button>
       </View>
     </BottomSheet>

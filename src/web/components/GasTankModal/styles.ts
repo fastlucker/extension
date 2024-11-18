@@ -15,7 +15,6 @@ type Style = {
   buttonWrapper: ViewStyle
 }
 
-
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     containerInnerWrapper: {
@@ -37,6 +36,12 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.ph,
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'white',
+      opacity: 0.5,
+      zIndex: 1
     },
     rightPartWrapper: { ...flexbox.alignEnd, width: 154 },
     rightPartInnerWrapper: {

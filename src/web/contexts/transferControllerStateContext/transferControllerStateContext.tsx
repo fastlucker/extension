@@ -132,8 +132,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
           token.networkId === selectedTokenFromUrl?.networkId
     )
 
-    // It has a case where no token is provided view URL parameters but only isTopUp
-    // In this case selectedToken will be undefined
+    // It has a scenario where no token is provided view URL parameters but only isTopUp and the selectedToken will be undefined
     // In that case we do not update the selected token
     if (selectedToken) {
       transferCtrl.update({
