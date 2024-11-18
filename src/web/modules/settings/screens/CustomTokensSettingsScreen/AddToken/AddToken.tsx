@@ -19,6 +19,7 @@ import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_2XL, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -38,9 +39,10 @@ type NetworkOption = {
 
 const AddToken = () => {
   const { t } = useTranslation()
+  const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const { addToast } = useToast()
-  const portfolio = usePortfolioControllerState()
+  const { validTokens, tokenPreferences, temporaryTokens } = usePortfolioControllerState()
   const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
 
   const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
@@ -81,17 +83,17 @@ const AddToken = () => {
   )
 
   const tokenTypeEligibility = useMemo(
-    () => getTokenEligibility({ address }, portfolio, network),
-    [portfolio, address, network]
+    () => getTokenEligibility({ address }, validTokens, network),
+    [validTokens, address, network]
   )
 
   const tokenInPreferences = useMemo(
-    () => getTokenFromPreferences({ address }, network, portfolio.state.tokenPreferences),
-    [portfolio.state.tokenPreferences, address, network]
+    () => getTokenFromPreferences({ address }, network, tokenPreferences),
+    [tokenPreferences, address, network]
   )
   const temporaryToken = useMemo(
-    () => getTokenFromTemporaryTokens(portfolio, { address }, network),
-    [portfolio, address, network]
+    () => getTokenFromTemporaryTokens(temporaryTokens, { address }, network),
+    [temporaryTokens, address, network]
   )
 
   const portfolioToken = useMemo(
@@ -101,20 +103,29 @@ const AddToken = () => {
 
   const handleAddToken = useCallback(async () => {
     if (!isValidAddress(address) || !network) return
-    await portfolio.updateTokenPreferences({
-      address: temporaryToken?.address || address,
-      symbol: temporaryToken?.symbol || '',
-      decimals: temporaryToken?.decimals || 18,
-      networkId: network.id,
-      standard: 'ERC20'
+
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+      params: {
+        token: {
+          address: temporaryToken?.address || address,
+          symbol: temporaryToken?.symbol || '',
+          decimals: temporaryToken?.decimals || 18,
+          networkId: network.id,
+          standard: 'ERC20'
+        }
+      }
     })
     reset({ address: '' })
     setAdditionalHintRequested(false)
     addToast(t(`Added token ${address} on ${network.name} to your portfolio`))
-  }, [address, network, portfolio, addToast, temporaryToken, reset, t])
+  }, [address, network, addToast, temporaryToken, reset, t, dispatch])
 
-  const handleTokenType = async () => {
-    await portfolio.checkToken({ address, networkId: network.id })
+  const handleTokenType = () => {
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN',
+      params: { token: { address, networkId: network.id } }
+    })
   }
   useEffect(() => {
     const handleEffect = async () => {
@@ -139,11 +150,14 @@ const AddToken = () => {
       if (!temporaryToken) {
         if (tokenTypeEligibility && !isAdditionalHintRequested) {
           setIsLoading(true)
-          portfolio.getTemporaryTokens(network?.id, getAddress(address))
+          dispatch({
+            type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS',
+            params: { networkId: network?.id, additionalHint: getAddress(address) }
+          })
           setAdditionalHintRequested(true)
         } else if (tokenTypeEligibility === undefined) {
           setIsLoading(true)
-          await handleTokenType()
+          handleTokenType()
         }
       }
     }

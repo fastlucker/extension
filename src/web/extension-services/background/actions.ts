@@ -158,6 +158,16 @@ type MainControllerBuildTransferUserRequest = {
     executionType: 'queue' | 'open'
   }
 }
+type MainControllerBuildClaimWalletUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST'
+  params: { token: TokenResult }
+}
+type MainControllerBuildMintVestingUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST'
+  params: {
+    token: TokenResult
+  }
+}
 type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
@@ -553,6 +563,8 @@ export type Action =
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
+  | MainControllerBuildClaimWalletUserRequest
+  | MainControllerBuildMintVestingUserRequest
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction

@@ -51,7 +51,7 @@ const WatchTokenRequestScreen = () => {
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
-  const portfolio = usePortfolioControllerState()
+  const { temporaryTokens, validTokens, tokenPreferences } = usePortfolioControllerState()
   const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { providers } = useProvidersControllerState()
@@ -80,8 +80,8 @@ const WatchTokenRequestScreen = () => {
   const [isTemporaryTokenRequested, setTemporaryTokenRequested] = useState(false)
 
   const isLoadingTemporaryToken = useMemo(
-    () => tokenNetwork?.id && portfolio.state.temporaryTokens[tokenNetwork?.id]?.isLoading,
-    [tokenNetwork?.id, portfolio.state.temporaryTokens]
+    () => tokenNetwork?.id && temporaryTokens?.[tokenNetwork?.id]?.isLoading,
+    [tokenNetwork?.id, temporaryTokens]
   )
 
   const networkWithFailedRPC =
@@ -91,8 +91,8 @@ const WatchTokenRequestScreen = () => {
     )
 
   const tokenTypeEligibility = useMemo(
-    () => getTokenEligibility(tokenData, portfolio, tokenNetwork),
-    [portfolio, tokenData, tokenNetwork]
+    () => getTokenEligibility(tokenData, validTokens, tokenNetwork),
+    [validTokens, tokenData, tokenNetwork]
   )
   const handleCancel = useCallback(() => {
     if (!dappAction) return
@@ -105,13 +105,13 @@ const WatchTokenRequestScreen = () => {
 
   // Handle the case its already in token preferences
   const tokenInPreferences = useMemo(
-    () => getTokenFromPreferences(tokenData, tokenNetwork, portfolio.state.tokenPreferences),
-    [portfolio.state.tokenPreferences, tokenData, tokenNetwork]
+    () => getTokenFromPreferences(tokenData, tokenNetwork, tokenPreferences),
+    [tokenPreferences, tokenData, tokenNetwork]
   )
 
   const temporaryToken = useMemo(
-    () => getTokenFromTemporaryTokens(portfolio, tokenData, tokenNetwork),
-    [portfolio, tokenData, tokenNetwork]
+    () => getTokenFromTemporaryTokens(temporaryTokens, tokenData, tokenNetwork),
+    [temporaryTokens, tokenData, tokenNetwork]
   )
 
   const portfolioToken = useMemo(
@@ -120,8 +120,11 @@ const WatchTokenRequestScreen = () => {
     [selectedAccountPortfolio, tokenInPreferences, tokenNetwork, tokenData]
   )
 
-  const handleTokenType = async (networkId: NetworkId) => {
-    await portfolio.checkToken({ address: tokenData?.address, networkId })
+  const handleTokenType = (networkId: NetworkId) => {
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN',
+      params: { token: { address: tokenData?.address, networkId } }
+    })
   }
 
   const handleSelectNetwork = useCallback(async () => {
@@ -168,12 +171,18 @@ const WatchTokenRequestScreen = () => {
         if (!temporaryToken) {
           // Check if token is eligible to add in portfolio
           if (tokenData && !tokenTypeEligibility) {
-            await handleTokenType(tokenNetwork?.id)
+            handleTokenType(tokenNetwork?.id)
           }
 
           if (tokenTypeEligibility && !isTokenInHints && !isTemporaryTokenRequested) {
             setTemporaryTokenRequested(true)
-            portfolio.getTemporaryTokens(tokenNetwork?.id, getAddress(tokenData?.address))
+            dispatch({
+              type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS',
+              params: {
+                networkId: tokenNetwork?.id,
+                additionalHint: getAddress(tokenData?.address)
+              }
+            })
           }
         }
       }
@@ -210,12 +219,16 @@ const WatchTokenRequestScreen = () => {
       networkId: tokenNetwork?.id
     }
 
-    await portfolio.updateTokenPreferences(token)
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+      params: { token }
+    })
+
     dispatch({
       type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
       params: { data: null, id: dappAction.id }
     })
-  }, [dispatch, dappAction, tokenData, tokenNetwork, portfolio])
+  }, [dispatch, dappAction, tokenData, tokenNetwork])
 
   if (networkWithFailedRPC && networkWithFailedRPC?.length > 0 && !!temporaryToken) {
     return <Alert type="error" title={t('This network RPC is failing')} />

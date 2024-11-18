@@ -10,6 +10,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import getStyles from './styles'
@@ -28,14 +29,13 @@ const HideTokenTokenItem: FC<Props> = ({
   seTokenPreferencesCopy
 }) => {
   const { theme, styles } = useTheme(getStyles)
-  const { state, removeTokenPreferences, updateTokenPreferences } = usePortfolioControllerState()
+  const { dispatch } = useBackgroundService()
+  const { tokenPreferences } = usePortfolioControllerState()
 
   const hideToken = useCallback(async () => {
-    const tokenPreferences = state.tokenPreferences
-
-    let tokenIsInPreferences = tokenPreferences.find(
+    let tokenIsInPreferences = tokenPreferences?.find(
       (tokenPreference) =>
-        tokenPreference.address.toLowerCase() === token.address.toLowerCase() &&
+        tokenPreference.address?.toLowerCase() === token.address.toLowerCase() &&
         tokenPreference.networkId === token.networkId
     )
 
@@ -66,12 +66,18 @@ const HideTokenTokenItem: FC<Props> = ({
     seTokenPreferencesCopy(newTokenPreferences)
     setIsLoading({ [`${token.address}-${token.networkId}`]: true })
 
-    updateTokenPreferences(tokenIsInPreferences)
-  }, [seTokenPreferencesCopy, setIsLoading, state.tokenPreferences, token, updateTokenPreferences])
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+      params: { token: tokenIsInPreferences }
+    })
+  }, [seTokenPreferencesCopy, setIsLoading, tokenPreferences, token, dispatch])
 
   const removeToken = useCallback(() => {
-    removeTokenPreferences(token)
-  }, [removeTokenPreferences, token])
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES',
+      params: { token }
+    })
+  }, [dispatch, token])
 
   return (
     <View
@@ -99,7 +105,7 @@ const HideTokenTokenItem: FC<Props> = ({
         </Text>
       </View>
       <View style={flexbox.directionRow}>
-        {state.tokenPreferences.find(
+        {tokenPreferences?.find(
           ({ address, networkId, standard }) =>
             token.address.toLowerCase() === address.toLowerCase() &&
             token.networkId === networkId &&
@@ -109,7 +115,7 @@ const HideTokenTokenItem: FC<Props> = ({
             <DeleteIcon color={theme.secondaryText} style={styles.icon} />
           </Pressable>
         )}
-        {state.tokenPreferences.find(
+        {tokenPreferences?.find(
           ({ address, networkId }) =>
             token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
         )?.isHidden ? (
@@ -132,4 +138,4 @@ const HideTokenTokenItem: FC<Props> = ({
   )
 }
 
-export default HideTokenTokenItem
+export default React.memo(HideTokenTokenItem)
