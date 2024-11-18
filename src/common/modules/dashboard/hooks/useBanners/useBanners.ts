@@ -33,7 +33,7 @@ export default function useBanners(): BannerInterface[] {
   const { isOffline } = useConnectivity()
   // Debounce offline status to prevent banner flickering
   const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
-  const { account, defiPositionsBanners } = useSelectedAccountControllerState()
+  const { account, defiPositionsBanners = [] } = useSelectedAccountControllerState()
   const {
     state: { banners: portfolioBanners = [] }
   } = usePortfolioControllerState()
