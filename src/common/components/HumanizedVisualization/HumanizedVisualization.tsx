@@ -24,6 +24,10 @@ export const visualizeContent = (kind: string, content?: string | Uint8Array) =>
   }
   return `${getMessageAsText(content).replace('\n', '')} `
 }
+function stopPropagation(e: React.MouseEvent) {
+  e.stopPropagation()
+}
+
 interface Props {
   data: IrCall['fullVisualization']
   sizeMultiplierSize?: number
@@ -137,7 +141,12 @@ const HumanizedVisualization: FC<Props> = ({
         }
         if (item.type === 'link') {
           return (
-            <a style={{ maxWidth: '100%', marginRight }} key={key} href={item.url!}>
+            <a
+              onClick={stopPropagation}
+              style={{ maxWidth: '100%', marginRight }}
+              key={key}
+              href={item.url!}
+            >
               <Text fontSize={textSize} weight="semiBold" appearance="successText">
                 {item.content}
               </Text>
