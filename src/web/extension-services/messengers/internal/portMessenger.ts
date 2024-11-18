@@ -59,7 +59,7 @@ export class PortMessenger {
 
     port.onMessage.addListener((data) => {
       if (!data.messageType || !data.message) return
-      console.log(data.message)
+
       const message = parse(data.message)
       callback(data.messageType, message)
     })
