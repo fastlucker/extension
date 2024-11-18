@@ -35,7 +35,6 @@ const RoutesModal = ({
   const { quote, shouldEnableRoutesSelection } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const scrollRef: any = useRef(null)
-  const { theme } = useTheme()
 
   const [selectedRoute, setSelectedRoute] = useState<SocketAPIRoute | null>(
     quote?.selectedRoute || null
