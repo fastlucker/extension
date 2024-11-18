@@ -6,7 +6,6 @@ import useConnectivity from '@common/hooks/useConnectivity'
 import useDebounce from '@common/hooks/useDebounce'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
-import useDeFiPositionsControllerState from '@web/hooks/useDeFiPositionsControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -31,15 +30,14 @@ const OFFLINE_BANNER: BannerInterface = {
 
 export default function useBanners(): BannerInterface[] {
   const state = useMainControllerState()
-  const { account } = useSelectedAccountControllerState()
   const { isOffline } = useConnectivity()
   // Debounce offline status to prevent banner flickering
   const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
+  const { account, defiPositionsBanners = [] } = useSelectedAccountControllerState()
   const {
     state: { banners: portfolioBanners = [] }
   } = usePortfolioControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
-  const { banners: defiPositionsBanners = [] } = useDeFiPositionsControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()

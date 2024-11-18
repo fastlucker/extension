@@ -112,6 +112,7 @@ const Tokens = ({
         .filter((token) => {
           if (isGasTankTokenOnCustomNetwork(token, networks)) return false
           if (token?.isHidden) return false
+          if (token.flags.isDefiToken) return false
 
           const hasTokenAmount = hasAmount(token)
           const isInPreferences = tokenPreferences.find(
