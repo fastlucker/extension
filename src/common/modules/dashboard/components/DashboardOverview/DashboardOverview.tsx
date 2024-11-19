@@ -99,7 +99,7 @@ const DashboardOverview: FC<Props> = ({
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
     totalPortfolioAmount,
-    'price'
+    'value'
   ).split('.')
 
   const networksWithCriticalErrors: string[] = useMemo(() => {
