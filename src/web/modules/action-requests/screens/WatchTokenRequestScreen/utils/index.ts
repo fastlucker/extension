@@ -1,10 +1,10 @@
 import { ZeroAddress } from 'ethers'
 
-import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { Network } from '@ambire-common/interfaces/network'
 import { RPCProviders } from '@ambire-common/interfaces/provider'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { TemporaryTokens } from '@ambire-common/libs/portfolio/interfaces'
 import { TokenData } from '@web/modules/action-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen' // Polygon MATIC token address
 
 const selectNetwork = async (
@@ -12,7 +12,7 @@ const selectNetwork = async (
   tokenNetwork: Network | undefined,
   tokenData: TokenData,
   networks: Network[],
-  portfolio: { state: PortfolioController },
+  validTokens: any,
   setIsLoading: (isLoading: boolean) => void,
   setTokenNetwork: (network: Network) => void,
   handleTokenType: (networkId: string) => void,
@@ -21,12 +21,12 @@ const selectNetwork = async (
   if (!network && !tokenNetwork?.id) {
     const validTokenNetworks = networks.filter(
       (_network: Network) =>
-        portfolio.state.validTokens.erc20[`${tokenData?.address}-${_network.id}`] === true &&
-        `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20
+        validTokens.erc20[`${tokenData?.address}-${_network.id}`] === true &&
+        `${tokenData?.address}-${_network.id}` in validTokens.erc20
     )
     const allNetworksChecked = networks.every(
       (_network: Network) =>
-        `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20 &&
+        `${tokenData?.address}-${_network.id}` in validTokens.erc20 &&
         providers[_network.id].isWorking
     )
 
@@ -51,13 +51,13 @@ const selectNetwork = async (
 
 const getTokenEligibility = (
   tokenData: { address: string } | CustomToken,
-  portfolio: { state: PortfolioController },
+  validTokens: any,
   tokenNetwork: Network | undefined
 ) =>
   null ||
   (tokenData?.address &&
     tokenNetwork?.id &&
-    portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
+    validTokens?.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
 
 const getTokenFromPreferences = (
   tokenData: { address: string } | CustomToken,
@@ -106,15 +106,15 @@ const getTokenFromPortfolio = (
   tokenInPreferences
 
 const getTokenFromTemporaryTokens = (
-  portfolio: any,
+  temporaryTokens: TemporaryTokens,
   tokenData: { address: string } | CustomToken,
   tokenNetwork: Network | undefined
 ) =>
   undefined ||
   (tokenData &&
     tokenNetwork &&
-    portfolio.state.temporaryTokens[tokenNetwork.id] &&
-    portfolio.state.temporaryTokens[tokenNetwork.id]?.result?.tokens?.find(
+    temporaryTokens?.[tokenNetwork.id] &&
+    temporaryTokens?.[tokenNetwork.id]?.result?.tokens?.find(
       (x) => x.address.toLowerCase() === tokenData.address.toLowerCase()
     ))
 

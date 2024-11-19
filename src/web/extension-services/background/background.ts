@@ -445,15 +445,23 @@ handleKeepAlive()
     forceEmit?: boolean
   ): 'DEBOUNCED' | 'EMITTED' {
     const sendUpdate = () => {
-      pm.send('> ui', {
-        method: ctrlName,
-        // We are removing the portfolio to avoid the CPU-intensive task of parsing + stringifying.
-        // The portfolio controller is particularly resource-heavy. Additionally, we should access the portfolio
-        // directly from its contexts instead of through the main, which applies to other nested controllers as well.
+      let stateToSendToFE
+
+      if (ctrlName === 'main') {
+        const state = { ...ctrl.toJSON() }
+        // We are removing the state of the nested controllers in main to avoid the CPU-intensive task of parsing + stringifying.
+        // We should access the state of the nested controllers directly from their context instead of accessing them through the main ctrl state on the FE.
         // Keep in mind: if we just spread `ctrl` instead of calling `ctrl.toJSON()`, the getters won't be included.
-        params: ctrlName === 'main' ? { ...ctrl.toJSON(), portfolio: null } : ctrl,
-        forceEmit
-      })
+        Object.keys(controllersNestedInMainMapping).forEach((nestedCtrlName) => {
+          delete state[nestedCtrlName]
+        })
+
+        stateToSendToFE = state
+      } else {
+        stateToSendToFE = ctrl
+      }
+
+      pm.send('> ui', { method: ctrlName, params: stateToSendToFE, forceEmit })
       stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog)
     }
 

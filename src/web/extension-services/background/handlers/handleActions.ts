@@ -13,6 +13,7 @@ import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/key
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
+import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { PortMessenger } from '@web/extension-services/messengers'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -47,7 +48,14 @@ export const handleActions = async (
   switch (type) {
     case 'INIT_CONTROLLER_STATE': {
       if (params.controller === ('main' as any)) {
-        pm.send('> ui', { method: 'main', params: mainCtrl })
+        const mainCtrlState: any = { ...mainCtrl.toJSON() }
+        // We are removing the state of the nested controllers in main to avoid the CPU-intensive task of parsing + stringifying.
+        // We should access the state of the nested controllers directly from their context instead of accessing them through the main ctrl state on the FE.
+        // Keep in mind: if we just spread `ctrl` instead of calling `ctrl.toJSON()`, the getters won't be included.
+        Object.keys(controllersNestedInMainMapping).forEach((nestedCtrlName) => {
+          delete mainCtrlState[nestedCtrlName]
+        })
+        pm.send('> ui', { method: 'main', params: mainCtrlState })
       } else if (params.controller === ('walletState' as any)) {
         pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
       } else if (params.controller === ('autoLock' as any)) {
@@ -256,6 +264,11 @@ export const handleActions = async (
         params.selectedToken,
         params.executionType
       )
+
+    case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
+      return await mainCtrl.buildClaimWalletUserRequest(params.token)
+    case 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST':
+      return await mainCtrl.buildMintVestingUserRequest(params.token)
     case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
       return await mainCtrl.addUserRequest(params)
     case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':

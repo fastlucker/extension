@@ -41,7 +41,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const signMessageState = useSignMessageControllerState()
   const actionsState = useActionsControllerState()
   const activityState = useActivityControllerState()
-  const { state: portfolioState } = usePortfolioControllerState()
+  const portfolioState = usePortfolioControllerState()
   const emailVaultState = useEmailVaultControllerState()
   const { state: dappsState } = useDappsControllerState()
   const addressBookState = useAddressBookControllerState()
