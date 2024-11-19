@@ -125,15 +125,12 @@ const CreateSeedPhraseConfirmScreen = () => {
         <Panel title={t('Confirm your Seed Phrase')}>
           <View>
             {confirmationWords.map(({ word, numberInSeed }: any, index: number) => (
-              <View
-                key={word}
-                style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { width: 200 }]}
-              >
+              <View key={word} style={[flexbox.directionRow, spacings.mb, { width: 280 }]}>
                 <Text
                   testID="seed-word-number-to-be-entered"
                   fontSize={14}
                   weight="medium"
-                  style={[{ width: 32 }]}
+                  style={[spacings.pt, { width: 32 }]}
                 >
                   #{numberInSeed}
                 </Text>
@@ -147,10 +144,24 @@ const CreateSeedPhraseConfirmScreen = () => {
                       onChangeText={onChange}
                       onBlur={onBlur}
                       value={value}
-                      style={{ width: 200 }}
+                      style={{ width: 280 }}
                       isValid={value === word}
+                      error={
+                        value && value !== word
+                          ? t(
+                              "Invalid word. Please make sure you've written your Seed Phrase correctly."
+                            )
+                          : ''
+                      }
                       placeholder={t('Word {{numberInSeed}}', { numberInSeed })}
-                      containerStyle={[spacings.mb0, flexbox.flex1]}
+                      containerStyle={[
+                        spacings.mb0,
+                        {
+                          height: 84,
+                          width: 280
+                        },
+                        flexbox.flex1
+                      ]}
                       onSubmitEditing={onSubmit}
                     />
                   )}
