@@ -385,11 +385,23 @@ const SwapAndBridgeScreen = () => {
                       <Text fontSize={12}>
                         <Text
                           fontSize={12}
+                          weight="medium"
                           onPress={handleCheckboxPress}
                           testID="confirm-follow-up-txns-checkbox"
+                          color={
+                            followUpTransactionConfirmed
+                              ? theme.primaryText
+                              : theme.warningDecorative
+                          }
+                          style={[
+                            styles.followUpTxnText,
+                            !followUpTransactionConfirmed && {
+                              backgroundColor: theme.warningBackground
+                            }
+                          ]}
                         >
-                          {t('I understand that I need to do a follow-up transaction.')}{' '}
-                        </Text>
+                          {t('I understand that I need to do a follow-up transaction.')}
+                        </Text>{' '}
                         <Text fontSize={12} underline weight="medium" onPress={handleOpenReadMore}>
                           {t('Read more.')}
                         </Text>
