@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -13,6 +13,7 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useAccountsList from '@common/hooks/useAccountsList'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import DashboardSkeleton from '@common/modules/dashboard/screens/Skeleton'
 import Header from '@common/modules/header/components/Header'
@@ -20,12 +21,31 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 
 import getStyles from './styles'
+
+const getInfoFromSearch = (search: string | undefined): boolean | null => {
+  if (!search) return null
+
+  const params = new URLSearchParams(search)
+  const addAccount = params.get('addAccount')
+
+  // Remove the addAccount parameter
+  if (addAccount) {
+    params.delete('addAccount')
+    const updatedSearch = params.toString()
+
+    // Updated URL back into the app, handle it here.
+    window.history.replaceState(null, '', `?${updatedSearch}`)
+
+    return addAccount === 'true'
+  }
+
+  return null
+}
 
 const AccountSelectScreen = () => {
   const { styles, theme } = useTheme(getStyles)
@@ -38,12 +58,21 @@ const AccountSelectScreen = () => {
     getItemLayout,
     isReadyToScrollToSelectedAccount
   } = useAccountsList({ flatlistRef })
+  const { search } = useRoute()
   const { navigate } = useNavigation()
   const { account } = useSelectedAccountControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
   const accountsContainerRef = useRef(null)
   const [pendingToBeSetSelectedAccount, setPendingToBeSetSelectedAccount] = useState('')
+
+  const shouldAddAccount = useMemo(() => getInfoFromSearch(search), [search])
+
+  useEffect(() => {
+    if (shouldAddAccount) {
+      setTimeout(() => openBottomSheet(), 100)
+    }
+  }, [openBottomSheet, shouldAddAccount])
 
   const onAccountSelect = useCallback(
     (addr: AccountType['addr']) => setPendingToBeSetSelectedAccount(addr),

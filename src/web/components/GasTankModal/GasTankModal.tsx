@@ -1,10 +1,12 @@
-import React, { useMemo } from 'react'
+import { formatUnits } from 'ethers'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
@@ -30,6 +32,16 @@ type Props = {
   account: Account | null
 }
 
+const calculateTokenBalance = (token: TokenResult, type: keyof TokenResult) => {
+  const amount = token[type]
+  const { decimals, priceIn } = token
+  const balance = parseFloat(formatUnits(amount, decimals))
+  const price =
+    priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
+
+  return balance * price
+}
+
 const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { isPopup } = getUiType()
   const { styles } = useTheme(getStyles)
@@ -39,17 +51,26 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
 
   const isSA = useMemo(() => isSmartAccount(account), [account])
 
-  const gasTankTotalBalanceInUsd = useMemo(() => {
-    if (!account?.addr || !isSA) return 0
-    const selectedAccountGasTankTotal = portfolio?.latestStateByNetworks?.gasTank?.result?.total
-
-    return Number(selectedAccountGasTankTotal?.usd) || 0
-  }, [account?.addr, portfolio.latestStateByNetworks, isSA])
-
-  const gasTankTotalBalanceInUsdFormatted = useMemo(
-    () => formatDecimals(gasTankTotalBalanceInUsd, 'price'),
-    [gasTankTotalBalanceInUsd]
+  const gasTankResult = useMemo(
+    () => portfolio?.latestStateByNetworks?.gasTank?.result,
+    [portfolio?.latestStateByNetworks?.gasTank?.result]
   )
+
+  const calculateBalance = useCallback(
+    (key: 'usd' | 'cashback' | 'saved') => {
+      if (!account?.addr || !gasTankResult || gasTankResult.tokens.length === 0 || !isSA) return 0
+      const token = gasTankResult.tokens[0]
+
+      return key === 'usd'
+        ? Number(gasTankResult.total?.[key]) || 0
+        : calculateTokenBalance(token, key)
+    },
+    [account?.addr, gasTankResult, isSA]
+  )
+
+  const savedInUsd = useMemo(() => calculateBalance('saved'), [calculateBalance])
+  const cashbackInUsd = useMemo(() => calculateBalance('cashback'), [calculateBalance])
+  const gasTankTotalBalanceInUsd = useMemo(() => calculateBalance('usd'), [calculateBalance])
 
   return (
     <BottomSheet
@@ -95,7 +116,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
               <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
                 <GasTankIcon width={32} />
                 <Text fontSize={32} weight="number_bold" appearance="primaryText">
-                  {gasTankTotalBalanceInUsdFormatted}
+                  {formatDecimals(gasTankTotalBalanceInUsd, 'price')}
                 </Text>
               </View>
             </View>
@@ -105,8 +126,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                   {t('Total Saved')}:
                 </Text>
                 <Text fontSize={14} appearance="successText">
-                  {/* TODO: remove hardcoded value */}
-                  $234.23
+                  {formatDecimals(savedInUsd, 'price')}
                 </Text>
               </View>
               <View style={styles.rightPartInnerWrapper}>
@@ -114,8 +134,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                   {t('Total Cashback')}:
                 </Text>
                 <Text fontSize={14} appearance="primary">
-                  {/* TODO: remove hardcoded value */}
-                  $21.23
+                  {formatDecimals(cashbackInUsd, 'price')}
                 </Text>
               </View>
             </View>
@@ -141,7 +160,9 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
           size="large"
           hasBottomSpacing={false}
           textStyle={{ ...spacings.prSm }}
-          onPress={() => (isSA ? navigate('transfer?isTopUp') : navigate('account-select'))}
+          onPress={() =>
+            isSA ? navigate('transfer?isTopUp') : navigate('account-select?addAccount=true')
+          }
         >
           {isSA && <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />}
         </Button>
