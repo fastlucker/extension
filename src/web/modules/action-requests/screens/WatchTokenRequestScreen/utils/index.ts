@@ -1,6 +1,5 @@
 import { ZeroAddress } from 'ethers'
 
-import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { Network } from '@ambire-common/interfaces/network'
 import { RPCProviders } from '@ambire-common/interfaces/provider'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
@@ -13,7 +12,7 @@ const selectNetwork = async (
   tokenNetwork: Network | undefined,
   tokenData: TokenData,
   networks: Network[],
-  portfolio: { state: PortfolioController },
+  validTokens: any,
   setIsLoading: (isLoading: boolean) => void,
   setTokenNetwork: (network: Network) => void,
   handleTokenType: (networkId: string) => void,
@@ -22,12 +21,12 @@ const selectNetwork = async (
   if (!network && !tokenNetwork?.id) {
     const validTokenNetworks = networks.filter(
       (_network: Network) =>
-        portfolio.state.validTokens.erc20[`${tokenData?.address}-${_network.id}`] === true &&
-        `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20
+        validTokens.erc20[`${tokenData?.address}-${_network.id}`] === true &&
+        `${tokenData?.address}-${_network.id}` in validTokens.erc20
     )
     const allNetworksChecked = networks.every(
       (_network: Network) =>
-        `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20 &&
+        `${tokenData?.address}-${_network.id}` in validTokens.erc20 &&
         providers[_network.id].isWorking
     )
 

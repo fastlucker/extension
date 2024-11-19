@@ -104,13 +104,23 @@ const AddToken = () => {
   const handleAddToken = useCallback(async () => {
     if (!isValidAddress(address) || !network) return
 
+    if (!temporaryToken?.address || !temporaryToken?.symbol || !temporaryToken?.decimals) {
+      addToast(
+        t(
+          'Unable to add the token because the provided token parameters are invalid. Please verify the token details and try again.'
+        ),
+        { type: 'error' }
+      )
+      return
+    }
+
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
       params: {
         token: {
-          address: temporaryToken?.address || address,
-          symbol: temporaryToken?.symbol || '',
-          decimals: temporaryToken?.decimals || 18,
+          address: temporaryToken.address,
+          symbol: temporaryToken.symbol,
+          decimals: temporaryToken.decimals,
           networkId: network.id,
           standard: 'ERC20'
         }

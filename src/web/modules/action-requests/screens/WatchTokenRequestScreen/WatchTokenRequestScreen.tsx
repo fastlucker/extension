@@ -133,7 +133,7 @@ const WatchTokenRequestScreen = () => {
       tokenNetwork,
       tokenData,
       networks,
-      portfolio,
+      validTokens,
       setIsLoading,
       setTokenNetwork,
       handleTokenType,
@@ -145,7 +145,7 @@ const WatchTokenRequestScreen = () => {
     tokenNetwork,
     tokenData,
     networks,
-    portfolio.state.validTokens.erc20,
+    validTokens,
     setIsLoading,
     setTokenNetwork,
     handleTokenType,
@@ -204,7 +204,7 @@ const WatchTokenRequestScreen = () => {
     temporaryToken,
     tokenInPreferences,
     selectedAccountPortfolio,
-    portfolio.state.validTokens.erc20
+    validTokens
   ])
 
   const handleAddToken = useCallback(async () => {
