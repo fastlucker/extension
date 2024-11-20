@@ -14,7 +14,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import { ControllersStateLoadedContext } from '@web/contexts/controllersStateLoadedContext'
 import InviteVerifyScreen from '@web/modules/invite/screens/InviteVerifyScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
-import AuthenticatedAndKeyStoreUnlockedRoute from '@web/modules/router/components/AuthenticatedAndKeystoreUnlockedRoute'
+import AuthenticatedRoute from '@web/modules/router/components/AuthenticatedRoute'
 import InviteVerifiedRoute from '@web/modules/router/components/InviteVerifiedRoute'
 import SortHat from '@web/modules/router/components/SortHat'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
@@ -58,7 +58,7 @@ const Router = () => {
       <Routes>
         <Route index path="/" element={<SortHat />} />
         <Route element={<InviteVerifiedRoute />}>
-          <Route element={<AuthenticatedAndKeyStoreUnlockedRoute />}>
+          <Route element={<AuthenticatedRoute />}>
             <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
           </Route>
         </Route>

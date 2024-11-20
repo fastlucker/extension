@@ -1,3 +1,0 @@
-import AuthenticatedAndKeystoreUnlockedRoute from './AuthenticatedAndKeystoreUnlockedRoute'
-
-export default AuthenticatedAndKeystoreUnlockedRoute

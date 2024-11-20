@@ -33,7 +33,7 @@ import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/H
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import NetworksScreen from '@web/modules/networks/screens'
-import AuthenticatedAndKeystoreUnlockedRoute from '@web/modules/router/components/AuthenticatedAndKeystoreUnlockedRoute'
+import AuthenticatedRoute from '@web/modules/router/components/AuthenticatedRoute'
 import InviteVerifiedRoute from '@web/modules/router/components/InviteVerifiedRoute'
 import KeystoreUnlockedRoute from '@web/modules/router/components/KeystoreUnlockedRoute/KeystoreUnlockedRoute'
 import NavMenu from '@web/modules/router/components/NavMenu'
@@ -132,7 +132,7 @@ const MainRoutes = () => {
               <Route path={WEB_ROUTES.saveImportedSeed} element={<SaveImportedSeedScreen />} />
             </Route>
 
-            <Route element={<AuthenticatedAndKeystoreUnlockedRoute />}>
+            <Route element={<AuthenticatedRoute />}>
               <Route
                 path={WEB_ROUTES.transfer}
                 element={
@@ -181,31 +181,33 @@ const MainRoutes = () => {
           </Route>
         </Route>
 
-        <Route element={<AuthenticatedAndKeystoreUnlockedRoute />}>
-          <Route
-            path={WEB_ROUTES.signAccountOp}
-            element={
-              <SignAccountOpControllerStateProvider>
-                <SignAccountOpScreen />
-              </SignAccountOpControllerStateProvider>
-            }
-          />
-          <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
-          <Route path={WEB_ROUTES.benzin} element={<BenzinScreen />} />
+        <Route element={<KeystoreUnlockedRoute />}>
+          <Route element={<AuthenticatedRoute />}>
+            <Route
+              path={WEB_ROUTES.signAccountOp}
+              element={
+                <SignAccountOpControllerStateProvider>
+                  <SignAccountOpScreen />
+                </SignAccountOpControllerStateProvider>
+              }
+            />
+            <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
+            <Route path={WEB_ROUTES.benzin} element={<BenzinScreen />} />
 
-          <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
-          <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />
-          <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
+            <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
+            <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />
+            <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
 
-          <Route
-            path={WEB_ROUTES.getEncryptionPublicKeyRequest}
-            element={<GetEncryptionPublicKeyRequestScreen />}
-          />
+            <Route
+              path={WEB_ROUTES.getEncryptionPublicKeyRequest}
+              element={<GetEncryptionPublicKeyRequestScreen />}
+            />
 
-          <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
-          <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
-          <Route path={WEB_ROUTES.dappCatalog} element={<DappCatalogScreen />} />
-          <Route path={WEB_ROUTES.networks} element={<NetworksScreen />} />
+            <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
+            <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
+            <Route path={WEB_ROUTES.dappCatalog} element={<DappCatalogScreen />} />
+            <Route path={WEB_ROUTES.networks} element={<NetworksScreen />} />
+          </Route>
         </Route>
       </Route>
     </Routes>
