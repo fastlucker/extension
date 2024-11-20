@@ -130,52 +130,52 @@ const MainRoutes = () => {
               <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
               <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
               <Route path={WEB_ROUTES.saveImportedSeed} element={<SaveImportedSeedScreen />} />
-            </Route>
 
-            <Route element={<AuthenticatedRoute />}>
-              <Route
-                path={WEB_ROUTES.transfer}
-                element={
-                  <TransferControllerStateProvider>
-                    <TransferScreen />
-                  </TransferControllerStateProvider>
-                }
-              />
-              <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
-              <Route element={<SettingsRoutesProvider />}>
-                <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
+              <Route element={<AuthenticatedRoute />}>
                 <Route
-                  path={WEB_ROUTES.securityAndPrivacy}
-                  element={<SecurityAndPrivacyScreen />}
+                  path={WEB_ROUTES.transfer}
+                  element={
+                    <TransferControllerStateProvider>
+                      <TransferScreen />
+                    </TransferControllerStateProvider>
+                  }
                 />
-                <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
-                <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
-                <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
-                <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
-                <Route
-                  path={WEB_ROUTES.transactions}
-                  element={<TransactionHistorySettingsScreen />}
-                />
-                <Route
-                  path={WEB_ROUTES.signedMessages}
-                  element={<SignedMessageHistorySettingsScreen />}
-                />
-                <Route
-                  path={WEB_ROUTES.devicePasswordSet}
-                  element={<DevicePasswordSetSettingsScreen />}
-                />
-                <Route
-                  path={WEB_ROUTES.devicePasswordChange}
-                  element={<DevicePasswordChangeSettingsScreen />}
-                />
-                <Route
-                  path={WEB_ROUTES.devicePasswordRecovery}
-                  element={<DevicePasswordRecoverySettingsScreen />}
-                />
-                <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
-                <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
-                <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
-                <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
+                <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
+                <Route element={<SettingsRoutesProvider />}>
+                  <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
+                  <Route
+                    path={WEB_ROUTES.securityAndPrivacy}
+                    element={<SecurityAndPrivacyScreen />}
+                  />
+                  <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
+                  <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
+                  <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
+                  <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
+                  <Route
+                    path={WEB_ROUTES.transactions}
+                    element={<TransactionHistorySettingsScreen />}
+                  />
+                  <Route
+                    path={WEB_ROUTES.signedMessages}
+                    element={<SignedMessageHistorySettingsScreen />}
+                  />
+                  <Route
+                    path={WEB_ROUTES.devicePasswordSet}
+                    element={<DevicePasswordSetSettingsScreen />}
+                  />
+                  <Route
+                    path={WEB_ROUTES.devicePasswordChange}
+                    element={<DevicePasswordChangeSettingsScreen />}
+                  />
+                  <Route
+                    path={WEB_ROUTES.devicePasswordRecovery}
+                    element={<DevicePasswordRecoverySettingsScreen />}
+                  />
+                  <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
+                  <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
+                  <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
+                  <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
+                </Route>
               </Route>
             </Route>
           </Route>
