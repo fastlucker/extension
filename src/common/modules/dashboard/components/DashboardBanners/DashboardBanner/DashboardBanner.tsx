@@ -11,6 +11,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import RPCSelectBottomSheet from './RPCSelectBottomSheet'
 
@@ -23,6 +24,7 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
   const { visibleActionsQueue } = useActionsControllerState()
   const { statuses } = useMainControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { account } = useSelectedAccountControllerState()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
@@ -117,8 +119,16 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
       if (action.actionName === 'confirm-temp-seed') {
         navigate(ROUTES.saveImportedSeed)
       }
+
+      if (action.actionName === 'open-confetti-modal') {
+        if (!account.addr) return
+        dispatch({
+          type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
+          params: { accountAddr: account.addr }
+        })
+      }
     },
-    [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]
+    [type, visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, account.addr]
   )
 
   const renderButtons = useMemo(

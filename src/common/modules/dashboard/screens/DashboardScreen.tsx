@@ -51,7 +51,7 @@ const DashboardScreen = () => {
     if (!account) return false
     return portfolio?.latestStateByNetworks?.gasTank?.result?.tokens[0].shouldPopsUpConfetti
   }, [account, portfolio])
-  const [isCongratsModalShown, setIsCongratsModalShown] = useState(shouldPopsUpConfetti)
+
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
     x: number
     y: number
@@ -105,12 +105,11 @@ const DashboardScreen = () => {
     []
   )
 
-  const handleCangratsModalBtnPressed = useCallback(() => {
+  const handleCongratsModalBtnPressed = useCallback(() => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
       params: { accountAddr: account!.addr }
     })
-    setIsCongratsModalShown(false)
   }, [dispatch, account])
 
   return (
@@ -146,9 +145,9 @@ const DashboardScreen = () => {
       </View>
       <PinExtension />
       <DefaultWalletControl />
-      {isCongratsModalShown && (
+      {shouldPopsUpConfetti && (
         <CongratsFirstCashbackModal
-          onPress={handleCangratsModalBtnPressed}
+          onPress={handleCongratsModalBtnPressed}
           position={gasTankButtonPosition}
         />
       )}
