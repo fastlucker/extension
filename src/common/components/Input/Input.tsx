@@ -14,7 +14,6 @@ import InformationIcon from '@common/assets/svg/InformationIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
@@ -41,7 +40,7 @@ export interface InputProps extends TextInputProps {
   nativeInputStyle?: ViewStyle & TextStyle
   borderWrapperStyle?: ViewStyle
   inputWrapperStyle?: ViewStyle | ViewStyle[]
-  infoTextStyle?: TextStyle | TextStyle[]
+  bottomLabelStyle?: TextStyle | TextStyle[]
   leftIcon?: () => ReactNode
   leftIconStyle?: ViewStyle
   tooltip?: {
@@ -72,7 +71,7 @@ const Input = ({
   nativeInputStyle,
   borderWrapperStyle,
   inputWrapperStyle,
-  infoTextStyle,
+  bottomLabelStyle,
   leftIcon,
   leftIconStyle,
   childrenBeforeButtons,
@@ -101,9 +100,9 @@ const Input = ({
 
   const borderWrapperStyles = [
     styles.borderWrapper,
-    !!error && { borderColor: theme.errorBackground },
     isFocused && { borderColor: theme.infoBackground },
-    isValid && isFocused && { borderColor: theme.successBackground },
+    isValid && { borderColor: theme.successBackground },
+    !!error && { borderColor: theme.errorBackground },
     borderless && { borderColor: 'transparent', borderWidth: 0 },
     borderWrapperStyle
   ]
@@ -114,9 +113,9 @@ const Input = ({
       backgroundColor: theme.secondaryBackground,
       borderColor: theme.secondaryBorder
     },
-    !!error && { borderColor: theme.errorDecorative },
     isFocused && { borderColor: theme.primary },
-    isValid && !isFocused && { borderColor: theme.successDecorative },
+    isValid && { borderColor: theme.successDecorative },
+    !!error && { borderColor: theme.errorDecorative },
     disabled && styles.disabled,
     borderless && { borderColor: 'transparent', borderWidth: 0 },
     inputWrapperStyle
@@ -195,7 +194,7 @@ const Input = ({
       </View>
       {!!error && (
         <Text
-          style={styles.errorText}
+          style={[styles.bottomLabel, bottomLabelStyle]}
           weight={isWeb ? 'regular' : undefined}
           fontSize={10}
           appearance={errorType === 'warning' ? 'warningText' : 'errorText'}
@@ -205,13 +204,23 @@ const Input = ({
       )}
 
       {!!isValid && !!validLabel && !error && (
-        <Text style={[styles.validText]} weight="regular" fontSize={12} color={colors.greenHaze}>
+        <Text
+          style={[styles.bottomLabel, bottomLabelStyle]}
+          weight="regular"
+          fontSize={12}
+          color={theme.successText}
+        >
           {validLabel}
         </Text>
       )}
 
       {!!info && (
-        <Text weight="regular" style={[styles.infoText, infoTextStyle]} fontSize={12}>
+        <Text
+          weight="regular"
+          appearance="secondaryText"
+          style={[styles.bottomLabel, bottomLabelStyle]}
+          fontSize={10}
+        >
           {info}
         </Text>
       )}
