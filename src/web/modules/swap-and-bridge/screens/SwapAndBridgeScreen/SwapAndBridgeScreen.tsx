@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import FlipIcon from '@common/assets/svg/FlipIcon'
@@ -36,6 +36,8 @@ import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTo
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import getStyles from './styles'
+
+const SWAP_AND_BRIDGE_HC_URL = 'https://help.ambire.com/hc/en-us/articles/16748050198428'
 
 const SwapAndBridgeScreen = () => {
   const { theme, styles } = useTheme(getStyles)
@@ -128,6 +130,8 @@ const SwapAndBridgeScreen = () => {
   const handleCheckboxPress = useCallback(() => {
     setFollowUpTransactionConfirmed((p) => !p)
   }, [setFollowUpTransactionConfirmed])
+
+  const handleOpenReadMore = useCallback(() => Linking.openURL(SWAP_AND_BRIDGE_HC_URL), [])
 
   if (!sessionIds.includes(sessionId)) return null
 
@@ -378,12 +382,29 @@ const SwapAndBridgeScreen = () => {
                       style={{ ...spacings.mb0, ...flexbox.alignCenter }}
                       onValueChange={handleCheckboxPress}
                     >
-                      <Text
-                        fontSize={12}
-                        onPress={handleCheckboxPress}
-                        testID="confirm-follow-up-txns-checkbox"
-                      >
-                        {t('I understand that I need to do a follow-up transaction.')}
+                      <Text fontSize={12}>
+                        <Text
+                          fontSize={12}
+                          weight="medium"
+                          onPress={handleCheckboxPress}
+                          testID="confirm-follow-up-txns-checkbox"
+                          color={
+                            followUpTransactionConfirmed
+                              ? theme.primaryText
+                              : theme.warningDecorative
+                          }
+                          style={[
+                            styles.followUpTxnText,
+                            !followUpTransactionConfirmed && {
+                              backgroundColor: theme.warningBackground
+                            }
+                          ]}
+                        >
+                          {t('I understand that I need to do a follow-up transaction.')}
+                        </Text>{' '}
+                        <Text fontSize={12} underline weight="medium" onPress={handleOpenReadMore}>
+                          {t('Read more.')}
+                        </Text>
                       </Text>
                     </Checkbox>
                   </View>

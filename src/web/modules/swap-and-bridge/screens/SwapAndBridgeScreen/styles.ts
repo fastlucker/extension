@@ -1,4 +1,4 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
@@ -13,6 +13,7 @@ interface Style {
   networkSelectorContainer: ViewStyle
   previewRouteContainer: ViewStyle
   selectAnotherRouteButton: ViewStyle
+  followUpTxnText: TextStyle
 }
 
 export const SWAP_AND_BRIDGE_FORM_WIDTH = 654
@@ -61,6 +62,13 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       ...flexbox.directionRow,
       ...flexbox.alignCenter
+    },
+    followUpTxnText: {
+      ...spacings.plTy,
+      ...spacings.prMi,
+      ...spacings.mrMi,
+      ...spacings.pvMi,
+      ...common.borderRadiusPrimary
     }
   })
 
