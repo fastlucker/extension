@@ -43,9 +43,9 @@ export default function useBanners(): BannerInterface[] {
     return [
       ...state.banners,
       ...actionBanners,
-      ...(debouncedIsOffline ? [OFFLINE_BANNER] : swapAndBridgeBanners),
-      ...(debouncedIsOffline ? [OFFLINE_BANNER] : defiPositionsBanners),
-      ...(debouncedIsOffline ? [OFFLINE_BANNER] : portfolioBanners),
+      ...(debouncedIsOffline
+        ? [OFFLINE_BANNER]
+        : [...swapAndBridgeBanners, ...defiPositionsBanners, ...portfolioBanners]),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
       ...keystoreBanners
