@@ -35,7 +35,7 @@ import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScre
 import NetworksScreen from '@web/modules/networks/screens'
 import AuthenticatedRoute from '@web/modules/router/components/AuthenticatedRoute'
 import InviteVerifiedRoute from '@web/modules/router/components/InviteVerifiedRoute'
-import KeystoreUnlockedRoute from '@web/modules/router/components/KeystoreUnlockedRoute/KeystoreUnlockedRoute'
+import KeystoreUnlockedRoute from '@web/modules/router/components/KeystoreUnlockedRoute'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsRoutesContext'

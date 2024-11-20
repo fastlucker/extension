@@ -16,6 +16,7 @@ import InviteVerifyScreen from '@web/modules/invite/screens/InviteVerifyScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
 import AuthenticatedRoute from '@web/modules/router/components/AuthenticatedRoute'
 import InviteVerifiedRoute from '@web/modules/router/components/InviteVerifiedRoute'
+import KeystoreUnlockedRoute from '@web/modules/router/components/KeystoreUnlockedRoute'
 import SortHat from '@web/modules/router/components/SortHat'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 
@@ -58,8 +59,10 @@ const Router = () => {
       <Routes>
         <Route index path="/" element={<SortHat />} />
         <Route element={<InviteVerifiedRoute />}>
-          <Route element={<AuthenticatedRoute />}>
-            <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+          <Route element={<KeystoreUnlockedRoute />}>
+            <Route element={<AuthenticatedRoute />}>
+              <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+            </Route>
           </Route>
         </Route>
         <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
