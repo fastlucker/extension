@@ -6,7 +6,7 @@ import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
-const PrivateRoute = () => {
+const AuthenticatedAndKeystoreUnlockedRoute = () => {
   const { authStatus } = useAuth()
   const keystoreState = useKeystoreControllerState()
   const [isReady, setIsReady] = useState(true)
@@ -34,4 +34,4 @@ const PrivateRoute = () => {
   return !to ? <Outlet /> : <Navigate to={to} />
 }
 
-export default PrivateRoute
+export default AuthenticatedAndKeystoreUnlockedRoute
