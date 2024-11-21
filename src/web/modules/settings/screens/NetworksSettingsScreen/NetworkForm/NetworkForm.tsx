@@ -47,6 +47,9 @@ type RpcSelectorItemType = {
   onRemove?: (url: string) => void
 }
 
+// a list of all network you can switch to 4337
+const allowForce4337OnNetworks = [1n, 137n]
+
 export const RpcSelectorItem = React.memo(
   ({
     index,
@@ -418,6 +421,10 @@ const NetworkForm = ({
     }
   }, [addToast, onSaved, selectedNetwork?.name, statuses.updateNetwork])
 
+  const canForce4337 = useMemo(() => {
+    return selectedNetwork && allowForce4337OnNetworks.includes(selectedNetwork.chainId)
+  }, [selectedNetwork])
+
   const handleSubmitButtonPress = () => {
     // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
     handleSubmit(async (formFields: any) => {
@@ -469,7 +476,7 @@ const NetworkForm = ({
               rpcUrls,
               selectedRpcUrl,
               explorerUrl: networkFormValues.explorerUrl,
-              force4337: networkFormValues.force4337
+              force4337: canForce4337 ? networkFormValues.force4337 : undefined
             },
             networkId: selectedNetworkId
           }
@@ -764,41 +771,43 @@ const NetworkForm = ({
               <View style={flexbox.flex1}>
                 <NetworkAvailableFeatures networkId={selectedNetwork?.id} features={features} />
 
-                <View style={spacings.mtSm}>
-                  <Controller
-                    control={control}
-                    render={({ field: { value, onChange } }) => (
-                      <Checkbox
-                        value={value}
-                        onValueChange={async (changedValue) => {
-                          if (selectedNetwork) {
-                            dispatch({
-                              type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
-                              params: {
-                                rpcUrl: selectedNetwork.selectedRpcUrl,
-                                chainId: selectedNetwork.chainId,
-                                force4337: changedValue
-                              }
-                            })
-                          }
+                {canForce4337 && (
+                  <View style={spacings.mtSm}>
+                    <Controller
+                      control={control}
+                      render={({ field: { value, onChange } }) => (
+                        <Checkbox
+                          value={value}
+                          onValueChange={async (changedValue) => {
+                            if (selectedNetwork) {
+                              dispatch({
+                                type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+                                params: {
+                                  rpcUrl: selectedNetwork.selectedRpcUrl,
+                                  chainId: selectedNetwork.chainId,
+                                  force4337: changedValue
+                                }
+                              })
+                            }
 
-                          return onChange(changedValue)
-                        }}
-                        uncheckedBorderColor={theme.secondaryText}
-                        label={t('Use ERC-4337 Account Abstraction')}
-                        labelProps={{
-                          style: {
-                            color: theme.secondaryText,
-                            fontSize: 16
-                          },
-                          weight: 'medium'
-                        }}
-                        style={[flexbox.directionRow, flexbox.alignCenter]}
-                      />
-                    )}
-                    name="force4337"
-                  />
-                </View>
+                            return onChange(changedValue)
+                          }}
+                          uncheckedBorderColor={theme.secondaryText}
+                          label={t('Use ERC-4337 Account Abstraction')}
+                          labelProps={{
+                            style: {
+                              color: theme.secondaryText,
+                              fontSize: 16
+                            },
+                            weight: 'medium'
+                          }}
+                          style={[flexbox.directionRow, flexbox.alignCenter]}
+                        />
+                      )}
+                      name="force4337"
+                    />
+                  </View>
+                )}
               </View>
             </ScrollableWrapper>
             <View style={[flexbox.alignEnd, spacings.ptXl]}>
