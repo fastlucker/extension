@@ -29,7 +29,7 @@ const getSearchPlaceholder = (openTab: TabType, t: TFunction) => {
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
-  searchControl: any
+  searchControl?: any
 }
 
 // We want to change the query param without refreshing the page.
@@ -49,7 +49,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }) => {
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
       <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-      {['tokens', 'collectibles', 'defi'].includes(openTab) && (
+      {['tokens', 'collectibles', 'defi'].includes(openTab) && searchControl && (
         <View style={{ margin: -2 }}>
           <Search
             containerStyle={{ flex: 1, maxWidth: isPopup ? 184 : 212 }}

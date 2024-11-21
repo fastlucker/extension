@@ -12,6 +12,7 @@ import { getUiType } from '@web/utils/uiType'
 
 import Collections from '../Collections'
 import DeFiPositions from '../DeFiPositions'
+import Activity from '../Activity'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import Tokens from '../Tokens'
 
@@ -65,6 +66,14 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
       />
 
       <DeFiPositions
+        filterByNetworkId={filterByNetworkId}
+        openTab={openTab}
+        setOpenTab={setOpenTab}
+        onScroll={onScroll}
+        initTab={initTab}
+      />
+
+      <Activity
         filterByNetworkId={filterByNetworkId}
         openTab={openTab}
         setOpenTab={setOpenTab}

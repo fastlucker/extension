@@ -38,8 +38,7 @@ const TABS: {
   {
     testID: 'tab-activity',
     type: 'activity',
-    tabLabel: 'Activity',
-    disabled: true
+    tabLabel: 'Activity'
   }
 ]
 
