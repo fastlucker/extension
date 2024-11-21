@@ -85,6 +85,10 @@ const DashboardBanner = ({
         setBottomSheetBanner(banner)
       }
 
+      if (action.actionName === 'open-swap-and-bridge-tab') {
+        navigate(ROUTES.swapAndBridge)
+      }
+
       if (action.actionName === 'reject-bridge' || action.actionName === 'close-bridge') {
         dispatch({
           type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE',

@@ -532,11 +532,10 @@ const useSteps = ({
   }, [network, txn, userOpHash, userOp])
 
   const calls: IrCall[] | null = useMemo(() => {
-    if (!txnId) return null
     if (userOpHash && userOp?.hashStatus !== 'found') return null
     if (!network) return null
     if (txnReceipt.actualGasCost) setCost(formatEther(txnReceipt.actualGasCost!.toString()))
-    if (userOp?.hashStatus !== 'found' && txn && entryPointTxnSplit[txn.data.slice(0, 10)])
+    if (userOp?.hashStatus !== 'found' && txn && txnId && entryPointTxnSplit[txn.data.slice(0, 10)])
       return entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId)
 
     if (txnReceipt.originatedFrom && txn) {
