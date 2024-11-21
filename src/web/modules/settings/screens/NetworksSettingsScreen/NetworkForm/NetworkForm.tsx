@@ -230,11 +230,7 @@ const NetworkForm = ({
         return
       }
 
-      if (!rpcUrl) {
-        rpcUrl = selectedRpcUrl as string
-      }
-
-      if (!rpcUrl.startsWith('http')) {
+      if (rpcUrl && !rpcUrl.startsWith('http')) {
         setValidatingRPC(false)
         setError('rpcUrl', {
           type: 'custom-error',
@@ -243,13 +239,13 @@ const NetworkForm = ({
         return
       }
 
-      if (!isValidURL(rpcUrl)) {
+      if (rpcUrl && !isValidURL(rpcUrl)) {
         setValidatingRPC(false)
         setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })
         return
       }
 
-      if (rpcUrls.includes(rpcUrl)) {
+      if (rpcUrl && rpcUrls.includes(rpcUrl)) {
         setValidatingRPC(false)
         setError('rpcUrl', { type: 'custom-error', message: 'RPC URL already added' })
         return

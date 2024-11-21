@@ -8,6 +8,7 @@ import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
+import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
 import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
@@ -39,7 +40,7 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: { privKeyOrSeed: string; shouldPersist?: boolean }
+  params: { privKeyOrSeed: string; shouldPersist?: boolean; shouldAddToTemp?: boolean }
 }
 type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE'
@@ -157,6 +158,16 @@ type MainControllerBuildTransferUserRequest = {
     executionType: 'queue' | 'open'
   }
 }
+type MainControllerBuildClaimWalletUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST'
+  params: { token: TokenResult }
+}
+type MainControllerBuildMintVestingUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST'
+  params: {
+    token: TokenResult
+  }
+}
 type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
@@ -216,6 +227,10 @@ type MainControllerActivitySetSignedMessagesPaginationAction = {
 }
 type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
+}
+type MainControllerActivityHideBanner = {
+  type: 'ACTIVITY_CONTROLLER_HIDE_BANNER'
+  params: { addr: string; network: string; timestamp: number }
 }
 
 type MainControllerReloadSelectedAccount = {
@@ -316,6 +331,13 @@ type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
   params: { keyAddr: string }
 }
+type KeystoreControllerDeleteSavedSeed = {
+  type: 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED'
+}
+type KeystoreControllerMoveSeedFromTemp = {
+  type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP'
+  params: { action: 'save' | 'delete' }
+}
 type KeystoreControllerSendSeedOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
 }
@@ -333,7 +355,7 @@ type EmailVaultControllerCancelConfirmationAction = {
 }
 type EmailVaultControllerHandleMagicLinkKeyAction = {
   type: 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY'
-  params: { email: string }
+  params: { email: string; flow: MagicLinkFlow }
 }
 type EmailVaultControllerRecoverKeystoreAction = {
   type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE'
@@ -416,10 +438,6 @@ type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
 type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: number }
-}
-type SwapAndBridgeControllerUpdatePortfolioTokenListAction = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST'
-  params: TokenResult[]
 }
 
 type ActionsControllerAddToActionsQueue = {
@@ -549,6 +567,8 @@ export type Action =
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
+  | MainControllerBuildClaimWalletUserRequest
+  | MainControllerBuildMintVestingUserRequest
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
@@ -602,7 +622,6 @@ export type Action =
   | SwapAndBridgeControllerSubmitFormAction
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerRemoveActiveRouteAction
-  | SwapAndBridgeControllerUpdatePortfolioTokenListAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
@@ -624,3 +643,6 @@ export type Action =
   | MainControllerTraceCallAction
   | ImportSmartAccountJson
   | KeystoreControllerSendSeedOverChannel
+  | MainControllerActivityHideBanner
+  | KeystoreControllerDeleteSavedSeed
+  | KeystoreControllerMoveSeedFromTemp

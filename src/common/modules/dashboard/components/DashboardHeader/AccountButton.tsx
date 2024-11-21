@@ -10,15 +10,14 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import AccountKeyIcons from '@common/components/AccountKeyIcons'
 import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
-import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 import getStyles from './styles'
@@ -28,8 +27,8 @@ const AccountButton = () => {
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
-  const accountsState = useAccountsControllerState()
-  const { accounts } = useAccounts()
+
+  const { account } = useSelectedAccountControllerState()
   const [bindAddressAnim, addressAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -41,14 +40,11 @@ const AccountButton = () => {
     }
   })
 
-  const selectedAccountData = useMemo(
-    () => accountsState.accounts.find((a) => a.addr === accountsState.selectedAccount),
-    [accountsState.accounts, accountsState.selectedAccount]
-  )
+  if (!account) return null
 
   const handleCopyText = async () => {
     try {
-      await Clipboard.setStringAsync(accountsState.selectedAccount!)
+      await Clipboard.setStringAsync(account.addr)
       addToast(t('Copied address to clipboard!') as string, { timeout: 2500 })
     } catch {
       addToast(t('Failed to copy address to clipboard!') as string, {
@@ -57,15 +53,6 @@ const AccountButton = () => {
       })
     }
   }
-
-  if (!selectedAccountData) return null
-
-  const account = useMemo(
-    () => accounts.find((a) => a.addr === accountsState.selectedAccount),
-    [accounts, accountsState.selectedAccount]
-  )
-
-  if (!account) return null
 
   return (
     <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
@@ -84,11 +71,7 @@ const AccountButton = () => {
       >
         <>
           <View style={styles.accountButtonInfo}>
-            <Avatar
-              pfp={selectedAccountData.preferences.pfp}
-              size={32}
-              isSmart={isSmartAccount(account)}
-            />
+            <Avatar pfp={account.preferences.pfp} size={32} isSmart={isSmartAccount(account)} />
             <Text
               numberOfLines={1}
               weight="semiBold"
@@ -96,7 +79,7 @@ const AccountButton = () => {
               color={theme.primaryBackground}
               fontSize={14}
             >
-              {selectedAccountData.preferences.label}
+              {account.preferences.label}
             </Text>
 
             <AccountKeyIcons isExtended={false} account={account} />
@@ -116,7 +99,7 @@ const AccountButton = () => {
         {...bindAddressAnim}
       >
         <Text color={theme.primaryBackground} style={spacings.mrMi} weight="medium" fontSize={14}>
-          ({shortenAddress(accountsState.selectedAccount!, 13)})
+          ({shortenAddress(account.addr, 13)})
         </Text>
         <CopyIcon width={20} height={20} color={theme.primaryBackground} />
       </AnimatedPressable>
@@ -124,4 +107,4 @@ const AccountButton = () => {
   )
 }
 
-export default AccountButton
+export default React.memo(AccountButton)

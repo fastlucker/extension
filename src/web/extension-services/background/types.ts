@@ -12,6 +12,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { NetworksController } from '@ambire-common/controllers/networks/networks'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
+import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
@@ -23,6 +24,7 @@ export const controllersNestedInMainMapping = {
   providers: ProvidersController,
   networks: NetworksController,
   accounts: AccountsController,
+  selectedAccount: SelectedAccountController,
   accountAdder: AccountAdderController,
   keystore: KeystoreController,
   signMessage: SignMessageController,

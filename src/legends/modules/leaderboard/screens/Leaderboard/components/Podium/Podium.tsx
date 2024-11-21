@@ -14,7 +14,7 @@ interface PodiumProps {
 }
 
 const Podium: React.FC<PodiumProps> = ({ data }) => {
-  const { lastConnectedV2Account } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
   return (
     <div className={styles.podium}>
       {data.map((item, index) => (
@@ -24,7 +24,7 @@ const Podium: React.FC<PodiumProps> = ({ data }) => {
         >
           <div className={styles.contentWrapper}>
             <img src={item.image_avatar} alt="avatar" className={styles.avatar} />
-            {item.account === lastConnectedV2Account ? (
+            {item.account === connectedAccount ? (
               <div className={styles.currentUserWrapper}>
                 You
                 <div className={styles.currentUserContentWrapper}>

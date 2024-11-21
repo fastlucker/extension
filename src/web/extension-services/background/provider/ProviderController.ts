@@ -7,17 +7,10 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import {
-  AccountOpIdentifiedBy,
-  fetchTxnId,
-  isIdentifiedByTxn,
-  pollTxnId
-} from '@ambire-common/libs/accountOp/submittedAccountOp'
-import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
+import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { APP_VERSION, isProd } from '@common/config/env'
 import formatDecimals from '@common/utils/formatDecimals'
-import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
@@ -63,7 +56,7 @@ export class ProviderController {
 
     if (WHITELISTED_ORIGINS.includes(origin)) {
       const allOtherAccountAddresses = this.mainCtrl.accounts.accounts.reduce((prevValue, acc) => {
-        if (acc.addr !== this.mainCtrl.accounts.selectedAccount) {
+        if (acc.addr !== this.mainCtrl.selectedAccount.account?.addr) {
           prevValue.push(acc.addr)
         }
 
@@ -71,10 +64,12 @@ export class ProviderController {
       }, [] as string[])
 
       // Selected account goes first in the list
-      return [this.mainCtrl.accounts.selectedAccount, ...allOtherAccountAddresses]
+      return [this.mainCtrl.selectedAccount.account?.addr, ...allOtherAccountAddresses]
     }
 
-    return this.mainCtrl.accounts.selectedAccount ? [this.mainCtrl.accounts.selectedAccount] : []
+    return this.mainCtrl.selectedAccount.account?.addr
+      ? [this.mainCtrl.selectedAccount.account?.addr]
+      : []
   }
 
   getDappNetwork = (origin: string) => {
@@ -123,25 +118,22 @@ export class ProviderController {
   }
 
   getPortfolioBalance = async ({ session: { origin } }: DappProviderRequest) => {
-    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
+    if (
+      !this.mainCtrl.dapps.hasPermission(origin) ||
+      !this.isUnlocked ||
+      !this.mainCtrl.selectedAccount.account ||
+      !this.mainCtrl.selectedAccount.portfolio
+    ) {
       return null
     }
 
-    const hasSignAccOp = !!this.mainCtrl.actions?.visibleActionsQueue?.filter(
-      (action) => action.type === 'accountOp'
-    )
-
-    const portfolio = calculateAccountPortfolio(
-      this.mainCtrl.accounts.selectedAccount,
-      this.mainCtrl.portfolio,
-      undefined,
-      hasSignAccOp
-    )
-
     return {
-      amount: portfolio.totalAmount,
-      amountFormatted: formatDecimals(portfolio.totalAmount, 'price'),
-      isReady: portfolio.isAllReady
+      amount: this.mainCtrl.selectedAccount.portfolio.totalBalance,
+      amountFormatted: formatDecimals(
+        this.mainCtrl.selectedAccount.portfolio.totalBalance,
+        'price'
+      ),
+      isReady: this.mainCtrl.selectedAccount.portfolio.isAllReady
     }
   }
 
@@ -159,7 +151,7 @@ export class ProviderController {
       return null
     }
 
-    return this.mainCtrl.accounts.selectedAccount || null
+    return this.mainCtrl.selectedAccount.account?.addr || null
   }
 
   @Reflect.metadata('SAFE', true)

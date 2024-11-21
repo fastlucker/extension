@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, View, ViewStyle } from 'react-native'
 
+import { AMBIRE_V1_QUICK_ACC_MANAGER } from '@ambire-common/consts/addresses'
 import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
@@ -85,6 +86,8 @@ const AccountKey: React.FC<Props> = ({
   })
   const fontSize = isPopup ? 14 : 16
   const isShowingDetails = !openAddAccountBottomSheet
+  const isKeyAmbireV1 = addr === AMBIRE_V1_QUICK_ACC_MANAGER
+  const canExportOrImportKey = showExportImport && !isKeyAmbireV1
 
   const handleCopy = async () => {
     try {
@@ -194,7 +197,12 @@ const AccountKey: React.FC<Props> = ({
             </View>
           )}
         </View>
-        {showExportImport && (
+        {isKeyAmbireV1 && (
+          <Text appearance="secondaryText" fontSize={12}>
+            {t('(Email signers cannot be imported in Ambire v2)')}
+          </Text>
+        )}
+        {canExportOrImportKey && (
           <View>
             {isImported ? (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
@@ -274,7 +282,7 @@ const AccountKey: React.FC<Props> = ({
           </View>
         )}
       </View>
-      {showExportImport && isImporting && openAddAccountBottomSheet && (
+      {canExportOrImportKey && isImporting && openAddAccountBottomSheet && (
         <View style={[spacings.phSm, flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
           <Text>{t('To import this key, you will need to reimport the account')}</Text>
           <Button style={[spacings.mb0, spacings.mlTy]} onPress={reimportAccount} size="tiny">

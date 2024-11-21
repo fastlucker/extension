@@ -29,14 +29,14 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
-
-import { showEmailVaultInterest } from '../../utils/emailVault'
+import { showEmailVaultInterest } from '@web/modules/auth/utils/emailVault'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 
 const HotWalletImportSelectorScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { isReadyToStoreKeys, hasKeystoreSavedSeed } = useKeystoreControllerState()
+  const { isReadyToStoreKeys, hasKeystoreSavedSeed, keyStoreUid } = useKeystoreControllerState()
   const { addToast } = useToast()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { accounts } = useAccountsControllerState()
@@ -64,12 +64,14 @@ const HotWalletImportSelectorScreen = () => {
 
   const handleImportSeed = useCallback(() => {
     if (!isReadyToStoreKeys) {
-      navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'seed' } })
+      navigate(WEB_ROUTES.keyStoreSetup, {
+        state: { flow: hasKeystoreSavedSeed ? 'seed' : 'seed-with-option-to-save' }
+      })
       return
     }
 
     navigate(WEB_ROUTES.importSeedPhrase)
-  }, [navigate, isReadyToStoreKeys])
+  }, [navigate, isReadyToStoreKeys, hasKeystoreSavedSeed])
 
   const handleCreateSeed = useCallback(() => {
     if (!isReadyToStoreKeys) {
@@ -103,7 +105,7 @@ const HotWalletImportSelectorScreen = () => {
     }
 
     if (flow === 'email') {
-      await showEmailVaultInterest(accounts.length, addToast)
+      await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
       return
     }
 
@@ -183,6 +185,7 @@ const HotWalletImportSelectorScreen = () => {
               onPress={() => onOptionPress('email')}
               isPartiallyDisabled
               titleStyle={[spacings.mb2Xl]}
+              isSecondary
             >
               <Alert
                 title=""

@@ -9,7 +9,9 @@ import { selectFeeToken } from '../common-helpers/selectFeeToken'
 import { signTransaction } from '../common-helpers/signTransaction'
 import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
-import { SELECTORS } from './selectors/selectors'
+import { SELECTORS, TEST_IDS } from './selectors/selectors'
+import { buildSelector } from '../common-helpers/buildSelector'
+import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../constants/constants'
 
 // When we run tests in GitHub Actions in parallel (with different PRs running tests simultaneously),
 // it's very likely that the nonce we use for the transaction may already have been used.
@@ -39,54 +41,68 @@ const overcomeNonceError = async (page) => {
 
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
-const amountField = '[data-testid="amount-field"]'
+const amountField = SELECTORS.amountField
+const polTokenSelector = SELECTORS.nativeTokenPolygonDyn
 const TARGET_HEIGHT = 58.7
 const MAX_TIME_WAIT = 30000
 //--------------------------------------------------------------------------------------------------------------
-export async function makeValidTransaction(
+
+async function isAriaDisabled(page, selector) {
+  await page.waitForSelector(selector)
+  const ariaDisabledValue = await page.$eval(selector, (el) => el.getAttribute('aria-disabled'))
+
+  return ariaDisabledValue === 'true'
+}
+
+export async function prepareTransaction(
   page,
-  extensionURL,
-  browser,
-  { shouldStopBeforeSign, feeToken } = {
-    shouldStopBeforeSign: false
-  }
+  recipient,
+  amount,
+  { shouldUseAddressBookRecipient = false, shouldSendButtonBeDisabled = false } = {}
 ) {
-  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
-
-  // Check if POL on Gas Tank are under 0.01
-  await checkBalanceOfToken(
-    page,
-    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-    0.01
-  )
-  // Click on "Send" button
-  await clickOnElement(page, '[data-testid="dashboard-button-send"]')
-
-  await page.waitForSelector('[data-testid="amount-field"]')
+  await page.waitForSelector(amountField)
   await selectPolToken(page)
-  await typeText(page, '[data-testid="amount-field"]', '0.0001') // Type the amount
+  await typeText(page, amountField, amount)
 
-  // Type the address of the recipient
-  await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
-  await page.waitForXPath(
-    '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
-  )
+  if (!shouldUseAddressBookRecipient) {
+    await typeText(page, SELECTORS.addressEnsField, recipient)
+    await page.waitForXPath(
+      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+    )
 
-  // Check the checkbox "Confirm sending to a previously unknown address"
-  await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
+    // Check the checkbox "Confirm sending to a previously unknown address"
+    await clickOnElement(page, SELECTORS.recipientAddressUnknownCheckbox)
 
-  // Check the checkbox "I confirm this address is not a Binance wallets...."
-  const checkboxExists = await page.evaluate(
-    (selector) => !!document.querySelector(selector),
-    SELECTORS.checkbox
-  )
-  if (checkboxExists) await clickOnElement(page, SELECTORS.checkbox)
+    // Check the checkbox "I confirm this address is not a Binance wallets...."
+    const checkboxExists = await page.evaluate(
+      (selector) => !!document.querySelector(selector),
+      SELECTORS.checkbox
+    )
+    if (checkboxExists) await clickOnElement(page, SELECTORS.checkbox)
+  } else {
+    await clickOnElement(page, SELECTORS.addressEnsField)
+    await clickOnElement(page, buildSelector(TEST_IDS.addressBookMyWalletContactDyn, 1))
+  }
 
+  if (shouldSendButtonBeDisabled) {
+    const isDisabled = await isAriaDisabled(page, SELECTORS.transferButtonConfirm)
+
+    expect(isDisabled).toBe(true)
+  }
+}
+
+async function prepareGasTankTopUp(page, recipient, amount) {
+  await page.waitForSelector(amountField)
+  await selectPolToken(page)
+  await typeText(page, amountField, amount)
+}
+
+async function handleTransaction(page, extensionURL, browser, feeToken, shouldStopBeforeSign) {
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="transfer-button-confirm"]'
+    SELECTORS.transferButtonConfirm
   )
 
   if (shouldStopBeforeSign) return
@@ -100,6 +116,48 @@ export async function makeValidTransaction(
   // Sign and confirm the transaction
   await signTransaction(newPage, transactionRecorder)
   await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
+}
+
+export async function checkTokenBalanceClickOnGivenActionInDashboard(
+  page,
+  selectedToken,
+  selectedAction,
+  minBalance = 0.01
+) {
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
+  // Check ths balance of the selected token if it's lower than 'minBalance' and throws an error if it is
+  await checkBalanceOfToken(page, selectedToken, minBalance)
+  // Click on the token, which opens the modal with actions
+  await clickOnElement(page, selectedToken)
+  // Click on given action
+  await clickOnElement(page, selectedAction, true, 500)
+}
+
+export async function makeValidTransaction(
+  page,
+  extensionURL,
+  browser,
+  {
+    feeToken,
+    recipient = SMART_ACC_VIEW_ONLY_ADDRESS,
+    tokenAmount = '0.0001',
+    shouldStopBeforeSign = false,
+    shouldUseAddressBookRecipient = false,
+    shouldTopUpGasTank = false
+  } = {}
+) {
+  await page.waitForFunction(() => window.location.href.includes('/transfer'))
+
+  if (shouldTopUpGasTank) {
+    await prepareGasTankTopUp(page, recipient, tokenAmount)
+  } else {
+    await prepareTransaction(page, recipient, tokenAmount, {
+      shouldUseAddressBookRecipient
+    })
+  }
+
+  await handleTransaction(page, extensionURL, browser, feeToken, shouldStopBeforeSign)
 }
 
 async function selectTokenInUni(page, tokenId, search) {
@@ -223,9 +281,7 @@ export async function makeSwap(
   page,
   extensionURL,
   browser,
-  { shouldStopBeforeSign, feeToken } = {
-    shouldStopBeforeSign: false
-  }
+  { feeToken, shouldStopBeforeSign = false, swapButtonText = 'Swap' } = {}
 ) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
@@ -298,7 +354,7 @@ export async function makeSwap(
   await clickOnElement(page, 'xpath///span[contains(text(), "Review")]', true, 3000)
 
   await page.waitForSelector(
-    'xpath///span[contains(@class, "font_button") and contains(text(), "Swap")]',
+    `xpath///span[contains(@class, "font_button") and contains(text(), "${swapButtonText}")]`,
     {
       visible: true,
       timeout: 3000
@@ -306,7 +362,7 @@ export async function makeSwap(
   )
 
   const elementsHandles = await page.$x(
-    '//span[contains(@class, "font_button") and contains(text(), "Swap")]'
+    `//span[contains(@class, "font_button") and contains(text(), "${swapButtonText}")]`
   )
 
   if (elementsHandles.length) await clickMatchingElements(page, elementsHandles)
@@ -346,6 +402,10 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
   await selectPolToken(page)
 
+  // Wait for the max amount to load
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000)
+  })
   // Get the available balance
   const maxAvailableAmount = await page.evaluate(() => {
     const balance = document.querySelector('[data-testid="max-available-amount"]')
@@ -372,11 +432,7 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 //--------------------------------------------------------------------------------------------------------------
 export async function sendFundsToSmartContract(page, extensionURL) {
   // Check if POL on Polygon are under 0.0015
-  await checkBalanceOfToken(
-    page,
-    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-    0.0002
-  )
+  await checkBalanceOfToken(page, polTokenSelector, 0.0002)
 
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
   await page.waitForSelector('[data-testid="max-available-amount"]')

@@ -174,7 +174,7 @@ const RouteStepsPreview = ({
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text fontSize={12} weight="medium">
             {t('Total gas fees: {{fees}}', {
-              fees: formatDecimals(totalGasFeesInUsd, 'price')
+              fees: formatDecimals(totalGasFeesInUsd, 'value')
             })}
           </Text>
           {!!estimationInSeconds && (
@@ -197,7 +197,7 @@ const RouteStepsPreview = ({
                   weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
                   appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
                 >
-                  {t('Estimation: ~{{time}}', {
+                  {t('Estimation: around {{time}}', {
                     time: formatTime(estimationInSeconds)
                   })}
                 </Text>

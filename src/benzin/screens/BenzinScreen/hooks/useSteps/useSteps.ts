@@ -2,6 +2,8 @@ import {
   AbiCoder,
   Block,
   formatEther,
+  getAddress,
+  isAddress,
   JsonRpcProvider,
   keccak256,
   TransactionReceipt,
@@ -22,15 +24,15 @@ import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 import {
-  handleOps070,
-  handleOpsInterface
+  handleOps060,
+  handleOps070
 } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
 import { getBenzinUrlParams } from '../../utils/url'
 import { parseLogs } from './utils/parseLogs'
-import reproduceCalls, { getSender } from './utils/reproduceCalls'
+import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
 
@@ -42,7 +44,6 @@ interface Props {
   standardOptions: {
     fetch: Fetch
     callRelayer: any
-    parser: Function
   }
   setActiveStep: (step: ActiveStepType) => void
   provider: JsonRpcProvider | null
@@ -92,6 +93,19 @@ const setUrlToTxnId = (
   )
 }
 
+const parseHumanizer = (humanizedCalls: IrCall[]): IrCall[] => {
+  // remove deadlines from humanizer
+  const finalParsedCalls = humanizedCalls.map((call) => {
+    const localCall: IrCall = { ...call }
+    localCall.fullVisualization = call.fullVisualization?.filter(
+      (visual) => visual.type !== 'deadline' && !visual.isHidden
+    )
+    localCall.warnings = call.warnings?.filter((warn) => warn.content !== 'Unknown address')
+    return localCall
+  })
+  return finalParsedCalls
+}
+
 const useSteps = ({
   txnId,
   userOpHash,
@@ -105,10 +119,9 @@ const useSteps = ({
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [txnReceipt, setTxnReceipt] = useState<{
     actualGasCost: null | BigInt
-    from: null | string
     originatedFrom: null | string
     blockNumber: null | BigInt
-  }>({ actualGasCost: null, from: null, originatedFrom: null, blockNumber: null })
+  }>({ actualGasCost: null, originatedFrom: null, blockNumber: null })
   const [blockData, setBlockData] = useState<null | Block>(null)
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
@@ -249,9 +262,7 @@ const useSteps = ({
         // as it will set incorrect data for sender (from)
         if (!txn) return
 
-        const failedToDecodeUserOp = userOpHash && txnId && userOp && userOp.callData === ''
         setTxnReceipt({
-          from: failedToDecodeUserOp ? null : getSender(receipt, txn),
           originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
@@ -263,8 +274,8 @@ const useSteps = ({
             // check the sighash
             const sigHash = txn.data.slice(0, 10)
             const handleOpsData =
-              sigHash === handleOpsInterface.getFunction('handleOps')!.selector
-                ? handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+              sigHash === handleOps060.getFunction('handleOps')!.selector
+                ? handleOps060.decodeFunctionData('handleOps', txn.data)
                 : handleOps070.decodeFunctionData('handleOps', txn.data)
             userOpsLength = handleOpsData[0].length
           } catch (e: any) {
@@ -400,11 +411,11 @@ const useSteps = ({
     if (!userOpHash || !network || !txn || userOp) return
 
     const sigHash = txn.data.slice(0, 10)
-    const is060 = sigHash === handleOpsInterface.getFunction('handleOps')!.selector
+    const is060 = sigHash === handleOps060.getFunction('handleOps')!.selector
     let handleOpsData = null
     try {
       handleOpsData = is060
-        ? handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+        ? handleOps060.decodeFunctionData('handleOps', txn.data)
         : handleOps070.decodeFunctionData('handleOps', txn.data)
     } catch (e) {
       console.log('this txn is an userOp but does not call handleOps')
@@ -428,11 +439,13 @@ const useSteps = ({
       const hashCallData = keccak256(opArray[3])
 
       let hash
+      let paymasterAndData
       if (!is060) {
         const accountGasLimits = opArray[4]
         const preVerificationGas = opArray[5]
         const gasFees = opArray[6]
-        const hashPaymasterAndData = keccak256(opArray[7])
+        paymasterAndData = opArray[7]
+        const hashPaymasterAndData = keccak256(paymasterAndData)
         const packed = abiCoder.encode(
           ['address', 'uint256', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'bytes32', 'bytes32'],
           [
@@ -453,7 +466,9 @@ const useSteps = ({
         const preVerificationGas = opArray[6]
         const maxFeePerGas = opArray[7]
         const maxPriorityFeePerGas = opArray[8]
-        const hashPaymasterAndData = keccak256(opArray[9])
+        paymasterAndData = opArray[9]
+        const hashPaymasterAndData = keccak256(paymasterAndData)
+
         const packed = abiCoder.encode(
           [
             'address',
@@ -483,7 +498,6 @@ const useSteps = ({
 
         hash = keccak256(packed)
       }
-
       const finalHash = keccak256(
         abiCoder.encode(
           ['bytes32', 'address', 'uint256'],
@@ -494,13 +508,17 @@ const useSteps = ({
           ]
         )
       )
+      const paymaster = isAddress(paymasterAndData.slice(0, 42))
+        ? getAddress(paymasterAndData.slice(0, 42))
+        : ''
 
       if (finalHash.toLowerCase() === userOpHash.toLowerCase()) {
         hashFound = true
         setUserOp({
           sender,
           callData: opArray[3],
-          hashStatus: 'found'
+          hashStatus: 'found',
+          paymaster
         })
       }
     })
@@ -514,27 +532,31 @@ const useSteps = ({
   }, [network, txn, userOpHash, userOp])
 
   const calls: IrCall[] | null = useMemo(() => {
-    if (userOpHash && !userOp) return null
+    if (!txnId) return null
+    if (userOpHash && userOp?.hashStatus !== 'found') return null
+    if (!network) return null
+    if (txnReceipt.actualGasCost) setCost(formatEther(txnReceipt.actualGasCost!.toString()))
+    if (userOp?.hashStatus !== 'found' && txn && entryPointTxnSplit[txn.data.slice(0, 10)])
+      return entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId)
 
-    if (network && txnReceipt.from && txn) {
-      setCost(formatEther(txnReceipt.actualGasCost!.toString()))
+    if (txnReceipt.originatedFrom && txn) {
       const accountOp: AccountOp = {
-        accountAddr: txnReceipt.from!,
+        accountAddr: userOp?.sender || txnReceipt.originatedFrom!,
         networkId: network.id,
-        signingKeyAddr: txnReceipt.from!, // irrelevant
+        signingKeyAddr: txnReceipt.originatedFrom!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
-        calls: reproduceCalls(txn, userOp),
+        calls: userOp ? decodeUserOp(userOp) : reproduceCallsFromTxn(txn),
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
         accountOpToExecuteBefore: null
       }
       const humanizedCalls = humanizeAccountOp(accountOp, { network })
-      return standardOptions.parser(humanizedCalls)
+      return parseHumanizer(humanizedCalls)
     }
-  }, [network, txnReceipt, txn, userOpHash, standardOptions, userOp])
-
+    return null
+  }, [network, txnReceipt, txn, userOpHash, userOp, txnId])
   return {
     nativePrice,
     blockData,
@@ -543,7 +565,7 @@ const useSteps = ({
     calls,
     pendingTime,
     txnId: foundTxnId,
-    from: txnReceipt.from,
+    from: userOp?.sender || null,
     originatedFrom: txnReceipt.originatedFrom,
     userOp
   }

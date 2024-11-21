@@ -5,6 +5,7 @@ import { SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
+import { visualizeContent } from '@common/components/HumanizedVisualization/HumanizedVisualization'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -17,6 +18,14 @@ import getStyles from './styles'
 interface Props {
   signedMessage: SignedMessage
   style?: ViewStyle
+}
+
+const getParsedSignedMessageContent = (content: SignedMessage['content']) => {
+  if (content.kind === 'message') {
+    return visualizeContent(content.kind, content.message)
+  }
+
+  return JSON.stringify(content, null, 4)
 }
 
 const SignedMessageSummary = ({ signedMessage, style }: Props) => {
@@ -77,7 +86,7 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
             {t('Raw message')}:
           </Text>
           <Text selectable appearance="secondaryText" fontSize={14} weight="regular">
-            {JSON.stringify(signedMessage.content, null, 4)}
+            {getParsedSignedMessageContent(signedMessage.content)}
           </Text>
         </ScrollView>
       }

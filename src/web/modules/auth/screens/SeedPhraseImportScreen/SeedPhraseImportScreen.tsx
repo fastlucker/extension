@@ -3,15 +3,11 @@ import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
-import ImportAccountsFromSeedPhraseIcon from '@common/assets/svg/ImportAccountsFromSeedPhraseIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
-import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
-import DualChoiceModal from '@common/components/DualChoiceModal'
 import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
@@ -95,18 +91,16 @@ const SeedPhraseImportScreen = () => {
     control,
     name: 'seedFields'
   })
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [seedPhraseStatus, setSeedPhraseStatus] = useState<'incomplete' | 'valid' | 'invalid'>(
     'incomplete'
   )
-  const seedPhrase =
-    watch('seedFields')
-      ?.map((field) => field.value?.trim())
-      .join(' ') || ''
 
   useEffect(() => {
-    updateStepperState(WEB_ROUTES.importSeedPhrase, 'seed')
-  }, [updateStepperState])
+    updateStepperState(
+      WEB_ROUTES.importSeedPhrase,
+      keystoreState.hasKeystoreSavedSeed ? 'seed' : 'seed-with-option-to-save'
+    )
+  }, [updateStepperState, keystoreState.hasKeystoreSavedSeed])
 
   useEffect(() => {
     const { unsubscribe } = watch((value) => {
@@ -149,31 +143,15 @@ const SeedPhraseImportScreen = () => {
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ seedFields }) => {
       const formattedSeed = seedFields.map((field) => field.value).join(' ')
-
-      if (!keystoreState.hasKeystoreSavedSeed) {
-        openBottomSheet()
-      } else {
-        dispatch({
-          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-          params: { privKeyOrSeed: formattedSeed }
-        })
-      }
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        params: {
+          privKeyOrSeed: formattedSeed,
+          shouldAddToTemp: !keystoreState.hasKeystoreSavedSeed
+        }
+      })
     })()
-  }, [dispatch, handleSubmit, keystoreState.hasKeystoreSavedSeed, openBottomSheet])
-
-  const handleSaveSeedAndProceed = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-      params: { privKeyOrSeed: seedPhrase, shouldPersist: true }
-    })
-  }, [dispatch, seedPhrase])
-
-  const handleDoNotSaveSeedAndProceed = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-      params: { privKeyOrSeed: seedPhrase }
-    })
-  }, [dispatch, seedPhrase])
+  }, [dispatch, handleSubmit, keystoreState.hasKeystoreSavedSeed])
 
   const updateFieldsLength = useCallback(
     (newLength: number) => {
@@ -425,42 +403,6 @@ const SeedPhraseImportScreen = () => {
           ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
-      {!keystoreState.hasKeystoreSavedSeed && (
-        <BottomSheet
-          id="import-seed-phrase"
-          sheetRef={sheetRef}
-          closeBottomSheet={closeBottomSheet}
-          backgroundColor="secondaryBackground"
-          style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
-          type="modal"
-        >
-          <DualChoiceModal
-            title={t('Save Seed Phrase')}
-            description={
-              <View>
-                <Text style={spacings.mbTy} appearance="secondaryText">
-                  {t('Do you want to save the seed in the Ambire Wallet extension?')}
-                </Text>
-                <Text style={spacings.mbTy} appearance="secondaryText">
-                  {t('This will allow you to easily import more accounts from this Seed Phrase.')}
-                </Text>
-                <Text appearance="secondaryText" weight="semiBold">
-                  {t('You can save only one seed.')}
-                </Text>
-              </View>
-            }
-            Icon={ImportAccountsFromSeedPhraseIcon}
-            onSecondaryButtonPress={handleDoNotSaveSeedAndProceed}
-            onPrimaryButtonPress={handleSaveSeedAndProceed}
-            secondaryButtonText={t('No')}
-            primaryButtonText={
-              keystoreState.statuses.addKeys !== 'INITIAL' ? 'Loading...' : t('Save seed')
-            }
-            secondaryButtonTestID="do-not-save-seed-button"
-            primaryButtonTestID="save-seed-button"
-          />
-        </BottomSheet>
-      )}
     </TabLayoutContainer>
   )
 }

@@ -3,6 +3,7 @@ import { Pressable, View } from 'react-native'
 
 import { SocketAPIRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
@@ -91,11 +92,6 @@ const RoutesModal = ({
     closeBottomSheet()
   }, [closeBottomSheet, dispatch, quote?.selectedRoute?.routeId, selectedRoute])
 
-  const isConfirmSelectionDisabled = useMemo(() => {
-    if (!selectedRoute) return false
-    return selectedRoute?.routeId === quote?.selectedRoute.routeId
-  }, [quote?.selectedRoute.routeId, selectedRoute])
-
   const selectedRouteIndex = useMemo(() => {
     if (!quote?.routes || !quote.routes.length) return 0
     if (!selectedRoute) return 0
@@ -147,20 +143,13 @@ const RoutesModal = ({
         maxToRenderPerBatch={6}
         removeClippedSubviews
       />
-      <View style={[flexbox.directionRow, flexbox.justifyEnd, spacings.ptMd]}>
-        <Button
-          text={t('Cancel')}
-          style={spacings.mrSm}
-          type="secondary"
-          size="large"
-          onPress={closeBottomSheet as any}
-          hasBottomSpacing={false}
-        />
+      <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.ptMd]}>
+        <BackButton onPress={closeBottomSheet as any} />
         <Button
           text={t('Confirm')}
           size="large"
           onPress={handleConfirmRouteSelection}
-          disabled={isConfirmSelectionDisabled}
+          disabled={!selectedRoute}
           hasBottomSpacing={false}
         />
       </View>

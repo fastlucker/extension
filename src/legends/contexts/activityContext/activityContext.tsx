@@ -5,66 +5,55 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 
 import { Activity } from './types'
 
-const ActivityContext = createContext<{
+type ActivityContextType = {
   activity: Activity[] | null
   isLoading: boolean
   error: string | null
-}>({
-  activity: null,
-  isLoading: false,
-  error: null
-})
+  getActivity: () => Promise<void>
+}
+
+const ActivityContext = createContext<ActivityContextType>({} as ActivityContextType)
 const ActivityContextProvider: React.FC<any> = ({ children }) => {
-  const { lastConnectedV2Account } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
   const [activity, setActivity] = useState<Activity[] | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const getActivity = useCallback(async () => {
-    if (!lastConnectedV2Account) {
-      setActivity(null)
-      setIsLoading(false)
-      return
-    }
-
     try {
-      const activityResponse = await fetch(
-        `${RELAYER_URL}/legends/activity/${lastConnectedV2Account}`
-      )
+      const activityResponse = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
 
       const response = await activityResponse.json()
 
       setActivity(response)
       setError(null)
     } catch (e) {
-      setIsLoading(false)
       setActivity(null)
 
       console.error(e)
-      setError("Couldn't fetch Character's activity! Please try again later!")
+      throw e
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
-  }, [lastConnectedV2Account])
+  }, [connectedAccount])
 
   useEffect(() => {
-    getActivity()
+    getActivity().catch(() =>
+      setError("Couldn't fetch Character's activity! Please try again later!")
+    )
   }, [getActivity])
 
-  return (
-    <ActivityContext.Provider
-      value={useMemo(
-        () => ({
-          activity,
-          isLoading,
-          error
-        }),
-        [activity, isLoading, error]
-      )}
-    >
-      {children}
-    </ActivityContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      activity,
+      isLoading,
+      error,
+      getActivity
+    }),
+    [activity, isLoading, error, getActivity]
   )
+
+  return <ActivityContext.Provider value={contextValue}>{children}</ActivityContext.Provider>
 }
 
 export { ActivityContextProvider, ActivityContext }

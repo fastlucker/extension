@@ -7,7 +7,7 @@ import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
 import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Alert from '@common/components/Alert'
 import useTheme from '@common/hooks/useTheme'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 
 import BottomSheet from '../BottomSheet'
@@ -18,12 +18,11 @@ interface Props {
 }
 
 const NoKeysToSignAlert: FC<Props> = ({ style, isTransaction = true }) => {
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { ref: addAccountsRef, open: openAddAccounts, close: closeAddAccounts } = useModalize()
   const { t } = useTranslation()
   const { theme } = useTheme()
-  const account = accounts.find(({ addr }) => addr === selectedAccount)
 
   // should never happen (selected account details are always present)
   if (!account) return null
@@ -61,4 +60,4 @@ const NoKeysToSignAlert: FC<Props> = ({ style, isTransaction = true }) => {
   )
 }
 
-export default NoKeysToSignAlert
+export default React.memo(NoKeysToSignAlert)

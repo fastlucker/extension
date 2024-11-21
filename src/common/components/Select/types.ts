@@ -24,7 +24,9 @@ export type CommonSelectProps = {
   menuOptionHeight?: number
   menuStyle?: ViewStyle
   withSearch?: boolean
+  searchPlaceholder?: string
   testID?: string
+  extraSearchProps?: { [key: string]: string }
 }
 export type SelectProps = CommonSelectProps & {
   options: SelectValue[]

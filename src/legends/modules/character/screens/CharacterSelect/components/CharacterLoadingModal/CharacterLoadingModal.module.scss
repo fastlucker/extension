@@ -1,0 +1,49 @@
+@import '@legends/styles/base.scss';
+
+.modal {
+  min-width: 20rem;
+}
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modalText {
+  text-align: center;
+  font-size: 1rem;
+}
+.modalHeading {
+  font-size: 1.3rem;
+}
+.text {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: $primaryText;
+}
+
+.message {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.progressBarContainer {
+  width: 100%;
+  background-color: $primaryBackground;
+  border-radius: $primaryBorderRadius;
+  overflow: hidden;
+  margin-top: 1rem;
+  border: 0.0625rem solid $secondaryBorder;
+
+  background-color: $secondaryBackground;
+  border-radius: 0.25rem;
+  overflow: hidden;
+        
+  .progress {
+    height: .625rem;
+    background-color: $accent;
+    width: 0;
+    transition: width 0.3s ease;
+  }
+}

@@ -2,6 +2,7 @@ import React, { Dispatch, FC, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { AMBIRE_V1_QUICK_ACC_MANAGER } from '@ambire-common/consts/addresses'
 import { Account } from '@ambire-common/interfaces/account'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import Text from '@common/components/Text'
@@ -52,6 +53,8 @@ const AccountKeys: FC<Props> = ({
     ...notImportedAccountKeys.map((keyAddr) => ({
       isImported: false,
       addr: keyAddr,
+      label:
+        keyAddr === AMBIRE_V1_QUICK_ACC_MANAGER ? 'Email/password signer (Ambire v1)' : undefined,
       dedicatedToOneSA: false
     }))
   ]

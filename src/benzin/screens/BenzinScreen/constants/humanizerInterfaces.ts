@@ -17,7 +17,7 @@ const deployAndExecuteMultipleInterface = new Interface([
   'function deployAndExecuteMultiple(bytes calldata code, uint256 salt, tuple(tuple(address, uint256, bytes)[] calls, bytes signature)[] calldata toExec) external returns (address)'
 ])
 
-const handleOpsInterface = new Interface([
+const handleOps060 = new Interface([
   'function handleOps(tuple(address, uint256, bytes, bytes, uint256, uint256, uint256, uint256, uint256, bytes, bytes)[] calldata ops, address payable beneficiary) public'
 ])
 
@@ -50,7 +50,10 @@ const executeCallInterface = new Interface([
 const executeBatchInterface = new Interface(['function executeBatch(address[] apps, bytes[] data)'])
 
 // unknown wallet for now
-const executeUnknownWalletInterface = new Interface(['function execute(address, uint256, bytes)'])
+const executeUnknownWalletInterface = new Interface([
+  'function execute(address, uint256, bytes)',
+  'function executeBatch((address,uint256,bytes)[])'
+])
 
 export {
   executeInterface,
@@ -58,7 +61,6 @@ export {
   transferInterface,
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
-  handleOpsInterface,
   executeBySenderInterface,
   quickAccManagerSendInterface,
   quickAccManagerCancelInterface,
@@ -66,5 +68,6 @@ export {
   executeCallInterface,
   executeBatchInterface,
   executeUnknownWalletInterface,
+  handleOps060,
   handleOps070
 }

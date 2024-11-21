@@ -26,6 +26,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -55,7 +56,8 @@ const Account = ({
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const mainCtrlState = useMainControllerState()
-  const { selectedAccount, statuses: accountsStatuses } = useAccountsControllerState()
+  const { statuses: accountsStatuses } = useAccountsControllerState()
+  const { account: selectedAccount } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
   const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
   const { ens, ud, isLoading } = useReverseLookup({ address: addr })
@@ -65,7 +67,7 @@ const Account = ({
       from: theme.primaryBackground,
       to: !showExportImport ? theme.secondaryBackground : theme.primaryBackground
     },
-    forceHoveredStyle: !showExportImport && addr === selectedAccount
+    forceHoveredStyle: !showExportImport && addr === selectedAccount?.addr
   })
 
   const { ref: sheetRef, open: openKeysBottomSheet, close: closeBottomSheet } = useModalize()
@@ -75,7 +77,7 @@ const Account = ({
       return
     }
 
-    if (selectedAccount !== addr) {
+    if (selectedAccount?.addr !== addr) {
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
         params: { accountAddr: addr }

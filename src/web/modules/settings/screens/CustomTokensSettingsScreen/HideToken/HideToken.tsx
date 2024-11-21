@@ -9,13 +9,15 @@ import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import HideTokenTokenItem from './TokenItem'
 
 const HideToken = () => {
   const { t } = useTranslation()
 
-  const portfolio = usePortfolioControllerState()
+  const { tokenPreferences } = usePortfolioControllerState()
+  const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
   const [isLoading, setIsLoading] = useState<{
     [token: string]: boolean
   }>({})
@@ -38,7 +40,7 @@ const HideToken = () => {
     // Check for differences between the tokenPreferencesCopy and the tokenPreferences
     // If there are differences, update the tokenPreferencesCopy
     // Set the loading state of the token which is updated to false
-    const differences = portfolio.state.tokenPreferences.filter(
+    const differences = tokenPreferences?.filter(
       (tokenPreference) =>
         !tokenPreferencesCopy.some(
           (copy) =>
@@ -49,7 +51,7 @@ const HideToken = () => {
     )
 
     if (differences.length > 0) {
-      seTokenPreferencesCopy(portfolio.state.tokenPreferences)
+      seTokenPreferencesCopy(tokenPreferences)
       setIsLoading((prevState) => {
         const updatedLoadingState = { ...prevState }
         differences.forEach((tokenPreference) => {
@@ -58,15 +60,15 @@ const HideToken = () => {
         return updatedLoadingState
       })
     }
-  }, [portfolio.state.tokenPreferences, tokenPreferencesCopy])
+  }, [tokenPreferences, tokenPreferencesCopy])
 
   const tokens = useMemo(
     () =>
-      portfolio.accountPortfolio?.tokens
+      selectedAccountPortfolio?.tokens
         .filter(
           (token) =>
             (token.amount > 0n ||
-              portfolio.state.tokenPreferences.find(
+              tokenPreferences?.find(
                 ({ address, networkId }) =>
                   token.address === address && token.networkId === networkId
               )) &&
@@ -82,13 +84,13 @@ const HideToken = () => {
           return doesAddressMatch || doesSymbolMatch
         })
         .sort((a, b) => {
-          const aFromPreferences = portfolio.state.tokenPreferences.some(
+          const aFromPreferences = tokenPreferences?.some(
             ({ address, networkId, standard }) =>
               a.address.toLowerCase() === address.toLowerCase() &&
               a.networkId === networkId &&
               standard === 'ERC20'
           )
-          const bFromPreferences = portfolio.state.tokenPreferences.some(
+          const bFromPreferences = tokenPreferences?.some(
             ({ address, networkId, standard }) =>
               b.address.toLowerCase() === address.toLowerCase() &&
               b.networkId === networkId &&
@@ -103,7 +105,7 @@ const HideToken = () => {
 
           return 0
         }),
-    [portfolio.accountPortfolio?.tokens, portfolio.state.tokenPreferences, searchValue]
+    [selectedAccountPortfolio, tokenPreferences, searchValue]
   )
 
   const renderItem = useCallback(

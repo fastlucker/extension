@@ -1,4 +1,4 @@
-import { getAddress, ZeroAddress } from 'ethers'
+import { getAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
@@ -8,31 +8,30 @@ import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
-import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
-import SwapIcon from '@common/assets/svg/SwapIcon'
+import SwapAndBridgeIcon from '@common/assets/svg/SwapAndBridgeIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
 
 import TokenDetailsButton from './Button'
@@ -53,7 +52,7 @@ const TokenDetails = ({
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { isOffline } = useConnectivity()
-  const { selectedAccount, accounts } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
@@ -65,8 +64,7 @@ const TokenDetails = ({
   const isGasTankOrRewardsToken = token?.flags.onGasTank || !!token?.flags.rewardsType
   const isAmountZero = token && getTokenAmount(token) === 0n
   const canToToppedUp = token?.flags.canTopUpGasTank
-  const selectedAccountData = accounts.find((acc) => acc.addr === selectedAccount)
-  const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
+  const isSmartAccount = account ? getIsSmartAccount(account) : false
   const tokenId = token ? getTokenId(token) : ''
 
   const actions = useMemo(
@@ -82,36 +80,11 @@ const TokenDetails = ({
         testID: 'token-send'
       },
       {
-        id: 'swap',
-        text: t('Swap'),
-        icon: SwapIcon,
-        onPress: async ({ networkId, address }: TokenResult) => {
-          const networkData = networks.find((n) => n.id === networkId)
-
-          if (!networkData) {
-            addToast(t('Network not found'), { type: 'error' })
-            return
-          }
-
-          let inputCurrency = address
-
-          if (address === ZeroAddress) {
-            // Uniswap doesn't select the native token if you pass its address
-            inputCurrency = 'native'
-          }
-
-          // Change the current dapp network to the selected one,
-          // otherwise uniswap will select the token from the current network
-          dispatch({
-            type: 'CHANGE_CURRENT_DAPP_NETWORK',
-            params: {
-              chainId: Number(networkData.chainId),
-              origin: 'https://app.uniswap.org'
-            }
-          })
-
-          await createTab(`https://app.uniswap.org/swap?inputCurrency=${inputCurrency}`)
-        },
+        id: 'swap-or-bridge',
+        text: t('Swap or Bridge'),
+        icon: SwapAndBridgeIcon,
+        iconWidth: 86,
+        onPress: () => navigate(WEB_ROUTES.swapAndBridge),
         isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
@@ -150,29 +123,6 @@ const TokenDetails = ({
         onPress: () => {},
         isDisabled: true,
         strokeWidth: 1
-      },
-      {
-        id: 'bridge',
-        text: t('Bridge'),
-        icon: BridgeIcon,
-        onPress: async ({ networkId, address }) => {
-          const networkData = networks.find((network) => network.id === networkId)
-
-          if (networkData) {
-            let formattedAddress = address
-
-            if (address === ZeroAddress) {
-              // Bungee expects the native address to be formatted as 0xeee...eee
-              formattedAddress = `0x${'e'.repeat(40)}`
-            }
-
-            await createTab(
-              `${BRIDGE_URL}?fromChainId=${networkData?.chainId}&fromTokenAddress=${formattedAddress}`
-            )
-          }
-        },
-        isDisabled: isGasTankOrRewardsToken,
-        strokeWidth: 1.5
       },
       {
         id: 'withdraw',
@@ -216,7 +166,6 @@ const TokenDetails = ({
       hasTokenInfo,
       navigate,
       networks,
-      dispatch,
       addToast,
       token,
       handleClose
@@ -396,6 +345,7 @@ const TokenDetails = ({
             token={token}
             isTokenInfoLoading={isTokenInfoLoading}
             handleClose={handleClose}
+            iconWidth={action.iconWidth}
           />
         ))}
       </View>

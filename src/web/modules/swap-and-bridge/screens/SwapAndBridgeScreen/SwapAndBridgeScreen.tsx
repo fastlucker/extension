@@ -24,7 +24,7 @@ import formatDecimals from '@common/utils/formatDecimals'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import ActiveRouteCard from '@web/modules/swap-and-bridge/components/ActiveRouteCard'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
@@ -87,7 +87,7 @@ const SwapAndBridgeScreen = () => {
     shouldEnableRoutesSelection
   } = useSwapAndBridgeControllerState()
   const { statuses } = useMainControllerState()
-  const { accountPortfolio } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
 
@@ -206,8 +206,8 @@ const SwapAndBridgeScreen = () => {
                     setValue={({ value }) => handleChangeFromToken(value as string)}
                     options={fromTokenOptions}
                     value={fromTokenValue}
-                    // disabled={disableForm}
                     testID="from-token-select"
+                    searchPlaceholder={t('Token name or address...')}
                     containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
@@ -249,7 +249,7 @@ const SwapAndBridgeScreen = () => {
                   </View>
                   {!fromTokenAmountSelectDisabled && (
                     <MaxAmount
-                      isLoading={!accountPortfolio?.isAllReady}
+                      isLoading={!portfolio?.isAllReady}
                       maxAmount={Number(maxFromAmount)}
                       maxAmountInFiat={Number(maxFromAmountInFiat)}
                       selectedTokenSymbol={fromSelectedToken?.symbol || ''}
@@ -282,8 +282,8 @@ const SwapAndBridgeScreen = () => {
                     setValue={({ value }) => handleChangeToToken(value as string)}
                     options={toTokenOptions}
                     value={toTokenValue}
-                    // disabled={disableForm}
                     testID="to-token-select"
+                    searchPlaceholder={t('Token name or address...')}
                     containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />

@@ -27,6 +27,7 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -35,6 +36,7 @@ import Card from '@web/modules/auth/components/Card'
 import Stories from '@web/modules/auth/components/Stories'
 import { STORY_CARD_WIDTH } from '@web/modules/auth/components/Stories/styles'
 import { TERMS_VERSION } from '@web/modules/terms/screens/Terms'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 
 import HotWalletCreateCards from '../../components/HotWalletCreateCards'
 import { ONBOARDING_VERSION } from '../../components/Stories/Stories'
@@ -47,8 +49,9 @@ const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { addToast } = useToast()
-  const keystoreState = useKeystoreControllerState()
+  const { isReadyToStoreKeys, keyStoreUid } = useKeystoreControllerState()
   const { accounts } = useAccountsControllerState()
+  const accountAdderCtrlState = useAccountAdderControllerState()
   const {
     ref: hotWalletModalRef,
     open: openHotWalletModal,
@@ -87,6 +90,26 @@ const GetStartedScreen = () => {
     }
   }, [animation, state.onboardingState])
 
+  // here's the bug for the code below:
+  // 1. Go through get started and create a seed
+  // 2. Close account adder without adding any new accounts
+  // 3. If you open get started, you have loads of options - you should not
+  // as you've already created a seed and have to finish that
+  useEffect(() => {
+    if (
+      accountAdderCtrlState.isInitialized &&
+      accountAdderCtrlState.type === 'internal' &&
+      accountAdderCtrlState.subType === 'seed'
+    ) {
+      navigate(WEB_ROUTES.accountAdder, { state: { hideBack: true } })
+    }
+  }, [
+    accountAdderCtrlState.isInitialized,
+    accountAdderCtrlState.subType,
+    accountAdderCtrlState.type,
+    navigate
+  ])
+
   const handleAuthButtonPress = useCallback(
     async (
       flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-seed' | 'create-hot-wallet' | 'view-only'
@@ -104,10 +127,10 @@ const GetStartedScreen = () => {
         return
       }
       if (flow === 'email') {
-        await showEmailVaultInterest(accounts.length, addToast)
+        await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
         return
       }
-      if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
+      if (!isReadyToStoreKeys && flow !== 'hw') {
         navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
         return
       }
@@ -119,7 +142,7 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
-    [keystoreState.isReadyToStoreKeys, openHotWalletModal, navigate, accounts.length, addToast]
+    [isReadyToStoreKeys, openHotWalletModal, navigate, keyStoreUid, accounts.length, addToast]
   )
 
   const handleSetStoriesCompleted = () => {
@@ -255,7 +278,7 @@ const GetStartedScreen = () => {
                   text={t(
                     'If you are looking to import accounts from the web app (Ambire v1), please read this.'
                   )}
-                  type="info2"
+                  type="info"
                   // @ts-ignore
                   style={[spacings.mb0, { width: '100%' }]}
                   renderButtons={
@@ -267,7 +290,7 @@ const GetStartedScreen = () => {
                         )
                       }
                       text={t('Read more')}
-                      type="info2"
+                      type="secondary"
                     />
                   }
                 />

@@ -86,6 +86,8 @@ const SortHat = () => {
 
       if (actionType === 'switchAccount') return navigate(WEB_ROUTES.switchAccount)
     } else {
+      // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
+      // for other scenarios, ideally, it should be the last route before the keystore got locked.
       navigate(ROUTES.dashboard)
     }
   }, [

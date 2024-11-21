@@ -1,14 +1,11 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import ReceiveIcon from '@common/assets/svg/ReceiveIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
-import SwapIcon from '@common/assets/svg/SwapIcon'
-import { isDev } from '@common/config/env'
+import SwapAndBridgeIcon from '@common/assets/svg/SwapAndBridgeIcon'
 import { useTranslation } from '@common/config/localization'
-import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -32,34 +29,13 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       onPress: openReceiveModal,
       isExternal: false
     },
-    // As of 4.37.0, Swap & Bridge feature is planned to get released as a hidden feature.
-    // So temporarily display the button leading to that route only in development mode.
-    ...(isDev
-      ? [
-          {
-            testID: 'dashboard-button-swap',
-            icon: SwapIcon,
-            label: t('Swap & Bridge'),
-            route: WEB_ROUTES.swapAndBridge,
-            isExternal: false
-          }
-        ]
-      : [
-          {
-            testID: 'dashboard-button-swap',
-            icon: SwapIcon,
-            label: t('Swap'),
-            route: 'https://app.uniswap.org/swap',
-            isExternal: true
-          },
-          {
-            testID: 'dashboard-button-bridge',
-            icon: BridgeIcon,
-            label: t('Bridge'),
-            route: BRIDGE_URL,
-            isExternal: true
-          }
-        ]),
+    {
+      testID: 'dashboard-button-swap-and-bridge',
+      icon: SwapAndBridgeIcon,
+      label: t('Swap & Bridge'),
+      route: WEB_ROUTES.swapAndBridge,
+      isExternal: false
+    },
     {
       testID: 'dashboard-button-dapps',
       icon: DAppsIcon,

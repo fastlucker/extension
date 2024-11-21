@@ -45,7 +45,7 @@ export async function finishStoriesAndSelectAccount(
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
   if (!skipStories) {
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 500)
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 1500)
     await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
   }
 
@@ -406,14 +406,6 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   // Click on Import button.
   await clickOnElement(page, SELECTORS.importBtn)
 
-  // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
-  await wait(1000)
-
-  // so that the modal appears
-  await page.waitForSelector(SELECTORS.bottomSheet, { visible: true })
-
-  await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn, true, 500)
-
   const { firstSelectedAccount, secondSelectedAccount } = await finishStoriesAndSelectAccount(page)
 
   const [accountName1, accountName2] = TEST_ACCOUNT_NAMES
@@ -423,10 +415,21 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   // Click on "Save and Continue" button
   await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
 
+  // Click on "Save" button in "Save the imported seed" page, which saves the seed and redirect to the dashboard
+  await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
+
+  // Wait until dashboard is loaded
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
+  // Click on "Pin the extension"
+  await clickOnElement(page, SELECTORS.pinExtensionCloseBtn)
+
+  // Go to "Account select" page
   await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
   await page.waitForSelector(SELECTORS.account, { visible: true })
 
+  // Check the details of the added accounts
   await checkAccountDetails(
     page,
     SELECTORS.account,
@@ -435,7 +438,11 @@ export async function importAccountsFromSeedPhrase(page, extensionURL, seed, inv
   )
 }
 
-export async function selectHdPathAndAddAccount(page, hdPathSelector) {
+export async function selectHdPathAndAddAccount(
+  page,
+  hdPathSelector,
+  { shouldSaveSeed = false } = {}
+) {
   // Select the HD Path dropdown
   await clickOnElement(page, SELECTORS.selectChangeHdPath)
   // Select different HD path
@@ -483,6 +490,11 @@ export async function selectHdPathAndAddAccount(page, hdPathSelector) {
 
   // Click on "Save and Continue" button
   await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+
+  if (shouldSaveSeed) {
+    // Click on "Save" button in "Save the imported seed" page, which saves the seed and redirect to the dashboard
+    await clickOnElement(page, SELECTORS.saveAsDefaultSeedBtn)
+  }
 }
 
 export async function interactWithTrezorConnectPage(trezorConnectPage) {

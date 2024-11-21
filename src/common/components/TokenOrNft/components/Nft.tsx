@@ -3,9 +3,9 @@ import { View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Network } from '@ambire-common/interfaces/network'
-import Address from '@common/components/Address'
 import Collectible from '@common/components/Collectible'
 import CollectibleModal, { SelectedCollectible } from '@common/components/CollectibleModal'
+import HumanizerAddress from '@common/components/HumanizerAddress'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -62,7 +62,7 @@ const Nft: FC<Props> = ({
         hideSendNft={hideSendNft}
       />
       <View style={[spacings.mrTy]}>
-        <Address
+        <HumanizerAddress
           fontSize={textSize}
           address={address}
           highestPriorityAlias={`${nftInfo?.name || 'NFT'} #${tokenId}`}

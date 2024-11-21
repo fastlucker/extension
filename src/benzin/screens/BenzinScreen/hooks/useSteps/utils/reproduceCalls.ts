@@ -1,5 +1,21 @@
-import { TransactionReceipt, TransactionResponse, ZeroAddress } from 'ethers'
+import {
+  AbiCoder,
+  getAddress,
+  isAddress,
+  keccak256,
+  TransactionResponse,
+  ZeroAddress
+} from 'ethers'
 
+import {
+  RELAYER_EXECUTOR_ADDRESSES,
+  STAGING_RELAYER_EXECUTOR_ADDRESSES
+} from '@ambire-common/consts/addresses'
+import { AMBIRE_PAYMASTER, ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
+import { Network } from '@ambire-common/interfaces/network'
+import { Call } from '@ambire-common/libs/accountOp/types'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { getAddressVisualization, getLabel, getLink } from '@ambire-common/libs/humanizer/utils'
 import {
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
@@ -9,12 +25,11 @@ import {
   executeInterface,
   executeMultipleInterface,
   executeUnknownWalletInterface,
+  handleOps060,
   handleOps070,
-  handleOpsInterface,
   quickAccManagerCancelInterface,
   quickAccManagerExecScheduledInterface,
-  quickAccManagerSendInterface,
-  transferInterface
+  quickAccManagerSendInterface
 } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
@@ -23,68 +38,27 @@ export const userOpSigHashes = {
   execute: executeInterface.getFunction('execute')!.selector,
   executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector,
   executeCall: executeCallInterface.getFunction('execute')!.selector,
-  executeBatch: executeBatchInterface.getFunction('executeBatch')!.selector
+  executeBatch: executeBatchInterface.getFunction('executeBatch')!.selector,
+  executeUnknownWalletInterface: executeUnknownWalletInterface.getFunction('execute')!.selector,
+  unknownWalletExecuteBatch: executeUnknownWalletInterface.getFunction('executeBatch')!.selector
 }
 
-const feeCollector = '0x942f9CE5D9a33a82F88D233AEb3292E680230348'
-
-const filterFeeCollectorCalls = (calls: any, callArray: any, index: number): boolean => {
-  // if calls are exactly one, it means no fee collector calls
-  const callsLength = calls.length
-  if (callsLength === 1) return true
-
-  // this is for the case where we do a native top up but have
-  // transformed the native to wrapped. We shouldn't filter out
-  if (
-    index + 1 === callsLength && // the fee call
-    calls[callsLength - 2][0].toLowerCase() === callArray[0].toLowerCase() && // the same address
-    callArray[2].slice(0, 10) === transferInterface.getFunction('transfer')!.selector &&
-    transferInterface.decodeFunctionData('transfer', callArray[2])[1] === calls[callsLength - 2][1]
-  ) {
-    return true
-  }
-
-  // a fee collector call is one that is at the end of the calls array
-  if (
-    index + 1 === callsLength &&
-    callArray[2].slice(0, 10) === transferInterface.getFunction('transfer')!.selector &&
-    transferInterface.decodeFunctionData('transfer', callArray[2])[0] === feeCollector
-  ) {
-    return false
-  }
-  if (index + 1 === callsLength && callArray[0] === feeCollector) return false
-
-  return true
-}
-
-const transformToAccOpCall = (call: any) => {
-  return {
-    to: call[0],
-    value: BigInt(call[1]),
-    data: call[2]
-  }
-}
+const transformToAccOpCall = (call: any) => ({ to: call[0], value: BigInt(call[1]), data: call[2] })
 
 const getExecuteCalls = (callData: string) => {
   const data = executeInterface.decodeFunctionData('execute', callData)
-  return data[0]
-    .filter((call: any, index: number) => filterFeeCollectorCalls(data[0], call, index))
-    .map((call: any) => transformToAccOpCall(call))
+  return data[0].map((call: any) => transformToAccOpCall(call))
 }
 
 const getExecuteBySenderCalls = (callData: string) => {
   const data = executeBySenderInterface.decodeFunctionData('executeBySender', callData)
-  return data[0]
-    .filter((call: any, index: number) => filterFeeCollectorCalls(data[0], call, index))
-    .map((call: any) => transformToAccOpCall(call))
+  return data[0].map((call: any) => transformToAccOpCall(call))
 }
 
 const getExecuteMultipleCalls = (callData: string) => {
   const data = executeMultipleInterface.decodeFunctionData('executeMultiple', callData)
   const calls = data[0].map((executeArgs: any) => executeArgs[0]).flat()
-  return calls
-    .filter((call: any, index: number) => filterFeeCollectorCalls(calls, call, index))
-    .map((call: any) => transformToAccOpCall(call))
+  return calls.map((call: any) => transformToAccOpCall(call))
 }
 
 const getExecuteCallCalls = (callData: string) => {
@@ -108,155 +82,214 @@ const getExecuteBatchCalls = (callData: string) => {
   return calls
 }
 
-const decodeUserOp = (userOp: UserOperation) => {
-  const callData = userOp.callData
+const getUnknownWalletExecuteBatch = (callData: string) => {
+  const [rawCalls] = executeUnknownWalletInterface.decodeFunctionData('executeBatch', callData)
+  return rawCalls.map(transformToAccOpCall)
+}
+
+export const decodeUserOp = (userOp: UserOperation): Call[] => {
+  const { callData, paymaster } = userOp
+
   const callDataSigHash = callData.slice(0, 10)
-
-  if (callDataSigHash === userOpSigHashes.executeBySender) {
-    return getExecuteBySenderCalls(callData)
+  const matcher = {
+    [userOpSigHashes.executeBySender]: getExecuteBySenderCalls,
+    [userOpSigHashes.execute]: getExecuteCalls,
+    [userOpSigHashes.executeMultiple]: getExecuteMultipleCalls,
+    [userOpSigHashes.executeCall]: getExecuteCallCalls,
+    [userOpSigHashes.executeUnknownWalletInterface]: getExecuteUnknownWalletCalls,
+    [userOpSigHashes.executeBatch]: getExecuteBatchCalls,
+    [userOpSigHashes.unknownWalletExecuteBatch]: getUnknownWalletExecuteBatch
   }
+  let decodedCalls = [{ to: userOp.sender, data: userOp.callData, value: 0n }]
+  if (matcher[callDataSigHash]) decodedCalls = matcher[callDataSigHash](callData)
 
-  if (callDataSigHash === userOpSigHashes.execute) {
-    return getExecuteCalls(callData)
-  }
-
-  if (callDataSigHash === userOpSigHashes.executeMultiple) {
-    return getExecuteMultipleCalls(callData)
-  }
-
-  if (callDataSigHash === userOpSigHashes.executeCall) {
-    return getExecuteCallCalls(callData)
-  }
-
-  if (callDataSigHash === executeUnknownWalletInterface.getFunction('execute')!.selector) {
-    return getExecuteUnknownWalletCalls(callData)
-  }
-
-  if (callDataSigHash === userOpSigHashes.executeBatch) {
-    return getExecuteBatchCalls(callData)
-  }
+  if (isAddress(paymaster) && getAddress(paymaster) === AMBIRE_PAYMASTER)
+    decodedCalls = decodedCalls.slice(0, -1)
+  return decodedCalls
 }
 
-const decodeUserOpWithoutUserOpHash = (txnData: string, is070 = false) => {
-  const handleOpsData = is070
-    ? handleOps070.decodeFunctionData('handleOps', txnData)
-    : handleOpsInterface.decodeFunctionData('handleOps', txnData)
-  const sigHashValues = Object.values(userOpSigHashes)
-  const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-  // if there's more than 1 user op, we cannot guess which is the
-  // correct one. We do not guess
-  if (!userOps.length || userOps.length > 1) return null
-
-  return decodeUserOp({
-    sender: '',
-    callData: userOps[0][3],
-    hashStatus: 'not_found'
-  })
-}
-
-const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) => {
-  if (userOp && userOp.hashStatus === 'found') return decodeUserOp(userOp)
+export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
+  const non4337Matcher: {
+    [sigHash: string]: (data: string) => { to: string; data: string; value: bigint }[]
+  } = {
+    [executeInterface.getFunction('execute')!.selector]: getExecuteCalls,
+    [executeBySenderInterface.getFunction('executeBySender')!.selector]: getExecuteBySenderCalls,
+    [executeMultipleInterface.getFunction('executeMultiple')!.selector]: getExecuteMultipleCalls,
+    [deployAndExecuteInterface.getFunction('deployAndExecute')!.selector]: (txData: string) => {
+      const data = deployAndExecuteInterface.decodeFunctionData('deployAndExecute', txData)
+      return data[2].map((call: any) => transformToAccOpCall(call))
+    },
+    [deployAndExecuteMultipleInterface.getFunction('deployAndExecuteMultiple')!.selector]: (
+      txData: string
+    ) => {
+      const data = deployAndExecuteMultipleInterface.decodeFunctionData(
+        'deployAndExecuteMultiple',
+        txData
+      )
+      const calls: any = data[2].map((executeArgs: any) => executeArgs[0]).flat()
+      return calls.map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [quickAccManagerSendInterface.getFunction('send')!.selector]: (txData: string) => {
+      const data = quickAccManagerSendInterface.decodeFunctionData('send', txData)
+      return data[3].map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [quickAccManagerCancelInterface.getFunction('cancel')!.selector]: (txData: string) => {
+      const data = quickAccManagerCancelInterface.decodeFunctionData('cancel', txData)
+      return data[4].map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [quickAccManagerExecScheduledInterface.getFunction('execScheduled')!.selector]: (
+      txData: string
+    ) => {
+      const data = quickAccManagerExecScheduledInterface.decodeFunctionData('execScheduled', txData)
+      return data[3].map((call: any) => transformToAccOpCall(call))
+    },
+    // @non-ambire executeBatch
+    [executeBatchInterface.getFunction('executeBatch')!.selector]: getExecuteBatchCalls
+  }
 
   const sigHash = txn.data.slice(0, 10)
 
-  if (sigHash === executeInterface.getFunction('execute')!.selector) {
-    return getExecuteCalls(txn.data)
-  }
+  let parsedCalls = non4337Matcher[sigHash]
+    ? non4337Matcher[sigHash](txn.data)
+    : [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
 
-  if (sigHash === executeBySenderInterface.getFunction('executeBySender')!.selector) {
-    return getExecuteBySenderCalls(txn.data)
-  }
+  if ([...RELAYER_EXECUTOR_ADDRESSES, ...STAGING_RELAYER_EXECUTOR_ADDRESSES].includes(txn.from))
+    parsedCalls = parsedCalls.slice(0, -1)
 
-  if (sigHash === executeMultipleInterface.getFunction('executeMultiple')!.selector) {
-    return getExecuteMultipleCalls(txn.data)
-  }
-
-  if (sigHash === deployAndExecuteInterface.getFunction('deployAndExecute')!.selector) {
-    const data = deployAndExecuteInterface.decodeFunctionData('deployAndExecute', txn.data)
-    return data[2]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[2], call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  if (
-    sigHash === deployAndExecuteMultipleInterface.getFunction('deployAndExecuteMultiple')!.selector
-  ) {
-    const data = deployAndExecuteMultipleInterface.decodeFunctionData(
-      'deployAndExecuteMultiple',
-      txn.data
-    )
-    const calls: any = data[2].map((executeArgs: any) => executeArgs[0]).flat()
-    return calls
-      .filter((call: any, index: number) => filterFeeCollectorCalls(calls, call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  // v1
-  if (sigHash === quickAccManagerSendInterface.getFunction('send')!.selector) {
-    const data = quickAccManagerSendInterface.decodeFunctionData('send', txn.data)
-    return data[3]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[3], call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  // v1
-  if (sigHash === quickAccManagerCancelInterface.getFunction('cancel')!.selector) {
-    const data = quickAccManagerCancelInterface.decodeFunctionData('cancel', txn.data)
-    return data[4]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[4], call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  // v1
-  if (sigHash === quickAccManagerExecScheduledInterface.getFunction('execScheduled')!.selector) {
-    const data = quickAccManagerExecScheduledInterface.decodeFunctionData('execScheduled', txn.data)
-    return data[3]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[3], call, index))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
-    const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data)
-    if (decodedUserOp) return decodedUserOp
-  }
-
-  if (sigHash === handleOps070.getFunction('handleOps')!.selector) {
-    const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data, true)
-    if (decodedUserOp) return decodedUserOp
-  }
-
-  // @non-ambire executeBatch
-  if (sigHash === executeBatchInterface.getFunction('executeBatch')!.selector) {
-    return getExecuteBatchCalls(txn.data)
-  }
-
-  return [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
+  return parsedCalls
 }
 
-export const getSender = (receipt: TransactionReceipt, txn: TransactionResponse) => {
-  const sigHash = txn.data.slice(0, 10)
+export const entryPointTxnSplit: {
+  [sigHash: string]: (txn: TransactionResponse, network: Network, txId: string) => IrCall[]
+} = {
+  [handleOps070.getFunction('handleOps')!.selector]: (
+    txn: TransactionResponse,
+    network: Network,
+    txId: string
+  ) => {
+    const [ops] = handleOps070.decodeFunctionData('handleOps', txn.data)
+    const abiCoder = new AbiCoder()
 
-  if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
-    const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
-    const sigHashValues = Object.values(userOpSigHashes)
-    const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-    if (userOps.length) {
-      return userOps[0][0]
-    }
+    return ops.map((opArray: any): IrCall => {
+      const sender = opArray[0]
+      const nonce = opArray[1]
+      const hashInitCode = keccak256(opArray[2])
+      const hashCallData = keccak256(opArray[3])
+
+      const accountGasLimits = opArray[4]
+      const preVerificationGas = opArray[5]
+      const gasFees = opArray[6]
+      const paymasterAndData = opArray[7]
+      const hashPaymasterAndData = keccak256(paymasterAndData)
+
+      const packed = abiCoder.encode(
+        ['address', 'uint256', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'bytes32', 'bytes32'],
+        [
+          sender,
+          nonce,
+          hashInitCode,
+          hashCallData,
+          accountGasLimits,
+          preVerificationGas,
+          gasFees,
+          hashPaymasterAndData
+        ]
+      )
+      const hash = keccak256(packed)
+
+      const finalHash = keccak256(
+        abiCoder.encode(
+          ['bytes32', 'address', 'uint256'],
+          [hash, ERC_4337_ENTRYPOINT, network.chainId]
+        )
+      )
+
+      const url: string = `https://benzin.ambire.com/?chainId=${network.chainId}&txnId=${txId}&userOpHash=${finalHash}`
+      return {
+        to: sender,
+        data: '0x',
+        value: 0n,
+        fullVisualization: [
+          getLink(url, '4337 operation'),
+          getLabel('from'),
+          getAddressVisualization(sender)
+        ]
+      }
+    })
+  },
+
+  [handleOps060.getFunction('handleOps')!.selector]: (
+    txn: TransactionResponse,
+    network: Network,
+    txId: string
+  ) => {
+    const [ops] = handleOps060.decodeFunctionData('handleOps', txn.data)
+    const abiCoder = new AbiCoder()
+
+    return ops.map((opArray: any): IrCall => {
+      const sender = opArray[0]
+      const nonce = opArray[1]
+      const hashInitCode = keccak256(opArray[2])
+      const hashCallData = keccak256(opArray[3])
+
+      const callGasLimit = opArray[4]
+      const verificationGasLimit = opArray[5]
+      const preVerificationGas = opArray[6]
+      const maxFeePerGas = opArray[7]
+      const maxPriorityFeePerGas = opArray[8]
+      const paymasterAndData = opArray[9]
+      const hashPaymasterAndData = keccak256(paymasterAndData)
+
+      const packed = abiCoder.encode(
+        [
+          'address',
+          'uint256',
+          'bytes32',
+          'bytes32',
+          'uint256',
+          'uint256',
+          'uint256',
+          'uint256',
+          'uint256',
+          'bytes32'
+        ],
+        [
+          sender,
+          nonce,
+          hashInitCode,
+          hashCallData,
+          callGasLimit,
+          verificationGasLimit,
+          preVerificationGas,
+          maxFeePerGas,
+          maxPriorityFeePerGas,
+          hashPaymasterAndData
+        ]
+      )
+
+      const hash = keccak256(packed)
+
+      const finalHash = keccak256(
+        abiCoder.encode(
+          ['bytes32', 'address', 'uint256'],
+          [hash, '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789', network.chainId]
+        )
+      )
+
+      const url: string = `https://benzin.ambire.com/?networkId=${network.id}&txnId=${txId}&userOpHash=${finalHash}`
+      return {
+        to: sender,
+        data: '0x',
+        value: 0n,
+        fullVisualization: [
+          getLink(url, '4337 operation'),
+          getLabel('from'),
+          getAddressVisualization(sender)
+        ]
+      }
+    })
   }
-
-  if (sigHash === handleOps070.getFunction('handleOps')!.selector) {
-    const handleOpsData = handleOps070.decodeFunctionData('handleOps', txn.data)
-    const sigHashValues = Object.values(userOpSigHashes)
-    const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-    if (userOps.length) {
-      return userOps[0][0]
-    }
-  }
-
-  if (Object.values(userOpSigHashes).includes(sigHash)) return receipt.to
-
-  return receipt.from
 }
-
-export default reproduceCalls

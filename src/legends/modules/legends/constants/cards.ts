@@ -5,6 +5,4 @@ const CARD_PREDEFINED_ID = {
   LinkAccount: 'LinkAccount'
 }
 
-const EOA_ACCESSIBLE_CARDS = [CARD_PREDEFINED_ID.LinkAccount]
-
-export { CARD_PREDEFINED_ID, EOA_ACCESSIBLE_CARDS }
+export { CARD_PREDEFINED_ID }
