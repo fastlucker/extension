@@ -12,6 +12,7 @@ import { getFeatures } from '@ambire-common/libs/networks/networks'
 import { isValidURL } from '@ambire-common/services/validations'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
+import Checkbox from '@common/components/Checkbox'
 import Input from '@common/components/Input'
 import NetworkIcon from '@common/components/NetworkIcon'
 import NumberInput from '@common/components/NumberInput'
@@ -149,7 +150,7 @@ const NetworkForm = ({
   const { addToast } = useToast()
   const { networks, networkToAddOrUpdate, statuses } = useNetworksControllerState()
   const [isValidatingRPC, setValidatingRPC] = useState<boolean>(false)
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
 
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.id === selectedNetworkId),
@@ -178,7 +179,8 @@ const NetworkForm = ({
       nativeAssetSymbol: '',
       explorerUrl: '',
       coingeckoPlatformId: '',
-      coingeckoNativeAssetId: ''
+      coingeckoNativeAssetId: '',
+      force4337: false
     },
     values: {
       name: selectedNetwork?.name || '',
@@ -187,7 +189,8 @@ const NetworkForm = ({
       nativeAssetSymbol: selectedNetwork?.nativeAssetSymbol || '',
       explorerUrl: selectedNetwork?.explorerUrl || '',
       coingeckoPlatformId: (selectedNetwork?.platformId as string) || '',
-      coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || ''
+      coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || '',
+      force4337: selectedNetwork?.force4337 ?? false
     }
   })
   const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
@@ -289,7 +292,7 @@ const NetworkForm = ({
         ) {
           dispatch({
             type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
-            params: { rpcUrl, chainId: BigInt(chainId) }
+            params: { rpcUrl: rpcUrl as string, chainId: BigInt(chainId) }
           })
         }
         setValidatingRPC(false)
@@ -319,7 +322,7 @@ const NetworkForm = ({
     const subscription = watch(async (value, { name }) => {
       if (name && !value[name]) {
         // @ts-ignore
-        if (name !== 'rpcUrl') {
+        if (name !== 'rpcUrl' && name !== 'force4337') {
           setError(name, { type: 'custom-error', message: 'Field is required' })
           return
         }
@@ -465,7 +468,8 @@ const NetworkForm = ({
             network: {
               rpcUrls,
               selectedRpcUrl,
-              explorerUrl: networkFormValues.explorerUrl
+              explorerUrl: networkFormValues.explorerUrl,
+              force4337: networkFormValues.force4337
             },
             networkId: selectedNetworkId
           }
@@ -759,6 +763,42 @@ const NetworkForm = ({
             <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
               <View style={flexbox.flex1}>
                 <NetworkAvailableFeatures networkId={selectedNetwork?.id} features={features} />
+
+                <View style={spacings.mtSm}>
+                  <Controller
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                      <Checkbox
+                        value={value}
+                        onValueChange={async (changedValue) => {
+                          if (selectedNetwork) {
+                            dispatch({
+                              type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+                              params: {
+                                rpcUrl: selectedNetwork.selectedRpcUrl,
+                                chainId: selectedNetwork.chainId,
+                                force4337: changedValue
+                              }
+                            })
+                          }
+
+                          return onChange(changedValue)
+                        }}
+                        uncheckedBorderColor={theme.secondaryText}
+                        label={t('Use ERC-4337 Account Abstraction')}
+                        labelProps={{
+                          style: {
+                            color: theme.secondaryText,
+                            fontSize: 16
+                          },
+                          weight: 'medium'
+                        }}
+                        style={[flexbox.directionRow, flexbox.alignCenter]}
+                      />
+                    )}
+                    name="force4337"
+                  />
+                </View>
               </View>
             </ScrollableWrapper>
             <View style={[flexbox.alignEnd, spacings.ptXl]}>
