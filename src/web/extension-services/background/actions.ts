@@ -158,6 +158,16 @@ type MainControllerBuildTransferUserRequest = {
     executionType: 'queue' | 'open'
   }
 }
+type MainControllerBuildClaimWalletUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST'
+  params: { token: TokenResult }
+}
+type MainControllerBuildMintVestingUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST'
+  params: {
+    token: TokenResult
+  }
+}
 type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
@@ -425,10 +435,6 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: number }
 }
-type SwapAndBridgeControllerUpdatePortfolioTokenListAction = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST'
-  params: TokenResult[]
-}
 
 type ActionsControllerAddToActionsQueue = {
   type: 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE'
@@ -557,6 +563,8 @@ export type Action =
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
+  | MainControllerBuildClaimWalletUserRequest
+  | MainControllerBuildMintVestingUserRequest
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
@@ -609,7 +617,6 @@ export type Action =
   | SwapAndBridgeControllerSubmitFormAction
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerRemoveActiveRouteAction
-  | SwapAndBridgeControllerUpdatePortfolioTokenListAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow

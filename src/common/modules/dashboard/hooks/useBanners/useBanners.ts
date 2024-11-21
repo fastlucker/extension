@@ -6,11 +6,9 @@ import useConnectivity from '@common/hooks/useConnectivity'
 import useDebounce from '@common/hooks/useDebounce'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
-import useDeFiPositionsControllerState from '@web/hooks/useDeFiPositionsControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
@@ -31,15 +29,11 @@ const OFFLINE_BANNER: BannerInterface = {
 
 export default function useBanners(): BannerInterface[] {
   const state = useMainControllerState()
-  const { account } = useSelectedAccountControllerState()
   const { isOffline } = useConnectivity()
   // Debounce offline status to prevent banner flickering
   const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
-  const {
-    state: { banners: portfolioBanners = [] }
-  } = usePortfolioControllerState()
+  const { account, defiPositionsBanners, portfolioBanners } = useSelectedAccountControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
-  const { banners: defiPositionsBanners = [] } = useDeFiPositionsControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
@@ -47,16 +41,11 @@ export default function useBanners(): BannerInterface[] {
 
   const allBanners = useMemo(() => {
     return [
-      ...swapAndBridgeBanners,
       ...state.banners,
       ...actionBanners,
-      ...swapAndBridgeBanners,
-      ...defiPositionsBanners,
-      // Don't display portfolio banners when offline
-      ...getCurrentAccountBanners(
-        debouncedIsOffline ? [OFFLINE_BANNER] : portfolioBanners,
-        account?.addr
-      ),
+      ...(debouncedIsOffline
+        ? [OFFLINE_BANNER]
+        : [...swapAndBridgeBanners, ...defiPositionsBanners, ...portfolioBanners]),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
       ...keystoreBanners
@@ -66,8 +55,8 @@ export default function useBanners(): BannerInterface[] {
     actionBanners,
     swapAndBridgeBanners,
     defiPositionsBanners,
-    debouncedIsOffline,
     portfolioBanners,
+    debouncedIsOffline,
     account,
     activityBanners,
     emailVaultBanners,

@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
@@ -15,7 +15,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { AnimatedPressable, DURATIONS, useCustomHover, useMultiHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
 
@@ -36,8 +35,7 @@ const Network: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { state } = useRoute()
   const { networks } = useNetworksControllerState()
-  const { account } = useSelectedAccountControllerState()
-  const portfolioControllerState = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({
     values: [
       {
@@ -65,11 +63,6 @@ const Network: FC<Props> = ({
     duration: DURATIONS.REGULAR
   })
 
-  const portfolioByNetworks = useMemo(
-    () => (account ? portfolioControllerState.state.latest[account.addr] : {}),
-    [account, portfolioControllerState.state.latest]
-  )
-
   const navigateAndFilterDashboard = () => {
     navigate(`${WEB_ROUTES.dashboard}${state.prevTab ? `?${state.prevTab}` : ''}`, {
       state: {
@@ -79,7 +72,7 @@ const Network: FC<Props> = ({
   }
 
   const networkData = networks.find((network) => network.id === networkId)
-  const networkBalance = portfolioByNetworks[networkId]?.result?.total
+  const networkBalance = portfolio.latest?.[networkId]?.result?.total
   let networkName = networkData?.name
 
   if (networkId === 'rewards') {
@@ -140,4 +133,4 @@ const Network: FC<Props> = ({
   )
 }
 
-export default Network
+export default React.memo(Network)

@@ -24,15 +24,15 @@ import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 import {
-  handleOps070,
-  handleOpsInterface
+  handleOps060,
+  handleOps070
 } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
 import { getBenzinUrlParams } from '../../utils/url'
 import { parseLogs } from './utils/parseLogs'
-import reproduceCalls, { getSender } from './utils/reproduceCalls'
+import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
 
@@ -119,10 +119,9 @@ const useSteps = ({
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [txnReceipt, setTxnReceipt] = useState<{
     actualGasCost: null | BigInt
-    from: null | string
     originatedFrom: null | string
     blockNumber: null | BigInt
-  }>({ actualGasCost: null, from: null, originatedFrom: null, blockNumber: null })
+  }>({ actualGasCost: null, originatedFrom: null, blockNumber: null })
   const [blockData, setBlockData] = useState<null | Block>(null)
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
@@ -263,9 +262,7 @@ const useSteps = ({
         // as it will set incorrect data for sender (from)
         if (!txn) return
 
-        const failedToDecodeUserOp = userOpHash && txnId && userOp && userOp.callData === ''
         setTxnReceipt({
-          from: failedToDecodeUserOp ? null : getSender(receipt, txn),
           originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
@@ -277,8 +274,8 @@ const useSteps = ({
             // check the sighash
             const sigHash = txn.data.slice(0, 10)
             const handleOpsData =
-              sigHash === handleOpsInterface.getFunction('handleOps')!.selector
-                ? handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+              sigHash === handleOps060.getFunction('handleOps')!.selector
+                ? handleOps060.decodeFunctionData('handleOps', txn.data)
                 : handleOps070.decodeFunctionData('handleOps', txn.data)
             userOpsLength = handleOpsData[0].length
           } catch (e: any) {
@@ -414,11 +411,11 @@ const useSteps = ({
     if (!userOpHash || !network || !txn || userOp) return
 
     const sigHash = txn.data.slice(0, 10)
-    const is060 = sigHash === handleOpsInterface.getFunction('handleOps')!.selector
+    const is060 = sigHash === handleOps060.getFunction('handleOps')!.selector
     let handleOpsData = null
     try {
       handleOpsData = is060
-        ? handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+        ? handleOps060.decodeFunctionData('handleOps', txn.data)
         : handleOps070.decodeFunctionData('handleOps', txn.data)
     } catch (e) {
       console.log('this txn is an userOp but does not call handleOps')
@@ -535,17 +532,20 @@ const useSteps = ({
   }, [network, txn, userOpHash, userOp])
 
   const calls: IrCall[] | null = useMemo(() => {
-    if (userOpHash && !userOp) return null
+    if (userOpHash && userOp?.hashStatus !== 'found') return null
+    if (!network) return null
+    if (txnReceipt.actualGasCost) setCost(formatEther(txnReceipt.actualGasCost!.toString()))
+    if (userOp?.hashStatus !== 'found' && txn && txnId && entryPointTxnSplit[txn.data.slice(0, 10)])
+      return entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId)
 
-    if (network && txnReceipt.from && txn) {
-      setCost(formatEther(txnReceipt.actualGasCost!.toString()))
+    if (txnReceipt.originatedFrom && txn) {
       const accountOp: AccountOp = {
-        accountAddr: txnReceipt.from!,
+        accountAddr: userOp?.sender || txnReceipt.originatedFrom!,
         networkId: network.id,
-        signingKeyAddr: txnReceipt.from!, // irrelevant
+        signingKeyAddr: txnReceipt.originatedFrom!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
-        calls: reproduceCalls(txn, userOp),
+        calls: userOp ? decodeUserOp(userOp) : reproduceCallsFromTxn(txn),
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
@@ -555,8 +555,7 @@ const useSteps = ({
       return parseHumanizer(humanizedCalls)
     }
     return null
-  }, [network, txnReceipt, txn, userOpHash, userOp])
-
+  }, [network, txnReceipt, txn, userOpHash, userOp, txnId])
   return {
     nativePrice,
     blockData,
@@ -565,7 +564,7 @@ const useSteps = ({
     calls,
     pendingTime,
     txnId: foundTxnId,
-    from: txnReceipt.from,
+    from: userOp?.sender || null,
     originatedFrom: txnReceipt.originatedFrom,
     userOp
   }

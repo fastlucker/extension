@@ -7,7 +7,6 @@ import { useModalize } from 'react-native-modalize'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
@@ -16,7 +15,6 @@ import useTheme from '@common/hooks/useTheme'
 import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTokenSelectProps'
@@ -31,6 +29,7 @@ const useSwapAndBridgeForm = () => {
     fromAmountFieldMode,
     toSelectedToken,
     portfolioTokenList,
+    isTokenListLoading,
     toTokenList,
     maxFromAmount,
     maxFromAmountInFiat,
@@ -48,7 +47,6 @@ const useSwapAndBridgeForm = () => {
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { accountPortfolio } = usePortfolioControllerState()
   const { theme } = useTheme()
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
@@ -116,18 +114,6 @@ const useSwapAndBridgeForm = () => {
     }
   }, [followUpTransactionConfirmed, formStatus])
 
-  useEffect(() => {
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST',
-      params:
-        accountPortfolio?.tokens.filter((token) => {
-          const hasAmount = Number(getTokenAmount(token)) > 0
-
-          return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
-        }) || []
-    })
-  }, [accountPortfolio?.tokens, dispatch])
-
   const {
     options: fromTokenOptions,
     value: fromTokenValue,
@@ -135,6 +121,7 @@ const useSwapAndBridgeForm = () => {
   } = useGetTokenSelectProps({
     tokens: portfolioTokenList,
     token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
+    isLoading: isTokenListLoading,
     networks
   })
 

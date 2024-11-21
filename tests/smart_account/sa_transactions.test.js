@@ -41,7 +41,9 @@ describe('sa_transactions', () => {
     await signMessage(page, extensionURL, browser, process.env.SA_SELECTED_ACCOUNT)
   })
 
-  describe('Swap', () => {
+  // TODO: Uniswap changes their UI frequently, which breaks this test quite often.
+  // Skip these tests until we figure out a way to make them more stable.
+  describe.skip('Swap', () => {
     // Swap tests fail occasionally (2 out of 10 times in CI) because Uniswap can't switch the network to Polygon.
     // We traced the RPC requests but couldn't identify any failing ones.
     // Since the swap is managed by Uniswap, it is difficult to debug exactly what is happening.

@@ -24,7 +24,6 @@ import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -60,8 +59,7 @@ const DashboardOverview: FC<Props> = ({
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { account } = useSelectedAccountControllerState()
-  const { accountPortfolio, startedLoadingAtTimestamp, state, resetAccountPortfolioLocalState } =
-    usePortfolioControllerState()
+  const { portfolio, portfolioStartedLoadingAtTimestamp } = useSelectedAccountControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -92,28 +90,25 @@ const DashboardOverview: FC<Props> = ({
   }, [filterByNetworkId, networks])
 
   const totalPortfolioAmount = useMemo(() => {
-    if (!filterByNetworkId) return accountPortfolio?.totalAmount || 0
+    if (!filterByNetworkId) return portfolio?.totalBalance || 0
 
     if (!account) return 0
 
-    const selectedAccountPortfolio =
-      state?.latest?.[account.addr]?.[filterByNetworkId]?.result?.total
-
-    return Number(selectedAccountPortfolio?.usd) || 0
-  }, [accountPortfolio?.totalAmount, filterByNetworkId, account, state.latest])
+    return Number(portfolio?.latest?.[filterByNetworkId]?.result?.total?.usd) || 0
+  }, [portfolio, filterByNetworkId, account])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
     totalPortfolioAmount,
-    'price'
+    'value'
   ).split('.')
 
   const networksWithCriticalErrors: string[] = useMemo(() => {
-    if (!account || !state.latest[account.addr] || state.latest[account.addr]?.isLoading) return []
+    if (!account || !portfolio.latest || portfolio.latest?.isLoading) return []
 
     const networkNames: string[] = []
 
-    Object.keys(state.latest[account.addr]).forEach((networkId) => {
-      const networkState = state.latest[account.addr][networkId]
+    Object.keys(portfolio.latest).forEach((networkId) => {
+      const networkState = portfolio.latest[networkId]
 
       if (networkState?.criticalError) {
         let networkName
@@ -129,7 +124,7 @@ const DashboardOverview: FC<Props> = ({
     })
 
     return networkNames
-  }, [account, state.latest, networks])
+  }, [account, portfolio, networks])
 
   const warningMessage = useMemo(() => {
     if (isLoadingTakingTooLong) {
@@ -148,13 +143,13 @@ const DashboardOverview: FC<Props> = ({
   // Compare the current timestamp with the timestamp when the loading started
   // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
   useEffect(() => {
-    if (!startedLoadingAtTimestamp) {
+    if (!portfolioStartedLoadingAtTimestamp) {
       setIsLoadingTakingTooLong(false)
       return
     }
 
     const checkIsLoadingTakingTooLong = () => {
-      const takesMoreThan5Seconds = Date.now() - startedLoadingAtTimestamp > 5000
+      const takesMoreThan5Seconds = Date.now() - portfolioStartedLoadingAtTimestamp > 5000
 
       setIsLoadingTakingTooLong(takesMoreThan5Seconds)
     }
@@ -162,7 +157,7 @@ const DashboardOverview: FC<Props> = ({
     checkIsLoadingTakingTooLong()
 
     const interval = setInterval(() => {
-      if (accountPortfolio?.isAllReady) {
+      if (portfolio?.isAllReady) {
         clearInterval(interval)
         setIsLoadingTakingTooLong(false)
         return
@@ -174,14 +169,11 @@ const DashboardOverview: FC<Props> = ({
     return () => {
       clearInterval(interval)
     }
-  }, [accountPortfolio?.isAllReady, startedLoadingAtTimestamp])
+  }, [portfolio?.isAllReady, portfolioStartedLoadingAtTimestamp])
 
   const reloadAccount = useCallback(() => {
-    resetAccountPortfolioLocalState()
-    dispatch({
-      type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
-    })
-  }, [dispatch, resetAccountPortfolioLocalState])
+    dispatch({ type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT' })
+  }, [dispatch])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -229,7 +221,7 @@ const DashboardOverview: FC<Props> = ({
             >
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-                  {!accountPortfolio?.isAllReady ? (
+                  {!portfolio?.isAllReady ? (
                     <SkeletonLoader
                       lowOpacity
                       width={200}
@@ -266,11 +258,11 @@ const DashboardOverview: FC<Props> = ({
                     style={[spacings.mlTy, refreshButtonAnimStyle]}
                     onPress={reloadAccount}
                     {...bindRefreshButtonAnim}
-                    disabled={!accountPortfolio?.isAllReady}
+                    disabled={!portfolio?.isAllReady}
                     testID="refresh-button"
                   >
                     <RefreshIcon
-                      spin={!accountPortfolio?.isAllReady}
+                      spin={!portfolio?.isAllReady}
                       color={theme.primaryBackground}
                       width={16}
                       height={16}

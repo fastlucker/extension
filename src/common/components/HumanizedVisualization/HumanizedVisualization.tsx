@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import Address from '@common/components/Address'
+import HumanizerAddress from '@common/components/HumanizerAddress'
 import Text from '@common/components/Text'
 import TokenOrNft from '@common/components/TokenOrNft'
 import useTheme from '@common/hooks/useTheme'
@@ -24,6 +24,10 @@ export const visualizeContent = (kind: string, content?: string | Uint8Array) =>
   }
   return `${getMessageAsText(content).replace('\n', '')} `
 }
+function stopPropagation(e: React.MouseEvent) {
+  e.stopPropagation()
+}
+
 interface Props {
   data: IrCall['fullVisualization']
   sizeMultiplierSize?: number
@@ -80,7 +84,11 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'address' && item.address) {
           return (
             <View key={key} style={{ marginRight }}>
-              <Address fontSize={textSize} address={item.address} explorerNetworkId={networkId} />
+              <HumanizerAddress
+                fontSize={textSize}
+                address={item.address}
+                explorerNetworkId={networkId}
+              />
             </View>
           )
         }
@@ -107,7 +115,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'image' && item.content) {
           return (
             <ManifestImage
-              key={item.content}
+              key={key}
               uri={item.content}
               containerStyle={spacings.mrSm}
               size={imageSize}
@@ -133,6 +141,20 @@ const HumanizedVisualization: FC<Props> = ({
                 marginRight: 0
               }}
             />
+          )
+        }
+        if (item.type === 'link') {
+          return (
+            <a
+              onClick={stopPropagation}
+              style={{ maxWidth: '100%', marginRight }}
+              key={key}
+              href={item.url!}
+            >
+              <Text fontSize={textSize} weight="semiBold" appearance="successText">
+                {item.content}
+              </Text>
+            </a>
           )
         }
         if (item.content) {

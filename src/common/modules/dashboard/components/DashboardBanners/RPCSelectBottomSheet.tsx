@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 
-import { Banner as BannerType } from '@ambire-common/interfaces/banner'
+import { Banner } from '@ambire-common/interfaces/banner'
 import BottomSheet from '@common/components/BottomSheet'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -14,13 +14,13 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { RpcSelectorItem } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/NetworkForm'
 
 interface Props {
-  isVisible: boolean
   sheetRef: any
   closeBottomSheet: () => void
-  actions: BannerType['actions']
+  onClosed: () => void
+  banner: Banner
 }
 
-const RPCSelectBottomSheet: FC<Props> = ({ isVisible, sheetRef, closeBottomSheet, actions }) => {
+const RPCSelectBottomSheet: FC<Props> = ({ sheetRef, banner, closeBottomSheet, onClosed }) => {
   const { t } = useTranslation()
   const { networks, statuses } = useNetworksControllerState()
   const { addToast } = useToast()
@@ -28,17 +28,15 @@ const RPCSelectBottomSheet: FC<Props> = ({ isVisible, sheetRef, closeBottomSheet
   const { dispatch } = useBackgroundService()
 
   const network = useMemo(() => {
-    if (!isVisible) return undefined
-
     return networks.find(
-      // @ts-ignore
-      (n) => n.id === actions.filter((a) => a.actionName === 'select-rpc-url')[0]?.meta?.network?.id
+      (n) =>
+        n.id ===
+        // @ts-ignore
+        banner.actions.filter((a) => a.actionName === 'select-rpc-url')[0]?.meta?.network?.id
     )
-  }, [actions, networks, isVisible])
+  }, [banner, networks])
 
   useEffect(() => {
-    if (!isVisible) return
-
     if (statuses.updateNetwork === 'SUCCESS') {
       addToast(
         t('Successfully switched the RPC URL for {{network}}', {
@@ -49,25 +47,35 @@ const RPCSelectBottomSheet: FC<Props> = ({ isVisible, sheetRef, closeBottomSheet
         closeBottomSheet()
       }, 250)
     }
-  }, [isVisible, addToast, closeBottomSheet, network?.name, statuses.updateNetwork, t])
+  }, [banner, addToast, closeBottomSheet, network?.name, statuses.updateNetwork, t])
 
   const handleSelectRpcUrl = useCallback(
     (url: string) => {
-      const id = network?.id
-      if (id) {
+      if (network) {
         dispatch({
-          type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
-          params: { network: { selectedRpcUrl: url }, networkId: id }
+          type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+          params: { rpcUrl: url, chainId: BigInt(network.chainId) }
         })
+        // dispatch on next tick
+        setTimeout(() => {
+          dispatch({
+            type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
+            params: { network: { selectedRpcUrl: url }, networkId: network.id }
+          })
+        }, 1)
       }
     },
-    [network?.id, dispatch]
+    [network, dispatch]
   )
 
-  if (!isVisible) return null
-
   return (
-    <BottomSheet id="select-rpc-url" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+    <BottomSheet
+      id="select-rpc-url"
+      sheetRef={sheetRef}
+      closeBottomSheet={closeBottomSheet}
+      autoOpen
+      onClosed={onClosed}
+    >
       <Text fontSize={20} weight="semiBold" numberOfLines={1} style={spacings.mbLg}>
         {t(`Select RPC URL for ${network?.name}`)}
       </Text>
@@ -92,4 +100,4 @@ const RPCSelectBottomSheet: FC<Props> = ({ isVisible, sheetRef, closeBottomSheet
   )
 }
 
-export default RPCSelectBottomSheet
+export default React.memo(RPCSelectBottomSheet)

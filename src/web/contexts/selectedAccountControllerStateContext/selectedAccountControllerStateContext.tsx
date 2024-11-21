@@ -1,6 +1,8 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
+import useConnectivity from '@common/hooks/useConnectivity'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -14,11 +16,30 @@ const SelectedAccountControllerStateProvider: React.FC<any> = ({ children }) => 
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
-
+  const { isOffline } = useConnectivity()
+  const accountsState = useAccountAdderControllerState()
   useEffect(() => {
     if (!Object.keys(state).length)
       dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller } })
   }, [dispatch, mainState.isReady, state])
+
+  useEffect(() => {
+    if (!state) return
+    if (!state.account || !state.portfolio.latest) return
+
+    if (
+      !isOffline &&
+      state.portfolio.latest.ethereum?.criticalError &&
+      state.portfolio.latest.polygon?.criticalError &&
+      state.portfolio.latest.optimism?.criticalError &&
+      state.portfolio.isAllReady &&
+      accountsState?.statuses?.updateAccountState === 'INITIAL'
+    ) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+      })
+    }
+  }, [state, accountsState?.statuses?.updateAccountState, dispatch, isOffline])
 
   return (
     <SelectedAccountControllerStateContext.Provider value={useMemo(() => state, [state])}>

@@ -20,9 +20,9 @@ import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
@@ -42,8 +42,7 @@ const TokenItem = ({
   tokenPreferences: CustomToken[]
   testID?: string
 }) => {
-  const { accountPortfolio, claimWalletRewards, claimEarlySupportersVesting } =
-    usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const {
     symbol,
     address,
@@ -51,6 +50,7 @@ const TokenItem = ({
     flags: { onGasTank }
   } = token
   const { t } = useTranslation()
+  const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const { account } = useSelectedAccountControllerState()
   const activityState = useActivityControllerState()
@@ -66,17 +66,17 @@ const TokenItem = ({
   })
   const tokenId = getTokenId(token)
 
-  const pendingLastKnownNonce = accountPortfolio.simulationNonces[token.networkId]
+  const pendingLastKnownNonce = portfolio.simulationNonces[token.networkId]
   const activityNonce = activityState?.lastKnownNonce[token.networkId]
   const tokenAmounts = useMemo(
     () =>
-      accountPortfolio.tokenAmounts.find(
+      portfolio.tokenAmounts.find(
         (tokenAmount) =>
           tokenAmount.address === token.address &&
           tokenAmount.networkId === token.networkId &&
           !token.flags.onGasTank
       ),
-    [accountPortfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
+    [portfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
   )
 
   const {
@@ -108,12 +108,18 @@ const TokenItem = ({
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
 
   const sendClaimTransaction = useCallback(() => {
-    claimWalletRewards(token)
-  }, [token, claimWalletRewards])
+    dispatch({
+      type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST',
+      params: { token }
+    })
+  }, [token, dispatch])
 
   const sendVestingTransaction = useCallback(() => {
-    claimEarlySupportersVesting(token)
-  }, [token, claimEarlySupportersVesting])
+    dispatch({
+      type: 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST',
+      params: { token }
+    })
+  }, [token, dispatch])
 
   return (
     <AnimatedPressable
