@@ -5,6 +5,7 @@ import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
+import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappCommunication'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
@@ -46,15 +47,7 @@ export class ProviderController {
   }
 
   _internalGetAccounts = (origin: string) => {
-    const WHITELISTED_ORIGINS = ['https://legends.ambire.com', 'https://legends-staging.ambire.com']
-
-    if (!isProd) {
-      // Legends local dev
-      WHITELISTED_ORIGINS.push('http://localhost:19006')
-      WHITELISTED_ORIGINS.push('http://localhost:19007')
-    }
-
-    if (WHITELISTED_ORIGINS.includes(origin)) {
+    if (ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS.includes(origin)) {
       const allOtherAccountAddresses = this.mainCtrl.accounts.accounts.reduce((prevValue, acc) => {
         if (acc.addr !== this.mainCtrl.selectedAccount.account?.addr) {
           prevValue.push(acc.addr)
