@@ -3,15 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { DappRequestAction } from '@ambire-common/interfaces/actions'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import DownArrowLongIcon from '@common/assets/svg/DownArrowLongIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings, { SPACING_LG, SPACING_MI, SPACING_SM } from '@common/styles/spacings'
+import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import ManifestImage from '@web/components/ManifestImage'
@@ -49,8 +49,8 @@ const SwitchAccountScreen = () => {
   const nextAccountData = useMemo(() => {
     if (!nextAccount) return null
 
-    return accounts.find((account) => account.addr === nextAccount) || null
-  }, [])
+    return accounts.find((acc) => acc.addr === nextAccount) || null
+  }, [accounts, nextAccount])
 
   const dAppData = useMemo(
     () =>
@@ -92,7 +92,7 @@ const SwitchAccountScreen = () => {
       type: 'MAIN_CONTROLLER_RESOLVE_SWITCH_ACCOUNT_REQUEST',
       params: { actionId: userRequest.id }
     })
-  }, [addToast, dAppAction, dispatch, t, userRequest?.meta.switchToAccountAddr])
+  }, [addToast, dAppAction, dispatch, nextAccount, t, userRequest?.id])
 
   const responsiveSizeMultiplier = useMemo(() => {
     if (minHeightSize('s')) return 0.75
@@ -128,88 +128,100 @@ const SwitchAccountScreen = () => {
         <AmbireLogoHorizontal
           style={{ marginBottom: SPACING_LG * responsiveSizeMultiplier, minHeight: 28 }}
         />
-        <View style={styles.content}>
-          <View
-            style={{
-              height: 60,
-              ...flexbox.center,
-              backgroundColor: theme.tertiaryBackground
-            }}
-          >
-            <Text fontSize={20} weight="medium">
-              {t('Switch Account Request')}
-            </Text>
-          </View>
-          <View
-            style={{
-              backgroundColor: theme.primaryBackground,
-              ...flexbox.alignCenter,
-              ...spacings.pv,
-              ...spacings.phLg,
-              ...spacings.pbLg
-            }}
-          >
+        {!isAuthorizing ? (
+          <View style={styles.content}>
             <View
-              style={[
-                flexbox.center,
-                {
-                  marginBottom: SPACING_SM * responsiveSizeMultiplier
-                }
-              ]}
+              style={{
+                height: 60,
+                ...flexbox.center,
+                backgroundColor: theme.tertiaryBackground
+              }}
             >
-              <ManifestImage
-                uri={dAppData.icon}
-                size={responsiveSizeMultiplier * 56}
-                containerStyle={{
-                  backgroundColor: theme.secondaryBackground
-                }}
-                iconScale={0.85}
-                imageStyle={{
-                  backgroundColor: theme.secondaryBackground
-                }}
-                fallback={() => (
-                  <ManifestFallbackIcon
-                    width={responsiveSizeMultiplier * 56}
-                    height={responsiveSizeMultiplier * 56}
-                  />
-                )}
-              />
-            </View>
-            <Text appearance="secondaryText" style={[spacings.mbSm, text.center]} fontSize={16}>
-              <Text appearance="primaryText" fontSize={16} weight="medium">
-                {dAppData.name}
-              </Text>{' '}
-              {t('requires a transaction signature from ')}
-              <Text appearance="primaryText" fontSize={16} weight="medium">
-                {nextAccountData?.preferences.label || nextAccountData?.addr || 'Unknown Account'}
+              <Text fontSize={20} weight="medium">
+                {t('Switch Account Request')}
               </Text>
-            </Text>
+            </View>
+            <View
+              style={{
+                backgroundColor: theme.primaryBackground,
+                ...flexbox.alignCenter,
+                ...spacings.pv,
+                ...spacings.phLg,
+                ...spacings.pbLg
+              }}
+            >
+              <View
+                style={[
+                  flexbox.center,
+                  {
+                    marginBottom: SPACING_SM * responsiveSizeMultiplier
+                  }
+                ]}
+              >
+                <ManifestImage
+                  uri={dAppData.icon}
+                  size={responsiveSizeMultiplier * 56}
+                  containerStyle={{
+                    backgroundColor: theme.secondaryBackground
+                  }}
+                  iconScale={0.85}
+                  imageStyle={{
+                    backgroundColor: theme.secondaryBackground
+                  }}
+                  fallback={() => (
+                    <ManifestFallbackIcon
+                      width={responsiveSizeMultiplier * 56}
+                      height={responsiveSizeMultiplier * 56}
+                    />
+                  )}
+                />
+              </View>
+              <Text appearance="secondaryText" style={[spacings.mbSm, text.center]} fontSize={16}>
+                <Text appearance="primaryText" fontSize={16} weight="medium">
+                  {dAppData.name}
+                </Text>{' '}
+                {t('requires a transaction signature from ')}
+                <Text appearance="primaryText" fontSize={16} weight="medium">
+                  {nextAccountData?.preferences.label || nextAccountData?.addr || 'Unknown Account'}
+                </Text>
+              </Text>
 
-            {account && <Account style={spacings.mbSm} {...account} />}
-            <DownArrowLongIcon
-              style={[spacings.mbSm]}
-              color={theme.secondaryText}
-              width={16}
-              height={16}
-            />
-            <Account
-              addr={nextAccountData?.addr || ''}
-              creation={nextAccountData?.creation || null}
-              preferences={
-                nextAccountData?.preferences || {
-                  pfp: '',
-                  label: ''
+              {account && <Account style={spacings.mbSm} {...account} />}
+              <DownArrowLongIcon
+                style={[spacings.mbSm]}
+                color={theme.secondaryText}
+                width={16}
+                height={16}
+              />
+              <Account
+                addr={nextAccountData?.addr || ''}
+                creation={nextAccountData?.creation || null}
+                preferences={
+                  nextAccountData?.preferences || {
+                    pfp: '',
+                    label: ''
+                  }
                 }
-              }
-              style={spacings.mbLg}
-            />
-            <Text style={text.center} appearance="secondaryText" fontSize={16}>
-              {t(
-                'Would you like to switch to this account now to continue with the signing process?'
-              )}
-            </Text>
+                style={spacings.mbLg}
+              />
+              <Text style={text.center} appearance="secondaryText" fontSize={16}>
+                {t(
+                  'Would you like to switch to this account now to continue with the signing process?'
+                )}
+              </Text>
+            </View>
           </View>
-        </View>
+        ) : (
+          <SkeletonLoader
+            style={{
+              ...styles.container,
+              paddingVertical: SPACING_LG * responsiveSizeMultiplier
+            }}
+            width={responsiveSizeMultiplier * 450}
+            height={responsiveSizeMultiplier * 450}
+            appearance="primaryBackground"
+          />
+        )}
       </View>
     </TabLayoutContainer>
   )
