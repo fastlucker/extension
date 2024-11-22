@@ -14,6 +14,8 @@ type Style = {
   rightPartInnerWrapper: ViewStyle
   buttonWrapper: ViewStyle
   overlay: ViewStyle
+  iconWrapper: ViewStyle
+  bulletWrapper: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -22,7 +24,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter,
       ...common.shadowSecondary,
-      maxHeight: 540
+      maxHeight: 600
     },
     content: {
       ...common.borderRadiusPrimary,
@@ -61,7 +63,27 @@ const getStyles = (theme: ThemeProps) =>
       alignItems: 'baseline',
       width: '100%'
     },
-    buttonWrapper: { ...flexbox.alignEnd, width: '100%' }
+    buttonWrapper: { ...flexbox.directionRow, ...flexbox.justifySpaceBetween, width: '100%' },
+    iconWrapper: {
+      ...flexbox.directionRow,
+      ...flexbox.justifyCenter,
+      ...flexbox.alignCenter,
+      height: 32,
+      width: 32,
+      borderRadius: 16,
+      backgroundColor: 'green'
+    },
+    bulletWrapper: {
+      maxWidth: 422,
+      ...spacings.pvSm,
+      ...spacings.phSm,
+      ...spacings.mtMd,
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...common.borderRadiusPrimary,
+      ...common.shadowPrimary,
+      backgroundColor: theme.primaryBackground
+    }
   })
 
 export default getStyles
