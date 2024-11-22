@@ -252,6 +252,15 @@ export class ProviderController {
       capabilities[toBeHex(network.chainId)] = {
         atomicBatch: {
           supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+        },
+        paymasterService: {
+          supported:
+            !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA &&
+            // enabled: obvious, it means we're operaring with 4337
+            // hasBundlerSupport means it might not be 4337 but we support it
+            // our default may be the relayer but we will broadcast an userOp
+            // in case of sponsorships
+            (network.erc4337.enabled || network.erc4337.hasBundlerSupport)
         }
       }
     })
