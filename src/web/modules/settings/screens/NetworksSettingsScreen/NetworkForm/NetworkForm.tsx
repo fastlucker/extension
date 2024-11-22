@@ -194,7 +194,7 @@ const NetworkForm = ({
   const [selectedRpcUrl, setSelectedRpcUrl] = useState(selectedNetwork?.selectedRpcUrl)
   const networkFormValues = watch()
 
-  const showEnableSaveButton = useMemo(() => {
+  const isSomethingUpdated = useMemo(() => {
     if (selectedRpcUrl !== selectedNetwork?.selectedRpcUrl) return true
     return getAreDefaultsChanged({ ...networkFormValues, rpcUrls }, selectedNetwork)
   }, [networkFormValues, rpcUrls, selectedNetwork, selectedRpcUrl])
@@ -287,6 +287,10 @@ const NetworkForm = ({
           (rpcUrl !== selectedNetwork?.selectedRpcUrl ||
             Number(chainId) !== Number(selectedNetwork?.chainId))
         ) {
+          if (!rpcUrl) {
+            addToast('Invalid RPC url', { type: 'error' })
+            return
+          }
           dispatch({
             type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
             params: { rpcUrl, chainId: BigInt(chainId) }
@@ -300,15 +304,18 @@ const NetworkForm = ({
       }
     },
     [
-      selectedNetwork,
-      rpcUrls,
       selectedRpcUrl,
-      selectedNetworkId,
-      networks,
-      setValue,
-      clearErrors,
+      rpcUrls,
+      dispatch,
       setError,
-      dispatch
+      networks,
+      selectedNetworkId,
+      selectedNetwork?.selectedRpcUrl,
+      selectedNetwork?.chainId,
+      selectedNetwork?.name,
+      clearErrors,
+      setValue,
+      addToast
     ]
   )
 
@@ -783,9 +790,9 @@ const NetworkForm = ({
 
                   <Button
                     onPress={handleSubmitButtonPress}
-                    text={t('Save')}
-                    disabled={!showEnableSaveButton || isSaveOrAddButtonDisabled}
-                    style={[spacings.mlMi, flexbox.flex1, { width: 160 }]}
+                    text={isSomethingUpdated ? t('Save') : t('No changes')}
+                    disabled={!isSomethingUpdated || isSaveOrAddButtonDisabled}
+                    style={[spacings.mlMi, flexbox.flex1, { width: 180 }]}
                     hasBottomSpacing={false}
                     size="large"
                   />
