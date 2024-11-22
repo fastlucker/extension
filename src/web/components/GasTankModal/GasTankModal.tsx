@@ -8,6 +8,8 @@ import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAcco
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
@@ -21,6 +23,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import { useCustomHover } from '@web/hooks/useHover'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -44,10 +47,18 @@ const calculateTokenBalance = (token: TokenResult, type: keyof TokenResult) => {
 
 const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { isPopup } = getUiType()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const [bindAnim, , isHovered] = useCustomHover({
+    property: 'borderColor',
+    values: {
+      from: 'transparent',
+      to: theme.primary
+    },
+    forceHoveredStyle: true
+  })
 
   const isSA = useMemo(() => isSmartAccount(account), [account])
 
@@ -75,37 +86,16 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   return (
     <BottomSheet
       id="gas-tank-modal"
-      type="modal"
+      type={isPopup ? 'bottom-sheet' : 'modal'}
       sheetRef={modalRef}
-      backgroundColor="primaryBackground"
+      backgroundColor="secondaryBackground"
       containerInnerWrapperStyles={styles.containerInnerWrapper}
       closeBottomSheet={handleClose}
+      style={{ maxWidth: 600 }}
     >
       <View style={styles.content}>
-        <ModalHeader handleClose={handleClose} withBackButton={isPopup} title="Gas Tank" />
+        <ModalHeader handleClose={handleClose} withBackButton={false} title="Gas Tank" />
         <View>
-          <View style={styles.descriptionTextWrapper}>
-            <Text fontSize={14}>
-              {t(
-                'The Ambire Gas Tank is your special account for paying gas and saving on gas fees. By filling up your Gas Tank, you are setting aside, or prepaying for network fees. You can add more tokens to your Gas Tank at any time.'
-              )}
-            </Text>
-            <Pressable
-              onPress={async () => {
-                try {
-                  await createTab(
-                    'https://help.ambire.com/hc/en-us/articles/5397969913884-What-is-the-Gas-Tank'
-                  )
-                } catch {
-                  addToast("Couldn't open link", { type: 'error' })
-                }
-              }}
-            >
-              <Text appearance="primary" fontSize={14} underline>
-                {t('Learn more >')}
-              </Text>
-            </Pressable>
-          </View>
           <View style={styles.balancesWrapper}>
             {!isSA && <View style={styles.overlay} />}
 
@@ -114,7 +104,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                 {t('Gas Tank Balance')}
               </Text>
               <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
-                <GasTankIcon width={32} />
+                <GasTankIcon height={40} width={40} />
                 <Text fontSize={32} weight="number_bold" appearance="primaryText">
                   {formatDecimals(gasTankTotalBalanceInUsd, 'price')}
                 </Text>
@@ -139,12 +129,41 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
               </View>
             </View>
           </View>
+          <View>
+            <Pressable
+              onPress={async () => {
+                try {
+                  await createTab(
+                    'https://help.ambire.com/hc/en-us/articles/5397969913884-What-is-the-Gas-Tank'
+                  )
+                } catch {
+                  addToast("Couldn't open link", { type: 'error' })
+                }
+              }}
+              style={[
+                styles.descriptionTextWrapper,
+                {
+                  borderColor: isHovered ? theme.primary : 'transparent'
+                }
+              ]}
+              {...bindAnim}
+            >
+              <View style={[flexbox.directionRow]}>
+                <InfoIcon width={20} />
+
+                <Text style={spacings.mlMd} weight="medium" fontSize={16}>
+                  {t('Learn more about Gas Tank')}
+                </Text>
+              </View>
+              <RightArrowIcon />
+            </Pressable>
+          </View>
         </View>
         {!isSA && (
           <Alert
             type="info"
             isTypeLabelHidden
-            style={spacings.mtXl}
+            style={spacings.mbMd}
             title={t('Info')}
             titleWeight="semiBold"
             text={t(
@@ -170,5 +189,5 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     </BottomSheet>
   )
 }
-
+// TODO: Add React.memo to all the new components
 export default GasTankModal

@@ -29,7 +29,7 @@ const CongratsFirstCashbackModal = ({ onPress, position }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
-
+  // TODO: remove hardcoded value for cashback
   const cashbackValue = 0.05
 
   return position ? (

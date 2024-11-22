@@ -13,29 +13,40 @@ type Style = {
   rightPartWrapper: ViewStyle
   rightPartInnerWrapper: ViewStyle
   buttonWrapper: ViewStyle
+  overlay: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     containerInnerWrapper: {
       ...flexbox.alignCenter,
-      ...flexbox.justifySpaceBetween,
-      height: 540
+      ...flexbox.justifyCenter,
+      ...common.shadowSecondary,
+      maxHeight: 540
     },
     content: {
       ...common.borderRadiusPrimary,
       width: '100%'
     },
     descriptionTextWrapper: {
-      ...spacings.pbMd
+      ...flexbox.directionRow,
+      ...flexbox.justifySpaceBetween,
+      ...flexbox.alignCenter,
+      backgroundColor: theme.primaryBackground,
+      borderWidth: 1,
+      ...common.borderRadiusPrimary,
+      ...spacings.pv,
+      ...spacings.ph,
+      ...spacings.mbXl
     },
     balancesWrapper: {
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
       ...spacings.pv,
       ...spacings.ph,
-      backgroundColor: theme.secondaryBackground,
-      ...common.borderRadiusPrimary
+      backgroundColor: theme.primaryBackground,
+      ...common.borderRadiusPrimary,
+      ...spacings.mbMd
     },
     overlay: {
       ...StyleSheet.absoluteFillObject,
@@ -43,7 +54,7 @@ const getStyles = (theme: ThemeProps) =>
       opacity: 0.5,
       zIndex: 1
     },
-    rightPartWrapper: { ...flexbox.alignEnd, width: 154 },
+    rightPartWrapper: { ...flexbox.justifyEnd, width: 154 },
     rightPartInnerWrapper: {
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
