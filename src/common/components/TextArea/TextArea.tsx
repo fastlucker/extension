@@ -27,7 +27,7 @@ export interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle | ViewStyle[]
   inputStyle?: ViewStyle | ViewStyle[]
   inputWrapperStyle?: ViewStyle | ViewStyle[]
-  infoTextStyle?: TextStyle | TextStyle[]
+  bottomLabelStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
 }
 
@@ -43,7 +43,7 @@ const TextArea = ({
   containerStyle,
   inputStyle,
   inputWrapperStyle,
-  infoTextStyle,
+  bottomLabelStyle,
   leftIcon,
   ...rest
 }: InputProps) => {
@@ -61,9 +61,9 @@ const TextArea = ({
 
   const borderWrapperStyles = [
     styles.borderWrapper,
-    !!error && { borderColor: theme.errorBackground },
     isFocused && { borderColor: theme.infoBackground },
-    isValid && { borderColor: theme.successBackground }
+    isValid && { borderColor: theme.successBackground },
+    !!error && { borderColor: theme.errorBackground }
   ]
 
   const inputWrapperStyles = [
@@ -72,9 +72,9 @@ const TextArea = ({
       backgroundColor: theme.secondaryBackground,
       borderColor: theme.secondaryBorder
     },
-    !!error && { borderColor: theme.errorDecorative },
     isFocused && { borderColor: theme.primary },
     isValid && { borderColor: theme.successDecorative },
+    !!error && { borderColor: theme.errorDecorative },
     disabled && styles.disabled,
     inputWrapperStyle
   ]
@@ -109,7 +109,7 @@ const TextArea = ({
       </View>
       {!!error && (
         <Text
-          style={styles.errorText}
+          style={[styles.bottomLabel, bottomLabelStyle]}
           weight={isWeb ? 'regular' : undefined}
           fontSize={10}
           appearance="errorText"
@@ -119,13 +119,18 @@ const TextArea = ({
       )}
 
       {!!isValid && !!validLabel && !error && (
-        <Text style={[styles.validText]} weight="regular" fontSize={12} color={colors.greenHaze}>
+        <Text
+          style={[styles.bottomLabel, bottomLabelStyle]}
+          weight="regular"
+          fontSize={12}
+          color={colors.greenHaze}
+        >
           {validLabel}
         </Text>
       )}
 
       {!!info && (
-        <Text weight="regular" style={[styles.infoText, infoTextStyle]} fontSize={12}>
+        <Text weight="regular" style={[styles.bottomLabel, bottomLabelStyle]} fontSize={12}>
           {info}
         </Text>
       )}

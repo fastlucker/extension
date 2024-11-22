@@ -9,7 +9,6 @@ import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
@@ -33,8 +32,7 @@ export default function useBanners(): BannerInterface[] {
   const { isOffline } = useConnectivity()
   // Debounce offline status to prevent banner flickering
   const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
-  const { account, defiPositionsBanners } = useSelectedAccountControllerState()
-  const { banners: portfolioBanners = [] } = usePortfolioControllerState()
+  const { account, defiPositionsBanners, portfolioBanners } = useSelectedAccountControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
@@ -45,13 +43,9 @@ export default function useBanners(): BannerInterface[] {
     return [
       ...state.banners,
       ...actionBanners,
-      ...swapAndBridgeBanners,
-      ...defiPositionsBanners,
-      // Don't display portfolio banners when offline
-      ...getCurrentAccountBanners(
-        debouncedIsOffline ? [OFFLINE_BANNER] : portfolioBanners,
-        account?.addr
-      ),
+      ...(debouncedIsOffline
+        ? [OFFLINE_BANNER]
+        : [...swapAndBridgeBanners, ...defiPositionsBanners, ...portfolioBanners]),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
       ...keystoreBanners
@@ -61,8 +55,8 @@ export default function useBanners(): BannerInterface[] {
     actionBanners,
     swapAndBridgeBanners,
     defiPositionsBanners,
-    debouncedIsOffline,
     portfolioBanners,
+    debouncedIsOffline,
     account,
     activityBanners,
     emailVaultBanners,

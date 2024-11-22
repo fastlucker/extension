@@ -48,7 +48,6 @@ import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/
 import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
 import ExportKeyScreen from '@web/modules/settings/screens/ExportKeyScreen'
 import GeneralSettingsScreen from '@web/modules/settings/screens/GeneralSettingsScreen'
-import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import SavedSeedScreen from '@web/modules/settings/screens/SavedSeedScreen'
 import SecurityAndPrivacyScreen from '@web/modules/settings/screens/SecurityAndPrivacyScreen'
@@ -175,7 +174,6 @@ const MainRoutes = () => {
                   <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
                   <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
                   <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
-                  <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
                 </Route>
               </Route>
             </Route>
