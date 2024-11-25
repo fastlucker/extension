@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { formatUnits, ZeroAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { View, ViewStyle } from 'react-native'
+import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
@@ -25,7 +25,6 @@ import TransactionSummary, {
   sizeMultiplier
 } from '@web/modules/sign-account-op/components/TransactionSummary/TransactionSummary'
 
-import { Link } from 'react-router-dom'
 import NetworkBadge from '@common/components/NetworkBadge'
 import getStyles from './styles'
 import SubmittedOn from './SubmittedOn'
@@ -113,7 +112,7 @@ const SubmittedTransactionSummary = ({
     addToast
   ])
 
-  const handleOpenExplorer = useCallback(async () => {
+  const handleOpenBenzina = useCallback(async () => {
     const chainId = Number(network.chainId)
 
     if (!chainId || !submittedAccountOp.txnId) throw new Error('Invalid chainId or txnId')
@@ -130,6 +129,14 @@ const SubmittedTransactionSummary = ({
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
   }, [network.chainId, submittedAccountOp.txnId, submittedAccountOp.identifiedBy, addToast])
+
+  const handleOpenBlockExplorer = useCallback(async () => {
+    try {
+      await createTab(`${network.explorerUrl}/tx/${submittedAccountOp.txnId}`)
+    } catch (e: any) {
+      addToast(e?.message || 'Error opening block explorer', { type: 'error' })
+    }
+  }, [network.explorerUrl, submittedAccountOp.txnId, addToast])
 
   return calls.length ? (
     <View
@@ -156,7 +163,7 @@ const SubmittedTransactionSummary = ({
               <OpenIcon />
             ) : null
           }
-          onRightIconPress={handleOpenExplorer}
+          onRightIconPress={handleOpenBenzina}
           isHistory
           enableExpand={enableExpand}
           size={size}
@@ -208,11 +215,11 @@ const SubmittedTransactionSummary = ({
               <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
                 {t('Block Explorer')}:{' '}
               </Text>
-              <Link to={`${network.explorerUrl}/tx/${submittedAccountOp.txnId}`}>
+              <TouchableOpacity onPress={handleOpenBlockExplorer}>
                 <Text fontSize={textSize} appearance="secondaryText" selectable underline>
                   {new URL(network.explorerUrl).hostname}
                 </Text>
-              </Link>
+              </TouchableOpacity>
             </View>
           </View>
         )}
