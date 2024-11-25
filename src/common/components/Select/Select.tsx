@@ -7,7 +7,15 @@ import SelectContainer from './components/SelectContainer'
 import { SelectProps, SelectValue } from './types'
 import useSelectInternal from './useSelectInternal'
 
-const Select = ({ setValue, value, options, testID, menuOptionHeight, ...props }: SelectProps) => {
+const Select = ({
+  setValue,
+  value,
+  options,
+  testID,
+  menuOptionHeight,
+  attemptToFetchMoreOptions,
+  ...props
+}: SelectProps) => {
   const selectData = useSelectInternal({ menuOptionHeight, setValue, value })
   const { renderItem, keyExtractor, getItemLayout, search } = selectData
 
@@ -42,8 +50,12 @@ const Select = ({ setValue, value, options, testID, menuOptionHeight, ...props }
       { exactMatches: [] as SelectValue[], partialMatches: [] as SelectValue[] }
     )
 
-    return [...exactMatches, ...partialMatches]
-  }, [options, search])
+    const result = [...exactMatches, ...partialMatches]
+    const shouldAttemptToFetchMoreOptions = !result.length && attemptToFetchMoreOptions
+    if (shouldAttemptToFetchMoreOptions) attemptToFetchMoreOptions(search)
+
+    return result
+  }, [options, search, attemptToFetchMoreOptions])
 
   return (
     <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
