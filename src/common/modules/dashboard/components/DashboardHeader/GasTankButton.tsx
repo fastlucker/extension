@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
@@ -112,4 +112,4 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
   )
 }
 
-export default GasTankButton
+export default React.memo(GasTankButton)

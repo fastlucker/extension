@@ -1,3 +1,4 @@
+import React from 'react'
 import { Image, Pressable, View } from 'react-native'
 
 import image from '@common/assets/images/cashEarned.png'
@@ -125,4 +126,4 @@ const CongratsFirstCashbackModal = ({ onPress, position }: Props) => {
   ) : null
 }
 
-export default CongratsFirstCashbackModal
+export default React.memo(CongratsFirstCashbackModal)

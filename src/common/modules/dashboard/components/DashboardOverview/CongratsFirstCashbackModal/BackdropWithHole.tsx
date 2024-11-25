@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dimensions, StyleSheet, View } from 'react-native'
+import { ColorValue, Dimensions, StyleSheet, View } from 'react-native'
 import Svg, { Defs, G, Mask, Path, Rect } from 'react-native-svg'
 
 const BackdropWithHole = ({
@@ -16,8 +16,8 @@ const BackdropWithHole = ({
   y: number
   width: number
   height: number
-  bgColor: string
-  borderColor: string
+  bgColor: ColorValue
+  borderColor: ColorValue
   borderWidth: number
   borderRadius: number
 }) => {
@@ -70,4 +70,4 @@ const BackdropWithHole = ({
   )
 }
 
-export default BackdropWithHole
+export default React.memo(BackdropWithHole)
