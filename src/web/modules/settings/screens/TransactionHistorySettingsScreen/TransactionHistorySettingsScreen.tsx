@@ -23,7 +23,7 @@ const AccountOpHistory: FC<{ network?: Network; account: Account; sessionId: str
 }) => {
   const activityState = useActivityControllerState()
 
-  if (!activityState?.accountsOps?.[sessionId]?.result.items?.length) {
+  if (!activityState?.accountsOps?.[sessionId]?.result.items.length) {
     return (
       <View
         style={[StyleSheet.absoluteFill, flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}
