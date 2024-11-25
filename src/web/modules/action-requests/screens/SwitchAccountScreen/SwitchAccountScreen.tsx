@@ -46,11 +46,19 @@ const SwitchAccountScreen = () => {
   }, [dAppAction])
 
   const nextAccount = userRequest?.meta.switchToAccountAddr
+  const nextRequestType = userRequest?.meta.nextRequestType
   const nextAccountData = useMemo(() => {
     if (!nextAccount) return null
 
     return accounts.find((acc) => acc.addr === nextAccount) || null
   }, [accounts, nextAccount])
+  const nextRequestLabel = useMemo(() => {
+    if (nextRequestType === 'calls') return 'transaction signature'
+    if (nextRequestType === 'message') return 'message signature'
+
+    return 'unknown request'
+  }, [nextRequestType])
+  console.log({ nextRequestLabel, nextRequestType })
 
   const dAppData = useMemo(
     () =>
@@ -190,7 +198,7 @@ const SwitchAccountScreen = () => {
                 <Text appearance="primaryText" fontSize={16} weight="medium">
                   {dAppData.name}
                 </Text>{' '}
-                {t('requires a transaction signature from ')}
+                {t(`requires a ${nextRequestLabel} from `)}
                 <Text appearance="primaryText" fontSize={16} weight="medium">
                   {nextAccountData?.preferences.label || nextAccountData?.addr || 'Unknown Account'}
                 </Text>
