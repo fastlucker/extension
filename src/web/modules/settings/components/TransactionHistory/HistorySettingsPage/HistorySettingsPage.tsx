@@ -38,11 +38,13 @@ interface Props {
     page?: number
     network?: Network
     account: Account
+    sessionId: string
   }>
   historyType: 'transactions' | 'messages'
+  sessionId: string
 }
 
-const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
+const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, sessionId }) => {
   const { networks } = useNetworksControllerState()
   const activityState = useActivityControllerState()
   const { accounts } = useAccountsControllerState()
@@ -59,8 +61,8 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
 
   const itemsTotal =
     (historyType === 'messages'
-      ? activityState.signedMessages?.itemsTotal
-      : activityState.accountsOps?.itemsTotal) || 0
+      ? activityState.signedMessages?.[sessionId]?.result.itemsTotal
+      : activityState.accountsOps?.[sessionId]?.result.itemsTotal) || 0
 
   const [account, setAccount] = useState<Account>(
     accounts.filter((acc) => acc.addr === accountData?.addr)[0]
@@ -85,81 +87,60 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
     [networks]
   )
 
-  const isLoading = useMemo(
-    () =>
-      !activityState?.isInitialized ||
-      // Prevents the flashing of old history state
-      (activityState.filters?.account && account.addr !== activityState.filters.account) ||
-      (activityState.filters?.network && network.id !== activityState.filters.network) ||
-      // Transactions history must always have a network filter. If it doesn't, it means it's still loading
-      (historyType === 'transactions' && !activityState.filters?.network),
-    [
-      account.addr,
-      activityState?.filters?.account,
-      activityState?.filters?.network,
-      activityState?.isInitialized,
-      historyType,
-      network.id
-    ]
-  )
+  const isLoading = useMemo(() => {
+    if (!activityState?.isInitialized) return true
 
-  useEffect(() => {
-    if (
-      !account ||
-      !activityState.isInitialized ||
-      (activityState?.filters?.account === account.addr &&
-        activityState?.filters?.network === network.id)
+    if (historyType === 'messages') {
+      return account.addr !== activityState.signedMessages[sessionId]?.filters.account
+    }
+
+    // Loading check for history type = 'transactions'
+    return (
+      account.addr !== activityState.accountsOps[sessionId]?.filters.account ||
+      network.id !== activityState.accountsOps[sessionId]?.filters.network
     )
-      return
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS',
-      params: {
-        filters: {
-          account: account.addr,
-          network: network.id
-        }
-      }
-    })
   }, [
-    dispatch,
-    account,
-    network,
-    activityState.isInitialized,
-    activityState?.filters?.account,
-    activityState?.filters?.network
+    account.addr,
+    activityState.signedMessages?.[sessionId],
+    activityState.accountsOps?.[sessionId],
+    activityState?.isInitialized,
+    historyType,
+    network.id
   ])
 
   useEffect(() => {
-    if (activityState.isInitialized || !account) return
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-      params: {
-        filters: {
-          account: account.addr,
-          network: network.id
-        }
-      }
-    })
-  }, [dispatch, account, network, activityState.isInitialized, accountData])
-
-  useEffect(() => {
-    if (!activityState.isInitialized) return
+    if (!account || !activityState.isInitialized) return
 
     dispatch({
       type:
         historyType === 'transactions'
-          ? 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION'
-          : 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION',
+          ? 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS'
+          : 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_FILTERS',
       params: {
+        sessionId,
+        filters: {
+          account: account.addr,
+          network: network.id
+        },
         pagination: {
           itemsPerPage: ITEMS_PER_PAGE,
           fromPage: page - 1
         }
       }
     })
-  }, [page, historyType, activityState.isInitialized, dispatch])
+  }, [dispatch, account, network, page, activityState.isInitialized, sessionId, historyType])
+
+  useEffect(() => {
+    return () => {
+      dispatch({
+        type:
+          historyType === 'transactions'
+            ? 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS'
+            : 'MAIN_CONTROLLER_ACTIVITY_RESET_SIGNED_MESSAGES_FILTERS',
+        params: { sessionId }
+      })
+    }
+  }, [dispatch, historyType, sessionId])
 
   const handleSetAccountValue = useCallback(
     (accountOption: SelectValue) => {
@@ -203,27 +184,34 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       </View>
       {!isLoading ? (
         <>
-          {historyType === 'messages' && !!activityState?.signedMessages?.items?.length && (
-            <View style={[flexbox.directionRow, spacings.phSm, spacings.mbTy]}>
-              <View style={flexbox.flex1}>
-                <Text fontSize={14}>{t('Dapps')}</Text>
+          {historyType === 'messages' &&
+            !!activityState?.signedMessages?.[sessionId]?.result.items?.length && (
+              <View style={[flexbox.directionRow, spacings.phSm, spacings.mbTy]}>
+                <View style={flexbox.flex1}>
+                  <Text fontSize={14}>{t('Dapps')}</Text>
+                </View>
+                <View style={flexbox.flex1}>
+                  <Text fontSize={14}>{t('Submitted on')}</Text>
+                </View>
+                <View style={flexbox.flex1}>
+                  <Text fontSize={14}>{t('Sign type')}</Text>
+                </View>
+                <View style={{ width: 15, height: 1 }} />
               </View>
-              <View style={flexbox.flex1}>
-                <Text fontSize={14}>{t('Submitted on')}</Text>
-              </View>
-              <View style={flexbox.flex1}>
-                <Text fontSize={14}>{t('Sign type')}</Text>
-              </View>
-              <View style={{ width: 15, height: 1 }} />
-            </View>
-          )}
+            )}
           <ScrollableWrapper
             style={[spacings.mbXl, flexbox.flex1]}
-            {...(historyType === 'messages' && !!activityState.signedMessages?.items.length
+            {...(historyType === 'messages' &&
+            !!activityState.signedMessages?.[sessionId]?.result.items.length
               ? { stickyHeaderIndices: [0] }
               : {})}
           >
-            <HistoryComponent page={page} account={account} network={network} />
+            <HistoryComponent
+              page={page}
+              account={account}
+              network={network}
+              sessionId={sessionId}
+            />
           </ScrollableWrapper>
         </>
       ) : (

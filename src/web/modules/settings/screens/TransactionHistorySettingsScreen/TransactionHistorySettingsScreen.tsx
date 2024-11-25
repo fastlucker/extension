@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { Trans } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 
@@ -12,13 +12,18 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 
+import { nanoid } from 'nanoid'
 import HistorySettingsPage from '../../components/TransactionHistory/HistorySettingsPage'
 import SubmittedTransactionSummary from '../../components/TransactionHistory/SubmittedTransactionSummary'
 
-const AccountOpHistory: FC<{ network?: Network; account: Account }> = ({ network, account }) => {
+const AccountOpHistory: FC<{ network?: Network; account: Account; sessionId: string }> = ({
+  network,
+  account,
+  sessionId
+}) => {
   const activityState = useActivityControllerState()
 
-  if (!activityState?.accountsOps?.items?.length) {
+  if (!activityState?.accountsOps?.[sessionId]?.result.items?.length) {
     return (
       <View
         style={[StyleSheet.absoluteFill, flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}
@@ -41,19 +46,33 @@ const AccountOpHistory: FC<{ network?: Network; account: Account }> = ({ network
 
   return (
     <>
-      {(activityState?.accountsOps?.items || []).map((item: SubmittedAccountOp, i) => (
-        <SubmittedTransactionSummary
-          key={item.txnId}
-          submittedAccountOp={item}
-          style={i !== activityState.accountsOps!.items.length - 1 ? spacings.mbLg : {}}
-        />
-      ))}
+      {(activityState.accountsOps[sessionId].result.items || []).map(
+        (item: SubmittedAccountOp, i) => (
+          <SubmittedTransactionSummary
+            key={item.txnId}
+            submittedAccountOp={item}
+            style={
+              i !== activityState.accountsOps[sessionId].result.items.length - 1
+                ? spacings.mbLg
+                : {}
+            }
+          />
+        )
+      )}
     </>
   )
 }
 
 const TransactionHistorySettingsScreen = () => {
-  return <HistorySettingsPage historyType="transactions" HistoryComponent={AccountOpHistory} />
+  const [sessionId] = useState(nanoid())
+
+  return (
+    <HistorySettingsPage
+      historyType="transactions"
+      HistoryComponent={AccountOpHistory}
+      sessionId={sessionId}
+    />
+  )
 }
 
 export default TransactionHistorySettingsScreen
