@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 
@@ -18,6 +18,9 @@ import SubmittedTransactionSummary from '@web/modules/settings/components/Transa
 import spacings from '@common/styles/spacings'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { networks } from '@ambire-common/consts/networks'
+import Button from '@common/components/Button'
+import flexbox from '@common/styles/utils/flexbox'
+import { nanoid } from 'nanoid'
 import ActivityPositionsSkeleton from './ActivityPositionsSkeleton'
 import styles from './styles'
 
@@ -31,6 +34,8 @@ interface Props {
 
 const { isPopup } = getUiType()
 
+const ITEMS_PER_PAGE = 10
+
 const ActivityPositions: FC<Props> = ({
   openTab,
   setOpenTab,
@@ -38,7 +43,7 @@ const ActivityPositions: FC<Props> = ({
   onScroll,
   filterByNetworkId
 }) => {
-  // const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
+  const [sessionId] = useState(nanoid())
   const { t } = useTranslation()
   const { theme } = useTheme()
 
@@ -48,16 +53,30 @@ const ActivityPositions: FC<Props> = ({
 
   useEffect(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
+      type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
       params: {
+        sessionId,
         filters: {
-          account: account!.addr
+          account: account!.addr,
+          ...(filterByNetworkId && { network: filterByNetworkId })
+        },
+        pagination: {
+          itemsPerPage: ITEMS_PER_PAGE,
+          fromPage: 0
         }
       }
     })
-  }, [openTab])
+  }, [openTab, account, dispatch, filterByNetworkId, sessionId])
 
-  // @TODO - to be discussed. It's always rendered, no matter on which `openTab` we are.
+  useEffect(() => {
+    return () => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS',
+        params: { sessionId }
+      })
+    }
+  }, [dispatch, sessionId])
+
   const renderItem = useCallback(
     ({ item }: any) => {
       if (item === 'header') {
@@ -86,11 +105,47 @@ const ActivityPositions: FC<Props> = ({
         )
       }
 
-      if (item === 'skeleton') {
-        return <ActivityPositionsSkeleton amount={4} />
+      if (item === 'load-more') {
+        if (!accountsOps[sessionId]) return null
+
+        const { result } = accountsOps[sessionId]
+        const hasMoreTxnToLoad = result.currentPage + 1 < result.maxPages
+
+        if (!hasMoreTxnToLoad) return null
+
+        return (
+          <View>
+            <Button
+              type="secondary"
+              size="small"
+              style={[flexbox.alignSelfCenter, spacings.mbSm]}
+              onPress={() => {
+                dispatch({
+                  type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
+                  params: {
+                    sessionId,
+                    filters: {
+                      account: account!.addr,
+                      ...(filterByNetworkId && { network: filterByNetworkId })
+                    },
+                    pagination: {
+                      itemsPerPage: accountsOps[sessionId].pagination.itemsPerPage + ITEMS_PER_PAGE,
+                      fromPage: 0
+                    }
+                  }
+                })
+              }}
+              text={t('Show more')}
+            />
+          </View>
+        )
       }
 
       if (!initTab?.activity || !item || item === 'keep-this-to-avoid-key-warning') return null
+
+      if (item === 'skeleton') {
+        return <ActivityPositionsSkeleton amount={4} />
+      }
 
       return (
         <SubmittedTransactionSummary
@@ -106,7 +161,18 @@ const ActivityPositions: FC<Props> = ({
         />
       )
     },
-    [filterByNetworkId, initTab?.activity, openTab, setOpenTab, t, theme]
+    [
+      filterByNetworkId,
+      initTab?.activity,
+      openTab,
+      setOpenTab,
+      t,
+      theme,
+      dispatch,
+      account,
+      accountsOps,
+      sessionId
+    ]
   )
 
   const keyExtractor = useCallback((positionOrElement: any) => {
@@ -123,8 +189,11 @@ const ActivityPositions: FC<Props> = ({
       data={[
         'header',
         !accountsOps ? 'skeleton' : 'keep-this-to-avoid-key-warning',
-        ...(initTab?.activity && accountsOps?.items.length ? accountsOps.items : []),
-        !accountsOps?.items.length ? 'empty' : ''
+        ...(initTab?.activity && accountsOps?.[sessionId]?.result.items.length
+          ? accountsOps[sessionId].result.items
+          : []),
+        accountsOps?.[sessionId] && !accountsOps[sessionId].result.items.length ? 'empty' : '',
+        'load-more'
       ]}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
