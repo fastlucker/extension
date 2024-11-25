@@ -10,7 +10,7 @@ import { SubmittedAccountOp } from '@ambire-common/libs/accountOp/submittedAccou
 import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
-import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
