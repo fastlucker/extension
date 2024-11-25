@@ -45,8 +45,8 @@ const SwitchAccountScreen = () => {
     return dAppAction.userRequest
   }, [dAppAction])
 
-  const nextAccount = userRequest?.meta.switchToAccountAddr
-  const nextRequestType = userRequest?.meta.nextRequestType
+  const nextAccount = userRequest?.action.params?.switchToAccountAddr
+  const nextRequestType = userRequest?.action.params?.nextRequestType
   const nextAccountData = useMemo(() => {
     if (!nextAccount) return null
 
@@ -211,17 +211,23 @@ const SwitchAccountScreen = () => {
                 width={16}
                 height={16}
               />
-              <Account
-                addr={nextAccountData?.addr || ''}
-                creation={nextAccountData?.creation || null}
-                preferences={
-                  nextAccountData?.preferences || {
-                    pfp: '',
-                    label: ''
+              {nextAccountData ? (
+                <Account
+                  addr={nextAccountData?.addr || ''}
+                  creation={nextAccountData?.creation || null}
+                  preferences={
+                    nextAccountData?.preferences || {
+                      pfp: '',
+                      label: ''
+                    }
                   }
-                }
-                style={spacings.mbLg}
-              />
+                  style={spacings.mbLg}
+                />
+              ) : (
+                <Text appearance="errorText" style={spacings.mbLg} fontSize={16}>
+                  {t('Invalid account data')}
+                </Text>
+              )}
               <Text style={text.center} appearance="secondaryText" fontSize={16}>
                 {t(
                   'Would you like to switch to this account now to continue with the signing process?'
