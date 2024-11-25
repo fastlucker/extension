@@ -15,6 +15,7 @@ type Props = {
   slowRequest: boolean
   slowPaymasterRequest: boolean
   isViewOnly: boolean
+  isSponsored: boolean
 }
 
 export type { FeeOption, Props }

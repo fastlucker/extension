@@ -434,6 +434,7 @@ const SignAccountOpScreen = () => {
               slowRequest={slowRequest}
               slowPaymasterRequest={slowPaymasterRequest}
               isViewOnly={isViewOnly}
+              isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
             />
 
             {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
