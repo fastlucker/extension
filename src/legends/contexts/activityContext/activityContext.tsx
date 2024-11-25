@@ -1,12 +1,12 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useMemo } from 'react'
 
-import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useActivity from '@legends/hooks/useActivity'
 
-import { Activity } from './types'
+import { ActivityResponse } from './types'
 
 type ActivityContextType = {
-  activity: Activity[] | null
+  activity: ActivityResponse | null
   isLoading: boolean
   error: string | null
   getActivity: () => Promise<void>
@@ -15,33 +15,10 @@ type ActivityContextType = {
 const ActivityContext = createContext<ActivityContextType>({} as ActivityContextType)
 const ActivityContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
-  const [activity, setActivity] = useState<Activity[] | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const getActivity = useCallback(async () => {
-    try {
-      const activityResponse = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
-
-      const response = await activityResponse.json()
-
-      setActivity(response)
-      setError(null)
-    } catch (e) {
-      setActivity(null)
-
-      console.error(e)
-      throw e
-    } finally {
-      setIsLoading(false)
-    }
-  }, [connectedAccount])
-
-  useEffect(() => {
-    getActivity().catch(() =>
-      setError("Couldn't fetch Character's activity! Please try again later!")
-    )
-  }, [getActivity])
+  const { activity, isLoading, error, getActivity } = useActivity({
+    page: 0,
+    accountAddress: connectedAccount
+  })
 
   const contextValue = useMemo(
     () => ({

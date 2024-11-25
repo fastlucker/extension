@@ -37,8 +37,8 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   )
 
   const wheelSpinOfTheDay = useMemo(
-    () => isWheelSpinTodayDone({ legends, activity }),
-    [legends, activity]
+    () => isWheelSpinTodayDone({ legends, activity: activity?.transactions || [] }),
+    [legends, activity?.transactions]
   )
 
   const getLegends = useCallback(async () => {

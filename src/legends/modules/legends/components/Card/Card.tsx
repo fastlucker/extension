@@ -68,7 +68,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
   }
 
   const hoursUntilMidnight = useMemo(
-    () => (activity ? calculateHoursUntilMidnight(activity) : 0),
+    () => (activity?.transactions ? calculateHoursUntilMidnight(activity.transactions) : 0),
     [activity]
   )
 

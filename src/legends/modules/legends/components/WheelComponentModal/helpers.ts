@@ -1,12 +1,12 @@
-import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
+import { ActivityTransaction, LegendActivity } from '@legends/contexts/activityContext/types'
 import { CardFromResponse, CardType } from '@legends/modules/legends/types'
 
 interface WheelSpinOfTheDayParams {
   legends: CardFromResponse[] | null
-  activity: Activity[] | null
+  activity: ActivityTransaction[] | null
 }
 
-export const calculateHoursUntilMidnight = (activity: Activity[]) => {
+export const calculateHoursUntilMidnight = (activity: ActivityTransaction[]) => {
   const submittedAt = activity && activity[0] && activity[0].submittedAt
 
   const submittedAtOffset = submittedAt
@@ -28,7 +28,7 @@ export const isWheelSpinTodayDone = ({ legends, activity }: WheelSpinOfTheDayPar
       return card.action.predefinedId === 'wheelOfFortune' && card.card.type === CardType.done
     }) ||
     (activity && activity.length
-      ? (activity.find((txn: Activity) => {
+      ? (activity.find((txn: ActivityTransaction) => {
           return (
             txn.legends.activities.find((acc: LegendActivity) =>
               acc.action.startsWith('WheelOfFortune')

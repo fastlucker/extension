@@ -35,7 +35,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { activity } = useActivityContext()
 
   const hoursUntilMidnight = useMemo(
-    () => (activity ? calculateHoursUntilMidnight(activity) : 0),
+    () => (activity?.transactions ? calculateHoursUntilMidnight(activity.transactions) : 0),
     [activity]
   )
 
