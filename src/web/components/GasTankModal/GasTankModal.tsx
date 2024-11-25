@@ -1,8 +1,8 @@
 import { formatUnits } from 'ethers'
 import { LinearGradient } from 'expo-linear-gradient'
-import React, { ReactNode, useCallback, useMemo } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Animated, Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
@@ -110,6 +110,40 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const cashbackInUsd = useMemo(() => calculateBalance('cashback'), [calculateBalance])
   const gasTankTotalBalanceInUsd = useMemo(() => calculateBalance('usd'), [calculateBalance])
 
+  const [visibleCount, setVisibleCount] = useState(0)
+  const [animations, setAnimations] = useState<Animated.Value[]>([])
+
+  useEffect(() => {
+    // Initialize animations for each bullet
+    setAnimations(BULLETS_CONTENT.map(() => new Animated.Value(-200))) // Start off-screen to the left
+  }, [])
+
+  const handleOpen = useCallback(() => {
+    setVisibleCount(0) // Reset visible count
+    // Set 500ms of delay to make sure that modal animation is finished
+    setTimeout(() => {
+      BULLETS_CONTENT.forEach((_, index) => {
+        setTimeout(() => {
+          Animated.timing(animations[index], {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true
+          }).start()
+          setVisibleCount((prev) => prev + 1)
+        }, 500 * index)
+      })
+    }, 500)
+  }, [animations])
+
+  const handleOnClose = useCallback(() => {
+    // Reset animations
+    // Set 500ms of delay to make sure that modal animation is finished
+    setTimeout(() => {
+      setAnimations(BULLETS_CONTENT.map(() => new Animated.Value(-200)))
+    }, 500)
+    handleClose()
+  }, [handleClose])
+
   return (
     <BottomSheet
       id="gas-tank-modal"
@@ -117,12 +151,12 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       sheetRef={modalRef}
       backgroundColor="secondaryBackground"
       containerInnerWrapperStyles={styles.containerInnerWrapper}
-      closeBottomSheet={handleClose}
+      closeBottomSheet={handleOnClose}
       style={{ maxWidth: 600 }}
+      onOpen={handleOpen}
     >
       {isSA ? (
         <View style={styles.content}>
-          {/* <ModalHeader handleClose={handleClose} withBackButton={false} title="Gas Tank" /> */}
           <Text fontSize={20} weight="medium">
             Gas Tank
           </Text>
@@ -200,27 +234,39 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
               {t('Experience the benefits of the gas tank:')}
             </Text>
           </View>
-          <View style={[flexbox.justifyCenter, flexbox.alignCenter]}>
-            {BULLETS_CONTENT.map((bullet, index) => (
-              <LinearGradient
-                key={index}
-                colors={[theme.tertiaryBackground as string, theme.primaryBackground as string]}
-                style={styles.bulletWrapper}
-                start={{ x: 0.15, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <View style={[styles.iconWrapper, { backgroundColor: bullet.iconBgColor }]}>
-                  {bullet.icon}
-                </View>
-                <Text
-                  appearance="secondaryText"
-                  weight="medium"
-                  style={[spacings.mlSm, { lineHeight: 24 }]}
-                >
-                  {t(bullet.text)}
-                </Text>
-              </LinearGradient>
-            ))}
+          <View style={[flexbox.justifyStart, flexbox.alignCenter, { height: 276 }]}>
+            {BULLETS_CONTENT.map(
+              (bullet, index) =>
+                index < visibleCount && (
+                  <Animated.View
+                    key={bullet.iconBgColor}
+                    style={{
+                      transform: [{ translateX: animations[index] }]
+                    }}
+                  >
+                    <LinearGradient
+                      colors={[
+                        theme.tertiaryBackground as string,
+                        theme.primaryBackground as string
+                      ]}
+                      style={styles.bulletWrapper}
+                      start={{ x: 0.15, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                    >
+                      <View style={[styles.iconWrapper, { backgroundColor: bullet.iconBgColor }]}>
+                        {bullet.icon}
+                      </View>
+                      <Text
+                        appearance="secondaryText"
+                        weight="medium"
+                        style={[spacings.mlSm, { lineHeight: 24 }]}
+                      >
+                        {t(bullet.text)}
+                      </Text>
+                    </LinearGradient>
+                  </Animated.View>
+                )
+            )}
           </View>
           <View style={[flexbox.directionRow, flexbox.center, common.fullWidth, spacings.pvMd]}>
             <Text fontSize={16} weight="semiBold" appearance="secondaryText">
