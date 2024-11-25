@@ -56,6 +56,7 @@ const SwapAndBridgeScreen = () => {
     handleSetToNetworkValue,
     toTokenOptions,
     toTokenValue,
+    handleAddToTokenByAddress,
     handleChangeToToken,
     handleSwitchFromAmountFieldMode,
     handleSetMaxFromAmount,
@@ -288,6 +289,7 @@ const SwapAndBridgeScreen = () => {
                     value={toTokenValue}
                     testID="to-token-select"
                     searchPlaceholder={t('Token name or address...')}
+                    attemptToFetchMoreOptions={handleAddToTokenByAddress}
                     containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
