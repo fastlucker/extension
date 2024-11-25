@@ -81,7 +81,6 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           ...flexbox.center,
           ...spacings.phTy,
           ...common.borderRadiusPrimary,
-          ...common.shadowPrimary,
           ...removeTankBtnStyle,
           ...(gasTankTotalBalanceInUsd === 0 && { borderWidth: 1, borderColor: theme.primaryLight })
         }}

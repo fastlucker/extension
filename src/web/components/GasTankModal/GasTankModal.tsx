@@ -8,12 +8,13 @@ import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import DepositIcon from '@common/assets/svg/DepositIcon'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
-import ReceiveIcon from '@common/assets/svg/ReceiveIcon'
+import ReceivingIcon from '@common/assets/svg/ReceivingIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import SavingsIcon from '@common/assets/svg/SavingsIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
+import TupUpWithBgIcon from '@common/assets/svg/TupUpWithBgIcon'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -39,8 +40,8 @@ type Props = {
 }
 
 type BulletContent = {
+  key: string
   icon: ReactNode
-  iconBgColor: string
   text: string
 }
 
@@ -53,24 +54,6 @@ const calculateTokenBalance = (token: TokenResult, type: keyof TokenResult) => {
 
   return balance * price
 }
-
-const BULLETS_CONTENT: BulletContent[] = [
-  {
-    icon: <TopUpIcon width={20} height={20} color="white" />,
-    iconBgColor: 'blue',
-    text: 'Top up on any chain and use gas tank to pay network fees on any other.'
-  },
-  {
-    icon: <ReceiveIcon width={20} height={20} color="white" />,
-    iconBgColor: 'purple',
-    text: 'Receive cashback from your transactions in your Gas tank.'
-  },
-  {
-    icon: <DepositIcon width={20} height={20} color="white" />,
-    iconBgColor: 'green',
-    text: 'Save on network fees by prepaying with Gas tank..'
-  }
-]
 
 const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { isPopup } = getUiType()
@@ -113,36 +96,59 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const [visibleCount, setVisibleCount] = useState(0)
   const [animations, setAnimations] = useState<Animated.Value[]>([])
 
+  const bulletsContent: BulletContent[] = useMemo(
+    () => [
+      {
+        key: 'top-up',
+        icon: <TupUpWithBgIcon width={32} height={32} />,
+        text: 'Top up on any chain and use Gas tank to pay network fees on any other.'
+      },
+      {
+        key: 'receive-cashback',
+        icon: <ReceivingIcon width={32} height={32} fillColor={theme.primary} />,
+        text: 'Receive cashback from your transactions in your Gas tank.'
+      },
+      {
+        key: 'save',
+        icon: (
+          <SavingsIcon width={32} height={32} color="white" fillColor={theme.successDecorative} />
+        ),
+        text: 'Save on network fees by prepaying with Gas tank.'
+      }
+    ],
+    [theme.successDecorative, theme.primary]
+  )
+
   useEffect(() => {
     // Initialize animations for each bullet
-    setAnimations(BULLETS_CONTENT.map(() => new Animated.Value(-200))) // Start off-screen to the left
-  }, [])
+    setAnimations(bulletsContent.map(() => new Animated.Value(-200))) // Start off-screen to the left
+  }, [bulletsContent])
 
   const handleOpen = useCallback(() => {
     setVisibleCount(0) // Reset visible count
     // Set 500ms of delay to make sure that modal animation is finished
     setTimeout(() => {
-      BULLETS_CONTENT.forEach((_, index) => {
+      bulletsContent.forEach((_, index) => {
         setTimeout(() => {
           Animated.timing(animations[index], {
             toValue: 0,
-            duration: 300,
+            duration: 200,
             useNativeDriver: true
           }).start()
           setVisibleCount((prev) => prev + 1)
-        }, 500 * index)
+        }, 300 * index)
       })
     }, 500)
-  }, [animations])
+  }, [bulletsContent, animations])
 
   const handleOnClose = useCallback(() => {
-    // Reset animations
     // Set 500ms of delay to make sure that modal animation is finished
     setTimeout(() => {
-      setAnimations(BULLETS_CONTENT.map(() => new Animated.Value(-200)))
+      // Reset animations
+      setAnimations(bulletsContent.map(() => new Animated.Value(-200)))
     }, 500)
     handleClose()
-  }, [handleClose])
+  }, [bulletsContent, handleClose])
 
   return (
     <BottomSheet
@@ -235,11 +241,11 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
             </Text>
           </View>
           <View style={[flexbox.justifyStart, flexbox.alignCenter, { height: 276 }]}>
-            {BULLETS_CONTENT.map(
+            {bulletsContent.map(
               (bullet, index) =>
                 index < visibleCount && (
                   <Animated.View
-                    key={bullet.iconBgColor}
+                    key={bullet.key}
                     style={{
                       transform: [{ translateX: animations[index] }]
                     }}
@@ -253,9 +259,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                       start={{ x: 0.15, y: 0 }}
                       end={{ x: 1, y: 1 }}
                     >
-                      <View style={[styles.iconWrapper, { backgroundColor: bullet.iconBgColor }]}>
-                        {bullet.icon}
-                      </View>
+                      <View style={[styles.iconWrapper]}>{bullet.icon}</View>
                       <Text
                         appearance="secondaryText"
                         weight="medium"
@@ -293,5 +297,5 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     </BottomSheet>
   )
 }
-// TODO: Add React.memo to all the new components
-export default GasTankModal
+
+export default React.memo(GasTankModal)

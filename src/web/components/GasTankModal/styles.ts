@@ -67,11 +67,7 @@ const getStyles = (theme: ThemeProps) =>
     iconWrapper: {
       ...flexbox.directionRow,
       ...flexbox.justifyCenter,
-      ...flexbox.alignCenter,
-      height: 32,
-      width: 32,
-      borderRadius: 16,
-      backgroundColor: 'green'
+      ...flexbox.alignCenter
     },
     bulletWrapper: {
       maxWidth: 422,
