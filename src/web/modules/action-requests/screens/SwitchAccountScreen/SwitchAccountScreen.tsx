@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -89,10 +89,10 @@ const SwitchAccountScreen = () => {
     setIsAuthorizing(true)
 
     dispatch({
-      type: 'MAIN_CONTROLLER_RESOLVE_SWITCH_ACCOUNT_REQUEST',
-      params: { actionId: userRequest.id }
+      type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
+      params: { accountAddr: nextAccount }
     })
-  }, [addToast, dAppAction, dispatch, nextAccount, t, userRequest?.id])
+  }, [addToast, dAppAction, dispatch, nextAccount, t])
 
   const responsiveSizeMultiplier = useMemo(() => {
     if (minHeightSize('s')) return 0.75
@@ -100,6 +100,16 @@ const SwitchAccountScreen = () => {
 
     return 1
   }, [minHeightSize])
+
+  // Resolve the request
+  useEffect(() => {
+    if (account?.addr !== nextAccount) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+      params: { data: null, id: dAppAction.id }
+    })
+  }, [account?.addr, dAppAction.id, dispatch, nextAccount])
 
   return (
     <TabLayoutContainer

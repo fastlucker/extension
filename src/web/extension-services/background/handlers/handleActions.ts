@@ -160,8 +160,6 @@ export const handleActions = async (
       }
       break
     }
-    case 'MAIN_CONTROLLER_RESOLVE_SWITCH_ACCOUNT_REQUEST':
-      return await mainCtrl.resolveSwitchAccountAction(params.actionId)
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
       return await mainCtrl.accountAdder.setPage(params)
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
