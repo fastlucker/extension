@@ -1,3 +1,4 @@
+import { isAddress } from 'ethers'
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
@@ -87,9 +88,10 @@ const SwapAndBridgeScreen = () => {
     validateFromAmount,
     isSwitchFromAndToTokensEnabled,
     isHealthy,
-    shouldEnableRoutesSelection
+    shouldEnableRoutesSelection,
+    statuses: swapAndBridgeCtrlStatuses
   } = useSwapAndBridgeControllerState()
-  const { statuses } = useMainControllerState()
+  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { portfolio } = useSelectedAccountControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
@@ -133,6 +135,9 @@ const SwapAndBridgeScreen = () => {
   }, [setFollowUpTransactionConfirmed])
 
   const handleOpenReadMore = useCallback(() => Linking.openURL(SWAP_AND_BRIDGE_HC_URL), [])
+
+  const isAttemptingToAddToTokenByAddress =
+    swapAndBridgeCtrlStatuses.addToTokenByAddress === 'LOADING'
 
   if (!sessionIds.includes(sessionId)) return null
 
@@ -289,7 +294,11 @@ const SwapAndBridgeScreen = () => {
                     value={toTokenValue}
                     testID="to-token-select"
                     searchPlaceholder={t('Search by name or address...')}
-                    emptyListPlaceholderText={t('Not found. Try with token address?')}
+                    emptyListPlaceholderText={
+                      isAttemptingToAddToTokenByAddress
+                        ? t('Pulling token details...')
+                        : t('Not found. Try with token address?')
+                    }
                     attemptToFetchMoreOptions={handleAddToTokenByAddress}
                     containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
@@ -418,14 +427,14 @@ const SwapAndBridgeScreen = () => {
           <View style={spacings.ptTy}>
             <Button
               text={
-                statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
                   ? t('Building Transaction...')
                   : t('Proceed')
               }
               disabled={
                 formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
                 shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
-                statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
               }
               onPress={handleSubmitForm}
             />
