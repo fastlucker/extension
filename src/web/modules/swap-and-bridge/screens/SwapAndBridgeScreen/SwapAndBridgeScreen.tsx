@@ -288,7 +288,8 @@ const SwapAndBridgeScreen = () => {
                     options={toTokenOptions}
                     value={toTokenValue}
                     testID="to-token-select"
-                    searchPlaceholder={t('Token name or address...')}
+                    searchPlaceholder={t('Search by name or address...')}
+                    emptyListPlaceholderText={t('Not found. Try with token address?')}
                     attemptToFetchMoreOptions={handleAddToTokenByAddress}
                     containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}

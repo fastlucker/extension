@@ -10,7 +10,7 @@ interface Props {
   placeholderText?: string
 }
 
-const EmptyListPlaceholder: React.FC<Props> = ({ placeholderText = 'No items found.' }) => {
+const EmptyListPlaceholder: React.FC<Props> = ({ placeholderText }) => {
   const { t } = useTranslation()
   return (
     <Text
@@ -19,7 +19,7 @@ const EmptyListPlaceholder: React.FC<Props> = ({ placeholderText = 'No items fou
       appearance="secondaryText"
       fontSize={14}
     >
-      {t(placeholderText)}
+      {placeholderText || t('No items found.')}
     </Text>
   )
 }

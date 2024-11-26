@@ -14,6 +14,7 @@ const Select = ({
   testID,
   menuOptionHeight,
   attemptToFetchMoreOptions,
+  emptyListPlaceholderText,
   ...props
 }: SelectProps) => {
   const selectData = useSelectInternal({ menuOptionHeight, setValue, value })
@@ -68,7 +69,7 @@ const Select = ({
         maxToRenderPerBatch={20}
         removeClippedSubviews
         getItemLayout={getItemLayout}
-        ListEmptyComponent={<EmptyListPlaceholder />}
+        ListEmptyComponent={<EmptyListPlaceholder placeholderText={emptyListPlaceholderText} />}
       />
     </SelectContainer>
   )
