@@ -23,6 +23,7 @@ import {
 import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import {
   handleOps060,
   handleOps070
@@ -30,7 +31,6 @@ import {
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
-import { getBenzinUrlParams } from '../../utils/url'
 import { parseLogs } from './utils/parseLogs'
 import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
