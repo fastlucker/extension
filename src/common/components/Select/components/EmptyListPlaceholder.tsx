@@ -6,7 +6,11 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 
-const EmptyListPlaceholder = () => {
+interface Props {
+  placeholderText?: string
+}
+
+const EmptyListPlaceholder: React.FC<Props> = ({ placeholderText = 'No items found.' }) => {
   const { t } = useTranslation()
   return (
     <Text
@@ -15,9 +19,9 @@ const EmptyListPlaceholder = () => {
       appearance="secondaryText"
       fontSize={14}
     >
-      {t('No items found')}
+      {t(placeholderText)}
     </Text>
   )
 }
 
-export default EmptyListPlaceholder
+export default React.memo(EmptyListPlaceholder)
