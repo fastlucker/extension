@@ -86,7 +86,7 @@ const TokenDetails = ({
         iconWidth: 86,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`${WEB_ROUTES.swapAndBridge}?networkId=${networkId}&address=${address}`),
-        isDisabled: isGasTankOrRewardsToken,
+        isDisabled: isGasTankOrRewardsToken || isAmountZero,
         strokeWidth: 1.5
       },
       {
