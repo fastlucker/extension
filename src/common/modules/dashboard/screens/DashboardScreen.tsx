@@ -150,6 +150,7 @@ const DashboardScreen = () => {
           onPress={handleCongratsModalBtnPressed}
           position={gasTankButtonPosition}
           portfolio={portfolio}
+          account={account}
         />
       )}
     </>

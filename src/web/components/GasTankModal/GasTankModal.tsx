@@ -1,4 +1,3 @@
-import { formatUnits } from 'ethers'
 import { LinearGradient } from 'expo-linear-gradient'
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,7 +6,6 @@ import { Animated, Pressable, View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import { TokenResult } from '@ambire-common/libs/portfolio'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import ReceivingIcon from '@common/assets/svg/ReceivingIcon'
@@ -28,6 +26,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import { useCustomHover } from '@web/hooks/useHover'
+import { calculateGasTankBalance } from '@web/utils/calculateGasTankBalance'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -43,16 +42,6 @@ type BulletContent = {
   key: string
   icon: ReactNode
   text: string
-}
-
-const calculateTokenBalance = (token: TokenResult, type: keyof TokenResult) => {
-  const amount = token[type]
-  const { decimals, priceIn } = token
-  const balance = parseFloat(formatUnits(amount, decimals))
-  const price =
-    priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
-
-  return balance * price
 }
 
 const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
@@ -72,26 +61,18 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
 
   const isSA = useMemo(() => isSmartAccount(account), [account])
 
-  const gasTankResult = useMemo(
-    () => portfolio?.latestStateByNetworks?.gasTank?.result,
-    [portfolio?.latestStateByNetworks?.gasTank?.result]
+  const savedInUsd = useMemo(
+    () => calculateGasTankBalance(portfolio, account, isSA, 'saved'),
+    [account, isSA, portfolio]
   )
-
-  const calculateBalance = useCallback(
-    (key: 'usd' | 'cashback' | 'saved') => {
-      if (!account?.addr || !gasTankResult || gasTankResult.tokens.length === 0 || !isSA) return 0
-      const token = gasTankResult.tokens[0]
-
-      return key === 'usd'
-        ? Number(gasTankResult.total?.[key]) || 0
-        : calculateTokenBalance(token, key)
-    },
-    [account?.addr, gasTankResult, isSA]
+  const cashbackInUsd = useMemo(
+    () => calculateGasTankBalance(portfolio, account, isSA, 'cashback'),
+    [account, isSA, portfolio]
   )
-
-  const savedInUsd = useMemo(() => calculateBalance('saved'), [calculateBalance])
-  const cashbackInUsd = useMemo(() => calculateBalance('cashback'), [calculateBalance])
-  const gasTankTotalBalanceInUsd = useMemo(() => calculateBalance('usd'), [calculateBalance])
+  const gasTankTotalBalanceInUsd = useMemo(
+    () => calculateGasTankBalance(portfolio, account, isSA, 'usd'),
+    [account, isSA, portfolio]
+  )
 
   const [visibleCount, setVisibleCount] = useState(0)
   const [animations, setAnimations] = useState<Animated.Value[]>([])

@@ -1,9 +1,9 @@
-import { formatUnits } from 'ethers'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { Image, Pressable, View } from 'react-native'
 
+import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
-import { TokenResult } from '@ambire-common/libs/portfolio'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import image from '@common/assets/images/cashEarned.png'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -15,6 +15,7 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import { calculateGasTankBalance } from '@web/utils/calculateGasTankBalance'
 
 import ConfettiAnimation from '../../ConfettiAnimation'
 import BackdropWithHole from './BackdropWithHole'
@@ -29,36 +30,20 @@ type Props = {
     height: number
   } | null
   portfolio: SelectedAccountPortfolio
+  account: Account | null
 }
 
-const calculateTokenBalance = (token: TokenResult, type: keyof TokenResult) => {
-  const amount = token[type]
-  const { decimals, priceIn } = token
-  const balance = parseFloat(formatUnits(amount, decimals))
-  const price =
-    priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
-
-  return balance * price
-}
-
-const CongratsFirstCashbackModal = ({ onPress, position, portfolio }: Props) => {
+const CongratsFirstCashbackModal = ({ onPress, position, portfolio, account }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
 
-  const gasTankResult = useMemo(
-    () => portfolio?.latestStateByNetworks?.gasTank?.result,
-    [portfolio?.latestStateByNetworks?.gasTank?.result]
+  const isSA = useMemo(() => isSmartAccount(account), [account])
+
+  const cashbackInUsd = useMemo(
+    () => calculateGasTankBalance(portfolio, account, isSA, 'cashback'),
+    [account, isSA, portfolio]
   )
-
-  const calculateBalance = useCallback(() => {
-    if (!gasTankResult || gasTankResult.tokens.length === 0) return 0
-    const token = gasTankResult.tokens[0]
-
-    return calculateTokenBalance(token, 'cashback')
-  }, [gasTankResult])
-
-  const cashbackInUsd = useMemo(() => calculateBalance(), [calculateBalance])
 
   return position ? (
     <>

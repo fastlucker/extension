@@ -13,6 +13,7 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import { calculateGasTankBalance } from '@web/utils/calculateGasTankBalance'
 
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
@@ -33,19 +34,12 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
     values: { from: NEUTRAL_BACKGROUND_HOVERED, to: '#14183380' } // TODO: Remove hardcoded hex
   })
 
-  const gasTankTotalBalanceInUsd = useMemo(() => {
-    if (!account?.addr) return 0
-    const selectedAccountGasTankTotal = portfolio?.latestStateByNetworks?.gasTank?.result?.total
-
-    return Number(selectedAccountGasTankTotal?.usd) || 0
-  }, [account?.addr, portfolio.latestStateByNetworks])
-
-  const gasTankTotalBalanceInUsdFormatted = useMemo(
-    () => formatDecimals(gasTankTotalBalanceInUsd, 'price'),
-    [gasTankTotalBalanceInUsd]
-  )
-
   const isSA = useMemo(() => isSmartAccount(account), [account])
+
+  const gasTankTotalBalanceInUsd = useMemo(
+    () => calculateGasTankBalance(portfolio, account, isSA, 'usd'),
+    [account, isSA, portfolio]
+  )
 
   useEffect(() => {
     const measureButton = () => {
@@ -91,7 +85,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           gasTankTotalBalanceInUsd !== 0 ? (
             <>
               <Text style={[spacings.mlTy]} color="white" weight="number_bold" fontSize={12}>
-                {gasTankTotalBalanceInUsdFormatted}
+                {formatDecimals(gasTankTotalBalanceInUsd, 'price')}
               </Text>
               <Text style={[spacings.mlTy, { opacity: 0.57 }]} fontSize={12} color="white">
                 {t('on Gas Tank')}
