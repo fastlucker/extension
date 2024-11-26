@@ -149,6 +149,7 @@ const DashboardScreen = () => {
         <CongratsFirstCashbackModal
           onPress={handleCongratsModalBtnPressed}
           position={gasTankButtonPosition}
+          portfolio={portfolio}
         />
       )}
     </>
