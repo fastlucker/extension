@@ -88,8 +88,6 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
   )
 
   const isLoading = useMemo(() => {
-    if (!activityState?.isInitialized) return true
-
     if (historyType === 'messages') {
       return account.addr !== activityState.signedMessages[sessionId]?.filters.account
     }
@@ -101,15 +99,15 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     )
   }, [
     account.addr,
-    activityState.signedMessages?.[sessionId],
-    activityState.accountsOps?.[sessionId],
-    activityState?.isInitialized,
+    activityState.signedMessages,
+    activityState.accountsOps,
+    sessionId,
     historyType,
     network.id
   ])
 
   useEffect(() => {
-    if (!account || !activityState.isInitialized) return
+    if (!account) return
 
     dispatch({
       type:
@@ -128,7 +126,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
         }
       }
     })
-  }, [dispatch, account, network, page, activityState.isInitialized, sessionId, historyType])
+  }, [dispatch, account, network, page, sessionId, historyType])
 
   useEffect(() => {
     return () => {
