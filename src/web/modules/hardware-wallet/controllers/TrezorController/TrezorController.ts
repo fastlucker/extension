@@ -1,3 +1,4 @@
+import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
@@ -90,7 +91,9 @@ class TrezorController implements ExternalSignerController {
     })
 
     if (!response.success) {
-      throw new Error(getMessageFromTrezorErrorCode(response.payload.code, response.payload.error))
+      throw new ExternalSignerError(
+        getMessageFromTrezorErrorCode(response.payload.code, response.payload.error)
+      )
     }
 
     this.unlockedPath = response.payload.serializedPath

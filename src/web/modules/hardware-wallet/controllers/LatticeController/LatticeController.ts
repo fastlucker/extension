@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import * as SDK from 'gridplus-sdk'
 
+import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { browser } from '@web/constants/browserapi'
 
@@ -104,7 +105,7 @@ class LatticeController implements ExternalSignerController {
       const ref = await browser.windows.create({ url, type: 'popup' })
       return ref.tabs[0].id
     } catch (err) {
-      throw new Error('Failed to open the Lattice Connector.')
+      throw new ExternalSignerError('Failed to open the Lattice Connector.')
     }
   }
 
@@ -134,7 +135,9 @@ class LatticeController implements ExternalSignerController {
           const tab = await this._findTabById(tabId)
           if (!tab || !tab.url) {
             clearInterval(listenInterval)
-            return reject(new Error('Closing the Lattice Connector interrupted the connection.'))
+            return reject(
+              new ExternalSignerError('Closing the Lattice Connector interrupted the connection.')
+            )
           }
 
           // If the tab we opened contains a new URL param
@@ -153,13 +156,15 @@ class LatticeController implements ExternalSignerController {
 
           const creds = JSON.parse(credsString)
           if (!creds.deviceID || !creds.password) {
-            return reject(new Error('Invalid credentials returned from Lattice.'))
+            return reject(new ExternalSignerError('Invalid credentials returned from Lattice.'))
           }
 
           resolve(creds)
         } catch (err) {
           clearInterval(listenInterval)
-          reject(new Error('Failed to get login data from Lattice. Please try again.'))
+          reject(
+            new ExternalSignerError('Failed to get login data from Lattice. Please try again.')
+          )
         }
       }, 500)
     })
@@ -170,7 +175,7 @@ class LatticeController implements ExternalSignerController {
   // This will handle SafeCard insertion/removal events.
   async _connect() {
     if (!this.walletSDK)
-      throw new Error(
+      throw new ExternalSignerError(
         'Could not connect to the Lattice1 device. Please try again or contact Ambire support.'
       )
 
@@ -217,7 +222,8 @@ class LatticeController implements ExternalSignerController {
   }
 
   _genSessionKey() {
-    if (!this._hasCreds()) throw new Error('No credentials -- cannot create session key!')
+    if (!this._hasCreds())
+      throw new ExternalSignerError('No credentials -- cannot create session key!')
     const buf = Buffer.concat([
       Buffer.from(this.creds.password),
       Buffer.from(this.creds.deviceID),
