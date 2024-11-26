@@ -38,7 +38,8 @@ const useSwapAndBridgeForm = () => {
     activeRoutes,
     formStatus,
     toChainId,
-    updateToTokenListStatus
+    updateToTokenListStatus,
+    supportedChainIds
   } = useSwapAndBridgeControllerState()
   const { account } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
@@ -167,6 +168,7 @@ const useSwapAndBridgeForm = () => {
     () =>
       networks.map((n) => ({
         value: n.id,
+        disabled: !supportedChainIds.includes(n.chainId),
         label: <Text weight="medium">{n.name}</Text>,
         icon: (
           <NetworkIcon
@@ -177,7 +179,7 @@ const useSwapAndBridgeForm = () => {
           />
         )
       })),
-    [networks, theme]
+    [networks, supportedChainIds, theme.primaryBackground]
   )
 
   const getToNetworkSelectValue = useMemo(() => {
