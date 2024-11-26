@@ -67,8 +67,6 @@ const DashboardOverview: FC<Props> = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
-  // const { account, portfolio, portfolioStartedLoadingAtTimestamp } =
-  //   useSelectedAccountControllerState()
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'

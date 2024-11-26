@@ -1,9 +1,6 @@
 import React from 'react'
-// import colors from '@common/styles/colors'
 import { ColorValue } from 'react-native'
 import Svg, { Circle, G, Path, SvgProps } from 'react-native-svg'
-
-// successDecorative
 
 interface Props extends SvgProps {
   width?: number
