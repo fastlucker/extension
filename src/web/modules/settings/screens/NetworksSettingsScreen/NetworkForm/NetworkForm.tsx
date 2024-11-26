@@ -8,7 +8,7 @@ import { Pressable, View, ViewStyle } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { NetworkId } from '@ambire-common/interfaces/network'
-import { getFeatures } from '@ambire-common/libs/networks/networks'
+import { canForce4337, getFeatures } from '@ambire-common/libs/networks/networks'
 import { isValidURL } from '@ambire-common/services/validations'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
@@ -46,9 +46,6 @@ type RpcSelectorItemType = {
   onPress: (url: string) => void
   onRemove?: (url: string) => void
 }
-
-// a list of all network you can switch to 4337
-const allowForce4337OnNetworks = [1n, 137n]
 
 export const RpcSelectorItem = React.memo(
   ({
@@ -428,9 +425,7 @@ const NetworkForm = ({
     }
   }, [addToast, onSaved, selectedNetwork?.name, statuses.updateNetwork])
 
-  const canForce4337 = useMemo(() => {
-    return selectedNetwork && allowForce4337OnNetworks.includes(selectedNetwork.chainId)
-  }, [selectedNetwork])
+  const allowedToForce4337 = canForce4337(selectedNetwork)
 
   const handleSubmitButtonPress = () => {
     // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
@@ -483,7 +478,7 @@ const NetworkForm = ({
               rpcUrls,
               selectedRpcUrl,
               explorerUrl: networkFormValues.explorerUrl,
-              force4337: canForce4337 ? networkFormValues.force4337 : undefined
+              force4337: allowedToForce4337 ? networkFormValues.force4337 : undefined
             },
             networkId: selectedNetworkId
           }
@@ -778,7 +773,7 @@ const NetworkForm = ({
               <View style={flexbox.flex1}>
                 <NetworkAvailableFeatures networkId={selectedNetwork?.id} features={features} />
 
-                {canForce4337 && (
+                {allowedToForce4337 && (
                   <View style={spacings.mtSm}>
                     <Controller
                       control={control}
