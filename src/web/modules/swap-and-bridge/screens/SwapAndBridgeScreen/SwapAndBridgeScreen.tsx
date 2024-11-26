@@ -218,6 +218,7 @@ const SwapAndBridgeScreen = () => {
                     value={fromTokenValue}
                     testID="from-token-select"
                     searchPlaceholder={t('Token name or address...')}
+                    emptyListPlaceholderText={t('No tokens found.')}
                     containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
@@ -293,7 +294,7 @@ const SwapAndBridgeScreen = () => {
                     options={toTokenOptions}
                     value={toTokenValue}
                     testID="to-token-select"
-                    searchPlaceholder={t('Search by name or address...')}
+                    searchPlaceholder={t('Token name or address...')}
                     emptyListPlaceholderText={
                       isAttemptingToAddToTokenByAddress
                         ? t('Pulling token details...')
