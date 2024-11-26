@@ -105,6 +105,12 @@ const ActivityPositions: FC<Props> = ({
         )
       }
 
+      if (!initTab?.activity || !item || item === 'keep-this-to-avoid-key-warning') return null
+
+      if (item === 'skeleton') {
+        return <ActivityPositionsSkeleton amount={4} />
+      }
+
       if (item === 'load-more') {
         if (!accountsOps[sessionId]) return null
 
@@ -139,12 +145,6 @@ const ActivityPositions: FC<Props> = ({
             />
           </View>
         )
-      }
-
-      if (!initTab?.activity || !item || item === 'keep-this-to-avoid-key-warning') return null
-
-      if (item === 'skeleton') {
-        return <ActivityPositionsSkeleton amount={4} />
       }
 
       return (
