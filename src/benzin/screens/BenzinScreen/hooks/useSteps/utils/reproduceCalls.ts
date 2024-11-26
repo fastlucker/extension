@@ -17,6 +17,7 @@ import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getAddressVisualization, getLabel, getLink } from '@ambire-common/libs/humanizer/utils'
 import {
+  deployAndCallInterface,
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
   executeBatchInterface,
@@ -128,6 +129,11 @@ export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
       )
       const calls: any = data[2].map((executeArgs: any) => executeArgs[0]).flat()
       return calls.map((call: any) => transformToAccOpCall(call))
+    },
+    // v1
+    [deployAndCallInterface.getFunction('deployAndCall')!.selector]: (txData: string) => {
+      const data = deployAndCallInterface.decodeFunctionData('deployAndCall', txData)
+      return non4337Matcher[data[3].slice(0, 10)](data[3])
     },
     // v1
     [quickAccManagerSendInterface.getFunction('send')!.selector]: (txData: string) => {
