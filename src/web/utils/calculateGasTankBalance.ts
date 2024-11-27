@@ -20,7 +20,7 @@ export const calculateGasTankBalance = (
   isSA: boolean,
   key: 'usd' | 'cashback' | 'saved'
 ) => {
-  const gasTankResult = portfolio?.latestStateByNetworks?.gasTank?.result
+  const gasTankResult = portfolio?.latest?.gasTank?.result
 
   if (!account?.addr || !gasTankResult || gasTankResult.tokens.length === 0 || !isSA) return 0
 
