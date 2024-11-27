@@ -689,8 +689,11 @@ handleKeepAlive()
       // Also do not trigger update on every new port but only if there is only one port
       if (pm.ports.length === 1 && port.name === 'popup' && !hasBroadcastedButNotConfirmed) {
         try {
+          // These promises shouldn't be awaited as that will slow down the popup opening
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           mainCtrl.updateSelectedAccountPortfolio()
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          mainCtrl.domains.batchReverseLookup(mainCtrl.accounts?.accounts.map((acc) => acc.addr))
           backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
         } catch (error) {
           console.error('Error during immediate portfolio update:', error)
