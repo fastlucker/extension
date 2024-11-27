@@ -327,6 +327,8 @@ export const handleActions = async (
       return mainCtrl.swapAndBridge.updateForm(params)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
       return await mainCtrl.swapAndBridge.switchFromAndToTokens()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS':
+      return await mainCtrl.swapAndBridge.addToTokenByAddress(params.address)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return mainCtrl.swapAndBridge.selectRoute(params.route)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
