@@ -58,4 +58,4 @@ const ToTokenSelect: React.FC<Props> = ({
   )
 }
 
-export default ToTokenSelect
+export default React.memo(ToTokenSelect)
