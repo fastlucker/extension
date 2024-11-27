@@ -60,8 +60,8 @@ const SelectNetwork = () => {
           flexbox.justifySpaceBetween,
           flexbox.alignCenter,
           networkButtonAnimStyle,
-          spacings.plSm,
-          spacings.prSm,
+          spacings.plTy,
+          spacings.prTy,
           { width: '100%' }
         ]}
         onPress={() => {
@@ -75,11 +75,17 @@ const SelectNetwork = () => {
         {...bindNetworkButtonAnim}
       >
         {filterByNetworkId ? (
-          <FilterIcon color={theme.primaryBackground} width={16} height={16} />
-        ) : null}
-        <Text fontSize={16} color={theme.secondaryText}>
-          {filterByNetworkId ? filterByNetworkName : t('All Networks')}
-        </Text>
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <FilterIcon color={theme.secondaryText} width={12} height={12} />
+            <Text fontSize={12} color={theme.secondaryText}>
+              {filterByNetworkName}
+            </Text>
+          </View>
+        ) : (
+          <Text fontSize={14} color={theme.secondaryText}>
+            {t('All Networks')}
+          </Text>
+        )}
         <DownArrowIcon color={theme.primaryText} width={12} height={6.5} />
       </AnimatedPressable>
     </View>
