@@ -38,7 +38,7 @@ const ToTokenSelect: React.FC<Props> = ({
 
   const isAttemptingToAddToTokenByAddress = addToTokenByAddressStatus !== 'INITIAL'
   const notFoundPlaceholderText = didAttemptSearchingTokenByAddress
-    ? t('Not found. Wrong receive network?')
+    ? t('Not found. Wrong receive network?') // TODO: Add "... or unsupported token" when UI allows longer messages
     : t('Not found. Try with token address?')
 
   return (
