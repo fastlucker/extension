@@ -32,7 +32,8 @@ export default function useBanners(): BannerInterface[] {
   const { isOffline } = useConnectivity()
   // Debounce offline status to prevent banner flickering
   const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
-  const { account, defiPositionsBanners, portfolioBanners } = useSelectedAccountControllerState()
+  const { account, defiPositionsBanners, portfolioBanners, oldAccountBanner } =
+    useSelectedAccountControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
@@ -48,7 +49,8 @@ export default function useBanners(): BannerInterface[] {
         : [...swapAndBridgeBanners, ...defiPositionsBanners, ...portfolioBanners]),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
-      ...keystoreBanners
+      ...keystoreBanners,
+      ...oldAccountBanner
     ]
   }, [
     state.banners,
@@ -60,7 +62,8 @@ export default function useBanners(): BannerInterface[] {
     account,
     activityBanners,
     emailVaultBanners,
-    keystoreBanners
+    keystoreBanners,
+    oldAccountBanner
   ])
 
   return allBanners
