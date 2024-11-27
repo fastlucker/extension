@@ -3,10 +3,10 @@ import { createHashRouter, RouterProvider } from 'react-router-dom'
 
 import { DomainsContextProvider } from '@common/contexts/domainsContext'
 import PrivateRoute from '@legends/components/PrivateRoute'
-import { ActivityContextProvider } from '@legends/contexts/activityContext'
 import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
 import { LegendsContextProvider } from '@legends/contexts/legendsContext'
 import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
+import { RecentActivityContextProvider } from '@legends/contexts/recentActivityContext'
 import Character from '@legends/modules/character/screens/Character'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
 import Leaderboard from '@legends/modules/leaderboard/screens/Leaderboard'
@@ -29,13 +29,13 @@ import { LEGENDS_ROUTES } from '../constants'
 //              -> child Route.
 const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => (
   <LeaderboardContextProvider>
-    <ActivityContextProvider>
+    <RecentActivityContextProvider>
       <LegendsContextProvider>
         <PortfolioControllerStateProvider>
           <DomainsContextProvider>{children}</DomainsContextProvider>
         </PortfolioControllerStateProvider>
       </LegendsContextProvider>
-    </ActivityContextProvider>
+    </RecentActivityContextProvider>
   </LeaderboardContextProvider>
 )
 

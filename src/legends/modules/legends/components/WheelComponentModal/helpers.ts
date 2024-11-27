@@ -1,4 +1,4 @@
-import { ActivityTransaction, LegendActivity } from '@legends/contexts/activityContext/types'
+import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 import { CardFromResponse, CardType } from '@legends/modules/legends/types'
 
 interface WheelSpinOfTheDayParams {

@@ -3,7 +3,7 @@ import React, { FC } from 'react'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import usePagination, { DOTS } from '@common/hooks/usePagination'
-import { ActivityResponse } from '@legends/contexts/activityContext/types'
+import { ActivityResponse } from '@legends/contexts/recentActivityContext/types'
 
 import styles from './Pagination.module.scss'
 
