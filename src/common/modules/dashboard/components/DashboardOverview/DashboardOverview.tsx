@@ -3,6 +3,7 @@ import { Animated, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -67,6 +68,8 @@ const DashboardOverview: FC<Props> = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
+
+  const isSA = useMemo(() => isSmartAccount(account), [account])
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -270,7 +273,7 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!portfolio?.isAllReady ? (
+                  {!portfolio?.isAllReady && isSA ? (
                     <SkeletonLoader lowOpacity width={200} height={32} borderRadius={8} />
                   ) : (
                     <GasTankButton

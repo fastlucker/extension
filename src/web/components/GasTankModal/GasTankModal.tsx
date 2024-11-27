@@ -82,19 +82,19 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       {
         key: 'top-up',
         icon: <TupUpWithBgIcon width={32} height={32} />,
-        text: 'Top up on any chain and use Gas tank to pay network fees on any other.'
+        text: 'Top up on any chain and use Gas Tank to pay network fees on any other.'
       },
       {
         key: 'receive-cashback',
         icon: <ReceivingIcon width={32} height={32} fillColor={theme.primary} />,
-        text: 'Receive cashback from your transactions in your Gas tank.'
+        text: 'Receive cashback from your transactions in your Gas Tank.'
       },
       {
         key: 'save',
         icon: (
           <SavingsIcon width={32} height={32} color="white" fillColor={theme.successDecorative} />
         ),
-        text: 'Save on network fees by prepaying with Gas tank.'
+        text: 'Save on network fees by prepaying with Gas Tank.'
       }
     ],
     [theme.successDecorative, theme.primary]
@@ -218,7 +218,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
           </View>
           <View style={[flexbox.directionRow, flexbox.center, common.fullWidth, spacings.mtLg]}>
             <Text fontSize={16} weight="semiBold" appearance="secondaryText">
-              {t('Experience the benefits of the gas tank:')}
+              {t('Experience the benefits of the Gas Tank:')}
             </Text>
           </View>
           <View style={[flexbox.justifyStart, flexbox.alignCenter, { height: 276 }]}>
@@ -255,7 +255,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
           </View>
           <View style={[flexbox.directionRow, flexbox.center, common.fullWidth, spacings.pvMd]}>
             <Text fontSize={16} weight="semiBold" appearance="secondaryText">
-              {t('To use the gas tank, you need a Smart Account')}
+              {t('To use the Gas Tank, you need a Smart Account')}
             </Text>
           </View>
         </View>

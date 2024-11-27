@@ -98,7 +98,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           )
         ) : (
           <Text style={[spacings.mhTy]} color="white" weight="number_bold" fontSize={12}>
-            {t('Gas Tank is not available on BA')}
+            {t('Discover Gas Tank')}
           </Text>
         )}
       </AnimatedPressable>

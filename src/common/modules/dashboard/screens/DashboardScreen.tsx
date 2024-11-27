@@ -46,7 +46,6 @@ const DashboardScreen = () => {
   const filterByNetworkId = route?.state?.filterByNetworkId || null
   const { account, portfolio, portfolioStartedLoadingAtTimestamp } =
     useSelectedAccountControllerState()
-  // const { state } = usePortfolioControllerState()
 
   const shouldPopsUpConfetti = useMemo(() => {
     if (!account) return false
