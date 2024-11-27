@@ -422,6 +422,10 @@ type SwapAndBridgeControllerUpdateFormAction = {
     routePriority?: 'output' | 'time'
   }
 }
+type SwapAndBridgeControllerAddToTokenByAddress = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS'
+  params: { address: string }
+}
 type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
 }
@@ -618,6 +622,7 @@ export type Action =
   | SwapAndBridgeControllerInitAction
   | SwapAndBridgeControllerUnloadScreenAction
   | SwapAndBridgeControllerUpdateFormAction
+  | SwapAndBridgeControllerAddToTokenByAddress
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerSubmitFormAction
