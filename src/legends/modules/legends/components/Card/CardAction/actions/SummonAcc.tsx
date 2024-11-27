@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 
 import Input from '@legends/components/Input'
 import useToast from '@legends/hooks/useToast'
@@ -21,6 +21,15 @@ const SummonAcc: FC<Props> = ({ buttonText, onComplete }) => {
     isEOAAddressValid: isValid
   } = useInviteEOA()
   const [isInProgress, setIsInProgress] = useState(false)
+
+  const inputValidation = useMemo(() => {
+    if (!eoaAddress) return null
+
+    return {
+      isValid,
+      message: !isValid ? 'Invalid address' : ''
+    }
+  }, [eoaAddress, isValid])
 
   const onButtonClick = async () => {
     try {
@@ -49,7 +58,7 @@ const SummonAcc: FC<Props> = ({ buttonText, onComplete }) => {
         label="EOA Address"
         placeholder="Enter EOA Address"
         value={eoaAddress}
-        state={isValid || !eoaAddress ? 'default' : 'error'}
+        validation={inputValidation}
         onChange={(e) => setEoaAddress(e.target.value)}
       />
     </CardActionWrapper>

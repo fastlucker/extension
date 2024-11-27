@@ -1,4 +1,4 @@
-import { formatUnits, getAddress } from 'ethers'
+import { formatUnits, getAddress, isAddress } from 'ethers'
 import { debounce } from 'lodash'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -152,7 +152,7 @@ const useSwapAndBridgeForm = () => {
   })
 
   const handleChangeFromToken = useCallback(
-    (value: string) => {
+    ({ value }: SelectValue) => {
       const tokenToSelect = portfolioTokenList.find(
         (tokenRes: TokenResult) => getTokenId(tokenRes) === value
       )
@@ -178,7 +178,7 @@ const useSwapAndBridgeForm = () => {
   })
 
   const handleChangeToToken = useCallback(
-    (value: string) => {
+    ({ value }: SelectValue) => {
       const tokenToSelect = toTokenList.find((t: SocketAPIToken) => getTokenId(t) === value)
 
       dispatch({
@@ -187,6 +187,19 @@ const useSwapAndBridgeForm = () => {
       })
     },
     [dispatch, toTokenList]
+  )
+
+  const handleAddToTokenByAddress = useCallback(
+    (searchTerm: string) => {
+      const isValidTokenAddress = isAddress(searchTerm)
+      if (!isValidTokenAddress) return
+
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS',
+        params: { address: searchTerm }
+      })
+    },
+    [dispatch]
   )
 
   const toNetworksOptions: SelectValue[] = useMemo(
@@ -298,6 +311,7 @@ const useSwapAndBridgeForm = () => {
     toTokenAmountSelectDisabled,
     toTokenOptions,
     toTokenValue,
+    handleAddToTokenByAddress,
     handleChangeToToken,
     handleSwitchFromAmountFieldMode,
     handleSetMaxFromAmount,

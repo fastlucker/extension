@@ -1,12 +1,15 @@
 import { Signature, Transaction, TransactionLike } from 'ethers'
 
+import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, { ledgerService } from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, {
+  ledgerService
+} from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -22,7 +25,7 @@ class LedgerSigner implements KeystoreSigner {
   // @ts-ignore
   init(externalDeviceController?: LedgerController) {
     if (!externalDeviceController) {
-      throw new Error('ledgerSigner: externalDeviceController not initialized')
+      throw new ExternalSignerError('ledgerSigner: externalDeviceController not initialized')
     }
 
     this.controller = externalDeviceController
@@ -30,7 +33,7 @@ class LedgerSigner implements KeystoreSigner {
 
   #prepareForSigning = async () => {
     if (!this.controller) {
-      throw new Error(
+      throw new ExternalSignerError(
         'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
       )
     }
@@ -40,13 +43,13 @@ class LedgerSigner implements KeystoreSigner {
 
     // After unlocking, SDK instance should always be present, double-check here
     if (!this.controller.walletSDK) {
-      throw new Error(
+      throw new ExternalSignerError(
         'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
       )
     }
 
     if (!this.controller.isUnlocked(path, this.key.addr)) {
-      throw new Error(
+      throw new ExternalSignerError(
         `The Ledger is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${shortenAddress(
           this.key.addr,
           13
@@ -59,7 +62,7 @@ class LedgerSigner implements KeystoreSigner {
     try {
       return await operation()
     } catch (error: any) {
-      throw new Error(normalizeLedgerMessage(error?.message))
+      throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
     }
   }
 
@@ -110,7 +113,7 @@ class LedgerSigner implements KeystoreSigner {
 
       return signedSerializedTxn
     } catch (e: any) {
-      throw new Error(e?.message || 'ledgerSigner: singing failed for unknown reason')
+      throw new ExternalSignerError(e?.message || 'ledgerSigner: singing failed for unknown reason')
     }
   }
 
@@ -138,7 +141,7 @@ class LedgerSigner implements KeystoreSigner {
       const signature = addHexPrefix(`${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`)
       return signature
     } catch (e: any) {
-      throw new Error(
+      throw new ExternalSignerError(
         e?.message ||
           'Signing the typed data message failed. Please try again or contact Ambire support if issue persists.'
       )
@@ -147,7 +150,7 @@ class LedgerSigner implements KeystoreSigner {
 
   signMessage: KeystoreSigner['signMessage'] = async (hex) => {
     if (!stripHexPrefix(hex)) {
-      throw new Error(
+      throw new ExternalSignerError(
         'Request for signing an empty message detected. Signing empty messages with Ambire is disallowed.'
       )
     }
@@ -165,7 +168,7 @@ class LedgerSigner implements KeystoreSigner {
       const signature = addHexPrefix(`${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`)
       return signature
     } catch (e: any) {
-      throw new Error(
+      throw new ExternalSignerError(
         e?.message ||
           'Signing the message failed. Please try again or contact Ambire support if issue persists.'
       )
