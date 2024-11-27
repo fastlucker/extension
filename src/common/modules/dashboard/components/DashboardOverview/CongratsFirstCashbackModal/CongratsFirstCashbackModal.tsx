@@ -76,7 +76,7 @@ const CongratsFirstCashbackModal = ({ onPress, position, portfolio, account }: P
             </View>
             <Trans>
               <Text fontSize={12} appearance="secondaryText" style={spacings.mbSm}>
-                {`You've received $${formatDecimals(
+                {`You've received ${formatDecimals(
                   cashbackInUsd,
                   'price'
                 )} cashback, now on your Gas Tank, from your first smart account transaction!`}
