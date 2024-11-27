@@ -21,7 +21,7 @@ export async function checkAccountDetails(
 
   // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
   // Note: This wait is required because there is a case that the account address is loading with some delay because of the UD/ENS resolving.
-  await wait(500)
+  await wait(1500)
 
   const addedAccounts = await page.$$eval(selector, (elements) =>
     elements.map((element) => element.innerText)
