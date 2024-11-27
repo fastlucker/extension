@@ -29,7 +29,10 @@ const ToTokenSelect: React.FC<Props> = ({
 
   const handleAttemptToFetchMoreOptions = useCallback(
     (searchTerm: string) => {
-      setDidAttemptSearchingTokenByAddress(isAddress(searchTerm))
+      // Defer the state update to the next event loop iteration. This prevents the state
+      // update from happening during the render phase of the parent which causes the warn:
+      // Cannot update a component (ToTokenSelect) while rendering a different component (Select).
+      setTimeout(() => setDidAttemptSearchingTokenByAddress(isAddress(searchTerm)), 100)
 
       return handleAddToTokenByAddress(searchTerm)
     },
