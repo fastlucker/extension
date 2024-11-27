@@ -3,6 +3,7 @@ import { debounce } from 'lodash'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
+import { useSearchParams } from 'react-router-dom'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
@@ -38,9 +39,10 @@ const useSwapAndBridgeForm = () => {
     activeRoutes,
     formStatus,
     toChainId,
-    updateToTokenListStatus
+    updateToTokenListStatus,
+    sessionIds
   } = useSwapAndBridgeControllerState()
-  const { account } = useSelectedAccountControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const debouncedDispatchUpdateFormRef = useRef<_.DebouncedFunc<(value: string) => void>>()
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
@@ -51,6 +53,30 @@ const useSwapAndBridgeForm = () => {
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  useEffect(() => {
+    if (
+      searchParams.get('address') &&
+      searchParams.get('networkId') &&
+      !!portfolio?.isAllReady &&
+      (sessionIds || []).includes(sessionId)
+    ) {
+      const tokenToSelectOnInit = portfolio.tokens.find(
+        (t) =>
+          t.address === searchParams.get('address') && t.networkId === searchParams.get('networkId')
+      )
+
+      if (tokenToSelectOnInit) {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+          params: { fromSelectedToken: tokenToSelectOnInit }
+        })
+        // Reset search params once updated in the state
+        setSearchParams({})
+      }
+    }
+  }, [dispatch, setSearchParams, portfolio?.isAllReady, portfolio.tokens, searchParams, sessionIds])
 
   useEffect(() => {
     dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
