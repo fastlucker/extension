@@ -162,7 +162,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
               </View>
               <View style={styles.rightPartWrapper}>
                 <View style={styles.rightPartInnerWrapper}>
-                  <Text fontSize={12} appearance="successText">
+                  <Text fontSize={12} appearance="successText" style={spacings.mrTy}>
                     {t('Total Saved')}:
                   </Text>
                   <Text fontSize={14} appearance="successText">
@@ -170,7 +170,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                   </Text>
                 </View>
                 <View style={styles.rightPartInnerWrapper}>
-                  <Text fontSize={12} appearance="primary">
+                  <Text fontSize={12} appearance="primary" style={spacings.mrTy}>
                     {t('Total Cashback')}:
                   </Text>
                   <Text fontSize={14} appearance="primary">

@@ -56,7 +56,7 @@ const getStyles = (theme: ThemeProps) =>
       opacity: 0.5,
       zIndex: 1
     },
-    rightPartWrapper: { ...flexbox.justifyEnd, width: 154 },
+    rightPartWrapper: { ...flexbox.justifyEnd, minWidth: 154 },
     rightPartInnerWrapper: {
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
