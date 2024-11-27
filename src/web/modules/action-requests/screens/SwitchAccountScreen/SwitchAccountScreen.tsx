@@ -58,7 +58,6 @@ const SwitchAccountScreen = () => {
 
     return 'unknown request'
   }, [nextRequestType])
-  console.log({ nextRequestLabel, nextRequestType })
 
   const dAppData = useMemo(
     () =>
@@ -111,13 +110,13 @@ const SwitchAccountScreen = () => {
 
   // Resolve the request
   useEffect(() => {
-    if (account?.addr !== nextAccount) return
+    if (account?.addr !== nextAccount || !userRequest) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
       params: { data: null, id: dAppAction.id }
     })
-  }, [account?.addr, dAppAction.id, dispatch, nextAccount])
+  }, [account?.addr, dAppAction.id, dispatch, nextAccount, userRequest])
 
   return (
     <TabLayoutContainer
