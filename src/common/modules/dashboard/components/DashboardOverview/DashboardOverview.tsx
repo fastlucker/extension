@@ -270,12 +270,16 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <GasTankButton
-                    onPress={openGasTankModal}
-                    onPosition={setButtonPosition}
-                    portfolio={portfolio}
-                    account={account}
-                  />
+                  {!portfolio?.isAllReady ? (
+                    <SkeletonLoader lowOpacity width={200} height={32} borderRadius={8} />
+                  ) : (
+                    <GasTankButton
+                      onPress={openGasTankModal}
+                      onPosition={setButtonPosition}
+                      portfolio={portfolio}
+                      account={account}
+                    />
+                  )}
                   {!!warningMessage && (
                     <>
                       <WarningIcon
