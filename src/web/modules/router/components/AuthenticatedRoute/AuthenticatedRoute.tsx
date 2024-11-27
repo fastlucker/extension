@@ -4,11 +4,9 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
-const PrivateRoute = () => {
+const AuthenticatedRoute = () => {
   const { authStatus } = useAuth()
-  const keystoreState = useKeystoreControllerState()
   const [isReady, setIsReady] = useState(true)
 
   useEffect(() => {
@@ -22,16 +20,9 @@ const PrivateRoute = () => {
   // eslint-disable-next-line react/jsx-no-useless-fragment
   if (!isReady) return <></>
 
-  let to = null
+  const shouldNavigateToGetStarted = authStatus !== AUTH_STATUS.AUTHENTICATED
 
-  if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
-    to = ROUTES.keyStoreUnlock
-  }
-  if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
-    to = ROUTES.getStarted
-  }
-
-  return !to ? <Outlet /> : <Navigate to={to} />
+  return shouldNavigateToGetStarted ? <Navigate to={ROUTES.getStarted} /> : <Outlet />
 }
 
-export default PrivateRoute
+export default AuthenticatedRoute

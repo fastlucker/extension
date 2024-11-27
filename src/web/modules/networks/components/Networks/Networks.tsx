@@ -23,8 +23,8 @@ const Networks = ({
   const { account, portfolio } = useSelectedAccountControllerState()
 
   const portfolioByNetworks = useMemo(
-    () => (account ? portfolio.latestStateByNetworks : {}),
-    [account, portfolio.latestStateByNetworks]
+    () => (account ? portfolio.latest : {}),
+    [account, portfolio.latest]
   )
 
   const filteredAndSortedPortfolio = useMemo(

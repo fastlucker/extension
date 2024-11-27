@@ -1,7 +1,7 @@
+// eslint-disable-next-line import/no-unresolved
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../constants/constants'
 
-// eslint-disable-next-line import/no-unresolved
-const { getBenzinUrlParams } = require('@benzin/screens/BenzinScreen/utils/url')
 const puppeteer = require('puppeteer')
 
 const POLYGON_CHAIN_ID = 137n

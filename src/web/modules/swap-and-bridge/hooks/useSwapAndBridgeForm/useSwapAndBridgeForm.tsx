@@ -29,6 +29,7 @@ const useSwapAndBridgeForm = () => {
     fromAmountFieldMode,
     toSelectedToken,
     portfolioTokenList,
+    isTokenListLoading,
     toTokenList,
     maxFromAmount,
     maxFromAmountInFiat,
@@ -120,6 +121,7 @@ const useSwapAndBridgeForm = () => {
   } = useGetTokenSelectProps({
     tokens: portfolioTokenList,
     token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
+    isLoading: isTokenListLoading,
     networks
   })
 

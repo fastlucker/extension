@@ -15,9 +15,7 @@ export interface Style {
   nativeInput: ViewStyle
   button: ViewStyle
   buttonWithBackground: ViewStyle
-  infoText: TextStyle
-  errorText: TextStyle
-  validText: TextStyle
+  bottomLabel: TextStyle
   label: TextStyle
   leftIcon: ViewStyle
   disabled: ViewStyle
@@ -59,21 +57,11 @@ const getStyles = (theme: ThemeProps) =>
       height: '100%',
       fontFamily: isWeb ? FONT_FAMILIES.REGULAR : FONT_FAMILIES.LIGHT
     },
-    infoText: {
-      opacity: 0.5,
-      ...spacings.ptTy,
-      ...spacings.ph
-    },
-    errorText: {
+    bottomLabel: {
       ...spacings.phMi,
       ...spacings.mbMI,
       ...spacings.phTy,
       paddingTop: SPACING_MI / 2
-    },
-    validText: {
-      ...spacings.phMi,
-      ...spacings.ptMi,
-      ...spacings.ph
     },
     label: {
       ...spacings.mbMi

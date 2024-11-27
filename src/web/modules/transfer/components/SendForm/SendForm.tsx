@@ -155,7 +155,7 @@ const SendForm = ({
       return
     }
 
-    const gasDeductedAmountBigInt = selectedToken.amount - estimation.totalGasWei
+    const gasDeductedAmountBigInt = getTokenAmount(selectedToken) - estimation.totalGasWei
     const gasDeductedAmount = formatUnits(gasDeductedAmountBigInt, selectedToken.decimals)
 
     // Let the user see for himself that the amount is less than the gas fee

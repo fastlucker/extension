@@ -70,7 +70,8 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const accountsOptions: SelectValue[] = useMemo(() => {
     return accounts.map((acc) => ({
       value: acc.addr,
-      label: <AccountOption acc={acc} />
+      label: <AccountOption acc={acc} />,
+      extraSearchProps: { accountLabel: acc.preferences.label }
     }))
   }, [accounts])
 

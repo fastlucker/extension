@@ -80,22 +80,21 @@ const DashboardOverview: FC<Props> = ({
 
     if (!account) return 0
 
-    return Number(portfolio?.latestStateByNetworks?.[filterByNetworkId]?.result?.total?.usd) || 0
+    return Number(portfolio?.latest?.[filterByNetworkId]?.result?.total?.usd) || 0
   }, [portfolio, filterByNetworkId, account])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
     totalPortfolioAmount,
-    'price'
+    'value'
   ).split('.')
 
   const networksWithCriticalErrors: string[] = useMemo(() => {
-    if (!account || !portfolio.latestStateByNetworks || portfolio.latestStateByNetworks?.isLoading)
-      return []
+    if (!account || !portfolio.latest || portfolio.latest?.isLoading) return []
 
     const networkNames: string[] = []
 
-    Object.keys(portfolio.latestStateByNetworks).forEach((networkId) => {
-      const networkState = portfolio.latestStateByNetworks[networkId]
+    Object.keys(portfolio.latest).forEach((networkId) => {
+      const networkState = portfolio.latest[networkId]
 
       if (networkState?.criticalError) {
         let networkName

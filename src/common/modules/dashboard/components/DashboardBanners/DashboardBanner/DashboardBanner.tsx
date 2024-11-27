@@ -1,5 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react'
-import { useModalize } from 'react-native-modalize'
+import React, { useCallback, useMemo } from 'react'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import CartIcon from '@common/assets/svg/CartIcon'
@@ -13,17 +12,21 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
-import RPCSelectBottomSheet from './RPCSelectBottomSheet'
-
 const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge']
 
-const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions = [] }) => {
+const DashboardBanner = ({
+  banner,
+  setBottomSheetBanner
+}: {
+  banner: BannerType
+  setBottomSheetBanner: (banner: BannerType) => void
+}) => {
+  const { type, category, title, text, actions = [] } = banner
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { visibleActionsQueue } = useActionsControllerState()
   const { statuses } = useMainControllerState()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { account } = useSelectedAccountControllerState()
 
   const Icon = useMemo(() => {
@@ -32,17 +35,6 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
 
     return null
   }, [category])
-
-  const withRpcUrlSelectBottomSheet = useMemo(
-    () => !!actions.filter((a) => a.actionName === 'select-rpc-url').length,
-    [actions]
-  )
-
-  const handleOpenBottomSheet = useCallback(() => {
-    if (withRpcUrlSelectBottomSheet) {
-      openBottomSheet()
-    }
-  }, [openBottomSheet, withRpcUrlSelectBottomSheet])
 
   const handleActionPress = useCallback(
     (action: Action) => {
@@ -92,7 +84,11 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
       }
 
       if (action.actionName === 'select-rpc-url') {
-        handleOpenBottomSheet()
+        setBottomSheetBanner(banner)
+      }
+
+      if (action.actionName === 'open-swap-and-bridge-tab') {
+        navigate(ROUTES.swapAndBridge)
       }
 
       if (action.actionName === 'reject-bridge' || action.actionName === 'close-bridge') {
@@ -121,14 +117,14 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
       }
 
       if (action.actionName === 'open-confetti-modal') {
-        if (!account.addr) return
+        if (!account) return
         dispatch({
           type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
           params: { accountAddr: account.addr }
         })
       }
     },
-    [type, visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, account.addr]
+    [visibleActionsQueue, type, banner, setBottomSheetBanner, dispatch, addToast, navigate, account]
   )
 
   const renderButtons = useMemo(
@@ -161,14 +157,7 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
   )
 
   return (
-    <Banner CustomIcon={Icon} title={title} type={type} text={text} renderButtons={renderButtons}>
-      <RPCSelectBottomSheet
-        actions={actions}
-        sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
-        isVisible={withRpcUrlSelectBottomSheet}
-      />
-    </Banner>
+    <Banner CustomIcon={Icon} title={title} type={type} text={text} renderButtons={renderButtons} />
   )
 }
 

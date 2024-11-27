@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
-import { getBenzinUrlParams } from '@benzin/screens/BenzinScreen/utils/url'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
@@ -84,6 +84,8 @@ const SortHat = () => {
         return navigate(link)
       }
     } else {
+      // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
+      // for other scenarios, ideally, it should be the last route before the keystore got locked.
       navigate(ROUTES.dashboard)
     }
   }, [

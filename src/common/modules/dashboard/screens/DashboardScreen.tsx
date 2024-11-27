@@ -31,6 +31,7 @@ const DashboardScreen = () => {
   const route = useRoute()
   const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
+  const { tokenPreferences } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const { ref: gasTankModalRef, open: openGasTankModal, close: closeGasTankModal } = useModalize()
   const lastOffsetY = useRef(0)
@@ -45,7 +46,7 @@ const DashboardScreen = () => {
   const filterByNetworkId = route?.state?.filterByNetworkId || null
   const { account, portfolio, portfolioStartedLoadingAtTimestamp } =
     useSelectedAccountControllerState()
-  const { state } = usePortfolioControllerState()
+  // const { state } = usePortfolioControllerState()
 
   const shouldPopsUpConfetti = useMemo(() => {
     if (!account) return false
@@ -136,7 +137,7 @@ const DashboardScreen = () => {
             portfolioStartedLoadingAtTimestamp={portfolioStartedLoadingAtTimestamp}
           />
           <DashboardPages
-            tokenPreferences={state?.tokenPreferences}
+            tokenPreferences={tokenPreferences}
             filterByNetworkId={filterByNetworkId}
             onScroll={onScroll}
           />

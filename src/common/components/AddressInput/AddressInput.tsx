@@ -56,6 +56,7 @@ const AddressInput: React.FC<Props> = ({
   const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
 
   const { message, isError } = validation
+  const isValidationInDomainResolvingState = message === 'Resolving domain...'
 
   const handleOnScan = useCallback(
     (code: string) => {
@@ -97,10 +98,12 @@ const AddressInput: React.FC<Props> = ({
         testID="address-ens-field"
         {...rest}
         containerStyle={containerStyle}
-        validLabel={!isError ? message : ''}
+        validLabel={!isError && !isValidationInDomainResolvingState ? message : ''}
         error={isError ? message : ''}
-        isValid={!isError}
+        isValid={!isError && !isValidationInDomainResolvingState}
         placeholder={placeholder || t('Address / ENS / UD')}
+        bottomLabelStyle={styles.bottomLabel}
+        info={isValidationInDomainResolvingState ? t('Resolving domain...') : ''}
         childrenBeforeButtons={
           <>
             {(ensAddress || udAddress) && !isRecipientDomainResolving ? (
