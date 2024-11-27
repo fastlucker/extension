@@ -34,6 +34,7 @@ import RouteStepsPlaceholder from '@web/modules/swap-and-bridge/components/Route
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 import SettingsModal from '@web/modules/swap-and-bridge/components/SettingsModal'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
+import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import getStyles from './styles'
@@ -136,9 +137,6 @@ const SwapAndBridgeScreen = () => {
 
   const handleOpenReadMore = useCallback(() => Linking.openURL(SWAP_AND_BRIDGE_HC_URL), [])
 
-  const isAttemptingToAddToTokenByAddress =
-    swapAndBridgeCtrlStatuses.addToTokenByAddress === 'LOADING'
-
   if (!sessionIds.includes(sessionId)) return null
 
   return (
@@ -213,7 +211,7 @@ const SwapAndBridgeScreen = () => {
                     />
                   </View>
                   <Select
-                    setValue={({ value }) => handleChangeFromToken(value as string)}
+                    setValue={handleChangeFromToken}
                     options={fromTokenOptions}
                     value={fromTokenValue}
                     testID="from-token-select"
@@ -289,20 +287,12 @@ const SwapAndBridgeScreen = () => {
                     value={getToNetworkSelectValue}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
-                  <Select
-                    setValue={({ value }) => handleChangeToToken(value as string)}
-                    options={toTokenOptions}
-                    value={toTokenValue}
-                    testID="to-token-select"
-                    searchPlaceholder={t('Token name or address...')}
-                    emptyListPlaceholderText={
-                      isAttemptingToAddToTokenByAddress
-                        ? t('Pulling token details...')
-                        : t('Not found. Try with token address?')
-                    }
-                    attemptToFetchMoreOptions={handleAddToTokenByAddress}
-                    containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
-                    selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+                  <ToTokenSelect
+                    toTokenOptions={toTokenOptions}
+                    toTokenValue={toTokenValue}
+                    handleChangeToToken={handleChangeToToken}
+                    addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
+                    handleAddToTokenByAddress={handleAddToTokenByAddress}
                   />
                 </View>
 

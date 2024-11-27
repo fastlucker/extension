@@ -126,7 +126,7 @@ const useSwapAndBridgeForm = () => {
   })
 
   const handleChangeFromToken = useCallback(
-    (value: string) => {
+    ({ value }: SelectValue) => {
       const tokenToSelect = portfolioTokenList.find(
         (tokenRes: TokenResult) => getTokenId(tokenRes) === value
       )
@@ -152,7 +152,7 @@ const useSwapAndBridgeForm = () => {
   })
 
   const handleChangeToToken = useCallback(
-    (value: string) => {
+    ({ value }: SelectValue) => {
       const tokenToSelect = toTokenList.find((t: SocketAPIToken) => getTokenId(t) === value)
 
       dispatch({
