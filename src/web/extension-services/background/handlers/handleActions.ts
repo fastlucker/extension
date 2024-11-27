@@ -13,6 +13,7 @@ import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/key
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
+import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { PortMessenger } from '@web/extension-services/messengers'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -47,7 +48,14 @@ export const handleActions = async (
   switch (type) {
     case 'INIT_CONTROLLER_STATE': {
       if (params.controller === ('main' as any)) {
-        pm.send('> ui', { method: 'main', params: mainCtrl })
+        const mainCtrlState: any = { ...mainCtrl.toJSON() }
+        // We are removing the state of the nested controllers in main to avoid the CPU-intensive task of parsing + stringifying.
+        // We should access the state of the nested controllers directly from their context instead of accessing them through the main ctrl state on the FE.
+        // Keep in mind: if we just spread `ctrl` instead of calling `ctrl.toJSON()`, the getters won't be included.
+        Object.keys(controllersNestedInMainMapping).forEach((nestedCtrlName) => {
+          delete mainCtrlState[nestedCtrlName]
+        })
+        pm.send('> ui', { method: 'main', params: mainCtrlState })
       } else if (params.controller === ('walletState' as any)) {
         pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
       } else if (params.controller === ('autoLock' as any)) {
@@ -138,7 +146,7 @@ export const handleActions = async (
       return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
     }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
-      return await mainCtrl.accounts.selectAccount(params.accountAddr)
+      return await mainCtrl.selectAccount(params.accountAddr)
     }
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
       return mainCtrl.accountAdder.selectAccount(params.account)
@@ -256,6 +264,11 @@ export const handleActions = async (
         params.selectedToken,
         params.executionType
       )
+
+    case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
+      return await mainCtrl.buildClaimWalletUserRequest(params.token)
+    case 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST':
+      return await mainCtrl.buildMintVestingUserRequest(params.token)
     case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
       return await mainCtrl.addUserRequest(params)
     case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
@@ -291,6 +304,8 @@ export const handleActions = async (
       return mainCtrl.activity.setSignedMessagesPagination(params.pagination)
     case 'MAIN_CONTROLLER_ACTIVITY_RESET':
       return mainCtrl.activity.reset()
+    case 'ACTIVITY_CONTROLLER_HIDE_BANNER':
+      return await mainCtrl.activity.hideBanner(params)
 
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
       return mainCtrl?.signAccountOp?.update(params)
@@ -320,8 +335,6 @@ export const handleActions = async (
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.swapAndBridge.removeActiveRoute(params.activeRouteId)
-    case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_PORTFOLIO_TOKEN_LIST':
-      return mainCtrl.swapAndBridge.updatePortfolioTokenList(params)
 
     case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
       return mainCtrl.actions.addOrUpdateAction(params)
@@ -341,10 +354,10 @@ export const handleActions = async (
     }
 
     case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
-      if (!mainCtrl.accounts.selectedAccount) return
+      if (!mainCtrl.selectedAccount.account) return
 
       return await mainCtrl.portfolio.getTemporaryTokens(
-        mainCtrl.accounts.selectedAccount,
+        mainCtrl.selectedAccount.account.addr,
         params.networkId,
         params.additionalHint
       )
@@ -381,7 +394,7 @@ export const handleActions = async (
 
       await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
       return await mainCtrl.portfolio.updateSelectedAccount(
-        mainCtrl.accounts.selectedAccount || '',
+        mainCtrl.selectedAccount.account?.addr || '',
         tokenNetwork,
         undefined,
         {
@@ -411,7 +424,7 @@ export const handleActions = async (
 
       await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
       return await mainCtrl.portfolio.updateSelectedAccount(
-        mainCtrl.accounts.selectedAccount || '',
+        mainCtrl.selectedAccount.account?.addr || '',
         tokenNetwork,
         undefined,
         {
@@ -420,10 +433,10 @@ export const handleActions = async (
       )
     }
     case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
-      if (!mainCtrl.accounts.selectedAccount) return
+      if (!mainCtrl.selectedAccount.account) return
       return await mainCtrl.portfolio.updateTokenValidationByStandard(
         params.token,
-        mainCtrl.accounts.selectedAccount
+        mainCtrl.selectedAccount.account.addr
       )
     }
     case 'KEYSTORE_CONTROLLER_ADD_SECRET':

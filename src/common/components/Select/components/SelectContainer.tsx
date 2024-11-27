@@ -29,6 +29,7 @@ const SelectContainer: FC<Props> = ({
   menuStyle,
   disabled,
   withSearch = true,
+  searchPlaceholder,
   isMenuOpen,
   selectRef,
   menuProps,
@@ -68,7 +69,7 @@ const SelectContainer: FC<Props> = ({
         <MenuContainer menuRef={menuRef} menuStyle={menuStyle} menuProps={menuProps}>
           {!!withSearch && menuProps.position === 'bottom' && (
             <Search
-              placeholder={t('Search...')}
+              placeholder={searchPlaceholder || t('Search...')}
               autoFocus
               control={control}
               containerStyle={spacings.mb0}
@@ -80,7 +81,7 @@ const SelectContainer: FC<Props> = ({
           {children}
           {!!withSearch && menuProps.position === 'top' && (
             <Search
-              placeholder={t('Search...')}
+              placeholder={searchPlaceholder || t('Search...')}
               autoFocus
               control={control}
               containerStyle={spacings.mb0}

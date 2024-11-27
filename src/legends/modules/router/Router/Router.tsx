@@ -1,18 +1,18 @@
 import React, { FC, ReactNode } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 
+import { DomainsContextProvider } from '@common/contexts/domainsContext'
 import PrivateRoute from '@legends/components/PrivateRoute'
+import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
+import { LegendsContextProvider } from '@legends/contexts/legendsContext'
+import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
+import { RecentActivityContextProvider } from '@legends/contexts/recentActivityContext'
 import Character from '@legends/modules/character/screens/Character'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
 import Leaderboard from '@legends/modules/leaderboard/screens/Leaderboard'
 import Legends from '@legends/modules/legends/screens/Legends'
 import Welcome from '@legends/modules/welcome/screens/Welcome'
 
-import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
-import { ActivityContextProvider } from '@legends/contexts/activityContext'
-import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
-import { DomainsContextProvider } from '@common/contexts/domainsContext'
-import { LegendsContextProvider } from '@legends/contexts/legendsContext'
 import { LEGENDS_ROUTES } from '../constants'
 
 // In LegendsInit.tsx, we've already declared some top-level contexts that all child components use.
@@ -24,18 +24,18 @@ import { LEGENDS_ROUTES } from '../constants'
 // Here's the flow:
 // LegendInit (top-level context)
 //  -> Router
-//      -> PrivateRoute (prevents loading child routes if no account/character is set)
-//          -> Private Area contexts are initialized
+//      -> Private Area contexts are initialized
+//         -> PrivateRoute (prevents loading child routes if no account/character is set)
 //              -> child Route.
 const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => (
   <LeaderboardContextProvider>
-    <LegendsContextProvider>
-      <ActivityContextProvider>
+    <RecentActivityContextProvider>
+      <LegendsContextProvider>
         <PortfolioControllerStateProvider>
           <DomainsContextProvider>{children}</DomainsContextProvider>
         </PortfolioControllerStateProvider>
-      </ActivityContextProvider>
-    </LegendsContextProvider>
+      </LegendsContextProvider>
+    </RecentActivityContextProvider>
   </LeaderboardContextProvider>
 )
 
@@ -50,44 +50,23 @@ const router = createHashRouter([
     element: <CharacterSelect />
   },
   {
-    path: LEGENDS_ROUTES.legends,
-    element: <PrivateRoute />,
+    element: (
+      <PrivateArea>
+        <PrivateRoute />
+      </PrivateArea>
+    ),
     children: [
       {
         path: LEGENDS_ROUTES.legends,
-        element: (
-          <PrivateArea>
-            <Legends />
-          </PrivateArea>
-        )
-      }
-    ]
-  },
-  {
-    path: LEGENDS_ROUTES.leaderboard,
-    element: <PrivateRoute />,
-    children: [
+        element: <Legends />
+      },
       {
         path: LEGENDS_ROUTES.leaderboard,
-        element: (
-          <PrivateArea>
-            <Leaderboard />
-          </PrivateArea>
-        )
-      }
-    ]
-  },
-  {
-    path: LEGENDS_ROUTES.character,
-    element: <PrivateRoute />,
-    children: [
+        element: <Leaderboard />
+      },
       {
         path: LEGENDS_ROUTES.character,
-        element: (
-          <PrivateArea>
-            <Character />
-          </PrivateArea>
-        )
+        element: <Character />
       }
     ]
   }

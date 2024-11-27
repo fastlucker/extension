@@ -3,9 +3,8 @@ import { View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
 import spacings from '@common/styles/spacings'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import NetworkComponent from './Network'
 
@@ -21,12 +20,11 @@ const Networks = ({
   search: string
 }) => {
   const { networks } = useNetworksControllerState()
-  const { selectedAccount } = useAccountsControllerState()
-  const portfolioControllerState = usePortfolioControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
 
   const portfolioByNetworks = useMemo(
-    () => (selectedAccount ? portfolioControllerState.state.latest[selectedAccount] : {}),
-    [selectedAccount, portfolioControllerState.state.latest]
+    () => (account ? portfolio.latest : {}),
+    [account, portfolio.latest]
   )
 
   const filteredAndSortedPortfolio = useMemo(
@@ -59,7 +57,7 @@ const Networks = ({
 
   return (
     <View style={spacings.mbLg}>
-      {!!selectedAccount &&
+      {!!account &&
         filteredAndSortedPortfolio.map((networkId) => (
           <NetworkComponent
             key={networkId}

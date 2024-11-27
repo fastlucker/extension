@@ -6,6 +6,7 @@ import { Account as AccountType } from '@ambire-common/interfaces/account'
 import { findAccountDomainFromPartialDomain } from '@common/utils/domains'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 const useAccountsList = ({
   flatlistRef
@@ -22,7 +23,8 @@ const useAccountsList = ({
   const [areAccountsRendered, setAreAccountsRendered] = useState(false)
   const [isReadyToScrollToSelectedAccount, setIsReadyToScrollToSelectedAccount] = useState(false)
   const { domains } = useDomainsControllerState()
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { accounts } = useAccountsControllerState()
+  const { account: selectedAccount } = useSelectedAccountControllerState()
 
   const filteredAccounts = useMemo(
     () =>
@@ -51,7 +53,9 @@ const useAccountsList = ({
     [accounts, domains, search]
   )
 
-  const selectedAccountIndex = accounts.findIndex((account) => account.addr === selectedAccount)
+  const selectedAccountIndex = accounts.findIndex(
+    (account) => account.addr === selectedAccount?.addr
+  )
 
   const onContentSizeChange = useCallback(
     (_: any, contentHeight: number) => {

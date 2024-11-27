@@ -1,11 +1,11 @@
-import { formatUnits, MaxUint256 } from 'ethers'
+import { formatUnits, MaxUint256, ZeroAddress } from 'ethers'
 import React, { FC, memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
-import Address from '@common/components/Address'
+import HumanizerAddress from '@common/components/HumanizerAddress'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
@@ -35,7 +35,13 @@ const InnerToken: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const openExplorer = useCallback(async () => {
-    if (network) await Linking.openURL(`${network.explorerUrl}/address/${address}`)
+    let targetUrl = `${network?.explorerUrl}/address/${address}`
+
+    if (address === ZeroAddress) {
+      targetUrl = `https://www.coingecko.com/en/coins/${network?.nativeAssetId}`
+    }
+
+    if (network) await Linking.openURL(targetUrl)
   }, [network, address])
 
   const shouldDisplayUnlimitedAmount = useMemo(() => {
@@ -81,7 +87,7 @@ const InnerToken: FC<Props> = ({
           withNetworkIcon={false}
         />
         <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mhMi}>
-          {tokenInfo?.symbol || <Address fontSize={16} address={address} />}
+          {tokenInfo?.symbol || <HumanizerAddress fontSize={16} address={address} />}
         </Text>
         {network && <OpenIcon width={14} height={14} />}
       </Pressable>

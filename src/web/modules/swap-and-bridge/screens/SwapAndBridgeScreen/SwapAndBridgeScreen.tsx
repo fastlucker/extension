@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import FlipIcon from '@common/assets/svg/FlipIcon'
@@ -24,7 +24,7 @@ import formatDecimals from '@common/utils/formatDecimals'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import ActiveRouteCard from '@web/modules/swap-and-bridge/components/ActiveRouteCard'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
@@ -36,6 +36,8 @@ import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTo
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import getStyles from './styles'
+
+const SWAP_AND_BRIDGE_HC_URL = 'https://help.ambire.com/hc/en-us/articles/16748050198428'
 
 const SwapAndBridgeScreen = () => {
   const { theme, styles } = useTheme(getStyles)
@@ -87,7 +89,7 @@ const SwapAndBridgeScreen = () => {
     shouldEnableRoutesSelection
   } = useSwapAndBridgeControllerState()
   const { statuses } = useMainControllerState()
-  const { accountPortfolio } = usePortfolioControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
 
@@ -128,6 +130,8 @@ const SwapAndBridgeScreen = () => {
   const handleCheckboxPress = useCallback(() => {
     setFollowUpTransactionConfirmed((p) => !p)
   }, [setFollowUpTransactionConfirmed])
+
+  const handleOpenReadMore = useCallback(() => Linking.openURL(SWAP_AND_BRIDGE_HC_URL), [])
 
   if (!sessionIds.includes(sessionId)) return null
 
@@ -206,8 +210,8 @@ const SwapAndBridgeScreen = () => {
                     setValue={({ value }) => handleChangeFromToken(value as string)}
                     options={fromTokenOptions}
                     value={fromTokenValue}
-                    // disabled={disableForm}
                     testID="from-token-select"
+                    searchPlaceholder={t('Token name or address...')}
                     containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
@@ -249,7 +253,7 @@ const SwapAndBridgeScreen = () => {
                   </View>
                   {!fromTokenAmountSelectDisabled && (
                     <MaxAmount
-                      isLoading={!accountPortfolio?.isAllReady}
+                      isLoading={!portfolio?.isAllReady}
                       maxAmount={Number(maxFromAmount)}
                       maxAmountInFiat={Number(maxFromAmountInFiat)}
                       selectedTokenSymbol={fromSelectedToken?.symbol || ''}
@@ -282,8 +286,8 @@ const SwapAndBridgeScreen = () => {
                     setValue={({ value }) => handleChangeToToken(value as string)}
                     options={toTokenOptions}
                     value={toTokenValue}
-                    // disabled={disableForm}
                     testID="to-token-select"
+                    searchPlaceholder={t('Token name or address...')}
                     containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
@@ -378,12 +382,29 @@ const SwapAndBridgeScreen = () => {
                       style={{ ...spacings.mb0, ...flexbox.alignCenter }}
                       onValueChange={handleCheckboxPress}
                     >
-                      <Text
-                        fontSize={12}
-                        onPress={handleCheckboxPress}
-                        testID="confirm-follow-up-txns-checkbox"
-                      >
-                        {t('I understand that I need to do a follow-up transaction.')}
+                      <Text fontSize={12}>
+                        <Text
+                          fontSize={12}
+                          weight="medium"
+                          onPress={handleCheckboxPress}
+                          testID="confirm-follow-up-txns-checkbox"
+                          color={
+                            followUpTransactionConfirmed
+                              ? theme.primaryText
+                              : theme.warningDecorative
+                          }
+                          style={[
+                            styles.followUpTxnText,
+                            !followUpTransactionConfirmed && {
+                              backgroundColor: theme.warningBackground
+                            }
+                          ]}
+                        >
+                          {t('I understand that I need to do a follow-up transaction.')}
+                        </Text>{' '}
+                        <Text fontSize={12} underline weight="medium" onPress={handleOpenReadMore}>
+                          {t('Read more.')}
+                        </Text>
                       </Text>
                     </Checkbox>
                   </View>
