@@ -13,6 +13,7 @@ import AddChainScreen from '@web/modules/action-requests/screens/AddChainScreen'
 import BenzinScreen from '@web/modules/action-requests/screens/BenzinScreen'
 import DappConnectScreen from '@web/modules/action-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/action-requests/screens/GetEncryptionPublicKeyRequestScreen'
+import SwitchAccountScreen from '@web/modules/action-requests/screens/SwitchAccountScreen'
 import WatchTokenRequestScreen from '@web/modules/action-requests/screens/WatchTokenRequestScreen'
 import CreateSeedPhraseConfirmScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhraseConfirmScreen'
 import CreateSeedPhrasePrepareScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhrasePrepareScreen'
@@ -191,6 +192,7 @@ const MainRoutes = () => {
             />
             <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
             <Route path={WEB_ROUTES.benzin} element={<BenzinScreen />} />
+            <Route path={WEB_ROUTES.switchAccount} element={<SwitchAccountScreen />} />
 
             <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
             <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />

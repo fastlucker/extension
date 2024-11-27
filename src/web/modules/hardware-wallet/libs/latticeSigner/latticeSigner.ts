@@ -1,6 +1,7 @@
 import { hexlify, Signature, Transaction, TransactionLike } from 'ethers'
 import * as SDK from 'gridplus-sdk'
 
+import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
@@ -22,7 +23,7 @@ class LatticeSigner implements KeystoreSigner {
   // @ts-ignore
   init(externalSignerController?: LatticeController) {
     if (!externalSignerController) {
-      throw new Error('latticeSigner: externalSignerController not initialized')
+      throw new ExternalSignerError('latticeSigner: externalSignerController not initialized')
     }
 
     this.controller = externalSignerController
@@ -30,12 +31,12 @@ class LatticeSigner implements KeystoreSigner {
 
   #prepareForSigning = async () => {
     if (!this.controller)
-      throw new Error(
+      throw new ExternalSignerError(
         'Something went wrong when preparing Lattice1 to sign. Please try again or contact support if the problem persists.'
       )
 
     if (!this.key)
-      throw new Error(
+      throw new ExternalSignerError(
         'Something went wrong when preparing Lattice1 to sign. Required information about the signing key was found missing. Please try again or contact Ambire support.'
       )
 
@@ -46,7 +47,7 @@ class LatticeSigner implements KeystoreSigner {
     await this.controller.unlock(this.key.meta.hdPathTemplate, this.key.addr)
 
     if (!this.controller.walletSDK)
-      throw new Error(
+      throw new ExternalSignerError(
         'Something went wrong when preparing Lattice1 to sign. Please try again or contact support if the problem persists.'
       )
   }
@@ -61,7 +62,7 @@ class LatticeSigner implements KeystoreSigner {
     if (!signedWithAddr) return
 
     if (signedWithAddr !== this.key.addr) {
-      throw new Error(
+      throw new ExternalSignerError(
         `The key you signed with (${shortenAddress(
           signedWithAddr,
           13
@@ -76,7 +77,7 @@ class LatticeSigner implements KeystoreSigner {
   #validateKeyExistsInTheCurrentWallet = async () => {
     const foundIdx = await this.controller!._keyIdxInCurrentWallet(this.key)
     if (foundIdx === null) {
-      throw new Error(
+      throw new ExternalSignerError(
         `The key you signed with is different than the key we expected (${shortenAddress(
           this.key.addr,
           13
@@ -93,7 +94,7 @@ class LatticeSigner implements KeystoreSigner {
     // legacy firmware, throw an error and prompt user to update.
     const fwVersion = this.controller!.walletSDK!.getFwVersion()
     if (fwVersion?.major === 0 && fwVersion?.minor <= 14) {
-      throw new Error(
+      throw new ExternalSignerError(
         'Unable to sign the transaction because your Lattice1 device firmware is outdated. Please update to the latest firmware and try again.'
       )
     }
@@ -124,7 +125,7 @@ class LatticeSigner implements KeystoreSigner {
 
       // Ensure we got a signature back
       if (!res?.sig || !res.sig.r || !res.sig.s || !res.sig.v) {
-        throw new Error('latticeSigner: no signature returned')
+        throw new ExternalSignerError('latticeSigner: no signature returned')
       }
 
       // GridPlus SDK's type for the signature is any, either because of bad
@@ -150,7 +151,7 @@ class LatticeSigner implements KeystoreSigner {
 
       return signedTxn.serialized
     } catch (error: any) {
-      throw new Error(
+      throw new ExternalSignerError(
         // An `error.err` message might come from the Lattice .sign() failure
         error?.message || error?.err || 'latticeSigner: singing failed for unknown reason'
       )
@@ -164,7 +165,7 @@ class LatticeSigner implements KeystoreSigner {
     primaryType
   }) => {
     if (!types.EIP712Domain) {
-      throw new Error(
+      throw new ExternalSignerError(
         'Unable to sign the message. Lattice1 supports signing EIP-712 type messages only.'
       )
     }
@@ -190,7 +191,7 @@ class LatticeSigner implements KeystoreSigner {
 
     const res = await this.controller!.walletSDK!.sign(req)
     if (!res.sig)
-      throw new Error(
+      throw new ExternalSignerError(
         'Required signature data was found missing. Please try again later or contact Ambire support.'
       )
 
