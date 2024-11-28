@@ -88,8 +88,8 @@ const getUnknownWalletExecuteBatch = (callData: string) => {
   return rawCalls.map(transformToAccOpCall)
 }
 
-export const decodeUserOp = (userOp: UserOperation): Call[] => {
-  const { callData, paymaster } = userOp
+export const decodeUserOp = (userOp: UserOperation): { calls: Call[]; from: string } => {
+  const { callData, paymaster, sender } = userOp
 
   const callDataSigHash = callData.slice(0, 10)
   const matcher = {
@@ -106,7 +106,7 @@ export const decodeUserOp = (userOp: UserOperation): Call[] => {
 
   if (isAddress(paymaster) && getAddress(paymaster) === AMBIRE_PAYMASTER)
     decodedCalls = decodedCalls.slice(0, -1)
-  return decodedCalls
+  return { calls: decodedCalls, from: sender }
 }
 
 export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
@@ -157,15 +157,17 @@ export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
   }
 
   const sigHash = txn.data.slice(0, 10)
+  let calls = [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
+  let from
 
-  let parsedCalls = non4337Matcher[sigHash]
-    ? non4337Matcher[sigHash](txn.data)
-    : [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
+  if (non4337Matcher[sigHash]) {
+    calls = non4337Matcher[sigHash](txn.data)
+    if (txn.to) from = txn.to
+    if ([...RELAYER_EXECUTOR_ADDRESSES, ...STAGING_RELAYER_EXECUTOR_ADDRESSES].includes(txn.from))
+      calls = calls.slice(0, -1)
+  }
 
-  if ([...RELAYER_EXECUTOR_ADDRESSES, ...STAGING_RELAYER_EXECUTOR_ADDRESSES].includes(txn.from))
-    parsedCalls = parsedCalls.slice(0, -1)
-
-  return parsedCalls
+  return { calls, from }
 }
 
 export const entryPointTxnSplit: {
