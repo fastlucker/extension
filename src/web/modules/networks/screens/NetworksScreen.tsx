@@ -91,7 +91,7 @@ const NetworksScreen = () => {
             onChangeText={setSearch}
             placeholder={t('Search for network')}
           />
-          <AllNetworksOption filterByNetworkId={dashboardNetworkFilter} />
+          <AllNetworksOption />
           <Networks
             search={search}
             openBlockExplorer={openBlockExplorer}
