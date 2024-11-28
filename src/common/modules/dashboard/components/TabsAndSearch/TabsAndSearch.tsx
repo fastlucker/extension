@@ -42,6 +42,8 @@ const handleChangeQuery = (tab: string) => {
   window.history.pushState(null, '', `${window.location.href}?tab=${tab}`)
 }
 
+const TABS = ['tokens', 'collectibles', 'defi']
+
 const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }) => {
   const { t } = useTranslation()
   const allBanners = useBanners()
@@ -49,7 +51,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }) => {
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
       <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-      {['tokens', 'collectibles', 'defi'].includes(openTab) && searchControl && (
+      {TABS.includes(openTab) && searchControl && (
         <View style={{ margin: -2 }}>
           <Search
             containerStyle={{ flex: 1, maxWidth: isPopup ? 184 : 212 }}
