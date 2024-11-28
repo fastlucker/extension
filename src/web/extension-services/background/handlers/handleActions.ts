@@ -319,6 +319,11 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
 
+    case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
+      mainCtrl.selectedAccount.setDashboardNetworkFilter(params.dashboardNetworkFilter)
+      break
+    }
+
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
       return await mainCtrl.swapAndBridge.initForm(params.sessionId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':

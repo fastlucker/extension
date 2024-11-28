@@ -16,14 +16,13 @@ import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import Tokens from '../Tokens'
 
 interface Props {
-  filterByNetworkId: NetworkId
   tokenPreferences: CustomToken[]
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 const { isTab } = getUiType()
 
-const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props) => {
+const DashboardPages = ({ tokenPreferences, onScroll }: Props) => {
   const route = useRoute()
 
   const [openTab, setOpenTab] = useState(() => {
@@ -48,7 +47,6 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
   return (
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
-        filterByNetworkId={filterByNetworkId}
         tokenPreferences={tokenPreferences}
         openTab={openTab}
         setOpenTab={setOpenTab}
@@ -56,7 +54,6 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
         initTab={initTab}
       />
       <Collections
-        filterByNetworkId={filterByNetworkId}
         openTab={openTab}
         setOpenTab={setOpenTab}
         initTab={initTab}
@@ -65,7 +62,6 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
       />
 
       <DeFiPositions
-        filterByNetworkId={filterByNetworkId}
         openTab={openTab}
         setOpenTab={setOpenTab}
         onScroll={onScroll}
