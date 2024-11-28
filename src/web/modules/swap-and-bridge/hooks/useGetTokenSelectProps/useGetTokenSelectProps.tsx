@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { Network } from '@ambire-common/interfaces/network'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -89,9 +90,7 @@ const useGetTokenSelectProps = ({
           : n.id === (t as TokenResult).networkId
       )
       const tooltipId = `${t.address}-${network?.chainId}-tooltip`
-      const isTokenNetworkSupported = supportedChainIds.length
-        ? network && supportedChainIds.includes(network.chainId)
-        : true // assume supported if missing, it's not a big deal
+      const isTokenNetworkSupported = getIsNetworkSupported(supportedChainIds, network)
 
       const notSupportedTooltip = !isTokenNetworkSupported && (
         <Tooltip id={tooltipId}>
