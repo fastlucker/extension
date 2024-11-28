@@ -5,11 +5,12 @@ import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
+import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappCommunication'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { getRpcProvider } from '@ambire-common/services/provider'
-import { APP_VERSION } from '@common/config/env'
+import { APP_VERSION, isProd } from '@common/config/env'
 import formatDecimals from '@common/utils/formatDecimals'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
@@ -43,6 +44,25 @@ export class ProviderController {
     this.isUnlocked = this.mainCtrl.keystore.isReadyToStoreKeys
       ? this.mainCtrl.keystore.isUnlocked
       : true
+  }
+
+  _internalGetAccounts = (origin: string) => {
+    if (ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS.includes(origin)) {
+      const allOtherAccountAddresses = this.mainCtrl.accounts.accounts.reduce((prevValue, acc) => {
+        if (acc.addr !== this.mainCtrl.selectedAccount.account?.addr) {
+          prevValue.push(acc.addr)
+        }
+
+        return prevValue
+      }, [] as string[])
+
+      // Selected account goes first in the list
+      return [this.mainCtrl.selectedAccount.account?.addr, ...allOtherAccountAddresses]
+    }
+
+    return this.mainCtrl.selectedAccount.account?.addr
+      ? [this.mainCtrl.selectedAccount.account?.addr]
+      : []
   }
 
   getDappNetwork = (origin: string) => {
@@ -83,9 +103,8 @@ export class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    const account = this.mainCtrl.selectedAccount.account
-      ? [this.mainCtrl.selectedAccount.account.addr]
-      : []
+    const account = this._internalGetAccounts(origin)
+
     this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
@@ -117,7 +136,7 @@ export class ProviderController {
       return []
     }
 
-    return this.mainCtrl.selectedAccount.account ? [this.mainCtrl.selectedAccount.account.addr] : []
+    return this._internalGetAccounts(origin)
   }
 
   ethCoinbase = async ({ session: { origin } }: DappProviderRequest) => {

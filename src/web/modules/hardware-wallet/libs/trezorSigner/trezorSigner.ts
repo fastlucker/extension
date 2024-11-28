@@ -1,5 +1,6 @@
 import { Signature, toBeHex, Transaction } from 'ethers'
 
+import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import {
   ExternalKey,
   ExternalSignerController,
@@ -47,7 +48,7 @@ class TrezorSigner implements KeystoreSigner {
 
   init(externalDeviceController?: ExternalSignerController) {
     if (!externalDeviceController) {
-      throw new Error('trezorSigner: externalDeviceController not initialized')
+      throw new ExternalSignerError('trezorSigner: externalDeviceController not initialized')
     }
 
     // TODO: Figure out a better approach than to cast the controller type
@@ -56,14 +57,14 @@ class TrezorSigner implements KeystoreSigner {
 
   #prepareForSigning = async () => {
     if (!this.controller) {
-      throw new Error(
+      throw new ExternalSignerError(
         'Something went wrong when preparing Trezor to sign. Please try again or contact support if the problem persists.'
       )
     }
 
     await this.controller.initialLoadPromise
     if (!this.controller.isInitiated || !this.controller.walletSDK) {
-      throw new Error(
+      throw new ExternalSignerError(
         'Something went wrong when preparing Trezor to sign. Please try restarting your browser or contact support if the problem persists.'
       )
     }
@@ -84,7 +85,7 @@ class TrezorSigner implements KeystoreSigner {
     // const status = await this.controller.unlock(path, this.key.addr)
     // await delayBetweenPopupsIfNeeded(status)
     // if (!this.controller.isUnlocked(path, this.key.addr)) {
-    //   throw new Error(
+    //   throw new ExternalSignerError(
     //     `The Trezor is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
     //   )
     // }
@@ -100,7 +101,7 @@ class TrezorSigner implements KeystoreSigner {
     if (!signedWithAddr) return
 
     if (signedWithAddr !== this.key.addr) {
-      throw new Error(
+      throw new ExternalSignerError(
         `The key you signed with (${shortenAddress(
           signedWithAddr,
           13
@@ -116,13 +117,13 @@ class TrezorSigner implements KeystoreSigner {
     try {
       return await operation()
     } catch (error: any) {
-      throw new Error(normalizeTrezorMessage(error?.message))
+      throw new ExternalSignerError(normalizeTrezorMessage(error?.message))
     }
   }
 
   signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     if (typeof txnRequest.value === 'undefined') {
-      throw new Error('trezorSigner: missing value in transaction request')
+      throw new ExternalSignerError('trezorSigner: missing value in transaction request')
     }
 
     await this.#prepareForSigning()
@@ -166,7 +167,9 @@ class TrezorSigner implements KeystoreSigner {
     )
 
     if (!res.success)
-      throw new Error(getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error))
+      throw new ExternalSignerError(
+        getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error)
+      )
 
     try {
       const signature = Signature.from({
@@ -190,7 +193,7 @@ class TrezorSigner implements KeystoreSigner {
 
       return signedTxn.serialized
     } catch (error: any) {
-      throw new Error(
+      throw new ExternalSignerError(
         error?.message ||
           'Signing failed for unknown reason. Please try again later or contact support if the problem persists.'
       )
@@ -240,7 +243,9 @@ class TrezorSigner implements KeystoreSigner {
     )
 
     if (!res.success)
-      throw new Error(getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error))
+      throw new ExternalSignerError(
+        getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error)
+      )
 
     this.#validateSigningKey(res.payload.address)
 
@@ -260,7 +265,9 @@ class TrezorSigner implements KeystoreSigner {
     )
 
     if (!res.success)
-      throw new Error(getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error))
+      throw new ExternalSignerError(
+        getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error)
+      )
 
     this.#validateSigningKey(res.payload.address)
 

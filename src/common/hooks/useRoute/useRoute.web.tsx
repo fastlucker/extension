@@ -1,13 +1,12 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
 import { UseRouteReturnType } from './types'
 
-function getSearchParamsAsObject(search: string) {
-  const params = new URLSearchParams(search)
+function getSearchParamsAsObject(searchParams: URLSearchParams) {
   const paramsObject: any = {}
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const [key, value] of params.entries()) {
+  for (const [key, value] of searchParams.entries()) {
     paramsObject[key] = value
   }
 
@@ -16,10 +15,11 @@ function getSearchParamsAsObject(search: string) {
 
 const useRoute = (): UseRouteReturnType => {
   const route = useLocation()
+  const [searchParams] = useSearchParams()
 
   return {
     ...route,
-    params: route.state || getSearchParamsAsObject(route.search) || {},
+    params: route.state || getSearchParamsAsObject(searchParams) || {},
     path: route.pathname
   }
 }
