@@ -30,7 +30,8 @@ import {
   createHotWalletWithSeedPhrase,
   checkAccountDetails,
   typeSeedWords,
-  selectHdPathAndAddAccount
+  selectHdPathAndAddAccount,
+  waitForAuthentication
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { baPrivateKey, SEED_12_WORDS, SEED_24_WORDS } from '../../config/constants'
@@ -156,6 +157,8 @@ describe('auth', () => {
     await clickOnElement(page, SELECTORS.viewOnlyBtnImport)
 
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+
+    await waitForAuthentication(page, extensionURL)
 
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
