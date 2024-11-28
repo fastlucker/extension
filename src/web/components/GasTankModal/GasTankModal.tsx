@@ -55,8 +55,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     values: {
       from: 'transparent',
       to: theme.primary
-    },
-    forceHoveredStyle: true
+    }
   })
 
   const isSA = useMemo(() => isSmartAccount(account), [account])
