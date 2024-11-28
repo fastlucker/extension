@@ -13,7 +13,7 @@ const ActivityPositionsSkeleton = ({ amount = 5 }: { amount?: number }) => {
   return (
     <View style={[spacings.phTy, spacings.ptMi]}>
       {skeletonItems.map((item) => (
-        <SkeletonLoader key={item.key} width="100%" height={52} style={spacings.mbTy} />
+        <SkeletonLoader key={item.key} width="100%" height={96} style={spacings.mbTy} />
       ))}
     </View>
   )
