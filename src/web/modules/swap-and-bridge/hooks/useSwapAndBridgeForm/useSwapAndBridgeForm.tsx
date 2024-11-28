@@ -149,7 +149,8 @@ const useSwapAndBridgeForm = () => {
     tokens: portfolioTokenList,
     token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
     isLoading: isTokenListLoading,
-    networks
+    networks,
+    supportedChainIds
   })
 
   const handleChangeFromToken = useCallback(
@@ -174,6 +175,7 @@ const useSwapAndBridgeForm = () => {
     tokens: toTokenList,
     token: toSelectedToken ? getTokenId(toSelectedToken) : '',
     networks,
+    supportedChainIds,
     isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
     isToToken: true
   })
