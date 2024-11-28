@@ -129,7 +129,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
   }, [dispatch, account, network, page, sessionId, historyType])
 
   useEffect(() => {
-    return () => {
+    const killSession = () => {
       dispatch({
         type:
           historyType === 'transactions'
@@ -137,6 +137,13 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
             : 'MAIN_CONTROLLER_ACTIVITY_RESET_SIGNED_MESSAGES_FILTERS',
         params: { sessionId }
       })
+
+      window.addEventListener('beforeunload', killSession)
+    }
+
+    return () => {
+      window.removeEventListener('beforeunload', killSession)
+      killSession()
     }
   }, [dispatch, historyType, sessionId])
 

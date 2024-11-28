@@ -69,11 +69,17 @@ const ActivityPositions: FC<Props> = ({
   }, [openTab, account, dispatch, filterByNetworkId, sessionId])
 
   useEffect(() => {
-    return () => {
+    const killSession = () => {
       dispatch({
         type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS',
         params: { sessionId }
       })
+    }
+
+    window.addEventListener('beforeunload', killSession)
+    return () => {
+      window.removeEventListener('beforeunload', killSession)
+      killSession()
     }
   }, [dispatch, sessionId])
 
