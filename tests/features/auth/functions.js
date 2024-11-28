@@ -121,6 +121,21 @@ export async function typeSeedWords(page, passphraseWords) {
   }
 }
 
+/**
+ * Wait for the accounts to be added before navigating to another page,
+ * otherwise the extension will redirect back to /get-started.
+ */
+export async function waitForAuthentication(page, extensionURL) {
+  let isWaitingForAccounts = true
+  while (isWaitingForAccounts) {
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    if (page.url() === `${extensionURL}/tab.html#/dashboard`) {
+      isWaitingForAccounts = false
+    }
+  }
+}
+
 async function expectImportButtonToBeDisabled(page) {
   const isButtonDisabled = await page.$eval(SELECTORS.importBtn, (button) => {
     return button.getAttribute('aria-disabled')
