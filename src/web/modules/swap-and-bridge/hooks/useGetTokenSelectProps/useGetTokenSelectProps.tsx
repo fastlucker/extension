@@ -8,8 +8,8 @@ import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAnd
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import Tooltip from '@common/components/Tooltip'
 import flexbox from '@common/styles/utils/flexbox'
+import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import { getTokenId } from '@web/utils/token'
 
 const getTokenOptionsEmptyState = (isToToken = false) => [
@@ -89,18 +89,8 @@ const useGetTokenSelectProps = ({
           ? Number(n.chainId) === (t as SocketAPIToken).chainId
           : n.id === (t as TokenResult).networkId
       )
-      const tooltipId = `${t.address}-${network?.chainId}-tooltip`
+      const tooltipId = `token-${t.address}-on-network-${network?.chainId}-not-supported-tooltip`
       const isTokenNetworkSupported = getIsNetworkSupported(supportedChainIds, network)
-
-      const notSupportedTooltip = !isTokenNetworkSupported && (
-        <Tooltip id={tooltipId}>
-          <View>
-            <Text fontSize={14} appearance="secondaryText">
-              {network?.name} network is not supported by our service provider.
-            </Text>
-          </View>
-        </Tooltip>
-      )
 
       const label = isToToken ? (
         <>
@@ -118,7 +108,9 @@ const useGetTokenSelectProps = ({
               {name}
             </Text>
           </View>
-          {notSupportedTooltip}
+          {!isTokenNetworkSupported && (
+            <NotSupportedNetworkTooltip tooltipId={tooltipId} network={network} />
+          )}
         </>
       ) : (
         <>
@@ -133,7 +125,9 @@ const useGetTokenSelectProps = ({
               {network?.name || 'Unknown network'}
             </Text>
           </Text>
-          {notSupportedTooltip}
+          {!isTokenNetworkSupported && (
+            <NotSupportedNetworkTooltip tooltipId={tooltipId} network={network} />
+          )}
         </>
       )
 
