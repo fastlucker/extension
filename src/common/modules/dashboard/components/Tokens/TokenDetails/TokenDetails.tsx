@@ -74,7 +74,7 @@ const TokenDetails = ({
         text: t('Send'),
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
-          navigate(`transfer?networkId=${networkId}&address=${address}`),
+          navigate(`${WEB_ROUTES.transfer}?networkId=${networkId}&address=${address}`),
         isDisabled: isGasTankOrRewardsToken || isAmountZero,
         strokeWidth: 1.5,
         testID: 'token-send'
@@ -84,8 +84,9 @@ const TokenDetails = ({
         text: t('Swap or Bridge'),
         icon: SwapAndBridgeIcon,
         iconWidth: 86,
-        onPress: () => navigate(WEB_ROUTES.swapAndBridge),
-        isDisabled: isGasTankOrRewardsToken,
+        onPress: ({ networkId, address }: TokenResult) =>
+          navigate(`${WEB_ROUTES.swapAndBridge}?networkId=${networkId}&address=${address}`),
+        isDisabled: isGasTankOrRewardsToken || isAmountZero,
         strokeWidth: 1.5
       },
       {
