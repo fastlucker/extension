@@ -48,12 +48,14 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
     })
   }, [activeRoute.activeRouteId, dispatch])
 
-  const isNextTnxForBridging = useMemo(() => {
+  const isNextTxnForBridging = useMemo(() => {
     const isBridgeTxn = activeRoute.route.userTxs.some((userTx) =>
       getIsBridgeTxn(userTx.userTxType)
     )
     return isBridgeTxn && activeRoute.route.currentUserTxIndex >= 1
-  }, [activeRoute.route.userTxs])
+  }, [activeRoute.route.currentUserTxIndex, activeRoute.route.userTxs])
+
+  const isLastTxn = activeRoute.route.totalUserTx === activeRoute.route.currentUserTxIndex + 1
 
   return (
     <Panel
@@ -136,7 +138,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
             </Text>
           )}
           <Button
-            text={t('Reject')}
+            text={
+              (isLastTxn && activeRoute.routeStatus === 'in-progress') || !isNextTxnForBridging
+                ? t('Cancel')
+                : t('Cancel Next Step')
+            }
             onPress={handleRejectActiveRoute}
             type="danger"
             size="small"
@@ -147,8 +153,8 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
           <Button
             text={
               statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-                ? t('Preparing...')
-                : isNextTnxForBridging
+                ? t('Building Transaction...')
+                : isNextTxnForBridging
                 ? t('Proceed to Next Step')
                 : t('Proceed')
             }
