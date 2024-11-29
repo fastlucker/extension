@@ -11,12 +11,10 @@ import NetworkComponent from './Network'
 const Networks = ({
   openSettingsBottomSheet,
   openBlockExplorer,
-  filterByNetworkId,
   search
 }: {
   openSettingsBottomSheet: (networkId: NetworkId) => void
   openBlockExplorer: (url?: string) => void
-  filterByNetworkId: NetworkId | null
   search: string
 }) => {
   const { networks } = useNetworksControllerState()
@@ -62,7 +60,6 @@ const Networks = ({
           <NetworkComponent
             key={networkId}
             networkId={networkId}
-            filterByNetworkId={filterByNetworkId}
             openBlockExplorer={openBlockExplorer}
             openSettingsBottomSheet={openSettingsBottomSheet}
           />
@@ -71,4 +68,4 @@ const Networks = ({
   )
 }
 
-export default Networks
+export default React.memo(Networks)

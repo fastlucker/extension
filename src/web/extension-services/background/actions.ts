@@ -238,6 +238,11 @@ type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
 }
 
+type SelectedAccountSetDashboardNetworkFilter = {
+  type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
+  params: { dashboardNetworkFilter: NetworkId | null }
+}
+
 type PortfolioControllerGetTemporaryToken = {
   type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS'
   params: {
@@ -595,6 +600,7 @@ export type Action =
   | MainControllerSignAccountOpUpdateAction
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
+  | SelectedAccountSetDashboardNetworkFilter
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences
