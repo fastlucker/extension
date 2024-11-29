@@ -121,6 +121,7 @@ type SettingsControllerSetNetworkToAddOrUpdate = {
   params: {
     chainId: Network['chainId']
     rpcUrl: string
+    force4337?: boolean
   }
 }
 
@@ -184,6 +185,10 @@ type MainControllerResolveAccountOpAction = {
   type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
   params: { data: any; actionId: AccountOpAction['id'] }
 }
+type MainControllerResolveSwitchAccountRequest = {
+  type: 'MAIN_CONTROLLER_RESOLVE_SWITCH_ACCOUNT_REQUEST'
+  params: { actionId: AccountOpAction['id'] }
+}
 type MainControllerRejectAccountOpAction = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
   params: { err: string; actionId: AccountOpAction['id']; shouldOpenNextAction: boolean }
@@ -231,6 +236,11 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+}
+
+type SelectedAccountSetDashboardNetworkFilter = {
+  type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
+  params: { dashboardNetworkFilter: NetworkId | null }
 }
 
 type PortfolioControllerGetTemporaryToken = {
@@ -417,6 +427,10 @@ type SwapAndBridgeControllerUpdateFormAction = {
     routePriority?: 'output' | 'time'
   }
 }
+type SwapAndBridgeControllerAddToTokenByAddress = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS'
+  params: { address: string }
+}
 type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
 }
@@ -570,6 +584,7 @@ export type Action =
   | MainControllerRejectUserRequestAction
   | MainControllerResolveAccountOpAction
   | MainControllerRejectAccountOpAction
+  | MainControllerResolveSwitchAccountRequest
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerHandleSignMessage
@@ -585,6 +600,7 @@ export type Action =
   | MainControllerSignAccountOpUpdateAction
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
+  | SelectedAccountSetDashboardNetworkFilter
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences
@@ -612,6 +628,7 @@ export type Action =
   | SwapAndBridgeControllerInitAction
   | SwapAndBridgeControllerUnloadScreenAction
   | SwapAndBridgeControllerUpdateFormAction
+  | SwapAndBridgeControllerAddToTokenByAddress
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerSubmitFormAction

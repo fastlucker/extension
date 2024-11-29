@@ -30,6 +30,8 @@ export type CommonSelectProps = {
 }
 export type SelectProps = CommonSelectProps & {
   options: SelectValue[]
+  attemptToFetchMoreOptions?: (search: string) => void
+  emptyListPlaceholderText?: string
 }
 
 export type SectionedSelectProps = CommonSelectProps &

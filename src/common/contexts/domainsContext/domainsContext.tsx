@@ -20,7 +20,7 @@ const providers = networks.reduce(
   {}
 )
 
-const domainsCtrl = new DomainsController(providers, window.fetch.bind(window) as any)
+const domainsCtrl = new DomainsController(providers)
 
 const DomainsContextProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState<DomainsController>(domainsCtrl)

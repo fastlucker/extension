@@ -21,7 +21,7 @@ export async function checkAccountDetails(
 
   // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
   // Note: This wait is required because there is a case that the account address is loading with some delay because of the UD/ENS resolving.
-  await wait(500)
+  await wait(1500)
 
   const addedAccounts = await page.$$eval(selector, (elements) =>
     elements.map((element) => element.innerText)
@@ -118,6 +118,21 @@ export async function typeSeedWords(page, passphraseWords) {
     const inputSelector = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, i + 1)
     // eslint-disable-next-line no-await-in-loop
     await page.type(inputSelector, wordToType)
+  }
+}
+
+/**
+ * Wait for the accounts to be added before navigating to another page,
+ * otherwise the extension will redirect back to /get-started.
+ */
+export async function waitForAuthentication(page, extensionURL) {
+  let isWaitingForAccounts = true
+  while (isWaitingForAccounts) {
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    if (page.url() === `${extensionURL}/tab.html#/dashboard`) {
+      isWaitingForAccounts = false
+    }
   }
 }
 

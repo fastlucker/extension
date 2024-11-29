@@ -45,6 +45,7 @@ const flowContext = flow
     } = request
 
     const providerCtrl = new ProviderController(mainCtrl)
+
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       const isUnlock = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
 
@@ -117,6 +118,7 @@ const flowContext = flow
   .use(async (props, next) => {
     const { request, mainCtrl, mapMethod } = props
     const providerCtrl = new ProviderController(mainCtrl)
+
     const [requestType, condition] =
       Reflect.getMetadata('ACTION_REQUEST', providerCtrl, mapMethod) || []
     if (requestType && (!condition || !condition(props))) {
