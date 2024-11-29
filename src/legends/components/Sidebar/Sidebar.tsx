@@ -8,8 +8,8 @@ import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
 import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import useActivityContext from '@legends/hooks/useActivityContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
+import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
@@ -32,10 +32,10 @@ const NAVIGATION_LINKS = [
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const tooltipRef = useRef<TooltipRefProps>(null)
-  const { activity } = useActivityContext()
+  const { activity } = useRecentActivityContext()
 
   const hoursUntilMidnight = useMemo(
-    () => (activity ? calculateHoursUntilMidnight(activity) : 0),
+    () => (activity?.transactions ? calculateHoursUntilMidnight(activity.transactions) : 0),
     [activity]
   )
 

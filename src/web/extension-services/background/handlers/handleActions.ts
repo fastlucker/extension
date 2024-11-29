@@ -319,6 +319,11 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
 
+    case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
+      mainCtrl.selectedAccount.setDashboardNetworkFilter(params.dashboardNetworkFilter)
+      break
+    }
+
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
       return await mainCtrl.swapAndBridge.initForm(params.sessionId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
@@ -327,6 +332,8 @@ export const handleActions = async (
       return mainCtrl.swapAndBridge.updateForm(params)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
       return await mainCtrl.swapAndBridge.switchFromAndToTokens()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS':
+      return await mainCtrl.swapAndBridge.addToTokenByAddress(params.address)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return mainCtrl.swapAndBridge.selectRoute(params.route)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':

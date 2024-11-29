@@ -4,7 +4,6 @@ import { useModalize } from 'react-native-modalize'
 
 import { isWeb } from '@common/config/env'
 import useDebounce from '@common/hooks/useDebounce'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import DefaultWalletControl from '@common/modules/dashboard/components/DefaultWalletControl'
 import spacings from '@common/styles/spacings'
@@ -24,7 +23,6 @@ const { isPopup } = getUiType()
 export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 
 const DashboardScreen = () => {
-  const route = useRoute()
   const { styles } = useTheme(getStyles)
   const { tokenPreferences } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
@@ -36,8 +34,6 @@ const DashboardScreen = () => {
   })
   const debouncedDashboardOverviewSize = useDebounce({ value: dashboardOverviewSize, delay: 100 })
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
-
-  const filterByNetworkId = route?.state?.filterByNetworkId || null
 
   const onScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -87,11 +83,7 @@ const DashboardScreen = () => {
             dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}
           />
-          <DashboardPages
-            tokenPreferences={tokenPreferences}
-            filterByNetworkId={filterByNetworkId}
-            onScroll={onScroll}
-          />
+          <DashboardPages tokenPreferences={tokenPreferences} onScroll={onScroll} />
         </View>
         {!!isPopup && <DAppFooter />}
       </View>

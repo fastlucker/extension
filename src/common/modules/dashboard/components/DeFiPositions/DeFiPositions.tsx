@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
@@ -21,24 +20,18 @@ interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   initTab?: { [key: string]: boolean }
-  filterByNetworkId: NetworkId
   onScroll: FlatListProps<any>['onScroll']
 }
 
 const { isPopup } = getUiType()
 
-const DeFiPositions: FC<Props> = ({
-  openTab,
-  setOpenTab,
-  initTab,
-  onScroll,
-  filterByNetworkId
-}) => {
+const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
   const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const { t } = useTranslation()
   const { theme } = useTheme()
   const searchValue = watch('search')
-  const { defiPositions, areDefiPositionsLoading } = useSelectedAccountControllerState()
+  const { defiPositions, areDefiPositionsLoading, dashboardNetworkFilter } =
+    useSelectedAccountControllerState()
 
   useEffect(() => {
     setValue('search', '')
@@ -50,8 +43,8 @@ const DeFiPositions: FC<Props> = ({
         let isMatchingNetwork = true
         let isMatchingSearch = true
 
-        if (filterByNetworkId) {
-          isMatchingNetwork = networkId === filterByNetworkId
+        if (dashboardNetworkFilter) {
+          isMatchingNetwork = networkId === dashboardNetworkFilter
         }
 
         if (searchValue) {
@@ -60,7 +53,7 @@ const DeFiPositions: FC<Props> = ({
 
         return isMatchingNetwork && isMatchingSearch
       }),
-    [defiPositions, filterByNetworkId, searchValue]
+    [defiPositions, dashboardNetworkFilter, searchValue]
   )
 
   const renderItem = useCallback(
@@ -76,9 +69,9 @@ const DeFiPositions: FC<Props> = ({
       if (item === 'empty') {
         return (
           <Text fontSize={16} weight="medium" style={styles.noPositions}>
-            {!searchValue && !filterByNetworkId && t("You don't have any DeFi positions yet")}
+            {!searchValue && !dashboardNetworkFilter && t("You don't have any DeFi positions yet")}
             {!searchValue &&
-              filterByNetworkId &&
+              dashboardNetworkFilter &&
               t("You don't have any DeFi positions on this network")}
             {searchValue && t('No DeFi positions found')}
           </Text>
@@ -93,7 +86,7 @@ const DeFiPositions: FC<Props> = ({
 
       return <DeFiPosition key={item.providerName + item.network} {...item} />
     },
-    [control, filterByNetworkId, initTab?.defi, openTab, searchValue, setOpenTab, t, theme]
+    [control, dashboardNetworkFilter, initTab?.defi, openTab, searchValue, setOpenTab, t, theme]
   )
 
   const keyExtractor = useCallback((positionOrElement: any) => {
