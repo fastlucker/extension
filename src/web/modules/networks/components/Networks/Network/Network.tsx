@@ -7,12 +7,12 @@ import OpenIcon from '@common/assets/svg/OpenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, DURATIONS, useCustomHover, useMultiHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -20,22 +20,16 @@ import getStyles from '@web/modules/networks/screens/styles'
 
 interface Props {
   networkId: NetworkId
-  filterByNetworkId: NetworkId | null
   openBlockExplorer: (url?: string) => void
   openSettingsBottomSheet: (networkId: NetworkId) => void
 }
 
-const Network: FC<Props> = ({
-  networkId,
-  filterByNetworkId,
-  openBlockExplorer,
-  openSettingsBottomSheet
-}) => {
+const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSheet }) => {
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
-  const { state } = useRoute()
   const { networks } = useNetworksControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
+  const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
+  const { dispatch } = useBackgroundService()
   const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({
     values: [
       {
@@ -49,7 +43,7 @@ const Network: FC<Props> = ({
         to: theme.secondaryBorder
       }
     ],
-    forceHoveredStyle: filterByNetworkId === networkId
+    forceHoveredStyle: dashboardNetworkFilter === networkId
   })
   const isInternalNetwork = networkId === 'rewards' || networkId === 'gasTank'
   // Doesn't have to be binded
@@ -59,16 +53,16 @@ const Network: FC<Props> = ({
       from: 0,
       to: 1
     },
-    forceHoveredStyle: (isHovered || filterByNetworkId === networkId) && !isInternalNetwork,
+    forceHoveredStyle: (isHovered || dashboardNetworkFilter === networkId) && !isInternalNetwork,
     duration: DURATIONS.REGULAR
   })
 
   const navigateAndFilterDashboard = () => {
-    navigate(`${WEB_ROUTES.dashboard}${state.prevTab ? `?${state.prevTab}` : ''}`, {
-      state: {
-        filterByNetworkId: networkId
-      }
+    dispatch({
+      type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER',
+      params: { dashboardNetworkFilter: networkId }
     })
+    navigate(WEB_ROUTES.dashboard)
   }
 
   const networkData = networks.find((network) => network.id === networkId)
@@ -110,7 +104,7 @@ const Network: FC<Props> = ({
         </AnimatedPressable>
       </View>
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-        <Text fontSize={filterByNetworkId === networkId ? 20 : 16} weight="semiBold">
+        <Text fontSize={dashboardNetworkFilter === networkId ? 20 : 16} weight="semiBold">
           {`$${formatDecimals(Number(networkBalance?.usd || 0))}` || '$-'}
         </Text>
         {!isInternalNetwork && (

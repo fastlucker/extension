@@ -4,7 +4,6 @@ import { useModalize } from 'react-native-modalize'
 
 import { isWeb } from '@common/config/env'
 import useDebounce from '@common/hooks/useDebounce'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import DefaultWalletControl from '@common/modules/dashboard/components/DefaultWalletControl'
 import spacings from '@common/styles/spacings'
@@ -28,7 +27,6 @@ const { isPopup } = getUiType()
 export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 
 const DashboardScreen = () => {
-  const route = useRoute()
   const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { tokenPreferences } = usePortfolioControllerState()
@@ -43,9 +41,7 @@ const DashboardScreen = () => {
   const debouncedDashboardOverviewSize = useDebounce({ value: dashboardOverviewSize, delay: 100 })
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
-  const filterByNetworkId = route?.state?.filterByNetworkId || null
-  const { account, portfolio, portfolioStartedLoadingAtTimestamp } =
-    useSelectedAccountControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
 
   const shouldPopsUpConfetti = useMemo(() => {
     if (!account) return false
@@ -131,15 +127,8 @@ const DashboardScreen = () => {
             dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}
             onGasTankButtonPosition={handleGasTankButtonPosition}
-            portfolio={portfolio}
-            account={account}
-            portfolioStartedLoadingAtTimestamp={portfolioStartedLoadingAtTimestamp}
           />
-          <DashboardPages
-            tokenPreferences={tokenPreferences}
-            filterByNetworkId={filterByNetworkId}
-            onScroll={onScroll}
-          />
+          <DashboardPages tokenPreferences={tokenPreferences} onScroll={onScroll} />
         </View>
         {!!isPopup && <DAppFooter />}
       </View>

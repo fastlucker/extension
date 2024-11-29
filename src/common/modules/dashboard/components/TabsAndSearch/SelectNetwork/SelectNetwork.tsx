@@ -6,13 +6,13 @@ import FilterIcon from '@common/assets/svg/FilterIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -22,7 +22,7 @@ const { isPopup } = getUiType()
 const SelectNetwork = () => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const route = useRoute()
+  const { dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme()
@@ -31,15 +31,13 @@ const SelectNetwork = () => {
     preset: 'opacity'
   })
 
-  const filterByNetworkId = route?.state?.filterByNetworkId || null
-
   const filterByNetworkName = useMemo(() => {
-    if (!filterByNetworkId) return ''
+    if (!dashboardNetworkFilter) return ''
 
-    if (filterByNetworkId === 'rewards') return 'Ambire Rewards Portfolio'
-    if (filterByNetworkId === 'gasTank') return 'Gas Tank Portfolio'
+    if (dashboardNetworkFilter === 'rewards') return 'Ambire Rewards Portfolio'
+    if (dashboardNetworkFilter === 'gasTank') return 'Gas Tank Portfolio'
 
-    const network = networks.find((n) => n.id === filterByNetworkId)
+    const network = networks.find((n) => n.id === dashboardNetworkFilter)
 
     let networkName = network?.name || 'Unknown Network'
 
@@ -50,7 +48,7 @@ const SelectNetwork = () => {
     }
 
     return networkName
-  }, [filterByNetworkId, networks])
+  }, [dashboardNetworkFilter, networks])
 
   return (
     <View style={[styles.container, flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
@@ -67,14 +65,14 @@ const SelectNetwork = () => {
         onPress={() => {
           navigate(WEB_ROUTES.networks, {
             state: {
-              filterByNetworkId,
+              dashboardNetworkFilter,
               prevTab: window.location.hash.split('?')[1] || ''
             }
           })
         }}
         {...bindNetworkButtonAnim}
       >
-        {filterByNetworkId ? (
+        {dashboardNetworkFilter ? (
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <FilterIcon color={theme.secondaryText} width={12} height={12} />
             <Text fontSize={12} color={theme.secondaryText}>

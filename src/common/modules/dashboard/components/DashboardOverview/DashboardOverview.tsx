@@ -9,7 +9,6 @@ import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
@@ -23,6 +22,7 @@ import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import GasTankButton from '../DashboardHeader/GasTankButton'
 import RefreshIcon from './RefreshIcon'
@@ -43,9 +43,6 @@ interface Props {
     width: number
     height: number
   }) => void
-  portfolio: SelectedAccountPortfolio
-  account: Account | null
-  portfolioStartedLoadingAtTimestamp: number | null
 }
 
 // We create a reusable height constant for both the Balance line-height and the Balance skeleton.
@@ -58,16 +55,14 @@ const DashboardOverview: FC<Props> = ({
   animatedOverviewHeight,
   dashboardOverviewSize,
   setDashboardOverviewSize,
-  onGasTankButtonPosition,
-  portfolio,
-  account,
-  portfolioStartedLoadingAtTimestamp
+  onGasTankButtonPosition
 }) => {
-  const route = useRoute()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
+  const { account, dashboardNetworkFilter, portfolio, portfolioStartedLoadingAtTimestamp } =
+    useSelectedAccountControllerState()
 
   const isSA = useMemo(() => isSmartAccount(account), [account])
 
@@ -76,15 +71,13 @@ const DashboardOverview: FC<Props> = ({
   })
   const [isLoadingTakingTooLong, setIsLoadingTakingTooLong] = useState(false)
 
-  const filterByNetworkId = route?.state?.filterByNetworkId || null
-
   const totalPortfolioAmount = useMemo(() => {
-    if (!filterByNetworkId) return portfolio?.totalBalance || 0
+    if (!dashboardNetworkFilter) return portfolio?.totalBalance || 0
 
     if (!account) return 0
 
-    return Number(portfolio?.latest?.[filterByNetworkId]?.result?.total?.usd) || 0
-  }, [portfolio, filterByNetworkId, account])
+    return Number(portfolio?.latest?.[dashboardNetworkFilter]?.result?.total?.usd) || 0
+  }, [portfolio, dashboardNetworkFilter, account])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
     totalPortfolioAmount,
