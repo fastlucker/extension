@@ -51,6 +51,8 @@ import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
+import { handleControllersSessionCleanup } from './handlers/handleControllersSessionCleanup'
+
 function stateDebug(event: string, stateToLog: object) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
@@ -705,18 +707,27 @@ handleKeepAlive()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, action: Action) => {
-        const { type } = action
+        const { type, params } = action as any
         try {
           if (messageType === '> background' && type) {
-            await handleActions(action, {
-              pm,
-              mainCtrl,
-              ledgerCtrl,
-              trezorCtrl,
-              latticeCtrl,
-              walletStateCtrl,
-              autoLockCtrl
-            })
+            if (type === 'UPDATE_NAVIGATION_URL') {
+              if (port.sender) {
+                // eslint-disable-next-line no-param-reassign
+                port.sender.url = params.url
+                // eslint-disable-next-line no-param-reassign
+                if (port.sender.tab) port.sender.tab.url = params.url
+              }
+            } else {
+              await handleActions(action, {
+                pm,
+                mainCtrl,
+                ledgerCtrl,
+                trezorCtrl,
+                latticeCtrl,
+                walletStateCtrl,
+                autoLockCtrl
+              })
+            }
           }
         } catch (err: any) {
           console.error(err)
@@ -742,6 +753,7 @@ handleKeepAlive()
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
         initDefiPositionsContinuousUpdate()
+        handleControllersSessionCleanup({ port, mainCtrl })
 
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises

@@ -22,6 +22,11 @@ import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
+type UpdateNavigationUrl = {
+  type: 'UPDATE_NAVIGATION_URL'
+  params: { url: string }
+}
+
 type InitControllerStateAction = {
   type: 'INIT_CONTROLLER_STATE'
   params: {
@@ -551,6 +556,7 @@ type ImportSmartAccountJson = {
 }
 
 export type Action =
+  | UpdateNavigationUrl
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
   | MainControllerAccountAdderInitTrezorAction
