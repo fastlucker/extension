@@ -2,8 +2,8 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import useActivityContext from '@legends/hooks/useActivityContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import { isWheelSpinTodayDone } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardType } from '@legends/modules/legends/types'
@@ -25,7 +25,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
   const { getCharacter } = useCharacterContext()
-  const { activity, getActivity } = useActivityContext()
+  const { activity, getActivity } = useRecentActivityContext()
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -37,8 +37,8 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   )
 
   const wheelSpinOfTheDay = useMemo(
-    () => isWheelSpinTodayDone({ legends, activity }),
-    [legends, activity]
+    () => isWheelSpinTodayDone({ legends, activity: activity?.transactions || [] }),
+    [legends, activity?.transactions]
   )
 
   const getLegends = useCallback(async () => {
