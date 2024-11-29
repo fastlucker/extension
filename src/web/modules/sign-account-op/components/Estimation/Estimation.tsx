@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Image, View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -36,7 +36,8 @@ const Estimation = ({
   slowRequest,
   slowPaymasterRequest,
   isViewOnly,
-  isSponsored
+  isSponsored,
+  sponsor
 }: Props) => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
@@ -293,14 +294,37 @@ const Estimation = ({
   return (
     <EstimationWrapper>
       {isSponsored && (
-        <Alert
-          type="success"
-          size="md"
-          text={t(
-            "This is a sponsored transaction so you don't have to pay any gas. Nevertheless, please review the changes on the left side before signing"
+        <View>
+          {sponsor && (
+            <View style={[flexbox.alignCenter, spacings.mbLg]}>
+              {sponsor.icon && (
+                <Image
+                  source={{ uri: sponsor.icon }}
+                  resizeMode="contain"
+                  style={[
+                    {
+                      height: 150,
+                      width: 150
+                    }
+                  ]}
+                />
+              )}
+              <Text fontSize={16} color={theme.secondaryText} style={{ textAlign: 'center' }}>
+                <Text weight="number_black">{sponsor.name}</Text>
+                {'\n'}
+                <Text>is sponsoring this transaction</Text>
+              </Text>
+            </View>
           )}
-          style={spacings.mbSm}
-        />
+          <Alert
+            type="success"
+            size="md"
+            text={t(
+              "This is a sponsored transaction so you don't have to pay any gas. Nevertheless, please review the changes on the left side before signing"
+            )}
+            style={spacings.mbSm}
+          />
+        </View>
       )}
       {!isSponsored && (
         <SectionedSelect
