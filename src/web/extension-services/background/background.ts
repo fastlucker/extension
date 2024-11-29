@@ -32,6 +32,7 @@ import { BadgesController } from '@web/extension-services/background/controllers
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { handleActions } from '@web/extension-services/background/handlers/handleActions'
 import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
+import { handleControllersSessionCleanup } from '@web/extension-services/background/handlers/handleControllersSessionCleanup'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
@@ -50,8 +51,6 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
-
-import { handleControllersSessionCleanup } from './handlers/handleControllersSessionCleanup'
 
 function stateDebug(event: string, stateToLog: object) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
