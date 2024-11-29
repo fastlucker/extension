@@ -707,27 +707,19 @@ handleKeepAlive()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, action: Action) => {
-        const { type, params } = action as any
+        const { type } = action
         try {
           if (messageType === '> background' && type) {
-            if (type === 'UPDATE_NAVIGATION_URL') {
-              if (port.sender) {
-                // eslint-disable-next-line no-param-reassign
-                port.sender.url = params.url
-                // eslint-disable-next-line no-param-reassign
-                if (port.sender.tab) port.sender.tab.url = params.url
-              }
-            } else {
-              await handleActions(action, {
-                pm,
-                mainCtrl,
-                ledgerCtrl,
-                trezorCtrl,
-                latticeCtrl,
-                walletStateCtrl,
-                autoLockCtrl
-              })
-            }
+            await handleActions(action, {
+              pm,
+              port,
+              mainCtrl,
+              ledgerCtrl,
+              trezorCtrl,
+              latticeCtrl,
+              walletStateCtrl,
+              autoLockCtrl
+            })
           }
         } catch (err: any) {
           console.error(err)

@@ -23,7 +23,7 @@ import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
 type UpdateNavigationUrl = {
-  type: 'UPDATE_NAVIGATION_URL'
+  type: 'UPDATE_PORT_URL'
   params: { url: string }
 }
 

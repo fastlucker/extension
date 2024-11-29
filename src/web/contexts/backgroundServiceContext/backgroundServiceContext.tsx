@@ -95,7 +95,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     const url = `${window.location.origin}${route.pathname}${route.search}${route.hash}`
-    dispatch({ type: 'UPDATE_NAVIGATION_URL', params: { url } })
+    dispatch({ type: 'UPDATE_PORT_URL', params: { url } })
   }, [route])
 
   useEffect(() => {
