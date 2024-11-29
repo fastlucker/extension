@@ -124,7 +124,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
                     <Text
                       fontSize={12}
                       weight="medium"
-                      style={spacings.mrTy}
+                      style={spacings.mrMi}
                       appearance="secondaryText"
                     >
                       {t('Estimated bridge time:')}
