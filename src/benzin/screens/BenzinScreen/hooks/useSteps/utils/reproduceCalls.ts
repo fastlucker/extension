@@ -89,7 +89,8 @@ const getUnknownWalletExecuteBatch = (callData: string) => {
 }
 
 export const decodeUserOp = (userOp: UserOperation): { calls: Call[]; from: string } => {
-  const { callData, paymaster, sender } = userOp
+  // const { callData, paymaster, sender } = userOp
+  const { callData, sender } = userOp
 
   const callDataSigHash = callData.slice(0, 10)
   const matcher = {
@@ -104,8 +105,8 @@ export const decodeUserOp = (userOp: UserOperation): { calls: Call[]; from: stri
   let decodedCalls = [{ to: userOp.sender, data: userOp.callData, value: 0n }]
   if (matcher[callDataSigHash]) decodedCalls = matcher[callDataSigHash](callData)
 
-  if (isAddress(paymaster) && getAddress(paymaster) === AMBIRE_PAYMASTER)
-    decodedCalls = decodedCalls.slice(0, -1)
+  // if (isAddress(paymaster) && getAddress(paymaster) === AMBIRE_PAYMASTER)
+  //   decodedCalls = decodedCalls.slice(0, -1)
   return { calls: decodedCalls, from: sender }
 }
 
