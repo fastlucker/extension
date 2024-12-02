@@ -61,7 +61,7 @@ const AccountsRetrieveError: React.FC<Props> = ({ pageError, page, setPage }) =>
       <Button
         style={[flexbox.alignSelfCenter, spacings.mtLg, spacings.mb2Xl]}
         size="small"
-        text={t(`Retry Request (Page ${page})`)}
+        text={t('Retry Request (Page {{page}})', { page })}
         onPress={handleRetrySetPage}
       />
     </>
