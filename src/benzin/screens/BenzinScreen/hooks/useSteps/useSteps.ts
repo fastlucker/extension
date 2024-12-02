@@ -23,6 +23,7 @@ import {
 import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import {
   handleOps060,
   handleOps070
@@ -30,7 +31,6 @@ import {
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
-import { getBenzinUrlParams } from '../../utils/url'
 import { parseLogs } from './utils/parseLogs'
 import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
@@ -531,40 +531,42 @@ const useSteps = ({
     }
   }, [network, txn, userOpHash, userOp])
 
-  const calls: IrCall[] | null = useMemo(() => {
-    if (userOpHash && userOp?.hashStatus !== 'found') return null
-    if (!network) return null
+  const { calls, from }: { calls?: IrCall[]; from?: string } = useMemo(() => {
+    if (userOpHash && userOp?.hashStatus !== 'found') return {}
+    if (!network) return {}
     if (txnReceipt.actualGasCost) setCost(formatEther(txnReceipt.actualGasCost!.toString()))
     if (userOp?.hashStatus !== 'found' && txn && txnId && entryPointTxnSplit[txn.data.slice(0, 10)])
-      return entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId)
-
+      return { calls: entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId) }
     if (txnReceipt.originatedFrom && txn) {
+      const { calls: decodedCalls, from: account } = userOp
+        ? decodeUserOp(userOp)
+        : reproduceCallsFromTxn(txn)
       const accountOp: AccountOp = {
         accountAddr: userOp?.sender || txnReceipt.originatedFrom!,
         networkId: network.id,
         signingKeyAddr: txnReceipt.originatedFrom!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
-        calls: userOp ? decodeUserOp(userOp) : reproduceCallsFromTxn(txn),
+        calls: decodedCalls,
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
         accountOpToExecuteBefore: null
       }
       const humanizedCalls = humanizeAccountOp(accountOp, { network })
-      return parseHumanizer(humanizedCalls)
+      return { calls: parseHumanizer(humanizedCalls), from: account }
     }
-    return null
+    return {}
   }, [network, txnReceipt, txn, userOpHash, userOp, txnId])
   return {
     nativePrice,
     blockData,
     finalizedStatus,
     cost,
-    calls,
+    calls: calls || null,
     pendingTime,
     txnId: foundTxnId,
-    from: userOp?.sender || null,
+    from: from || null,
     originatedFrom: txnReceipt.originatedFrom,
     userOp
   }

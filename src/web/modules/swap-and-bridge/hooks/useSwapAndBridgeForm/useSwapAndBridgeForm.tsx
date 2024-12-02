@@ -1,22 +1,26 @@
-import { formatUnits, getAddress } from 'ethers'
+import { formatUnits, getAddress, isAddress } from 'ethers'
 import { debounce } from 'lodash'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
+import { useSearchParams } from 'react-router-dom'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
+import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTokenSelectProps'
 import { getTokenId } from '@web/utils/token'
 
@@ -38,9 +42,11 @@ const useSwapAndBridgeForm = () => {
     activeRoutes,
     formStatus,
     toChainId,
-    updateToTokenListStatus
+    updateToTokenListStatus,
+    supportedChainIds,
+    sessionIds
   } = useSwapAndBridgeControllerState()
-  const { account } = useSelectedAccountControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const debouncedDispatchUpdateFormRef = useRef<_.DebouncedFunc<(value: string) => void>>()
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
@@ -51,16 +57,53 @@ const useSwapAndBridgeForm = () => {
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   useEffect(() => {
-    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
-    const unloadScreen = () => {
-      dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
+    if (
+      searchParams.get('address') &&
+      searchParams.get('networkId') &&
+      !!portfolio?.isAllReady &&
+      (sessionIds || []).includes(sessionId)
+    ) {
+      const tokenToSelectOnInit = portfolio.tokens.find(
+        (t) =>
+          t.address === searchParams.get('address') && t.networkId === searchParams.get('networkId')
+      )
+
+      if (tokenToSelectOnInit) {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+          params: { fromSelectedToken: tokenToSelectOnInit }
+        })
+        // Reset search params once updated in the state
+        setSearchParams((prev) => {
+          prev.delete('address')
+          prev.delete('networkId')
+          return prev
+        })
+      }
     }
-    window.addEventListener('beforeunload', unloadScreen)
+  }, [dispatch, setSearchParams, portfolio?.isAllReady, portfolio.tokens, searchParams, sessionIds])
+
+  // init session
+  useEffect(() => {
+    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    setSearchParams((prev) => {
+      prev.set('sessionId', sessionId)
+      return prev
+    })
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // remove session - this will be triggered only
+  // when navigation to another screen internally in the extension
+  // the session removal when the window is forcefully closed is handled
+  // in the port.onDisconnect callback in the background
+  useEffect(() => {
     return () => {
-      window.removeEventListener('beforeunload', unloadScreen)
-      unloadScreen()
+      dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
     }
   }, [dispatch])
 
@@ -122,11 +165,12 @@ const useSwapAndBridgeForm = () => {
     tokens: portfolioTokenList,
     token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
     isLoading: isTokenListLoading,
-    networks
+    networks,
+    supportedChainIds
   })
 
   const handleChangeFromToken = useCallback(
-    (value: string) => {
+    ({ value }: SelectValue) => {
       const tokenToSelect = portfolioTokenList.find(
         (tokenRes: TokenResult) => getTokenId(tokenRes) === value
       )
@@ -147,12 +191,13 @@ const useSwapAndBridgeForm = () => {
     tokens: toTokenList,
     token: toSelectedToken ? getTokenId(toSelectedToken) : '',
     networks,
+    supportedChainIds,
     isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
     isToToken: true
   })
 
   const handleChangeToToken = useCallback(
-    (value: string) => {
+    ({ value }: SelectValue) => {
       const tokenToSelect = toTokenList.find((t: SocketAPIToken) => getTokenId(t) === value)
 
       dispatch({
@@ -163,21 +208,49 @@ const useSwapAndBridgeForm = () => {
     [dispatch, toTokenList]
   )
 
+  const handleAddToTokenByAddress = useCallback(
+    (searchTerm: string) => {
+      const isValidTokenAddress = isAddress(searchTerm)
+      if (!isValidTokenAddress) return
+
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS',
+        params: { address: searchTerm }
+      })
+    },
+    [dispatch]
+  )
+
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
-      networks.map((n) => ({
-        value: n.id,
-        label: <Text weight="medium">{n.name}</Text>,
-        icon: (
-          <NetworkIcon
-            key={n.id}
-            id={n.id}
-            style={{ backgroundColor: theme.primaryBackground }}
-            size={28}
-          />
-        )
-      })),
-    [networks, theme]
+      networks.map((n) => {
+        const tooltipId = `network-${n.id}-not-supported-tooltip`
+        const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
+
+        return {
+          value: n.id,
+          disabled: !isNetworkSupported,
+          label: (
+            <>
+              <Text weight="medium" dataSet={{ tooltipId }} style={flexbox.flex1} numberOfLines={1}>
+                {n.name}
+              </Text>
+              {!isNetworkSupported && (
+                <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
+              )}
+            </>
+          ),
+          icon: (
+            <NetworkIcon
+              key={n.id}
+              id={n.id}
+              style={{ backgroundColor: theme.primaryBackground }}
+              size={28}
+            />
+          )
+        }
+      }),
+    [networks, supportedChainIds, theme.primaryBackground]
   )
 
   const getToNetworkSelectValue = useMemo(() => {
@@ -272,6 +345,7 @@ const useSwapAndBridgeForm = () => {
     toTokenAmountSelectDisabled,
     toTokenOptions,
     toTokenValue,
+    handleAddToTokenByAddress,
     handleChangeToToken,
     handleSwitchFromAmountFieldMode,
     handleSetMaxFromAmount,

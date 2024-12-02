@@ -1,4 +1,4 @@
-import { MutableRefObject, useCallback, useEffect, useState } from 'react'
+import { MutableRefObject, useCallback, useLayoutEffect, useState } from 'react'
 
 const useElementSize = (ref: MutableRefObject<HTMLElement | null>) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
@@ -12,7 +12,7 @@ const useElementSize = (ref: MutableRefObject<HTMLElement | null>) => {
     }
   }, [ref])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     updateElementSize()
 
     let resizeObserver: any = new ResizeObserver(updateElementSize)

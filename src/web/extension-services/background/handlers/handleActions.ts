@@ -14,7 +14,7 @@ import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
-import { PortMessenger } from '@web/extension-services/messengers'
+import { Port, PortMessenger } from '@web/extension-services/messengers'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
@@ -27,6 +27,7 @@ export const handleActions = async (
   action: Action,
   {
     pm,
+    port,
     mainCtrl,
     ledgerCtrl,
     trezorCtrl,
@@ -35,6 +36,7 @@ export const handleActions = async (
     autoLockCtrl
   }: {
     pm: PortMessenger
+    port: Port
     mainCtrl: MainController
     ledgerCtrl: LedgerController
     trezorCtrl: TrezorController
@@ -46,6 +48,13 @@ export const handleActions = async (
   // @ts-ignore
   const { type, params } = action
   switch (type) {
+    case 'UPDATE_PORT_URL': {
+      if (port.sender) {
+        port.sender.url = params.url
+        if (port.sender.tab) port.sender.tab.url = params.url
+      }
+      break
+    }
     case 'INIT_CONTROLLER_STATE': {
       if (params.controller === ('main' as any)) {
         const mainCtrlState: any = { ...mainCtrl.toJSON() }
@@ -325,6 +334,11 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
 
+    case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
+      mainCtrl.selectedAccount.setDashboardNetworkFilter(params.dashboardNetworkFilter)
+      break
+    }
+
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
       return await mainCtrl.swapAndBridge.initForm(params.sessionId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
@@ -333,6 +347,8 @@ export const handleActions = async (
       return mainCtrl.swapAndBridge.updateForm(params)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
       return await mainCtrl.swapAndBridge.switchFromAndToTokens()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS':
+      return await mainCtrl.swapAndBridge.addToTokenByAddress(params.address)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return mainCtrl.swapAndBridge.selectRoute(params.route)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':

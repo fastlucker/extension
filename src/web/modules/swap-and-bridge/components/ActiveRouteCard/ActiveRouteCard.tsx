@@ -4,7 +4,7 @@ import { View } from 'react-native'
 
 import { ActiveRoute, SocketAPIBridgeUserTx } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsBridgeTxn, getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-import Button from '@common/components/Button'
+import Button, { ButtonProps, Props } from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -48,12 +48,42 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
     })
   }, [activeRoute.activeRouteId, dispatch])
 
-  const isNextTnxForBridging = useMemo(() => {
-    const isBridgeTxn = activeRoute.route.userTxs.some((userTx) =>
-      getIsBridgeTxn(userTx.userTxType)
-    )
-    return isBridgeTxn && activeRoute.route.currentUserTxIndex >= 1
-  }, [activeRoute.route.userTxs])
+  const rejectBtn = useMemo<{ text: string; type: ButtonProps['type'] }>(() => {
+    const isLastTxn = activeRoute.route.totalUserTx === activeRoute.route.currentUserTxIndex + 1
+
+    // If the transaction is in the middle of the process, you can cancel the next step
+    const isInTheMiddle = !isLastTxn && activeRoute.routeStatus === 'in-progress'
+    if (isInTheMiddle) return { text: t('Cancel Next Step'), type: 'danger' }
+
+    // You can't really cancel ongoing txn, only closing it (it might got stuck)
+    if (activeRoute.routeStatus === 'in-progress') return { text: t('Close'), type: 'ghost' }
+
+    // In all other scenarios, you can cancel the process
+    return { text: t('Cancel'), type: 'danger' }
+  }, [
+    activeRoute.route.currentUserTxIndex,
+    activeRoute.routeStatus,
+    activeRoute.route.totalUserTx,
+    t
+  ])
+
+  const proceedBtnText = useMemo(() => {
+    if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') return t('Building Transaction...')
+
+    const isFirstTxn = activeRoute.route.currentUserTxIndex === 0
+    if (isFirstTxn && activeRoute.routeStatus !== 'in-progress') return t('Proceed')
+
+    const isLastTxn = activeRoute.route.totalUserTx === activeRoute.route.currentUserTxIndex + 1
+    if (isLastTxn && activeRoute.routeStatus === 'in-progress') return t('Pending...')
+
+    return t('Proceed to Next Step')
+  }, [
+    activeRoute.route.currentUserTxIndex,
+    activeRoute.route.totalUserTx,
+    activeRoute.routeStatus,
+    statuses.buildSwapAndBridgeUserRequest,
+    t
+  ])
 
   return (
     <Panel
@@ -94,7 +124,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
                     <Text
                       fontSize={12}
                       weight="medium"
-                      style={spacings.mrTy}
+                      style={spacings.mrMi}
                       appearance="secondaryText"
                     >
                       {t('Estimated bridge time:')}
@@ -136,22 +166,16 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
             </Text>
           )}
           <Button
-            text={t('Reject')}
+            text={rejectBtn.text}
             onPress={handleRejectActiveRoute}
-            type="danger"
+            type={rejectBtn.type}
             size="small"
             style={{ height: 40, ...spacings.mrTy }}
             hasBottomSpacing={false}
             disabled={statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'}
           />
           <Button
-            text={
-              statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-                ? t('Preparing...')
-                : isNextTnxForBridging
-                ? t('Proceed to Next Step')
-                : t('Proceed')
-            }
+            text={proceedBtnText}
             onPress={handleProceedToNextStep}
             size="small"
             style={{ height: 40 }}

@@ -3,6 +3,7 @@ import React, { createContext, useEffect, useMemo } from 'react'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { ToastOptions } from '@common/contexts/toastContext'
+import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import { isExtension } from '@web/constants/browserapi'
 import {
@@ -90,6 +91,12 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   const { addToast } = useToast()
+  const route = useRoute()
+
+  useEffect(() => {
+    const url = `${window.location.origin}${route.pathname}${route.search}${route.hash}`
+    dispatch({ type: 'UPDATE_PORT_URL', params: { url } })
+  }, [route])
 
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {

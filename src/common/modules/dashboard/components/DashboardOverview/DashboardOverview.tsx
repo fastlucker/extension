@@ -9,7 +9,6 @@ import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
@@ -52,14 +51,13 @@ const DashboardOverview: FC<Props> = ({
   dashboardOverviewSize,
   setDashboardOverviewSize
 }) => {
-  const route = useRoute()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
-  const { account } = useSelectedAccountControllerState()
-  const { portfolio, portfolioStartedLoadingAtTimestamp } = useSelectedAccountControllerState()
+  const { account, dashboardNetworkFilter, portfolio, portfolioStartedLoadingAtTimestamp } =
+    useSelectedAccountControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -68,15 +66,13 @@ const DashboardOverview: FC<Props> = ({
   })
   const [isLoadingTakingTooLong, setIsLoadingTakingTooLong] = useState(false)
 
-  const filterByNetworkId = route?.state?.filterByNetworkId || null
-
   const filterByNetworkName = useMemo(() => {
-    if (!filterByNetworkId) return ''
+    if (!dashboardNetworkFilter) return ''
 
-    if (filterByNetworkId === 'rewards') return 'Ambire Rewards Portfolio'
-    if (filterByNetworkId === 'gasTank') return 'Gas Tank Portfolio'
+    if (dashboardNetworkFilter === 'rewards') return 'Ambire Rewards Portfolio'
+    if (dashboardNetworkFilter === 'gasTank') return 'Gas Tank Portfolio'
 
-    const network = networks.find((n) => n.id === filterByNetworkId)
+    const network = networks.find((n) => n.id === dashboardNetworkFilter)
 
     let networkName = network?.name || 'Unknown Network'
 
@@ -87,15 +83,15 @@ const DashboardOverview: FC<Props> = ({
     }
 
     return networkName
-  }, [filterByNetworkId, networks])
+  }, [dashboardNetworkFilter, networks])
 
   const totalPortfolioAmount = useMemo(() => {
-    if (!filterByNetworkId) return portfolio?.totalBalance || 0
+    if (!dashboardNetworkFilter) return portfolio?.totalBalance || 0
 
     if (!account) return 0
 
-    return Number(portfolio?.latest?.[filterByNetworkId]?.result?.total?.usd) || 0
-  }, [portfolio, filterByNetworkId, account])
+    return Number(portfolio?.latest?.[dashboardNetworkFilter]?.result?.total?.usd) || 0
+  }, [portfolio, dashboardNetworkFilter, account])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
     totalPortfolioAmount,
@@ -274,16 +270,11 @@ const DashboardOverview: FC<Props> = ({
                   <AnimatedPressable
                     style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
                     onPress={() => {
-                      navigate(WEB_ROUTES.networks, {
-                        state: {
-                          filterByNetworkId,
-                          prevTab: window.location.hash.split('?')[1] || ''
-                        }
-                      })
+                      navigate(WEB_ROUTES.networks)
                     }}
                     {...bindNetworkButtonAnim}
                   >
-                    {filterByNetworkId ? (
+                    {dashboardNetworkFilter ? (
                       <FilterIcon
                         color={theme.primaryBackground}
                         width={16}
@@ -292,7 +283,7 @@ const DashboardOverview: FC<Props> = ({
                       />
                     ) : null}
                     <Text fontSize={14} color={theme.primaryBackground} weight="medium">
-                      {filterByNetworkId ? filterByNetworkName : t('All Networks')}
+                      {dashboardNetworkFilter ? filterByNetworkName : t('All Networks')}
                     </Text>
                     <DownArrowIcon
                       style={spacings.mlSm}
