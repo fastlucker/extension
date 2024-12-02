@@ -12,6 +12,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
+import { UpdateAvailableController } from '@web/extension-services/background/controllers/update-available'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { PortMessenger } from '@web/extension-services/messengers'
@@ -32,7 +33,8 @@ export const handleActions = async (
     trezorCtrl,
     latticeCtrl,
     walletStateCtrl,
-    autoLockCtrl
+    autoLockCtrl,
+    updateAvailableCtrl
   }: {
     pm: PortMessenger
     mainCtrl: MainController
@@ -41,6 +43,7 @@ export const handleActions = async (
     latticeCtrl: LatticeController
     walletStateCtrl: WalletStateController
     autoLockCtrl: AutoLockController
+    updateAvailableCtrl: UpdateAvailableController
   }
 ) => {
   // @ts-ignore
@@ -60,6 +63,8 @@ export const handleActions = async (
         pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
       } else if (params.controller === ('autoLock' as any)) {
         pm.send('> ui', { method: 'autoLock', params: autoLockCtrl })
+      } else if (params.controller === ('updateAvailable' as any)) {
+        pm.send('> ui', { method: 'updateAvailable', params: updateAvailableCtrl })
       } else {
         pm.send('> ui', {
           method: params.controller,
@@ -578,6 +583,11 @@ export const handleActions = async (
       mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       return mainCtrl.dapps.removeDapp(params)
     }
+    case 'UPDATE_AVAILABLE_CONTROLLER_RELOAD_EXTENSION': {
+      updateAvailableCtrl.reloadExtension()
+      break
+    }
+
 
     default:
       return console.error(

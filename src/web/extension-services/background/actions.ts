@@ -550,6 +550,10 @@ type ImportSmartAccountJson = {
   params: { readyToAddAccount: Account; keys: ReadyToAddKeys['internal'] }
 }
 
+type UpdateAvailableControllerReloadExtension = {
+  type: 'UPDATE_AVAILABLE_CONTROLLER_RELOAD_EXTENSION'
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -658,3 +662,4 @@ export type Action =
   | MainControllerActivityHideBanner
   | KeystoreControllerDeleteSavedSeed
   | KeystoreControllerMoveSeedFromTemp
+  | UpdateAvailableControllerReloadExtension

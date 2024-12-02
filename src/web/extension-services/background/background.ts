@@ -29,6 +29,7 @@ import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
+import { UpdateAvailableController } from '@web/extension-services/background/controllers/update-available'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { handleActions } from '@web/extension-services/background/handlers/handleActions'
 import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
@@ -217,6 +218,7 @@ handleKeepAlive()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
+  const updateAvailableCtrl = new UpdateAvailableController()
 
   const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000 // 1 minute
   const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000 // 10 minutes
@@ -676,6 +678,21 @@ handleKeepAlive()
     })
   })
 
+  updateAvailableCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick(
+      'updateAvailable',
+      updateAvailableCtrl,
+      updateAvailableCtrl,
+      forceEmit
+    )
+  })
+  updateAvailableCtrl.onError(() => {
+    pm.send('> ui-error', {
+      method: 'updateAvailable',
+      params: { errors: updateAvailableCtrl.emittedErrors, controller: 'updateAvailable' }
+    })
+  })
+
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
     if (['popup', 'tab', 'action-window'].includes(port.name)) {
@@ -715,7 +732,8 @@ handleKeepAlive()
               trezorCtrl,
               latticeCtrl,
               walletStateCtrl,
-              autoLockCtrl
+              autoLockCtrl,
+              updateAvailableCtrl
             })
           }
         } catch (err: any) {
