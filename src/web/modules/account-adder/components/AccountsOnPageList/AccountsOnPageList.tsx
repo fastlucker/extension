@@ -131,7 +131,7 @@ const AccountsOnPageList = ({
     ).length
   }, [linkedAccounts, state.selectedAccounts])
 
-  const shouldEnablePagination = useMemo(() => Object.keys(slots).length >= 5, [slots])
+  const shouldDisplayPagination = subType !== 'private-key'
 
   const getAccounts = useCallback(
     ({
@@ -472,7 +472,7 @@ const AccountsOnPageList = ({
               </Text>
             </View>
           </View>
-          {!state.accountsLoading && (
+          {shouldDisplayPagination && (
             <Pagination
               page={state.page}
               maxPages={1000}
