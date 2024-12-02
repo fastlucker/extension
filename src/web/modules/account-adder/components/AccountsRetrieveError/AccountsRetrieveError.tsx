@@ -67,4 +67,4 @@ const AccountsRetrieveError: React.FC<Props> = ({ pageError, page, setPage }) =>
   )
 }
 
-export default AccountsRetrieveError
+export default React.memo(AccountsRetrieveError)
