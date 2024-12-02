@@ -248,7 +248,7 @@ const AccountsOnPageList = ({
     slots
   ])
   const shouldDisplayHideEmptyAccountsToggle = subType !== 'private-key'
-  const shouldDisableHideEmptyAccountsToggle =
+  const disableHideEmptyAccountsToggle =
     state.accountsLoading || !!state.pageError || isAccountAdderEmpty
   const shouldDisplayChangeHdPath = !!(
     subType === 'seed' ||
@@ -388,7 +388,7 @@ const AccountsOnPageList = ({
               <Toggle
                 isOn={hideEmptyAccounts}
                 onToggle={() => setHideEmptyAccounts((p) => !p)}
-                disabled={shouldDisableHideEmptyAccountsToggle}
+                disabled={disableHideEmptyAccountsToggle}
                 label={t('Hide empty Basic Accounts')}
                 labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
                 style={flexbox.alignSelfStart}
