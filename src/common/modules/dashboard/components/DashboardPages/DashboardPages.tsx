@@ -59,10 +59,7 @@ const DashboardPages = ({ tokenPreferences, onScroll }: Props) => {
       prev.set('sessionId', sessionId)
       return prev
     })
-    setSearchParams((prev) => {
-      prev.set('sessionId', sessionId)
-      return prev
-    })
+
     return () => {
       // Remove session - this will be triggered only when navigation to another screen internally in the extension.
       // The session removal when the window is forcefully closed is handled
