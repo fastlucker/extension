@@ -1,8 +1,8 @@
 diff --git a/node_modules/@trezor/connect-webextension/build/trezor-connect-webextension.js b/node_modules/@trezor/connect-webextension/build/trezor-connect-webextension.js
-index 732c1a5..2ac93b1 100644
+index 9b66ea5..c344b1b 100644
 --- a/node_modules/@trezor/connect-webextension/build/trezor-connect-webextension.js
 +++ b/node_modules/@trezor/connect-webextension/build/trezor-connect-webextension.js
-@@ -2286,7 +2286,7 @@ class PopupManager extends (events_default()) {
+@@ -2492,7 +2492,7 @@ class PopupManager extends (events_default()) {
          // create new window above instead of opening new tab
          if (currentWindow.type !== 'normal') {
            chrome.windows.create({
