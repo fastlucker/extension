@@ -77,20 +77,33 @@ const useSwapAndBridgeForm = () => {
           params: { fromSelectedToken: tokenToSelectOnInit }
         })
         // Reset search params once updated in the state
-        setSearchParams({})
+        setSearchParams((prev) => {
+          prev.delete('address')
+          prev.delete('networkId')
+          return prev
+        })
       }
     }
   }, [dispatch, setSearchParams, portfolio?.isAllReady, portfolio.tokens, searchParams, sessionIds])
 
+  // init session
   useEffect(() => {
     dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
-    const unloadScreen = () => {
-      dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
-    }
-    window.addEventListener('beforeunload', unloadScreen)
+    setSearchParams((prev) => {
+      prev.set('sessionId', sessionId)
+      return prev
+    })
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // remove session - this will be triggered only
+  // when navigation to another screen internally in the extension
+  // the session removal when the window is forcefully closed is handled
+  // in the port.onDisconnect callback in the background
+  useEffect(() => {
     return () => {
-      window.removeEventListener('beforeunload', unloadScreen)
-      unloadScreen()
+      dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
     }
   }, [dispatch])
 
