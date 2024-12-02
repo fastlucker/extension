@@ -383,7 +383,8 @@ const AccountsOnPageList = ({
               <Toggle
                 isOn={hideEmptyAccounts}
                 onToggle={() => setHideEmptyAccounts((p) => !p)}
-                label={t('Hide empty basic accounts')}
+                disabled={state.accountsLoading}
+                label={t('Hide empty Basic Accounts')}
                 labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
                 style={flexbox.alignSelfStart}
               />
