@@ -1,8 +1,9 @@
 import { ethers, ZeroAddress, zeroPadValue } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { delayPromise } from '@common/utils/promises'
 import LegendsNFT from '@contracts/compiled/LegendsNft.json'
-import { LEGENDS_NFT_ADDRESS } from '@env'
+import { LEGENDS_NFT_ADDRESS, RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useToast from '@legends/hooks/useToast'
@@ -149,13 +150,53 @@ const useMintCharacter = () => {
 
       try {
         // Call the mint function and wait for the transaction response
-        const tx = await nftContract.mint(type)
+        const sendCallsIdentifier = await window.ambire.request({
+          method: 'wallet_sendCalls',
+          params: [
+            {
+              version: '1.0',
+              chainId: '0x2105',
+              from: await signer.getAddress(),
+              calls: [
+                {
+                  to: LEGENDS_NFT_ADDRESS,
+                  data: nftContract.interface.encodeFunctionData('mint', [type])
+                }
+              ],
+              capabilities: {
+                paymasterService: {
+                  '0x2105': {
+                    url: `${RELAYER_URL}/v2/sponsorship`
+                  }
+                }
+              }
+            }
+          ]
+        })
 
         setLoadingMessage(CharacterLoadingMessage.Minting)
-        // Wait for the transaction to be mined
-        const receipt = await tx.wait()
 
-        if (receipt.status === 1) {
+        let receipt = null
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          // eslint-disable-next-line no-await-in-loop
+          const sendCallsData: any = await window.ambire.request({
+            method: 'wallet_getCallsStatus',
+            params: [sendCallsIdentifier]
+          })
+          if (sendCallsData.status === 'CONFIRMED') {
+            receipt = sendCallsData.receipt
+            break
+          }
+          if (sendCallsData.status === 'REJECTED') {
+            throw new Error('Error, try again')
+          }
+
+          // eslint-disable-next-line no-await-in-loop
+          await delayPromise(1500)
+        }
+
+        if (receipt.status === ethers.toBeHex(1)) {
           setLoadingMessage(CharacterLoadingMessage.Minted)
           // Transaction was successful, call getCharacter
           await pollForCharacterAfterMint()
