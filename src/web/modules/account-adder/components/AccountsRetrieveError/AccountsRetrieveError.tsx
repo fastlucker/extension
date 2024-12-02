@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react'
-import { Trans } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Pressable } from 'react-native'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
@@ -17,6 +17,7 @@ interface Props {
 }
 
 const AccountsRetrieveError: React.FC<Props> = ({ pageError, page, setPage }) => {
+  const { t } = useTranslation()
   const { addToast } = useToast()
 
   const handleRetrySetPage = useCallback(() => setPage(page), [setPage, page])
