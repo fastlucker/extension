@@ -30,6 +30,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
+import { useSearchParams } from 'react-router-dom'
 
 const ITEMS_PER_PAGE = 10
 
@@ -54,6 +55,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
   const { t } = useTranslation()
   const { maxWidthSize } = useWindowSize()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+  const [, setSearchParams] = useSearchParams()
 
   useEffect(() => {
     setCurrentSettingsPage(historyType)
@@ -129,6 +131,17 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
   }, [dispatch, account, network, page, sessionId, historyType])
 
   useEffect(() => {
+    // Initialize the port session. This is necessary to automatically terminate the session when the tab is closed.
+    // The process is managed in the background using port.onDisconnect,
+    // as there is no reliable window event triggered when a tab is closed.
+    setSearchParams((prev) => {
+      prev.set('sessionId', sessionId)
+      return prev
+    })
+
+    // Remove session - this will be triggered only when navigation to another screen internally in the extension.
+    // The session removal when the window is forcefully closed is handled
+    // in the port.onDisconnect callback in the background.
     const killSession = () => {
       dispatch({
         type:
@@ -137,12 +150,9 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
             : 'MAIN_CONTROLLER_ACTIVITY_RESET_SIGNED_MESSAGES_FILTERS',
         params: { sessionId }
       })
-
-      window.addEventListener('beforeunload', killSession)
     }
 
     return () => {
-      window.removeEventListener('beforeunload', killSession)
       killSession()
     }
   }, [dispatch, historyType, sessionId])

@@ -1,8 +1,7 @@
-import React, { FC, useCallback, useEffect, useState } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
@@ -20,7 +19,6 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { networks } from '@ambire-common/consts/networks'
 import Button from '@common/components/Button'
 import flexbox from '@common/styles/utils/flexbox'
-import { nanoid } from 'nanoid'
 import ActivityPositionsSkeleton from './ActivityPositionsSkeleton'
 import styles from './styles'
 
@@ -28,7 +26,7 @@ interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   initTab?: { [key: string]: boolean }
-  filterByNetworkId: NetworkId
+  sessionId: string
   onScroll: FlatListProps<any>['onScroll']
 }
 
@@ -36,20 +34,13 @@ const { isPopup } = getUiType()
 
 const ITEMS_PER_PAGE = 10
 
-const ActivityPositions: FC<Props> = ({
-  openTab,
-  setOpenTab,
-  initTab,
-  onScroll,
-  filterByNetworkId
-}) => {
-  const [sessionId] = useState(nanoid())
+const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab, onScroll }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
   const { dispatch } = useBackgroundService()
   const { accountsOps } = useActivityControllerState()
-  const { account } = useSelectedAccountControllerState()
+  const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
 
   useEffect(() => {
     dispatch({
@@ -58,7 +49,7 @@ const ActivityPositions: FC<Props> = ({
         sessionId,
         filters: {
           account: account!.addr,
-          ...(filterByNetworkId && { network: filterByNetworkId })
+          ...(dashboardNetworkFilter && { network: dashboardNetworkFilter })
         },
         pagination: {
           itemsPerPage: ITEMS_PER_PAGE,
@@ -66,29 +57,14 @@ const ActivityPositions: FC<Props> = ({
         }
       }
     })
-  }, [openTab, account, dispatch, filterByNetworkId, sessionId])
-
-  useEffect(() => {
-    const killSession = () => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS',
-        params: { sessionId }
-      })
-    }
-
-    window.addEventListener('beforeunload', killSession)
-    return () => {
-      window.removeEventListener('beforeunload', killSession)
-      killSession()
-    }
-  }, [dispatch, sessionId])
+  }, [openTab, account, dispatch, dashboardNetworkFilter, sessionId])
 
   const renderItem = useCallback(
     ({ item }: any) => {
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} />
+            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} sessionId={sessionId} />
           </View>
         )
       }
@@ -99,11 +75,11 @@ const ActivityPositions: FC<Props> = ({
             {t('No transactions history for {{account}}', {
               account: `${account!.preferences.label} (${shortenAddress(account!.addr, 10)})`
             })}
-            {filterByNetworkId && (
+            {dashboardNetworkFilter && (
               <>
                 {' '}
                 {t('on {{network}}', {
-                  network: networks.find((network) => network.id === filterByNetworkId)!.name
+                  network: networks.find((network) => network.id === dashboardNetworkFilter)!.name
                 })}
               </>
             )}
@@ -138,7 +114,7 @@ const ActivityPositions: FC<Props> = ({
                     sessionId,
                     filters: {
                       account: account!.addr,
-                      ...(filterByNetworkId && { network: filterByNetworkId })
+                      ...(dashboardNetworkFilter && { network: dashboardNetworkFilter })
                     },
                     pagination: {
                       itemsPerPage: accountsOps[sessionId].pagination.itemsPerPage + ITEMS_PER_PAGE,
@@ -168,7 +144,7 @@ const ActivityPositions: FC<Props> = ({
       )
     },
     [
-      filterByNetworkId,
+      dashboardNetworkFilter,
       initTab?.activity,
       openTab,
       setOpenTab,

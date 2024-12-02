@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
@@ -10,6 +9,9 @@ import flexbox from '@common/styles/utils/flexbox'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+import { nanoid } from 'nanoid'
+import { useSearchParams } from 'react-router-dom'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import Collections from '../Collections'
 import DeFiPositions from '../DeFiPositions'
 import Activity from '../Activity'
@@ -25,6 +27,10 @@ const { isTab } = getUiType()
 
 const DashboardPages = ({ tokenPreferences, onScroll }: Props) => {
   const route = useRoute()
+  const [sessionId] = useState(nanoid())
+  const [, setSearchParams] = useSearchParams()
+  const { networks } = useNetworksControllerState()
+  const { dispatch } = useBackgroundService()
 
   const [openTab, setOpenTab] = useState(() => {
     const params = new URLSearchParams(route?.search)
@@ -44,18 +50,39 @@ const DashboardPages = ({ tokenPreferences, onScroll }: Props) => {
       setInitTab((prev) => ({ ...prev, [openTab]: true }))
     }
   }, [openTab, prevOpenTab, initTab])
-  const { networks } = useNetworksControllerState()
+
+  useEffect(() => {
+    // Initialize the port session. This is necessary to automatically terminate the session when the tab is closed.
+    // The process is managed in the background using port.onDisconnect,
+    // as there is no reliable window event triggered when a tab is closed.
+    setSearchParams((prev) => {
+      prev.set('sessionId', sessionId)
+      return prev
+    })
+    setSearchParams((prev) => {
+      prev.set('sessionId', sessionId)
+      return prev
+    })
+    return () => {
+      // Remove session - this will be triggered only when navigation to another screen internally in the extension.
+      // The session removal when the window is forcefully closed is handled
+      // in the port.onDisconnect callback in the background.
+      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS', params: { sessionId } })
+    }
+  }, [dispatch, sessionId])
   return (
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
         tokenPreferences={tokenPreferences}
         openTab={openTab}
+        sessionId={sessionId}
         setOpenTab={setOpenTab}
         onScroll={onScroll}
         initTab={initTab}
       />
       <Collections
         openTab={openTab}
+        sessionId={sessionId}
         setOpenTab={setOpenTab}
         initTab={initTab}
         onScroll={onScroll}
@@ -64,14 +91,15 @@ const DashboardPages = ({ tokenPreferences, onScroll }: Props) => {
 
       <DeFiPositions
         openTab={openTab}
+        sessionId={sessionId}
         setOpenTab={setOpenTab}
         onScroll={onScroll}
         initTab={initTab}
       />
 
       <Activity
-        filterByNetworkId={filterByNetworkId}
         openTab={openTab}
+        sessionId={sessionId}
         setOpenTab={setOpenTab}
         onScroll={onScroll}
         initTab={initTab}
