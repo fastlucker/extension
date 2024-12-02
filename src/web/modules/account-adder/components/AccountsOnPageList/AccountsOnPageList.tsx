@@ -1,7 +1,6 @@
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Trans } from 'react-i18next'
 import { Dimensions, NativeScrollEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -31,6 +30,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import Account from '@web/modules/account-adder/components/Account'
+import AccountsRetrieveError from '@web/modules/account-adder/components/AccountsRetrieveError'
 import ChangeHdPath from '@web/modules/account-adder/components/ChangeHdPath'
 import {
   AccountAdderIntroStepsProvider,
@@ -247,7 +247,9 @@ const AccountsOnPageList = ({
     state.accountsLoading,
     slots
   ])
-  const shouldDisplayHideEmptyAccountsToggle = !isAccountAdderEmpty && subType !== 'private-key'
+  const shouldDisplayHideEmptyAccountsToggle = subType !== 'private-key'
+  const shouldEnableHideEmptyAccountsToggle =
+    !state.accountsLoading || !state.pageError || !isAccountAdderEmpty
   const shouldDisplayChangeHdPath =
     !isAccountAdderEmpty &&
     !!(
@@ -263,7 +265,12 @@ const AccountsOnPageList = ({
       (keyType && ['ledger', 'lattice'].includes(keyType))
     )
 
-  const handleRetrySetPage = useCallback(() => setPage(state.page), [setPage, state.page])
+  const shouldDisplayAnimatedDownArrow =
+    typeof hasReachedBottom === 'boolean' &&
+    !hasReachedBottom &&
+    !state.accountsLoading &&
+    !isAccountAdderEmpty &&
+    !state.pageError
 
   // Prevents the user from temporarily seeing (flashing) empty (error) states
   // while being navigated back (resetting the Account Adder state).
@@ -383,7 +390,7 @@ const AccountsOnPageList = ({
               <Toggle
                 isOn={hideEmptyAccounts}
                 onToggle={() => setHideEmptyAccounts((p) => !p)}
-                disabled={state.accountsLoading}
+                disabled={shouldEnableHideEmptyAccountsToggle}
                 label={t('Hide empty Basic Accounts')}
                 labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
                 style={flexbox.alignSelfStart}
@@ -403,7 +410,7 @@ const AccountsOnPageList = ({
             />
           )}
           <ScrollableWrapper
-            style={shouldEnablePagination && spacings.mbLg}
+            style={shouldDisplayPagination && spacings.mbLg}
             contentContainerStyle={{
               flexGrow: 1
             }}
@@ -419,19 +426,11 @@ const AccountsOnPageList = ({
             scrollEventThrottle={400}
           >
             {(isAccountAdderEmpty || accountAdderState.pageError) && (
-              <>
-                <Trans>
-                  <Text appearance="errorText" style={[spacings.mt, spacings.mb]}>
-                    {accountAdderState.pageError}
-                  </Text>
-                </Trans>
-                <Button
-                  style={[flexbox.alignSelfCenter, spacings.mtLg, spacings.mb2Xl]}
-                  size="small"
-                  text={t(`Retry Request (Page ${accountAdderState.page})`)}
-                  onPress={handleRetrySetPage}
-                />
-              </>
+              <AccountsRetrieveError
+                pageError={accountAdderState.pageError}
+                page={accountAdderState.page}
+                setPage={setPage}
+              />
             )}
             {state.accountsLoading ? (
               <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
@@ -451,11 +450,7 @@ const AccountsOnPageList = ({
               })
             )}
           </ScrollableWrapper>
-          <AnimatedDownArrow
-            isVisible={
-              typeof hasReachedBottom === 'boolean' && !hasReachedBottom && !state.accountsLoading
-            }
-          />
+          <AnimatedDownArrow isVisible={shouldDisplayAnimatedDownArrow} />
         </View>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <View
