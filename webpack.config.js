@@ -12,6 +12,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { validateEnvVariables } = require('./scripts/validateEnv')
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
@@ -220,6 +221,8 @@ module.exports = async function (env, argv) {
 
   // Environment specific configurations
   if (isExtension) {
+    console.log('Building extension with relayer:', process.env.RELAYER_URL)
+    validateEnvVariables({ ...process.env }, process.env.APP_ENV)
     const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
     const templatePath = (fileName = '') => path.join(__dirname, './src/web', fileName)
     const templatePaths = {
