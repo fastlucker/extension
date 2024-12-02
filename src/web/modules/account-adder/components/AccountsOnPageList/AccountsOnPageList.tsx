@@ -476,7 +476,7 @@ const AccountsOnPageList = ({
               page={state.page}
               maxPages={1000}
               setPage={setPage}
-              isDisabled={state.accountsLoading}
+              isDisabled={state.isPageLocked}
               hideLastPage
             />
           )}
