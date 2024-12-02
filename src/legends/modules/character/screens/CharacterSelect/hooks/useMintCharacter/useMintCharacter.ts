@@ -119,7 +119,7 @@ const useMintCharacter = () => {
     const checkCharacter = async () => {
       if (pollAttempts > 10) {
         addToast(
-          'We are unable to retrieve your character at this time. Please try again later or contact support.',
+          'We are unable to retrieve your character at this time. Please reload the page or contact support.',
           'error'
         )
         setIsMinting(false)
