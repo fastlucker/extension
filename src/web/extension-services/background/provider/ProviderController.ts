@@ -275,6 +275,9 @@ export class ProviderController {
       capabilities[toBeHex(network.chainId)] = {
         atomicBatch: {
           supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+        },
+        auxiliaryFunds: {
+          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
         }
       }
     })
