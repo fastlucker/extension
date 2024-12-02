@@ -2,6 +2,7 @@ import React, { FC, ReactNode } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 
 import { DomainsContextProvider } from '@common/contexts/domainsContext'
+import ErrorPage from '@legends/components/ErrorPage'
 import PrivateRoute from '@legends/components/PrivateRoute'
 import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
 import { LegendsContextProvider } from '@legends/contexts/legendsContext'
@@ -41,32 +42,37 @@ const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => (
 
 const router = createHashRouter([
   {
-    path: LEGENDS_ROUTES.welcome,
-    element: <Welcome />,
-    index: true
-  },
-  {
-    path: LEGENDS_ROUTES.characterSelect,
-    element: <CharacterSelect />
-  },
-  {
-    element: (
-      <PrivateArea>
-        <PrivateRoute />
-      </PrivateArea>
-    ),
+    errorElement: <ErrorPage />,
     children: [
       {
-        path: LEGENDS_ROUTES.legends,
-        element: <Legends />
+        path: LEGENDS_ROUTES.welcome,
+        element: <Welcome />,
+        index: true
       },
       {
-        path: LEGENDS_ROUTES.leaderboard,
-        element: <Leaderboard />
+        path: LEGENDS_ROUTES.characterSelect,
+        element: <CharacterSelect />
       },
       {
-        path: LEGENDS_ROUTES.character,
-        element: <Character />
+        element: (
+          <PrivateArea>
+            <PrivateRoute />
+          </PrivateArea>
+        ),
+        children: [
+          {
+            path: LEGENDS_ROUTES.legends,
+            element: <Legends />
+          },
+          {
+            path: LEGENDS_ROUTES.leaderboard,
+            element: <Leaderboard />
+          },
+          {
+            path: LEGENDS_ROUTES.character,
+            element: <Character />
+          }
+        ]
       }
     ]
   }
