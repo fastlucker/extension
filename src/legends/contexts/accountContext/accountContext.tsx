@@ -83,6 +83,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   const validateAndSetAccount = useCallback(
     async (address: string) => {
       try {
+        // Add: timeout to this request
         const identity = await getIdentity(address, fetch as any, RELAYER_URL)
         const factoryAddr = identity.creation?.factoryAddr
         const isV2 = factoryAddr === AMBIRE_ACCOUNT_FACTORY
