@@ -111,16 +111,6 @@ const SignMessageScreen = () => {
     if (!userRequest || !signMessageAction) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-      params: {
-        filters: {
-          account: userRequest.meta.accountAddr,
-          network: userRequest.meta.networkId
-        }
-      }
-    })
-
-    dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
       params: {
         dapp: {
@@ -142,7 +132,6 @@ const SignMessageScreen = () => {
     if (!getUiType().isActionWindow) return
     const reset = () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
-      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
     window.addEventListener('beforeunload', reset)
 
@@ -154,7 +143,6 @@ const SignMessageScreen = () => {
   useEffect(() => {
     return () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
-      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
   }, [dispatch])
 

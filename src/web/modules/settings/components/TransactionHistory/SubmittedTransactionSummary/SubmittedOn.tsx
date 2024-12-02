@@ -11,20 +11,24 @@ import getStyles from './styles'
 
 interface Props {
   submittedAccountOp: SubmittedAccountOp
+  showHeading?: boolean
+  fontSize?: number
 }
 
-const SubmittedOn = ({ submittedAccountOp }: Props) => {
+const SubmittedOn = ({ submittedAccountOp, showHeading, fontSize = 14 }: Props) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const date = new Date(submittedAccountOp.timestamp)
 
   return (
     <View style={styles.footerItem}>
-      <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-        {t('Submitted on')}:{' '}
-      </Text>
+      {showHeading && (
+        <Text fontSize={fontSize} appearance="secondaryText" weight="semiBold">
+          {t('Submitted on')}:{' '}
+        </Text>
+      )}
       {date.toString() !== 'Invalid Date' && (
-        <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+        <Text fontSize={fontSize} appearance="secondaryText" style={spacings.mrTy}>
           {`${date.toLocaleDateString()} (${date.toLocaleTimeString()})`}
         </Text>
       )}

@@ -20,12 +20,13 @@ interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   initTab?: { [key: string]: boolean }
+  sessionId: string
   onScroll: FlatListProps<any>['onScroll']
 }
 
 const { isPopup } = getUiType()
 
-const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
+const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, sessionId, onScroll }) => {
   const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -61,7 +62,12 @@ const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) =>
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+            <TabsAndSearch
+              openTab={openTab}
+              setOpenTab={setOpenTab}
+              searchControl={control}
+              sessionId={sessionId}
+            />
           </View>
         )
       }
@@ -86,7 +92,17 @@ const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) =>
 
       return <DeFiPosition key={item.providerName + item.network} {...item} />
     },
-    [control, dashboardNetworkFilter, initTab?.defi, openTab, searchValue, setOpenTab, t, theme]
+    [
+      control,
+      dashboardNetworkFilter,
+      initTab?.defi,
+      openTab,
+      searchValue,
+      setOpenTab,
+      t,
+      theme,
+      sessionId
+    ]
   )
 
   const keyExtractor = useCallback((positionOrElement: any) => {

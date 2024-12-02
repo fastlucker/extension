@@ -17,5 +17,13 @@ export const handleControllersSessionCleanup = ({
     if (url.pathname.includes('swap-and-bridge')) {
       mainCtrl.swapAndBridge.unloadScreen(sessionId)
     }
+
+    if (url.pathname.includes('dashboard') || url.pathname.includes('transactions')) {
+      mainCtrl.activity.resetAccountsOpsFilters(sessionId)
+    }
+
+    if (url.pathname.includes('signed-messages')) {
+      mainCtrl.activity.resetSignedMessagesFilters(sessionId)
+    }
   }
 }
