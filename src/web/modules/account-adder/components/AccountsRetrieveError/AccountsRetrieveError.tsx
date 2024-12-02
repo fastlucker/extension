@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { Pressable } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import Button from '@common/components/Button'
@@ -32,7 +32,7 @@ const AccountsRetrieveError: React.FC<Props> = ({ pageError, page, setPage }) =>
 
   const fallbackMessage = useMemo(
     () => (
-      <Trans style={[spacings.mt, spacings.mbTy]}>
+      <Trans>
         <Text appearance="errorText">
           The process of retrieving accounts was cancelled or it failed.
           {'\n\n'}
@@ -50,21 +50,15 @@ const AccountsRetrieveError: React.FC<Props> = ({ pageError, page, setPage }) =>
   )
 
   return (
-    <>
-      {pageError ? (
-        <Text appearance="errorText" style={[spacings.mt, spacings.mb]}>
-          {pageError}
-        </Text>
-      ) : (
-        fallbackMessage
-      )}
+    <View style={[spacings.mt, spacings.mb]}>
+      {pageError ? <Text appearance="errorText">{pageError}</Text> : fallbackMessage}
       <Button
         style={[flexbox.alignSelfCenter, spacings.mtLg, spacings.mb2Xl]}
         size="small"
         text={t('Retry Request (Page {{page}})', { page })}
         onPress={handleRetrySetPage}
       />
-    </>
+    </View>
   )
 }
 
