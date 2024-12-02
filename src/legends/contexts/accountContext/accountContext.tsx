@@ -85,7 +85,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       try {
         const identity = await getIdentity(address, fetch as any, RELAYER_URL)
         const factoryAddr = identity.creation?.factoryAddr
-        const isV2 = identity.creation?.factoryAddr === AMBIRE_ACCOUNT_FACTORY
+        const isV2 = factoryAddr === AMBIRE_ACCOUNT_FACTORY
 
         if (isV2) {
           setError(null)
