@@ -15,7 +15,7 @@ import AutoLockController from '@web/extension-services/background/controllers/a
 import { UpdateAvailableController } from '@web/extension-services/background/controllers/update-available'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
-import { PortMessenger } from '@web/extension-services/messengers'
+import { Port, PortMessenger } from '@web/extension-services/messengers'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
@@ -28,6 +28,7 @@ export const handleActions = async (
   action: Action,
   {
     pm,
+    port,
     mainCtrl,
     ledgerCtrl,
     trezorCtrl,
@@ -37,6 +38,7 @@ export const handleActions = async (
     updateAvailableCtrl
   }: {
     pm: PortMessenger
+    port: Port
     mainCtrl: MainController
     ledgerCtrl: LedgerController
     trezorCtrl: TrezorController
@@ -49,6 +51,13 @@ export const handleActions = async (
   // @ts-ignore
   const { type, params } = action
   switch (type) {
+    case 'UPDATE_PORT_URL': {
+      if (port.sender) {
+        port.sender.url = params.url
+        if (port.sender.tab) port.sender.tab.url = params.url
+      }
+      break
+    }
     case 'INIT_CONTROLLER_STATE': {
       if (params.controller === ('main' as any)) {
         const mainCtrlState: any = { ...mainCtrl.toJSON() }

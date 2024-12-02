@@ -8,6 +8,7 @@ import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -32,6 +33,7 @@ import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getTokenId } from '@web/utils/token'
 
 import TokenDetailsButton from './Button'
@@ -53,11 +55,16 @@ const TokenDetails = ({
   const { t } = useTranslation()
   const { isOffline } = useConnectivity()
   const { account } = useSelectedAccountControllerState()
+  const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
+  const network = useMemo(
+    () => networks.find((n) => n.id === token?.networkId),
+    [networks, token?.networkId]
+  )
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
@@ -66,6 +73,8 @@ const TokenDetails = ({
   const canToToppedUp = token?.flags.canTopUpGasTank
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const tokenId = token ? getTokenId(token) : ''
+  const shouldDisableSwapAndBridge =
+    !getIsNetworkSupported(supportedChainIds, network) || isGasTankOrRewardsToken || isAmountZero
 
   const actions = useMemo(
     () => [
@@ -86,7 +95,7 @@ const TokenDetails = ({
         iconWidth: 86,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`${WEB_ROUTES.swapAndBridge}?networkId=${networkId}&address=${address}`),
-        isDisabled: isGasTankOrRewardsToken || isAmountZero,
+        isDisabled: shouldDisableSwapAndBridge,
         strokeWidth: 1.5
       },
       {
@@ -140,13 +149,12 @@ const TokenDetails = ({
         onPress: async () => {
           if (!hasTokenInfo || !token || !networks.length) return
 
-          const networkData = networks.find((n) => n.id === token?.networkId)
-          if (!networkData) {
+          if (!network) {
             addToast(t('Network not found'), { type: 'error' })
             return
           }
 
-          const coingeckoId = geckoIdMapper(token?.address, networkData)
+          const coingeckoId = geckoIdMapper(token?.address, network)
 
           try {
             await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`)
@@ -169,7 +177,8 @@ const TokenDetails = ({
       networks,
       addToast,
       token,
-      handleClose
+      handleClose,
+      network
     ]
   )
   useEffect(() => {
@@ -177,13 +186,12 @@ const TokenDetails = ({
 
     setIsTokenInfoLoading(true)
 
-    const networkData = networks.find((n) => n.id === token?.networkId)
-    if (!networkData) {
+    if (!network) {
       addToast(t('Network not found'), { type: 'error' })
       setIsTokenInfoLoading(false)
       return
     }
-    const coingeckoId = geckoIdMapper(token?.address, networkData)
+    const coingeckoId = geckoIdMapper(token?.address, network)
 
     const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`
 
@@ -204,7 +212,7 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [t, token?.address, token?.networkId, networks, addToast, isOffline])
+  }, [t, token?.address, token?.networkId, networks, addToast, isOffline, network])
 
   const handleHideToken = () => {
     if (!token) return

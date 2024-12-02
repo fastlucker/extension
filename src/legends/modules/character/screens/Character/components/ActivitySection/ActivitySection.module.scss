@@ -1,6 +1,9 @@
+@import '@legends/styles/base.scss';
+
 .table {
   width: 100%;
   text-align: left;
+  margin-bottom: 2rem;
 
   td {
     padding: 0 0 0.75em;
@@ -11,7 +14,7 @@
   }
 
   tbody:before {
-    content: " ";
+    content: ' ';
     display: block;
     margin: 0 0 1em;
   }
@@ -19,4 +22,11 @@
   .link {
     text-decoration: underline;
   }
+}
+
+.spinnerWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 11.25rem;
 }

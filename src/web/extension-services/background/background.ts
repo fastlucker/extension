@@ -33,6 +33,7 @@ import { UpdateAvailableController } from '@web/extension-services/background/co
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { handleActions } from '@web/extension-services/background/handlers/handleActions'
 import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
+import { handleControllersSessionCleanup } from '@web/extension-services/background/handlers/handleControllersSessionCleanup'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
@@ -727,6 +728,7 @@ handleKeepAlive()
           if (messageType === '> background' && type) {
             await handleActions(action, {
               pm,
+              port,
               mainCtrl,
               ledgerCtrl,
               trezorCtrl,
@@ -760,6 +762,7 @@ handleKeepAlive()
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
         initDefiPositionsContinuousUpdate()
+        handleControllersSessionCleanup({ port, mainCtrl })
 
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises

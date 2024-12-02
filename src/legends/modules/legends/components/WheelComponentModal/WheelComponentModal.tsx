@@ -8,7 +8,7 @@ import { RELAYER_URL } from '@env'
 import Modal from '@legends/components/Modal'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
-import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
+import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
@@ -38,11 +38,14 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     try {
       fetchTryCount += 1
       const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
-      const txns = await response.json()
+
+      if (!response.ok) throw new Error('Failed to fetch transaction status')
+
+      const data = await response.json()
       const today = new Date().toISOString().split('T')[0]
 
-      const transaction: Activity | undefined = txns.find(
-        (txn: Activity) =>
+      const transaction: ActivityTransaction | undefined = data.transactions.find(
+        (txn: ActivityTransaction) =>
           txn.submittedAt.startsWith(today) &&
           txn.legends.activities &&
           txn.legends.activities.some((activity: LegendActivity) =>
