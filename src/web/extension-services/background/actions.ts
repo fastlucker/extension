@@ -215,24 +215,21 @@ type MainControllerHandleSignMessage = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE'
   params: { keyAddr: Key['addr']; keyType: Key['type'] }
 }
-type MainControllerActivityInitAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params?: { filters?: Filters }
+type MainControllerActivitySetAccOpsFiltersAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS'
+  params: { filters: Filters; pagination?: Pagination; sessionId: string }
 }
-type MainControllerActivitySetFiltersAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
-  params: { filters: Filters }
+type MainControllerActivitySetSignedMessagesFiltersAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_FILTERS'
+  params: { filters: Filters; pagination?: Pagination; sessionId: string }
 }
-type MainControllerActivitySetAccountOpsPaginationAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION'
-  params: { pagination: Pagination }
+type MainControllerActivityResetAccOpsAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS'
+  params: { sessionId: string }
 }
-type MainControllerActivitySetSignedMessagesPaginationAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION'
-  params: { pagination: Pagination }
-}
-type MainControllerActivityResetAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
+type MainControllerActivityResetSignedMessagesAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_RESET_SIGNED_MESSAGES_FILTERS'
+  params: { sessionId: string }
 }
 type MainControllerActivityHideBanner = {
   type: 'ACTIVITY_CONTROLLER_HIDE_BANNER'
@@ -594,11 +591,10 @@ export type Action =
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerHandleSignMessage
-  | MainControllerActivityInitAction
-  | MainControllerActivitySetFiltersAction
-  | MainControllerActivitySetAccountOpsPaginationAction
-  | MainControllerActivitySetSignedMessagesPaginationAction
-  | MainControllerActivityResetAction
+  | MainControllerActivitySetAccOpsFiltersAction
+  | MainControllerActivitySetSignedMessagesFiltersAction
+  | MainControllerActivityResetAccOpsAction
+  | MainControllerActivityResetSignedMessagesAction
   | MainControllerSignAccountOpInitAction
   | MainControllerSignAccountOpDestroyAction
   | MainControllerSignAccountOpUpdateMainDepsAction

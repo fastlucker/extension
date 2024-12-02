@@ -87,7 +87,7 @@ const InnerToken: FC<Props> = ({
           withNetworkIcon={false}
         />
         <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mhMi}>
-          {tokenInfo?.symbol || <HumanizerAddress fontSize={16} address={address} />}
+          {tokenInfo?.symbol || <HumanizerAddress fontSize={textSize} address={address} />}
         </Text>
         {network && <OpenIcon width={14} height={14} />}
       </Pressable>

@@ -13,9 +13,15 @@ interface Props {
   call: IrCall
   sizeMultiplierSize: number
   textSize: number
+  hasPadding?: boolean
 }
 
-const FallbackVisualization: FC<Props> = ({ call, sizeMultiplierSize, textSize }) => {
+const FallbackVisualization: FC<Props> = ({
+  call,
+  sizeMultiplierSize,
+  textSize,
+  hasPadding = true
+}) => {
   const { t } = useTranslation()
 
   return (
@@ -26,7 +32,7 @@ const FallbackVisualization: FC<Props> = ({ call, sizeMultiplierSize, textSize }
         flexbox.alignCenter,
         flexbox.wrap,
         {
-          paddingHorizontal: SPACING_SM * sizeMultiplierSize
+          paddingHorizontal: hasPadding ? SPACING_SM * sizeMultiplierSize : 0
         }
       ]}
     >
