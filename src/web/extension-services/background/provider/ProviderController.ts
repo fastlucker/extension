@@ -8,13 +8,17 @@ import cloneDeep from 'lodash/cloneDeep'
 import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappCommunication'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
+import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import { APP_VERSION, isProd } from '@common/config/env'
 import formatDecimals from '@common/utils/formatDecimals'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
+import { createTab } from '../webapi/tab'
 import { RequestRes, Web3WalletPermission } from './types'
 
 type ProviderRequest = DappProviderRequest & { requestRes: RequestRes }
@@ -271,6 +275,9 @@ export class ProviderController {
       capabilities[toBeHex(network.chainId)] = {
         atomicBatch: {
           supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+        },
+        auxiliaryFunds: {
+          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
         }
       }
     })
@@ -279,9 +286,8 @@ export class ProviderController {
 
   @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
   walletSendCalls = async (data: any) => {
-    if (data.requestRes && data.requestRes.submittedAccountOp) {
-      const identifiedBy = data.requestRes.submittedAccountOp.identifiedBy
-      return `${identifiedBy.type}:${identifiedBy.identifier}`
+    if (data.requestRes && data.requestRes.hash) {
+      return data.requestRes.hash
     }
 
     throw new Error('Transaction failed!')
@@ -313,6 +319,11 @@ export class ProviderController {
       this.mainCtrl.fetch,
       this.mainCtrl.callRelayer
     )
+    if (txnIdData.status === 'rejected') {
+      return {
+        status: 'FAILURE'
+      }
+    }
     if (txnIdData.status !== 'success') {
       return {
         status: 'PENDING'
@@ -321,7 +332,11 @@ export class ProviderController {
 
     const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
-    const receipt = await provider.getTransactionReceipt(txnId)
+    const isUserOp = identifiedBy.type === 'UserOperation'
+    const receipt = isUserOp
+      ? await bundler.getReceipt(identifiedBy.identifier, network)
+      : await provider.getTransactionReceipt(txnId)
+
     if (!receipt) {
       return {
         status: 'PENDING'
@@ -330,12 +345,52 @@ export class ProviderController {
 
     return {
       status: 'CONFIRMED',
-      receipts: [receipt]
+      receipts: [
+        {
+          logs: receipt.logs,
+          status: isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number),
+          chainId: toBeHex(network.chainId),
+          blockHash: isUserOp ? receipt.receipt.blockHash : receipt.blockHash,
+          blockNumber: isUserOp
+            ? receipt.receipt.blockNumber
+            : toBeHex(receipt.blockNumber as number),
+          gasUsed: isUserOp ? receipt.receipt.gasUsed : toBeHex(receipt.gasUsed),
+          transactionHash: isUserOp ? receipt.receipt.transactionHash : receipt.hash
+        }
+      ]
     }
   }
 
+  // open benzina in a separate tab upon a dapp request
   walletShowCallsStatus = async (data: any) => {
-    // TODO: open a modal with information about the transaction
+    if (!data.params || !data.params.length) {
+      throw ethErrors.rpc.invalidParams('params is required but got []')
+    }
+
+    const id = data.params[0]
+    if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
+
+    const splitInTwo = id.split(':')
+    if (splitInTwo.length !== 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
+
+    const type = splitInTwo[0]
+    const identifier = splitInTwo[1]
+    const identifiedBy: AccountOpIdentifiedBy = {
+      type,
+      identifier
+    }
+
+    const dappNetwork = this.getDappNetwork(data.session.origin)
+    const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
+    const chainId = Number(network.chainId)
+
+    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
+      txnId: null,
+      chainId,
+      identifiedBy
+    })}`
+
+    await createTab(link)
   }
 
   @Reflect.metadata('ACTION_REQUEST', [
