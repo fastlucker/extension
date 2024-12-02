@@ -10,6 +10,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import { APP_VERSION, isProd } from '@common/config/env'
@@ -328,7 +329,11 @@ export class ProviderController {
 
     const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
-    const receipt = await provider.getTransactionReceipt(txnId)
+    const isUserOp = identifiedBy.type === 'UserOperation'
+    const receipt = isUserOp
+      ? await bundler.getReceipt(identifiedBy.identifier, network)
+      : await provider.getTransactionReceipt(txnId)
+
     if (!receipt) {
       return {
         status: 'PENDING'
@@ -337,7 +342,19 @@ export class ProviderController {
 
     return {
       status: 'CONFIRMED',
-      receipts: [receipt]
+      receipts: [
+        {
+          logs: receipt.logs,
+          status: isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number),
+          chainId: toBeHex(network.chainId),
+          blockHash: isUserOp ? receipt.receipt.blockHash : receipt.blockHash,
+          blockNumber: isUserOp
+            ? receipt.receipt.blockNumber
+            : toBeHex(receipt.blockNumber as number),
+          gasUsed: isUserOp ? receipt.receipt.gasUsed : toBeHex(receipt.gasUsed),
+          transactionHash: isUserOp ? receipt.receipt.transactionHash : receipt.hash
+        }
+      ]
     }
   }
 
