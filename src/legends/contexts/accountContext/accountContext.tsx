@@ -32,6 +32,8 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   const [connectedAccount, setConnectedAccount] = React.useState<string | null>(() => {
     const storedAccount = localStorage.getItem(LOCAL_STORAGE_ACC_KEY)
 
+    if (!window.ambire) return null
+
     return storedAccount || null
   })
 
