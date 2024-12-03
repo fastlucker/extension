@@ -38,7 +38,7 @@ export class BadgesController {
         (a) => a.type !== 'benzin'
       ).length
       const swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
-        (b) => b.category === 'swap-and-bridge-ready'
+        (b) => b.category === 'bridge-ready'
       ).length
 
       this.swapAndBridgeBannersCount =
@@ -65,7 +65,7 @@ export class BadgesController {
 
     this.#mainCtrl.swapAndBridge.onUpdate(() => {
       const swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
-        (b) => b.category === 'swap-and-bridge-ready'
+        (b) => b.category === 'bridge-ready'
       ).length
 
       this.swapAndBridgeBannersCount =

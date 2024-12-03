@@ -1,3 +1,4 @@
+import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
@@ -77,7 +78,8 @@ class LedgerController implements ExternalSignerController {
     const filters = [{ vendorId: LedgerController.vendorId }]
     const devices = await navigator.hid.requestDevice({ filters })
 
-    if (devices.length === 0) throw new Error('Ledger device connection request was canceled.')
+    if (devices.length === 0)
+      throw new ExternalSignerError('Ledger device connection request was canceled.')
 
     const device = devices[0]
     await device.open()
@@ -95,7 +97,7 @@ class LedgerController implements ExternalSignerController {
       (reject: (reason?: any) => void) =>
       ({ device }: { device: HIDDevice }) => {
         if (LedgerController.vendorId === device.vendorId) {
-          reject(new Error('Ledger device got disconnected.'))
+          reject(new ExternalSignerError('Ledger device got disconnected.'))
         }
       }
 
@@ -132,7 +134,7 @@ class LedgerController implements ExternalSignerController {
       setTimeout(() => {
         const message =
           'Could not connect to your Ledger device for an extended period. Please close any other apps that may be accessing your Ledger device (including wallet apps on your computer and web apps). Ensure your Ledger is responsive. Unplug and plug it again.'
-        reject(new Error(message))
+        reject(new ExternalSignerError(message))
       }, TIMEOUT_FOR_RETRIEVING_FROM_LEDGER)
     })
 
@@ -146,14 +148,15 @@ class LedgerController implements ExternalSignerController {
    */
   async #initSDKSessionIfNeeded() {
     const isConnected = await LedgerController.isConnected()
-    if (!isConnected) throw new Error("Ledger is not connected. Please make sure it's plugged in.")
+    if (!isConnected)
+      throw new ExternalSignerError("Ledger is not connected. Please make sure it's plugged in.")
 
     if (this.walletSDK) return
 
     try {
       // @ts-ignore types mismatch, not sure why
       this.transport = await TransportWebHID.create()
-      if (!this.transport) throw new Error('Transport failed to get initialized')
+      if (!this.transport) throw new ExternalSignerError('Transport failed to get initialized')
       navigator.hid.addEventListener('disconnect', this.cleanUpListener)
 
       this.walletSDK = new Eth(this.transport)
@@ -162,7 +165,7 @@ class LedgerController implements ExternalSignerController {
       this.deviceModel = this.transport.deviceModel?.id || 'unknown'
       this.deviceId = this.transport.device?.productId?.toString() || ''
     } catch (e: any) {
-      throw new Error(normalizeLedgerMessage(e?.message))
+      throw new ExternalSignerError(normalizeLedgerMessage(e?.message))
     }
   }
 
@@ -174,13 +177,13 @@ class LedgerController implements ExternalSignerController {
     }
 
     if (!this.isWebHID) {
-      throw new Error(
+      throw new ExternalSignerError(
         'Ledger only supports USB connection between Ambire and your device. Please connect your device via USB.'
       )
     }
 
     if (!this.walletSDK) {
-      throw new Error(normalizeLedgerMessage()) // no message, indicating no connection
+      throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
     }
 
     try {
@@ -193,7 +196,7 @@ class LedgerController implements ExternalSignerController {
 
       return 'JUST_UNLOCKED'
     } catch (error: any) {
-      throw new Error(normalizeLedgerMessage(error?.message))
+      throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
     }
   }
 
@@ -202,11 +205,11 @@ class LedgerController implements ExternalSignerController {
       await this.#initSDKSessionIfNeeded()
 
       if (!this.walletSDK) {
-        throw new Error(normalizeLedgerMessage()) // no message, indicating no connection
+        throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
       }
 
       const keys: string[] = []
-      let latestGetAddressError: Error | undefined
+      let latestGetAddressError: ExternalSignerError | undefined
       for (let i = 0; i < paths.length; i++) {
         try {
           // Purposely await in loop to avoid sending multiple requests at once.
@@ -236,7 +239,7 @@ class LedgerController implements ExternalSignerController {
       // Ambire and try importing accounts again.
       const notAllKeysGotRetrieved = keys.length !== paths.length
       if (notAllKeysGotRetrieved) {
-        throw new Error(normalizeLedgerMessage(latestGetAddressError?.message))
+        throw new ExternalSignerError(normalizeLedgerMessage(latestGetAddressError?.message))
       }
 
       return keys

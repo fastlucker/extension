@@ -38,4 +38,20 @@
       border-color: $error;
     }
   }
+  .validationMessage,
+  .infoLabel {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  .validationMessage {
+    &.error {
+      color: $error;
+    }
+    &.success {
+      color: $success;
+    }
+  }
+  .infoLabel {
+    color: $secondaryText;
+  }
 }
