@@ -5,10 +5,10 @@ import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
+import GoldCoin from '../../../../../../common/assets/svg/CoinIcon/CoinIcon'
+import Crown from '../../../../../../common/assets/svg/CrownIcon/CrownIcon'
+import Diamond from '../../../../../../common/assets/svg/DiamondIcon/DiamondIcon'
 import styles from './CharacterSection.module.scss'
-import Crown from './Crown'
-import Diamond from './Diamond'
-import GoldCoin from './GoldCoin'
 
 const LONG_NAME_THRESHOLD = 10
 
@@ -16,7 +16,7 @@ const CharacterSection = () => {
   const { character } = useCharacterContext()
   const { accountPortfolio } = usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
-  const { isReady, error, amountFormatted, amount } = accountPortfolio || {}
+  const { isReady, amountFormatted, amount } = accountPortfolio || {}
 
   if (!character)
     return (
@@ -70,12 +70,10 @@ const CharacterSection = () => {
           <div className={styles.characterItemWrapper}>
             <Diamond className={styles.icon} />
             <div className={styles.characterItem}>
-              {isReady && amount && (
-                <>
-                  <span className={styles.item}>{amountFormatted}</span>
-                  Wallet Balance{' '}
-                </>
-              )}
+              <span className={styles.item}>
+                {isReady && amount ? amountFormatted : 'Loading...'}
+              </span>
+              Wallet Balance
             </div>
           </div>
 

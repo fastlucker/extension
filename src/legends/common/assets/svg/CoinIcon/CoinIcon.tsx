@@ -1,13 +1,11 @@
 import * as React from 'react'
-import Svg, { Defs, G, LinearGradient, Path, Stop } from 'react-native-svg'
+import Svg, { Defs, G, LinearGradient, Path, Stop, SvgProps } from 'react-native-svg'
 
-type Props = {
-  width?: number
-  height?: number
-  className?: string
-}
-
-const GoldCoin = ({ width = 64, height = 64, ...rest }: Props) => {
+const CoinIcon: React.FC<SvgProps & { className?: string }> = ({
+  width = 64,
+  height = 64,
+  ...rest
+}) => {
   return (
     <Svg width={width} height={height} viewBox="0 0 80 80" fill="none" {...rest}>
       <Path
@@ -292,4 +290,4 @@ const GoldCoin = ({ width = 64, height = 64, ...rest }: Props) => {
   )
 }
 
-export default GoldCoin
+export default CoinIcon
