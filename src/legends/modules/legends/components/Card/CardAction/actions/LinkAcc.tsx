@@ -96,7 +96,7 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
       setIsInProgress(true)
       const signature = await window.ambire.request({
         method: 'personal_sign',
-        params: [`Assign to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
+        params: [`Assign ${v1OrEoaAddress} to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
       })
       setMessageSignedForV2Account(connectedAccount!)
 
