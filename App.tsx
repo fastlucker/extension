@@ -29,6 +29,8 @@ console.warn = function filterWarnings(msg, ...args) {
 }
 
 const App = () => {
+  // Because this tree is only rendered for the extension we check if
+  // the window is an extension window and if it is web (not android or ios)
   if (!isExtension && isWeb) return 'Extension build successful! You can now close this window.'
 
   return (
