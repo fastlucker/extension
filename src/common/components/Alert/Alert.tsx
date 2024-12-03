@@ -1,5 +1,5 @@
-import React, { FC } from 'react'
-import { View, ViewStyle } from 'react-native'
+import React from 'react'
+import { TextProps, View, ViewStyle } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import ErrorIcon from '@common/assets/svg/ErrorIcon'
@@ -18,7 +18,7 @@ import Text, { TextWeight } from '../Text'
 interface Props {
   title?: string | React.ReactNode
   titleWeight?: TextWeight
-  text?: string
+  text?: string | React.ReactNode
   type?: 'error' | 'warning' | 'success' | 'info' | 'info2'
   style?: ViewStyle
   children?: React.ReactNode
@@ -38,7 +38,27 @@ const ICON_MAP = {
 
 const { isPopup } = getUiType()
 
-const Alert: FC<Props> = ({
+const DEFAULT_SM_FONT_SIZE = 14
+const DEFAULT_MD_FONT_SIZE = 16
+
+interface AlertTextProps extends TextProps {
+  children: React.ReactNode
+  size?: Props['size']
+  type?: Props['type']
+}
+
+const AlertText: React.FC<AlertTextProps> = ({ children, size = 'md', type = 'info', ...rest }) => {
+  const isSmall = size === 'sm' || isPopup
+  const fontSize = !isSmall ? DEFAULT_MD_FONT_SIZE : DEFAULT_SM_FONT_SIZE
+
+  return (
+    <Text selectable fontSize={fontSize - 2} weight="regular" appearance={`${type}Text`} {...rest}>
+      {children}
+    </Text>
+  )
+}
+
+const Alert = ({
   title,
   titleWeight,
   text,
@@ -49,11 +69,11 @@ const Alert: FC<Props> = ({
   isTypeLabelHidden = true,
   buttonProps,
   customIcon: CustomIcon
-}) => {
+}: Props) => {
   const Icon = ICON_MAP[type]
   const { theme } = useTheme()
   const isSmall = size === 'sm' || isPopup
-  const fontSize = !isSmall ? 16 : 14
+  const fontSize = !isSmall ? DEFAULT_MD_FONT_SIZE : DEFAULT_SM_FONT_SIZE
 
   return (
     <View
@@ -102,11 +122,14 @@ const Alert: FC<Props> = ({
             </Text>
           </Text>
         )}
-        {!!text && (
-          <Text selectable fontSize={fontSize - 2} weight="regular" appearance={`${type}Text`}>
-            {text}
-          </Text>
-        )}
+        {!!text &&
+          (typeof text === 'string' ? (
+            <AlertText size={size} type={type}>
+              {text}
+            </AlertText>
+          ) : (
+            text
+          ))}
         {buttonProps && (
           <Button
             style={{
@@ -127,5 +150,7 @@ const Alert: FC<Props> = ({
     </View>
   )
 }
+
+Alert.Text = AlertText
 
 export default Alert

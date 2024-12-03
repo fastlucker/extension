@@ -1,6 +1,7 @@
+import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
-import { normalizeTrezorMessage } from '@ambire-common/libs/trezor/trezor'
+import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { TrezorConnect } from '@web/modules/hardware-wallet/controllers/TrezorController'
 
@@ -70,7 +71,10 @@ class TrezorKeyIterator implements KeyIteratorInterface {
       bundle: [...addrBundleToBeRequested, ...addrBundleToBePrefetched]
     })
 
-    if (!res.success) throw new Error(normalizeTrezorMessage(res.payload.error))
+    if (!res.success)
+      throw new ExternalSignerError(
+        getMessageFromTrezorErrorCode(res.payload.code, res.payload.error)
+      )
 
     // Store the already retrieved addresses in the cache
     res.payload.forEach(({ address, serializedPath }) => {
