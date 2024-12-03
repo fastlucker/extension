@@ -36,7 +36,6 @@ import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
 import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
-import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
@@ -111,16 +110,6 @@ const SignMessageScreen = () => {
     if (!userRequest || !signMessageAction) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-      params: {
-        filters: {
-          account: userRequest.meta.accountAddr,
-          network: userRequest.meta.networkId
-        }
-      }
-    })
-
-    dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
       params: {
         dapp: {
@@ -139,22 +128,8 @@ const SignMessageScreen = () => {
   }, [dispatch, userRequest, signMessageAction])
 
   useEffect(() => {
-    if (!getUiType().isActionWindow) return
-    const reset = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
-      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
-    }
-    window.addEventListener('beforeunload', reset)
-
-    return () => {
-      window.removeEventListener('beforeunload', reset)
-    }
-  }, [dispatch])
-
-  useEffect(() => {
     return () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
-      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
   }, [dispatch])
 

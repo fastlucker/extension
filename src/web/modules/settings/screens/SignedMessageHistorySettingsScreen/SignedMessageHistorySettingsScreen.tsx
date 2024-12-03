@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { Trans } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 
@@ -11,16 +11,18 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 
+import { nanoid } from 'nanoid'
 import HistorySettingsPage from '../../components/TransactionHistory/HistorySettingsPage'
 import SignedMessageSummary from '../../components/TransactionHistory/SignedMessageSummary'
 
 const SignedMessageHistory: FC<{
   page?: number
   account: Account
-}> = ({ page, account }) => {
+  sessionId: string
+}> = ({ page, account, sessionId }) => {
   const activityState = useActivityControllerState()
 
-  if (!activityState?.signedMessages?.items?.length && page) {
+  if (!activityState?.signedMessages?.[sessionId]?.result.items.length && page) {
     return (
       <View
         style={[StyleSheet.absoluteFill, flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}
@@ -49,11 +51,15 @@ const SignedMessageHistory: FC<{
 
   return (
     <>
-      {(activityState?.signedMessages?.items || []).map((item, i) => (
+      {(activityState?.signedMessages?.[sessionId]?.result.items || []).map((item, i) => (
         <SignedMessageSummary
           key={item.timestamp + item.networkId}
           signedMessage={item as SignedMessage}
-          style={i !== activityState.signedMessages!.items.length - 1 ? spacings.mbSm : {}}
+          style={
+            i !== activityState.signedMessages[sessionId].result.items.length - 1
+              ? spacings.mbSm
+              : {}
+          }
         />
       ))}
     </>
@@ -61,7 +67,14 @@ const SignedMessageHistory: FC<{
 }
 
 const SignedMessageHistorySettingsScreen = () => {
-  return <HistorySettingsPage historyType="messages" HistoryComponent={SignedMessageHistory} />
+  const [sessionId] = useState(nanoid())
+  return (
+    <HistorySettingsPage
+      historyType="messages"
+      HistoryComponent={SignedMessageHistory}
+      sessionId={sessionId}
+    />
+  )
 }
 
 export default SignedMessageHistorySettingsScreen

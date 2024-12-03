@@ -96,7 +96,7 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
       setIsInProgress(true)
       const signature = await window.ambire.request({
         method: 'personal_sign',
-        params: [`Assign to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
+        params: [`Assign ${v1OrEoaAddress} to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
       })
       setMessageSignedForV2Account(connectedAccount!)
 
@@ -179,8 +179,8 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
 
       {activeStep === STEPS.SIGN_MESSAGE && (
         <Input
-          label="EOA Address"
-          placeholder="Enter EOA Address"
+          label="Ambire v1 or Basic Account address"
+          placeholder="0x..."
           value={v1OrEoaAddress}
           validation={inputValidation}
           onChange={(e) => setV1OrEoaAddress(e.target.value)}

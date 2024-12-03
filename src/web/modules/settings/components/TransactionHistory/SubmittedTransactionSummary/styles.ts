@@ -15,14 +15,12 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
-      ...spacings.ptSm,
       ...common.borderRadiusPrimary,
       borderWidth: 1,
       borderColor: theme.secondaryBorder,
       backgroundColor: theme.secondaryBackground
     },
     summaryItem: {
-      ...spacings.mbSm,
       ...spacings.phSm,
       backgroundColor: 'transparent',
       borderWidth: 0
@@ -30,14 +28,12 @@ const getStyles = (theme: ThemeProps) =>
     footer: {
       ...flexbox.directionRow,
       ...flexbox.flex1,
-      ...spacings.phLg,
-      ...spacings.pvSm,
+      ...flexbox.alignCenter,
       borderTopColor: theme.secondaryBorder,
       borderTopWidth: 1
     },
     footerItem: {
-      ...flexbox.directionRow,
-      ...spacings.mr
+      ...flexbox.directionRow
     }
   })
 

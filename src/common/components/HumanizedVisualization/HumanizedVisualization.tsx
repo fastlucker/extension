@@ -35,6 +35,8 @@ interface Props {
   networkId: NetworkId
   isHistory?: boolean
   testID?: string
+  hasPadding?: boolean
+  imageSize?: number
 }
 
 const HumanizedVisualization: FC<Props> = ({
@@ -43,7 +45,9 @@ const HumanizedVisualization: FC<Props> = ({
   textSize = 16,
   networkId,
   isHistory,
-  testID
+  testID,
+  hasPadding = true,
+  imageSize = 36
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { theme } = useTheme()
@@ -56,7 +60,7 @@ const HumanizedVisualization: FC<Props> = ({
         flexbox.alignCenter,
         flexbox.wrap,
         {
-          marginHorizontal: SPACING_SM * sizeMultiplierSize
+          marginHorizontal: hasPadding ? SPACING_SM * sizeMultiplierSize : 0
         }
       ]}
     >
@@ -114,7 +118,7 @@ const HumanizedVisualization: FC<Props> = ({
               key={key}
               uri={item.content}
               containerStyle={spacings.mrSm}
-              size={36}
+              size={imageSize}
               skeletonAppearance="primaryBackground"
               fallback={() => (
                 <View

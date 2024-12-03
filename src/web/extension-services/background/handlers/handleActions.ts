@@ -14,7 +14,7 @@ import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
-import { PortMessenger } from '@web/extension-services/messengers'
+import { Port, PortMessenger } from '@web/extension-services/messengers'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
@@ -27,6 +27,7 @@ export const handleActions = async (
   action: Action,
   {
     pm,
+    port,
     mainCtrl,
     ledgerCtrl,
     trezorCtrl,
@@ -35,6 +36,7 @@ export const handleActions = async (
     autoLockCtrl
   }: {
     pm: PortMessenger
+    port: Port
     mainCtrl: MainController
     ledgerCtrl: LedgerController
     trezorCtrl: TrezorController
@@ -46,6 +48,13 @@ export const handleActions = async (
   // @ts-ignore
   const { type, params } = action
   switch (type) {
+    case 'UPDATE_PORT_URL': {
+      if (port.sender) {
+        port.sender.url = params.url
+        if (port.sender.tab) port.sender.tab.url = params.url
+      }
+      break
+    }
     case 'INIT_CONTROLLER_STATE': {
       if (params.controller === ('main' as any)) {
         const mainCtrlState: any = { ...mainCtrl.toJSON() }
@@ -294,16 +303,22 @@ export const handleActions = async (
       mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
       return await mainCtrl.handleSignMessage()
     }
-    case 'MAIN_CONTROLLER_ACTIVITY_INIT':
-      return mainCtrl.activity.init(params?.filters)
-    case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
-      return mainCtrl.activity.setFilters(params.filters)
-    case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
-      return mainCtrl.activity.setAccountsOpsPagination(params.pagination)
-    case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION':
-      return mainCtrl.activity.setSignedMessagesPagination(params.pagination)
-    case 'MAIN_CONTROLLER_ACTIVITY_RESET':
-      return mainCtrl.activity.reset()
+    case 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS':
+      return mainCtrl.activity.filterAccountsOps(
+        params.sessionId,
+        params.filters,
+        params.pagination
+      )
+    case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_FILTERS':
+      return mainCtrl.activity.filterSignedMessages(
+        params.sessionId,
+        params.filters,
+        params.pagination
+      )
+    case 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS':
+      return mainCtrl.activity.resetAccountsOpsFilters(params.sessionId)
+    case 'MAIN_CONTROLLER_ACTIVITY_RESET_SIGNED_MESSAGES_FILTERS':
+      return mainCtrl.activity.resetSignedMessagesFilters(params.sessionId)
     case 'ACTIVITY_CONTROLLER_HIDE_BANNER':
       return await mainCtrl.activity.hideBanner(params)
 

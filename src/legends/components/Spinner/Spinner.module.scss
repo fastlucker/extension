@@ -1,6 +1,17 @@
 @import '@legends/styles/base.scss';
 
-.wrapper {
+.container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.wheel {
   border: 0.25rem solid $accent;
   border-bottom-color: transparent;
   border-radius: 50%;
