@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
@@ -16,7 +16,7 @@ const AccountDropdown = () => {
   const { character } = useCharacterContext()
   const { userLeaderboardData } = useLeaderboardContext()
 
-  const toggleIsOpen = () => setIsOpen((prev) => !prev)
+  // const toggleIsOpen = () => setIsOpen((prev) => !prev)
 
   const networkData = useMemo(() => {
     return networks.find((network) => network.chainId === chainId)
@@ -41,7 +41,8 @@ const AccountDropdown = () => {
 
   return (
     <div className={`${styles.wrapper} ${connectedAccount ? styles.connected : ''}`}>
-      <button className={styles.button} type="button" onClick={toggleIsOpen}>
+      {/* TODO: Implement disconnectAccount and add back the dropdown logic */}
+      <button className={styles.button} type="button">
         <div className={styles.avatarWrapper}>
           <img alt="avatar" className={styles.avatar} src={character!.image_avatar} />
         </div>
@@ -56,10 +57,10 @@ const AccountDropdown = () => {
             Level {character!.level} / Rank {userLeaderboardData?.rank || 'N/A'}
           </p>
         </div>
-        <FontAwesomeIcon
+        {/* <FontAwesomeIcon
           className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}
           icon={faChevronDown}
-        />
+        /> */}
       </button>
       <div className={`${styles.dropdown} ${isOpen ? styles.open : ''}`}>
         <p className={styles.network}>
