@@ -30,8 +30,7 @@ import {
   createHotWalletWithSeedPhrase,
   checkAccountDetails,
   typeSeedWords,
-  selectHdPathAndAddAccount,
-  waitForAuthentication
+  selectHdPathAndAddAccount
 } from './functions'
 import { setAmbKeyStore } from '../../common-helpers/setAmbKeyStore'
 import { baPrivateKey, SEED_12_WORDS, SEED_24_WORDS } from '../../config/constants'
@@ -120,6 +119,8 @@ describe('auth', () => {
     // Click on "Save and Continue" button
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
 
+    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     // Wait for selector to be visible
@@ -158,7 +159,7 @@ describe('auth', () => {
 
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
 
-    await waitForAuthentication(page, extensionURL)
+    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
@@ -174,6 +175,9 @@ describe('auth', () => {
     // Click on "Import View-Only Accounts" button
     await clickOnElement(page, SELECTORS.viewOnlyBtnImport)
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+
+    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     // Verify that added accounts exist on the page and contains VIEW_ONLY_LABEL
@@ -244,6 +248,9 @@ describe('auth', () => {
 
     // Click Save and continue btn
     await clickOnElement(page, SELECTORS.saveAndContinueBtn)
+
+    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     await checkAccountDetails(

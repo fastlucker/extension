@@ -107,6 +107,8 @@ describe('Trezor Hardware Wallet Authentication E2E', () => {
     // Click on "Save and Continue" button
     await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
 
+    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
     await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
     await checkAccountDetails(
