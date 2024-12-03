@@ -1,7 +1,7 @@
 import { ethers, ZeroAddress, zeroPadValue } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import LegendsNFT from '@contracts/compiled/LegendsNft.json'
+import LegendsNFT from '@contracts/compiled/LegendsNFTImplementation.json'
 import { LEGENDS_NFT_ADDRESS } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
