@@ -47,11 +47,6 @@ export class ExtensionUpdateController extends EventEmitter {
     }
   }
 
-  // TODO: check does it need to remove the listener?
-  #stopListening(): void {
-    browser.runtime.onUpdateAvailable.removeListener(this.#updateAvailableHandler)
-  }
-
   #onUpdateAvailable(details: { version: string }): void {
     logInfoWithPrefix('[Extension Update Available]', `Version: ${details.version}`)
     this.#isUpdateAvailable = true
