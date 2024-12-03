@@ -1,6 +1,6 @@
 import EventEmitter, { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Banner } from '@ambire-common/interfaces/banner'
-import { browser } from '@web/constants/browserapi'
+import { browser, isSafari } from '@web/constants/browserapi'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
 /**
@@ -34,6 +34,9 @@ export class ExtensionUpdateController extends EventEmitter {
   }
 
   #startListening(): void {
+    // Safari does not support this event
+    if (isSafari()) return
+
     logInfoWithPrefix('[Started listening for extension updateAvailable event]')
 
     try {
@@ -53,8 +56,10 @@ export class ExtensionUpdateController extends EventEmitter {
     this.emitUpdate()
   }
 
-  reloadExtension() {
+  applyUpdate() {
     this.#isUpdateAvailable = false
+
+    // Note: Calling browser.runtime.reload() is sufficient to apply the update when onUpdateAvailable is triggered.
     browser.runtime.reload()
     this.emitUpdate()
   }
@@ -66,7 +71,7 @@ export class ExtensionUpdateController extends EventEmitter {
           id: 'update-available',
           type: 'info',
           title: 'Update Available',
-          text: 'A new version of the extension is ready. Reload now to update.',
+          text: 'A new version is ready! It will be applied automatically the next time your browser or extension reloads. Reload now to update immediately.',
           actions: [
             {
               label: 'Reload',

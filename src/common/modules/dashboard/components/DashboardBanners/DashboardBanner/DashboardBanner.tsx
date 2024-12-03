@@ -116,7 +116,7 @@ const DashboardBanner = ({
 
       if (action.actionName === 'update-extension-version') {
         dispatch({
-          type: 'EXTENSION_UPDATE_CONTROLLER_RELOAD_EXTENSION'
+          type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
         })
       }
     },

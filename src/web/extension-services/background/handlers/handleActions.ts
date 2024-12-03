@@ -592,11 +592,10 @@ export const handleActions = async (
       mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       return mainCtrl.dapps.removeDapp(params)
     }
-    case 'EXTENSION_UPDATE_CONTROLLER_RELOAD_EXTENSION': {
-      extensionUpdateCtrl.reloadExtension()
+    case 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE': {
+      extensionUpdateCtrl.applyUpdate()
       break
     }
-
 
     default:
       return console.error(

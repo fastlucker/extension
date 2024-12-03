@@ -555,8 +555,8 @@ type ImportSmartAccountJson = {
   params: { readyToAddAccount: Account; keys: ReadyToAddKeys['internal'] }
 }
 
-type ExtensionUpdateControllerReloadExtension = {
-  type: 'EXTENSION_UPDATE_CONTROLLER_RELOAD_EXTENSION'
+type ExtensionUpdateControllerApplyUpdate = {
+  type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
 }
 
 export type Action =
@@ -668,4 +668,4 @@ export type Action =
   | MainControllerActivityHideBanner
   | KeystoreControllerDeleteSavedSeed
   | KeystoreControllerMoveSeedFromTemp
-  | ExtensionUpdateControllerReloadExtension
+  | ExtensionUpdateControllerApplyUpdate
