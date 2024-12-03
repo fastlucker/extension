@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React from 'react'
 import { TextProps, View, ViewStyle } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
@@ -151,6 +151,6 @@ const Alert = ({
   )
 }
 
-Alert.Text = React.memo(AlertText)
+Alert.Text = AlertText
 
-export default React.memo(Alert)
+export default Alert
