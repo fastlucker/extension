@@ -1,17 +1,18 @@
 import { MainController } from '@ambire-common/controllers/main/main'
 import { Port } from '@web/extension-services/messengers'
 
-export const handleControllersSessionCleanup = ({
+export const handleCleanUpOnPortDisconnect = ({
   port,
   mainCtrl
 }: {
   port: Port
   mainCtrl: MainController
 }) => {
-  if (!port.sender) return
+  if (!port.sender || !port.sender?.url) return
+
+  const url = new URL(port.sender.url)
 
   if (port.sender.url?.includes('sessionId')) {
-    const url = new URL(port.sender.url)
     const sessionId = url.searchParams.get('sessionId')!
 
     if (url.pathname.includes('swap-and-bridge')) {
@@ -25,5 +26,13 @@ export const handleControllersSessionCleanup = ({
     if (url.pathname.includes('signed-messages')) {
       mainCtrl.activity.resetSignedMessagesFilters(sessionId)
     }
+  }
+
+  if (url.pathname.includes('sign-account-op')) {
+    mainCtrl.destroySignAccOp()
+  }
+
+  if (url.pathname.includes('sign-message')) {
+    mainCtrl.signMessage.reset()
   }
 }
