@@ -1,11 +1,11 @@
 import { ethers, ZeroAddress, zeroPadValue } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { delayPromise } from '@common/utils/promises'
 import LegendsNFT from '@contracts/compiled/LegendsNft.json'
-import { LEGENDS_NFT_ADDRESS, RELAYER_URL } from '@env'
+import { LEGENDS_NFT_ADDRESS } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useErc5792 from '@legends/hooks/useErc5792'
 import useToast from '@legends/hooks/useToast'
 
 enum CharacterLoadingMessage {
@@ -53,6 +53,7 @@ const useMintCharacter = () => {
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
   const { getCharacter, character } = useCharacterContext()
+  const { sendCalls, getCallsStatus } = useErc5792()
 
   const [isCheckingMintStatus, setIsCheckingMintStatus] = useState(true)
   const [isMinting, setIsMinting] = useState(false)
@@ -151,54 +152,16 @@ const useMintCharacter = () => {
       const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
 
       try {
-        // Call the mint function and wait for the transaction response
-        const sendCallsIdentifier = await window.ambire.request({
-          method: 'wallet_sendCalls',
-          params: [
-            {
-              version: '1.0',
-              chainId,
-              from: await signer.getAddress(),
-              calls: [
-                {
-                  to: LEGENDS_NFT_ADDRESS,
-                  data: nftContract.interface.encodeFunctionData('mint', [type])
-                }
-              ],
-              capabilities: {
-                paymasterService: {
-                  [chainId]: {
-                    url: `${RELAYER_URL}/v2/sponsorship`
-                  }
-                }
-              }
-            }
-          ]
-        })
+        const sendCallsIdentifier = await sendCalls(chainId, await signer.getAddress(), [
+          {
+            to: LEGENDS_NFT_ADDRESS,
+            data: nftContract.interface.encodeFunctionData('mint', [type])
+          }
+        ])
 
         setLoadingMessage(CharacterLoadingMessage.Minting)
 
-        let receipt = null
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-          // eslint-disable-next-line no-await-in-loop
-          const callStatus: any = await window.ambire.request({
-            method: 'wallet_getCallsStatus',
-            params: [sendCallsIdentifier]
-          })
-
-          if (callStatus.status === 'CONFIRMED') {
-            receipt = callStatus.receipts[0]
-            break
-          }
-          if (callStatus.status === 'REJECTED') {
-            throw new Error('Error, try again')
-          }
-
-          // eslint-disable-next-line no-await-in-loop
-          await delayPromise(1500)
-        }
-
+        const receipt = await getCallsStatus(sendCallsIdentifier)
         if (receipt.status === '0x1') {
           setLoadingMessage(CharacterLoadingMessage.Minted)
           // Transaction was successful, call getCharacter
