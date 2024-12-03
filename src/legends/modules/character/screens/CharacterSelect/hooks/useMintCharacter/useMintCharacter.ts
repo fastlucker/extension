@@ -130,10 +130,12 @@ const useMintCharacter = () => {
 
   const mintCharacter = useCallback(
     async (type: number) => {
+      const chainId = '0x2105'
+
       // Switch to Base chain
       await window.ambire.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x2105' }] // chainId must be in hexadecimal numbers
+        params: [{ chainId }] // chainId must be in hexadecimal numbers
       })
 
       setIsMinting(true)
@@ -155,7 +157,7 @@ const useMintCharacter = () => {
           params: [
             {
               version: '1.0',
-              chainId: '0x2105',
+              chainId,
               from: await signer.getAddress(),
               calls: [
                 {
@@ -165,7 +167,7 @@ const useMintCharacter = () => {
               ],
               capabilities: {
                 paymasterService: {
-                  '0x2105': {
+                  [chainId]: {
                     url: `${RELAYER_URL}/v2/sponsorship`
                   }
                 }
@@ -180,15 +182,16 @@ const useMintCharacter = () => {
         // eslint-disable-next-line no-constant-condition
         while (true) {
           // eslint-disable-next-line no-await-in-loop
-          const sendCallsData: any = await window.ambire.request({
+          const callStatus: any = await window.ambire.request({
             method: 'wallet_getCallsStatus',
             params: [sendCallsIdentifier]
           })
-          if (sendCallsData.status === 'CONFIRMED') {
-            receipt = sendCallsData.receipt
+
+          if (callStatus.status === 'CONFIRMED') {
+            receipt = callStatus.receipts[0]
             break
           }
-          if (sendCallsData.status === 'REJECTED') {
+          if (callStatus.status === 'REJECTED') {
             throw new Error('Error, try again')
           }
 
@@ -196,7 +199,7 @@ const useMintCharacter = () => {
           await delayPromise(1500)
         }
 
-        if (receipt.status === ethers.toBeHex(1)) {
+        if (receipt.status === '0x1') {
           setLoadingMessage(CharacterLoadingMessage.Minted)
           // Transaction was successful, call getCharacter
           await pollForCharacterAfterMint()
