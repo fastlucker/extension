@@ -29,7 +29,7 @@ import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
-import { UpdateAvailableController } from '@web/extension-services/background/controllers/update-available'
+import ExtensionUpdateController from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { handleActions } from '@web/extension-services/background/handlers/handleActions'
 import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
@@ -219,7 +219,7 @@ handleKeepAlive()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
-  const updateAvailableCtrl = new UpdateAvailableController()
+  const extensionUpdateCtrl = new ExtensionUpdateController()
 
   const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000 // 1 minute
   const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000 // 10 minutes
@@ -679,18 +679,18 @@ handleKeepAlive()
     })
   })
 
-  updateAvailableCtrl.onUpdate((forceEmit) => {
+  extensionUpdateCtrl.onUpdate((forceEmit) => {
     debounceFrontEndEventUpdatesOnSameTick(
-      'updateAvailable',
-      updateAvailableCtrl,
-      updateAvailableCtrl,
+      'extensionUpdate',
+      extensionUpdateCtrl,
+      extensionUpdateCtrl,
       forceEmit
     )
   })
-  updateAvailableCtrl.onError(() => {
+  extensionUpdateCtrl.onError(() => {
     pm.send('> ui-error', {
-      method: 'updateAvailable',
-      params: { errors: updateAvailableCtrl.emittedErrors, controller: 'updateAvailable' }
+      method: 'extensionUpdate',
+      params: { errors: extensionUpdateCtrl.emittedErrors, controller: 'extensionUpdate' }
     })
   })
 
@@ -735,7 +735,7 @@ handleKeepAlive()
               latticeCtrl,
               walletStateCtrl,
               autoLockCtrl,
-              updateAvailableCtrl
+              extensionUpdateCtrl
             })
           }
         } catch (err: any) {

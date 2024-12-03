@@ -1,3 +1,0 @@
-import useUpdateAvailableControllerState from './useUpdateAvailableControllerState'
-
-export default useUpdateAvailableControllerState

@@ -18,7 +18,7 @@ import { SignMessageController } from '@ambire-common/controllers/signMessage/si
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
-import { UpdateAvailableController } from '@web/extension-services/background/controllers/update-available'
+import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 
 export const controllersNestedInMainMapping = {
@@ -49,7 +49,7 @@ export const controllersMapping = {
   main: MainController,
   walletState: WalletStateController,
   autoLock: AutoLockController,
-  updateAvailable: UpdateAvailableController,
+  extensionUpdate: ExtensionUpdateController,
   ...controllersNestedInMainMapping
 }
 

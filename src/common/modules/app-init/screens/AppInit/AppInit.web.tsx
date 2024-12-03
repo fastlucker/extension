@@ -31,6 +31,7 @@ import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLo
 import { DappsControllerStateProvider } from '@web/contexts/dappsControllerStateContext'
 import { DomainsControllerStateProvider } from '@web/contexts/domainsControllerStateContext'
 import { EmailVaultControllerStateProvider } from '@web/contexts/emailVaultControllerStateContext'
+import { ExtensionUpdateControllerStateProvider } from '@web/contexts/extensionUpdateControllerStateContext'
 import { InviteControllerStateProvider } from '@web/contexts/inviteControllerStateContext'
 import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControllerStateContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
@@ -40,7 +41,6 @@ import { ProvidersControllerStateProvider } from '@web/contexts/providersControl
 import { SelectedAccountControllerStateProvider } from '@web/contexts/selectedAccountControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
 import { SwapAndBridgeControllerStateProvider } from '@web/contexts/swapAndBridgeControllerStateContext'
-import { UpdateAvailableControllerStateProvider } from '@web/contexts/updateAvailableControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
 
 const Router = isExtension ? HashRouter : BrowserRouter
@@ -65,7 +65,7 @@ const AppInit = () => {
                           <SelectedAccountControllerStateProvider>
                             <ProvidersControllerStateProvider>
                               <AutoLockControllerStateProvider>
-                                <UpdateAvailableControllerStateProvider>
+                                <ExtensionUpdateControllerStateProvider>
                                   <InviteControllerStateProvider>
                                     <WalletStateControllerProvider>
                                       <AccountAdderControllerStateProvider>
@@ -110,7 +110,7 @@ const AppInit = () => {
                                       </AccountAdderControllerStateProvider>
                                     </WalletStateControllerProvider>
                                   </InviteControllerStateProvider>
-                                </UpdateAvailableControllerStateProvider>
+                                </ExtensionUpdateControllerStateProvider>
                               </AutoLockControllerStateProvider>
                             </ProvidersControllerStateProvider>
                           </SelectedAccountControllerStateProvider>

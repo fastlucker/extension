@@ -7,11 +7,11 @@ import useDebounce from '@common/hooks/useDebounce'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useExtensionUpdateControllerState from '@web/hooks/useExtensionUpdateControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import useUpdateAvailableControllerState from '@web/hooks/useUpdateAvailableControllerState'
 
 const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount?: AccountId) =>
   banners.filter((banner) => {
@@ -40,7 +40,7 @@ export default function useBanners(): BannerInterface[] {
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
   const { banners: keystoreBanners = [] } = useKeystoreControllerState()
-  const { updateAvailableBanner } = useUpdateAvailableControllerState()
+  const { extensionUpdateBanner } = useExtensionUpdateControllerState()
 
   const allBanners = useMemo(() => {
     return [
@@ -53,7 +53,7 @@ export default function useBanners(): BannerInterface[] {
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
       ...keystoreBanners,
-      ...updateAvailableBanner
+      ...extensionUpdateBanner
     ]
   }, [
     state.banners,
@@ -67,7 +67,7 @@ export default function useBanners(): BannerInterface[] {
     emailVaultBanners,
     keystoreBanners,
     deprecatedSmartAccountBanner,
-    updateAvailableBanner
+    extensionUpdateBanner
   ])
 
   return allBanners

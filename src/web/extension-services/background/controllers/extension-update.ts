@@ -2,7 +2,7 @@ import EventEmitter, { ErrorRef } from '@ambire-common/controllers/eventEmitter/
 import { Banner } from '@ambire-common/interfaces/banner'
 import { browser } from '@web/constants/browserapi'
 
-export class UpdateAvailableController extends EventEmitter {
+export class ExtensionUpdateController extends EventEmitter {
   isReady: boolean = false
   #updateAvailableHandler: (details: { version: string }) => void
   #isUpdateAvailable: boolean = false
@@ -41,7 +41,7 @@ export class UpdateAvailableController extends EventEmitter {
     this.emitUpdate()
   }
 
-  get updateAvailableBanner(): Banner[] {
+  get extensionUpdateBanner(): Banner[] {
     if (this.#isUpdateAvailable) {
       return [
         {
@@ -65,9 +65,9 @@ export class UpdateAvailableController extends EventEmitter {
     return {
       ...this,
       ...super.toJSON(),
-      updateAvailableBanner: this.updateAvailableBanner
+      extensionUpdateBanner: this.extensionUpdateBanner
     }
   }
 }
 
-export default UpdateAvailableController
+export default ExtensionUpdateController
