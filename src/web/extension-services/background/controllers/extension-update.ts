@@ -1,6 +1,7 @@
 import EventEmitter, { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Banner } from '@ambire-common/interfaces/banner'
 import { browser } from '@web/constants/browserapi'
+import { logInfoWithPrefix } from '@web/utils/logger'
 
 /**
  * The `ExtensionUpdateController` manages the lifecycle and notifications
@@ -33,7 +34,8 @@ export class ExtensionUpdateController extends EventEmitter {
   }
 
   #startListening(): void {
-    console.log('Started listening for updateAvailable event.')
+    logInfoWithPrefix('[Started listening for extension updateAvailable event]')
+
     try {
       browser.runtime.onUpdateAvailable.addListener(this.#updateAvailableHandler)
     } catch (e: any) {
@@ -51,7 +53,7 @@ export class ExtensionUpdateController extends EventEmitter {
   }
 
   #onUpdateAvailable(details: { version: string }): void {
-    console.log(`Update available: Version ${details.version}`)
+    logInfoWithPrefix('[Extension Update Available]', `Version: ${details.version}`)
     this.#isUpdateAvailable = true
     this.emitUpdate()
   }
