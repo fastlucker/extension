@@ -31,6 +31,7 @@ import Skeleton from './TokensSkeleton'
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
+  sessionId: string
   tokenPreferences: CustomToken[]
   initTab?: {
     [key: string]: boolean
@@ -60,7 +61,7 @@ const calculateTokenBalance = (token: TokenResult) => {
 
 const { isPopup } = getUiType()
 
-const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, onScroll }: Props) => {
+const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onScroll }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
@@ -178,7 +179,12 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, onScroll }: Pr
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+            <TabsAndSearch
+              openTab={openTab}
+              setOpenTab={setOpenTab}
+              searchControl={control}
+              sessionId={sessionId}
+            />
             <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
                 {t('ASSET/AMOUNT')}
@@ -259,7 +265,8 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, onScroll }: Pr
       searchValue,
       dashboardNetworkFilter,
       portfolio?.isAllReady,
-      navigateToAddCustomToken
+      navigateToAddCustomToken,
+      sessionId
     ]
   )
 
