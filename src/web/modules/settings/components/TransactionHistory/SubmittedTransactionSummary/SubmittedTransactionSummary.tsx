@@ -11,21 +11,21 @@ import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import NetworkBadge from '@common/components/NetworkBadge'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
-import formatDecimals from '@common/utils/formatDecimals'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import TransactionSummary, {
   sizeMultiplier
 } from '@web/modules/sign-account-op/components/TransactionSummary/TransactionSummary'
 
-import NetworkBadge from '@common/components/NetworkBadge'
 import getStyles from './styles'
 import SubmittedOn from './SubmittedOn'
 
