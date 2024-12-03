@@ -140,9 +140,50 @@
 .disabled {
   opacity: 0.5;
 }
+.modal {
+  width: 61rem;
+}
+.modalHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  .modalHeadingTitle {
+    color: $secondaryText;
+    font-size: 3rem;
+  }
+  .modalHeadingXp {
+    display: flex;
+    flex-direction: column;
+
+    .modalHeadingXpNetwork {
+      display: flex;
+      align-items: center;
+
+      .modalHeadingXpNetworkL2s {
+        position: relative;
+        left: -10px;
+      }
+    }
+  }
+}
 
 .modalText {
+  font-size: 1rem;
+  font-style: italic;
+  border-radius: $primaryBorderRadius;
+  border: 2px solid $tertiaryBorder;
+  padding: 1rem;
   margin-bottom: 1.25rem;
+
+  &::first-letter {
+    font-style: normal;
+    font-size: 2rem;
+    font-weight: bold;
+    color: $primaryText;
+    text-transform: uppercase;
+  }
 }
 .modalAction {
   margin-bottom: 2rem;

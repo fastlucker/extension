@@ -9,6 +9,12 @@ import WheelComponent from '@legends/modules/legends/components/WheelComponentMo
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
 
+import GoldCoin from '@legends/modules/legends/components/GoldCoin'
+import EthereumLogo from '@legends/components/NetworkIcons/EthereumLogo'
+import BaseLogo from '@legends/components/NetworkIcons/BaseLogo'
+import ArbitrumLogo from '@legends/components/NetworkIcons/ArbitrumLogo'
+import OptimismLogo from '@legends/components/NetworkIcons/OptimismLogo'
+import ScrollLogo from '@legends/components/NetworkIcons/ScrollLogo'
 import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import Badge from './Badge'
 import styles from './Card.module.scss'
@@ -73,8 +79,37 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
 
   return (
     <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
-      <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen}>
-        <Modal.Heading>{title}</Modal.Heading>
+      <Modal
+        isOpen={isActionModalOpen}
+        setIsOpen={setIsActionModalOpen}
+        showCloseButton={false}
+        className={styles.modal}
+      >
+        <Modal.Heading className={styles.modalHeading}>
+          <div className={styles.modalHeadingTitle}>{title}</div>
+          <div className={styles.modalHeadingXp}>
+            {xp?.map(({ from, to, type }) => (
+              <div key={`${from}-${to}-${type}`} className={styles.modalHeadingXpNetwork}>
+                <span>
+                  {type === CardXpType.mainnet && <EthereumLogo />}
+                  {type === CardXpType.l2 && (
+                    <span className={styles.modalHeadingXpNetworkL2s}>
+                      <BaseLogo />
+                      <ArbitrumLogo />
+                      <OptimismLogo />
+                      <ScrollLogo />
+                    </span>
+                  )}
+                </span>
+                <span>
+                  {from}
+                  {to !== from ? `-${to}` : ''} XP
+                </span>
+                <GoldCoin width={20} height={20} />
+              </div>
+            ))}
+          </div>
+        </Modal.Heading>
         <Modal.Text className={styles.modalText}>{description}</Modal.Text>
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}
@@ -113,9 +148,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
       <div className={styles.contentAndAction}>
         <div className={styles.content}>
           <h2 className={styles.heading}>{title}</h2>
-          <p className={styles.description}>
-            {description}
-          </p>
+          <p className={styles.description}>{description}</p>
           <h3 className={styles.rewardsHeading}>
             XP rewards{' '}
             {isRecurring ? (
