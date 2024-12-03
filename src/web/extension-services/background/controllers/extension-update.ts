@@ -2,6 +2,19 @@ import EventEmitter, { ErrorRef } from '@ambire-common/controllers/eventEmitter/
 import { Banner } from '@ambire-common/interfaces/banner'
 import { browser } from '@web/constants/browserapi'
 
+/**
+ * The `ExtensionUpdateController` manages the lifecycle and notifications
+ * for browser extension updates. It listens for update events from the
+ * browser runtime, tracks the update state, and provides mechanisms for
+ * notifying users and applying updates.
+ *
+ * Responsibilities:
+ * - Listens to the `onUpdateAvailable` event to detect when a new version
+ *   of the extension is available.
+ * - Tracks the update status and exposes it via a user-facing banner.
+ * - Allows users to reload the extension to apply updates.
+ */
+
 export class ExtensionUpdateController extends EventEmitter {
   isReady: boolean = false
   #updateAvailableHandler: (details: { version: string }) => void
@@ -21,7 +34,15 @@ export class ExtensionUpdateController extends EventEmitter {
 
   #startListening(): void {
     console.log('Started listening for updateAvailable event.')
-    browser.runtime.onUpdateAvailable.addListener(this.#updateAvailableHandler)
+    try {
+      browser.runtime.onUpdateAvailable.addListener(this.#updateAvailableHandler)
+    } catch (e: any) {
+      this.emitError({
+        level: 'silent',
+        message: 'Failed to add updateAvailable listener.',
+        error: e
+      })
+    }
   }
 
   // TODO: check does it need to remove the listener?
