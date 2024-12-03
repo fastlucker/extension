@@ -3,11 +3,10 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
-import Button from '@common/components/Button'
-import Text from '@common/components/Text'
+import Alert from '@common/components/Alert'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 
 interface Props {
@@ -30,20 +29,18 @@ const AccountsRetrieveError: React.FC<Props> = ({ pageError, page, setPage }) =>
     }
   }, [addToast])
 
-  const fallbackMessage = useMemo(
+  const fallbackText = useMemo(
     () => (
       <Trans>
-        <Text appearance="errorText">
-          The process of retrieving accounts was cancelled or it failed.
-          {'\n\n'}
+        <Alert.Text type="warning">
           Please go back and start the account-adding process again. If the problem persists, please{' '}
           <Pressable onPress={handleContactSupport}>
-            <Text appearance="errorText" underline>
+            <Alert.Text type="warning" style={text.underline}>
               contact our support team
-            </Text>
+            </Alert.Text>
           </Pressable>
           .
-        </Text>
+        </Alert.Text>
       </Trans>
     ),
     [handleContactSupport]
@@ -51,12 +48,15 @@ const AccountsRetrieveError: React.FC<Props> = ({ pageError, page, setPage }) =>
 
   return (
     <View style={[spacings.mt, spacings.mb]}>
-      {pageError ? <Text appearance="errorText">{pageError}</Text> : fallbackMessage}
-      <Button
-        style={[flexbox.alignSelfCenter, spacings.mtLg, spacings.mb2Xl]}
-        size="small"
-        text={t('Retry Request (Page {{page}})', { page })}
-        onPress={handleRetrySetPage}
+      <Alert
+        type="warning"
+        title={pageError || t('The process of retrieving accounts was cancelled or it failed.')}
+        text={!pageError && fallbackText}
+        buttonProps={{
+          onPress: handleRetrySetPage,
+          text: t('Retry Request (Page {{page}})', { page }),
+          type: 'primary'
+        }}
       />
     </View>
   )
