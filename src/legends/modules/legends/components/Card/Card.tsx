@@ -46,7 +46,6 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
 
   const isCompleted = card?.type === CardType.done
   const isRecurring = card?.type === CardType.recurring
-  const shortenedDescription = description.length > 55 ? `${description.slice(0, 55)}...` : null
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
 
@@ -115,12 +114,7 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
         <div className={styles.content}>
           <h2 className={styles.heading}>{title}</h2>
           <p className={styles.description}>
-            {shortenedDescription || description}{' '}
-            {shortenedDescription ? (
-              <button type="button" onClick={openActionModal} className={styles.readMore}>
-                Read more
-              </button>
-            ) : null}
+            {description}
           </p>
           <h3 className={styles.rewardsHeading}>
             XP rewards{' '}
@@ -144,16 +138,14 @@ const Card: FC<Props> = ({ title, image, description, children, xp, card, action
             ))}
           </div>
         </div>
-        {!!action.type && (
-          <button
-            disabled={disabled}
-            className={styles.button}
-            type="button"
-            onClick={openActionModal}
-          >
-            {buttonText}
-          </button>
-        )}
+        <button
+          disabled={disabled}
+          className={styles.button}
+          type="button"
+          onClick={openActionModal}
+        >
+          {action.type ? buttonText : 'Read more'}
+        </button>
       </div>
     </div>
   )
