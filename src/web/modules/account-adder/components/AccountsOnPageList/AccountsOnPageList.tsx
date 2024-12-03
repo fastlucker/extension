@@ -1,8 +1,7 @@
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Trans } from 'react-i18next'
-import { Dimensions, NativeScrollEvent, Pressable, View } from 'react-native'
+import { Dimensions, NativeScrollEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
@@ -21,18 +20,17 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import { useTranslation } from '@common/config/localization'
-import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
-import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import Account from '@web/modules/account-adder/components/Account'
+import AccountsRetrieveError from '@web/modules/account-adder/components/AccountsRetrieveError'
 import ChangeHdPath from '@web/modules/account-adder/components/ChangeHdPath'
 import {
   AccountAdderIntroStepsProvider,
@@ -62,7 +60,6 @@ const AccountsOnPageList = ({
   lookingForLinkedAccounts: boolean
 }) => {
   const { t } = useTranslation()
-  const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
   const keystoreState = useKeystoreControllerState()
@@ -100,8 +97,6 @@ const AccountsOnPageList = ({
     [dispatch]
   )
 
-  const disablePagination = Object.keys(slots).length === 1
-
   const getType = useCallback((acc: any) => {
     if (!acc.account.creation) return 'basic'
     if (acc.isLinked) return 'linked'
@@ -136,7 +131,7 @@ const AccountsOnPageList = ({
     ).length
   }, [linkedAccounts, state.selectedAccounts])
 
-  const shouldEnablePagination = useMemo(() => Object.keys(slots).length >= 5, [slots])
+  const shouldDisplayPagination = subType !== 'private-key'
 
   const getAccounts = useCallback(
     ({
@@ -236,7 +231,6 @@ const AccountsOnPageList = ({
       state.accountsLoading ||
       contentHeight === containerHeight ||
       !Object.keys(slots).length ||
-      disablePagination ||
       !containerHeight ||
       !contentHeight
     )
@@ -251,24 +245,30 @@ const AccountsOnPageList = ({
     setHasReachedBottom,
     hasReachedBottom,
     state.accountsLoading,
-    disablePagination,
     slots
   ])
-  const shouldDisplayHideEmptyAccountsToggle = !isAccountAdderEmpty && subType !== 'private-key'
-  const shouldDisplayChangeHdPath =
+  const shouldDisplayHideEmptyAccountsToggle = subType !== 'private-key'
+  const disableHideEmptyAccountsToggle =
+    state.accountsLoading || !!state.pageError || isAccountAdderEmpty
+  const shouldDisplayChangeHdPath = !!(
+    subType === 'seed' ||
+    // TODO: Disabled for Trezor, because the flow that retrieves accounts
+    // from the device as of v4.32.0 throws "forbidden key path" when
+    // accessing non-"BIP44 Standard" paths. Alternatively, this could be
+    // enabled in Trezor Suit (settings - safety checks), but even if enabled,
+    // 1) user must explicitly allow retrieving each address (that means 25
+    // clicks to retrieve accounts of the first 5 pages, blah) and 2) The
+    // Trezor device shows a scarry note: "Wrong address path for selected
+    // coin. Continue at your own risk!", which is pretty bad UX.
+    (keyType && ['ledger', 'lattice'].includes(keyType))
+  )
+
+  const shouldDisplayAnimatedDownArrow =
+    typeof hasReachedBottom === 'boolean' &&
+    !hasReachedBottom &&
+    !state.accountsLoading &&
     !isAccountAdderEmpty &&
-    !!(
-      subType === 'seed' ||
-      // TODO: Disabled for Trezor, because the flow that retrieves accounts
-      // from the device as of v4.32.0 throws "forbidden key path" when
-      // accessing non-"BIP44 Standard" paths. Alternatively, this could be
-      // enabled in Trezor Suit (settings - safety checks), but even if enabled,
-      // 1) user must explicitly allow retrieving each address (that means 25
-      // clicks to retrieve accounts of the first 5 pages, blah) and 2) The
-      // Trezor device shows a scarry note: "Wrong address path for selected
-      // coin. Continue at your own risk!", which is pretty bad UX.
-      (keyType && ['ledger', 'lattice'].includes(keyType))
-    )
+    !state.pageError
 
   // Prevents the user from temporarily seeing (flashing) empty (error) states
   // while being navigated back (resetting the Account Adder state).
@@ -388,7 +388,8 @@ const AccountsOnPageList = ({
               <Toggle
                 isOn={hideEmptyAccounts}
                 onToggle={() => setHideEmptyAccounts((p) => !p)}
-                label={t('Hide empty basic accounts')}
+                disabled={disableHideEmptyAccountsToggle}
+                label={t('Hide empty Basic Accounts')}
                 labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
                 style={flexbox.alignSelfStart}
               />
@@ -407,7 +408,7 @@ const AccountsOnPageList = ({
             />
           )}
           <ScrollableWrapper
-            style={shouldEnablePagination && spacings.mbLg}
+            style={shouldDisplayPagination && spacings.mbLg}
             contentContainerStyle={{
               flexGrow: 1
             }}
@@ -422,29 +423,12 @@ const AccountsOnPageList = ({
             }}
             scrollEventThrottle={400}
           >
-            {isAccountAdderEmpty && (
-              <Trans style={[spacings.mt, spacings.mbTy]}>
-                <Text appearance="errorText">
-                  The process of retrieving accounts was cancelled or it failed.
-                  {'\n\n'}
-                  Please go back and start the account-adding process again. If the problem
-                  persists, please{' '}
-                  <Pressable
-                    onPress={async () => {
-                      try {
-                        await createTab('https://help.ambire.com/hc/en-us/requests/new')
-                      } catch {
-                        addToast("Couldn't open link", { type: 'error' })
-                      }
-                    }}
-                  >
-                    <Text appearance="errorText" underline>
-                      {t('contact our support team')}
-                    </Text>
-                  </Pressable>
-                  .
-                </Text>
-              </Trans>
+            {(isAccountAdderEmpty || accountAdderState.pageError) && (
+              <AccountsRetrieveError
+                pageError={accountAdderState.pageError}
+                page={accountAdderState.page}
+                setPage={setPage}
+              />
             )}
             {state.accountsLoading ? (
               <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
@@ -464,11 +448,7 @@ const AccountsOnPageList = ({
               })
             )}
           </ScrollableWrapper>
-          <AnimatedDownArrow
-            isVisible={
-              typeof hasReachedBottom === 'boolean' && !hasReachedBottom && !state.accountsLoading
-            }
-          />
+          <AnimatedDownArrow isVisible={shouldDisplayAnimatedDownArrow} />
         </View>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <View
@@ -485,12 +465,12 @@ const AccountsOnPageList = ({
               </Text>
             </View>
           </View>
-          {!!shouldEnablePagination && (
+          {shouldDisplayPagination && (
             <Pagination
               page={state.page}
               maxPages={1000}
               setPage={setPage}
-              isDisabled={state.accountsLoading || disablePagination}
+              isDisabled={state.isPageLocked}
               hideLastPage
             />
           )}

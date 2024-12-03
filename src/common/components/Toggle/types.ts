@@ -4,4 +4,5 @@ export type ToggleProps = {
   onToggle: (isOn: boolean) => any
   label?: string
   style?: any
+  disabled?: boolean
 }
