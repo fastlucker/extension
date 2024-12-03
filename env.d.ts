@@ -90,9 +90,7 @@ declare module '@env' {
   export const SOCKET_API_KEY: EnvTypes['SOCKET_API_KEY']
 
   /**
-   * The address of the legends nft we will be using
-   * we are placing this in env variable instead of hardcoding it,
-   * because we will use two difference nfts on staging nad prod
+   * The address of the Legends NFT contract (same on PROD and STAGING)
    */
   export const LEGENDS_NFT_ADDRESS: EnvTypes['LEGENDS_NFT_ADDRESS']
 }
