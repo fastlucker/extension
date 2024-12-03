@@ -161,22 +161,6 @@ const SignAccountOpScreen = () => {
     }
   }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, dispatch])
 
-  useEffect(() => {
-    if (!accountOpAction) return
-
-    if (!activityState.isInitialized) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-        params: {
-          filters: {
-            account: accountOpAction.accountOp.accountAddr,
-            network: accountOpAction.accountOp.networkId
-          }
-        }
-      })
-    }
-  }, [activityState.isInitialized, accountOpAction, dispatch])
-
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
   }, [networks, signAccountOpState?.accountOp?.networkId])
@@ -199,14 +183,8 @@ const SignAccountOpScreen = () => {
   }, [])
 
   useEffect(() => {
-    const destroy = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
-    }
-    window.addEventListener('beforeunload', destroy)
-
     return () => {
-      destroy()
-      window.removeEventListener('beforeunload', destroy)
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
     }
   }, [dispatch])
 

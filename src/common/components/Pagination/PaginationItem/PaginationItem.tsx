@@ -10,9 +10,10 @@ interface Props {
   number?: number
   setPage?: (page: number) => void
   isActive?: boolean
+  isDisabled?: boolean
 }
 
-const PaginationItem: FC<Props> = ({ number, setPage, isActive }) => {
+const PaginationItem: FC<Props> = ({ number, setPage, isActive, isDisabled }) => {
   const { theme } = useTheme()
 
   const borderColor = useMemo(() => {
@@ -25,6 +26,7 @@ const PaginationItem: FC<Props> = ({ number, setPage, isActive }) => {
 
   return (
     <Pressable
+      disabled={isDisabled}
       onPress={() => {
         if (!number || !setPage) return
 
@@ -39,7 +41,8 @@ const PaginationItem: FC<Props> = ({ number, setPage, isActive }) => {
         borderRadius: 4,
         borderWidth: 1,
         borderColor,
-        backgroundColor: number && hovered ? theme.secondaryBackground : theme.primaryBackground
+        backgroundColor: number && hovered ? theme.secondaryBackground : theme.primaryBackground,
+        opacity: isDisabled ? 0.4 : 1
       })}
     >
       <Text weight={isActive ? 'medium' : 'regular'}>{!number ? '...' : number}</Text>
