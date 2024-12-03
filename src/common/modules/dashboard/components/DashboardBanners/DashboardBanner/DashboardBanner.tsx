@@ -113,6 +113,12 @@ const DashboardBanner = ({
       if (action.actionName === 'confirm-temp-seed') {
         navigate(ROUTES.saveImportedSeed)
       }
+
+      if (action.actionName === 'update-extension-version') {
+        dispatch({
+          type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
+        })
+      }
     },
     [visibleActionsQueue, type, banner, setBottomSheetBanner, dispatch, addToast, navigate]
   )

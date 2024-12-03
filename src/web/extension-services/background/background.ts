@@ -29,6 +29,7 @@ import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
+import ExtensionUpdateController from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { handleActions } from '@web/extension-services/background/handlers/handleActions'
 import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
@@ -218,6 +219,7 @@ handleKeepAlive()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
+  const extensionUpdateCtrl = new ExtensionUpdateController()
 
   const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000 // 1 minute
   const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000 // 10 minutes
@@ -677,6 +679,22 @@ handleKeepAlive()
     })
   })
 
+  // Broadcast onUpdate for the extension-update controller
+  extensionUpdateCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick(
+      'extensionUpdate',
+      extensionUpdateCtrl,
+      extensionUpdateCtrl,
+      forceEmit
+    )
+  })
+  extensionUpdateCtrl.onError(() => {
+    pm.send('> ui-error', {
+      method: 'extensionUpdate',
+      params: { errors: extensionUpdateCtrl.emittedErrors, controller: 'extensionUpdate' }
+    })
+  })
+
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
     if (['popup', 'tab', 'action-window'].includes(port.name)) {
@@ -717,7 +735,8 @@ handleKeepAlive()
               trezorCtrl,
               latticeCtrl,
               walletStateCtrl,
-              autoLockCtrl
+              autoLockCtrl,
+              extensionUpdateCtrl
             })
           }
         } catch (err: any) {
