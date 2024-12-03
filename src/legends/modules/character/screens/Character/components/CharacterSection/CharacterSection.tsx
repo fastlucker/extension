@@ -36,13 +36,17 @@ const CharacterSection = () => {
     <section className={styles.wrapper}>
       <div className={styles.characterInfo}>
         <span className={styles.kicker}>YOUR CHARACTER</span>
-        <h1
-          className={`${styles.characterName} ${
-            character?.characterName.length > LONG_NAME_THRESHOLD ? styles.small : ''
-          }`}
-        >
-          {character?.characterName}
-        </h1>
+        <div className={styles.characterNameWrapper}>
+          <h1
+            className={`${styles.characterName} ${
+              character?.characterName.length > LONG_NAME_THRESHOLD ? styles.small : ''
+            }`}
+          >
+            {character?.characterName}
+          </h1>
+
+          <span className={styles.infoIcon}>i</span>
+        </div>
 
         <div className={styles.characterLevelInfoWrapper}>
           <div className={styles.characterItemWrapper}>
