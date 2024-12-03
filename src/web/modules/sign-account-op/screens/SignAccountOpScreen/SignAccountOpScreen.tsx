@@ -183,14 +183,8 @@ const SignAccountOpScreen = () => {
   }, [])
 
   useEffect(() => {
-    const destroy = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
-    }
-    window.addEventListener('beforeunload', destroy)
-
     return () => {
-      destroy()
-      window.removeEventListener('beforeunload', destroy)
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
     }
   }, [dispatch])
 
