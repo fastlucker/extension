@@ -5,17 +5,20 @@ import styles from './Spinner.module.scss'
 type Props = {
   variant?: 'primaryBackground' | 'secondaryBackground' | 'tertiaryBackground'
   size?: number
+  isCentered?: boolean
 }
 
-const Spinner: FC<Props> = ({ variant = 'tertiaryBackground', size = 32 }) => {
+const Spinner: FC<Props> = ({ variant = 'tertiaryBackground', size = 32, isCentered }) => {
   return (
-    <div
-      className={`${styles.wrapper} ${styles[variant]}`}
-      style={{
-        width: size,
-        height: size
-      }}
-    />
+    <div className={isCentered ? styles.container : ''}>
+      <div
+        className={`${styles.wheel} ${styles[variant]}`}
+        style={{
+          width: size,
+          height: size
+        }}
+      />
+    </div>
   )
 }
 
