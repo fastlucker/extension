@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
+import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
+import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import { RELAYER_URL } from '@env'
 
@@ -83,23 +85,34 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   const validateAndSetAccount = useCallback(
     async (address: string) => {
       try {
+        // Add: timeout to this request
         const identity = await getIdentity(address, fetch as any, RELAYER_URL)
+        const factoryAddr = identity.creation?.factoryAddr
+        const isV2 = factoryAddr === AMBIRE_ACCOUNT_FACTORY
 
-        if (!identity.creation) {
-          if (connectedAccount) {
-            setNonV2Account(address)
+        if (isV2) {
+          setError(null)
+          setNonV2Account(null)
+          setConnectedAccount(address)
+          localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
+          return
+        }
+
+        if (!connectedAccount) {
+          const isV1 = isAmbireV1LinkedAccount(factoryAddr)
+
+          if (isV1) {
+            setError('You are trying to connect an Ambire v1 account. Please switch your account!')
           } else {
             setError(
               'You are trying to connect a non Ambire v2 account. Please switch your account!'
             )
           }
+
           return
         }
 
-        setError(null)
-        setNonV2Account(null)
-        setConnectedAccount(address)
-        localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
+        setNonV2Account(address)
       } catch (e: any) {
         setError(
           "We are experiencing a back-end outage and couldn't validate the connected account's identity. Please reload the page, and if the problem persists, contact support."
