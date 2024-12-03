@@ -178,7 +178,7 @@ const useMintCharacter = () => {
         console.log('Error during minting process:', e)
       }
     },
-    [addToast, pollForCharacterAfterMint]
+    [addToast, pollForCharacterAfterMint, sendCalls, getCallsStatus]
   )
 
   useEffect(() => {

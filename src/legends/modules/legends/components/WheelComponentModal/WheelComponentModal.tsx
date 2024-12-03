@@ -10,6 +10,7 @@ import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useErc5792 from '@legends/hooks/useErc5792'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 
@@ -32,6 +33,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   const { connectedAccount } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
+  const { sendCalls, getCallsStatus } = useErc5792()
 
   const checkTransactionStatus = useCallback(async () => {
     if (wheelState === 'spinning' || wheelState === 'spun') return true
@@ -91,15 +93,18 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       const randomValueBytes = randomBytes(32)
       const randomValue = BigInt(hexlify(randomValueBytes))
 
-      const tx = await signer.sendTransaction({
-        to: LEGENDS_CONTRACT_ADDRESS,
-        data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('spinWheel', [randomValue])
-      })
+      const chainIdHex = ethers.toBeHex(BASE_CHAIN_ID)
+      const callsId = await sendCalls(chainIdHex, await signer.getAddress(), [
+        {
+          to: LEGENDS_CONTRACT_ADDRESS,
+          data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('spinWheel', [randomValue])
+        }
+      ])
 
       setWheelState('waiting-txn')
-      const receipt = await tx.wait()
+      const receipt = await getCallsStatus(callsId)
 
-      if (receipt && receipt.status === 1) {
+      if (receipt && receipt.status === '0x1') {
         setWheelState('calculating-reward')
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
@@ -127,7 +132,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       addToast('Failed to broadcast transaction', 'error')
       setWheelState('initial')
     }
-  }, [checkTransactionStatus, addToast, onLegendComplete])
+  }, [checkTransactionStatus, addToast, onLegendComplete, sendCalls, getCallsStatus])
 
   const handleSpinClick = async () => {
     if (wheelState === 'initial') {

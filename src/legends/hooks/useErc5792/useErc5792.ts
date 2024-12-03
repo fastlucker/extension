@@ -63,6 +63,11 @@ const useErc5792 = () => {
     } catch {
       addToast('Failed to retrieve calls status', 'error')
     }
+
+    // if getting the status fails
+    return {
+      status: '0x0'
+    }
   }
 
   return {
