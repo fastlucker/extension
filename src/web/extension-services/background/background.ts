@@ -744,7 +744,6 @@ handleKeepAlive()
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
         initDefiPositionsContinuousUpdate()
-        console.log(port)
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         if (port.name === 'tab' || port.name === 'action-window') {
