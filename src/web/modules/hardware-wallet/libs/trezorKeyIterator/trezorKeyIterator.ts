@@ -53,7 +53,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
 
       if (shouldPrefetch) {
         const next = to + 1
-        for (let i = next; i <= next + PREFETCH_ADDRESSES_COUNT; i++) {
+        for (let i = next; i < next + PREFETCH_ADDRESSES_COUNT; i++) {
           const path = getHdPathFromTemplate(hdPathTemplate, i)
           addrBundleToBePrefetched.push({ path, showOnTrezor: false })
         }
