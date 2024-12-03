@@ -1,13 +1,13 @@
 import React from 'react'
 
+import GoldCoin from '@legends/common/assets/svg/CoinIcon/CoinIcon'
+import Crown from '@legends/common/assets/svg/CrownIcon/CrownIcon'
+import Diamond from '@legends/common/assets/svg/DiamondIcon/DiamondIcon'
 import Alert from '@legends/components/Alert'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
-import GoldCoin from '../../../../../../common/assets/svg/CoinIcon/CoinIcon'
-import Crown from '../../../../../../common/assets/svg/CrownIcon/CrownIcon'
-import Diamond from '../../../../../../common/assets/svg/DiamondIcon/DiamondIcon'
 import styles from './CharacterSection.module.scss'
 
 const LONG_NAME_THRESHOLD = 10
