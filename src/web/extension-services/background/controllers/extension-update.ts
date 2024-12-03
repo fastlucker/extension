@@ -15,7 +15,6 @@ import { logInfoWithPrefix } from '@web/utils/logger'
  * - Tracks the update status and exposes it via a user-facing banner.
  * - Allows users to reload the extension to apply updates.
  */
-
 export class ExtensionUpdateController extends EventEmitter {
   isReady: boolean = false
   #updateAvailableHandler: (details: { version: string }) => void
@@ -37,9 +36,8 @@ export class ExtensionUpdateController extends EventEmitter {
     // Safari does not support this event
     if (isSafari()) return
 
-    logInfoWithPrefix('[Started listening for extension updateAvailable event]')
-
     try {
+      logInfoWithPrefix('[Started listening for extension updateAvailable event]')
       browser.runtime.onUpdateAvailable.addListener(this.#updateAvailableHandler)
     } catch (e: any) {
       this.emitError({

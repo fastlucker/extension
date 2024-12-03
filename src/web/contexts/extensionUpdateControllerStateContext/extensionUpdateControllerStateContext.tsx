@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect, useMemo } from 'react'
 
 import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import useBackgroundService from '@web/hooks/useBackgroundService'

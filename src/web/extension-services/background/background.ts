@@ -679,6 +679,7 @@ handleKeepAlive()
     })
   })
 
+  // Broadcast onUpdate for the extension-update controller
   extensionUpdateCtrl.onUpdate((forceEmit) => {
     debounceFrontEndEventUpdatesOnSameTick(
       'extensionUpdate',
