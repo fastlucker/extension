@@ -53,7 +53,7 @@ export async function finishStoriesAndSelectAccount(
   if (hideEmptyBasicAccounts) {
     await clickOnElement(
       page,
-      'xpath///div[contains(text(), "Hide empty basic accounts")]',
+      'xpath///div[contains(text(), "Hide empty Basic Accounts")]',
       true,
       1500
     )
