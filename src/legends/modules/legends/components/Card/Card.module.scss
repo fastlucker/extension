@@ -104,13 +104,13 @@
         width: 100%;
         background-color: $tertiaryBackground;
         border-radius: $primaryBorderRadius;
-        padding: 9px 8px;
+        padding: 0.563rem 0.5rem;
         margin-bottom: 1.5rem;
 
         .rewardType {
           font-family: $primaryFont;
-          font-size: 16px;
-          line-height: 22px;
+          font-size: 1rem;
+          line-height: 1.375rem;
           font-weight: bold;
           color: $secondaryText;
         }
@@ -129,25 +129,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem;
 
   .modalHeadingTitle {
     color: $primaryText;
-    font-size: 64px;
+    font-size: 4rem;
   }
 }
 
 .modalText {
-  font-size: 24px;
-  line-height: 32px;
+  font-size: 1.5rem;
+  line-height: 2rem;
   font-style: italic;
   color: $secondaryText;
   border-radius: $primaryBorderRadius;
   border: 1px solid $tertiaryBorder;
-  padding: 12px 10px;
+  padding: 0.75rem 0.625rem;
 
   &::first-letter {
-    font-size: 40px;
+    font-size: 2.5rem;
     text-transform: uppercase;
   }
 }
