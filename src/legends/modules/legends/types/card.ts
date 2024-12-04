@@ -17,9 +17,15 @@ export interface CardAction {
 }
 
 export enum CardType {
-  'recurring',
-  'done',
-  'available'
+  'oneTime',
+  'daily',
+  'recurring'
+}
+
+export enum CardStatus {
+  'active',
+  'disabled',
+  'completed'
 }
 
 export type Networks = 'ethereum' | 'optimism' | 'base' | 'scroll' | 'arbitrum'
@@ -39,7 +45,7 @@ export interface CardFromResponse {
   action: CardAction
   card: {
     type: CardType
+    status: CardStatus
   }
   image: string
-  disabled?: boolean
 }

@@ -5,7 +5,7 @@ import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
-import { CardFromResponse, CardType } from '@legends/modules/legends/types'
+import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
@@ -14,14 +14,21 @@ import CardActionComponent from './CardAction'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'description' | 'flavor' | 'xp' | 'image' | 'card' | 'action' | 'disabled'
+  'title' | 'description' | 'flavor' | 'xp' | 'image' | 'card' | 'action'
 >
 
-const Card: FC<Props> = ({ title, image, description, flavor, xp, card, action, disabled }) => {
+const CARD_FREQUENCY: { [key in CardType]: string } = {
+  [CardType.daily]: 'Daily',
+  [CardType.oneTime]: 'One-time',
+  [CardType.recurring]: 'Ongoing'
+}
+
+const Card: FC<Props> = ({ title, image, description, flavor, xp, card, action }) => {
   const { activity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
 
-  const isCompleted = card?.type === CardType.done
+  const disabled = card.status === CardStatus.disabled
+  const isCompleted = card.status === CardStatus.completed
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
 
@@ -89,7 +96,7 @@ const Card: FC<Props> = ({ title, image, description, flavor, xp, card, action, 
           <h2 className={styles.heading}>{title}</h2>
           <p className={styles.description}>{description}</p>
           <div className={styles.rewards}>
-            <span className={styles.rewardType}>One-time</span>
+            <span className={styles.rewardType}>{CARD_FREQUENCY[card.type]}</span>
             <Rewards xp={xp} size="sm" />
           </div>
         </div>

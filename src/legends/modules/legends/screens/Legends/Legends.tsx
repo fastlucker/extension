@@ -39,7 +39,6 @@ const Legends = () => {
               xp={card.xp}
               card={card.card}
               action={card.action}
-              disabled={card.disabled}
             />
           ))}
         </div>
