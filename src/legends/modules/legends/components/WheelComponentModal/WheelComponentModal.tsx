@@ -1,5 +1,5 @@
 import { ethers, hexlify, Interface, randomBytes } from 'ethers'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
@@ -12,6 +12,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 
+import chainImage from './assets/chain.png'
 // @ts-ignore
 import CloseIcon from './assets/close.svg'
 import mainImage from './assets/main.png'
@@ -31,12 +32,24 @@ let fetchTryCount = 0
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
   const [wheelState, setWheelState] = useState<
-    'initial' | 'signing' | 'waiting-txn' | 'calculating-reward' | 'spinning' | 'spun'
-  >('initial')
+    'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun'
+  >('locked')
   const { connectedAccount } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
   const spinnerRef = React.useRef<HTMLImageElement>(null)
+  const chainRef = React.useRef<HTMLImageElement>(null)
+
+  const stopSpinnerTeaseAnimation = useCallback(() => {
+    if (!spinnerRef.current) return
+
+    spinnerRef.current.style.animation = 'none'
+    spinnerRef.current.style.transform = 'rotate(0deg)'
+  }, [])
+
+  const unlockChainAnimation = useCallback(() => {
+    if (chainRef.current) chainRef.current.classList.add(styles.unlocked)
+  }, [])
 
   const checkTransactionStatus = useCallback(async () => {
     if (wheelState === 'spinning' || wheelState === 'spun') return true
@@ -65,18 +78,17 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
 
       if (!spinWheelActivity) return false
 
+      unlockChainAnimation()
       setPrizeNumber(spinWheelActivity.xp)
-      setWheelState('spinning')
+      setWheelState('unlocked')
       return true
     } catch (error) {
       console.error('Error fetching transaction status:', error)
       return false
     }
+  }, [wheelState, connectedAccount, unlockChainAnimation])
 
-    return false
-  }, [wheelState, connectedAccount])
-
-  const broadcastTransaction = useCallback(async () => {
+  const unlockWheel = useCallback(async () => {
     // Switch to Base chain
     await window.ambire.request({
       method: 'wallet_switchEthereumChain',
@@ -87,7 +99,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     const signer = await provider.getSigner()
 
     try {
-      setWheelState('signing')
+      stopSpinnerTeaseAnimation()
+      setWheelState('unlocking')
       const randomValueBytes = randomBytes(32)
       const randomValue = BigInt(hexlify(randomValueBytes))
 
@@ -96,11 +109,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('spinWheel', [randomValue])
       })
 
-      setWheelState('waiting-txn')
       const receipt = await tx.wait()
 
       if (receipt && receipt.status === 1) {
-        setWheelState('calculating-reward')
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
           const intervalId = setInterval(async () => {
@@ -111,6 +122,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
                 "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
                 'error'
               )
+              // @TODO: Better way to handle this
               setWheelState('spun')
               await onLegendComplete()
               return
@@ -125,37 +137,12 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     } catch (e) {
       console.error('Failed to broadcast transaction:', e)
       addToast('Failed to broadcast transaction', 'error')
-      setWheelState('initial')
+      setWheelState('locked')
     }
-  }, [checkTransactionStatus, addToast, onLegendComplete])
+  }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast, onLegendComplete])
 
-  const handleSpinClick = async () => {
-    if (wheelState === 'initial') {
-      await broadcastTransaction()
-    }
-  }
-
-  const getButtonLabel = (): string => {
-    switch (wheelState) {
-      case 'signing':
-        return 'Signing...'
-      case 'waiting-txn':
-        return 'Waiting for transaction...'
-      case 'calculating-reward':
-        return 'Calculating reward...'
-      case 'spinning':
-        return 'Spinning...'
-      case 'spun':
-        if (!prizeNumber) return 'We are unable to retrieve your prize at the moment'
-        return `You won ${prizeNumber} xp`
-      default:
-        return 'Spin the Wheel'
-    }
-  }
-
-  // Spin the wheel animation
-  useEffect(() => {
-    if (!prizeNumber) return
+  const spinWheel = useCallback(async () => {
+    if (!prizeNumber || wheelState !== 'unlocked') return
 
     // One prize can have multiple sectors
     const prizeSectors = WHEEL_PRIZE_DATA[prizeNumber]
@@ -166,40 +153,39 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     // Select a random point within the sector
     const randomDegrees = Math.floor(Math.random() * (sector.to - sector.from + 1) + sector.from)
     if (!spinnerRef.current) return
-    // Get rid of the tease animation
-    spinnerRef.current.style.animation = 'none'
-    setWheelState('spinning')
 
-    // Calculate the rotation angle of the spinner
-    // when the animation is stopped
-    const computedStyle = window.getComputedStyle(spinnerRef.current)
-    const matrix = computedStyle.transform
-
-    // Extract current rotation angle from matrix
-    let angle = 0
-    if (matrix !== 'none') {
-      const values = matrix.split('(')[1].split(')')[0].split(',')
-      const a = parseFloat(values[0])
-      const b = parseFloat(values[1])
-      angle = Math.round(Math.atan2(b, a) * (180 / Math.PI))
-    }
-
-    // Normalize angle to [0, 360]
-    angle = angle < 0 ? angle + 360 : angle
-
-    // Set the spinner to the last position of the animation
-    spinnerRef.current.style.transform = `rotate(${angle}deg)`
     // Start the animation
     spinnerRef.current.style.transform = `rotate(${-3960 + randomDegrees}deg)`
+    setWheelState('spinning')
 
-    const timeout = setTimeout(() => {
+    setTimeout(() => {
       setWheelState('spun')
     }, 10000)
+  }, [prizeNumber, wheelState])
 
-    return () => {
-      clearTimeout(timeout)
+  const onButtonClick = async () => {
+    if (wheelState === 'locked') {
+      await unlockWheel()
+    } else if (wheelState === 'unlocked') {
+      await spinWheel()
     }
-  }, [prizeNumber])
+  }
+
+  const getButtonLabel = (): string => {
+    switch (wheelState) {
+      case 'unlocking':
+        return 'Unlocking...'
+      case 'unlocked':
+        return 'Spin the Wheel'
+      case 'spinning':
+        return 'Spinning...'
+      case 'spun':
+        if (!prizeNumber) return 'We are unable to retrieve your prize at the moment'
+        return `You won ${prizeNumber} xp`
+      default:
+        return 'Unlock the Wheel'
+    }
+  }
 
   if (!isOpen) return null
 
@@ -219,18 +205,14 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
             <img src={CloseIcon} width="32" height="32" alt="Close" />
           </button>
           <h2 className={styles.title}>Wheel of Fortune</h2>
-          <img
-            src={spinnerImage}
-            alt="spinner"
-            className={`${styles.spinner} ${styles.tease}`}
-            ref={spinnerRef}
-          />
+          <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />
+          <img src={spinnerImage} alt="spinner" className={styles.spinner} ref={spinnerRef} />
           <img src={pointerImage} alt="pointer" className={styles.pointer} />
           <button
-            disabled={wheelState !== 'initial'}
+            disabled={wheelState !== 'locked' && wheelState !== 'unlocked'}
             type="button"
             className={styles.spinButton}
-            onClick={handleSpinClick}
+            onClick={onButtonClick}
           >
             {getButtonLabel()}
           </button>

@@ -11,11 +11,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  // Don't touch this, it works too well
+  font-size: min(1.8vh, 1.2vw);
 }
 
 .wrapper {
-  width: 80rem;
-  height: 50rem;
+  width: 80em;
+  height: 50em;
   background-size: cover;
 
   .content {
@@ -34,53 +36,69 @@
 
     .title {
       position: absolute;
-      font-size: 4rem;
+      font-size: 3.5em;
       line-height: 1;
       color: $primaryBackground;
-      top: 2rem;
+      top: 0.5em;
       left: 50%;
       transform: translateX(-50%);
     }
 
     .closeButton {
       position: absolute;
-      top: 1rem;
-      right: 1rem;
-      width: 2rem;
-      height: 2rem;
-      object-fit: contain;
+      top: 1em;
+      right: 1em;
+      width: 2em;
+      height: 2em;
+
+      img {
+        width: 2em;
+        height: 2em;
+        object-fit: contain;
+      }
     }
     .spinner {
       position: absolute;
       transition: transform 10s ease-out;
-      top: 14rem;
-      left: 27.6875rem;
-      width: 24.125rem;
-      height: 24.125rem;
+      top: 14em;
+      left: 27.6875em;
+      width: 24.125em;
+      height: 24.125em;
       object-fit: contain;
-    }
-    .tease {
       animation: tease 5s infinite;
       animation-delay: 2s;
     }
 
+    .chain {
+      position: absolute;
+      left: 25.125em;
+      bottom: 15.75em;
+      width: 29.75em;
+      height: 9.75em;
+      z-index: 3;
+    }
+
+    .unlocked {
+      animation: unlock 1s forwards;
+    }
+
     .pointer {
       position: absolute;
-      top: 11.6875rem;
-      left: 37.625rem;
-      width: 4.375rem;
-      height: 4.375rem;
+      top: 11.6875em;
+      left: 37.625em;
+      width: 4.375em;
+      height: 4.375em;
       object-fit: contain;
     }
     .spinButton {
       @include primary-button;
       position: absolute;
-      bottom: 3.25rem;
+      bottom: 2.5em;
       left: 50%;
       transform: translateX(-50%);
-      width: 20.5rem;
-      height: 4.25rem;
-      font-size: 1.25rem;
+      width: 16em;
+      height: 3.5em;
+      font-size: 1.25em;
       color: $secondaryAccent;
 
       &:not(:disabled) {
@@ -89,7 +107,7 @@
           opacity: 1;
         }
         &:active {
-          transform: translate(-50%, 0.125rem);
+          transform: translate(-50%, 0.125em);
           box-shadow: none;
         }
       }
@@ -118,5 +136,16 @@
   40%,
   100% {
     transform: rotate(0deg);
+  }
+}
+
+@keyframes unlock {
+  0% {
+    transform: rotate(0deg) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(20deg) translateY(4em);
+    opacity: 0;
   }
 }
