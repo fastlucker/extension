@@ -69,7 +69,6 @@
     border-radius: 0 0 $secondaryBorderRadius $secondaryBorderRadius;
 
     .content {
-      flex: 1;
       display: flex;
       flex-direction: column;
 
@@ -100,37 +99,20 @@
         }
       }
       .rewards {
-        flex: 3;
         display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
+        justify-content: space-between;
+        width: 100%;
+        background-color: $tertiaryBackground;
+        border-radius: $primaryBorderRadius;
+        padding: 9px 8px;
+        margin-bottom: 1.5rem;
 
-        &.mb {
-          margin-bottom: 1.5rem;
-        }
-
-        .reward {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          height: 1.75rem;
-          width: 100%;
-          background-color: $tertiaryBackground;
-          border-radius: $primaryBorderRadius;
-          padding: 0 0.5rem;
-
-          .rewardLabel,
-          .rewardValue {
-            font-family: $primaryFont;
-            font-size: 0.75rem;
-          }
-
-          .rewardLabel {
-            color: $secondaryText;
-          }
-          .rewardValue {
-            color: $primaryText;
-          }
+        .rewardType {
+          font-family: $primaryFont;
+          font-size: 16px;
+          line-height: 22px;
+          font-weight: bold;
+          color: $secondaryText;
         }
       }
     }
@@ -147,41 +129,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 40px;
 
   .modalHeadingTitle {
-    color: $secondaryText;
-    font-size: 3rem;
-  }
-  .modalHeadingXp {
-    display: flex;
-    flex-direction: column;
-
-    .modalHeadingXpNetwork {
-      display: flex;
-      align-items: center;
-
-      .modalHeadingXpNetworkL2s {
-        position: relative;
-        left: -10px;
-      }
-    }
+    color: $primaryText;
+    font-size: 64px;
   }
 }
 
 .modalText {
-  font-size: 1rem;
+  font-size: 24px;
+  line-height: 32px;
   font-style: italic;
+  color: $secondaryText;
   border-radius: $primaryBorderRadius;
-  border: 2px solid $tertiaryBorder;
-  padding: 1rem;
-  margin-bottom: 1.25rem;
+  border: 1px solid $tertiaryBorder;
+  padding: 12px 10px;
 
   &::first-letter {
-    font-style: normal;
-    font-size: 2rem;
-    font-weight: bold;
-    color: $primaryText;
+    font-size: 40px;
     text-transform: uppercase;
   }
 }

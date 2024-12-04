@@ -22,16 +22,19 @@ export enum CardType {
   'available'
 }
 
+export type Networks = 'ethereum' | 'optimism' | 'base' | 'scroll' | 'arbitrum'
 export interface CardXp {
   type: CardXpType
   from: number
   to: number
   minUsdThreshold: number
+  chains: Networks[] | null
 }
 
 export interface CardFromResponse {
   title: string
   description: string
+  flavor: string
   xp: CardXp[]
   action: CardAction
   card: {

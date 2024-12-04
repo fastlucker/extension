@@ -34,6 +34,7 @@ const Legends = () => {
               key={card.title + card.card.type}
               title={card.title}
               description={card.description}
+              flavor={card.flavor}
               image={card.image}
               xp={card.xp}
               card={card.card}
