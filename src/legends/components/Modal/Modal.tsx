@@ -15,6 +15,7 @@ type ModalProps = ComponentProps & {
   isOpen: boolean
   setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
   isClosable?: boolean
+  showCloseButton?: boolean
 }
 
 const Heading: FC<ComponentProps> = ({ children, className }) => {
@@ -24,7 +25,14 @@ const Text: FC<ComponentProps> = ({ children, className }) => {
   return <p className={`${styles.text} ${className}`}>{children}</p>
 }
 
-const Modal = ({ children, className, isOpen, setIsOpen, isClosable = true }: ModalProps) => {
+const Modal = ({
+  children,
+  className,
+  isOpen,
+  setIsOpen,
+  isClosable = true,
+  showCloseButton = true
+}: ModalProps) => {
   const modalRef = React.useRef<HTMLDivElement>(null)
 
   const closeModal = () => {
@@ -48,7 +56,7 @@ const Modal = ({ children, className, isOpen, setIsOpen, isClosable = true }: Mo
   const modalContent = (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
       <div ref={modalRef} className={`${styles.modal} ${className}`}>
-        {isClosable && (
+        {isClosable && showCloseButton && (
           <button onClick={closeModal} type="button" className={styles.closeButton}>
             <FontAwesomeIcon icon={faTimes} />
           </button>
