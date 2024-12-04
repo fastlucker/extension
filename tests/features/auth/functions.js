@@ -51,12 +51,7 @@ export async function finishStoriesAndSelectAccount(
 
   // Hide empty basic accounts
   if (hideEmptyBasicAccounts) {
-    await clickOnElement(
-      page,
-      'xpath///div[contains(text(), "Hide empty Basic Accounts")]',
-      true,
-      1500
-    )
+    await clickOnElement(page, '[testid="hide-empty-accounts-toggle"]', true, 1500)
   }
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
