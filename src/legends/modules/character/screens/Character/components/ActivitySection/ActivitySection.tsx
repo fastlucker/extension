@@ -4,13 +4,27 @@ import { networks } from '@ambire-common/consts/networks'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
 import SwordIcon from '@legends/common/assets/svg/SwordIcon'
 import Alert from '@legends/components/Alert'
+import ArbitrumLogo from '@legends/components/NetworkIcons/ArbitrumLogo'
+import BaseLogo from '@legends/components/NetworkIcons/BaseLogo'
+import EthereumLogo from '@legends/components/NetworkIcons/EthereumLogo'
+import OptimismLogo from '@legends/components/NetworkIcons/OptimismLogo'
+import ScrollLogo from '@legends/components/NetworkIcons/ScrollLogo'
 import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useActivity from '@legends/hooks/useActivity'
+import { Networks } from '@legends/modules/legends/types'
 
 import SectionHeading from '../SectionHeading'
 import styles from './ActivitySection.module.scss'
 import Pagination from './Pagination'
+
+const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
+  ethereum: <EthereumLogo />,
+  base: <BaseLogo />,
+  arbitrum: <ArbitrumLogo />,
+  optimism: <OptimismLogo />,
+  scroll: <ScrollLogo />
+}
 
 const ActivitySection = () => {
   const { connectedAccount } = useAccountContext()
@@ -54,13 +68,19 @@ const ActivitySection = () => {
                         rel="noreferrer"
                         className={styles.link}
                       >
-                        {new Date(act.submittedAt).toLocaleString()}
+                        {new Date(act.submittedAt).toLocaleString([], {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </a>
                     ) : (
                       new Date(act.submittedAt).toLocaleString()
                     )}
                   </td>
-                  <td>{act.network}</td>
+                  <td>{NETWORK_ICONS[act.network]}</td>
                   <td>
                     <span className={styles.xp}>{act.legends.totalXp}</span>
                     <CoinIcon width={32} height={32} className={styles.coin} />
@@ -69,7 +89,7 @@ const ActivitySection = () => {
                     {act.legends.activities?.map((legendActivity) => (
                       <div className={styles.badge} key={legendActivity.action + legendActivity.xp}>
                         <SwordIcon width={32} height={32} className={styles.sword} />
-                        {legendActivity.action} (+{legendActivity.xp} xp)
+                        {legendActivity.cardTitle} (+{legendActivity.xp} XP)
                       </div>
                     ))}
                   </td>
