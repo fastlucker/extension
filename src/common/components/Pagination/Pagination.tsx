@@ -96,6 +96,7 @@ const Pagination: FC<Props> = ({
               number={pageNumber}
               setPage={setPage}
               isActive={pageNumber === page}
+              isDisabled={isDisabled}
             />
           )
         })}

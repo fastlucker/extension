@@ -12,6 +12,7 @@ interface Styles {
   uppercase: TextStyle
   capitalize: TextStyle
   italic: TextStyle
+  underline: TextStyle
 }
 
 const textStyles: Styles = {
@@ -35,6 +36,9 @@ const textStyles: Styles = {
   },
   italic: {
     fontStyle: 'italic'
+  },
+  underline: {
+    textDecorationLine: 'underline'
   }
 }
 

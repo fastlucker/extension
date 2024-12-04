@@ -8,6 +8,7 @@ import useAddressBookControllerState from '@web/hooks/useAddressBookControllerSt
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useExtensionUpdateControllerState from '@web/hooks/useExtensionUpdateControllerState'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
@@ -48,6 +49,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const domainsControllerState = useDomainsControllerState()
   const inviteControllerState = useInviteControllerState()
   const swapAndBridgeControllerState = useSwapAndBridgeControllerState()
+  const extensionUpdateControllerState = useExtensionUpdateControllerState()
 
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
@@ -118,6 +120,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(swapAndBridgeControllerState).length,
     [swapAndBridgeControllerState]
   )
+  const hasExtensionUpdateState: boolean = useMemo(
+    () => !!Object.keys(extensionUpdateControllerState).length,
+    [extensionUpdateControllerState]
+  )
 
   useEffect(() => {
     if (areControllerStatesLoaded) return
@@ -145,7 +151,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasDomainsState &&
       hasAddressBookState &&
       hasInviteState &&
-      hasSwapAndBridgeState
+      hasSwapAndBridgeState &&
+      hasExtensionUpdateState
     ) {
       clearTimeout(timeout)
       setAreControllerStatesLoaded(true)
@@ -171,7 +178,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasDomainsState,
     hasAddressBookState,
     hasInviteState,
-    hasSwapAndBridgeState
+    hasSwapAndBridgeState,
+    hasExtensionUpdateState
   ])
 
   return (

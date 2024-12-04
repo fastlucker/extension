@@ -20,7 +20,7 @@ interface Props {}
 const ChangeHdPath: React.FC<Props> = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { hdPathTemplate, accountsLoading } = useAccountAdderControllerState()
+  const { hdPathTemplate, isPageLocked, pageError } = useAccountAdderControllerState()
 
   const value = useMemo(
     () => DERIVATION_OPTIONS.find((o) => o.value === hdPathTemplate),
@@ -58,7 +58,7 @@ const ChangeHdPath: React.FC<Props> = () => {
       <Tooltip id="hd-path-tooltip" />
       <Select
         testID="select-change-hd-path"
-        disabled={accountsLoading}
+        disabled={isPageLocked || !!pageError}
         setValue={handleChangeHdPath}
         containerStyle={styles.selectContainer}
         selectStyle={{ height: 40 }}
