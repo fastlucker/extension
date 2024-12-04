@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import GoldCoin from '@legends/common/assets/svg/CoinIcon/CoinIcon'
+import CoinIcon from '@legends/common/assets/svg/CoinIcon/CoinIcon'
 import Crown from '@legends/common/assets/svg/CrownIcon/CrownIcon'
 import Diamond from '@legends/common/assets/svg/DiamondIcon/DiamondIcon'
 import Alert from '@legends/components/Alert'
@@ -70,7 +70,7 @@ const CharacterSection = () => {
 
         <div className={styles.characterLevelInfoWrapper}>
           <div className={styles.characterItemWrapper}>
-            <GoldCoin className={`${styles.icon} ${styles.iconCoin}`} />
+            <CoinIcon className={`${styles.icon} ${styles.iconCoin}`} />
             <div className={styles.levelWrapper}>
               <div className={`${styles.levelInfo} ${styles.levelInfoTop}`}>
                 <span className={styles.level}>Lvl. {character.level}</span>
