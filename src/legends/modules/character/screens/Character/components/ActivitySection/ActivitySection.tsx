@@ -35,7 +35,6 @@ const ActivitySection = () => {
             <tr>
               <th>Transaction</th>
               <th>Network</th>
-              <th>Submitted at</th>
               <th>Total XP</th>
               <th>Legends actions</th>
             </tr>
@@ -43,7 +42,6 @@ const ActivitySection = () => {
           <tbody>
             {transactions.map((act) => {
               const network = networks.find(({ id }) => id === act.network)
-              const txnId = shortenAddress(act.txId, 12)
 
               return (
                 <tr key={act.txId}>
@@ -55,14 +53,13 @@ const ActivitySection = () => {
                         rel="noreferrer"
                         className={styles.link}
                       >
-                        {txnId}
+                        {new Date(act.submittedAt).toLocaleString()}
                       </a>
                     ) : (
-                      txnId
+                      new Date(act.submittedAt).toLocaleString()
                     )}
                   </td>
                   <td>{act.network}</td>
-                  <td>{new Date(act.submittedAt).toLocaleString()}</td>
                   <td>{act.legends.totalXp}</td>
                   <td>
                     {act.legends.activities?.map((legendActivity) => (
