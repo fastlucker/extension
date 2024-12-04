@@ -320,7 +320,7 @@ const Estimation = ({
             type="success"
             size="md"
             text={t(
-              "This is a sponsored transaction so you don't have to pay any gas. Nevertheless, please review the changes on the left side before signing"
+              'This is a sponsored transaction with no gas fees. Please review the changes on the left before signing'
             )}
             style={spacings.mbSm}
           />
