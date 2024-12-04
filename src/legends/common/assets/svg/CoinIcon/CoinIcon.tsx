@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import Svg, { Defs, G, LinearGradient, Path, Stop, SvgProps } from 'react-native-svg'
 
 const CoinIcon: React.FC<SvgProps & { className?: string }> = ({
