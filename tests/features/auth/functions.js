@@ -51,12 +51,7 @@ export async function finishStoriesAndSelectAccount(
 
   // Hide empty basic accounts
   if (hideEmptyBasicAccounts) {
-    await clickOnElement(
-      page,
-      'xpath///div[contains(text(), "Hide empty basic accounts")]',
-      true,
-      1500
-    )
+    await clickOnElement(page, '[testid="hide-empty-accounts-toggle"]', true, 1500)
   }
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
@@ -118,21 +113,6 @@ export async function typeSeedWords(page, passphraseWords) {
     const inputSelector = buildSelector(TEST_IDS.seedPhraseInputFieldDynamic, i + 1)
     // eslint-disable-next-line no-await-in-loop
     await page.type(inputSelector, wordToType)
-  }
-}
-
-/**
- * Wait for the accounts to be added before navigating to another page,
- * otherwise the extension will redirect back to /get-started.
- */
-export async function waitForAuthentication(page, extensionURL) {
-  let isWaitingForAccounts = true
-  while (isWaitingForAccounts) {
-    // eslint-disable-next-line no-await-in-loop
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    if (page.url() === `${extensionURL}/tab.html#/dashboard`) {
-      isWaitingForAccounts = false
-    }
   }
 }
 
@@ -263,6 +243,8 @@ export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, extension
   // Click on "Save and Continue" button
   await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
 
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
   await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
   await page.waitForSelector(SELECTORS.account, { visible: true })
@@ -363,6 +345,8 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker, extensi
 
   // Click on "Save and Continue" button
   await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
+
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
   await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 

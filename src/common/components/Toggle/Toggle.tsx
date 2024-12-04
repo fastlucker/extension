@@ -15,7 +15,7 @@ interface Props extends ToggleProps {
   toggleStyle?: ViewStyle
 }
 
-const Toggle = ({ isOn, onToggle, label, style }: Props) => {
+const Toggle = ({ isOn, onToggle, label, style, disabled }: Props) => {
   return (
     <View style={(styles.container, style)}>
       {!!label && (
@@ -25,6 +25,7 @@ const Toggle = ({ isOn, onToggle, label, style }: Props) => {
       )}
       <ToggleSwitch
         isOn={isOn}
+        disabled={disabled}
         onToggle={onToggle}
         thumbOnStyle={styles.thumbOnStyle}
         thumbOffStyle={styles.thumbOffStyle}

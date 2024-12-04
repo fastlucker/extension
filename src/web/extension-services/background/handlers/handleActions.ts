@@ -12,6 +12,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
+import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { Port, PortMessenger } from '@web/extension-services/messengers'
@@ -33,7 +34,8 @@ export const handleActions = async (
     trezorCtrl,
     latticeCtrl,
     walletStateCtrl,
-    autoLockCtrl
+    autoLockCtrl,
+    extensionUpdateCtrl
   }: {
     pm: PortMessenger
     port: Port
@@ -43,6 +45,7 @@ export const handleActions = async (
     latticeCtrl: LatticeController
     walletStateCtrl: WalletStateController
     autoLockCtrl: AutoLockController
+    extensionUpdateCtrl: ExtensionUpdateController
   }
 ) => {
   // @ts-ignore
@@ -69,6 +72,8 @@ export const handleActions = async (
         pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
       } else if (params.controller === ('autoLock' as any)) {
         pm.send('> ui', { method: 'autoLock', params: autoLockCtrl })
+      } else if (params.controller === ('extensionUpdate' as any)) {
+        pm.send('> ui', { method: 'extensionUpdate', params: extensionUpdateCtrl })
       } else {
         pm.send('> ui', {
           method: params.controller,
@@ -592,6 +597,10 @@ export const handleActions = async (
     case 'DAPP_CONTROLLER_REMOVE_DAPP': {
       mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       return mainCtrl.dapps.removeDapp(params)
+    }
+    case 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE': {
+      extensionUpdateCtrl.applyUpdate()
+      break
     }
 
     default:
