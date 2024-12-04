@@ -1,50 +1,122 @@
 @import '@legends/styles/base.scss';
 
-.wheelContainer {
+.backdrop {
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: $backdrop;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrapper {
+  width: 80rem;
+  height: 50rem;
+  background-size: cover;
+
+  .content {
     position: relative;
+    display: flex;
     width: 100%;
-    max-width: 31.6875rem;
-    width: 31.6875rem;
-    aspect-ratio: 1;
-    margin: 0 auto;
-}
-
-.wheelContainer > div {
-    transform: rotate(-46deg);
-    width: 31.6875rem;
     height: 100%;
-    max-width: unset;
-    max-height: unset;
-    
 
-    canvas {
-        width: 100%;
-        height: 100%;
+    .confetti {
+      position: absolute;
+      z-index: 2;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
+
+    .title {
+      position: absolute;
+      font-size: 4rem;
+      line-height: 1;
+      color: $primaryBackground;
+      top: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .closeButton {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 2rem;
+      height: 2rem;
+      object-fit: contain;
+    }
+    .spinner {
+      position: absolute;
+      transition: transform 10s ease-out;
+      top: 14rem;
+      left: 27.6875rem;
+      width: 24.125rem;
+      height: 24.125rem;
+      object-fit: contain;
+    }
+    .tease {
+      animation: tease 5s infinite;
+      animation-delay: 2s;
+    }
+
+    .pointer {
+      position: absolute;
+      top: 11.6875rem;
+      left: 37.625rem;
+      width: 4.375rem;
+      height: 4.375rem;
+      object-fit: contain;
+    }
+    .spinButton {
+      @include primary-button;
+      position: absolute;
+      bottom: 3.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20.5rem;
+      height: 4.25rem;
+      font-size: 1.25rem;
+      color: $secondaryAccent;
+
+      &:not(:disabled) {
+        &:hover {
+          background-color: $secondaryBackground;
+          opacity: 1;
+        }
+        &:active {
+          transform: translate(-50%, 0.125rem);
+          box-shadow: none;
+        }
+      }
+
+      &:disabled {
+        background-color: $tertiaryBackground;
+        opacity: 1;
+      }
+    }
+  }
 }
 
-.modal {
-    width: 50rem;
-}
-
-.confetti {
-    z-index: 100;
-}
- 
-.heading {
-    text-align: center;
-    text-transform: uppercase;
-    font-size: 2rem;
-    font-weight: 500;
-    line-height: 1.25rem;
-    margin-bottom: 1rem;
-}
-
-.description {
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.button {
-    @include primary-button;
+@keyframes tease {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-10deg);
+  }
+  20% {
+    transform: rotate(10deg);
+  }
+  30% {
+    transform: rotate(-10deg);
+  }
+  40%,
+  100% {
+    transform: rotate(0deg);
+  }
 }

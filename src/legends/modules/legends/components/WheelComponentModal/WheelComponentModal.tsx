@@ -1,11 +1,10 @@
 import { ethers, hexlify, Interface, randomBytes } from 'ethers'
-import React, { useCallback, useState } from 'react'
-import { Wheel } from 'react-custom-roulette'
+import React, { useCallback, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import { RELAYER_URL } from '@env'
-import Modal from '@legends/components/Modal'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
@@ -13,8 +12,13 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 
+// @ts-ignore
+import CloseIcon from './assets/close.svg'
+import mainImage from './assets/main.png'
+import pointerImage from './assets/pointer.png'
+import spinnerImage from './assets/spinner.png'
 import styles from './WheelComponentModal.module.scss'
-import wheelData from './wheelData'
+import WHEEL_PRIZE_DATA from './wheelData'
 
 export const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
@@ -32,6 +36,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   const { connectedAccount } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
+  const spinnerRef = React.useRef<HTMLImageElement>(null)
 
   const checkTransactionStatus = useCallback(async () => {
     if (wheelState === 'spinning' || wheelState === 'spun') return true
@@ -59,15 +64,10 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       })
 
       if (!spinWheelActivity) return false
-      const spinWheelActivityIndex = wheelData.findIndex(
-        (item: any) => item.option === spinWheelActivity.xp.toString()
-      )
 
-      if (spinWheelActivityIndex !== -1) {
-        setPrizeNumber(spinWheelActivityIndex)
-        setWheelState('spinning')
-        return true
-      }
+      setPrizeNumber(spinWheelActivity.xp)
+      setWheelState('spinning')
+      return true
     } catch (error) {
       console.error('Error fetching transaction status:', error)
       return false
@@ -147,64 +147,97 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         return 'Spinning...'
       case 'spun':
         if (!prizeNumber) return 'We are unable to retrieve your prize at the moment'
-        return `You won ${wheelData[prizeNumber].option} xp`
+        return `You won ${prizeNumber} xp`
       default:
         return 'Spin the Wheel'
     }
   }
 
-  return (
-    <Modal className={styles.modal} isOpen={isOpen} setIsOpen={setIsOpen}>
-      {wheelState === 'spun' ? (
-        <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
-      ) : null}
-      <Modal.Heading className={styles.heading}>Spin the wheel</Modal.Heading>
-      <Modal.Text className={styles.description}>
-        To start spinning the wheel, you’ll need to sign a transaction. This helps us verify and
-        process your spin securely. Please confirm the transaction in your wallet, and get ready for
-        your chance to win amazing rewards!
-      </Modal.Text>
-      <div className={styles.wheelContainer}>
-        <Wheel
-          // TODO: Figure out why the wheel starts spinning a couple of times
-          // before the actual spin. The most likely cause is component rerendering.
-          mustStartSpinning={wheelState === 'spinning'}
-          prizeNumber={prizeNumber ?? 6}
-          onStopSpinning={async () => {
-            setWheelState('spun')
-            if (!prizeNumber) {
-              addToast(
-                "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
-                'error'
-              )
-              return
-            }
-            addToast(`You received ${wheelData[prizeNumber].option} xp`, 'success')
-            await onLegendComplete()
-          }}
-          data={wheelData}
-          radiusLineColor="#BAAFAC"
-          radiusLineWidth={1}
-          outerBorderColor="#E7AA27"
-          outerBorderWidth={16}
-          fontFamily="Sentient"
-          fontSize={25}
-          perpendicularText
-          pointerProps={{
-            src: '/images/pointer.png',
-            style: { rotate: '46deg', top: '35px', right: '0', width: '148px' }
-          }}
-        />
-        <button
-          onClick={handleSpinClick}
-          disabled={wheelState !== 'initial'}
-          type="button"
-          className={styles.button}
-        >
-          {getButtonLabel()}
-        </button>
+  // Spin the wheel animation
+  useEffect(() => {
+    if (!prizeNumber) return
+
+    // One prize can have multiple sectors
+    const prizeSectors = WHEEL_PRIZE_DATA[prizeNumber]
+    const amountOfSectors = prizeSectors.length
+    // Select a random sector
+    const randomSector = Math.floor(Math.random() * amountOfSectors)
+    const sector = prizeSectors[randomSector]
+    // Select a random point within the sector
+    const randomDegrees = Math.floor(Math.random() * (sector.to - sector.from + 1) + sector.from)
+    if (!spinnerRef.current) return
+    // Get rid of the tease animation
+    spinnerRef.current.style.animation = 'none'
+    setWheelState('spinning')
+
+    // Calculate the rotation angle of the spinner
+    // when the animation is stopped
+    const computedStyle = window.getComputedStyle(spinnerRef.current)
+    const matrix = computedStyle.transform
+
+    // Extract current rotation angle from matrix
+    let angle = 0
+    if (matrix !== 'none') {
+      const values = matrix.split('(')[1].split(')')[0].split(',')
+      const a = parseFloat(values[0])
+      const b = parseFloat(values[1])
+      angle = Math.round(Math.atan2(b, a) * (180 / Math.PI))
+    }
+
+    // Normalize angle to [0, 360]
+    angle = angle < 0 ? angle + 360 : angle
+
+    // Set the spinner to the last position of the animation
+    spinnerRef.current.style.transform = `rotate(${angle}deg)`
+    // Start the animation
+    spinnerRef.current.style.transform = `rotate(${-3960 + randomDegrees}deg)`
+
+    const timeout = setTimeout(() => {
+      setWheelState('spun')
+    }, 10000)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [prizeNumber])
+
+  if (!isOpen) return null
+
+  return createPortal(
+    <div className={styles.backdrop}>
+      <div
+        className={styles.wrapper}
+        style={{
+          backgroundImage: `url(${mainImage})`
+        }}
+      >
+        <div className={styles.content}>
+          {wheelState === 'spun' ? (
+            <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
+          ) : null}
+          <button type="button" onClick={() => setIsOpen(false)} className={styles.closeButton}>
+            <img src={CloseIcon} width="32" height="32" alt="Close" />
+          </button>
+          <h2 className={styles.title}>Wheel of Fortune</h2>
+          <img
+            src={spinnerImage}
+            alt="spinner"
+            className={`${styles.spinner} ${styles.tease}`}
+            ref={spinnerRef}
+          />
+          <img src={pointerImage} alt="pointer" className={styles.pointer} />
+          <button
+            disabled={wheelState !== 'initial'}
+            type="button"
+            className={styles.spinButton}
+            onClick={handleSpinClick}
+          >
+            {getButtonLabel()}
+          </button>
+        </div>
       </div>
-    </Modal>
+    </div>,
+    document.getElementById('modal-root') as HTMLElement
   )
 }
 
