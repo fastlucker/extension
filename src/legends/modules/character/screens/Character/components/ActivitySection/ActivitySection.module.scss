@@ -4,13 +4,18 @@
   width: 100%;
   text-align: left;
   margin-bottom: 2rem;
+  color: $secondaryText;
+  border-collapse: collapse;
 
   td {
     padding: 0 0 0.75em;
+    vertical-align: top;
   }
 
   thead {
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
   }
 
   tbody:before {
@@ -21,6 +26,42 @@
 
   .link {
     text-decoration: underline;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: $secondaryText;
+  }
+  
+  .xp {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-right: .75rem;
+  }
+
+  .coin {
+    vertical-align: bottom;
+  }
+
+  .legendsWrapper {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .badge {
+    padding: .5rem;
+    display: flex;
+    align-items: center;
+    border-radius: $secondaryBorderRadius;
+    background-color: $secondaryBackground;
+    border: 1px solid $primaryBorder;
+    
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: .5rem;
+  }
+
+  .sword {
+    margin-right: .75rem;
   }
 }
 

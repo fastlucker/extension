@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
-import shortenAddress from '@ambire-common/utils/shortenAddress'
+import CoinIcon from '@legends/common/assets/svg/CoinIcon'
+import SwordIcon from '@legends/common/assets/svg/SwordIcon'
 import Alert from '@legends/components/Alert'
 import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -22,7 +23,7 @@ const ActivitySection = () => {
 
   return (
     <div className={styles.wrapper}>
-      <SectionHeading>Legends Activity</SectionHeading>
+      <SectionHeading>Activity</SectionHeading>
       {isLoading && (
         <div className={styles.spinnerWrapper}>
           <Spinner />
@@ -36,7 +37,7 @@ const ActivitySection = () => {
               <th>Transaction</th>
               <th>Network</th>
               <th>Total XP</th>
-              <th>Legends actions</th>
+              <th>Legends</th>
             </tr>
           </thead>
           <tbody>
@@ -60,10 +61,14 @@ const ActivitySection = () => {
                     )}
                   </td>
                   <td>{act.network}</td>
-                  <td>{act.legends.totalXp}</td>
                   <td>
+                    <span className={styles.xp}>{act.legends.totalXp}</span>
+                    <CoinIcon width={32} height={32} className={styles.coin} />
+                  </td>
+                  <td className={styles.legendsWrapper}>
                     {act.legends.activities?.map((legendActivity) => (
-                      <div key={legendActivity.action + legendActivity.xp}>
+                      <div className={styles.badge} key={legendActivity.action + legendActivity.xp}>
+                        <SwordIcon width={32} height={32} className={styles.sword} />
                         {legendActivity.action} (+{legendActivity.xp} xp)
                       </div>
                     ))}
