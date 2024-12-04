@@ -217,7 +217,7 @@ const GetStartedScreen = () => {
             />
             <Panel
               isAnimated
-              title={t('Select one of the following options')}
+              title={t('Select an option')}
               style={{
                 backgroundColor: 'transparent',
                 opacity: opacityInterpolate as any,
@@ -227,10 +227,10 @@ const GetStartedScreen = () => {
               <View style={[flexbox.directionRow]}>
                 <Card
                   testID="get-started-button-import"
-                  title={t('Create new or import\nan existing hot wallet')}
+                  title={t('Create or import\nan existing wallet')}
                   style={[flexbox.flex1, spacings.mh, spacings.ml0]}
                   text={t(
-                    'Securely create a new wallet or import an existing one from a seed phrase, private key, or with an email vault.'
+                    'Import your account(s) securely with a seed phrase or private key, or create account(s) from a newly-created seed phrase.'
                   )}
                   icon={CreateWalletIcon}
                   iconProps={{
@@ -243,9 +243,9 @@ const GetStartedScreen = () => {
                 />
                 <Card
                   testID="get-started-button-connect-hw-wallet"
-                  title={t('Connect a\nHardware Wallet')}
+                  title={t('Connect a\nhardware wallet')}
                   text={t(
-                    'Start using accounts secured by Trezor, Ledger, or another Hardware Wallet.'
+                    'Import your account(s) secured by hardware wallets like Trezor, Ledger, or Grid+.'
                   )}
                   style={{ ...flexbox.flex1, ...spacings.mr }}
                   icon={HWIcon}
@@ -261,7 +261,7 @@ const GetStartedScreen = () => {
                   testID="get-started-button-add"
                   title={t('Watch an\naddress')}
                   text={t(
-                    'Import an address in view-only mode to see its balance and simulate transactions.'
+                    'Add an address in view-only mode to see its balance and simulate transactions.'
                   )}
                   icon={ViewOnlyIcon}
                   style={flexbox.flex1}
