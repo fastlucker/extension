@@ -28,7 +28,7 @@ interface WheelComponentProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const POST_UNLOCK_STATES = ['unlocked', 'spun', 'error']
+const POST_UNLOCK_STATES = ['unlocked', 'spinning', 'spun', 'error']
 
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
@@ -113,7 +113,6 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       if (receipt && receipt.status === 1) {
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
-          addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
           const checkStatusWithTimeout = async (attempts: number) => {
             if (attempts >= 10) {
               console.error('Failed to fetch transaction status after 10 attempts')
@@ -134,6 +133,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
             setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
           }
 
+          addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
           await checkStatusWithTimeout(0)
         }
       }
