@@ -18,7 +18,7 @@ type Character = {
 
 type CharacterContextValue = {
   character: Character | null
-  getCharacter: () => void
+  getCharacter: () => Promise<void>
   isLoading: boolean
   error: string | null
 }

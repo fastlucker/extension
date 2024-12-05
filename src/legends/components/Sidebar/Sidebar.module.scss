@@ -62,30 +62,38 @@
 
         .wheelContent {
           padding: 1rem;
-          padding-left: 0.75rem;
+          padding-left: 6rem;
           flex: 1;
 
           .wheelTitle,
           .wheelText {
             display: block;
+            color: $primaryBackground;
           }
           .wheelTitle {
             font-size: 1.125rem;
             font-weight: 500;
             line-height: 1.5rem;
             text-transform: uppercase;
-            color: $secondaryText;
           }
           .wheelText {
             font-size: 0.875rem;
             margin-bottom: 0.75rem;
           }
           .wheelButton {
-            @include secondary-button;
+            background: $secondaryGradient;
+            border: 2px solid $primaryBackground;
+            box-shadow: 0 0.125rem 0 $primaryBackground;
+            border-radius: $primaryBorderRadius;
+            height: 2.25rem;
+            font-weight: 500;
             font-size: 0.875rem;
-            background: $primaryGradient;
             width: 100%;
             text-transform: none;
+
+            &:hover {
+              opacity: 1;
+            }
           }
         }
       }
@@ -93,6 +101,12 @@
     .disabled {
       opacity: 0.5;
       animation: none;
+      cursor: not-allowed;
+      user-select: none;
+
+      .wheelButton {
+        pointer-events: none;
+      }
     }
 
     .tooltip {

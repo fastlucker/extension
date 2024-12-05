@@ -1,50 +1,159 @@
 @import '@legends/styles/base.scss';
 
-.wheelContainer {
+.backdrop {
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: $backdrop;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // Don't touch this, it works too well
+  font-size: min(1.8vh, 1.2vw);
+}
+
+.wrapper {
+  width: 80em;
+  height: 50em;
+  background-size: cover;
+
+  .content {
     position: relative;
+    display: flex;
     width: 100%;
-    max-width: 31.6875rem;
-    width: 31.6875rem;
-    aspect-ratio: 1;
-    margin: 0 auto;
-}
-
-.wheelContainer > div {
-    transform: rotate(-46deg);
-    width: 31.6875rem;
     height: 100%;
-    max-width: unset;
-    max-height: unset;
-    
 
-    canvas {
-        width: 100%;
-        height: 100%;
+    .confetti {
+      position: absolute;
+      z-index: 2;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
+
+    .title {
+      position: absolute;
+      font-size: 3.5em;
+      line-height: 1;
+      color: $primaryBackground;
+      top: 0.5em;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .closeButton {
+      position: absolute;
+      top: 1em;
+      right: 1em;
+      width: 2em;
+      height: 2em;
+
+      img {
+        width: 2em;
+        height: 2em;
+        object-fit: contain;
+      }
+    }
+    .spinner {
+      position: absolute;
+      transition: transform 10s ease-out;
+      top: 14em;
+      left: 27.6875em;
+      width: 24.125em;
+      height: 24.125em;
+      object-fit: contain;
+      animation: tease 5s infinite;
+      animation-delay: 2s;
+    }
+
+    .chain {
+      position: absolute;
+      left: 25.125em;
+      bottom: 15.75em;
+      width: 29.75em;
+      height: 9.75em;
+      z-index: 3;
+
+      &.unlocked {
+        animation: unlock 1s forwards;
+      }
+    }
+
+    .pointer {
+      position: absolute;
+      top: 11.6875em;
+      left: 37.625em;
+      width: 4.375em;
+      height: 4.375em;
+      object-fit: contain;
+    }
+    .spinButton {
+      @include primary-button;
+      position: absolute;
+      bottom: 2.5em;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16em;
+      height: 3.5em;
+      font-size: 1.25em;
+      color: $secondaryAccent;
+
+      &:not(:disabled) {
+        &:hover {
+          background-color: $secondaryBackground;
+          opacity: 1;
+        }
+        &:active {
+          transform: translate(-50%, 0.125em);
+          box-shadow: none;
+        }
+      }
+
+      &:disabled {
+        background-color: $tertiaryBackground;
+        opacity: 1;
+      }
+
+      &.unlocked {
+        background: $secondaryGradient;
+        border-color: $primaryBackground;
+        border-width: 0.125rem;
+        box-shadow: 0 0.125em $primaryBackground;
+        color: $primaryText;
+      }
+    }
+  }
 }
 
-.modal {
-    width: 50rem;
+@keyframes tease {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-10deg);
+  }
+  20% {
+    transform: rotate(10deg);
+  }
+  30% {
+    transform: rotate(-10deg);
+  }
+  40%,
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
-.confetti {
-    z-index: 100;
-}
- 
-.heading {
-    text-align: center;
-    text-transform: uppercase;
-    font-size: 2rem;
-    font-weight: 500;
-    line-height: 1.25rem;
-    margin-bottom: 1rem;
-}
-
-.description {
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.button {
-    @include primary-button;
+@keyframes unlock {
+  0% {
+    transform: rotate(0deg) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(20deg) translateY(4em);
+    opacity: 0;
+  }
 }
