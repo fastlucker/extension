@@ -206,7 +206,7 @@ const AccountsOnPageList = ({
     }
 
     if (subType === 'private-key') {
-      return t('Import accounts from private key')
+      return t('Select account(s) to import')
     }
 
     return t('Select accounts to import')
