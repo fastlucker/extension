@@ -69,6 +69,15 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
       getLegends(),
       getCharacter()
     ])
+    const hasActivityFailed = activityResult.status === 'rejected'
+    const hasLegendsFailed = legendsResult.status === 'rejected'
+    const hasCharacterFailed = characterResult.status === 'rejected'
+
+    // No need to bombard the user with three toast if the relayer is down
+    if (hasActivityFailed && hasLegendsFailed && hasCharacterFailed) {
+      addToast('An error occurred while completing the legend. Please try again later.', 'error')
+      return
+    }
 
     // Handle errors based on the index of each result
     if (activityResult.status === 'rejected') {
