@@ -147,7 +147,7 @@ const HotWalletImportSelectorScreen = () => {
       testID: 'button-import-json',
       title: 'JSON Backup\n(Smart Accounts)',
       text: (
-        <View style={[flexbox.justifySpaceBetween]}>
+        <View>
           <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
             Restore a Smart Account{' '}
             <Text weight="semiBold" fontSize={14}>
@@ -222,23 +222,21 @@ const HotWalletImportSelectorScreen = () => {
         type="modal"
       >
         <DualChoiceModal
-          title={t('Create or import Seed Phrase')}
+          title={t('Create or import a seed phrase')}
           description={
             <View>
               <Text style={spacings.mbTy} appearance="secondaryText">
-                {t(
-                  'If you already have a seed and you would like to use it, please select the import option'
-                )}
+                {t('If you have a seed phrase you want to import, select Import seed.')}
               </Text>
               <Text appearance="secondaryText">
-                {t("If you don't have a seed, select the option to create a new one.")}
+                {t('Alternatively, to create a new one, proceed with Create seed.')}
               </Text>
             </View>
           }
           Icon={ImportFromDefaultOrExternalSeedIcon}
           onSecondaryButtonPress={handleImportSeed}
           onPrimaryButtonPress={handleCreateSeed}
-          secondaryButtonText={t('Import existing seed')}
+          secondaryButtonText={t('Import seed')}
           secondaryButtonTestID="import-existing-seed-btn"
           primaryButtonText={t('Create seed')}
           primaryButtonTestID="create-seed-btn"
