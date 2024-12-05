@@ -21,8 +21,8 @@
     color: $tertiaryText;
   }
 
-  &.active {
-    &::after {
+  &.active, &.activeExternal {
+    &:not(.activeExternal)::after {
       content: '';
       margin-left: 0.5rem;
       width: 3rem;
