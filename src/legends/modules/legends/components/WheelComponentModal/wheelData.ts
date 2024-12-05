@@ -1,13 +1,57 @@
-export default [
-  { option: '80', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
-  { option: '20', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
-  { option: '80', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '150', style: { backgroundColor: '#F8E3B7', textColor: '#B67D02' }, optionSize: 3 },
-  { option: '80', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
-  { option: '50', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 3 },
-  { option: '20', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 },
-  { option: '300', style: { backgroundColor: '#EADDC9', textColor: '#333131' }, optionSize: 2 },
-  { option: '50', style: { backgroundColor: '#F2E9DB', textColor: '#333131' }, optionSize: 3 }
-]
+const WHEEL_PRIZE_DATA: {
+  [key: number]: { from: number; to: number }[]
+} = {
+  300: [
+    {
+      from: -349,
+      to: -10
+    }
+  ],
+  150: [
+    {
+      from: -215,
+      to: -245
+    }
+  ],
+  80: [
+    {
+      from: -46,
+      to: -76
+    },
+    {
+      from: -181,
+      to: -211
+    },
+    {
+      from: -249,
+      to: -279
+    }
+  ],
+  20: [
+    { from: -114, to: -144 },
+    {
+      from: -317,
+      to: -347
+    }
+  ],
+  50: [
+    {
+      from: -11,
+      to: -43
+    },
+    {
+      from: -79,
+      to: -111
+    },
+    {
+      from: -147,
+      to: -178
+    },
+    {
+      from: -282,
+      to: -313
+    }
+  ]
+}
+
+export default WHEEL_PRIZE_DATA

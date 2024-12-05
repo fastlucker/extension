@@ -1,11 +1,12 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 
 interface Style {
   container: ViewStyle
+  closeIcon: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -16,6 +17,11 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phSm,
       ...spacings.pt,
       ...spacings.pbSm
+    },
+    closeIcon: {
+      position: 'absolute',
+      right: SPACING,
+      top: SPACING
     }
   })
 
