@@ -1,5 +1,6 @@
 import orcWarrior from '../images/orc-warrior.png'
 import penguinPaladin from '../images/penguin-paladin.png'
+import shapeshifter from '../images/shapeshifter.png'
 import slimeCharacter from '../images/slime.png'
 import sorceressCharacter from '../images/sorceress.png'
 import vitalikCharacter from '../images/vitalik.png'
@@ -41,5 +42,11 @@ export const CHARACTERS: Character[] = [
     name: 'Orc Warrior',
     description: '',
     image: orcWarrior
+  },
+  {
+    id: 6,
+    name: 'Shapeshifter',
+    description: '',
+    image: shapeshifter
   }
 ]
