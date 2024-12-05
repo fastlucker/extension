@@ -101,6 +101,9 @@
     .disabled {
       opacity: 0.5;
       animation: none;
+      pointer-events: none;
+      cursor: not-allowed;
+      user-select: none;
     }
 
     .tooltip {
