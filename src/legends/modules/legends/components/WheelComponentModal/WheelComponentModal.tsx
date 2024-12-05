@@ -28,11 +28,10 @@ interface WheelComponentProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-let fetchTryCount = 0
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
   const [wheelState, setWheelState] = useState<
-    'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun'
+    'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
   >('locked')
   const { connectedAccount } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
@@ -52,9 +51,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   }, [])
 
   const checkTransactionStatus = useCallback(async () => {
-    if (wheelState === 'spinning' || wheelState === 'spun') return true
     try {
-      fetchTryCount += 1
       const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
 
       if (!response.ok) throw new Error('Failed to fetch transaction status')
@@ -86,7 +83,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       console.error('Error fetching transaction status:', error)
       return false
     }
-  }, [wheelState, connectedAccount, unlockChainAnimation])
+  }, [connectedAccount, unlockChainAnimation])
 
   const unlockWheel = useCallback(async () => {
     // Switch to Base chain
@@ -114,24 +111,28 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       if (receipt && receipt.status === 1) {
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
-          const intervalId = setInterval(async () => {
-            if (fetchTryCount >= 10) {
-              clearInterval(intervalId)
+          addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
+          const checkStatusWithTimeout = async (attempts: number) => {
+            if (attempts >= 10) {
               console.error('Failed to fetch transaction status after 10 attempts')
               addToast(
                 "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
                 'error'
               )
-              // @TODO: Better way to handle this
-              setWheelState('spun')
-              await onLegendComplete()
+              setWheelState('error')
               return
             }
             const found = await checkTransactionStatus()
+
             if (found) {
-              clearInterval(intervalId)
+              await onLegendComplete()
+              return
             }
-          }, 3000)
+
+            setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
+          }
+
+          await checkStatusWithTimeout(0)
         }
       }
     } catch (e) {
@@ -177,6 +178,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         return 'Unlocking...'
       case 'unlocked':
         return 'Spin the Wheel'
+      case 'error':
+        return 'Close'
       case 'spinning':
         return 'Spinning...'
       case 'spun':
