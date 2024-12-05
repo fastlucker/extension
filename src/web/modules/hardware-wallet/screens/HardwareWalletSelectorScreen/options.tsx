@@ -12,14 +12,14 @@ const getOptions = ({ onTrezorPress, onLedgerPress, onGridPlusPress }: Props) =>
   {
     id: 'trezor',
     title: 'Trezor',
-    models: ['Trezor One', 'Trezor Model 3', 'Trezor Model T', 'Trezor Safe 3, Trezor Safe 5'],
+    models: ['Trezor One', 'Trezor Model 3', 'Trezor Model T', 'Trezor Safe 3', 'Trezor Safe 5'],
     image: TrezorIcon,
     onPress: onTrezorPress || (() => {})
   },
   {
     id: 'ledger',
     title: 'Ledger',
-    models: ['Ledger Nano', 'Ledger Nano X', 'Ledger Nano S Plus', 'Ledger Flex, Ledger Stax'],
+    models: ['Ledger Nano', 'Ledger Nano X', 'Ledger Nano S Plus', 'Ledger Flex', 'Ledger Stax'],
     image: LedgerIcon,
     onPress: onLedgerPress || (() => {})
   },
