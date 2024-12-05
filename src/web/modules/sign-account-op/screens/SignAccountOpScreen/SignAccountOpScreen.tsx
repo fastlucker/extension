@@ -207,6 +207,9 @@ const SignAccountOpScreen = () => {
 
   const handleDismissLedgerConnectModal = useCallback(() => {
     setShouldDisplayLedgerConnectModal(false)
+
+    // Resume if paused (might happen if user have acknowledged warnings, but
+    // opts in to sign with Ledger, and the Ledger is connected now).
     if (signAccountOpState?.status?.type === SigningStatus.UpdatesPaused)
       updateControllerSigningStatus(SigningStatus.ReadyToSign)
   }, [signAccountOpState?.status?.type, updateControllerSigningStatus])
