@@ -28,6 +28,8 @@ interface WheelComponentProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
+const POST_UNLOCK_STATES = ['unlocked', 'spun', 'error']
+
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
   const [wheelState, setWheelState] = useState<
@@ -214,7 +216,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           <button
             disabled={wheelState !== 'locked' && wheelState !== 'unlocked'}
             type="button"
-            className={styles.spinButton}
+            className={`${styles.spinButton} ${
+              POST_UNLOCK_STATES.includes(wheelState) ? styles.unlocked : ''
+            }`}
             onClick={onButtonClick}
           >
             {getButtonLabel()}

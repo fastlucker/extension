@@ -76,10 +76,10 @@
       width: 29.75em;
       height: 9.75em;
       z-index: 3;
-    }
 
-    .unlocked {
-      animation: unlock 1s forwards;
+      &.unlocked {
+        animation: unlock 1s forwards;
+      }
     }
 
     .pointer {
@@ -115,6 +115,14 @@
       &:disabled {
         background-color: $tertiaryBackground;
         opacity: 1;
+      }
+
+      &.unlocked {
+        background: $secondaryGradient;
+        border-color: $primaryBackground;
+        border-width: 0.125rem;
+        box-shadow: 0 0.125em $primaryBackground;
+        color: $primaryText;
       }
     }
   }
