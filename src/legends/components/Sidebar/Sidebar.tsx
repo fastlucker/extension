@@ -27,7 +27,13 @@ const NAVIGATION_LINKS = [
   { to: LEGENDS_ROUTES.character, text: 'Character', icon: faCircleUser },
   { to: LEGENDS_ROUTES.legends, text: 'Legends', icon: faMedal },
   { to: LEGENDS_ROUTES.leaderboard, text: 'Leaderboard', icon: faTrophy },
-  { to: '', text: 'Guide', icon: faFileLines }
+  {
+    to: 'https://grimoires.ambire.com/',
+    text: 'Guide',
+    icon: faFileLines,
+    newTab: true,
+    isExternalLink: true
+  }
 ]
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
@@ -111,10 +117,12 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           {NAVIGATION_LINKS.map((link) => (
             <Link
               isActive={pathname === link.to}
+              isExternalLink={link.isExternalLink}
               key={link.to}
               to={link.to}
               text={link.text}
               icon={link.icon}
+              newTab={link.newTab}
             />
           ))}
         </div>

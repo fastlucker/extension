@@ -10,13 +10,18 @@ type Props = {
   text: string
   icon: any
   isActive: boolean
+  newTab?: boolean
+  isExternalLink?: boolean
 }
 
-const Link: FC<Props> = ({ to, text, icon, isActive }) => {
+const Link: FC<Props> = ({ to, text, icon, isActive, newTab, isExternalLink }) => {
   return (
     <RouterLink
       to={to}
-      className={`${styles.wrapper} ${isActive ? styles.active : ''} ${!to ? styles.disabled : ''}`}
+      className={`${styles.wrapper} ${isActive ? styles.active : ''} ${
+        isExternalLink ? styles.activeExternal : ''
+      } ${!to ? styles.disabled : ''}`}
+      target={newTab ? '_blank' : undefined}
     >
       <div className={styles.iconWrapper}>
         <FontAwesomeIcon size="lg" icon={icon} />
