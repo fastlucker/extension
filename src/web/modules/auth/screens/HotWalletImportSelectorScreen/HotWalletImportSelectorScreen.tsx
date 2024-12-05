@@ -127,10 +127,10 @@ const HotWalletImportSelectorScreen = () => {
   const options = [
     {
       testID: 'button-proceed-seed-phrase',
-      title: 'Seed Phrase',
-      text: `Select this option to ${
-        isImportOnly ? 'import' : 'create/import'
-      } your Basic or Smart account(s) by using a seed phrase.`,
+      title: 'Seed Phrase (Basic & Smart Accounts)',
+      text: isImportOnly
+        ? 'Import existing Basic (EOA) or Smart Account(s) with a seed phrase.'
+        : 'Create a new seed phrase or import an existing one to add account(s) or securely unlock new Basic (EOA) or Smart Account(s).',
       image: SeedPhraseIcon,
       buttonText: 'Proceed',
       flow: 'seed'
@@ -138,15 +138,30 @@ const HotWalletImportSelectorScreen = () => {
     {
       testID: 'button-import-private-key',
       title: 'Private Key\n(Basic Accounts)',
-      text: 'Select this option to import your Basic account by entering their private key.',
+      text: 'Import an existing Basic Account (EOA) with a private key.',
       image: PrivateKeyIcon,
       buttonText: 'Import',
       flow: 'private-key'
     },
     {
       testID: 'button-import-json',
-      title: 'Import existing json\n(Smart Accounts)',
-      text: 'Select this option to import your Smart account from a json file exported from the extension.',
+      title: 'JSON Backup\n(Smart Accounts)',
+      text: (
+        <View style={[flexbox.justifySpaceBetween]}>
+          <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
+            Restore a Smart Account{' '}
+            <Text weight="semiBold" fontSize={14}>
+              created in the Ambire extension
+            </Text>{' '}
+            via a JSON backup file.
+          </Text>
+          <Alert type="warning">
+            <Text fontSize={14} appearance="secondaryText">
+              Backups from the web and app wallets cannot be imported into the extension.
+            </Text>
+          </Alert>
+        </View>
+      ),
       image: ImportJsonIcon,
       buttonText: 'Import',
       flow: 'import-json'
@@ -160,9 +175,9 @@ const HotWalletImportSelectorScreen = () => {
       footer={<BackButton fallbackBackRoute={WEB_ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Select one of the following options')}>
+        <Panel title={t('Select an option')}>
           <View style={[flexbox.directionRow]}>
-            {options.map((option, index) => (
+            {options.map((option) => (
               <Card
                 testID={option.testID}
                 style={[flexbox.flex1, spacings.mr]}
@@ -172,16 +187,16 @@ const HotWalletImportSelectorScreen = () => {
                 icon={option.image}
                 onPress={() => onOptionPress(option.flow)}
                 buttonText={option.buttonText}
-                titleStyle={[index === 0 ? spacings.mb2Xl : spacings.mb]}
+                titleStyle={[spacings.mb]}
               />
             ))}
             {/* the email vault option is fairly different than the others */}
             {/* therefore, we hardcode it here */}
             <Card
-              title={t('Set up with an email')}
+              title={t('Email-Based Account')}
               style={[flexbox.flex1]}
               icon={EmailRecoveryIcon}
-              buttonText={t('Show interest')}
+              buttonText={t('Sign me up')}
               onPress={() => onOptionPress('email')}
               isPartiallyDisabled
               titleStyle={[spacings.mb2Xl]}
@@ -190,7 +205,7 @@ const HotWalletImportSelectorScreen = () => {
               <Alert
                 title=""
                 type="info"
-                text="If you'd like to show interest in email-recoverable accounts, please vote here."
+                text="Email-based accounts are in the pipeline. Let us know if you want to see this feature sooner."
                 style={spacings.mbSm}
               />
             </Card>
