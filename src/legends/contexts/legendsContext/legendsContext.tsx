@@ -6,7 +6,7 @@ import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import { isWheelSpinTodayDone } from '@legends/modules/legends/components/WheelComponentModal/helpers'
-import { CardFromResponse, CardType } from '@legends/modules/legends/types'
+import { CardFromResponse, CardStatus } from '@legends/modules/legends/types'
 import { sortCards } from '@legends/modules/legends/utils'
 
 type LegendsContextType = {
@@ -32,7 +32,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const [legends, setLegends] = useState<CardFromResponse[]>([])
 
   const completedCount = useMemo(
-    () => legends.filter((card) => card.card.type === CardType.done).length,
+    () => legends.filter((card) => card.card.status === CardStatus.completed).length,
     [legends]
   )
 
