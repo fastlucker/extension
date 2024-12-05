@@ -95,9 +95,9 @@ const Card: FC<Props> = ({ title, image, description, flavor, xp, card, action }
         <div className={styles.content}>
           <h2 className={styles.heading}>{title}</h2>
           <p className={styles.description}>{description}</p>
+          <span className={styles.rewardFrequency}>{CARD_FREQUENCY[card.type]}</span>
           <div className={styles.rewards}>
-            <span className={styles.rewardType}>{CARD_FREQUENCY[card.type]}</span>
-            <Rewards xp={xp} size="sm" />
+            <Rewards xp={xp} size="sm" reverse />
           </div>
         </div>
         <button

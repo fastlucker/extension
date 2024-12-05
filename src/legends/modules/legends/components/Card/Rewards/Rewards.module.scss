@@ -4,6 +4,7 @@
 $font-size-lg: 20px;
 $gap-lg: 12px;
 $icon-size-lg: 28px;
+$margin-left-lg: -10px;
 
 $scale-factor: 0.75;
 
@@ -11,6 +12,7 @@ $scale-factor: 0.75;
   --font-size: #{$font-size-lg};
   --gap: #{$gap-lg};
   --icon-size: #{$icon-size-lg};
+  --margin-left: #{$margin-left-lg};
 
   display: flex;
   flex: 1;
@@ -25,6 +27,18 @@ $scale-factor: 0.75;
 
     .itemNetworks {
       display: flex;
+
+      svg:not(:first-child) {
+        margin-left: var(--margin-left);
+      }
+
+      svg {
+        @for $i from 1 through 10 {
+          &:nth-child(#{$i}) {
+            z-index: 10 -$i;
+          }
+        }
+      }
     }
 
     .itemText {
@@ -43,5 +57,11 @@ $scale-factor: 0.75;
     --font-size: #{round($font-size-lg * $scale-factor)};
     --gap: #{round($gap-lg * $scale-factor)};
     --icon-size: #{round($icon-size-lg * $scale-factor)};
+    --margin-left: #{round($margin-left-lg * $scale-factor)};
+  }
+  &.reverse {
+    .item {
+      flex-direction: row-reverse;
+    }
   }
 }

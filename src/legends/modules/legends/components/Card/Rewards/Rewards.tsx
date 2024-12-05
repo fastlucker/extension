@@ -10,7 +10,8 @@ import GoldCoin from '@legends/modules/legends/components/GoldCoin'
 import styles from './Rewards.module.scss'
 
 type Props = Pick<CardFromResponse, 'xp'> & {
-  size: 'sm' | 'lg'
+  size: 'sm' | 'lg',
+  reverse?: boolean
 }
 
 const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
@@ -21,9 +22,9 @@ const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
   scroll: <ScrollLogo />
 }
 
-const Rewards: FC<Props> = ({ xp, size = 'lg' }) => {
+const Rewards: FC<Props> = ({ xp, size = 'lg', reverse }) => {
   return (
-    <div className={`${styles.wrapper} ${styles[size]}`}>
+    <div className={`${styles.wrapper} ${styles[size]} ${reverse ? styles.reverse: ''}`}>
       {xp?.map(({ from, to, type, chains }) => (
         <div key={`${from}-${to}-${type}`} className={styles.item}>
           {chains && <div className={styles.itemNetworks}>{chains.map((chain) => NETWORK_ICONS[chain])}</div>}
