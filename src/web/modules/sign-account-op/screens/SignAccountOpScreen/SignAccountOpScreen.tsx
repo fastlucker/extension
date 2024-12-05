@@ -224,7 +224,7 @@ const SignAccountOpScreen = () => {
 
   const handleSign = useCallback(
     (_chosenSigningKeyType?: string, _warningAccepted?: boolean) => {
-      // Always prioritize warnings over everything else
+      // Prioritize warning(s) modals over all others
       if (warningToPromptBeforeSign && !_warningAccepted) {
         openWarningAgreementModal()
         updateControllerSigningStatus(SigningStatus.UpdatesPaused)
@@ -309,7 +309,7 @@ const SignAccountOpScreen = () => {
 
   const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
     useMemo(() => {
-      // Always prioritize warnings over everything else
+      // Prioritize warning(s) modals over all others
       if (warningToPromptBeforeSign) return 'warnings'
 
       if (shouldDisplayLedgerConnectModal) return 'ledger-connect'
