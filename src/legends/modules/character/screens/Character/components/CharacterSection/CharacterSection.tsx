@@ -40,9 +40,9 @@ const CharacterSection = () => {
 
   return (
     <section className={styles.wrapper}>
-      <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
-        <Modal.Heading>Character description</Modal.Heading>
-        <Modal.Text>{character?.description}</Modal.Text>
+      <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen} className={styles.modal}>
+        <Modal.Heading className={styles.modalTitle}>Description</Modal.Heading>
+        <Modal.Text className={styles.modalText}>{character?.description}</Modal.Text>
       </Modal>
       <div className={styles.characterInfo}>
         <span className={styles.kicker}>YOUR CHARACTER</span>
