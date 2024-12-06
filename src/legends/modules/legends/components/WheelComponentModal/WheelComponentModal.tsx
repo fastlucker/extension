@@ -80,12 +80,15 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       unlockChainAnimation()
       setPrizeNumber(spinWheelActivity.xp)
       setWheelState('unlocked')
+      // Don't await this, we don't want to block the UI
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      onLegendComplete()
       return true
     } catch (error) {
       console.error('Error fetching transaction status:', error)
       return false
     }
-  }, [connectedAccount, unlockChainAnimation])
+  }, [connectedAccount, onLegendComplete, unlockChainAnimation])
 
   const unlockWheel = useCallback(async () => {
     // Switch to Base chain
@@ -111,6 +114,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       const receipt = await tx.wait()
 
       if (receipt && receipt.status === 1) {
+        addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
+
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
           const checkStatusWithTimeout = async (attempts: number) => {
@@ -125,15 +130,11 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
             }
             const found = await checkTransactionStatus()
 
-            if (found) {
-              await onLegendComplete()
-              return
+            if (!found) {
+              setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
             }
-
-            setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
           }
 
-          addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
           await checkStatusWithTimeout(0)
         }
       }
@@ -142,7 +143,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       addToast('Failed to broadcast transaction', 'error')
       setWheelState('locked')
     }
-  }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast, onLegendComplete])
+  }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast])
 
   const spinWheel = useCallback(async () => {
     if (!prizeNumber || wheelState !== 'unlocked') return
