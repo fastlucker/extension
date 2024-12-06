@@ -152,7 +152,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     const amountOfSectors = prizeSectors.length
     // Select a random sector
     const randomSector = Math.floor(Math.random() * amountOfSectors)
-    const sector = prizeSectors[randomSector]
+    const sector =
+      prizeSectors[randomSector > amountOfSectors - 1 ? amountOfSectors - 1 : randomSector]
     // Select a random point within the sector
     const randomDegrees = Math.floor(Math.random() * (sector.to - sector.from + 1) + sector.from)
     if (!spinnerRef.current) return
