@@ -4,6 +4,28 @@
   margin-bottom: 1.5rem;
 }
 
+.modal {
+  min-width: 50rem;
+  .modalTitle {
+    font-size: 2.5rem;
+    font-weight: 500;
+  }
+  .modalText {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-style: italic;
+    color: $secondaryText;
+    border-radius: $primaryBorderRadius;
+    border: 1px solid $tertiaryBorder;
+    padding: 0.75rem 0.625rem;
+    
+    &::first-letter {
+      font-size: 2.5rem;
+      text-transform: uppercase;
+    }
+  }
+}
+
 .wrapper {
   display: flex;
   position: relative;
