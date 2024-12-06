@@ -37,7 +37,7 @@ const NAVIGATION_LINKS = [
 ]
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
-  const { activity } = useRecentActivityContext()
+  const { activity, isLoading } = useRecentActivityContext()
 
   const hoursUntilMidnight = useMemo(
     () => (activity?.transactions ? calculateHoursUntilMidnight(activity.transactions) : 0),
@@ -73,7 +73,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             <div className={styles.wheelContent}>
               <span className={styles.wheelTitle}>Daily Legend</span>
               <span className={styles.wheelText}>
-                {wheelSpinOfTheDay ? `Available in ${hoursUntilMidnight} hours` : 'Available Now'}
+                {wheelSpinOfTheDay && !isLoading && `Available in ${hoursUntilMidnight} hours`}
+                {!wheelSpinOfTheDay && !isLoading && 'Spin the Wheel'}
+                {isLoading && 'Loading...'}
               </span>
               <button
                 onClick={handleModal}
