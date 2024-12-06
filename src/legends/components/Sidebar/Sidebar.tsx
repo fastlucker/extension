@@ -1,6 +1,5 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { FC, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Tooltip, TooltipRefProps } from 'react-tooltip'
 
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons/faCircleUser'
@@ -38,8 +37,7 @@ const NAVIGATION_LINKS = [
 ]
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
-  const tooltipRef = useRef<TooltipRefProps>(null)
-  const { activity } = useRecentActivityContext()
+  const { activity, isLoading } = useRecentActivityContext()
 
   const hoursUntilMidnight = useMemo(
     () => (activity?.transactions ? calculateHoursUntilMidnight(activity.transactions) : 0),
@@ -54,22 +52,6 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const handleModal = () => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
   }
-
-  const closeTooltip = useCallback(() => {
-    tooltipRef?.current?.close()
-  }, [])
-
-  useEffect(() => {
-    if (!containerRef.current) return
-
-    const container = containerRef.current as HTMLElement
-
-    container.addEventListener('mouseleave', closeTooltip)
-
-    return () => {
-      container.removeEventListener('mouseleave', () => closeTooltip)
-    }
-  }, [closeTooltip])
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -91,7 +73,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             <div className={styles.wheelContent}>
               <span className={styles.wheelTitle}>Daily Legend</span>
               <span className={styles.wheelText}>
-                {wheelSpinOfTheDay ? 'Not Available' : 'Available Now'}
+                {wheelSpinOfTheDay && !isLoading && `Available in ${hoursUntilMidnight} hours`}
+                {!wheelSpinOfTheDay && !isLoading && 'Spin the Wheel'}
+                {isLoading && 'Loading...'}
               </span>
               <button
                 onClick={handleModal}
@@ -104,16 +88,6 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             </div>
           </div>
         </div>
-        {wheelSpinOfTheDay && (
-          <Tooltip
-            id="wheel-tooltip"
-            closeEvents={{ click: true }}
-            className={styles.tooltip}
-            ref={tooltipRef}
-          >
-            Wheel of Fortune is available once a day. Come back after {hoursUntilMidnight} hours!
-          </Tooltip>
-        )}
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
