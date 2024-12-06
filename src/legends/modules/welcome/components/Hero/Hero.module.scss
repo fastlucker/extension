@@ -1,0 +1,135 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  padding-right: 5rem;
+  padding-bottom: 12.5rem;
+  min-height: 100vh;
+
+  .background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    object-fit: cover;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 45.875rem;
+    width: 100%;
+
+    .logo {
+      width: 23.75rem;
+      height: auto;
+      margin-bottom: 2rem;
+    }
+    .button {
+      margin-bottom: 1.5rem;
+      width: 23.6875rem;
+      height: 11.4375rem;
+      background-size: contain;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .buttonInner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 0.125rem solid #374d26;
+        box-shadow: 0 0.25rem #374d26;
+        background-color: $primaryBackground;
+        border-radius: 0.5rem;
+        color: #374d26;
+        text-transform: none;
+        font-size: 1.25rem;
+        width: 20.5rem;
+        height: 3.75rem;
+        position: relative;
+        margin-bottom: 1rem;
+
+        .leftDeco,
+        .rightDeco {
+          width: 1.0625rem;
+          height: auto;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+        .leftDeco {
+          left: -0.0625rem;
+        }
+        .rightDeco {
+          right: -0.0625rem;
+          transform: rotate(180deg) translateY(50%);
+        }
+      }
+    }
+    .title {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+      text-align: center;
+      color: $primaryBackground;
+      font-weight: 700;
+      text-shadow: 0 0.25rem #372f23; // TODO
+    }
+  }
+
+  @include breakpoint-down-from(small-desktop) {
+    padding-bottom: 7.5rem;
+  }
+
+  @include on-mobile {
+    padding: 2rem;
+    align-items: flex-end;
+    padding-bottom: 12.5rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, transparent 0%, #120f0a 40vh, #120f0a 100%);
+      z-index: 0;
+    }
+    .background {
+      height: 40vh;
+      width: 100%;
+      object-fit: cover;
+    }
+    .content {
+      position: relative;
+      z-index: 2;
+
+      .logo {
+        width: 18rem;
+        height: auto;
+        margin-bottom: 4rem;
+      }
+      .button {
+        display: none;
+      }
+      .title {
+        font-size: 1.5rem;
+        line-height: 2rem;
+      }
+    }
+  }
+}
