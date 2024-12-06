@@ -1,4 +1,3 @@
-import { isAddress } from 'ethers'
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'

@@ -1,9 +1,10 @@
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { ActiveRoute, SocketAPIBridgeUserTx } from '@ambire-common/interfaces/swapAndBridge'
 import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button, { ButtonProps } from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
@@ -100,6 +101,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
 
   return (
     <Panel forceContainerSmallSpacings style={getPanelContainerStyle()}>
+      {activeRoute.routeStatus === 'completed' && (
+        <Pressable style={styles.closeIcon} onPress={handleRejectActiveRoute}>
+          <CloseIcon />
+        </Pressable>
+      )}
       <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
         {activeRoute.routeStatus === 'completed' ? t('Completed Route') : t('Pending Route')}
       </Text>
