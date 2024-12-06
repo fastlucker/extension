@@ -48,7 +48,7 @@ const SignAccountOpScreen = () => {
   const { networks } = useNetworksControllerState()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
-  const [isLedgerConnectModalVisible, setIsLedgerConnectModalVisible] = useState(false)
+  const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
@@ -206,8 +206,13 @@ const SignAccountOpScreen = () => {
   )
 
   const handleDismissLedgerConnectModal = useCallback(() => {
-    setIsLedgerConnectModalVisible(false)
-  }, [])
+    setShouldDisplayLedgerConnectModal(false)
+
+    // Resume if paused (might happen if user have acknowledged warnings, but
+    // opts in to sign with Ledger, but a Ledger is NOT connected yet).
+    if (signAccountOpState?.status?.type === SigningStatus.UpdatesPaused)
+      updateControllerSigningStatus(SigningStatus.ReadyToSign)
+  }, [signAccountOpState?.status?.type, updateControllerSigningStatus])
 
   const warningToPromptBeforeSign = useMemo(
     () =>
@@ -219,20 +224,23 @@ const SignAccountOpScreen = () => {
 
   const handleSign = useCallback(
     (_chosenSigningKeyType?: string, _warningAccepted?: boolean) => {
-      const isAtLeastOneOfTheCurrentKeysInvolvedLedger = _chosenSigningKeyType
-        ? _chosenSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
-        : isAtLeastOneOfTheKeysInvolvedLedger
-
-      if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) {
-        setIsLedgerConnectModalVisible(true)
-        return
-      }
-
+      // Prioritize warning(s) modals over all others
       if (warningToPromptBeforeSign && !_warningAccepted) {
         openWarningAgreementModal()
         updateControllerSigningStatus(SigningStatus.UpdatesPaused)
         return
       }
+
+      const isLedgerKeyInvolvedInTheJustChosenKeys = _chosenSigningKeyType
+        ? _chosenSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
+        : isAtLeastOneOfTheKeysInvolvedLedger
+
+      if (isLedgerKeyInvolvedInTheJustChosenKeys && !isLedgerConnected) {
+        setShouldDisplayLedgerConnectModal(true)
+        updateControllerSigningStatus(SigningStatus.UpdatesPaused)
+        return
+      }
+
       dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP' })
     },
     [
@@ -283,10 +291,10 @@ const SignAccountOpScreen = () => {
   }, [warningToPromptBeforeSign, closeWarningAgreementModal, handleSign])
 
   useEffect(() => {
-    if (isLedgerConnectModalVisible && isLedgerConnected) {
+    if (shouldDisplayLedgerConnectModal && isLedgerConnected) {
       handleDismissLedgerConnectModal()
     }
-  }, [handleDismissLedgerConnectModal, isLedgerConnectModalVisible, isLedgerConnected])
+  }, [handleDismissLedgerConnectModal, shouldDisplayLedgerConnectModal, isLedgerConnected])
 
   const dismissWarning = useCallback(() => {
     updateControllerSigningStatus(SigningStatus.ReadyToSign)
@@ -301,8 +309,10 @@ const SignAccountOpScreen = () => {
 
   const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
     useMemo(() => {
-      if (isAtLeastOneOfTheKeysInvolvedLedger && !isLedgerConnected) return 'ledger-connect'
+      // Prioritize warning(s) modals over all others
       if (warningToPromptBeforeSign) return 'warnings'
+
+      if (shouldDisplayLedgerConnectModal) return 'ledger-connect'
 
       const isAtLeastOneOfTheKeysInvolvedExternal =
         (!!signingKeyType && signingKeyType !== 'internal') ||
@@ -313,8 +323,7 @@ const SignAccountOpScreen = () => {
       return null
     }, [
       feePayerKeyType,
-      isAtLeastOneOfTheKeysInvolvedLedger,
-      isLedgerConnected,
+      shouldDisplayLedgerConnectModal,
       signingKeyType,
       warningToPromptBeforeSign
     ])
@@ -427,7 +436,7 @@ const SignAccountOpScreen = () => {
 
             {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
               <LedgerConnectModal
-                isVisible={isLedgerConnectModalVisible}
+                isVisible={shouldDisplayLedgerConnectModal}
                 handleClose={handleDismissLedgerConnectModal}
                 displayOptionToAuthorize={false}
               />

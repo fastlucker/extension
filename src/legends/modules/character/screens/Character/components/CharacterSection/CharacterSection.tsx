@@ -40,9 +40,9 @@ const CharacterSection = () => {
 
   return (
     <section className={styles.wrapper}>
-      <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
-        <Modal.Heading>Character description</Modal.Heading>
-        <Modal.Text>{character?.description}</Modal.Text>
+      <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen} className={styles.modal}>
+        <Modal.Heading className={styles.modalTitle}>Description</Modal.Heading>
+        <Modal.Text className={styles.modalText}>{character?.description}</Modal.Text>
       </Modal>
       <div className={styles.characterInfo}>
         <span className={styles.kicker}>YOUR CHARACTER</span>
@@ -70,7 +70,7 @@ const CharacterSection = () => {
 
         <div className={styles.characterLevelInfoWrapper}>
           <div className={styles.characterItemWrapper}>
-            <CoinIcon className={`${styles.icon} ${styles.iconCoin}`} />
+            <CoinIcon className={`${styles.icon} ${styles.iconCoin}`} width={64} height={64} />
             <div className={styles.levelWrapper}>
               <div className={`${styles.levelInfo} ${styles.levelInfoTop}`}>
                 <span className={styles.level}>Lvl. {character.level}</span>
@@ -81,7 +81,13 @@ const CharacterSection = () => {
 
                 <div
                   className={styles.levelProgressBar}
-                  style={{ width: `${(character.xp / xpForNextLevel) * 100}%` }}
+                  style={{
+                    width: `${(
+                      ((character.xp - startXpForCurrentLevel) /
+                        (xpForNextLevel - startXpForCurrentLevel)) *
+                      100
+                    ).toFixed(2)}%`
+                  }}
                 />
               </div>
               <div className={styles.levelInfo}>
@@ -92,7 +98,7 @@ const CharacterSection = () => {
           </div>
 
           <div className={styles.characterItemWrapper}>
-            <Diamond className={styles.icon} />
+            <Diamond className={styles.icon} width={64} height={64} />
             <div className={styles.characterItem}>
               <span className={styles.item}>
                 {isReady && amount ? amountFormatted : 'Loading...'}
@@ -102,7 +108,7 @@ const CharacterSection = () => {
           </div>
 
           <div className={styles.characterItemWrapper}>
-            <Crown className={styles.icon} />
+            <Crown className={styles.icon} width={64} height={64} />
             <div className={styles.characterItem}>
               <span className={styles.item}>{userLeaderboardData?.rank}</span>
               Leaderboard

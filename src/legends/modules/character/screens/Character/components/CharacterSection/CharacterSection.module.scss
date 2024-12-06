@@ -4,6 +4,28 @@
   margin-bottom: 1.5rem;
 }
 
+.modal {
+  min-width: 50rem;
+  .modalTitle {
+    font-size: 2.5rem;
+    font-weight: 500;
+  }
+  .modalText {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-style: italic;
+    color: $secondaryText;
+    border-radius: $primaryBorderRadius;
+    border: 1px solid $tertiaryBorder;
+    padding: 0.75rem 0.625rem;
+    
+    &::first-letter {
+      font-size: 2.5rem;
+      text-transform: uppercase;
+    }
+  }
+}
+
 .wrapper {
   display: flex;
   position: relative;
@@ -50,12 +72,11 @@
     .characterLevelInfoWrapper {
       .characterItemWrapper {
         display: flex;
-        margin-bottom: 4rem;
+        margin-bottom: 2.5rem;
 
         .icon {
-          margin-right: 2.5rem;
+          margin-right: 1.5625rem;
         }
-
         .iconCoin {
           align-self: center;
         }
@@ -63,10 +84,9 @@
         .characterItem {
           display: flex;
           flex-direction: column;
-          font-size: 1.5rem;
+          font-size: 1rem;
           font-weight: 500;
           line-height: 1.5rem;
-          text-align: left;
           color: $secondaryText;
           align-self: end;
         }
@@ -87,7 +107,7 @@
 
             .level {
               color: $secondaryText;
-              font-size: 1.5rem;
+              font-size: 1rem;
               font-weight: 500;
               line-height: 1.5rem;
               text-align: left;
@@ -96,26 +116,24 @@
 
           .levelProgress {
             flex: 1;
-            padding: 1rem 1.5rem;
+            padding: .75rem 1.5rem;
             border-radius: $secondaryBorderRadius;
             background-color: $secondaryBackground;
             border: 0.0625rem solid $primaryBorder;
             overflow: hidden;
             position: relative;
-            min-width: 17.9375rem;
-            font-size: 2.25rem;
-            font-weight: 500;
-            line-height: 2.75rem;
-            text-align: center;
+            min-width: 11.25rem;
             color: $primaryText;
             margin-bottom: 0.5rem;
+            text-align: center;
+
 
             .xp {
               position: relative;
-              font-size: 2.75rem;
+              font-size: 2rem;
               font-weight: 500;
               line-height: 2.75rem;
-              text-align: left;
+              text-align: center;
               z-index: 2;
               color: $primaryText;
             }
@@ -138,12 +156,12 @@
       }
 
       .item {
-        min-width: 9.625rem;
-        padding: 1rem 1.5rem;
+        min-width: 11.25rem;
+        padding: .75rem 1.5rem;
         border-radius: $secondaryBorderRadius;
         background-color: $secondaryBackground;
         border: 1px solid $primaryBorder;
-        font-size: 2.25rem;
+        font-size: 1.5rem;
         font-weight: 500;
         line-height: 2.75rem;
         text-align: center;
@@ -182,8 +200,8 @@
 
   .character {
     position: absolute;
-    right: 0;
-    bottom: 0;
+    right: 13rem;
+    top: 2rem;
 
     .characterRelativeWrapper {
       position: relative;
@@ -191,8 +209,8 @@
       .characterImage {
         position: relative;
         z-index: 2;
-        width: 27.875rem;
-        height: 36.4375rem;
+        width: 29.0625rem;
+        height: 34.4375rem;
         object-fit: contain;
       }
     }
@@ -217,6 +235,11 @@
           width: 18.75rem;
           height: 4.6875rem;
         }
+      }
+
+      .characterImage {
+        width: 30rem;
+        height: 30rem;
       }
     }
   }

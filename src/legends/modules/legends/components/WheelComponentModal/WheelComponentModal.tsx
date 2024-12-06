@@ -83,12 +83,15 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       unlockChainAnimation()
       setPrizeNumber(spinWheelActivity.xp)
       setWheelState('unlocked')
+      // Don't await this, we don't want to block the UI
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      onLegendComplete()
       return true
     } catch (error) {
       console.error('Error fetching transaction status:', error)
       return false
     }
-  }, [connectedAccount, unlockChainAnimation])
+  }, [connectedAccount, onLegendComplete, unlockChainAnimation])
 
   const unlockWheel = useCallback(async () => {
     // Switch to Base chain
@@ -117,6 +120,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       const receipt = await getCallsStatus(callsId)
 
       if (receipt && receipt.status === '0x1') {
+        addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
           const checkStatusWithTimeout = async (attempts: number) => {
@@ -131,15 +135,11 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
             }
             const found = await checkTransactionStatus()
 
-            if (found) {
-              await onLegendComplete()
-              return
+            if (!found) {
+              setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
             }
-
-            setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
           }
 
-          addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
           await checkStatusWithTimeout(0)
         }
       }
@@ -148,14 +148,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       addToast('Failed to broadcast transaction', 'error')
       setWheelState('locked')
     }
-  }, [
-    stopSpinnerTeaseAnimation,
-    checkTransactionStatus,
-    addToast,
-    onLegendComplete,
-    sendCalls,
-    getCallsStatus
-  ])
+  }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast, sendCalls, getCallsStatus])
 
   const spinWheel = useCallback(async () => {
     if (!prizeNumber || wheelState !== 'unlocked') return
@@ -165,7 +158,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     const amountOfSectors = prizeSectors.length
     // Select a random sector
     const randomSector = Math.floor(Math.random() * amountOfSectors)
-    const sector = prizeSectors[randomSector]
+    const sector =
+      prizeSectors[randomSector > amountOfSectors - 1 ? amountOfSectors - 1 : randomSector]
     // Select a random point within the sector
     const randomDegrees = Math.floor(Math.random() * (sector.to - sector.from + 1) + sector.from)
     if (!spinnerRef.current) return
@@ -179,11 +173,17 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     }, 10000)
   }, [prizeNumber, wheelState])
 
+  const closeModal = () => {
+    setIsOpen(false)
+  }
+
   const onButtonClick = async () => {
     if (wheelState === 'locked') {
       await unlockWheel()
     } else if (wheelState === 'unlocked') {
       await spinWheel()
+    } else if (wheelState === 'spun' || wheelState === 'error') {
+      closeModal()
     }
   }
 
@@ -219,7 +219,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           {wheelState === 'spun' ? (
             <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
           ) : null}
-          <button type="button" onClick={() => setIsOpen(false)} className={styles.closeButton}>
+          <button type="button" onClick={closeModal} className={styles.closeButton}>
             <img src={CloseIcon} width="32" height="32" alt="Close" />
           </button>
           <h2 className={styles.title}>Wheel of Fortune</h2>
@@ -227,7 +227,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           <img src={spinnerImage} alt="spinner" className={styles.spinner} ref={spinnerRef} />
           <img src={pointerImage} alt="pointer" className={styles.pointer} />
           <button
-            disabled={wheelState !== 'locked' && wheelState !== 'unlocked'}
+            disabled={wheelState === 'spinning' || wheelState === 'unlocking'}
             type="button"
             className={`${styles.spinButton} ${
               POST_UNLOCK_STATES.includes(wheelState) ? styles.unlocked : ''
