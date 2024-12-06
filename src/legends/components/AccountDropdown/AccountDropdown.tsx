@@ -53,9 +53,7 @@ const AccountDropdown = () => {
             address={connectedAccount!}
             maxAddressLength={12}
           />
-          <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
-            Level {character!.level}
-          </p>
+          <p className={`${styles.levelAndRank} ${styles.activityDot}`}>Level {character!.level}</p>
         </div>
         {/* <FontAwesomeIcon
           className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}
