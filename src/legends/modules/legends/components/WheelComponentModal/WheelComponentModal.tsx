@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ethers, hexlify, Interface, randomBytes } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -9,6 +10,7 @@ import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useErc5792 from '@legends/hooks/useErc5792'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 
@@ -38,6 +40,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   const { connectedAccount } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
+  const { sendCalls, getCallsStatus } = useErc5792()
   const spinnerRef = React.useRef<HTMLImageElement>(null)
   const chainRef = React.useRef<HTMLImageElement>(null)
 
@@ -106,16 +109,18 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       const randomValueBytes = randomBytes(32)
       const randomValue = BigInt(hexlify(randomValueBytes))
 
-      const tx = await signer.sendTransaction({
-        to: LEGENDS_CONTRACT_ADDRESS,
-        data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('spinWheel', [randomValue])
-      })
+      const chainIdHex = ethers.toBeHex(BASE_CHAIN_ID)
+      const callsId = await sendCalls(chainIdHex, await signer.getAddress(), [
+        {
+          to: LEGENDS_CONTRACT_ADDRESS,
+          data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('spinWheel', [randomValue])
+        }
+      ])
 
-      const receipt = await tx.wait()
+      const receipt = await getCallsStatus(callsId)
 
-      if (receipt && receipt.status === 1) {
+      if (receipt && receipt.status === '0x1') {
         addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
-
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
           const checkStatusWithTimeout = async (attempts: number) => {
@@ -143,7 +148,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       addToast('Failed to broadcast transaction', 'error')
       setWheelState('locked')
     }
-  }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast])
+  }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast, sendCalls, getCallsStatus])
 
   const spinWheel = useCallback(async () => {
     if (!prizeNumber || wheelState !== 'unlocked') return
