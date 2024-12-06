@@ -54,7 +54,7 @@ const AccountDropdown = () => {
             maxAddressLength={12}
           />
           <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
-            Level {character!.level} / Rank {userLeaderboardData?.rank || 'N/A'}
+            Level {character!.level}
           </p>
         </div>
         {/* <FontAwesomeIcon
