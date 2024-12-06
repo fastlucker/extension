@@ -5,6 +5,7 @@ import Crown from '@legends/common/assets/svg/CrownIcon/CrownIcon'
 import Diamond from '@legends/common/assets/svg/DiamondIcon/DiamondIcon'
 import Alert from '@legends/components/Alert'
 import Modal from '@legends/components/Modal'
+import Stacked from '@legends/components/Stacked'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -97,18 +98,23 @@ const CharacterSection = () => {
             </div>
           </div>
 
-          <div className={styles.characterItemWrapper}>
-            <Diamond className={styles.icon} width={64} height={64} />
-            <div className={styles.characterItem}>
-              <span className={styles.item}>
-                {isReady && amount ? amountFormatted : 'Loading...'}
-              </span>
-              Wallet Balance
+          <div className={styles.logoAndBalanceWrapper}>
+            <div className={styles.logoWrapper}>
+              <Stacked chains={['ethereum', 'base', 'arbitrum', 'scroll', 'optimism']} />
+            </div>
+            <div className={styles.characterItemWrapper}>
+              <Diamond className={`${styles.icon} ${styles.iconDiamond}`} width={64} height={64} />
+              <div className={styles.characterItem}>
+                <span className={styles.item}>
+                  {isReady && amount ? amountFormatted : 'Loading...'}
+                </span>
+                Wallet Balance
+              </div>
             </div>
           </div>
 
           <div className={styles.characterItemWrapper}>
-            <Crown className={styles.icon} width={64} height={64} />
+            <Crown className={`${styles.icon} ${styles.iconDiamond}`} width={64} height={64} />
             <div className={styles.characterItem}>
               <span className={styles.item}>{userLeaderboardData?.rank}</span>
               Leaderboard
