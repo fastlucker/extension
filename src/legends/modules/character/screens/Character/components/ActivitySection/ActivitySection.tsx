@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Tooltip } from 'react-tooltip'
 
 import { networks } from '@ambire-common/consts/networks'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
@@ -19,11 +20,11 @@ import styles from './ActivitySection.module.scss'
 import Pagination from './Pagination'
 
 const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
-  ethereum: <EthereumLogo />,
-  base: <BaseLogo />,
-  arbitrum: <ArbitrumLogo />,
-  optimism: <OptimismLogo />,
-  scroll: <ScrollLogo />
+  ethereum: <EthereumLogo width={24} height={24} />,
+  base: <BaseLogo width={24} height={24} />,
+  arbitrum: <ArbitrumLogo width={24} height={24} />,
+  optimism: <OptimismLogo width={24} height={24} />,
+  scroll: <ScrollLogo width={24} height={24} />
 }
 
 const ActivitySection = () => {
@@ -80,17 +81,33 @@ const ActivitySection = () => {
                       new Date(act.submittedAt).toLocaleString()
                     )}
                   </td>
-                  <td>{NETWORK_ICONS[act.network]}</td>
+                  <td>
+                    {NETWORK_ICONS[act.network]}
+                    <span className={styles.network}>{act.network}</span>
+                  </td>
                   <td>
                     <span className={styles.xp}>{act.legends.totalXp}</span>
-                    <CoinIcon width={32} height={32} className={styles.coin} />
+                    <CoinIcon width={24} height={24} className={styles.coin} />
                   </td>
                   <td className={styles.legendsWrapper}>
-                    {act.legends.activities?.map((legendActivity) => (
-                      <div className={styles.badge} key={legendActivity.action + legendActivity.xp}>
-                        <SwordIcon width={32} height={32} className={styles.sword} />
-                        {legendActivity.cardTitle} (+{legendActivity.xp} XP)
-                      </div>
+                    {act.legends.activities?.map((legendActivity, i) => (
+                      <>
+                        <div
+                          className={styles.badge}
+                          key={legendActivity.action + legendActivity.xp}
+                          data-tooltip-id={`tooltip-${act.txId}-${i}`}
+                        >
+                          <SwordIcon width={24} height={24} className={styles.sword} />
+                          {legendActivity.cardTitle} (+{legendActivity.xp} XP)
+                        </div>
+                        <Tooltip
+                          id={`tooltip-${act.txId}-${i}`}
+                          place="top"
+                          className={styles.tooltip}
+                        >
+                          {legendActivity.labelText}
+                        </Tooltip>
+                      </>
                     ))}
                   </td>
                 </tr>
