@@ -11,6 +11,12 @@ import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { SELECTORS } from '../common/selectors/selectors.ts'
 
+// TODO: Refactor this test so:
+// 1. Network requests are detected even before the extension is loaded,
+// similar to the stability test.
+// 2. monitorRequests doesn't categorize requests using includes, but
+// rather with a more sophisticated method as a bad actor could easily
+// bypass the current categorization.
 describe('Monitor network requests and make sure only necessary requests are made', () => {
   let browser
   let page
@@ -48,7 +54,6 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(batchedErc20TokenPriceRequests.length).toBe(0)
 
     expect(hintsRequests.length).toBe(networks.length)
-
     expect(rpcRequests.length).toBeLessThanOrEqual(20)
     expect(uncategorizedRequests.length).toBe(0)
   })

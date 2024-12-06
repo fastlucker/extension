@@ -1,30 +1,28 @@
-import React, { FC } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
 
-interface Props {
-  filterByNetworkId: string | null
-}
-
-const AllNetworksOption: FC<Props> = ({ filterByNetworkId }) => {
+const AllNetworksOption = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { state } = useRoute()
   const { theme, styles } = useTheme(getStyles)
-  const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
+  const { portfolio: selectedAccountPortfolio, dashboardNetworkFilter } =
+    useSelectedAccountControllerState()
+  const { dispatch } = useBackgroundService()
+
   const [bindAnim, animStyle] = useMultiHover({
     values: [
       {
@@ -38,17 +36,17 @@ const AllNetworksOption: FC<Props> = ({ filterByNetworkId }) => {
         to: theme.secondaryBorder
       }
     ],
-    forceHoveredStyle: !filterByNetworkId
+    forceHoveredStyle: !dashboardNetworkFilter
   })
 
   return (
     <AnimatedPressable
       onPress={() => {
-        navigate(`${WEB_ROUTES.dashboard}${state.prevTab ? `?${state.prevTab}` : ''}`, {
-          state: {
-            filterByNetworkId: null
-          }
+        dispatch({
+          type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER',
+          params: { dashboardNetworkFilter: null }
         })
+        navigate(WEB_ROUTES.dashboard)
       }}
       style={[styles.network, styles.noKebabNetwork, animStyle]}
       {...bindAnim}
@@ -68,7 +66,7 @@ const AllNetworksOption: FC<Props> = ({ filterByNetworkId }) => {
           {t('All Networks')}
         </Text>
       </View>
-      <Text fontSize={!filterByNetworkId ? 20 : 16} weight="semiBold">
+      <Text fontSize={!dashboardNetworkFilter ? 20 : 16} weight="semiBold">
         {`$${formatDecimals(Number(selectedAccountPortfolio?.totalBalance || 0))}` || '$-'}
       </Text>
     </AnimatedPressable>

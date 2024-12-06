@@ -12,9 +12,10 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
+import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
-import { PortMessenger } from '@web/extension-services/messengers'
+import { Port, PortMessenger } from '@web/extension-services/messengers'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
@@ -27,25 +28,36 @@ export const handleActions = async (
   action: Action,
   {
     pm,
+    port,
     mainCtrl,
     ledgerCtrl,
     trezorCtrl,
     latticeCtrl,
     walletStateCtrl,
-    autoLockCtrl
+    autoLockCtrl,
+    extensionUpdateCtrl
   }: {
     pm: PortMessenger
+    port: Port
     mainCtrl: MainController
     ledgerCtrl: LedgerController
     trezorCtrl: TrezorController
     latticeCtrl: LatticeController
     walletStateCtrl: WalletStateController
     autoLockCtrl: AutoLockController
+    extensionUpdateCtrl: ExtensionUpdateController
   }
 ) => {
   // @ts-ignore
   const { type, params } = action
   switch (type) {
+    case 'UPDATE_PORT_URL': {
+      if (port.sender) {
+        port.sender.url = params.url
+        if (port.sender.tab) port.sender.tab.url = params.url
+      }
+      break
+    }
     case 'INIT_CONTROLLER_STATE': {
       if (params.controller === ('main' as any)) {
         const mainCtrlState: any = { ...mainCtrl.toJSON() }
@@ -60,6 +72,8 @@ export const handleActions = async (
         pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
       } else if (params.controller === ('autoLock' as any)) {
         pm.send('> ui', { method: 'autoLock', params: autoLockCtrl })
+      } else if (params.controller === ('extensionUpdate' as any)) {
+        pm.send('> ui', { method: 'extensionUpdate', params: extensionUpdateCtrl })
       } else {
         pm.send('> ui', {
           method: params.controller,
@@ -294,16 +308,22 @@ export const handleActions = async (
       mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
       return await mainCtrl.handleSignMessage()
     }
-    case 'MAIN_CONTROLLER_ACTIVITY_INIT':
-      return mainCtrl.activity.init(params?.filters)
-    case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
-      return mainCtrl.activity.setFilters(params.filters)
-    case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
-      return mainCtrl.activity.setAccountsOpsPagination(params.pagination)
-    case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION':
-      return mainCtrl.activity.setSignedMessagesPagination(params.pagination)
-    case 'MAIN_CONTROLLER_ACTIVITY_RESET':
-      return mainCtrl.activity.reset()
+    case 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS':
+      return mainCtrl.activity.filterAccountsOps(
+        params.sessionId,
+        params.filters,
+        params.pagination
+      )
+    case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_FILTERS':
+      return mainCtrl.activity.filterSignedMessages(
+        params.sessionId,
+        params.filters,
+        params.pagination
+      )
+    case 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS':
+      return mainCtrl.activity.resetAccountsOpsFilters(params.sessionId)
+    case 'MAIN_CONTROLLER_ACTIVITY_RESET_SIGNED_MESSAGES_FILTERS':
+      return mainCtrl.activity.resetSignedMessagesFilters(params.sessionId)
     case 'ACTIVITY_CONTROLLER_HIDE_BANNER':
       return await mainCtrl.activity.hideBanner(params)
 
@@ -319,6 +339,11 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
 
+    case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
+      mainCtrl.selectedAccount.setDashboardNetworkFilter(params.dashboardNetworkFilter)
+      break
+    }
+
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
       return await mainCtrl.swapAndBridge.initForm(params.sessionId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
@@ -327,6 +352,8 @@ export const handleActions = async (
       return mainCtrl.swapAndBridge.updateForm(params)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
       return await mainCtrl.swapAndBridge.switchFromAndToTokens()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS':
+      return await mainCtrl.swapAndBridge.addToTokenByAddress(params.address)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return mainCtrl.swapAndBridge.selectRoute(params.route)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
@@ -570,6 +597,10 @@ export const handleActions = async (
     case 'DAPP_CONTROLLER_REMOVE_DAPP': {
       mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       return mainCtrl.dapps.removeDapp(params)
+    }
+    case 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE': {
+      extensionUpdateCtrl.applyUpdate()
+      break
     }
 
     default:

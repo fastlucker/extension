@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -15,6 +14,7 @@ import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import Option from '../Option'
 import getStyles from './styles'
@@ -22,22 +22,18 @@ import getStyles from './styles'
 interface Props {
   sheetRef: ReturnType<typeof useModalize>['ref']
   closeBottomSheet: () => void
-  selectedNetworkId: NetworkId | null
+
   openBlockExplorer: (url?: string) => void
 }
 
-const NetworkBottomSheet = ({
-  sheetRef,
-  closeBottomSheet,
-  selectedNetworkId,
-  openBlockExplorer
-}: Props) => {
+const NetworkBottomSheet = ({ sheetRef, closeBottomSheet, openBlockExplorer }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
-  const networkData = networks.find((network) => network.id === selectedNetworkId)
+  const { dashboardNetworkFilter } = useSelectedAccountControllerState()
+  const networkData = networks.find((network) => network.id === dashboardNetworkFilter)
 
   return (
     <BottomSheet
@@ -46,7 +42,7 @@ const NetworkBottomSheet = ({
       closeBottomSheet={closeBottomSheet}
     >
       <View style={[styles.item, spacings.pvSm, spacings.mb3Xl]}>
-        {!!selectedNetworkId && <NetworkIcon size={32} id={selectedNetworkId} />}
+        {!!dashboardNetworkFilter && <NetworkIcon size={32} id={dashboardNetworkFilter} />}
         <Text fontSize={16} weight="medium" style={spacings.mlMi}>
           {networkData?.name || t('Unknown Network')}
         </Text>
@@ -56,7 +52,7 @@ const NetworkBottomSheet = ({
         title={t('Go to Network Settings')}
         onPress={() => {
           try {
-            navigate(`${WEB_ROUTES.networksSettings}?networkId=${selectedNetworkId}`)
+            navigate(`${WEB_ROUTES.networksSettings}?networkId=${dashboardNetworkFilter}`)
           } catch {
             addToast(t('Failed to open network settings.'), { type: 'error' })
           }

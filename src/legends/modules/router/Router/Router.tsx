@@ -2,11 +2,12 @@ import React, { FC, ReactNode } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 
 import { DomainsContextProvider } from '@common/contexts/domainsContext'
+import ErrorPage from '@legends/components/ErrorPage'
 import PrivateRoute from '@legends/components/PrivateRoute'
-import { ActivityContextProvider } from '@legends/contexts/activityContext'
 import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
 import { LegendsContextProvider } from '@legends/contexts/legendsContext'
 import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
+import { RecentActivityContextProvider } from '@legends/contexts/recentActivityContext'
 import Character from '@legends/modules/character/screens/Character'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
 import Leaderboard from '@legends/modules/leaderboard/screens/Leaderboard'
@@ -29,44 +30,49 @@ import { LEGENDS_ROUTES } from '../constants'
 //              -> child Route.
 const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => (
   <LeaderboardContextProvider>
-    <ActivityContextProvider>
+    <RecentActivityContextProvider>
       <LegendsContextProvider>
         <PortfolioControllerStateProvider>
           <DomainsContextProvider>{children}</DomainsContextProvider>
         </PortfolioControllerStateProvider>
       </LegendsContextProvider>
-    </ActivityContextProvider>
+    </RecentActivityContextProvider>
   </LeaderboardContextProvider>
 )
 
 const router = createHashRouter([
   {
-    path: LEGENDS_ROUTES.welcome,
-    element: <Welcome />,
-    index: true
-  },
-  {
-    path: LEGENDS_ROUTES.characterSelect,
-    element: <CharacterSelect />
-  },
-  {
-    element: (
-      <PrivateArea>
-        <PrivateRoute />
-      </PrivateArea>
-    ),
+    errorElement: <ErrorPage />,
     children: [
       {
-        path: LEGENDS_ROUTES.legends,
-        element: <Legends />
+        path: LEGENDS_ROUTES.welcome,
+        element: <Welcome />,
+        index: true
       },
       {
-        path: LEGENDS_ROUTES.leaderboard,
-        element: <Leaderboard />
+        path: LEGENDS_ROUTES.characterSelect,
+        element: <CharacterSelect />
       },
       {
-        path: LEGENDS_ROUTES.character,
-        element: <Character />
+        element: (
+          <PrivateArea>
+            <PrivateRoute />
+          </PrivateArea>
+        ),
+        children: [
+          {
+            path: LEGENDS_ROUTES.legends,
+            element: <Legends />
+          },
+          {
+            path: LEGENDS_ROUTES.leaderboard,
+            element: <Leaderboard />
+          },
+          {
+            path: LEGENDS_ROUTES.character,
+            element: <Character />
+          }
+        ]
       }
     ]
   }

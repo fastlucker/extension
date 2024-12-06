@@ -116,7 +116,7 @@ const PrivateKeyImportScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Import your private key')}>
+        <Panel title={t('Enter your private key')}>
           <Controller
             control={control}
             rules={{ validate: (value) => handleValidation(value), required: true }}
@@ -143,8 +143,8 @@ const PrivateKeyImportScreen = () => {
             }}
           />
           <Alert
-            title="No smart accounts"
-            text="Private keys are for Basic Accounts. To start using Smart Accounts, please create/import a seed or connect a hardware wallet"
+            title="Basic Accounts (EOAs) only"
+            text="You can import only Basic Accounts (EOAs) with private keys. To import Smart Accounts, you must create or import a seed phrase or connect a hardware wallet."
             type="warning"
           />
         </Panel>

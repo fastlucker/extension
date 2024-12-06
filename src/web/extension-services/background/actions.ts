@@ -22,6 +22,11 @@ import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
+type UpdateNavigationUrl = {
+  type: 'UPDATE_PORT_URL'
+  params: { url: string }
+}
+
 type InitControllerStateAction = {
   type: 'INIT_CONTROLLER_STATE'
   params: {
@@ -121,6 +126,7 @@ type SettingsControllerSetNetworkToAddOrUpdate = {
   params: {
     chainId: Network['chainId']
     rpcUrl: string
+    force4337?: boolean
   }
 }
 
@@ -184,6 +190,10 @@ type MainControllerResolveAccountOpAction = {
   type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
   params: { data: any; actionId: AccountOpAction['id'] }
 }
+type MainControllerResolveSwitchAccountRequest = {
+  type: 'MAIN_CONTROLLER_RESOLVE_SWITCH_ACCOUNT_REQUEST'
+  params: { actionId: AccountOpAction['id'] }
+}
 type MainControllerRejectAccountOpAction = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
   params: { err: string; actionId: AccountOpAction['id']; shouldOpenNextAction: boolean }
@@ -205,24 +215,21 @@ type MainControllerHandleSignMessage = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE'
   params: { keyAddr: Key['addr']; keyType: Key['type'] }
 }
-type MainControllerActivityInitAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params?: { filters?: Filters }
+type MainControllerActivitySetAccOpsFiltersAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS'
+  params: { filters: Filters; pagination?: Pagination; sessionId: string }
 }
-type MainControllerActivitySetFiltersAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
-  params: { filters: Filters }
+type MainControllerActivitySetSignedMessagesFiltersAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_FILTERS'
+  params: { filters: Filters; pagination?: Pagination; sessionId: string }
 }
-type MainControllerActivitySetAccountOpsPaginationAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION'
-  params: { pagination: Pagination }
+type MainControllerActivityResetAccOpsAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS'
+  params: { sessionId: string }
 }
-type MainControllerActivitySetSignedMessagesPaginationAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION'
-  params: { pagination: Pagination }
-}
-type MainControllerActivityResetAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
+type MainControllerActivityResetSignedMessagesAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_RESET_SIGNED_MESSAGES_FILTERS'
+  params: { sessionId: string }
 }
 type MainControllerActivityHideBanner = {
   type: 'ACTIVITY_CONTROLLER_HIDE_BANNER'
@@ -231,6 +238,11 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+}
+
+type SelectedAccountSetDashboardNetworkFilter = {
+  type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
+  params: { dashboardNetworkFilter: NetworkId | null }
 }
 
 type PortfolioControllerGetTemporaryToken = {
@@ -417,6 +429,10 @@ type SwapAndBridgeControllerUpdateFormAction = {
     routePriority?: 'output' | 'time'
   }
 }
+type SwapAndBridgeControllerAddToTokenByAddress = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS'
+  params: { address: string }
+}
 type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
 }
@@ -536,7 +552,12 @@ type ImportSmartAccountJson = {
   params: { readyToAddAccount: Account; keys: ReadyToAddKeys['internal'] }
 }
 
+type ExtensionUpdateControllerApplyUpdate = {
+  type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
+}
+
 export type Action =
+  | UpdateNavigationUrl
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
   | MainControllerAccountAdderInitTrezorAction
@@ -570,14 +591,14 @@ export type Action =
   | MainControllerRejectUserRequestAction
   | MainControllerResolveAccountOpAction
   | MainControllerRejectAccountOpAction
+  | MainControllerResolveSwitchAccountRequest
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerHandleSignMessage
-  | MainControllerActivityInitAction
-  | MainControllerActivitySetFiltersAction
-  | MainControllerActivitySetAccountOpsPaginationAction
-  | MainControllerActivitySetSignedMessagesPaginationAction
-  | MainControllerActivityResetAction
+  | MainControllerActivitySetAccOpsFiltersAction
+  | MainControllerActivitySetSignedMessagesFiltersAction
+  | MainControllerActivityResetAccOpsAction
+  | MainControllerActivityResetSignedMessagesAction
   | MainControllerSignAccountOpInitAction
   | MainControllerSignAccountOpDestroyAction
   | MainControllerSignAccountOpUpdateMainDepsAction
@@ -585,6 +606,7 @@ export type Action =
   | MainControllerSignAccountOpUpdateAction
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
+  | SelectedAccountSetDashboardNetworkFilter
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences
@@ -612,6 +634,7 @@ export type Action =
   | SwapAndBridgeControllerInitAction
   | SwapAndBridgeControllerUnloadScreenAction
   | SwapAndBridgeControllerUpdateFormAction
+  | SwapAndBridgeControllerAddToTokenByAddress
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerSubmitFormAction
@@ -641,3 +664,4 @@ export type Action =
   | MainControllerActivityHideBanner
   | KeystoreControllerDeleteSavedSeed
   | KeystoreControllerMoveSeedFromTemp
+  | ExtensionUpdateControllerApplyUpdate

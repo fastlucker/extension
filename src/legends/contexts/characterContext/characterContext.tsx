@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { RELAYER_URL } from '@env'
+import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 
 type Character = {
@@ -17,7 +18,7 @@ type Character = {
 
 type CharacterContextValue = {
   character: Character | null
-  getCharacter: () => void
+  getCharacter: () => Promise<void>
   isLoading: boolean
   error: string | null
 }
@@ -27,7 +28,7 @@ const CharacterContext = createContext<CharacterContextValue>({} as CharacterCon
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
   const [character, setCharacter] = useState<Character | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   // In case of this error, a global <ErrorPage /> will be rendered in place of all other components,
   // as loading a character is crucial for playing in Legends.
   const [error, setError] = useState<string | null>(null)
@@ -89,7 +90,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   // However, when switching to another v2 account without a character, there may be a brief delay as the new character is fetched.
   // During this delay, child contexts could try to operate with the new `connectedAccount` but the previous `character`, which is incorrect.
   // This validation ensures `connectedAccount` and `character` are always in sync.
-  if (character && character.address !== connectedAccount) return null
+  if (character && character.address !== connectedAccount) return <Spinner isCentered />
 
   return <CharacterContext.Provider value={contextValue}>{children}</CharacterContext.Provider>
 }

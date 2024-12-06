@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { FlatListProps, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { Network } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
@@ -31,7 +31,7 @@ import Skeleton from './TokensSkeleton'
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
-  filterByNetworkId: NetworkId
+  sessionId: string
   tokenPreferences: CustomToken[]
   initTab?: {
     [key: string]: boolean
@@ -61,19 +61,12 @@ const calculateTokenBalance = (token: TokenResult) => {
 
 const { isPopup } = getUiType()
 
-const Tokens = ({
-  filterByNetworkId,
-  tokenPreferences,
-  openTab,
-  setOpenTab,
-  initTab,
-  onScroll
-}: Props) => {
+const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onScroll }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
+  const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',
     defaultValues: {
@@ -87,11 +80,11 @@ const Tokens = ({
     () =>
       (portfolio?.tokens || [])
         .filter((token) => {
-          if (!filterByNetworkId) return true
-          if (filterByNetworkId === 'rewards') return token.flags.rewardsType
-          if (filterByNetworkId === 'gasTank') return token.flags.onGasTank
+          if (!dashboardNetworkFilter) return true
+          if (dashboardNetworkFilter === 'rewards') return token.flags.rewardsType
+          if (dashboardNetworkFilter === 'gasTank') return token.flags.onGasTank
 
-          return token.networkId === filterByNetworkId && !token.flags.onGasTank
+          return token.networkId === dashboardNetworkFilter && !token.flags.onGasTank
         })
         .filter((token) => {
           if (!searchValue) return true
@@ -101,7 +94,7 @@ const Tokens = ({
 
           return doesAddressMatch || doesSymbolMatch
         }),
-    [portfolio?.tokens, filterByNetworkId, searchValue]
+    [portfolio?.tokens, dashboardNetworkFilter, searchValue]
   )
 
   const userHasNoBalance = useMemo(() => !tokens.some(hasAmount), [tokens])
@@ -186,7 +179,12 @@ const Tokens = ({
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+            <TabsAndSearch
+              openTab={openTab}
+              setOpenTab={setOpenTab}
+              searchControl={control}
+              sessionId={sessionId}
+            />
             <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
                 {t('ASSET/AMOUNT')}
@@ -211,8 +209,10 @@ const Tokens = ({
         return (
           <View style={[flexbox.alignCenter, spacings.pv]}>
             <Text fontSize={16} weight="medium">
-              {!searchValue && !filterByNetworkId && t("You don't have any tokens yet")}
-              {!searchValue && filterByNetworkId && t("You don't have any tokens on this network")}
+              {!searchValue && !dashboardNetworkFilter && t("You don't have any tokens yet")}
+              {!searchValue &&
+                dashboardNetworkFilter &&
+                t("You don't have any tokens on this network")}
               {searchValue && t('No tokens found')}
             </Text>
           </View>
@@ -263,9 +263,10 @@ const Tokens = ({
       control,
       t,
       searchValue,
-      filterByNetworkId,
+      dashboardNetworkFilter,
       portfolio?.isAllReady,
-      navigateToAddCustomToken
+      navigateToAddCustomToken,
+      sessionId
     ]
   )
 

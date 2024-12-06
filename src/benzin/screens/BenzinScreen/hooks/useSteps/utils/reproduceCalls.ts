@@ -17,6 +17,7 @@ import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getAddressVisualization, getLabel, getLink } from '@ambire-common/libs/humanizer/utils'
 import {
+  deployAndCallInterface,
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
   executeBatchInterface,
@@ -87,8 +88,8 @@ const getUnknownWalletExecuteBatch = (callData: string) => {
   return rawCalls.map(transformToAccOpCall)
 }
 
-export const decodeUserOp = (userOp: UserOperation): Call[] => {
-  const { callData, paymaster } = userOp
+export const decodeUserOp = (userOp: UserOperation): { calls: Call[]; from: string } => {
+  const { callData, paymaster, sender } = userOp
 
   const callDataSigHash = callData.slice(0, 10)
   const matcher = {
@@ -105,7 +106,7 @@ export const decodeUserOp = (userOp: UserOperation): Call[] => {
 
   if (isAddress(paymaster) && getAddress(paymaster) === AMBIRE_PAYMASTER)
     decodedCalls = decodedCalls.slice(0, -1)
-  return decodedCalls
+  return { calls: decodedCalls, from: sender }
 }
 
 export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
@@ -130,6 +131,11 @@ export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
       return calls.map((call: any) => transformToAccOpCall(call))
     },
     // v1
+    [deployAndCallInterface.getFunction('deployAndCall')!.selector]: (txData: string) => {
+      const data = deployAndCallInterface.decodeFunctionData('deployAndCall', txData)
+      return non4337Matcher[data[3].slice(0, 10)](data[3])
+    },
+    // v1
     [quickAccManagerSendInterface.getFunction('send')!.selector]: (txData: string) => {
       const data = quickAccManagerSendInterface.decodeFunctionData('send', txData)
       return data[3].map((call: any) => transformToAccOpCall(call))
@@ -151,15 +157,17 @@ export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
   }
 
   const sigHash = txn.data.slice(0, 10)
+  let calls = [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
+  let from
 
-  let parsedCalls = non4337Matcher[sigHash]
-    ? non4337Matcher[sigHash](txn.data)
-    : [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
+  if (non4337Matcher[sigHash]) {
+    calls = non4337Matcher[sigHash](txn.data)
+    if (txn.to) from = txn.to
+    if ([...RELAYER_EXECUTOR_ADDRESSES, ...STAGING_RELAYER_EXECUTOR_ADDRESSES].includes(txn.from))
+      calls = calls.slice(0, -1)
+  }
 
-  if ([...RELAYER_EXECUTOR_ADDRESSES, ...STAGING_RELAYER_EXECUTOR_ADDRESSES].includes(txn.from))
-    parsedCalls = parsedCalls.slice(0, -1)
-
-  return parsedCalls
+  return { calls, from }
 }
 
 export const entryPointTxnSplit: {

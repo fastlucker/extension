@@ -11,19 +11,35 @@ interface Props extends ToggleProps {
   toggleStyle?: React.CSSProperties
 }
 
-const Toggle: React.FC<Props> = ({ id, isOn, onToggle, label, labelProps, toggleStyle }) => {
+const Toggle: React.FC<Props> = ({
+  id,
+  isOn,
+  onToggle,
+  label,
+  labelProps,
+  toggleStyle,
+  disabled,
+  testID
+}) => {
   const handleOnToggle: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     onToggle(e.target.checked)
   }
 
   return (
-    <label className="toggle" htmlFor={id}>
+    <label
+      className="toggle"
+      htmlFor={id}
+      // @ts-ignore it exists for the React Native Web component
+      testID={testID}
+      style={{ opacity: disabled ? 0.4 : 1 }}
+    >
       <input
         className="toggle__input"
         type="checkbox"
         checked={isOn}
         id={id}
         onChange={handleOnToggle}
+        disabled={disabled}
       />
       <div className="toggle__fill" style={toggleStyle} />
       <Text fontSize={12} weight="medium" {...labelProps}>

@@ -21,7 +21,7 @@ export async function checkAccountDetails(
 
   // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
   // Note: This wait is required because there is a case that the account address is loading with some delay because of the UD/ENS resolving.
-  await wait(500)
+  await wait(1500)
 
   const addedAccounts = await page.$$eval(selector, (elements) =>
     elements.map((element) => element.innerText)
@@ -51,12 +51,7 @@ export async function finishStoriesAndSelectAccount(
 
   // Hide empty basic accounts
   if (hideEmptyBasicAccounts) {
-    await clickOnElement(
-      page,
-      'xpath///div[contains(text(), "Hide empty basic accounts")]',
-      true,
-      1500
-    )
+    await clickOnElement(page, '[testid="hide-empty-accounts-toggle"]', true, 1500)
   }
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
@@ -248,6 +243,8 @@ export async function importNewSAFromDefaultSeedAndPersonalizeIt(page, extension
   // Click on "Save and Continue" button
   await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
 
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
   await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 
   await page.waitForSelector(SELECTORS.account, { visible: true })
@@ -348,6 +345,8 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker, extensi
 
   // Click on "Save and Continue" button
   await clickOnElement(page, `${SELECTORS.saveAndContinueBtn}:not([disabled])`)
+
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
   await page.goto(`${extensionURL}${URL_ACCOUNT_SELECT}`, { waitUntil: 'load' })
 

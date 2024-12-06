@@ -77,7 +77,7 @@ const STEPS = [
     intro: (
       <Step
         title="Smart Account"
-        text="SA wallets include many security features such as account recovery and progressively upgraded security. In addition, you can pay for transactions in stablecoins, and do multiple actions in one transaction (transaction batching)."
+        text="Smart Accounts unlock the full potential of Ethereum and EVM networks, offering advanced features like paying gas fees in stablecoins, simulating transaction outcomes, and batching multiple actions into a single transaction."
         // WARNING: Don't use display badge tooltips, it will crash the extension because
         // there is no portal host in the intro.js context
         titleRightChildren={<Badge type="success" text="Smart Account" />}
@@ -90,7 +90,7 @@ const STEPS = [
     intro: (
       <Step
         title="Basic Account"
-        text="We use the term Basic Account to describe the EOAs (Externally Owned Accounts). Unlike Smart Accounts, which provides many functionalities, EOAs only give you basic ones."
+        text="We refer to EOAs (Externally Owned Accounts) as Basic Accounts. These native accounts on Ethereum and EVM networks offer limited functionality compared to Smart Accounts."
         // WARNING: Don't use display badge tooltips, it will crash the extension because
         // there is no portal host in the intro.js context
         titleRightChildren={<Badge type="warning" text="Basic Account" />}

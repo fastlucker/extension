@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { formatUnits, ZeroAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { View, ViewStyle } from 'react-native'
+import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
@@ -17,25 +17,52 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
 import formatDecimals from '@common/utils/formatDecimals'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
+import TransactionSummary, {
+  sizeMultiplier
+} from '@web/modules/sign-account-op/components/TransactionSummary/TransactionSummary'
 
+import NetworkBadge from '@common/components/NetworkBadge'
 import getStyles from './styles'
 import SubmittedOn from './SubmittedOn'
 
 interface Props {
   submittedAccountOp: SubmittedAccountOp
   style?: ViewStyle
+  showFee?: boolean
+  enableExpand?: boolean
+  showHeading?: boolean
+  showNetworkBadge?: boolean
+  blockExplorerAlignedRight?: boolean
+  size?: 'sm' | 'md' | 'lg'
 }
 
-const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
+const SubmittedTransactionSummary = ({
+  submittedAccountOp,
+  showFee = true,
+  enableExpand = true,
+  showHeading = true,
+  showNetworkBadge,
+  blockExplorerAlignedRight = false,
+  size = 'lg',
+  style
+}: Props) => {
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { networks } = useNetworksControllerState()
   const { t } = useTranslation()
+  const textSize = 14 * sizeMultiplier[size]
+  const iconSize = 26 * sizeMultiplier[size]
+  const footerHorizontalPadding = 28 * sizeMultiplier[size]
+  const footerVerticalPadding = SPACING_SM * sizeMultiplier[size]
+  const styleFooter = {
+    ...styles.footer,
+    paddingHorizontal: footerHorizontalPadding,
+    paddingVertical: footerVerticalPadding
+  }
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
 
@@ -85,7 +112,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     addToast
   ])
 
-  const handleOpenExplorer = useCallback(async () => {
+  const handleOpenBenzina = useCallback(async () => {
     const chainId = Number(network.chainId)
 
     if (!chainId || !submittedAccountOp.txnId) throw new Error('Invalid chainId or txnId')
@@ -103,12 +130,28 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     }
   }, [network.chainId, submittedAccountOp.txnId, submittedAccountOp.identifiedBy, addToast])
 
+  const handleOpenBlockExplorer = useCallback(async () => {
+    try {
+      await createTab(`${network.explorerUrl}/tx/${submittedAccountOp.txnId}`)
+    } catch (e: any) {
+      addToast(e?.message || 'Error opening block explorer', { type: 'error' })
+    }
+  }, [network.explorerUrl, submittedAccountOp.txnId, addToast])
+
   return calls.length ? (
-    <View style={[styles.container, style]}>
+    <View
+      style={[
+        styles.container,
+        style,
+        {
+          paddingTop: SPACING_SM * sizeMultiplier[size]
+        }
+      ]}
+    >
       {calls.map((call: IrCall, index) => (
         <TransactionSummary
           key={call.fromUserRequestId}
-          style={styles.summaryItem}
+          style={{ ...styles.summaryItem, marginBottom: SPACING_SM * sizeMultiplier[size] }}
           call={call}
           networkId={submittedAccountOp.networkId}
           rightIcon={
@@ -120,68 +163,121 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
               <OpenIcon />
             ) : null
           }
-          onRightIconPress={handleOpenExplorer}
+          onRightIconPress={handleOpenBenzina}
           isHistory
+          enableExpand={enableExpand}
+          size={size}
         />
       ))}
       {submittedAccountOp.status !== AccountOpStatus.Rejected &&
         submittedAccountOp.status !== AccountOpStatus.BroadcastButStuck &&
         submittedAccountOp.status !== AccountOpStatus.UnknownButPastNonce && (
-          <View style={styles.footer}>
+          <View style={styleFooter}>
             {submittedAccountOp.status === AccountOpStatus.Failure && (
               <View style={styles.footerItem}>
-                <Text fontSize={14} appearance="errorText" weight="semiBold">
+                <Text
+                  fontSize={textSize}
+                  appearance="errorText"
+                  weight="semiBold"
+                  style={spacings.mrTy}
+                >
                   {t('Failed')}
                 </Text>
               </View>
             )}
-            <View style={styles.footerItem}>
-              <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-                {t('Fee')}:{' '}
-              </Text>
-              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-                {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
-              </Text>
-            </View>
-            <SubmittedOn submittedAccountOp={submittedAccountOp} />
-            <View style={styles.footerItem}>
-              <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+            {showFee && (
+              <View style={styles.footerItem}>
+                <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
+                  {t('Fee')}:{' '}
+                </Text>
+                <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
+                  {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
+                </Text>
+              </View>
+            )}
+            <SubmittedOn
+              fontSize={textSize}
+              showHeading={showHeading}
+              submittedAccountOp={submittedAccountOp}
+            />
+            {showNetworkBadge && (
+              <NetworkBadge
+                networkId={network.id}
+                withOnPrefix
+                fontSize={textSize}
+                style={{ ...spacings.pv0, paddingLeft: 0 }}
+                iconSize={iconSize}
+              />
+            )}
+            <View
+              style={{ ...styles.footerItem, marginLeft: blockExplorerAlignedRight ? 'auto' : 0 }}
+            >
+              <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
                 {t('Block Explorer')}:{' '}
               </Text>
-              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy} selectable>
-                {new URL(network.explorerUrl).hostname}
-              </Text>
+              <TouchableOpacity onPress={handleOpenBlockExplorer}>
+                <Text fontSize={textSize} appearance="secondaryText" selectable underline>
+                  {new URL(network.explorerUrl).hostname}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
       {submittedAccountOp.status === AccountOpStatus.Rejected && (
-        <View style={styles.footer}>
+        <View style={styleFooter}>
           <View style={styles.footerItem}>
-            <Text fontSize={14} appearance="errorText" style={spacings.mrTy} weight="semiBold">
+            <Text
+              fontSize={textSize}
+              appearance="errorText"
+              style={spacings.mrTy}
+              weight="semiBold"
+            >
               Failed to send
             </Text>
           </View>
-          <SubmittedOn submittedAccountOp={submittedAccountOp} />
+          <SubmittedOn
+            fontSize={textSize}
+            showHeading={showHeading}
+            submittedAccountOp={submittedAccountOp}
+          />
         </View>
       )}
       {submittedAccountOp.status === AccountOpStatus.BroadcastButStuck && (
-        <View style={styles.footer}>
+        <View style={styleFooter}>
           <View style={styles.footerItem}>
-            <Text fontSize={14} appearance="errorText" style={spacings.mrTy} weight="semiBold">
+            <Text
+              fontSize={textSize}
+              appearance="errorText"
+              style={spacings.mrTy}
+              weight="semiBold"
+            >
               Dropped or stuck in mempool with fee too low
             </Text>
           </View>
-          <SubmittedOn submittedAccountOp={submittedAccountOp} />
+          <SubmittedOn
+            fontSize={textSize}
+            showHeading={showHeading}
+            submittedAccountOp={submittedAccountOp}
+          />
         </View>
       )}
       {submittedAccountOp.status === AccountOpStatus.UnknownButPastNonce && (
-        <View style={styles.footer}>
+        <View style={styleFooter}>
           <View style={styles.footerItem}>
-            <Text fontSize={14} appearance="errorText" style={spacings.mrTy} weight="semiBold">
+            <Text
+              fontSize={textSize}
+              appearance="errorText"
+              style={spacings.mrTy}
+              weight="semiBold"
+            >
               Replaced by fee (RBF)
             </Text>
           </View>
-          <SubmittedOn submittedAccountOp={submittedAccountOp} />
+          <SubmittedOn
+            fontSize={textSize}
+            showHeading={showHeading}
+            submittedAccountOp={submittedAccountOp}
+          />
         </View>
       )}
     </View>

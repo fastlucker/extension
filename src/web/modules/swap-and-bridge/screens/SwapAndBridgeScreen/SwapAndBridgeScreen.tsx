@@ -33,6 +33,7 @@ import RouteStepsPlaceholder from '@web/modules/swap-and-bridge/components/Route
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 import SettingsModal from '@web/modules/swap-and-bridge/components/SettingsModal'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
+import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
 import getStyles from './styles'
@@ -56,6 +57,7 @@ const SwapAndBridgeScreen = () => {
     handleSetToNetworkValue,
     toTokenOptions,
     toTokenValue,
+    handleAddToTokenByAddress,
     handleChangeToToken,
     handleSwitchFromAmountFieldMode,
     handleSetMaxFromAmount,
@@ -86,9 +88,10 @@ const SwapAndBridgeScreen = () => {
     validateFromAmount,
     isSwitchFromAndToTokensEnabled,
     isHealthy,
-    shouldEnableRoutesSelection
+    shouldEnableRoutesSelection,
+    statuses: swapAndBridgeCtrlStatuses
   } = useSwapAndBridgeControllerState()
-  const { statuses } = useMainControllerState()
+  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { portfolio } = useSelectedAccountControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
@@ -207,11 +210,12 @@ const SwapAndBridgeScreen = () => {
                     />
                   </View>
                   <Select
-                    setValue={({ value }) => handleChangeFromToken(value as string)}
+                    setValue={handleChangeFromToken}
                     options={fromTokenOptions}
                     value={fromTokenValue}
                     testID="from-token-select"
                     searchPlaceholder={t('Token name or address...')}
+                    emptyListPlaceholderText={t('No tokens found.')}
                     containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
@@ -282,14 +286,12 @@ const SwapAndBridgeScreen = () => {
                     value={getToNetworkSelectValue}
                     selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                   />
-                  <Select
-                    setValue={({ value }) => handleChangeToToken(value as string)}
-                    options={toTokenOptions}
-                    value={toTokenValue}
-                    testID="to-token-select"
-                    searchPlaceholder={t('Token name or address...')}
-                    containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
-                    selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+                  <ToTokenSelect
+                    toTokenOptions={toTokenOptions}
+                    toTokenValue={toTokenValue}
+                    handleChangeToToken={handleChangeToToken}
+                    addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
+                    handleAddToTokenByAddress={handleAddToTokenByAddress}
                   />
                 </View>
 
@@ -415,14 +417,14 @@ const SwapAndBridgeScreen = () => {
           <View style={spacings.ptTy}>
             <Button
               text={
-                statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
                   ? t('Building Transaction...')
                   : t('Proceed')
               }
               disabled={
                 formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
                 shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
-                statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
               }
               onPress={handleSubmitForm}
             />

@@ -3,10 +3,10 @@ name: Legends 👾
 on:
   push:
     branches:
-      - v2
+      - legends-prod
   pull_request:
     branches:
-      - v2
+      - legends-prod
 permissions:
   contents: write
 jobs:

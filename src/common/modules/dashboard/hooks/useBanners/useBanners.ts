@@ -7,6 +7,7 @@ import useDebounce from '@common/hooks/useDebounce'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useExtensionUpdateControllerState from '@web/hooks/useExtensionUpdateControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -32,15 +33,18 @@ export default function useBanners(): BannerInterface[] {
   const { isOffline } = useConnectivity()
   // Debounce offline status to prevent banner flickering
   const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
-  const { account, defiPositionsBanners, portfolioBanners } = useSelectedAccountControllerState()
+  const { account, defiPositionsBanners, portfolioBanners, deprecatedSmartAccountBanner } =
+    useSelectedAccountControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
   const { banners: keystoreBanners = [] } = useKeystoreControllerState()
+  const { extensionUpdateBanner } = useExtensionUpdateControllerState()
 
   const allBanners = useMemo(() => {
     return [
+      ...deprecatedSmartAccountBanner,
       ...state.banners,
       ...actionBanners,
       ...(debouncedIsOffline
@@ -48,7 +52,8 @@ export default function useBanners(): BannerInterface[] {
         : [...swapAndBridgeBanners, ...defiPositionsBanners, ...portfolioBanners]),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
-      ...keystoreBanners
+      ...keystoreBanners,
+      ...extensionUpdateBanner
     ]
   }, [
     state.banners,
@@ -60,7 +65,9 @@ export default function useBanners(): BannerInterface[] {
     account,
     activityBanners,
     emailVaultBanners,
-    keystoreBanners
+    keystoreBanners,
+    deprecatedSmartAccountBanner,
+    extensionUpdateBanner
   ])
 
   return allBanners

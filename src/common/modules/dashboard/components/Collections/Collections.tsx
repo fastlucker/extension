@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { Network } from '@ambire-common/interfaces/network'
 import CollectibleModal, { SelectedCollectible } from '@common/components/CollectibleModal'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -25,7 +25,7 @@ interface Props {
   initTab?: {
     [key: string]: boolean
   }
-  filterByNetworkId: NetworkId
+  sessionId: string
   onScroll: FlatListProps<any>['onScroll']
   networks: Network[]
 }
@@ -36,11 +36,11 @@ const Collections: FC<Props> = ({
   openTab,
   setOpenTab,
   initTab,
+  sessionId,
   onScroll,
-  filterByNetworkId,
   networks
 }) => {
-  const { portfolio } = useSelectedAccountControllerState()
+  const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -66,8 +66,8 @@ const Collections: FC<Props> = ({
         let isMatchingNetwork = true
         let isMatchingSearch = true
 
-        if (filterByNetworkId) {
-          isMatchingNetwork = networkId === filterByNetworkId
+        if (dashboardNetworkFilter) {
+          isMatchingNetwork = networkId === dashboardNetworkFilter
         }
 
         if (searchValue) {
@@ -78,7 +78,7 @@ const Collections: FC<Props> = ({
 
         return isMatchingNetwork && isMatchingSearch && collectibles.length
       }),
-    [portfolio?.collections, filterByNetworkId, searchValue]
+    [portfolio?.collections, dashboardNetworkFilter, searchValue]
   )
 
   const renderItem = useCallback(
@@ -86,7 +86,12 @@ const Collections: FC<Props> = ({
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+            <TabsAndSearch
+              openTab={openTab}
+              setOpenTab={setOpenTab}
+              searchControl={control}
+              sessionId={sessionId}
+            />
           </View>
         )
       }
@@ -94,9 +99,11 @@ const Collections: FC<Props> = ({
       if (item === 'empty') {
         return (
           <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
-            {!searchValue && !filterByNetworkId && t("You don't have any collectibles (NFTs) yet")}
             {!searchValue &&
-              filterByNetworkId &&
+              !dashboardNetworkFilter &&
+              t("You don't have any collectibles (NFTs) yet")}
+            {!searchValue &&
+              dashboardNetworkFilter &&
               t("You don't have any collectibles (NFTs) on this network")}
             {searchValue && t('No collectibles (NFTs) found')}
           </Text>
@@ -126,7 +133,7 @@ const Collections: FC<Props> = ({
     },
     [
       control,
-      filterByNetworkId,
+      dashboardNetworkFilter,
       filteredPortfolioCollections.length,
       initTab?.collectibles,
       networks,
@@ -135,7 +142,8 @@ const Collections: FC<Props> = ({
       searchValue,
       setOpenTab,
       t,
-      theme.primaryBackground
+      theme.primaryBackground,
+      sessionId
     ]
   )
 
