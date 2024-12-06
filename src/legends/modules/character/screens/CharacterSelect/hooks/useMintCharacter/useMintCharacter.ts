@@ -56,7 +56,7 @@ const useMintCharacter = () => {
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
   const { getCharacter, character } = useCharacterContext()
-  const { sendCalls, getCallsStatus } = useErc5792()
+  const { sendCalls, getCallsStatus, chainId } = useErc5792()
 
   const [isCheckingMintStatus, setIsCheckingMintStatus] = useState(true)
   const [isMinting, setIsMinting] = useState(false)
@@ -144,8 +144,6 @@ const useMintCharacter = () => {
 
   const mintCharacter = useCallback(
     async (type: number) => {
-      const chainId = '0x2105'
-
       // Switch to Base chain
       await window.ambire.request({
         method: 'wallet_switchEthereumChain',

@@ -10,7 +10,8 @@ const useErc5792 = () => {
   const sendCalls = async (
     chainId: string,
     accAddr: string,
-    calls: { to: string; data: string; value?: string }[]
+    calls: { to: string; data: string; value?: string }[],
+    useSponsorship = true
   ) => {
     const sendCallsIdentifier: any = await window.ambire.request({
       method: 'wallet_sendCalls',
@@ -20,13 +21,15 @@ const useErc5792 = () => {
           chainId,
           from: accAddr,
           calls,
-          capabilities: {
-            paymasterService: {
-              [chainId]: {
-                url: `${RELAYER_URL}/v2/sponsorship`
+          capabilities: useSponsorship
+            ? {
+                paymasterService: {
+                  [chainId]: {
+                    url: `${RELAYER_URL}/v2/sponsorship`
+                  }
+                }
               }
-            }
-          }
+            : undefined
         }
       ]
     })
@@ -72,7 +75,9 @@ const useErc5792 = () => {
 
   return {
     getCallsStatus,
-    sendCalls
+    sendCalls,
+    // the correct format for chainId when using erc5792
+    chainId: '0x2105'
   }
 }
 
