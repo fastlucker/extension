@@ -20,4 +20,5 @@ export type LegendActivity = {
   action: string
   xp: number
   cardTitle: string
+  labelText: string
 }
