@@ -1,10 +1,15 @@
 import React, { useState } from 'react'
 
+import ArbitrumLogo from '@common/assets/svg/ArbitrumLogo'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon/CoinIcon'
 import Crown from '@legends/common/assets/svg/CrownIcon/CrownIcon'
 import Diamond from '@legends/common/assets/svg/DiamondIcon/DiamondIcon'
 import Alert from '@legends/components/Alert'
 import Modal from '@legends/components/Modal'
+import BaseLogo from '@legends/components/NetworkIcons/BaseLogo'
+import EthereumLogo from '@legends/components/NetworkIcons/EthereumLogo'
+import OptimismLogo from '@legends/components/NetworkIcons/OptimismLogo'
+import ScrollLogo from '@legends/components/NetworkIcons/ScrollLogo'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -97,13 +102,22 @@ const CharacterSection = () => {
             </div>
           </div>
 
-          <div className={styles.characterItemWrapper}>
-            <Diamond className={styles.icon} width={64} height={64} />
-            <div className={styles.characterItem}>
-              <span className={styles.item}>
-                {isReady && amount ? amountFormatted : 'Loading...'}
-              </span>
-              Wallet Balance
+          <div className={styles.logoAndBalanceWrapper}>
+            <div className={styles.characterItemWrapper}>
+              <Diamond className={styles.icon} width={64} height={64} />
+              <div className={styles.characterItem}>
+                <span className={styles.item}>
+                  {isReady && amount ? amountFormatted : 'Loading...'}
+                </span>
+                Wallet Balance on{' '}
+                <div className={styles.logoWrapper}>
+                  <EthereumLogo width={32} height={32} />
+                  <BaseLogo width={32} height={32} />
+                  <ArbitrumLogo width={32} height={32} />
+                  <ScrollLogo width={32} height={32} />
+                  <OptimismLogo width={32} height={32} />
+                </div>
+              </div>
             </div>
           </div>
 

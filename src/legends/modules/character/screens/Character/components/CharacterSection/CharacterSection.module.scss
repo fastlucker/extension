@@ -32,6 +32,15 @@
   margin-bottom: 3rem;
   padding-top: 2rem;
 
+
+  .logoAndBalanceWrapper {
+    display: inline-block;
+  }
+  .logoWrapper {
+    display: flex;
+    justify-content: end;  
+  }
+
   .characterInfo {
 
     .characterNameWrapper {
