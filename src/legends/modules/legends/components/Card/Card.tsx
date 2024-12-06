@@ -12,6 +12,7 @@ import Counter from '@legends/modules/legends/components/Card/Counter'
 import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
 import CardActionComponent from './CardAction'
+import Flask from "@legends/modules/legends/components/Card/Flask";
 
 type Props = Pick<
   CardFromResponse,
@@ -25,7 +26,16 @@ const CARD_FREQUENCY: { [key in CardType]: string } = {
   [CardType.weekly]: 'Weekly'
 }
 
-const Card: FC<Props> = ({ title, image, description, flavor, xp, timesCollectedToday,  card, action }) => {
+const Card: FC<Props> = ({
+  title,
+  image,
+  description,
+  flavor,
+  xp,
+  timesCollectedToday,
+  card,
+  action
+}) => {
   const { activity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
 
@@ -80,24 +90,20 @@ const Card: FC<Props> = ({ title, image, description, flavor, xp, timesCollected
       )}
       {isCompleted ? (
         <div className={styles.completed}>
-          <span className={styles.completedText}>
-            Completed <br />
+          <Flask />
+          <div className={styles.completedText}>
+            Completed
             {action.predefinedId === 'wheelOfFortune' ? (
-              <span
+              <div
                 className={styles.completedTextAvailable}
-              >{`Available in ${hoursUntilMidnight} hours`}</span>
+              >{`Available in ${hoursUntilMidnight} hours`}</div>
             ) : null}
-          </span>
+          </div>
         </div>
       ) : null}
       <div className={styles.imageAndCounter}>
         <img src={image} alt={title} className={styles.image} />
-        <Counter
-          width={48}
-          height={48}
-          count={timesCollectedToday}
-          className={styles.counter}
-        />
+        <Counter width={48} height={48} count={timesCollectedToday} className={styles.counter} />
       </div>
       <div className={styles.contentAndAction}>
         <div className={styles.content}>
