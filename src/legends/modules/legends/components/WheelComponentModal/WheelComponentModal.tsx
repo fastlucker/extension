@@ -167,11 +167,17 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     }, 10000)
   }, [prizeNumber, wheelState])
 
+  const closeModal = () => {
+    setIsOpen(false)
+  }
+
   const onButtonClick = async () => {
     if (wheelState === 'locked') {
       await unlockWheel()
     } else if (wheelState === 'unlocked') {
       await spinWheel()
+    } else if (wheelState === 'spun' || wheelState === 'error') {
+      closeModal()
     }
   }
 
@@ -207,7 +213,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           {wheelState === 'spun' ? (
             <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
           ) : null}
-          <button type="button" onClick={() => setIsOpen(false)} className={styles.closeButton}>
+          <button type="button" onClick={closeModal} className={styles.closeButton}>
             <img src={CloseIcon} width="32" height="32" alt="Close" />
           </button>
           <h2 className={styles.title}>Wheel of Fortune</h2>
@@ -215,7 +221,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
           <img src={spinnerImage} alt="spinner" className={styles.spinner} ref={spinnerRef} />
           <img src={pointerImage} alt="pointer" className={styles.pointer} />
           <button
-            disabled={wheelState !== 'locked' && wheelState !== 'unlocked'}
+            disabled={wheelState === 'spinning' || wheelState === 'unlocking'}
             type="button"
             className={`${styles.spinButton} ${
               POST_UNLOCK_STATES.includes(wheelState) ? styles.unlocked : ''
