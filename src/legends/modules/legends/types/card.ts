@@ -19,7 +19,8 @@ export interface CardAction {
 export enum CardType {
   'oneTime',
   'daily',
-  'recurring'
+  'recurring',
+  'weekly'
 }
 
 export enum CardStatus {
@@ -48,4 +49,5 @@ export interface CardFromResponse {
     status: CardStatus
   }
   image: string
+  timesCollectedToday: number
 }

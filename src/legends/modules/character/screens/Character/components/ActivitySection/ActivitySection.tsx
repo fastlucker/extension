@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { Tooltip } from 'react-tooltip'
 
 import { networks } from '@ambire-common/consts/networks'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
@@ -12,6 +13,7 @@ import ScrollLogo from '@legends/components/NetworkIcons/ScrollLogo'
 import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useActivity from '@legends/hooks/useActivity'
+import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import { Networks } from '@legends/modules/legends/types'
 
 import SectionHeading from '../SectionHeading'
@@ -19,21 +21,40 @@ import styles from './ActivitySection.module.scss'
 import Pagination from './Pagination'
 
 const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
-  ethereum: <EthereumLogo />,
-  base: <BaseLogo />,
-  arbitrum: <ArbitrumLogo />,
-  optimism: <OptimismLogo />,
-  scroll: <ScrollLogo />
+  ethereum: <EthereumLogo width={24} height={24} />,
+  base: <BaseLogo width={24} height={24} />,
+  arbitrum: <ArbitrumLogo width={24} height={24} />,
+  optimism: <OptimismLogo width={24} height={24} />,
+  scroll: <ScrollLogo width={24} height={24} />
 }
 
 const ActivitySection = () => {
+  const { activity: recentActivity } = useRecentActivityContext()
   const { connectedAccount } = useAccountContext()
   const [page, setPage] = useState(0)
-  const { activity, isLoading, error } = useActivity({
+  const { activity, isLoading, error, getActivity } = useActivity({
     page,
     accountAddress: connectedAccount
   })
-  const { transactions } = activity || {}
+  const { transactions, totalTransactionCount } = activity || {}
+
+  useEffect(() => {
+    if (
+      page !== 0 ||
+      // If the user had 0 transactions before, !0 will be true
+      // so we need to check if totalTransactionCount is undefined
+      !recentActivity?.totalTransactionCount ||
+      typeof totalTransactionCount === 'undefined'
+    )
+      return
+
+    const isRecentActivityNewer = recentActivity?.totalTransactionCount > totalTransactionCount
+
+    if (isRecentActivityNewer) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      getActivity()
+    }
+  }, [getActivity, page, recentActivity?.totalTransactionCount, totalTransactionCount])
 
   return (
     <div className={styles.wrapper}>
@@ -80,17 +101,33 @@ const ActivitySection = () => {
                       new Date(act.submittedAt).toLocaleString()
                     )}
                   </td>
-                  <td>{NETWORK_ICONS[act.network]}</td>
+                  <td>
+                    {NETWORK_ICONS[act.network]}
+                    <span className={styles.network}>{act.network}</span>
+                  </td>
                   <td>
                     <span className={styles.xp}>{act.legends.totalXp}</span>
-                    <CoinIcon width={32} height={32} className={styles.coin} />
+                    <CoinIcon width={24} height={24} className={styles.coin} />
                   </td>
                   <td className={styles.legendsWrapper}>
-                    {act.legends.activities?.map((legendActivity) => (
-                      <div className={styles.badge} key={legendActivity.action + legendActivity.xp}>
-                        <SwordIcon width={32} height={32} className={styles.sword} />
-                        {legendActivity.cardTitle} (+{legendActivity.xp} XP)
-                      </div>
+                    {act.legends.activities?.map((legendActivity, i) => (
+                      <>
+                        <div
+                          className={styles.badge}
+                          key={legendActivity.action + legendActivity.xp}
+                          data-tooltip-id={`tooltip-${act.txId}-${i}`}
+                        >
+                          <SwordIcon width={24} height={24} className={styles.sword} />
+                          {legendActivity.cardTitle} (+{legendActivity.xp} XP)
+                        </div>
+                        <Tooltip
+                          id={`tooltip-${act.txId}-${i}`}
+                          place="top"
+                          className={styles.tooltip}
+                        >
+                          {legendActivity.labelText}
+                        </Tooltip>
+                      </>
                     ))}
                   </td>
                 </tr>

@@ -3,7 +3,7 @@ const WHEEL_PRIZE_DATA: {
 } = {
   300: [
     {
-      from: -349,
+      from: 11,
       to: -10
     }
   ],

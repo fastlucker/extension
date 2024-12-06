@@ -21,12 +21,12 @@ const SIDEBAR_STEPS = [
   },
   {
     id: 'write',
-    text: 'Write down and secure\nthe Seed Phrase',
+    text: 'Write down and secure\nthe seed phrase',
     icon: HiddenListIcon
   },
   {
     id: 'confirm',
-    text: 'Confirm your\nSeed Phrase',
+    text: 'Confirm your\nseed phrase',
     icon: CheckedListIcon
   }
 ]

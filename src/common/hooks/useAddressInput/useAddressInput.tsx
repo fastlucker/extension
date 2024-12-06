@@ -80,7 +80,7 @@ const useAddressInput = ({
           })
           .catch(() => {
             udAddress = ''
-            addToast('Something went wrong while resolving Unstoppable domainsⓇ domain.', {
+            addToast('Something went wrong while resolving Unstoppable domains® domain.', {
               type: 'error'
             })
           }),
@@ -101,7 +101,7 @@ const useAddressInput = ({
           })
           .catch(() => {
             ensAddress = ''
-            addToast('Something went wrong while resolving Ethereum Name ServicesⓇ domain.', {
+            addToast('Something went wrong while resolving Ethereum Name Services® domain.', {
               type: 'error'
             })
           })
