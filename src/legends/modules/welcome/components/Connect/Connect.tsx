@@ -18,7 +18,7 @@ const Connect = () => {
         <h2 className={styles.title}>Become a Legend</h2>
         <button type="button" className={styles.button}>
           <LinesDeco className={styles.topLinesDeco} />
-          <div className={styles.buttonInner}>Connect</div>
+          <div className={styles.buttonInner}>Connect Ambire</div>
           <LinesDeco className={styles.bottomLinesDeco} />
         </button>
       </div>

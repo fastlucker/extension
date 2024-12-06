@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord'
+import { faTelegram } from '@fortawesome/free-brands-svg-icons/faTelegram'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import glowingButton from '@legends/common/assets/images/glowing-button.png'
 import RhombusDeco from '@legends/common/assets/svg/RhombusDeco'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -8,6 +11,7 @@ import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import backgroundSm from './assets/background-sm.png'
 import backgroundXlImage from './assets/background-xl.png'
+import inviteImage from './assets/invite.png'
 import styles from './Hero.module.scss'
 
 const Hero = () => {
@@ -56,6 +60,29 @@ const Hero = () => {
         <h1 className={styles.title}>
           Experience the Power of Smart Accounts With an Epic Onchain Adventure
         </h1>
+        <div className={styles.invitation}>
+          <img src={inviteImage} alt="Invite" className={styles.invitationImage} />
+          <div className={styles.invitationMenu}>
+            <a
+              href="https://www.ambire.com/discord"
+              target="_blank"
+              rel="noreferrer"
+              className={styles.menuSocial}
+            >
+              <FontAwesomeIcon className={styles.socialIcon} icon={faDiscord} />
+              <span className={styles.socialName}>Discord</span>
+            </a>
+            <a
+              href="https://t.me/AmbireOfficial"
+              target="_blank"
+              rel="noreferrer"
+              className={styles.menuSocial}
+            >
+              <FontAwesomeIcon className={styles.socialIcon} icon={faTelegram} />
+              <span className={styles.socialName}>Telegram</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )

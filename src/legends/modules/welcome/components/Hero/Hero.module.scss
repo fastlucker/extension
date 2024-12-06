@@ -6,8 +6,9 @@
   display: flex;
   align-items: end;
   justify-content: flex-end;
-  padding-right: 5rem;
-  padding-bottom: 12.5rem;
+  padding-top: 10vh;
+  padding-right: 5vh;
+  padding-bottom: 0.75rem;
   min-height: 100vh;
 
   .background {
@@ -34,14 +35,14 @@
     width: 100%;
 
     .logo {
-      width: 23.75rem;
+      width: 37vh;
       height: auto;
-      margin-bottom: 2rem;
+      margin-bottom: 4vh;
     }
     .button {
-      margin-bottom: 1.5rem;
-      width: 23.6875rem;
-      height: 11.4375rem;
+      margin-bottom: 1.5vh;
+      width: 35.53125vh; // 50% larger
+      height: 17.15625vh; // 50% larger
       background-size: contain;
       display: flex;
       align-items: center;
@@ -51,42 +52,86 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 0.125rem solid #374d26;
-        box-shadow: 0 0.25rem #374d26;
+        border: 0.1875vh solid #374d26;
+        box-shadow: 0 0.375vh #374d26;
         background-color: $primaryBackground;
-        border-radius: 0.5rem;
+        border-radius: 0.75vh;
         color: #374d26;
         text-transform: none;
-        font-size: 1.25rem;
-        width: 20.5rem;
-        height: 3.75rem;
+        font-size: 1.875vh;
+        width: 30.75vh;
+        height: 5.625vh;
         position: relative;
-        margin-bottom: 1rem;
+        margin-bottom: 1.25vh;
 
         .leftDeco,
         .rightDeco {
-          width: 1.0625rem;
+          width: 1.59375vh;
           height: auto;
           position: absolute;
           top: 50%;
           transform: translateY(-50%);
         }
         .leftDeco {
-          left: -0.0625rem;
+          left: -0.09375vh;
         }
         .rightDeco {
-          right: -0.0625rem;
+          right: -0.09375vh;
           transform: rotate(180deg) translateY(50%);
         }
       }
     }
     .title {
-      font-size: 2.25rem;
-      line-height: 2.5rem;
+      font-size: 3.5vh;
+      line-height: 4.5vh;
+      margin-bottom: 2vh;
       text-align: center;
       color: $primaryBackground;
       font-weight: 700;
       text-shadow: 0 0.25rem #372f23; // TODO
+    }
+    .invitation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .invitationImage {
+        width: 20vh;
+        height: auto;
+      }
+
+      .invitationMenu {
+        position: relative;
+        transform: translateY(-2vh);
+        background-color: $primaryBackground;
+        border: 0.25vh solid #374d26;
+        border-radius: 1vh;
+        padding: 1.6vh;
+        display: flex;
+        flex-direction: column;
+        gap: 1vh;
+        min-width: 16vh;
+
+        .menuSocial {
+          display: flex;
+          align-items: center;
+          gap: 0.8vh;
+
+          .socialIcon,
+          .socialName {
+            color: $secondaryText;
+          }
+
+          .socialIcon {
+            width: 2vh;
+            height: 2vh;
+          }
+
+          .socialName {
+            font-size: 1.4vh;
+          }
+        }
+      }
     }
   }
 
@@ -95,9 +140,10 @@
   }
 
   @include on-mobile {
-    padding: 2rem;
-    align-items: flex-end;
-    padding-bottom: 12.5rem;
+    $image-size: 30vh;
+    padding: $image-size 2rem 0;
+    align-items: flex-start;
+    min-height: unset;
 
     &::before {
       content: '';
@@ -106,13 +152,17 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(180deg, transparent 0%, #120f0a 40vh, #120f0a 100%);
+      background: linear-gradient(180deg, transparent 0%, #120f0a $image-size, #120f0a 100%);
       z-index: 0;
     }
     .background {
-      height: 40vh;
+      height: $image-size;
       width: 100%;
       object-fit: cover;
+
+      img {
+        object-position: top left;
+      }
     }
     .content {
       position: relative;
@@ -129,6 +179,10 @@
       .title {
         font-size: 1.5rem;
         line-height: 2rem;
+      }
+      .invitation {
+        position: relative;
+        transform: translateY(2rem);
       }
     }
   }

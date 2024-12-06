@@ -42,6 +42,10 @@
         margin: 0.5rem 0;
         @include primary-button;
         color: #374d26;
+        text-transform: none;
+        font-size: 1.25rem;
+        height: 4rem;
+        font-weight: 500;
         border-color: #374d26;
         box-shadow: 0 0.1563rem #374d26;
       }
