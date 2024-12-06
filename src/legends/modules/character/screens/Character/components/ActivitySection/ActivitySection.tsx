@@ -118,14 +118,14 @@ const ActivitySection = () => {
                           data-tooltip-id={`tooltip-${act.txId}-${i}`}
                         >
                           <SwordIcon width={24} height={24} className={styles.sword} />
-                          {legendActivity.labelText} (+{legendActivity.xp} XP)
+                          {legendActivity.cardTitle} (+{legendActivity.xp} XP)
                         </div>
                         <Tooltip
                           id={`tooltip-${act.txId}-${i}`}
                           place="top"
                           className={styles.tooltip}
                         >
-                          {legendActivity.cardTitle}
+                          {legendActivity.labelText}
                         </Tooltip>
                       </>
                     ))}
