@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
@@ -12,6 +12,7 @@ import ScrollLogo from '@legends/components/NetworkIcons/ScrollLogo'
 import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useActivity from '@legends/hooks/useActivity'
+import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import { Networks } from '@legends/modules/legends/types'
 
 import SectionHeading from '../SectionHeading'
@@ -27,13 +28,32 @@ const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
 }
 
 const ActivitySection = () => {
+  const { activity: recentActivity } = useRecentActivityContext()
   const { connectedAccount } = useAccountContext()
   const [page, setPage] = useState(0)
-  const { activity, isLoading, error } = useActivity({
+  const { activity, isLoading, error, getActivity } = useActivity({
     page,
     accountAddress: connectedAccount
   })
-  const { transactions } = activity || {}
+  const { transactions, totalTransactionCount } = activity || {}
+
+  useEffect(() => {
+    if (
+      page !== 0 ||
+      // If the user had 0 transactions before, !0 will be true
+      // so we need to check if totalTransactionCount is undefined
+      !recentActivity?.totalTransactionCount ||
+      typeof totalTransactionCount === 'undefined'
+    )
+      return
+
+    const isRecentActivityNewer = recentActivity?.totalTransactionCount > totalTransactionCount
+
+    if (isRecentActivityNewer) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      getActivity()
+    }
+  }, [getActivity, page, recentActivity?.totalTransactionCount, totalTransactionCount])
 
   return (
     <div className={styles.wrapper}>
