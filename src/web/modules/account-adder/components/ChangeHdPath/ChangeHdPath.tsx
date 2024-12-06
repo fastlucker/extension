@@ -51,7 +51,7 @@ const ChangeHdPath: React.FC<Props> = () => {
         dataSet={{
           tooltipId: 'hd-path-tooltip',
           tooltipContent: t(
-            "If you don't see the accounts you expect, try changing the HD path to access different sets of addresses within this wallet."
+            "Your account(s) might be created using a different HD path. If you don't see the expected accounts, try switching the HD path to access other sets of addresses within this wallet."
           )
         }}
       />

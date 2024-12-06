@@ -5,7 +5,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 const ACCOUNT_ADDER_STEP = 'Select accounts\nto import'
 const DEVICE_PASSWORD_STEP = 'Set up a\ndevice password'
-const PERSONALIZE_STEP = 'Personalize\nyour accounts'
+const PERSONALIZE_STEP = 'Name\nyour accounts'
 
 export type StepperFlow =
   | 'email'
@@ -24,7 +24,7 @@ export const STEPPER_FLOWS = {
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   },
   hw: {
-    [WEB_ROUTES.hardwareWalletSelect]: 'Select your\nhardware device',
+    [WEB_ROUTES.hardwareWalletSelect]: 'Select your\nhardware wallet',
     [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   },

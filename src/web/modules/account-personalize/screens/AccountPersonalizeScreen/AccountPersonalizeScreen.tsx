@@ -114,7 +114,7 @@ const AccountPersonalizeScreen = () => {
               numberOfLines={1}
               style={[spacings.mrTy, flexbox.flex1]}
             >
-              {t('Personalize your accounts')}
+              {t('Name your accounts')}
             </Text>
 
             <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>

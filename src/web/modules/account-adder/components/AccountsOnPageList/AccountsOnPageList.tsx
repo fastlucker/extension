@@ -194,22 +194,22 @@ const AccountsOnPageList = ({
 
   const setTitle = useCallback(() => {
     if (keyType && keyType !== 'internal') {
-      return t('Import Accounts From {{ hwDeviceName }}', {
+      return t('Import accounts from {{ hwDeviceName }}', {
         hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
       })
     }
 
     if (subType === 'seed') {
       return accountAdderState.isInitializedWithSavedSeed
-        ? t('Import Accounts from Saved Seed Phrase')
-        : t('Import Accounts from Seed Phrase')
+        ? t('Import accounts from saved seed phrase')
+        : t('Import accounts from seed phrase')
     }
 
     if (subType === 'private-key') {
-      return t('Import Accounts from Private Key')
+      return t('Select account(s) to import')
     }
 
-    return t('Select Accounts To Import')
+    return t('Select accounts to import')
   }, [accountAdderState.isInitializedWithSavedSeed, keyType, subType, t])
 
   const networkNamesWithAccountStateError = useMemo(() => {
