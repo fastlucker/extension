@@ -10,42 +10,47 @@
 
   .completed {
     background-color: rgba(0, 0, 0, 0.5); // TODO: Use a variable
+    backdrop-filter: blur(0.1rem);
     position: absolute;
+    padding-top: 0.5rem;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    z-index: 5;
+    gap: 0.625rem;
+    z-index: 10;
     border-radius: $secondaryBorderRadius;
     user-select: none;
     text-align: center;
 
     .completedText {
-      font-size: 1.5rem;
+      font-size: 2rem;
+      line-height: 2.72rem;
       font-weight: 600;
       color: $alternativeText;
     }
 
     .completedTextAvailable {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
+      line-height: 1.7rem;
       font-weight: 500;
       color: $alternativeText;
     }
   }
 
 
-  .imageAndBadges {
+  .imageAndCounter {
     position: relative;
     width: 100%;
     height: 11.25rem;
 
-    .badges {
+    .counter {
       position: absolute;
-      left: 0.75rem;
-      top: 0.75rem;
+      right: 0.875rem;
+      top: 1rem;
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
@@ -98,6 +103,14 @@
           color: $secondaryText;
         }
       }
+      .rewardFrequency {
+        font-family: $primaryFont;
+        font-size: 1rem;
+        line-height: 1.375rem;
+        font-weight: bold;
+        color: $secondaryText;
+        margin-bottom: 0.5rem;
+      }
       .rewards {
         display: flex;
         justify-content: space-between;
@@ -106,14 +119,6 @@
         border-radius: $primaryBorderRadius;
         padding: 0.563rem 0.5rem;
         margin-bottom: 1.5rem;
-
-        .rewardType {
-          font-family: $primaryFont;
-          font-size: 1rem;
-          line-height: 1.375rem;
-          font-weight: bold;
-          color: $secondaryText;
-        }
       }
     }
   }
