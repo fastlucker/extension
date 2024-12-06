@@ -6,7 +6,7 @@ import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import { isWheelSpinTodayDone } from '@legends/modules/legends/components/WheelComponentModal/helpers'
-import { CardFromResponse, CardType } from '@legends/modules/legends/types'
+import { CardFromResponse, CardStatus } from '@legends/modules/legends/types'
 import { sortCards } from '@legends/modules/legends/utils'
 
 type LegendsContextType = {
@@ -32,7 +32,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const [legends, setLegends] = useState<CardFromResponse[]>([])
 
   const completedCount = useMemo(
-    () => legends.filter((card) => card.card.type === CardType.done).length,
+    () => legends.filter((card) => card.card.status === CardStatus.completed).length,
     [legends]
   )
 
@@ -69,6 +69,15 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
       getLegends(),
       getCharacter()
     ])
+    const hasActivityFailed = activityResult.status === 'rejected'
+    const hasLegendsFailed = legendsResult.status === 'rejected'
+    const hasCharacterFailed = characterResult.status === 'rejected'
+
+    // No need to bombard the user with three toast if the relayer is down
+    if (hasActivityFailed && hasLegendsFailed && hasCharacterFailed) {
+      addToast('An error occurred while completing the legend. Please try again later.', 'error')
+      return
+    }
 
     // Handle errors based on the index of each result
     if (activityResult.status === 'rejected') {

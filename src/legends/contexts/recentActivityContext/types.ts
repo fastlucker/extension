@@ -19,4 +19,5 @@ export type ActivityResponse = {
 export type LegendActivity = {
   action: string
   xp: number
+  cardTitle: string
 }

@@ -1,10 +1,11 @@
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { ActiveRoute, SocketAPIBridgeUserTx } from '@ambire-common/interfaces/swapAndBridge'
-import { getIsBridgeTxn, getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-import Button, { ButtonProps, Props } from '@common/components/Button'
+import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import CloseIcon from '@common/assets/svg/CloseIcon'
+import Button, { ButtonProps } from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -19,7 +20,7 @@ import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStep
 import getStyles from './styles'
 
 const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { statuses } = useMainControllerState()
@@ -85,15 +86,26 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
     t
   ])
 
-  return (
-    <Panel
-      forceContainerSmallSpacings
-      style={
-        activeRoute.routeStatus === 'completed'
-          ? { backgroundColor: '#edf6f1', ...spacings.mbTy }
-          : spacings.mbTy
+  const getPanelContainerStyle = useCallback(() => {
+    let panelStyles = {}
+    if (activeRoute.routeStatus === 'completed') panelStyles = { backgroundColor: '#edf6f1' }
+    if (activeRoute.error)
+      panelStyles = {
+        borderWidth: 1,
+        backgroundColor: theme.errorBackground,
+        borderColor: theme.errorDecorative
       }
-    >
+
+    return { ...panelStyles, ...spacings.mbTy }
+  }, [activeRoute.error, activeRoute.routeStatus, theme])
+
+  return (
+    <Panel forceContainerSmallSpacings style={getPanelContainerStyle()}>
+      {activeRoute.routeStatus === 'completed' && (
+        <Pressable style={styles.closeIcon} onPress={handleRejectActiveRoute}>
+          <CloseIcon />
+        </Pressable>
+      )}
       <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
         {activeRoute.routeStatus === 'completed' ? t('Completed Route') : t('Pending Route')}
       </Text>
@@ -161,7 +173,12 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
             </View>
           )}
           {!!activeRoute.error && (
-            <Text fontSize={12} weight="medium" style={spacings.mrTy} appearance="errorText">
+            <Text
+              fontSize={12}
+              weight="medium"
+              style={[spacings.mrTy, flexbox.flex1]}
+              appearance="errorText"
+            >
               {activeRoute.error}
             </Text>
           )}
@@ -170,21 +187,27 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
             onPress={handleRejectActiveRoute}
             type={rejectBtn.type}
             size="small"
-            style={{ height: 40, ...spacings.mrTy }}
+            style={
+              activeRoute.routeStatus !== 'failed'
+                ? { height: 40, ...spacings.mrTy }
+                : { height: 40 }
+            }
             hasBottomSpacing={false}
             disabled={statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'}
           />
-          <Button
-            text={proceedBtnText}
-            onPress={handleProceedToNextStep}
-            size="small"
-            style={{ height: 40 }}
-            hasBottomSpacing={false}
-            disabled={
-              activeRoute.routeStatus !== 'ready' ||
-              statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-            }
-          />
+          {activeRoute.routeStatus !== 'failed' && (
+            <Button
+              text={proceedBtnText}
+              onPress={handleProceedToNextStep}
+              size="small"
+              style={{ height: 40 }}
+              hasBottomSpacing={false}
+              disabled={
+                activeRoute.routeStatus !== 'ready' ||
+                statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+              }
+            />
+          )}
         </View>
       )}
     </Panel>

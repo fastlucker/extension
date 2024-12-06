@@ -5,4 +5,5 @@ export type ToggleProps = {
   label?: string
   style?: any
   disabled?: boolean
+  testID?: string
 }

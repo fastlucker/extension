@@ -390,6 +390,7 @@ const AccountsOnPageList = ({
                 onToggle={() => setHideEmptyAccounts((p) => !p)}
                 disabled={disableHideEmptyAccountsToggle}
                 label={t('Hide empty Basic Accounts')}
+                testID="hide-empty-accounts-toggle"
                 labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
                 style={flexbox.alignSelfStart}
               />
