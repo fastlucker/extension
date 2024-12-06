@@ -8,7 +8,6 @@ import cloneDeep from 'lodash/cloneDeep'
 import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappCommunication'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
@@ -114,22 +113,39 @@ export class ProviderController {
     return account
   }
 
-  getPortfolioBalance = async ({ session: { origin } }: DappProviderRequest) => {
-    if (
-      !this.mainCtrl.dapps.hasPermission(origin) ||
-      !this.isUnlocked ||
-      !this.mainCtrl.selectedAccount.account ||
-      !this.mainCtrl.selectedAccount.portfolio
-    ) {
-      return null
+  getPortfolioBalance = async ({
+    params: [chainParams],
+    session: { origin }
+  }: DappProviderRequest) => {
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    if (!this.mainCtrl.selectedAccount.account) {
+      throw new Error('wallet account not selected')
+    }
+
+    let totalBalance: number = 0
+
+    if (chainParams && chainParams.chainIds?.length) {
+      chainParams.chainIds.forEach((chainId: string) => {
+        const network = this.mainCtrl.networks.networks.find(
+          (n) => Number(n.chainId) === Number(chainId)
+        )
+        if (!network) return
+
+        const portfolioNetwork = this.mainCtrl.selectedAccount.portfolio.pending[network.id]
+        if (!portfolioNetwork) return
+
+        totalBalance += portfolioNetwork.result?.total.usd || 0
+      })
+    } else {
+      totalBalance = this.mainCtrl.selectedAccount.portfolio.totalBalance
     }
 
     return {
-      amount: this.mainCtrl.selectedAccount.portfolio.totalBalance,
-      amountFormatted: formatDecimals(
-        this.mainCtrl.selectedAccount.portfolio.totalBalance,
-        'price'
-      ),
+      amount: totalBalance,
+      amountFormatted: formatDecimals(totalBalance, 'price'),
       isReady: this.mainCtrl.selectedAccount.portfolio.isAllReady
     }
   }
