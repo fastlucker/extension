@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import ImportAccountsFromSeedPhraseIcon from '@common/assets/svg/ImportAccountsFromSeedPhraseIcon'
+import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -84,7 +85,7 @@ const PrivateKeyImportScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Save the imported seed')}>
+        <Panel title={t('Save your seed')}>
           <View style={[flexbox.directionRow]}>
             <ImportAccountsFromSeedPhraseIcon style={spacings.mrLg} color={iconColors.primary} />
             <View>
@@ -92,13 +93,14 @@ const PrivateKeyImportScreen = () => {
                 {t('Do you want to save the seed in the Ambire Wallet extension?')}
               </Text>
               <Text style={spacings.mbTy} appearance="secondaryText">
-                {t(
-                  'This will allow you to easily import more accounts from this Seed Phrase.\nAlso, you will be able to delete it anytime from settings'
+                {t('This will let you easily add more Basic (EOA) and Smart Accounts from it.')}
+              </Text>
+              <Alert
+                type="warning"
+                title={t(
+                  'Only one seed phase can be stored.\nYou can delete it anytime in the Security & Privacy settings\nwithout affecting the imported accounts.'
                 )}
-              </Text>
-              <Text appearance="secondaryText" weight="semiBold">
-                {t('You can save only one seed.')}
-              </Text>
+              />
             </View>
           </View>
           <View style={[flexbox.directionRow, spacings.mt2Xl]}>

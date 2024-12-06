@@ -122,7 +122,12 @@ const CreateSeedPhraseConfirmScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Confirm your Seed Phrase')}>
+        <Panel title={t('Confirm your seed phrase')}>
+          <Text appearance="infoText" fontSize={16} style={spacings.mbXl}>
+            {t(
+              'Enter each word into its corresponding field, following the order in your seed phrase'
+            )}
+          </Text>
           <View>
             {confirmationWords.map(({ word, numberInSeed }: any, index: number) => (
               <View key={word} style={[flexbox.directionRow, spacings.mb, { width: 280 }]}>

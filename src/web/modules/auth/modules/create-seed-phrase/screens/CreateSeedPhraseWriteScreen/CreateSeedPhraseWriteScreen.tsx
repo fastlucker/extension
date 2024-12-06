@@ -102,9 +102,9 @@ const CreateSeedPhraseWriteScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title="Recovery with Seed Phrase">
+        <Panel title="Secure your seed phrase">
           <Text appearance="infoText" fontSize={16} style={spacings.mbXl}>
-            {t('Write down and secure the Seed Phrase for your account')}
+            {t('Write down the seed phrase and store it in a safe place')}
           </Text>
           <View style={[flexbox.directionRow, flexbox.wrap]}>
             {(seed as string[]).map((word, index) => (
