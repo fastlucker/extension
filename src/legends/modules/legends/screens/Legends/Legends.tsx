@@ -40,6 +40,8 @@ const Legends = () => {
               card={card.card}
               action={card.action}
               timesCollectedToday={card.timesCollectedToday}
+              contentSteps={card.contentSteps}
+              contentImage={card.contentImage}
             />
           ))}
         </div>

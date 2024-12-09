@@ -18,11 +18,11 @@
 
   span,
   .iconWrapper {
-    color: $tertiaryText;
+    color: $secondaryText;
   }
 
-  &.active, &.activeExternal {
-    &:not(.activeExternal)::after {
+  &.active {
+    &::after {
       content: '';
       margin-left: 0.5rem;
       width: 3rem;

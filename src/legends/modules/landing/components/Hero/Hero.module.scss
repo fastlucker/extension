@@ -1,13 +1,19 @@
 @import '@legends/styles/base.scss';
 @import '@legends/modules/landing/styles/mixins.scss';
 
+@mixin hovered-menu {
+  pointer-events: all;
+  opacity: 1;
+  transform: translate(-50%, -40%) scale(1);
+}
+
 .wrapper {
   position: relative;
   width: 100%;
   display: flex;
   align-items: end;
   min-height: 100vh;
-  padding: 10vh 0;
+  padding: 8vh 0 12vh;
 
   .background {
     position: absolute;
@@ -51,25 +57,63 @@
       display: flex;
 
       .invitation {
-        padding-top: 1.25rem;
+        position: relative;
+        padding-top: 0.5rem;
         display: flex;
         flex-direction: column;
         align-items: center;
 
+        // if you can fix this in a more ethical way, please do so
+        // the problem is that when you click on the menu on mobile
+        // after it is open nothing happens, so you have to click
+        // outside of the menu to close it
+        @include breakpoint-from(large-tablet) {
+          &:hover {
+            .invitationMenu {
+              @include hovered-menu;
+            }
+          }
+        }
+        @include on-mobile {
+          &.open {
+            .invitationMenu {
+              @include hovered-menu;
+            }
+          }
+        }
+
+        .invitationButton {
+          transition: 0.15s transform ease;
+
+          &:hover {
+            opacity: 1;
+            transform: scale(1.05);
+          }
+        }
+
         .invitationImage {
           width: 28vh;
           height: auto;
+          cursor: pointer;
         }
 
         .invitationMenu {
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translate(-50%, -40%) scale(0.8);
+          transform-origin: top;
+          display: flex;
           background-color: $primaryBackground;
           border: 0.25vh solid $landingAccent;
           border-radius: 1vh;
-          display: flex;
-          padding: 1.6vh 0;
+          padding: 1.2vh 0;
           flex-direction: column;
           gap: 0.5vh;
-          width: 16vh;
+          width: 18vh;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.3s, transform 0.2s;
 
           .menuSocial {
             display: flex;
@@ -77,7 +121,7 @@
             height: 3.5vh;
             gap: 0.8vh;
             width: 100%;
-            padding: 0 1.6vh;
+            padding: 0.5vh 1.6vh;
 
             &:hover {
               background-color: $tertiaryBackground;
@@ -90,18 +134,18 @@
             }
 
             .socialIcon {
-              width: 2vh;
-              height: 2vh;
+              width: 2.2vh;
+              height: 2.2vh;
             }
 
             .socialName {
-              font-size: 1.4vh;
+              font-size: 1.8vh;
             }
           }
         }
       }
       .buttonAndDisclaimer {
-        margin-right: 2vh;
+        margin-right: 5vh;
 
         .button {
           position: relative;
@@ -127,6 +171,7 @@
             height: 5.625vh;
             position: relative;
             margin-bottom: 1.4vh;
+            text-transform: uppercase;
 
             .leftDeco,
             .rightDeco {
@@ -147,11 +192,9 @@
         }
 
         .disclaimer {
-          word-break: keep-all;
-          white-space: nowrap;
-          position: relative;
+          position: absolute;
           transform: translateY(-1.25vh);
-          font-size: 1.5vh;
+          font-size: 2vh;
           color: #a0f053;
           text-shadow: 0.0938rem solid $primaryText;
           text-align: left;
@@ -217,9 +260,8 @@
   }
 
   @include on-mobile {
-    $overlap: 1rem;
     $image-size: 30vh;
-    padding: $image-size 2rem 0;
+    padding: $image-size 2rem 10vh;
     align-items: flex-start;
     min-height: unset;
 
@@ -257,14 +299,39 @@
       }
 
       .title {
-        font-size: 1.5rem;
+        font-size: 1.85rem;
         line-height: 2rem;
         font-weight: 700;
-        margin-bottom: 0;
+        margin-bottom: 1rem;
       }
-      .invitation {
-        position: relative;
-        transform: translateY($overlap);
+      .actions {
+        .invitation {
+          position: relative;
+
+          &.open {
+            .invitationMenu {
+              transform: translate(-50%, -20%) scale(1);
+            }
+          }
+
+          .invitationMenu {
+            width: 15rem;
+            padding: 0.5rem 0;
+
+            .menuSocial {
+              padding: 0.75rem 1rem;
+              height: auto;
+
+              .socialIcon {
+                width: 1.5rem;
+                height: 1.5rem;
+              }
+              .socialName {
+                font-size: 1.25rem;
+              }
+            }
+          }
+        }
       }
     }
   }

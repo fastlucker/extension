@@ -93,7 +93,6 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           {NAVIGATION_LINKS.map((link) => (
             <Link
               isActive={pathname === link.to}
-              isExternalLink={link.isExternalLink}
               key={link.to}
               to={link.to}
               text={link.text}

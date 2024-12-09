@@ -9,14 +9,24 @@ import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends
 
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import Counter from '@legends/modules/legends/components/Card/Counter'
-import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
+import Flask from '@legends/modules/legends/components/Card/Flask'
+import HowTo from '@legends/modules/legends/components/Card/HowTo'
+import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
 import CardActionComponent from './CardAction'
-import Flask from "@legends/modules/legends/components/Card/Flask";
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'description' | 'flavor' | 'xp' | 'image' | 'card' | 'action' | 'timesCollectedToday'
+  | 'title'
+  | 'description'
+  | 'flavor'
+  | 'xp'
+  | 'image'
+  | 'card'
+  | 'action'
+  | 'timesCollectedToday'
+  | 'contentSteps'
+  | 'contentImage'
 >
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -34,7 +44,9 @@ const Card: FC<Props> = ({
   xp,
   timesCollectedToday,
   card,
-  action
+  action,
+  contentSteps,
+  contentImage
 }) => {
   const { activity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
@@ -79,6 +91,9 @@ const Card: FC<Props> = ({
           {xp && <Rewards xp={xp} size="lg" />}
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
+        {contentSteps && action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount && (
+          <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} />
+        )}
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}
           buttonText={buttonText}
