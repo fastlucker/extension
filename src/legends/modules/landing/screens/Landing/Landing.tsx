@@ -6,11 +6,10 @@ import Footer from '../../components/Footer'
 import Hero from '../../components/Hero'
 import HowToPlay from '../../components/HowToPlay'
 import MobileDisclaimerModal from '../../components/MobileDisclaimerModal'
-import styles from './Landing.module.scss'
 
 const Landing = () => {
   return (
-    <div className={styles.wrapper}>
+    <div>
       <MobileDisclaimerModal />
       <Hero />
       <HowToPlay />
