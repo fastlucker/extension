@@ -4,11 +4,10 @@ import { FlatList, Pressable, TextStyle, View } from 'react-native'
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
-import useElementSize from '@common/hooks/useElementSize'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import colors from '@common/styles/colors'
-import { SPACING_TY } from '@common/styles/spacings'
 import { Portal } from '@gorhom/portal'
 
 import getStyles from './styles'
@@ -23,9 +22,10 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
   const [visible, setVisible] = useState(false)
   const { styles } = useTheme(getStyles)
   const dropdownButtonRef = useRef(null)
-  const { x: dropdownButtonX, y: dropdownButtonY } = useElementSize(dropdownButtonRef)
   const { width: windowWidth } = useWindowSize()
   const modalRef: any = useRef(null)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const prevVisible = usePrevious(visible)
 
   // close menu on click outside
   useEffect(() => {
@@ -43,6 +43,15 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [visible])
+
+  useEffect(() => {
+    if (!prevVisible && !!visible) {
+      // @ts-ignore
+      DropdownButton.current.measure((fx, fy, w, h, px, py) => {
+        setPosition({ x: px, y: py })
+      })
+    }
+  }, [prevVisible, visible])
 
   const toggleDropdown = useCallback((): void => {
     setVisible((p) => !p)
@@ -83,8 +92,8 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
             style={[
               styles.dropdown,
               {
-                right: windowWidth - dropdownButtonX,
-                top: dropdownButtonY
+                right: windowWidth - position.x,
+                top: position.y
               }
             ]}
             ref={modalRef}
