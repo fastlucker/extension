@@ -154,7 +154,17 @@ const Estimation = ({
       payValue?.value === NO_FEE_OPTIONS.value && defaultFeeOption.value !== NO_FEE_OPTIONS.value
     const feeOptionNoLongerViable = payValue?.disabled !== defaultFeeOption.disabled
 
-    if (!isInitialValueSet || canPayFeeAfterNotBeingAbleToPayInitially || feeOptionNoLongerViable) {
+    if (
+      !isInitialValueSet ||
+      canPayFeeAfterNotBeingAbleToPayInitially ||
+      feeOptionNoLongerViable ||
+      (payValue &&
+        !payOptionsPaidByUsOrGasTank.find(
+          (payOption) =>
+            payOption.paidBy === payValue.paidBy &&
+            payOption.token.address === payValue.token?.address
+        ))
+    ) {
       setFeeOption(defaultFeeOption)
     }
   }, [
@@ -163,7 +173,8 @@ const Estimation = ({
     hasEstimation,
     defaultFeeOption.value,
     defaultFeeOption,
-    signAccountOpState?.account.addr
+    signAccountOpState?.account.addr,
+    payOptionsPaidByUsOrGasTank
   ])
 
   const feeSpeeds = useMemo(() => {
