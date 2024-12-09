@@ -1,11 +1,17 @@
-import React, { FC, ReactElement, useRef, useState } from 'react'
-import { FlatList, Modal, Pressable, TextStyle, TouchableOpacity, View } from 'react-native'
+import React, { FC, ReactElement, useCallback, useEffect, useRef, useState } from 'react'
+import { FlatList, Pressable, TextStyle, View } from 'react-native'
 
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
+import useElementSize from '@common/hooks/useElementSize'
+import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import colors from '@common/styles/colors'
+import { SPACING_TY } from '@common/styles/spacings'
+import { Portal } from '@gorhom/portal'
 
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props {
   data: Array<{ label: string; value: string; style?: TextStyle }>
@@ -15,36 +21,45 @@ interface Props {
 const Dropdown: FC<Props> = ({ data, onSelect }) => {
   const DropdownButton: any = useRef()
   const [visible, setVisible] = useState(false)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const { styles } = useTheme(getStyles)
+  const dropdownButtonRef = useRef(null)
+  const { x: dropdownButtonX, y: dropdownButtonY } = useElementSize(dropdownButtonRef)
+  const { width: windowWidth } = useWindowSize()
+  const modalRef: any = useRef(null)
 
-  const openDropdown = (): void => {
-    DropdownButton.current.measure((_fx, _fy, _w, h, _px, py) => {
-      setPosition({ x: _px - _w * 2, y: py + h })
-    })
-    setVisible(true)
-  }
+  // close menu on click outside
+  useEffect(() => {
+    if (!isWeb) return
+    function handleClickOutside(event: MouseEvent) {
+      if (!visible) return
 
-  const toggleDropdown = (): void => {
-    visible ? setVisible(false) : openDropdown()
-  }
+      if (modalRef.current && !modalRef.current?.contains(event.target)) {
+        setVisible(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      if (!isWeb) return
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [visible])
 
-  const onItemPress = (item: any): void => {
-    onSelect(item)
-    setVisible(false)
-  }
+  const toggleDropdown = useCallback((): void => {
+    setVisible((p) => !p)
+  }, [])
+
+  const onItemPress = useCallback(
+    (item: any): void => {
+      onSelect(item)
+      setVisible(false)
+    },
+    [onSelect]
+  )
 
   const renderItem = ({ item }: any): ReactElement<any, any> => (
     <Pressable onPress={() => onItemPress(item)}>
       {({ hovered }: any) => (
-        <View
-          style={[
-            styles.item,
-            hovered && {
-              borderRadius: 8,
-              backgroundColor: colors.titanWhite
-            }
-          ]}
-        >
+        <View style={[styles.item, hovered && { backgroundColor: colors.titanWhite }]}>
           <Text fontSize={14} shouldScale={false} style={item.style}>
             {item.label}
           </Text>
@@ -53,35 +68,37 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
     </Pressable>
   )
 
-  const renderDropdown = (): ReactElement<any, any> => {
-    return (
-      <Modal visible={visible && !!position.y} transparent animationType="none">
-        <TouchableOpacity style={styles.overlay} onPress={() => setVisible(false)}>
-          <View style={[styles.dropdown, { top: position.y, left: position.x }]}>
+  return (
+    <>
+      <View ref={dropdownButtonRef}>
+        <Pressable onPress={toggleDropdown} ref={DropdownButton}>
+          <View style={styles.button}>
+            <KebabMenuIcon />
+          </View>
+        </Pressable>
+      </View>
+      {!!visible && (
+        <Portal hostName="global">
+          <View
+            style={[
+              styles.dropdown,
+              {
+                right: windowWidth - dropdownButtonX,
+                top: dropdownButtonY
+              }
+            ]}
+            ref={modalRef}
+          >
             <FlatList
               data={data}
               renderItem={renderItem}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(_, index) => index.toString()}
             />
           </View>
-        </TouchableOpacity>
-      </Modal>
-    )
-  }
-  /**
-   * TODO:Currently this is implemented to open on click, but originally the design was for on hover.
-   * The problem was when we use onHoverOut for closing the Dropdown,
-   * the menu closes too quickly and flickers.
-   * Also it closes when you try to go to the menu and hover on some option
-   */
-  return (
-    <Pressable onPress={toggleDropdown} ref={DropdownButton}>
-      <View style={styles.button}>
-        <KebabMenuIcon />
-        {renderDropdown()}
-      </View>
-    </Pressable>
+        </Portal>
+      )}
+    </>
   )
 }
 
-export default Dropdown
+export default React.memo(Dropdown)
