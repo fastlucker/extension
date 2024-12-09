@@ -15,7 +15,8 @@
     gap: 3rem;
 
     .step {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
 
       .stepImage {
         width: 20rem;

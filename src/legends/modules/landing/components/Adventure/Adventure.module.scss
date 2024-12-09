@@ -30,7 +30,6 @@
       }
       .itemText {
         font-size: 1.25rem;
-        font-weight: 500;
       }
     }
   }
@@ -46,12 +45,6 @@
     .items {
       grid-template-columns: 1fr;
       gap: 2rem;
-
-      .item {
-        .itemText {
-          color: $tertiaryText;
-        }
-      }
     }
   }
 }
