@@ -6,9 +6,6 @@ import step2Image from './assets/step2.png'
 import step3Image from './assets/step3.png'
 import styles from './HowToPlay.module.scss'
 
-// TODO:
-// Responsiveness
-
 const HowToPlay = () => {
   return (
     <div className={styles.wrapper}>
