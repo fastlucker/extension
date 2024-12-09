@@ -2,6 +2,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 
 interface Style {
   button: ViewStyle
@@ -24,13 +25,10 @@ const styles = StyleSheet.create<Style>({
     position: 'absolute',
     backgroundColor: colors.white,
     width: 155,
-    shadowColor: '#000000',
-    shadowRadius: 4,
-    shadowOffset: { height: 4, width: 0 },
-    shadowOpacity: 0.5,
-    borderRadius: 12,
-    ...spacings.ptTy,
-    ...spacings.pbTy
+    ...common.shadowPrimary,
+    ...common.borderRadiusPrimary,
+    ...spacings.phTy,
+    ...spacings.pvTy
   },
   overlay: {
     width: '100%',

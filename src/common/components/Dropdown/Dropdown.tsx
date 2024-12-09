@@ -4,6 +4,7 @@ import { FlatList, Modal, Pressable, TextStyle, TouchableOpacity, View } from 'r
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
+import common from '@common/styles/utils/common'
 
 import styles from './styles'
 
@@ -40,7 +41,7 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
           style={[
             styles.item,
             hovered && {
-              borderRadius: 8,
+              ...common.borderRadiusPrimary,
               backgroundColor: colors.titanWhite
             }
           ]}
