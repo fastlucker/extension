@@ -41,13 +41,13 @@
       .buttonInner {
         margin: 0.5rem 0;
         @include primary-button;
-        color: landingAccent;
+        color: $landingAccent;
         text-transform: none;
         font-size: 1.25rem;
         height: 4rem;
         font-weight: 500;
-        border-color: landingAccent;
-        box-shadow: 0 0.1563rem landingAccent;
+        border-color: $landingAccent;
+        box-shadow: 0 0.1563rem $landingAccent;
       }
     }
   }

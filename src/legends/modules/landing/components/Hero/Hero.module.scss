@@ -63,7 +63,7 @@
 
         .invitationMenu {
           background-color: $primaryBackground;
-          border: 0.25vh solid landingAccent;
+          border: 0.25vh solid $landingAccent;
           border-radius: 1vh;
           display: flex;
           padding: 1.6vh 0;
@@ -102,6 +102,7 @@
       }
       .buttonAndDisclaimer {
         margin-right: 2vh;
+
         .button {
           position: relative;
           width: 35.53125vh;
@@ -115,17 +116,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 0.1875vh solid landingAccent;
-            box-shadow: 0 0.375vh landingAccent;
+            border: 0.1875vh solid $landingAccent;
+            box-shadow: 0 0.375vh $landingAccent;
             background-color: $primaryBackground;
             border-radius: 0.75vh;
-            color: landingAccent;
+            color: $landingAccent;
             text-transform: none;
             font-size: 1.875vh;
             width: 30.75vh;
             height: 5.625vh;
             position: relative;
-            margin-bottom: 1.25vh;
+            margin-bottom: 1.4vh;
 
             .leftDeco,
             .rightDeco {

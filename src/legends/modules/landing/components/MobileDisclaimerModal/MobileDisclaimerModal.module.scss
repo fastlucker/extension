@@ -33,7 +33,7 @@
     padding: 3.25rem 2.5rem;
     background-color: $primaryBackground;
     border-radius: 0.5rem;
-    border: inset 0.125rem landingAccent;
+    border: inset 0.125rem $landingAccent;
     z-index: 3;
     transition: opacity 0.25s ease, transform 0.3s ease;
 
@@ -46,7 +46,7 @@
       transform: translate(-50%, 50%);
       width: calc(100% - 1rem);
       height: 0.25rem;
-      background-color: landingAccent;
+      background-color: $landingAccent;
       border-radius: 0 0 0.5rem 0.5rem;
     }
 
@@ -95,14 +95,14 @@
     .button {
       height: 4rem;
       padding: 0;
-      border: 2px solid landingAccent;
+      border: 2px solid $landingAccent;
       background-color: #62804d;
       border-radius: 0.5rem;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0.25rem landingAccent;
+      box-shadow: 0 0.25rem $landingAccent;
 
       font-size: 1.25rem;
       font-weight: 500;
