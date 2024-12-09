@@ -20,7 +20,7 @@
       text-align: center;
       color: $primaryBackground;
       font-size: 3rem;
-      text-shadow: 0 0.25rem #372f23;
+      text-shadow: 0 0.25rem $landingBoxShadow;
       margin-bottom: 2.5rem;
     }
     .button {
@@ -41,13 +41,13 @@
       .buttonInner {
         margin: 0.5rem 0;
         @include primary-button;
-        color: #374d26;
+        color: landingAccent;
         text-transform: none;
         font-size: 1.25rem;
         height: 4rem;
         font-weight: 500;
-        border-color: #374d26;
-        box-shadow: 0 0.1563rem #374d26;
+        border-color: landingAccent;
+        box-shadow: 0 0.1563rem landingAccent;
       }
     }
   }

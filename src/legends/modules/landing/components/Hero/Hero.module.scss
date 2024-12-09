@@ -44,7 +44,7 @@
       margin-bottom: 2vh;
       color: $primaryBackground;
       font-weight: 400;
-      text-shadow: 0 0.25rem #372f23; // TODO
+      text-shadow: 0 0.25rem $landingBoxShadow;
       max-width: 60vh;
     }
     .actions {
@@ -63,7 +63,7 @@
 
         .invitationMenu {
           background-color: $primaryBackground;
-          border: 0.25vh solid #374d26;
+          border: 0.25vh solid landingAccent;
           border-radius: 1vh;
           display: flex;
           padding: 1.6vh 0;
@@ -115,11 +115,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 0.1875vh solid #374d26;
-            box-shadow: 0 0.375vh #374d26;
+            border: 0.1875vh solid landingAccent;
+            box-shadow: 0 0.375vh landingAccent;
             background-color: $primaryBackground;
             border-radius: 0.75vh;
-            color: #374d26;
+            color: landingAccent;
             text-transform: none;
             font-size: 1.875vh;
             width: 30.75vh;
