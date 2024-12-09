@@ -33,7 +33,7 @@
     padding: 3.25rem 2.5rem;
     background-color: $primaryBackground;
     border-radius: 0.5rem;
-    border: inset 0.125rem $landingAccent;
+    border: inset 0.125rem solid $landingAccent;
     z-index: 3;
     transition: opacity 0.25s ease, transform 0.3s ease;
 
