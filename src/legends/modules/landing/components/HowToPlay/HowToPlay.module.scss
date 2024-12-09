@@ -9,6 +9,10 @@
     padding-bottom: 4rem;
   }
 
+  .title {
+    max-width: 18rem;
+  }
+
   .steps {
     display: grid;
     grid-template-columns: 1.1fr 1fr 1fr;

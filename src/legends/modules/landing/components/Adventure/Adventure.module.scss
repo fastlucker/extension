@@ -9,6 +9,10 @@
     padding-bottom: 12rem;
   }
 
+  .title {
+    max-width: 25rem;
+  }
+
   .items {
     display: grid;
     grid-template-columns: 1fr 1fr;
