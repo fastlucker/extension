@@ -49,7 +49,9 @@ const PendingTransactions: FC<Props> = ({ network }) => {
 
   return (
     <View style={styles.transactionsContainer}>
-      <SectionHeading>{t('Pending action(s)')}</SectionHeading>
+      <SectionHeading>
+        {t(`Pending ${callsToVisualize.length > 1 ? 'actions' : 'action'}`)}
+      </SectionHeading>
       <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
         {network && callsToVisualize.length ? (
           callsToVisualize.map((call, i) => {
