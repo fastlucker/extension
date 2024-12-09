@@ -35,7 +35,7 @@ $scale-factor: 0.75;
       svg {
         @for $i from 1 through 10 {
           &:nth-child(#{$i}) {
-            z-index: 10 -$i;
+            z-index: 10 - $i;
           }
         }
       }

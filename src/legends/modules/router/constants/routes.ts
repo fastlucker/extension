@@ -1,5 +1,5 @@
 const LEGENDS_ROUTES = {
-  welcome: '/',
+  landing: '/',
   legends: '/legends',
   character: '/character',
   characterSelect: '/character-select',

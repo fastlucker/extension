@@ -1,0 +1,78 @@
+@import '@legends/styles/base.scss';
+@import '@legends/modules/landing/styles/mixins.scss';
+
+.wrapper {
+  @include landing-container;
+
+  & {
+    padding-top: 5rem;
+    padding-bottom: 4rem;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    gap: 3rem;
+
+    .step {
+      flex: 1;
+
+      .stepImage {
+        width: 20rem;
+        height: 15rem;
+        object-fit: contain;
+        object-position: center;
+        margin-bottom: 2.5rem;
+      }
+
+      .stepTitle {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+      .stepText,
+      .stepDisclaimer {
+        a {
+          color: $secondaryAccent;
+          text-decoration: underline;
+          font-weight: 700;
+        }
+        strong {
+          font-weight: 700;
+        }
+      }
+      .stepText {
+        font-size: 1.125rem;
+        line-height: 2rem;
+        margin-bottom: 1rem;
+        color: $primaryText;
+      }
+      .stepDisclaimer {
+        color: $tertiaryText;
+      }
+    }
+  }
+
+  @media screen and (max-width: 1024px) {
+    .steps {
+      grid-template-columns: 30rem;
+      justify-content: center;
+    }
+  }
+  @include on-mobile {
+    padding: 5rem 1.5rem;
+
+    .steps {
+      grid-template-columns: 1fr;
+      gap: 5rem;
+
+      .step {
+        .stepImage {
+          width: 100%;
+          height: auto;
+          margin-bottom: 2rem;
+        }
+      }
+    }
+  }
+}

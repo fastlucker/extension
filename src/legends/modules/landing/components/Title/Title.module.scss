@@ -1,0 +1,21 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 4rem;
+
+  .title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  @include on-mobile {
+    .title {
+      font-size: 1.85rem;
+    }
+  }
+}
