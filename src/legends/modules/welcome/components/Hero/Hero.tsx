@@ -27,6 +27,17 @@ const Hero = () => {
 
   const isExtensionInstalled = !!window.ambire
 
+  const onButtonClick = () => {
+    if (isExtensionInstalled) {
+      requestAccounts()
+    } else {
+      window.open(
+        'https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea',
+        '_blank'
+      )
+    }
+  }
+
   return (
     <div className={styles.wrapper}>
       <picture className={styles.background}>
@@ -48,16 +59,7 @@ const Hero = () => {
                 style={{
                   backgroundImage: `url(${glowingButton})`
                 }}
-                onClick={() => {
-                  if (isExtensionInstalled) {
-                    requestAccounts()
-                  } else {
-                    window.open(
-                      'https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea',
-                      '_blank'
-                    )
-                  }
-                }}
+                onClick={onButtonClick}
               >
                 <div className={styles.buttonInner}>
                   <RhombusDeco className={styles.leftDeco} />

@@ -1,0 +1,9 @@
+@import '@legends/styles/base.scss';
+
+@mixin landing-container {
+  @include container;
+
+  @include breakpoint-from(medium-desktop) {
+    max-width: 82.5rem;
+  }
+}

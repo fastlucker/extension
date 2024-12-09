@@ -4,6 +4,7 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord'
 import { faTelegram } from '@fortawesome/free-brands-svg-icons/faTelegram'
 import { faXTwitter } from '@fortawesome/free-brands-svg-icons/faXTwitter'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import FarcasterIcon from '@legends/common/assets/svg/FarcasterIcon'
 import LinesDeco2 from '@legends/common/assets/svg/LinesDeco2'
 
 import styles from './Footer.module.scss'
@@ -49,6 +50,14 @@ const Footer = () => {
               <FontAwesomeIcon icon={social.icon} />
             </a>
           ))}
+          <a
+            href="https://warpcast.com/ambirewallet"
+            target="_blank"
+            rel="noreferrer"
+            className={styles.social}
+          >
+            <FarcasterIcon />
+          </a>
         </div>
         <LinesDeco2 className={styles.bottomDeco} />
       </div>

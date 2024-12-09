@@ -1,4 +1,5 @@
 @import '@legends/styles/base.scss';
+@import '@legends/modules/welcome/styles/mixins.scss';
 
 .wrapper {
   position: relative;
@@ -6,7 +7,7 @@
   display: flex;
   align-items: end;
   min-height: 100vh;
-  padding: 10vh 0 10vh 4vh;
+  padding: 10vh 0;
 
   .background {
     position: absolute;
@@ -24,13 +25,7 @@
     }
   }
   .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-
-    @include breakpoint-from(large-desktop) {
-      max-width: 65vw;
-    }
+    @include landing-container;
   }
 
   .content {
