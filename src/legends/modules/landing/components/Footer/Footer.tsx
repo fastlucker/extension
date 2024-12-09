@@ -25,12 +25,6 @@ const SOCIALS = [
     icon: faDiscord,
     url: 'https://discord.com/invite/Ambire'
   }
-  // @TODO: Add Farcaster Icon
-  // {
-  //   name: 'Farcaster',
-  //   icon: faFarcaster,
-  //   url: 'https://farcaster.com/Ambire'
-  // }
 ]
 
 const Footer = () => {
