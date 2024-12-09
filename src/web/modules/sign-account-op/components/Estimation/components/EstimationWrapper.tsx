@@ -13,7 +13,7 @@ const EstimationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { styles } = useTheme(getStyles)
   return (
     <View style={styles.estimationContainer}>
-      <SectionHeading>{t('Estimation')}</SectionHeading>
+      <SectionHeading>{t('Gas fee estimation')}</SectionHeading>
       <ScrollableWrapper style={styles.estimationScrollView}>{children}</ScrollableWrapper>
     </View>
   )
