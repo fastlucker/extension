@@ -52,6 +52,8 @@ const Hero = () => {
 
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false)
+        event.stopPropagation()
+        event.preventDefault()
       }
     }
 
@@ -99,7 +101,7 @@ const Hero = () => {
             </div>
 
             <div className={`${styles.invitation} ${isMenuOpen ? styles.open : ''}`} ref={menuRef}>
-              <button type="button" onClick={toggleMenu}>
+              <button type="button" onClick={toggleMenu} className={styles.invitationButton}>
                 <img src={inviteImage} alt="Invite" className={styles.invitationImage} />
               </button>
               <div className={styles.invitationMenu}>

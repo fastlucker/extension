@@ -1,6 +1,12 @@
 @import '@legends/styles/base.scss';
 @import '@legends/modules/landing/styles/mixins.scss';
 
+@mixin hovered-menu {
+  pointer-events: all;
+  opacity: 1;
+  transform: translate(-50%, -40%) scale(1);
+}
+
 .wrapper {
   position: relative;
   width: 100%;
@@ -57,12 +63,31 @@
         flex-direction: column;
         align-items: center;
 
-        &:hover,
-        &.open {
-          .invitationMenu {
-            pointer-events: all;
+        // if you can fix this in a more ethical way, please do so
+        // the problem is that when you click on the menu on mobile
+        // after it is open nothing happens, so you have to click
+        // outside of the menu to close it
+        @include breakpoint-from(large-tablet) {
+          &:hover {
+            .invitationMenu {
+              @include hovered-menu;
+            }
+          }
+        }
+        @include on-mobile {
+          &.open {
+            .invitationMenu {
+              @include hovered-menu;
+            }
+          }
+        }
+
+        .invitationButton {
+          transition: 0.15s transform ease;
+
+          &:hover {
             opacity: 1;
-            transform: translate(-50%, -40%) scale(1);
+            transform: scale(1.05);
           }
         }
 
