@@ -6,9 +6,9 @@ import Footer from '../../components/Footer'
 import Hero from '../../components/Hero'
 import HowToPlay from '../../components/HowToPlay'
 import MobileDisclaimerModal from '../../components/MobileDisclaimerModal'
-import styles from './Welcome.module.scss'
+import styles from './Landing.module.scss'
 
-const Welcome = () => {
+const Landing = () => {
   return (
     <div className={styles.wrapper}>
       <MobileDisclaimerModal />
@@ -21,4 +21,4 @@ const Welcome = () => {
   )
 }
 
-export default Welcome
+export default Landing
