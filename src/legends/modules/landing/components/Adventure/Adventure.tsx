@@ -1,6 +1,7 @@
 import React from 'react'
 
-import Title from '../Title'
+import Title from '@legends/modules/landing/components/Title'
+
 import styles from './Adventure.module.scss'
 import image1 from './assets/image1.jpg'
 import image2 from './assets/image2.jpg'
