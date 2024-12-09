@@ -9,13 +9,18 @@
     padding-bottom: 4rem;
   }
 
+  .title {
+    max-width: 18rem;
+  }
+
   .steps {
     display: grid;
     grid-template-columns: 1.1fr 1fr 1fr;
     gap: 3rem;
 
     .step {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
 
       .stepImage {
         width: 20rem;
@@ -60,7 +65,7 @@
     }
   }
   @include on-mobile {
-    padding: 5rem 1.5rem;
+    padding: 5rem 1.5rem 4rem;
 
     .steps {
       grid-template-columns: 1fr;
@@ -71,6 +76,11 @@
           width: 100%;
           height: auto;
           margin-bottom: 2rem;
+        }
+        .stepDisclaimer {
+          a {
+            font-size: 1.125rem;
+          }
         }
       }
     }

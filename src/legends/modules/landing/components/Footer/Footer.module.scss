@@ -51,5 +51,17 @@
 
   @include on-mobile {
     padding: 3rem 1.25rem;
+
+    .socialsWrapper {
+      .socials {
+        gap: 1.25rem;
+
+        .social {
+          width: 2.5rem;
+          height: 2.5rem;
+          font-size: 1.5rem;
+        }
+      }
+    }
   }
 }
