@@ -61,7 +61,7 @@
     }
   }
   @include on-mobile {
-    padding: 5rem 1.5rem;
+    padding: 5rem 1.5rem 4rem;
 
     .steps {
       grid-template-columns: 1fr;
@@ -72,6 +72,11 @@
           width: 100%;
           height: auto;
           margin-bottom: 2rem;
+        }
+        .stepDisclaimer {
+          a {
+            font-size: 1.125rem;
+          }
         }
       }
     }

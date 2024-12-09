@@ -42,8 +42,14 @@ const Hero = () => {
     }
   }
 
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev)
+  }
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (!isMenuOpen) return
+
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false)
       }
@@ -54,7 +60,7 @@ const Hero = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [])
+  }, [isMenuOpen])
 
   return (
     <div className={styles.wrapper}>
@@ -92,11 +98,11 @@ const Hero = () => {
               )}
             </div>
 
-            <div className={`${styles.invitation} ${isMenuOpen ? styles.open : ''}`}>
-              <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <div className={`${styles.invitation} ${isMenuOpen ? styles.open : ''}`} ref={menuRef}>
+              <button type="button" onClick={toggleMenu}>
                 <img src={inviteImage} alt="Invite" className={styles.invitationImage} />
               </button>
-              <div className={styles.invitationMenu} ref={menuRef}>
+              <div className={styles.invitationMenu}>
                 <a
                   href="https://www.ambire.com/discord"
                   target="_blank"

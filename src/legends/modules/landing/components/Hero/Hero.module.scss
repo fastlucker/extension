@@ -82,10 +82,10 @@
           background-color: $primaryBackground;
           border: 0.25vh solid $landingAccent;
           border-radius: 1vh;
-          padding: 1.6vh 0;
+          padding: 1.2vh 0;
           flex-direction: column;
           gap: 0.5vh;
-          width: 16vh;
+          width: 18vh;
           pointer-events: none;
           opacity: 0;
           transition: opacity 0.3s, transform 0.2s;
@@ -96,7 +96,7 @@
             height: 3.5vh;
             gap: 0.8vh;
             width: 100%;
-            padding: 0 1.6vh;
+            padding: 0.5vh 1.6vh;
 
             &:hover {
               background-color: $tertiaryBackground;
@@ -109,12 +109,12 @@
             }
 
             .socialIcon {
-              width: 2vh;
-              height: 2vh;
+              width: 2.2vh;
+              height: 2.2vh;
             }
 
             .socialName {
-              font-size: 1.4vh;
+              font-size: 1.8vh;
             }
           }
         }
@@ -279,8 +279,34 @@
         font-weight: 700;
         margin-bottom: 1rem;
       }
-      .invitation {
-        position: relative;
+      .actions {
+        .invitation {
+          position: relative;
+
+          &.open {
+            .invitationMenu {
+              transform: translate(-50%, -20%) scale(1);
+            }
+          }
+
+          .invitationMenu {
+            width: 15rem;
+            padding: 0.5rem 0;
+
+            .menuSocial {
+              padding: 0.75rem 1rem;
+              height: auto;
+
+              .socialIcon {
+                width: 1.5rem;
+                height: 1.5rem;
+              }
+              .socialName {
+                font-size: 1.25rem;
+              }
+            }
+          }
+        }
       }
     }
   }
