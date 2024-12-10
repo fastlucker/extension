@@ -163,6 +163,11 @@ const Estimation = ({
           (payOption) =>
             payOption.paidBy === payValue.paidBy &&
             payOption.token.address === payValue.token?.address
+        ) &&
+        !payOptionsPaidByEOA.find(
+          (payOption) =>
+            payOption.paidBy === payValue.paidBy &&
+            payOption.token.address === payValue.token?.address
         ))
     ) {
       setFeeOption(defaultFeeOption)
@@ -174,7 +179,8 @@ const Estimation = ({
     defaultFeeOption.value,
     defaultFeeOption,
     signAccountOpState?.account.addr,
-    payOptionsPaidByUsOrGasTank
+    payOptionsPaidByUsOrGasTank,
+    payOptionsPaidByEOA
   ])
 
   const feeSpeeds = useMemo(() => {
