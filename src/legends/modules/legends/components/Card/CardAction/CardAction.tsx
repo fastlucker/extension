@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useCallback } from 'react'
 
 import useToast from '@legends/hooks/useToast'
 import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
@@ -17,6 +17,22 @@ type Props = {
 
 const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
   const { addToast } = useToast()
+
+  const handleWalletRouteButtonPress = useCallback(async () => {
+    if (action.type !== CardActionType.walletRoute) return
+
+    try {
+      await window.ambire.request({
+        method: 'open-wallet-route',
+        params: { route: action.route }
+      })
+    } catch {
+      addToast(
+        'Unable to open the page: unsupported method by the wallet or permissions not granted',
+        'error'
+      )
+    }
+  }, [action, addToast])
 
   if (action.type === CardActionType.predefined) {
     if (action.predefinedId === CARD_PREDEFINED_ID.addEOA) {
@@ -49,19 +65,7 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
     return (
       <CardActionButton
         buttonText="Proceed"
-        onButtonClick={async () => {
-          try {
-            await window.ambire.request({
-              method: 'open-wallet-route',
-              params: { route: action.route }
-            })
-          } catch {
-            addToast(
-              'Unable to open the page: unsupported method by the wallet or permissions not granted',
-              'error'
-            )
-          }
-        }}
+        onButtonClick={handleWalletRouteButtonPress}
         loadingText=""
       />
     )

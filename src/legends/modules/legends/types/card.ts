@@ -12,23 +12,31 @@ export enum CardActionType {
   'walletRoute'
 }
 
+export type CardActionCalls = {
+  type: CardActionType.calls
+  calls: [string, string, string][]
+}
+
+export type CardActionPredefined = {
+  type: CardActionType.predefined
+  predefinedId: string
+}
+
+export type CardActionLink = {
+  type: CardActionType.link
+  link: string
+}
+
+export type CardActionWalletRoute = {
+  type: CardActionType.walletRoute // for opening connected wallet urls
+  route: string
+}
+
 export type CardAction =
-  | {
-      type: CardActionType.calls
-      calls: [string, string, string][]
-    }
-  | {
-      type: CardActionType.predefined
-      predefinedId: string
-    }
-  | {
-      type: CardActionType.link
-      link: string
-    }
-  | {
-      type: CardActionType.walletRoute // for opening connected wallet urls
-      route: string
-    }
+  | CardActionCalls
+  | CardActionPredefined
+  | CardActionLink
+  | CardActionWalletRoute
 
 export enum CardType {
   'oneTime',

@@ -63,10 +63,8 @@ const Card: FC<Props> = ({
 
   const disabled = card.status === CardStatus.disabled
   const isCompleted = card.status === CardStatus.completed
-  const buttonText =
-    PREDEFINED_ACTION_LABEL_MAP[
-      (action.type === CardActionType.predefined && action.predefinedId) || ''
-    ] || 'Proceed'
+  const predefinedId = action.type === CardActionType.predefined ? action.predefinedId : ''
+  const buttonText = PREDEFINED_ACTION_LABEL_MAP[predefinedId] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
   const [isOnLegendCompleteModalOpen, setIsOnLegendCompleteModalOpen] = useState(false)
 

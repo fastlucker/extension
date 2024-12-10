@@ -1,4 +1,4 @@
-import { CardFromResponse, CardStatus } from '@legends/modules/legends/types'
+import { CardActionCalls, CardFromResponse, CardStatus } from '@legends/modules/legends/types'
 
 import { CARD_PREDEFINED_ID } from '../constants'
 
@@ -53,7 +53,7 @@ const handlePredefinedAction = (predefinedId?: string) => {
   console.log(predefinedId)
 }
 
-const handleCallsAction = (calls: [string, string, string][]) => {
+const handleCallsAction = (calls: CardActionCalls['calls']) => {
   // window.ambire.request(calls)
   console.log(calls)
 }
