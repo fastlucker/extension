@@ -5,6 +5,7 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord'
 import { faTelegram } from '@fortawesome/free-brands-svg-icons/faTelegram'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import glowingButton from '@legends/common/assets/images/glowing-button.png'
+import DecoratedArrowDown from '@legends/common/assets/svg/DecoratedArrowDown'
 import RhombusDeco from '@legends/common/assets/svg/RhombusDeco'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
@@ -20,6 +21,7 @@ const Hero = () => {
   const { connectedAccount, nonV2Account, requestAccounts } = useAccountContext()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDownloadLinkClicked, setIsDownloadLinkClicked] = useState(false)
+  const [hasScrolled, setHasScrolled] = useState(false)
   const menuRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -29,6 +31,22 @@ const Hero = () => {
       navigate(LEGENDS_ROUTES.characterSelect)
     }
   }, [connectedAccount, navigate, nonV2Account])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (hasScrolled) return
+
+      if (window.scrollY > 50) {
+        setHasScrolled(true)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [hasScrolled])
 
   const isExtensionInstalled = !!window.ambire
 
@@ -130,6 +148,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
+      <DecoratedArrowDown className={`${styles.arrowDown} ${hasScrolled ? styles.scrolled : ''}`} />
     </div>
   )
 }

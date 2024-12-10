@@ -7,6 +7,16 @@
   transform: translate(-50%, -40%) scale(1);
 }
 
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  50% {
+    transform: translateY(1vh) translateX(-50%);
+  }
+}
+
 .wrapper {
   position: relative;
   width: 100%;
@@ -200,6 +210,29 @@
           text-align: left;
         }
       }
+    }
+  }
+
+  .arrowDown {
+    position: absolute;
+    bottom: 3vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6vh;
+    height: 6vh;
+    cursor: pointer;
+    animation: bounce 1.5s infinite;
+    pointer-events: none;
+    opacity: 1;
+    transition: 0.3s opacity ease;
+
+    &.scrolled {
+      opacity: 0;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
     }
   }
 
