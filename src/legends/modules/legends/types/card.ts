@@ -4,21 +4,29 @@ export enum CardXpType {
   'l2'
 }
 
+export enum CardActionType {
+  'none',
+  'calls',
+  'predefined',
+  'link',
+  'walletRoute'
+}
+
 export type CardAction =
   | {
-      type: 'calls'
+      type: CardActionType.calls
       calls: [string, string, string][]
     }
   | {
-      type: 'predefined'
+      type: CardActionType.predefined
       predefinedId: string
     }
   | {
-      type: 'link'
+      type: CardActionType.link
       link: string
     }
   | {
-      type: 'wallet-route' // for opening connected wallet urls
+      type: CardActionType.walletRoute // for opening connected wallet urls
       route: string
     }
 

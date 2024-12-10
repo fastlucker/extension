@@ -1,8 +1,9 @@
 import React, { FC } from 'react'
 
+import useToast from '@legends/hooks/useToast'
 import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
-import { CardAction } from '@legends/modules/legends/types'
+import { CardAction, CardActionType } from '@legends/modules/legends/types'
 
 import LinkAcc from './actions/LinkAcc'
 import SendAccOp from './actions/SendAccOp'
@@ -15,7 +16,9 @@ type Props = {
 }
 
 const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
-  if (action.type === 'predefined') {
+  const { addToast } = useToast()
+
+  if (action.type === CardActionType.predefined) {
     if (action.predefinedId === CARD_PREDEFINED_ID.addEOA) {
       return <SummonAcc onComplete={onComplete} buttonText={buttonText} />
     }
@@ -26,11 +29,11 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
     return <div>Unhandled action predefinedId ${action.predefinedId}</div>
   }
 
-  if (action.type === 'calls') {
-    return <SendAccOp action={action} onComplete={onComplete} />
+  if (action.type === CardActionType.calls) {
+    return <SendAccOp action={action as any} onComplete={onComplete} />
   }
 
-  if (action.type === 'link') {
+  if (action.type === CardActionType.link) {
     return (
       <CardActionButton
         buttonText="Proceed"
@@ -42,16 +45,22 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
     )
   }
 
-  if (action.type === 'wallet-route' && window.ambire) {
+  if (action.type === CardActionType.walletRoute && window.ambire) {
     return (
       <CardActionButton
         buttonText="Proceed"
-        onButtonClick={() => {
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          window.ambire.request({
-            method: 'open-wallet-route',
-            params: { route: action.route }
-          })
+        onButtonClick={async () => {
+          try {
+            await window.ambire.request({
+              method: 'open-wallet-route',
+              params: { route: action.route }
+            })
+          } catch {
+            addToast(
+              'Unable to open the page: unsupported method by the wallet or permissions not granted',
+              'error'
+            )
+          }
         }}
         loadingText=""
       />

@@ -9,7 +9,12 @@ import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
-import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
+import {
+  CardActionType,
+  CardFromResponse,
+  CardStatus,
+  CardType
+} from '@legends/modules/legends/types'
 
 import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
@@ -54,19 +59,20 @@ const Card: FC<Props> = ({
   const disabled = card.status === CardStatus.disabled
   const isCompleted = card.status === CardStatus.completed
   const buttonText =
-    PREDEFINED_ACTION_LABEL_MAP[(action.type === 'predefined' && action.predefinedId) || ''] ||
-    'Proceed'
+    PREDEFINED_ACTION_LABEL_MAP[
+      (action.type === CardActionType.predefined && action.predefinedId) || ''
+    ] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
 
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
   const openActionModal = () =>
-    action.type === 'predefined' && action.predefinedId === 'wheelOfFortune'
+    action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune'
       ? setIsFortuneWheelModalOpen(true)
       : setIsActionModalOpen(true)
 
   const closeActionModal = () =>
-    action.type === 'predefined' && action.predefinedId === 'wheelOfFortune'
+    action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune'
       ? setIsFortuneWheelModalOpen(false)
       : setIsActionModalOpen(false)
 
@@ -94,7 +100,7 @@ const Card: FC<Props> = ({
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
         {contentSteps &&
-          action.type === 'predefined' &&
+          action.type === CardActionType.predefined &&
           action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount && (
             <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} />
           )}
@@ -104,7 +110,7 @@ const Card: FC<Props> = ({
           action={action}
         />
       </Modal>
-      {action.type === 'predefined' && action.predefinedId === 'wheelOfFortune' && (
+      {action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune' && (
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
       )}
       {isCompleted ? (
@@ -112,7 +118,8 @@ const Card: FC<Props> = ({
           <Flask />
           <div className={styles.completedText}>
             Completed
-            {action.type === 'predefined' && action.predefinedId === 'wheelOfFortune' ? (
+            {action.type === CardActionType.predefined &&
+            action.predefinedId === 'wheelOfFortune' ? (
               <div
                 className={styles.completedTextAvailable}
               >{`Available in ${hoursUntilMidnight} hours`}</div>
