@@ -54,9 +54,10 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const [error, setError] = useState<string | null>(null)
 
   const handleLevelUpIfNeeded = useCallback((newCharacter: Character, oldCharacter: Character) => {
+    const didAccountChange = newCharacter.address !== oldCharacter.address
     const didLevelUp = newCharacter.level > oldCharacter.level
 
-    if (!didLevelUp) {
+    if (!didLevelUp || didAccountChange) {
       setLevelUpData(null)
       return
     }

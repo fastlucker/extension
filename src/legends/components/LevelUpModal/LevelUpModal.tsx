@@ -42,8 +42,13 @@ const LevelUpModal = () => {
   }, [isVisible, levelUpData])
 
   const handleClose = () => {
-    setLevelUpData(null)
     setAreConfettiPlaying(false)
+    setIsVisible(false)
+
+    // Wait for the animation to finish before closing the modal
+    setTimeout(() => {
+      setLevelUpData(null)
+    }, 500)
   }
 
   if (!levelUpData) return null
