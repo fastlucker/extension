@@ -17,7 +17,7 @@ import styles from './Hero.module.scss'
 
 const Hero = () => {
   const navigate = useNavigate()
-  const { connectedAccount, requestAccounts } = useAccountContext()
+  const { connectedAccount, nonV2Account, requestAccounts } = useAccountContext()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDownloadLinkClicked, setIsDownloadLinkClicked] = useState(false)
   const menuRef = React.useRef<HTMLDivElement>(null)
@@ -25,8 +25,10 @@ const Hero = () => {
   useEffect(() => {
     if (connectedAccount) {
       navigate(LEGENDS_ROUTES.character)
+    } else if (nonV2Account) {
+      navigate(LEGENDS_ROUTES.characterSelect)
     }
-  }, [connectedAccount, navigate])
+  }, [connectedAccount, navigate, nonV2Account])
 
   const isExtensionInstalled = !!window.ambire
 

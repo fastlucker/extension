@@ -17,7 +17,7 @@ const PrivateRoute = () => {
   // If a wallet isn't connected a v2 account,redirect to the welcome screen.
   // Once a v2 account has been connected once,
   // the user should be able to access screens which will display the state of the v2 account.
-  if (!connectedAccount) return <Navigate to="/" />
+  if (!connectedAccount && !nonV2Account) return <Navigate to="/" />
 
   if (characterError) return <ErrorPage title="Character loading error" error={characterError} />
 
