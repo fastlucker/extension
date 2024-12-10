@@ -27,6 +27,7 @@ type Props = Pick<
   | 'timesCollectedToday'
   | 'contentSteps'
   | 'contentImage'
+  | 'contentVideo'
 >
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -46,7 +47,8 @@ const Card: FC<Props> = ({
   card,
   action,
   contentSteps,
-  contentImage
+  contentImage,
+  contentVideo
 }) => {
   const { activity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
@@ -92,7 +94,7 @@ const Card: FC<Props> = ({
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
         {contentSteps && action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount && (
-          <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} />
+          <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} video={contentVideo} />
         )}
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}

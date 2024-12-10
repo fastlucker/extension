@@ -54,4 +54,5 @@ export interface CardFromResponse {
   timesCollectedToday: number
   contentSteps?: string[]
   contentImage?: string
+  contentVideo?: string
 }
