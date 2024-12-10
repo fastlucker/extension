@@ -37,13 +37,6 @@ type CharacterContextValue = {
 
 const CharacterContext = createContext<CharacterContextValue>({} as CharacterContextValue)
 
-const preloadImages = (images: string[]) => {
-  images.forEach((src) => {
-    const img = new Image()
-    img.src = src
-  })
-}
-
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount } = useAccountContext()
   const [character, setCharacter] = useState<Character | null>(null)
@@ -69,9 +62,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       }
 
       const didEvolve = oldCharacter.image_fixed !== newCharacter.image_fixed
-
-      // Preload images
-      preloadImages([oldCharacter.image_fixed, newCharacter.image_fixed])
 
       setLevelUpData({
         oldLevel: oldCharacter.level,

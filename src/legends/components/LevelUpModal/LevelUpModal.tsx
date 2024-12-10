@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
+import { preloadImages } from '@common/utils/images'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 
 import badgeImage from './assets/badge.png'
@@ -18,6 +19,12 @@ const LevelUpModal = () => {
   useEffect(() => {
     if (!levelUpData) return
 
+    preloadImages([
+      badgeImage,
+      cardImage,
+      levelUpData.oldCharacterImage,
+      levelUpData.newCharacterImage
+    ])
     const timeout = setTimeout(() => {
       setIsVisible(true)
     }, 1000)
