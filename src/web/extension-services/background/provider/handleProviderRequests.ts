@@ -3,6 +3,7 @@ import { ethErrors } from 'eth-rpc-errors'
 import { Session } from '@ambire-common/classes/session'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
+import { isDev } from '@common/config/env'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import rpcFlow from '@web/extension-services/background/provider/rpcFlow'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
@@ -12,7 +13,7 @@ const handleProviderRequests = async (
   mainCtrl: MainController
 ): Promise<any> => {
   const { method, params, session } = request
-  console.log('rr', request)
+
   if (method === 'tabCheckin') {
     mainCtrl.dapps.setSessionProp(session.sessionId, {
       origin: request.origin,
@@ -51,12 +52,12 @@ const handleProviderRequests = async (
   }
 
   if (method === 'open-wallet-route') {
-    const ORIGINS_WHITELIST = [
-      'https://legends.ambire.com',
-      'https://legends-staging.ambire.com',
-      'http://localhost:19006',
-      'http://localhost:19007'
-    ]
+    const ORIGINS_WHITELIST = ['https://legends.ambire.com', 'https://legends-staging.ambire.com']
+
+    if (isDev) {
+      ORIGINS_WHITELIST.push('http://localhost:19006')
+      ORIGINS_WHITELIST.push('http://localhost:19007')
+    }
 
     if (!ORIGINS_WHITELIST.includes(session.origin)) {
       throw new Error('This page is restricted from directly opening Ambire extension pages')
