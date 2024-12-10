@@ -1,9 +1,9 @@
 import React, { FC } from 'react'
 
+import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType } from '@legends/modules/legends/types'
 
-import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import LinkAcc from './actions/LinkAcc'
 import SendAccOp from './actions/SendAccOp'
 import SummonAcc from './actions/SummonAcc'

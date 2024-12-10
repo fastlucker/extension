@@ -52,6 +52,12 @@ export interface CardFromResponse {
   }
   image: string
   timesCollectedToday: number
+  meta?: {
+    invitationKey: string
+    timesUsed: number
+    maxHits: number
+    timesCollectedSoFar: number
+  }
   contentSteps?: string[]
   contentImage?: string
 }
