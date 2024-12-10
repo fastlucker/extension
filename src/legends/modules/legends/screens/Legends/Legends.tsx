@@ -43,6 +43,7 @@ const Legends = () => {
               timesCollectedToday={card.timesCollectedToday}
               contentSteps={card.contentSteps}
               contentImage={card.contentImage}
+              contentVideo={card.contentVideo}
             />
           ))}
         </div>

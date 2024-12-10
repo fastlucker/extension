@@ -1,16 +1,21 @@
 import React, { FC } from 'react'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
+import { CardFromResponse } from '@legends/modules/legends/types'
 
+import YouTubeVideo from './components/YouTubeVideo'
 import styles from './HowTo.module.scss'
 
 type Props = {
   steps: string[]
   image?: string
   imageAlt?: string
+  video?: string
+  meta?: CardFromResponse['meta']
+  copyToClipboard?: () => void
 }
 
-const HowTo: FC<Props> = ({ steps, image, imageAlt, meta, copyToClipboard }) => {
+const HowTo: FC<Props> = ({ steps, image, imageAlt, meta, copyToClipboard, video }) => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.column}>
@@ -25,6 +30,7 @@ const HowTo: FC<Props> = ({ steps, image, imageAlt, meta, copyToClipboard }) => 
       </div>
       <div className={styles.column}>
         {image && !meta && <img className={styles.image} src={image} alt={imageAlt} />}
+        {video && <YouTubeVideo className={styles.video} src={video} />}
         {meta && (
           <div className={styles.copySection}>
             <p>

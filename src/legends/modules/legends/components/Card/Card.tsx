@@ -11,7 +11,12 @@ import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
-import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
+import {
+  CardActionType,
+  CardFromResponse,
+  CardStatus,
+  CardType
+} from '@legends/modules/legends/types'
 
 import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
@@ -30,6 +35,7 @@ type Props = Pick<
   | 'meta'
   | 'contentSteps'
   | 'contentImage'
+  | 'contentVideo'
 >
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -50,7 +56,8 @@ const Card: FC<Props> = ({
   action,
   meta,
   contentSteps,
-  contentImage
+  contentImage,
+  contentVideo
 }) => {
   const { activity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
@@ -58,19 +65,20 @@ const Card: FC<Props> = ({
 
   const disabled = card.status === CardStatus.disabled
   const isCompleted = card.status === CardStatus.completed
-  const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
+  const predefinedId = action.type === CardActionType.predefined ? action.predefinedId : ''
+  const buttonText = PREDEFINED_ACTION_LABEL_MAP[predefinedId] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
   const [isOnLegendCompleteModalOpen, setIsOnLegendCompleteModalOpen] = useState(false)
 
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
   const openActionModal = () =>
-    action.predefinedId === 'wheelOfFortune'
+    action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune'
       ? setIsFortuneWheelModalOpen(true)
       : setIsActionModalOpen(true)
 
   const closeActionModal = () =>
-    action.predefinedId === 'wheelOfFortune'
+    action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune'
       ? setIsFortuneWheelModalOpen(false)
       : setIsActionModalOpen(false)
 
@@ -78,7 +86,10 @@ const Card: FC<Props> = ({
     await onLegendComplete()
     closeActionModal()
 
-    if (action.predefinedId === CARD_PREDEFINED_ID.addEOA) {
+    if (
+      action.type === CardActionType.predefined &&
+      action.predefinedId === CARD_PREDEFINED_ID.addEOA
+    ) {
       setIsOnLegendCompleteModalOpen(true)
     }
   }
@@ -149,12 +160,7 @@ const Card: FC<Props> = ({
           </button>
         </>
       </Modal>
-      <Modal
-        isOpen={isActionModalOpen}
-        setIsOpen={setIsActionModalOpen}
-        showCloseButton={false}
-        className={styles.modal}
-      >
+      <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen} className={styles.modal}>
         <Modal.Heading className={styles.modalHeading}>
           <div className={styles.modalHeadingTitle}>{title}</div>
           {xp && <Rewards xp={xp} size="lg" />}
@@ -163,7 +169,12 @@ const Card: FC<Props> = ({
         {contentSteps &&
           action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount &&
           action?.predefinedId !== CARD_PREDEFINED_ID.Referral && (
-            <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} />
+            <HowTo
+              steps={contentSteps}
+              image={contentImage}
+              imageAlt={flavor}
+              video={contentVideo}
+            />
           )}
         {action?.predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
           <HowTo
@@ -180,7 +191,7 @@ const Card: FC<Props> = ({
           action={action}
         />
       </Modal>
-      {action.predefinedId === 'wheelOfFortune' && (
+      {action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune' && (
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
       )}
       {isCompleted ? (
@@ -188,7 +199,8 @@ const Card: FC<Props> = ({
           <Flask />
           <div className={styles.completedText}>
             Completed
-            {action.predefinedId === 'wheelOfFortune' ? (
+            {action.type === CardActionType.predefined &&
+            action.predefinedId === 'wheelOfFortune' ? (
               <div
                 className={styles.completedTextAvailable}
               >{`Available in ${hoursUntilMidnight} hours`}</div>
@@ -197,7 +209,14 @@ const Card: FC<Props> = ({
         </div>
       ) : null}
       <div className={styles.imageAndCounter}>
-        <img src={image} alt={title} className={styles.image} />
+        <button
+          disabled={disabled}
+          type="button"
+          onClick={openActionModal}
+          className={styles.imageButtonWrapper}
+        >
+          <img src={image} alt={title} className={styles.image} />
+        </button>
         <Counter width={48} height={48} count={timesCollectedToday} className={styles.counter} />
       </div>
       <div className={styles.contentAndAction}>
@@ -222,4 +241,4 @@ const Card: FC<Props> = ({
   )
 }
 
-export default Card
+export default React.memo(Card)
