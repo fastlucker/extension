@@ -167,9 +167,14 @@ const Card: FC<Props> = ({
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
         {contentSteps &&
-          action.type === CardActionType.predefined &&
-          action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount && (
-            <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} video={contentVideo} />
+          (action.type !== CardActionType.predefined ||
+            action.predefinedId !== CARD_PREDEFINED_ID.LinkAccount) && (
+            <HowTo
+              steps={contentSteps}
+              image={contentImage}
+              imageAlt={flavor}
+              video={contentVideo}
+            />
           )}
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}
