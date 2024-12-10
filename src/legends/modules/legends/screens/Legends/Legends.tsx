@@ -41,6 +41,8 @@ const Legends = () => {
               action={card.action}
               meta={card.meta}
               timesCollectedToday={card.timesCollectedToday}
+              contentSteps={card.contentSteps}
+              contentImage={card.contentImage}
             />
           ))}
         </div>

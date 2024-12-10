@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import LinesDeco from '@legends/common/assets/svg/LinesDeco'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -9,6 +9,7 @@ import styles from './Connect.module.scss'
 
 const Connect = () => {
   const { requestAccounts } = useAccountContext()
+  const [isDownloadLinkClicked, setIsDownloadLinkClicked] = useState(false)
 
   const isExtensionInstalled = !!window.ambire
 
@@ -20,6 +21,7 @@ const Connect = () => {
         'https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea',
         '_blank'
       )
+      setIsDownloadLinkClicked(true)
     }
   }
 
@@ -39,6 +41,11 @@ const Connect = () => {
           </div>
           <LinesDeco className={styles.bottomLinesDeco} />
         </button>
+        {isDownloadLinkClicked && (
+          <p className={styles.disclaimer}>
+            If you have installed the extension, please refresh the page
+          </p>
+        )}
       </div>
     </div>
   )

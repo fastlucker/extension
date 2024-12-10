@@ -7,13 +7,15 @@ export enum CardXpType {
 export enum CardActionType {
   'none',
   'calls',
-  'predefined'
+  'predefined',
+  'link'
 }
 
 export interface CardAction {
   type: CardActionType
   calls?: [string, string, string][]
   predefinedId?: string
+  link?: string
 }
 
 export enum CardType {
@@ -56,4 +58,6 @@ export interface CardFromResponse {
     maxHits: number
     timesCollectedSoFar: number
   }
+  contentSteps?: string[]
+  contentImage?: string
 }

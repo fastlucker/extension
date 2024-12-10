@@ -5,12 +5,13 @@ import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import Counter from '@legends/modules/legends/components/Card/Counter'
 import Flask from '@legends/modules/legends/components/Card/Flask'
+import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 
-import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
+import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
 import CardActionComponent from './CardAction'
 
@@ -25,6 +26,8 @@ type Props = Pick<
   | 'action'
   | 'timesCollectedToday'
   | 'meta'
+  | 'contentSteps'
+  | 'contentImage'
 >
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -43,7 +46,9 @@ const Card: FC<Props> = ({
   timesCollectedToday,
   card,
   action,
-  meta
+  meta,
+  contentSteps,
+  contentImage
 }) => {
   const { activity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
@@ -87,6 +92,9 @@ const Card: FC<Props> = ({
           {xp && <Rewards xp={xp} size="lg" />}
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
+        {contentSteps && action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount && (
+          <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} />
+        )}
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}
           buttonText={buttonText}
