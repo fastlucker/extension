@@ -7,6 +7,7 @@ import { CardAction, CardActionType } from '@legends/modules/legends/types'
 
 import LinkAcc from './actions/LinkAcc'
 import SendAccOp from './actions/SendAccOp'
+import StakeWallet from './actions/StakeWallet'
 import SummonAcc from './actions/SummonAcc'
 
 type Props = {
@@ -40,6 +41,9 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.LinkAccount) {
       return <LinkAcc onComplete={onComplete} />
+    }
+    if (action.predefinedId === CARD_PREDEFINED_ID.staking) {
+      return <StakeWallet onComplete={onComplete} />
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.Referral) {
       return null
