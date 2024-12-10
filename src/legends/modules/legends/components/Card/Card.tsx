@@ -167,8 +167,8 @@ const Card: FC<Props> = ({
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
         {contentSteps &&
-          (action.type !== CardActionType.predefined ||
-            action.predefinedId !== CARD_PREDEFINED_ID.LinkAccount) && (
+          action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount &&
+          action?.predefinedId !== CARD_PREDEFINED_ID.Referral && (
             <HowTo
               steps={contentSteps}
               image={contentImage}
@@ -176,6 +176,15 @@ const Card: FC<Props> = ({
               video={contentVideo}
             />
           )}
+        {action?.predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
+          <HowTo
+            steps={contentSteps}
+            image={contentImage}
+            imageAlt={flavor}
+            meta={meta}
+            copyToClipboard={copyToClipboard}
+          />
+        )}
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}
           buttonText={buttonText}
