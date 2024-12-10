@@ -53,30 +53,40 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   // as loading a character is crucial for playing in Legends.
   const [error, setError] = useState<string | null>(null)
 
-  const handleLevelUpIfNeeded = useCallback((newCharacter: Character, oldCharacter: Character) => {
-    const didAccountChange = newCharacter.address !== oldCharacter.address
-    const didLevelUp = newCharacter.level > oldCharacter.level
+  const handleLevelUpIfNeeded = useCallback(
+    (newCharacter: Character, oldCharacter: Character | null) => {
+      if (!oldCharacter) {
+        setLevelUpData(null)
+        return
+      }
 
-    if (!didLevelUp || didAccountChange) {
-      setLevelUpData(null)
-      return
-    }
+      const didAccountChange = newCharacter.address !== oldCharacter.address
+      const didLevelUp = newCharacter.level > oldCharacter.level
 
-    const didEvolve = oldCharacter.image_fixed !== newCharacter.image_fixed
+      if (!didLevelUp || didAccountChange) {
+        setLevelUpData(null)
+        return
+      }
 
-    // Preload images
-    preloadImages([oldCharacter.image_fixed, newCharacter.image_fixed])
+      const didEvolve = oldCharacter.image_fixed !== newCharacter.image_fixed
 
-    setLevelUpData({
-      oldLevel: oldCharacter.level,
-      oldCharacterImage: oldCharacter.image_fixed,
-      newCharacterImage: newCharacter.image_fixed,
-      newLevel: newCharacter.level,
-      didEvolve
-    })
-  }, [])
+      // Preload images
+      preloadImages([oldCharacter.image_fixed, newCharacter.image_fixed])
+
+      setLevelUpData({
+        oldLevel: oldCharacter.level,
+        oldCharacterImage: oldCharacter.image_fixed,
+        newCharacterImage: newCharacter.image_fixed,
+        newLevel: newCharacter.level,
+        didEvolve
+      })
+    },
+    []
+  )
 
   const getCharacter = useCallback(async () => {
+    setLevelUpData(null)
+
     if (!connectedAccount) {
       setCharacter(null)
       setIsLoading(false)
@@ -95,12 +105,14 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
         return
       }
 
-      if (character) handleLevelUpIfNeeded(characterJson as Character, character)
-
-      setCharacter({
-        ...(characterJson as Character),
+      const newCharacter = {
+        ...characterJson,
         address: connectedAccount
-      })
+      } as Character
+
+      handleLevelUpIfNeeded(newCharacter, character)
+
+      setCharacter(newCharacter)
       setError(null)
     } catch (e) {
       console.error(e)
@@ -112,10 +124,12 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   }, [character, connectedAccount, handleLevelUpIfNeeded])
 
   useEffect(() => {
+    if (character && character.address === connectedAccount) return
+
     getCharacter().catch(() => {
       setError(`Couldn't load the requested character: ${connectedAccount}`)
     })
-  }, [connectedAccount, getCharacter])
+  }, [character, connectedAccount, getCharacter])
 
   const contextValue = useMemo(
     () => ({

@@ -71,13 +71,13 @@ const LevelUpModal = () => {
           <img
             className={`${styles.characterImage} ${styles.oldCharacterImage}`}
             src={oldCharacterImage}
-            alt=""
+            alt="" // No alt on purpose
           />
           {didEvolve && (
             <img
               className={`${styles.characterImage} ${styles.newCharacterImage}`}
               src={newCharacterImage}
-              alt=""
+              alt="" // No alt on purpose
             />
           )}
 
