@@ -8,22 +8,46 @@ import { calculateHoursUntilMidnight } from '@legends/modules/legends/components
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
-import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
+import Counter from '@legends/modules/legends/components/Card/Counter'
+import Flask from '@legends/modules/legends/components/Card/Flask'
+import HowTo from '@legends/modules/legends/components/Card/HowTo'
+import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
 import CardActionComponent from './CardAction'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'description' | 'flavor' | 'xp' | 'image' | 'card' | 'action'
+  | 'title'
+  | 'description'
+  | 'flavor'
+  | 'xp'
+  | 'image'
+  | 'card'
+  | 'action'
+  | 'timesCollectedToday'
+  | 'contentSteps'
+  | 'contentImage'
 >
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
   [CardType.daily]: 'Daily',
   [CardType.oneTime]: 'One-time',
-  [CardType.recurring]: 'Ongoing'
+  [CardType.recurring]: 'Ongoing',
+  [CardType.weekly]: 'Weekly'
 }
 
-const Card: FC<Props> = ({ title, image, description, flavor, xp, card, action }) => {
+const Card: FC<Props> = ({
+  title,
+  image,
+  description,
+  flavor,
+  xp,
+  timesCollectedToday,
+  card,
+  action,
+  contentSteps,
+  contentImage
+}) => {
   const { activity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
 
@@ -67,6 +91,9 @@ const Card: FC<Props> = ({ title, image, description, flavor, xp, card, action }
           {xp && <Rewards xp={xp} size="lg" />}
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
+        {contentSteps && action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount && (
+          <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} />
+        )}
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}
           buttonText={buttonText}
@@ -78,26 +105,28 @@ const Card: FC<Props> = ({ title, image, description, flavor, xp, card, action }
       )}
       {isCompleted ? (
         <div className={styles.completed}>
-          <span className={styles.completedText}>
-            Completed <br />
+          <Flask />
+          <div className={styles.completedText}>
+            Completed
             {action.predefinedId === 'wheelOfFortune' ? (
-              <span
+              <div
                 className={styles.completedTextAvailable}
-              >{`Available in ${hoursUntilMidnight} hours`}</span>
+              >{`Available in ${hoursUntilMidnight} hours`}</div>
             ) : null}
-          </span>
+          </div>
         </div>
       ) : null}
-      <div className={styles.imageAndBadges}>
+      <div className={styles.imageAndCounter}>
         <img src={image} alt={title} className={styles.image} />
+        <Counter width={48} height={48} count={timesCollectedToday} className={styles.counter} />
       </div>
       <div className={styles.contentAndAction}>
         <div className={styles.content}>
           <h2 className={styles.heading}>{title}</h2>
           <p className={styles.description}>{description}</p>
+          <span className={styles.rewardFrequency}>{CARD_FREQUENCY[card.type]}</span>
           <div className={styles.rewards}>
-            <span className={styles.rewardType}>{CARD_FREQUENCY[card.type]}</span>
-            <Rewards xp={xp} size="sm" />
+            <Rewards xp={xp} size="sm" reverse />
           </div>
         </div>
         <button

@@ -1,4 +1,5 @@
-import { BrowserProvider, Contract, Interface, ZeroAddress } from 'ethers'
+/* eslint-disable no-console */
+import { BrowserProvider, Interface, ZeroAddress } from 'ethers'
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
@@ -9,6 +10,7 @@ import Input from '@legends/components/Input'
 import Stepper from '@legends/components/Stepper'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 
@@ -44,6 +46,7 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
   const [messageSignedForV2Account, setMessageSignedForV2Account] = useState('')
   const [v1OrEoaAddress, setV1OrEoaAddress] = useState('')
   const [isFlowComplete, setIsFlowComplete] = useState(false)
+  const { sendCalls, getCallsStatus, chainId } = useErc5792()
 
   const { addToast } = useToast()
   const { connectedAccount, setAllowNonV2Connection } = useAccountContext()
@@ -119,14 +122,28 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
       const provider = new BrowserProvider(window.ethereum)
       const signer = await provider.getSigner(connectedAccount)
 
-      const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, LEGENDS_CONTRACT_INTERFACE, signer)
+      // no sponsorship for linkAcc
+      const useSponsorship = false
 
-      await contract.linkAndAcceptInvite(
-        connectedAccount,
-        v1OrEoaAddress,
-        ZeroAddress,
-        v1OrBasicSignature
+      const sendCallsIdentifier = await sendCalls(
+        chainId,
+        await signer.getAddress(),
+        [
+          {
+            to: LEGENDS_CONTRACT_ADDRESS,
+            data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('linkAndAcceptInvite', [
+              connectedAccount,
+              v1OrEoaAddress,
+              ZeroAddress,
+              v1OrBasicSignature
+            ])
+          }
+        ],
+        useSponsorship
       )
+      const receipt = await getCallsStatus(sendCallsIdentifier)
+      if (receipt.status !== '0x1') throw new Error('Failed linking')
+
       addToast('Successfully linked accounts', 'success')
       setIsFlowComplete(true)
     } catch (e) {
@@ -136,7 +153,15 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
     } finally {
       setIsInProgress(false)
     }
-  }, [connectedAccount, v1OrEoaAddress, v1OrBasicSignature, addToast])
+  }, [
+    connectedAccount,
+    v1OrEoaAddress,
+    v1OrBasicSignature,
+    addToast,
+    sendCalls,
+    getCallsStatus,
+    chainId
+  ])
 
   const onButtonClick = useCallback(async () => {
     if (activeStep === STEPS.SUCCESS) {

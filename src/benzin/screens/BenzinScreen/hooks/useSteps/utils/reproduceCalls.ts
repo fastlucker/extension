@@ -106,6 +106,7 @@ export const decodeUserOp = (userOp: UserOperation): { calls: Call[]; from: stri
 
   if (isAddress(paymaster) && getAddress(paymaster) === AMBIRE_PAYMASTER)
     decodedCalls = decodedCalls.slice(0, -1)
+
   return { calls: decodedCalls, from: sender }
 }
 

@@ -36,7 +36,12 @@ const getPortfolio = async (
 
   const portfolio = (await window.ambire.request({
     method: 'get_portfolioBalance',
-    params: []
+    params: [
+      {
+        // TODO: impl a dynamic way of getting the chainIds
+        chainIds: ['0x1', '0x2105', '0xa', '0xa4b1', '0x82750']
+      }
+    ]
   })) as AccountPortfolio
 
   // If portfolio is not ready and retries have not exceeded maxRetries

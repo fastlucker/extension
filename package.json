@@ -48,7 +48,7 @@
     "eas:secret:push": "eas secret:push --scope project --env-file .env",
     "test:e2e:web:dev": "WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests",
     "test:e2e:web:dev:local": "docker stop $(docker ps -a -q) && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d && WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests",
-    "test:e2e:web": "yarn build:web:webkit && jest test --config=./tests/jest.config.js",
+    "test:e2e:web": "yarn build:web:webkit && jest test --forceExit --config=./tests/jest.config.js",
     "test:e2e:web:local": "docker stop $(docker ps -a -q) && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d && yarn build:web:webkit && jest test --config=./tests/jest.config.js",
     "test": "jest --config=./jest.config.js",
     "postinstall": "patch-package"
@@ -97,7 +97,7 @@
     "@sentry/react-native": "5.0.0-alpha.10",
     "@tradle/react-native-http": "^2.0.0",
     "@trezor/connect-plugin-ethereum": "9.0.5",
-    "@trezor/connect-webextension": "9.4.4",
+    "@trezor/connect-webextension": "9.4.5",
     "@trezor/trezor-user-env-link": "^1.0.0",
     "@types/react-dom": "^18.2.0",
     "@types/w3c-web-hid": "^1.0.3",

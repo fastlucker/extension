@@ -7,19 +7,22 @@ export enum CardXpType {
 export enum CardActionType {
   'none',
   'calls',
-  'predefined'
+  'predefined',
+  'link'
 }
 
 export interface CardAction {
   type: CardActionType
   calls?: [string, string, string][]
   predefinedId?: string
+  link?: string
 }
 
 export enum CardType {
   'oneTime',
   'daily',
-  'recurring'
+  'recurring',
+  'weekly'
 }
 
 export enum CardStatus {
@@ -48,4 +51,7 @@ export interface CardFromResponse {
     status: CardStatus
   }
   image: string
+  timesCollectedToday: number
+  contentSteps?: string[]
+  contentImage?: string
 }

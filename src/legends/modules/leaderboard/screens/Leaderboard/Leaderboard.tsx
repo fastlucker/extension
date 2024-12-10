@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import Alert from '@legends/components/Alert'
 import Page from '@legends/components/Page'
@@ -14,11 +14,11 @@ const LeaderboardContainer: React.FC = () => {
     leaderboardData,
     userLeaderboardData,
     isLeaderboardLoading: loading,
-    error
+    error,
+    updateLeaderboard
   } = useLeaderboardContext()
 
   const tableRef = useRef<HTMLDivElement>(null)
-
   const pageRef = useRef<HTMLDivElement>(null)
   const currentUserRef = useRef<HTMLDivElement>(null)
 
@@ -56,6 +56,12 @@ const LeaderboardContainer: React.FC = () => {
       }
     }
   }, [currentUserRef, leaderboardData, userLeaderboardData])
+
+  useEffect(() => {
+    if (loading) return
+
+    updateLeaderboard()
+  }, [updateLeaderboard])
 
   return (
     <Page pageRef={pageRef}>

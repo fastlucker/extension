@@ -1,0 +1,53 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  gap: 1.875rem;
+  margin-bottom: 1.25rem;
+
+  .column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    .stepper {
+      display: grid;
+      grid-auto-rows: 1fr;
+      gap: 0.625rem;
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+
+        .stepNumber {
+          display: flex;
+          flex: none;
+          align-items: center;
+          justify-content: center;
+          font-size: 2rem;
+          line-height: 2rem;
+          width: 4rem;
+          height: 4rem;
+          color: $primaryText;
+          background: $primaryBackground;
+          border: 1px solid $tertiaryBorder;
+          border-radius: 50%;
+        }
+
+        .stepTitle {
+          display: flex;
+          align-items: center;
+          font-size: 1.3125rem;
+          font-weight: 400;
+          color: $secondaryText;
+        }
+      }
+    }
+
+    .image {
+      width: 100%;
+      height: auto;
+    }
+  }
+}

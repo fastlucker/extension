@@ -12,6 +12,7 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import NetworkBadge from '@common/components/NetworkBadge'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -25,7 +26,6 @@ import TransactionSummary, {
   sizeMultiplier
 } from '@web/modules/sign-account-op/components/TransactionSummary/TransactionSummary'
 
-import NetworkBadge from '@common/components/NetworkBadge'
 import getStyles from './styles'
 import SubmittedOn from './SubmittedOn'
 
@@ -190,9 +190,16 @@ const SubmittedTransactionSummary = ({
                 <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
                   {t('Fee')}:{' '}
                 </Text>
-                <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
-                  {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
-                </Text>
+
+                {submittedAccountOp.gasFeePayment?.isSponsored ? (
+                  <Text fontSize={14} appearance="successText" style={spacings.mrTy}>
+                    Sponsored
+                  </Text>
+                ) : (
+                  <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
+                    {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
+                  </Text>
+                )}
               </View>
             )}
             <SubmittedOn
