@@ -114,7 +114,14 @@ const Card: FC<Props> = ({
         </div>
       ) : null}
       <div className={styles.imageAndCounter}>
-        <img src={image} alt={title} className={styles.image} />
+        <button
+          disabled={disabled}
+          type="button"
+          onClick={openActionModal}
+          className={styles.imageButtonWrapper}
+        >
+          <img src={image} alt={title} className={styles.image} />
+        </button>
         <Counter width={48} height={48} count={timesCollectedToday} className={styles.counter} />
       </div>
       <div className={styles.contentAndAction}>
