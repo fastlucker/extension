@@ -112,47 +112,49 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             />
           ))}
         </div>
-        <div className={styles.leaderSection}>
-          <div className={styles.leaderHeader}>
-            <p className={styles.inviteTitle}>Invite a friend</p>
-            <div>
-              {[...Array(legendLeader?.meta?.timesCollectedSoFar || 0)].map((_, index) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <Leader key={`filled-${index}`} variant="filled" />
-              ))}
-              {[
-                ...Array(
-                  (legendLeader?.meta?.maxHits || 0) -
-                    (legendLeader?.meta?.timesCollectedSoFar || 0)
-                )
-              ].map((_, index) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <Leader key={`empty-${index}`} />
-              ))}
+        {legendLeader && legendLeader?.meta && (
+          <div className={styles.leaderSection}>
+            <div className={styles.leaderHeader}>
+              <p className={styles.inviteTitle}>Invite a friend</p>
+              <div>
+                {[...Array(legendLeader?.meta?.timesCollectedSoFar || 0)].map((_, index) => (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <Leader key={`filled-${index}`} variant="filled" />
+                ))}
+                {[
+                  ...Array(
+                    (legendLeader?.meta?.maxHits || 0) -
+                      (legendLeader?.meta?.timesCollectedSoFar || 0)
+                  )
+                ].map((_, index) => (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <Leader key={`empty-${index}`} />
+                ))}
+              </div>
+            </div>
+            <div className={styles.gradientBorder}>
+              <div
+                className={`${styles.leaderInvitationKey} ${
+                  legendLeader?.meta?.timesCollectedSoFar === legendLeader?.meta?.maxHits &&
+                  styles.gradientBorderInner
+                }`}
+              >
+                {legendLeader?.meta?.timesCollectedSoFar === legendLeader?.meta?.maxHits ? (
+                  'You are a Leader'
+                ) : (
+                  <>
+                    {legendLeader?.meta?.invitationKey}{' '}
+                    <CopyIcon
+                      color="#706048"
+                      onClick={copyInvitationKey}
+                      className={styles.leaderCopyButton}
+                    />
+                  </>
+                )}
+              </div>
             </div>
           </div>
-          <div className={styles.gradientBorder}>
-            <div
-              className={`${styles.leaderInvitationKey} ${
-                legendLeader?.meta?.timesCollectedSoFar === legendLeader?.meta?.maxHits &&
-                styles.gradientBorderInner
-              }`}
-            >
-              {legendLeader?.meta?.timesCollectedSoFar === legendLeader?.meta?.maxHits ? (
-                'You are a Leader'
-              ) : (
-                <>
-                  {legendLeader?.meta?.invitationKey}{' '}
-                  <CopyIcon
-                    color="#706048"
-                    onClick={copyInvitationKey}
-                    className={styles.leaderCopyButton}
-                  />
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
       <Socials />
     </div>
