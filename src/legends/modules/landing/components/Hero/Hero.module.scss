@@ -84,7 +84,7 @@
             }
           }
         }
-        @include on-mobile {
+        @include breakpoint-down-from(large-tablet) {
           &.open {
             .invitationMenu {
               @include hovered-menu;
@@ -308,6 +308,11 @@
       background: linear-gradient(180deg, transparent 0%, #120f0a $image-size, #120f0a 100%);
       z-index: 0;
     }
+
+    .arrowDown {
+      display: none;
+    }
+
     .background {
       height: $image-size;
       width: 100%;
