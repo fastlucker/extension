@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react'
-import ReactDOM from 'react-dom'
+import { createPortal } from 'react-dom'
 
 import CloseIcon from '@legends/components/CloseIcon'
 import styles from './Modal.module.scss'
@@ -64,7 +64,7 @@ const Modal = ({
     </div>
   )
 
-  return ReactDOM.createPortal(modalContent, document.getElementById('modal-root') as HTMLElement)
+  return createPortal(modalContent, document.getElementById('modal-root') as HTMLElement)
 }
 
 Modal.Heading = Heading
