@@ -160,8 +160,19 @@ const Card: FC<Props> = ({
           {xp && <Rewards xp={xp} size="lg" />}
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
-        {contentSteps && action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount && (
-          <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} />
+        {contentSteps &&
+          action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount &&
+          action?.predefinedId !== CARD_PREDEFINED_ID.Referral && (
+            <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} />
+          )}
+        {action?.predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
+          <HowTo
+            steps={contentSteps}
+            image={contentImage}
+            imageAlt={flavor}
+            meta={meta}
+            copyToClipboard={copyToClipboard}
+          />
         )}
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}

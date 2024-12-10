@@ -22,6 +22,9 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
     if (action.predefinedId === CARD_PREDEFINED_ID.LinkAccount) {
       return <LinkAcc onComplete={onComplete} />
     }
+    if (action.predefinedId === CARD_PREDEFINED_ID.Referral) {
+      return null
+    }
 
     return <div>Unhandled action predefinedId ${action.predefinedId}</div>
   }
