@@ -4,19 +4,23 @@ export enum CardXpType {
   'l2'
 }
 
-export enum CardActionType {
-  'none',
-  'calls',
-  'predefined',
-  'link'
-}
-
-export interface CardAction {
-  type: CardActionType
-  calls?: [string, string, string][]
-  predefinedId?: string
-  link?: string
-}
+export type CardAction =
+  | {
+      type: 'calls'
+      calls: [string, string, string][]
+    }
+  | {
+      type: 'predefined'
+      predefinedId: string
+    }
+  | {
+      type: 'link'
+      link: string
+    }
+  | {
+      type: 'wallet-route' // for opening connected wallet urls
+      route: string
+    }
 
 export enum CardType {
   'oneTime',

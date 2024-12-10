@@ -26,7 +26,9 @@ export const isWheelSpinTodayDone = ({ legends, activity }: WheelSpinOfTheDayPar
   const cardwheelOfFortune =
     legends.find((card: CardFromResponse) => {
       return (
-        card.action.predefinedId === 'wheelOfFortune' && card.card.status === CardStatus.completed
+        card.action.type === 'predefined' &&
+        card.action.predefinedId === 'wheelOfFortune' &&
+        card.card.status === CardStatus.completed
       )
     }) ||
     (activity && activity.length
