@@ -30,7 +30,7 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
   }
 
   if (action.type === CardActionType.calls) {
-    return <SendAccOp action={action as any} onComplete={onComplete} />
+    return <SendAccOp action={action} onComplete={onComplete} />
   }
 
   if (action.type === CardActionType.link) {

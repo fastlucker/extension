@@ -3,13 +3,14 @@ import React, { FC, useCallback, useState } from 'react'
 
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useToast from '@legends/hooks/useToast'
+import { CardActionType } from '@legends/modules/legends/types'
 
 import CardActionButton from './CardActionButton'
 
 type Props = {
   onComplete: () => void
   action: {
-    type: 'calls'
+    type: CardActionType.calls
     calls: [string, string, string][]
   }
 }
