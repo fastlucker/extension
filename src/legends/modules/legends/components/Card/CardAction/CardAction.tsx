@@ -15,11 +15,6 @@ type Props = {
 }
 
 const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
-  action = {
-    type: 'wallet-route',
-    route: 'swap-and-bridge'
-  }
-
   if (action.type === 'predefined') {
     if (action.predefinedId === CARD_PREDEFINED_ID.addEOA) {
       return <SummonAcc onComplete={onComplete} buttonText={buttonText} />
