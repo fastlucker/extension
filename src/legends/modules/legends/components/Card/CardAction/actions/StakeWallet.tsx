@@ -23,10 +23,11 @@ type Props = {
 
 const walletIface = new Interface([
   'function approve(address,uint)',
-  'function balanceOf(address) view returns (uint)'
+  'function balanceOf(address) view returns (uint256)'
 ])
 
 const StakeWallet: FC<Props> = ({ onComplete }) => {
+  const [isLoading, setIsLoading] = useState(true)
   const [isInProgress, setIsInProgress] = useState(false)
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
 
@@ -34,24 +35,33 @@ const StakeWallet: FC<Props> = ({ onComplete }) => {
   const { connectedAccount } = useAccountContext()
   const switchNetwork = useSwitchNetwork(ETHEREUM_CHAIN_ID)
 
-  const [walletBalance, setWalletBalance] = useState()
+  const [walletBalance, setWalletBalance] = useState(null)
 
   useEffect(() => {
     const provider = new BrowserProvider(window.ethereum)
     const walletContract = new Contract(WALLET_TOKEN, walletIface, provider)
     // @TODO use the pending $WALLET balance in the future
-    walletContract
-      .balanceOf(connectedAccount)
-      .then(setWalletBalance)
+    switchNetwork()
+      .then(() =>
+        walletContract
+          .balanceOf(connectedAccount)
+          .then(setWalletBalance)
+          .catch((e) => {
+            console.error(e)
+            addToast('Failed to get $WALLET token balance', 'error')
+          })
+      )
       .catch((e) => {
         console.error(e)
-        throw new Error('Failed to get WALLET balance')
+        addToast('Failed to switch network to Ethereum', 'error')
       })
-  }, [connectedAccount])
+      .finally(() => setIsLoading(false))
+  }, [connectedAccount, addToast, switchNetwork])
 
   const stakeWallet = useCallback(async () => {
     try {
       if (!connectedAccount) throw new Error('No connected account')
+      if (!walletBalance) throw new Error('Insufficient $WALLET balance')
 
       setIsInProgress(true)
       const provider = new BrowserProvider(window.ethereum)
@@ -98,7 +108,7 @@ const StakeWallet: FC<Props> = ({ onComplete }) => {
       isLoading={isInProgress}
       loadingText="Signing..."
       disabled={isInProgress}
-      buttonText={walletBalance === 0n ? 'Buy $WALLET' : 'Stake'}
+      buttonText={isLoading ? 'Loading...' : !walletBalance ? 'Buy $WALLET' : 'Stake'}
       onButtonClick={onButtonClick}
     />
   )
