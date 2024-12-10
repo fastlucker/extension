@@ -6,41 +6,38 @@ $gap-lg: 12px;
 $icon-size-lg: 28px;
 $margin-left-lg: -10px;
 
-
-
 $scale-factor: 0.75;
 
 .itemNetworks {
-        --font-size: #{$font-size-lg};
-        --gap: #{$gap-lg};
-        --icon-size: #{$icon-size-lg};
-        --margin-left: #{$margin-left-lg};
-      display: flex;
-      align-items: start;
-      svg:not(:first-child) {
-        margin-left: var(--margin-left);
-      }
+  --font-size: #{$font-size-lg};
+  --gap: #{$gap-lg};
+  --icon-size: #{$icon-size-lg};
+  --margin-left: #{$margin-left-lg};
+  display: flex;
+  align-items: start;
+  svg:not(:first-child) {
+    margin-left: var(--margin-left);
+  }
 
-      svg {
-        @for $i from 1 through 10 {
-          &:nth-child(#{$i}) {
-            z-index: 10 -$i;
-          }
-        }
+  svg {
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) {
+        z-index: 10 - $i;
       }
     }
+  }
+}
 
-    .itemText {
-      font-size: var(--font-size);
-      color: $blackText;
-    }
+.itemText {
+  font-size: var(--font-size);
+  color: $blackText;
+}
 
-    svg {
-      line-height: 0;
-      width: var(--icon-size);
-      height: var(--icon-size);
-    }
-  
+svg {
+  line-height: 0;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
 
 //   &.sm {
 //     --font-size: #{round($font-size-lg * $scale-factor)};
@@ -53,4 +50,3 @@ $scale-factor: 0.75;
 //       flex-direction: row-reverse;
 //     }
 //   }
-
