@@ -96,7 +96,7 @@ const SummonAcc: FC<Props> = ({ buttonText, onComplete, meta }) => {
           <div> 🎉 Congratulations! 🎉</div>
           The EOA address has been successfully added to your referred friends. <br /> Now is your
           turn to invite them in a way they couldn&apos;t refuse.Here is an example:
-          <br /> <br />
+          <br />
           <div className={styles.copySectionWrapper}>
             <div className={styles.copyField}>
               <div>
