@@ -1,8 +1,9 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   button: ViewStyle
@@ -11,33 +12,33 @@ interface Style {
   item: ViewStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 35,
-    position: 'relative',
-    zIndex: 1,
-    ...spacings.ph,
-    ...spacings.pvTy
-  },
-  dropdown: {
-    position: 'absolute',
-    backgroundColor: colors.white,
-    width: 155,
-    ...common.shadowPrimary,
-    ...common.borderRadiusPrimary,
-    ...spacings.phTy,
-    ...spacings.pvTy
-  },
-  overlay: {
-    width: '100%',
-    height: '100%'
-  },
-  item: {
-    paddingHorizontal: 5,
-    paddingVertical: 5
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    button: {
+      width: 24,
+      height: 24,
+      position: 'relative',
+      ...flexbox.justifyCenter,
+      ...flexbox.alignCenter
+    },
+    dropdown: {
+      position: 'absolute',
+      backgroundColor: theme.primaryBackground,
+      minWidth: 160,
+      ...common.shadowSecondary,
+      ...common.borderRadiusPrimary
+    },
+    overlay: {
+      width: '100%',
+      height: '100%',
+      backgroundColor: theme.backdrop
+    },
+    item: {
+      ...spacings.phSm,
+      ...common.borderRadiusPrimary,
+      height: 40,
+      ...flexbox.justifyCenter
+    }
+  })
 
-export default styles
+export default getStyles

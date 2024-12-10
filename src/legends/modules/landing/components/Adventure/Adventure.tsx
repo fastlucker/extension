@@ -34,7 +34,7 @@ const ITEMS = [
 const Adventure = () => {
   return (
     <div className={styles.wrapper}>
-      <Title title="Discover the Adventure of Ambire Legends" />
+      <Title title="Discover the Adventure of Ambire Legends" className={styles.title} />
       <div className={styles.items}>
         {ITEMS.map((item) => (
           <div key={item.title} className={styles.item}>

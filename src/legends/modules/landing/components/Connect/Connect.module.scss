@@ -48,7 +48,15 @@
         font-weight: 500;
         border-color: $landingAccent;
         box-shadow: 0 0.1563rem $landingAccent;
+        text-transform: uppercase;
       }
+    }
+    .disclaimer {
+      color: $alternativeText;
+      text-shadow: 0 0.125rem $landingBoxShadow;
+      font-size: 1.125rem;
+      text-align: center;
+      margin-top: 1rem;
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord'
@@ -18,6 +18,9 @@ import styles from './Hero.module.scss'
 const Hero = () => {
   const navigate = useNavigate()
   const { connectedAccount, requestAccounts } = useAccountContext()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isDownloadLinkClicked, setIsDownloadLinkClicked] = useState(false)
+  const menuRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (connectedAccount) {
@@ -35,8 +38,31 @@ const Hero = () => {
         'https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea',
         '_blank'
       )
+      setIsDownloadLinkClicked(true)
     }
   }
+
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev)
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!isMenuOpen) return
+
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+        event.stopPropagation()
+        event.preventDefault()
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMenuOpen])
 
   return (
     <div className={styles.wrapper}>
@@ -63,19 +89,21 @@ const Hero = () => {
               >
                 <div className={styles.buttonInner}>
                   <RhombusDeco className={styles.leftDeco} />
-                  {!isExtensionInstalled ? 'Get the Extension' : 'Connect'}
+                  {!isExtensionInstalled ? 'Get the Extension' : 'Connect Ambire'}
                   <RhombusDeco className={styles.rightDeco} />
                 </div>
               </button>
-              {!isExtensionInstalled && (
+              {isDownloadLinkClicked && (
                 <p className={styles.disclaimer}>
                   If you have installed the extension, please refresh the page
                 </p>
               )}
             </div>
 
-            <div className={styles.invitation}>
-              <img src={inviteImage} alt="Invite" className={styles.invitationImage} />
+            <div className={`${styles.invitation} ${isMenuOpen ? styles.open : ''}`} ref={menuRef}>
+              <button type="button" onClick={toggleMenu} className={styles.invitationButton}>
+                <img src={inviteImage} alt="Invite" className={styles.invitationImage} />
+              </button>
               <div className={styles.invitationMenu}>
                 <a
                   href="https://www.ambire.com/discord"
