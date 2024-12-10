@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 
 import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
-import { CardAction, CardActionType, CardFromResponse } from '@legends/modules/legends/types'
+import { CardAction, CardActionType } from '@legends/modules/legends/types'
 
 import LinkAcc from './actions/LinkAcc'
 import SendAccOp from './actions/SendAccOp'
@@ -11,11 +11,10 @@ import SummonAcc from './actions/SummonAcc'
 type Props = {
   action: CardAction
   buttonText: string
-  meta: CardFromResponse['meta']
   onComplete: () => void
 }
 
-const CardActionComponent: FC<Props> = ({ action, buttonText, meta, onComplete }) => {
+const CardActionComponent: FC<Props> = ({ action, buttonText, onComplete }) => {
   if (action.type === CardActionType.predefined) {
     if (action.predefinedId === CARD_PREDEFINED_ID.addEOA) {
       return <SummonAcc onComplete={onComplete} buttonText={buttonText} />

@@ -108,11 +108,7 @@ const Card: FC<Props> = ({
   }
   return (
     <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
-      <Modal
-        isOpen={isOnLegendCompleteModalOpen}
-        setIsOpen={setIsOnLegendCompleteModalOpen}
-        showCloseButton
-      >
+      <Modal isOpen={isOnLegendCompleteModalOpen} setIsOpen={setIsOnLegendCompleteModalOpen}>
         <>
           <div> 🎉 Congratulations! 🎉</div>
           <br />
@@ -171,7 +167,6 @@ const Card: FC<Props> = ({
           onComplete={onLegendCompleteWrapped}
           buttonText={buttonText}
           action={action}
-          meta={meta}
         />
       </Modal>
       {action.predefinedId === 'wheelOfFortune' && (
