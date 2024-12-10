@@ -82,12 +82,7 @@ const Card: FC<Props> = ({
 
   return (
     <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
-      <Modal
-        isOpen={isActionModalOpen}
-        setIsOpen={setIsActionModalOpen}
-        showCloseButton={false}
-        className={styles.modal}
-      >
+      <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen} className={styles.modal}>
         <Modal.Heading className={styles.modalHeading}>
           <div className={styles.modalHeadingTitle}>{title}</div>
           {xp && <Rewards xp={xp} size="lg" />}
