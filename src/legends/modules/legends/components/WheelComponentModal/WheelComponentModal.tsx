@@ -16,7 +16,7 @@ import useToast from '@legends/hooks/useToast'
 
 import chainImage from './assets/chain.png'
 // @ts-ignore
-import CloseIcon from './assets/close.svg'
+import CloseIcon from '@legends/components/CloseIcon'
 import mainImage from './assets/main.png'
 import pointerImage from './assets/pointer.png'
 import spinnerImage from './assets/spinner.png'
@@ -222,7 +222,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
             <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
           ) : null}
           <button type="button" onClick={closeModal} className={styles.closeButton}>
-            <img src={CloseIcon} width="32" height="32" alt="Close" />
+            <CloseIcon />
           </button>
           <h2 className={styles.title}>Wheel of Fortune</h2>
           <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />

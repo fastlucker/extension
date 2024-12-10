@@ -35,6 +35,7 @@ type Props = Pick<
   | 'meta'
   | 'contentSteps'
   | 'contentImage'
+  | 'contentVideo'
 >
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -55,7 +56,8 @@ const Card: FC<Props> = ({
   action,
   meta,
   contentSteps,
-  contentImage
+  contentImage,
+  contentVideo
 }) => {
   const { activity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
@@ -158,21 +160,21 @@ const Card: FC<Props> = ({
           </button>
         </>
       </Modal>
-      <Modal
-        isOpen={isActionModalOpen}
-        setIsOpen={setIsActionModalOpen}
-        showCloseButton={false}
-        className={styles.modal}
-      >
+      <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen} className={styles.modal}>
         <Modal.Heading className={styles.modalHeading}>
           <div className={styles.modalHeadingTitle}>{title}</div>
           {xp && <Rewards xp={xp} size="lg" />}
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
         {contentSteps &&
-          action.type === CardActionType.predefined &&
-          action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount && (
-            <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} />
+          (action.type !== CardActionType.predefined ||
+            action.predefinedId !== CARD_PREDEFINED_ID.LinkAccount) && (
+            <HowTo
+              steps={contentSteps}
+              image={contentImage}
+              imageAlt={flavor}
+              video={contentVideo}
+            />
           )}
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}
@@ -198,7 +200,14 @@ const Card: FC<Props> = ({
         </div>
       ) : null}
       <div className={styles.imageAndCounter}>
-        <img src={image} alt={title} className={styles.image} />
+        <button
+          disabled={disabled}
+          type="button"
+          onClick={openActionModal}
+          className={styles.imageButtonWrapper}
+        >
+          <img src={image} alt={title} className={styles.image} />
+        </button>
         <Counter width={48} height={48} count={timesCollectedToday} className={styles.counter} />
       </div>
       <div className={styles.contentAndAction}>

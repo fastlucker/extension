@@ -80,4 +80,5 @@ export interface CardFromResponse {
   }
   contentSteps?: string[]
   contentImage?: string
+  contentVideo?: string
 }

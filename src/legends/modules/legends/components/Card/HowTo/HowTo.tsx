@@ -1,14 +1,16 @@
 import React, { FC } from 'react'
 
 import styles from './HowTo.module.scss'
+import YouTubeVideo from './components/YouTubeVideo'
 
 type Props = {
   steps: string[]
   image?: string
   imageAlt?: string
+  video?: string
 }
 
-const HowTo: FC<Props> = ({ steps, image, imageAlt }) => {
+const HowTo: FC<Props> = ({ steps, image, imageAlt, video }) => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.column}>
@@ -23,6 +25,9 @@ const HowTo: FC<Props> = ({ steps, image, imageAlt }) => {
       </div>
       <div className={styles.column}>
         {image && <img className={styles.image} src={image} alt={imageAlt} />}
+        {video && (
+          <YouTubeVideo className={styles.video} src={video} />
+        )}
       </div>
     </div>
   )
