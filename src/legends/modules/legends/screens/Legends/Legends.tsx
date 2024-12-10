@@ -39,6 +39,7 @@ const Legends = () => {
               xp={card.xp}
               card={card.card}
               action={card.action}
+              meta={card.meta}
               timesCollectedToday={card.timesCollectedToday}
             />
           ))}

@@ -3,20 +3,28 @@ import React, { FC, useMemo, useState } from 'react'
 import Modal from '@legends/components/Modal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
+import Counter from '@legends/modules/legends/components/Card/Counter'
+import Flask from '@legends/modules/legends/components/Card/Flask'
+import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 
-import Rewards from '@legends/modules/legends/components/Card/Rewards'
-import Counter from '@legends/modules/legends/components/Card/Counter'
 import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
 import CardActionComponent from './CardAction'
-import Flask from "@legends/modules/legends/components/Card/Flask";
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'description' | 'flavor' | 'xp' | 'image' | 'card' | 'action' | 'timesCollectedToday'
+  | 'title'
+  | 'description'
+  | 'flavor'
+  | 'xp'
+  | 'image'
+  | 'card'
+  | 'action'
+  | 'timesCollectedToday'
+  | 'meta'
 >
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -34,7 +42,8 @@ const Card: FC<Props> = ({
   xp,
   timesCollectedToday,
   card,
-  action
+  action,
+  meta
 }) => {
   const { activity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
@@ -43,7 +52,6 @@ const Card: FC<Props> = ({
   const isCompleted = card.status === CardStatus.completed
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
-
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
   const openActionModal = () =>
@@ -83,6 +91,7 @@ const Card: FC<Props> = ({
           onComplete={onLegendCompleteWrapped}
           buttonText={buttonText}
           action={action}
+          meta={meta}
         />
       </Modal>
       {action.predefinedId === 'wheelOfFortune' && (
