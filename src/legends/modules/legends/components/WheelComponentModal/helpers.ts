@@ -35,5 +35,8 @@ export const isWheelSpinTodayDone = ({ legends }: WheelSpinOfTheDayParams): bool
 
   if (!cardWheelOfFortune) return false
 
-  return cardWheelOfFortune.card.status === CardStatus.completed
+  return (
+    cardWheelOfFortune.card.status === CardStatus.completed ||
+    cardWheelOfFortune.card.status === CardStatus.disabled
+  )
 }
