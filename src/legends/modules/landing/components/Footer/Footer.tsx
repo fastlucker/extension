@@ -60,7 +60,7 @@ const Footer = () => {
         <span className={styles.text}>Onchain game by</span>
         <a href="https://www.ambire.com/" target="_blank" rel="noreferrer">
           <AmbireLogoWithText
-          {/* @ts-ignore */}
+            /* @ts-ignore */
             className={styles.logo}
             accessibilityLabel="Ambire Wallet—hybrid account abstraction wallet supporting EOAs and Smart Accounts"
           />
