@@ -30,7 +30,7 @@ const NAVIGATION_LINKS = [
   { to: LEGENDS_ROUTES.legends, text: 'Legends', icon: faMedal },
   { to: LEGENDS_ROUTES.leaderboard, text: 'Leaderboard', icon: faTrophy },
   {
-    to: 'https://grimoires.ambire.com/',
+    to: 'https://codex.ambire.com/',
     text: 'Guide',
     icon: faFileLines,
     newTab: true,
