@@ -3,14 +3,14 @@ import React, { FC, useMemo, useState } from 'react'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Modal from '@legends/components/Modal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
-import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import Counter from '@legends/modules/legends/components/Card/Counter'
 import Flask from '@legends/modules/legends/components/Card/Flask'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
+import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
+import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import {
   CardActionType,
   CardFromResponse,
@@ -59,7 +59,7 @@ const Card: FC<Props> = ({
   contentImage,
   contentVideo
 }) => {
-  const { activity, getActivity } = useRecentActivityContext()
+  const { getActivity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
 
@@ -125,10 +125,7 @@ const Card: FC<Props> = ({
     }
   }
 
-  const hoursUntilMidnight = useMemo(
-    () => (activity?.transactions ? calculateHoursUntilMidnight(activity.transactions) : 0),
-    [activity]
-  )
+  const hoursUntilMidnight = useMemo(() => timeUntilMidnight().hours, [])
 
   const copyToClipboard = async () => {
     try {
