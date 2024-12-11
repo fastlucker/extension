@@ -218,7 +218,7 @@ const SmartAccountImportScreen = () => {
       footer={<BackButton fallbackBackRoute={ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Import existing smart account json')}>
+        <Panel title={t('Import a JSON backup file')}>
           <div
             {...getRootProps()}
             style={{
@@ -237,11 +237,11 @@ const SmartAccountImportScreen = () => {
                   </Text>
                 ) : (
                   <Text weight="regular" style={text.center}>
-                    {'Drop your JSON file here,\nor '}
+                    {'Drag and drop the JSON backup file\nor '}
                     <Text appearance="primary" weight="regular">
                       upload
                     </Text>
-                    <Text weight="regular">{' from your computer'}</Text>
+                    <Text weight="regular">{' it from your computer'}</Text>
                     {isLoading && (
                       <View style={spacings.mlTy}>
                         <Spinner style={{ width: 16, height: 16 }} />

@@ -7,19 +7,42 @@ export enum CardXpType {
 export enum CardActionType {
   'none',
   'calls',
-  'predefined'
+  'predefined',
+  'link',
+  'walletRoute'
 }
 
-export interface CardAction {
-  type: CardActionType
-  calls?: [string, string, string][]
-  predefinedId?: string
+export type CardActionCalls = {
+  type: CardActionType.calls
+  calls: [string, string, string][]
 }
+
+export type CardActionPredefined = {
+  type: CardActionType.predefined
+  predefinedId: string
+}
+
+export type CardActionLink = {
+  type: CardActionType.link
+  link: string
+}
+
+export type CardActionWalletRoute = {
+  type: CardActionType.walletRoute // for opening connected wallet urls
+  route: string
+}
+
+export type CardAction =
+  | CardActionCalls
+  | CardActionPredefined
+  | CardActionLink
+  | CardActionWalletRoute
 
 export enum CardType {
   'oneTime',
   'daily',
-  'recurring'
+  'recurring',
+  'weekly'
 }
 
 export enum CardStatus {
@@ -48,4 +71,14 @@ export interface CardFromResponse {
     status: CardStatus
   }
   image: string
+  timesCollectedToday: number
+  meta?: {
+    invitationKey: string
+    timesUsed: number
+    maxHits: number
+    timesCollectedSoFar: number
+  }
+  contentSteps?: string[]
+  contentImage?: string
+  contentVideo?: string
 }

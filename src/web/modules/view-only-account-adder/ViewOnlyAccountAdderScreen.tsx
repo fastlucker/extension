@@ -5,6 +5,7 @@ import { View } from 'react-native'
 
 import { AddressState } from '@ambire-common/interfaces/domains'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
+import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -24,7 +25,6 @@ import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 
 import AddressField from './AddressField'
 
@@ -193,7 +193,7 @@ const ViewOnlyScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Import A Wallet In View-Only Mode')}>
+        <Panel title={t('Import a view-only address')}>
           {fields.map((field, index) => (
             <AddressField
               duplicateAccountsIndexes={duplicateAccountsIndexes}
@@ -219,7 +219,7 @@ const ViewOnlyScreen = () => {
               {...bindAnim}
             >
               <Text fontSize={14} underline>
-                {t('+ Add one more address')}
+                {t('+ Add another address')}
               </Text>
             </AnimatedPressable>
           </View>

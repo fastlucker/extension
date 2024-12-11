@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ethers, ZeroAddress, zeroPadValue } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -5,6 +6,7 @@ import LegendsNFT from '@contracts/compiled/LegendsNFTImplementation.json'
 import { LEGENDS_NFT_ADDRESS } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useErc5792 from '@legends/hooks/useErc5792'
 import useToast from '@legends/hooks/useToast'
 
 enum CharacterLoadingMessage {
@@ -54,6 +56,7 @@ const useMintCharacter = () => {
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
   const { getCharacter, character } = useCharacterContext()
+  const { sendCalls, getCallsStatus, chainId } = useErc5792()
 
   const [isCheckingMintStatus, setIsCheckingMintStatus] = useState(true)
   const [isMinting, setIsMinting] = useState(false)
@@ -144,7 +147,7 @@ const useMintCharacter = () => {
       // Switch to Base chain
       await window.ambire.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x2105' }] // chainId must be in hexadecimal numbers
+        params: [{ chainId }] // chainId must be in hexadecimal numbers
       })
 
       setIsMinting(true)
@@ -160,15 +163,17 @@ const useMintCharacter = () => {
       const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
 
       try {
-        pollAttempts = 0
-        // Call the mint function and wait for the transaction response
-        const tx = await nftContract.mint(type)
+        const sendCallsIdentifier = await sendCalls(chainId, await signer.getAddress(), [
+          {
+            to: LEGENDS_NFT_ADDRESS,
+            data: nftContract.interface.encodeFunctionData('mint', [type])
+          }
+        ])
 
         setLoadingMessage(CharacterLoadingMessage.Minting)
-        // Wait for the transaction to be mined
-        const receipt = await tx.wait()
 
-        if (receipt.status === 1) {
+        const receipt = await getCallsStatus(sendCallsIdentifier)
+        if (receipt.status === '0x1') {
           setLoadingMessage(CharacterLoadingMessage.Minted)
           // Transaction was successful, call getCharacter
           await pollForCharacterAfterMint()
@@ -184,7 +189,7 @@ const useMintCharacter = () => {
         console.log('Error during minting process:', e)
       }
     },
-    [addToast, pollForCharacterAfterMint]
+    [addToast, pollForCharacterAfterMint, sendCalls, getCallsStatus, chainId]
   )
 
   useEffect(() => {

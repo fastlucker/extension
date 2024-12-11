@@ -5,6 +5,7 @@ import Crown from '@legends/common/assets/svg/CrownIcon/CrownIcon'
 import Diamond from '@legends/common/assets/svg/DiamondIcon/DiamondIcon'
 import Alert from '@legends/components/Alert'
 import Modal from '@legends/components/Modal'
+import Stacked from '@legends/components/Stacked'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -40,9 +41,9 @@ const CharacterSection = () => {
 
   return (
     <section className={styles.wrapper}>
-      <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
-        <Modal.Heading>Character description</Modal.Heading>
-        <Modal.Text>{character?.description}</Modal.Text>
+      <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen} className={styles.modal}>
+        <Modal.Heading className={styles.modalTitle}>Description</Modal.Heading>
+        <Modal.Text className={styles.modalText}>{character?.description}</Modal.Text>
       </Modal>
       <div className={styles.characterInfo}>
         <span className={styles.kicker}>YOUR CHARACTER</span>
@@ -70,7 +71,7 @@ const CharacterSection = () => {
 
         <div className={styles.characterLevelInfoWrapper}>
           <div className={styles.characterItemWrapper}>
-            <CoinIcon className={`${styles.icon} ${styles.iconCoin}`} />
+            <CoinIcon className={`${styles.icon} ${styles.iconCoin}`} width={64} height={64} />
             <div className={styles.levelWrapper}>
               <div className={`${styles.levelInfo} ${styles.levelInfoTop}`}>
                 <span className={styles.level}>Lvl. {character.level}</span>
@@ -81,7 +82,13 @@ const CharacterSection = () => {
 
                 <div
                   className={styles.levelProgressBar}
-                  style={{ width: `${(character.xp / xpForNextLevel) * 100}%` }}
+                  style={{
+                    width: `${(
+                      ((character.xp - startXpForCurrentLevel) /
+                        (xpForNextLevel - startXpForCurrentLevel)) *
+                      100
+                    ).toFixed(2)}%`
+                  }}
                 />
               </div>
               <div className={styles.levelInfo}>
@@ -91,18 +98,23 @@ const CharacterSection = () => {
             </div>
           </div>
 
-          <div className={styles.characterItemWrapper}>
-            <Diamond className={styles.icon} />
-            <div className={styles.characterItem}>
-              <span className={styles.item}>
-                {isReady && amount ? amountFormatted : 'Loading...'}
-              </span>
-              Wallet Balance
+          <div className={styles.logoAndBalanceWrapper}>
+            <div className={styles.logoWrapper}>
+              <Stacked chains={['ethereum', 'base', 'arbitrum', 'scroll', 'optimism']} />
+            </div>
+            <div className={styles.characterItemWrapper}>
+              <Diamond className={`${styles.icon} ${styles.iconDiamond}`} width={64} height={64} />
+              <div className={styles.characterItem}>
+                <span className={styles.item}>
+                  {isReady && amount ? amountFormatted : 'Loading...'}
+                </span>
+                Wallet Balance
+              </div>
             </div>
           </div>
 
           <div className={styles.characterItemWrapper}>
-            <Crown className={styles.icon} />
+            <Crown className={`${styles.icon} ${styles.iconDiamond}`} width={64} height={64} />
             <div className={styles.characterItem}>
               <span className={styles.item}>{userLeaderboardData?.rank}</span>
               Leaderboard
