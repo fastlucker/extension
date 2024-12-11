@@ -1,9 +1,7 @@
 import React, { FC, useEffect } from 'react'
-import ReactDOM from 'react-dom'
+import { createPortal } from 'react-dom'
 
-import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
+import CloseIcon from '@legends/components/CloseIcon'
 import styles from './Modal.module.scss'
 
 type ComponentProps = {
@@ -58,7 +56,7 @@ const Modal = ({
       <div ref={modalRef} className={`${styles.modal} ${className}`}>
         {isClosable && showCloseButton && (
           <button onClick={closeModal} type="button" className={styles.closeButton}>
-            <FontAwesomeIcon icon={faTimes} />
+            <CloseIcon />
           </button>
         )}
         {isOpen && children}
@@ -66,7 +64,7 @@ const Modal = ({
     </div>
   )
 
-  return ReactDOM.createPortal(modalContent, document.getElementById('modal-root') as HTMLElement)
+  return createPortal(modalContent, document.getElementById('modal-root') as HTMLElement)
 }
 
 Modal.Heading = Heading
