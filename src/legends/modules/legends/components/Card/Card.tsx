@@ -102,9 +102,9 @@ const Card: FC<Props> = ({
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(
-        `⚠️ TRADE OFFER ⚠️ \nYou download Ambire, we both win 🎉 \n1. Download the Ambire extension: https://www.ambire.com/get-extension \n2. Use my referral code so we both get XP: ${
+        `🤑Join the biggest airdrop a WALLET has ever done! 🚀 \n \nAmbire Wallet is giving away 195M $WALLET tokens through the Ambire Legends campaign. All activity with a Smart Account on 5 of the hottest EVM chains is rewarded. Start strong with the first 4 transactions free! \n \nHere’s what you need to do: \n1. Download the Ambire extension: https://www.ambire.com/get-extension \n2. Use my referral code so we both get XP: ${
           meta?.invitationKey || ''
-        }\n3. Join Ambire Legends - on-chain quests by Ambire with XP and rewards: https://legends.ambire.com/`
+        }\n3. Create a Smart Account in the extension and join Ambire Legends at https://legends.ambire.com/`
       )
       addToast('Text with referral code copied to clipboard', 'success')
     } catch (e: any) {
