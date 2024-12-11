@@ -10,10 +10,9 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
-import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
+import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import wheelBackgroundImage from './assets/wheel-background.png'
@@ -40,18 +39,12 @@ const NAVIGATION_LINKS = [
 ]
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
-  const { activity, isLoading } = useRecentActivityContext()
-
   const { addToast } = useToast()
 
-  const hoursUntilMidnight = useMemo(
-    () => (activity?.transactions ? calculateHoursUntilMidnight(activity.transactions) : 0),
-    [activity]
-  )
-
+  const hoursUntilMidnight = useMemo(() => timeUntilMidnight().hours, [])
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const { wheelSpinOfTheDay, legends } = useLegendsContext()
+  const { wheelSpinOfTheDay, legends, isLoading } = useLegendsContext()
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
 
