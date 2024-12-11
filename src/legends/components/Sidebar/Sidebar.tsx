@@ -54,12 +54,16 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { wheelSpinOfTheDay, legends } = useLegendsContext()
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
-  console.log('legendLeader', legendLeader)
+
   const handleModal = () => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
   }
 
   const copyInvitationKey = () => {
+    if (!legendLeader?.meta?.invitationKey) {
+      addToast('No invitation key to copy', 'error')
+      return
+    }
     navigator.clipboard.writeText(legendLeader?.meta?.invitationKey)
     addToast('Copied to clipboard')
   }
@@ -144,11 +148,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
                 ) : (
                   <>
                     {legendLeader?.meta?.invitationKey}{' '}
-                    <CopyIcon
-                      color="#706048"
-                      onClick={copyInvitationKey}
-                      className={styles.leaderCopyButton}
-                    />
+                    <button type="button" onClick={copyInvitationKey}>
+                      <CopyIcon color="#706048" className={styles.leaderCopyButton} />
+                    </button>
                   </>
                 )}
               </div>

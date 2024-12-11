@@ -39,7 +39,7 @@ type CharacterContextValue = {
 const CharacterContext = createContext<CharacterContextValue>({} as CharacterContextValue)
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, isLoading: isConnectedAccountLoading } = useAccountContext()
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [levelUpData, setLevelUpData] = useState<LevelUpData>(null)
@@ -108,13 +108,13 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   )
 
   const getCharacter = useCallback(async () => {
-    setLevelUpData(null)
-
     if (!connectedAccount) {
       setCharacter(null)
-      setIsLoading(false)
+      setIsLoading(true)
       return
     }
+
+    setLevelUpData(null)
 
     try {
       setIsLoading(true)
@@ -154,7 +154,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     getCharacter().catch(() => {
       setError(`Couldn't load the requested character: ${connectedAccount}`)
     })
-  }, [character, connectedAccount, getCharacter])
+  }, [character, connectedAccount, getCharacter, isConnectedAccountLoading])
 
   const contextValue = useMemo(
     () => ({
