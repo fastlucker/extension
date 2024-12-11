@@ -65,7 +65,7 @@ const ActivitySection = () => {
         </div>
       )}
       {error && <Alert type="error" title={error} />}
-      {transactions?.length && (
+      {transactions?.length ? (
         <table className={styles.table}>
           <thead>
             <tr>
@@ -135,9 +135,11 @@ const ActivitySection = () => {
             })}
           </tbody>
         </table>
-      )}
+      ) : null}
       {!transactions?.length && !isLoading && !error && <p>No activity found for this account</p>}
-      {activity && <Pagination activity={activity} page={page} setPage={setPage} />}
+      {activity && activity?.length ? (
+        <Pagination activity={activity} page={page} setPage={setPage} />
+      ) : null}
     </div>
   )
 }

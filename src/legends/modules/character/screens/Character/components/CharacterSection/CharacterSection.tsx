@@ -105,9 +105,7 @@ const CharacterSection = () => {
             <div className={styles.characterItemWrapper}>
               <Diamond className={`${styles.icon} ${styles.iconDiamond}`} width={64} height={64} />
               <div className={styles.characterItem}>
-                <span className={styles.item}>
-                  {isReady && amount ? amountFormatted : 'Loading...'}
-                </span>
+                <span className={styles.item}>{isReady ? amountFormatted : 'Loading...'}</span>
                 Wallet Balance
               </div>
             </div>
