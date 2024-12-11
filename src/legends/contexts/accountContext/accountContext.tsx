@@ -127,6 +127,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   const handleDisconnectFromWallet = useCallback(() => {
     setConnectedAccount(null)
+    setNonV2Account(null)
     setIsLoading(false)
     localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
   }, [])
