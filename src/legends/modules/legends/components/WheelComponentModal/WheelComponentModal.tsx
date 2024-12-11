@@ -16,7 +16,7 @@ import useToast from '@legends/hooks/useToast'
 
 import chainImage from './assets/chain.png'
 // @ts-ignore
-import CloseIcon from './assets/close.svg'
+import CloseIcon from '@legends/components/CloseIcon'
 import mainImage from './assets/main.png'
 import pointerImage from './assets/pointer.png'
 import spinnerImage from './assets/spinner.png'
@@ -85,13 +85,12 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       setWheelState('unlocked')
       // Don't await this, we don't want to block the UI
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      onLegendComplete()
       return true
     } catch (error) {
       console.error('Error fetching transaction status:', error)
       return false
     }
-  }, [connectedAccount, onLegendComplete, unlockChainAnimation])
+  }, [connectedAccount, unlockChainAnimation])
 
   const unlockWheel = useCallback(async () => {
     // Switch to Base chain
@@ -117,10 +116,10 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         }
       ])
 
+      addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
       const receipt = await getCallsStatus(callsId)
 
       if (receipt && receipt.status === '0x1') {
-        addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
         const transactionFound = await checkTransactionStatus()
         if (!transactionFound) {
           const checkStatusWithTimeout = async (attempts: number) => {
@@ -173,8 +172,11 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     }, 10000)
   }, [prizeNumber, wheelState])
 
-  const closeModal = () => {
+  const closeModal = async () => {
     setIsOpen(false)
+    if (wheelState === 'spun') {
+      await onLegendComplete()
+    }
   }
 
   const onButtonClick = async () => {
@@ -183,7 +185,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     } else if (wheelState === 'unlocked') {
       await spinWheel()
     } else if (wheelState === 'spun' || wheelState === 'error') {
-      closeModal()
+      await closeModal()
     }
   }
 
@@ -220,7 +222,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
             <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
           ) : null}
           <button type="button" onClick={closeModal} className={styles.closeButton}>
-            <img src={CloseIcon} width="32" height="32" alt="Close" />
+            <CloseIcon />
           </button>
           <h2 className={styles.title}>Wheel of Fortune</h2>
           <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />

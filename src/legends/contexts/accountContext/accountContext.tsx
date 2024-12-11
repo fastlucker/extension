@@ -4,6 +4,7 @@ import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import { RELAYER_URL } from '@env'
+import useToast from '@legends/hooks/useToast'
 
 const accountContext = createContext<{
   connectedAccount: string | null
@@ -30,6 +31,7 @@ const accountContext = createContext<{
 const LOCAL_STORAGE_ACC_KEY = 'connectedAccount'
 
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const { addToast } = useToast()
   // We keep only V2 accounts
   const [connectedAccount, setConnectedAccount] = React.useState<string | null>(() => {
     const storedAccount = localStorage.getItem(LOCAL_STORAGE_ACC_KEY)
@@ -97,6 +99,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
           localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
           return
         }
+        setNonV2Account(address)
 
         if (!connectedAccount) {
           const isV1 = isAmbireV1LinkedAccount(factoryAddr)
@@ -111,20 +114,20 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
           return
         }
-
-        setNonV2Account(address)
       } catch (e: any) {
-        setError(
-          "We are experiencing a back-end outage and couldn't validate the connected account's identity. Please reload the page, and if the problem persists, contact support."
+        addToast(
+          "We are experiencing a back-end outage and couldn't validate the connected account's identity. Please reload the page, and if the problem persists, contact support.",
+          'error'
         )
         console.log(e)
       }
     },
-    [connectedAccount]
+    [addToast, connectedAccount]
   )
 
   const handleDisconnectFromWallet = useCallback(() => {
     setConnectedAccount(null)
+    setNonV2Account(null)
     setIsLoading(false)
     localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
   }, [])

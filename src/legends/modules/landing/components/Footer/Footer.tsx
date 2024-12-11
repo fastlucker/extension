@@ -1,5 +1,6 @@
 import React from 'react'
 
+import AmbireLogoWithText from '@common/assets/svg/AmbireLogoWithText'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord'
 import { faTelegram } from '@fortawesome/free-brands-svg-icons/faTelegram'
 import { faXTwitter } from '@fortawesome/free-brands-svg-icons/faXTwitter'
@@ -56,9 +57,14 @@ const Footer = () => {
         <LinesDeco2 className={styles.bottomDeco} />
       </div>
       <div className={styles.bottom}>
-        <span className={styles.copyright}>
-          Copyright © 2024 Ambire Wallet. All Rights Reserved
-        </span>
+        <span className={styles.text}>Onchain game by</span>
+        <a href="https://www.ambire.com/" target="_blank" rel="noreferrer">
+          <AmbireLogoWithText
+            /* @ts-ignore */
+            className={styles.logo}
+            accessibilityLabel="Ambire Wallet—hybrid account abstraction wallet supporting EOAs and Smart Accounts"
+          />
+        </a>
       </div>
     </div>
   )

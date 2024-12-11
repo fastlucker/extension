@@ -1,14 +1,21 @@
 import React, { FC } from 'react'
 
+import CopyIcon from '@common/assets/svg/CopyIcon'
+import { CardFromResponse } from '@legends/modules/legends/types'
+
+import YouTubeVideo from './components/YouTubeVideo'
 import styles from './HowTo.module.scss'
 
 type Props = {
   steps: string[]
   image?: string
   imageAlt?: string
+  video?: string
+  meta?: CardFromResponse['meta']
+  copyToClipboard?: () => void
 }
 
-const HowTo: FC<Props> = ({ steps, image, imageAlt }) => {
+const HowTo: FC<Props> = ({ steps, image, imageAlt, meta, copyToClipboard, video }) => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.column}>
@@ -22,7 +29,52 @@ const HowTo: FC<Props> = ({ steps, image, imageAlt }) => {
         </div>
       </div>
       <div className={styles.column}>
-        {image && <img className={styles.image} src={image} alt={imageAlt} />}
+        {image && !meta && <img className={styles.image} src={image} alt={imageAlt} />}
+        {video && <YouTubeVideo className={styles.video} src={video} />}
+        {meta && (
+          <div className={styles.copySection}>
+            <p>
+              You have three wishes... No! Better yet, you have five invitations! Send them to
+              friends, but choose wisely how to invite them.
+            </p>
+            <br />
+            <p>Here is an example:</p>
+
+            <div className={styles.copySectionWrapper}>
+              <div className={styles.copyField}>
+                <div>
+                  <div className={styles.copyHeader}>
+                    <div>⚠️ I have an offer for you that you can&apos;t resist ⚠️ </div>
+                    <CopyIcon className={styles.copyIcon} onClick={copyToClipboard} />
+                  </div>
+                  You download Ambire, we both win 🎉 <br /> 1. Download the Ambire extension:{' '}
+                  <a
+                    target="_blank"
+                    href="https://www.ambire.com/get-extension"
+                    rel="noreferrer"
+                    className={styles.link}
+                  >
+                    https://www.ambire.com/get-extension
+                  </a>
+                  <br /> 2. Use my referral code so we both get XP: {meta?.invitationKey} <br /> 3.
+                  Join Ambire Legends - on-chain quests by Ambire with XP and rewards:{' '}
+                  <a
+                    target="_blank"
+                    href="https://legends.ambire.com/"
+                    rel="noreferrer"
+                    className={styles.link}
+                  >
+                    https://legends.ambire.com/{' '}
+                  </a>
+                  <br />
+                  There, you can experience the power of Smart Accounts and EOAs in one place. You
+                  can approve and swap in one go, enjoy gasless transactions without needing ETH for
+                  gas, and sign multiple transactions, saving gas and time, and more!
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
