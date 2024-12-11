@@ -58,6 +58,7 @@ const Card: FC<Props> = ({
   contentImage,
   contentVideo
 }) => {
+  const { getActivity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
 
@@ -80,9 +81,40 @@ const Card: FC<Props> = ({
       ? setIsFortuneWheelModalOpen(false)
       : setIsActionModalOpen(false)
 
-  const onLegendCompleteWrapped = async () => {
+  const pollActivityUntilComplete = async (txnId: string, attempt: number) => {
+    if (attempt > 10) {
+      addToast('Failed to process the transaction!', 'error')
+      return
+    }
+
+    // We can't rely on state as it's not updated due to the self-invoking nature of the function
+    const newActivity = await getActivity()
+
+    const foundTxn = newActivity?.transactions?.find((txn) => txn.txId === txnId)
+
+    if (!foundTxn) {
+      if (attempt === 0) {
+        addToast('We are processing your transaction. Expect your reward shortly.', 'info')
+      }
+
+      setTimeout(() => pollActivityUntilComplete(txnId, attempt + 1), 1000)
+      return
+    }
+
+    const latestXpReward = foundTxn.legends.totalXp
+
+    if (latestXpReward) {
+      addToast(`Transaction completed! Reward ${latestXpReward} XP`, 'success')
+    } else {
+      addToast('Transaction completed!', 'success')
+    }
+
+    // Update all other states
     await onLegendComplete()
-    closeActionModal()
+  }
+
+  const onLegendCompleteWrapped = async (txnId: string) => {
+    await pollActivityUntilComplete(txnId, 0)
 
     if (
       action.type === CardActionType.predefined &&
@@ -97,9 +129,9 @@ const Card: FC<Props> = ({
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(
-        `⚠️ TRADE OFFER ⚠️ \nYou download Ambire, we both win 🎉 \n1. Download the Ambire extension: https://www.ambire.com/get-extension \n2. Use my referral code so we both get XP: ${
+        `🤑Join the biggest airdrop a WALLET has ever done! 🚀 \n \nAmbire Wallet is giving away 195M $WALLET tokens through the Ambire Legends campaign. All activity with a Smart Account on 5 of the hottest EVM chains is rewarded. Start strong with the first 4 transactions free! \n \nHere’s what you need to do: \n1. Download the Ambire extension: https://www.ambire.com/get-extension \n2. Use my referral code so we both get XP: ${
           meta?.invitationKey || ''
-        }\n3. Join Ambire Legends - on-chain quests by Ambire with XP and rewards: https://legends.ambire.com/`
+        }\n3. Create a Smart Account in the extension and join Ambire Legends at https://legends.ambire.com/`
       )
       addToast('Text with referral code copied to clipboard', 'success')
     } catch (e: any) {
@@ -162,8 +194,8 @@ const Card: FC<Props> = ({
         </Modal.Heading>
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
         {contentSteps &&
-          action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount &&
-          action?.predefinedId !== CARD_PREDEFINED_ID.Referral && (
+          predefinedId !== CARD_PREDEFINED_ID.LinkAccount &&
+          predefinedId !== CARD_PREDEFINED_ID.Referral && (
             <HowTo
               steps={contentSteps}
               image={contentImage}
@@ -171,7 +203,7 @@ const Card: FC<Props> = ({
               video={contentVideo}
             />
           )}
-        {contentSteps && action?.predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
+        {contentSteps && predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
           <HowTo
             steps={contentSteps}
             image={contentImage}
@@ -182,6 +214,7 @@ const Card: FC<Props> = ({
         )}
         <CardActionComponent
           onComplete={onLegendCompleteWrapped}
+          handleClose={closeActionModal}
           buttonText={buttonText}
           action={action}
         />
