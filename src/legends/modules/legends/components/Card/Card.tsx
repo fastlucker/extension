@@ -171,7 +171,7 @@ const Card: FC<Props> = ({
               video={contentVideo}
             />
           )}
-        {action?.predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
+        {contentSteps && action?.predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
           <HowTo
             steps={contentSteps}
             image={contentImage}
