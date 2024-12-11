@@ -11,7 +11,6 @@ interface CharacterOnMintModalProps {
 }
 
 const CharacterOnMintModal: React.FC<CharacterOnMintModalProps> = ({ isOpen, onButtonClick }) => {
-  console.log('isOPen', isOpen)
   return (
     <Modal isOpen={isOpen} isClosable={false} className={styles.modal}>
       <div>

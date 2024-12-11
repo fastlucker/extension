@@ -103,7 +103,7 @@ const useMintCharacter = () => {
           }
         )
       }
-      console.log('mintedAtTimestamp', mintedAtTimestamp)
+
       return {
         mintedAt: mintedAtTimestamp,
         isMinted: characterMinted
