@@ -3,6 +3,7 @@ const CARD_PREDEFINED_ID = {
   linkX: 'linkX',
   wheelOfFortune: 'wheelOfFortune',
   LinkAccount: 'LinkAccount',
+  staking: 'staking',
   Referral: 'referral'
 }
 

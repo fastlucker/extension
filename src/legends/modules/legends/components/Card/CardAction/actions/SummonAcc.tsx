@@ -1,21 +1,17 @@
 import React, { FC, useMemo, useState } from 'react'
 
-import CopyIcon from '@common/assets/svg/CopyIcon'
 import Input from '@legends/components/Input'
-import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import { useInviteEOA } from '@legends/modules/legends/hooks'
-import { CardFromResponse } from '@legends/modules/legends/types'
 
-import styles from './Action.module.scss'
 import CardActionWrapper from './CardActionWrapper'
+import { CardProps } from './types'
 
-type Props = {
+type Props = CardProps & {
   buttonText: string
-  onComplete: () => void
 }
 
-const SummonAcc: FC<Props> = ({ buttonText, onComplete }) => {
+const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
   const { addToast } = useToast()
   const {
     inviteEOA,
@@ -40,9 +36,9 @@ const SummonAcc: FC<Props> = ({ buttonText, onComplete }) => {
     try {
       await switchNetwork()
       setIsInProgress(true)
-      await inviteEOA()
-      addToast('Successfully invited EOA address', 'success')
-      onComplete()
+      const txnId = await inviteEOA()
+      onComplete(txnId)
+      handleClose()
     } catch (e: any) {
       addToast('Failed to invite EOA address', 'error')
       console.error(e)
@@ -60,8 +56,8 @@ const SummonAcc: FC<Props> = ({ buttonText, onComplete }) => {
       onButtonClick={onButtonClick}
     >
       <Input
-        label="EOA Address"
-        placeholder="Enter EOA Address"
+        label="EOA or Ambire v1 Address"
+        placeholder="Enter an EOA or an Ambire v1 address"
         value={eoaAddress}
         validation={inputValidation}
         onChange={(e) => setEoaAddress(e.target.value)}

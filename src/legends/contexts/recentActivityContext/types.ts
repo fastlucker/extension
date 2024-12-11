@@ -7,7 +7,6 @@ export type ActivityTransaction = {
     activities: LegendActivity[]
     totalXp: number | null
   }
-  totalXp: number | null
   version: string | null
 }
 export type ActivityResponse = {

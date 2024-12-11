@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import Alert from '@legends/components/Alert'
 import NonV2Modal from '@legends/components/NonV2Modal'
@@ -47,8 +47,6 @@ const CharacterSelect = () => {
     navigate(LEGENDS_ROUTES.character)
   }
 
-  if (!accountContext.connectedAccount) return <Navigate to="/" />
-
   return (
     <>
       <NonV2Modal isOpen={!!accountContext.nonV2Account} />
@@ -83,13 +81,12 @@ const CharacterSelect = () => {
 
         <CharacterLoadingModal
           isOpen={
-            // Currently minting
             !!character ||
+            // Currently minting
             isMinting ||
             // Minted a short time ago and not caught by the relayer
             (isMinted && !character && !isMintedAndNotCaughtByRelayer)
           }
-          isCheckingMintStatus={isCheckingMintStatus}
           loadingMessage={loadingMessage}
           errorMessage={errorMessage}
           showOnMintModal={!!(character || (character && isMinted))}
