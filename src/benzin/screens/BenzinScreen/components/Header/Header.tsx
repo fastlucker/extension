@@ -37,8 +37,8 @@ const Header: FC<Props> = ({ activeStep, network, stepsState }) => {
       >
         <View style={styles.logoWrapper}>
           <AmbireLogo
-            width={148 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
-            height={69 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
+            width={180 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
+            height={59 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
           />
         </View>
         <Text

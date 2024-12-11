@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord'
 import { faTelegram } from '@fortawesome/free-brands-svg-icons/faTelegram'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import glowingButton from '@legends/common/assets/images/glowing-button.png'
+import DecoratedArrowDown from '@legends/common/assets/svg/DecoratedArrowDown'
 import RhombusDeco from '@legends/common/assets/svg/RhombusDeco'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import backgroundSm from './assets/background-sm.png'
 import backgroundXlImage from './assets/background-xl.jpg'
@@ -16,17 +15,27 @@ import inviteImage from './assets/invite.png'
 import styles from './Hero.module.scss'
 
 const Hero = () => {
-  const navigate = useNavigate()
-  const { connectedAccount, requestAccounts } = useAccountContext()
+  const { requestAccounts } = useAccountContext()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDownloadLinkClicked, setIsDownloadLinkClicked] = useState(false)
+  const [hasScrolled, setHasScrolled] = useState(false)
   const menuRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (connectedAccount) {
-      navigate(LEGENDS_ROUTES.character)
+    const handleScroll = () => {
+      if (hasScrolled) return
+
+      if (window.scrollY > 50) {
+        setHasScrolled(true)
+      }
     }
-  }, [connectedAccount, navigate])
+
+    window.addEventListener('scroll', handleScroll)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [hasScrolled])
 
   const isExtensionInstalled = !!window.ambire
 
@@ -128,6 +137,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
+      <DecoratedArrowDown className={`${styles.arrowDown} ${hasScrolled ? styles.scrolled : ''}`} />
     </div>
   )
 }
