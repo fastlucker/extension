@@ -133,6 +133,7 @@ const useSteps = ({
   const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
   const [foundTxnId, setFoundTxnId] = useState<null | string>(txnId)
+  const [hasCheckedFrontRun, setHasCheckedFrontRun] = useState<boolean>(false)
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
@@ -336,6 +337,17 @@ const useSteps = ({
       })
       .then(() => null)
       .catch((error: Error) => {
+        // when we get a failed status, it could be a front run.
+        // so we try to refetch the tx id one more time before
+        // declaring it a failure
+        if (!hasCheckedFrontRun) {
+          setFoundTxnId(null)
+          setTxn(null)
+          setTxnReceipt({ actualGasCost: null, originatedFrom: null, blockNumber: null })
+          setHasCheckedFrontRun(true)
+          return
+        }
+
         if (error.message.includes('missing revert data')) {
           setFinalizedStatus({
             status: 'failed',
@@ -352,7 +364,7 @@ const useSteps = ({
               : error.message
         })
       })
-  }, [provider, txn, finalizedStatus])
+  }, [provider, txn, finalizedStatus, hasCheckedFrontRun])
 
   // calculate pending time
   useEffect(() => {
