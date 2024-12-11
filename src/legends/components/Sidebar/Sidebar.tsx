@@ -81,7 +81,11 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             <div className={styles.wheelContent}>
               <span className={styles.wheelTitle}>Daily Legend</span>
               <span className={styles.wheelText}>
-                {wheelSpinOfTheDay && !isLoading && `Available in ${hoursUntilMidnight} hours`}
+                {wheelSpinOfTheDay &&
+                  !isLoading &&
+                  (hoursUntilMidnight < 1
+                    ? 'Available in < 1 hour'
+                    : `Available in ${hoursUntilMidnight} hours`)}
                 {!wheelSpinOfTheDay && !isLoading && 'Spin the Wheel'}
                 {isLoading && 'Loading...'}
               </span>

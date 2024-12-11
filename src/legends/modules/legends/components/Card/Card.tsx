@@ -3,13 +3,13 @@ import React, { FC, useMemo, useState } from 'react'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Modal from '@legends/components/Modal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
+import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import Counter from '@legends/modules/legends/components/Card/Counter'
 import Flask from '@legends/modules/legends/components/Card/Flask'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import {
   CardActionType,
@@ -230,9 +230,11 @@ const Card: FC<Props> = ({
             Completed
             {action.type === CardActionType.predefined &&
             action.predefinedId === 'wheelOfFortune' ? (
-              <div
-                className={styles.completedTextAvailable}
-              >{`Available in ${hoursUntilMidnight} hours`}</div>
+              <div className={styles.completedTextAvailable}>
+                {hoursUntilMidnight < 1
+                  ? 'Available in < 1 hour'
+                  : `Available in ${hoursUntilMidnight} hours`}
+              </div>
             ) : null}
           </div>
         </div>
