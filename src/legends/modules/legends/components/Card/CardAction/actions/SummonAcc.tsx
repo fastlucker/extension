@@ -56,8 +56,8 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
       onButtonClick={onButtonClick}
     >
       <Input
-        label="EOA Address"
-        placeholder="Enter EOA Address"
+        label="EOA or Ambire v1 Address"
+        placeholder="Enter an EOA or an Ambire v1 address"
         value={eoaAddress}
         validation={inputValidation}
         onChange={(e) => setEoaAddress(e.target.value)}

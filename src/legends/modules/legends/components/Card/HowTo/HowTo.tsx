@@ -44,32 +44,37 @@ const HowTo: FC<Props> = ({ steps, image, imageAlt, meta, copyToClipboard, video
               <div className={styles.copyField}>
                 <div>
                   <div className={styles.copyHeader}>
-                    <div>⚠️ I have an offer for you that you can&apos;t resist ⚠️ </div>
+                    <div>
+                      🤑Join the biggest airdrop a WALLET <br />
+                      has ever done! 🚀{' '}
+                    </div>
                     <CopyIcon className={styles.copyIcon} onClick={copyToClipboard} />
                   </div>
-                  You download Ambire, we both win 🎉 <br /> 1. Download the Ambire extension:{' '}
+                  <br />
+                  Ambire Wallet is giving away 195M $WALLET tokens through the Ambire Legends
+                  campaign. All activity with a Smart Account on 5 of the hottest EVM chains is
+                  rewarded. Start strong with the first 4 transactions free! <br /> <br />
+                  Here’s what you need to do:
+                  <br /> 1. Download the Ambire extension{' '}
                   <a
                     target="_blank"
                     href="https://www.ambire.com/get-extension"
                     rel="noreferrer"
                     className={styles.link}
                   >
-                    https://www.ambire.com/get-extension
+                    here
                   </a>
-                  <br /> 2. Use my referral code so we both get XP: {meta?.invitationKey} <br /> 3.
-                  Join Ambire Legends - on-chain quests by Ambire with XP and rewards:{' '}
+                  <br /> 2. Use my referral code so we both get XP:{' '}
+                  <span className={styles.boldText}>{meta?.invitationKey}</span>
+                  <br /> 3. Create a Smart Account in the extension and join{' '}
                   <a
                     target="_blank"
                     href="https://legends.ambire.com/"
                     rel="noreferrer"
                     className={styles.link}
                   >
-                    https://legends.ambire.com/{' '}
+                    Ambire Legends
                   </a>
-                  <br />
-                  There, you can experience the power of Smart Accounts and EOAs in one place. You
-                  can approve and swap in one go, enjoy gasless transactions without needing ETH for
-                  gas, and sign multiple transactions, saving gas and time, and more!
                 </div>
               </div>
             </div>
