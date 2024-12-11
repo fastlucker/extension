@@ -23,7 +23,7 @@ const CharacterSelect = () => {
   const { character, isLoading } = useCharacterContext()
   const { isMinting, mintedAt, isMinted, loadingMessage, isCheckingMintStatus, mintCharacter } =
     useMintCharacter()
-  console.log(isMinting, mintedAt, isMinted, isCheckingMintStatus)
+
   const isMintedAndNotCaughtByRelayer =
     isMinted && !character && !isLoading && mintedAt === 'past-block-watch'
 
@@ -54,14 +54,7 @@ const CharacterSelect = () => {
     <>
       <NonV2Modal isOpen={!!accountContext.nonV2Account} />
       <CharacterOnMintModal
-        isOpen={
-          !!(
-            isMinted &&
-            character &&
-            mintedAt === 'past-block-watch' &&
-            !isMintedAndNotCaughtByRelayer
-          )
-        }
+        isOpen={!!(character || (character && isMinted))}
         onButtonClick={redirectToCharacterPage}
       />
       <div className={styles.wrapper}>
@@ -92,7 +85,7 @@ const CharacterSelect = () => {
         )}
         {isCheckingMintStatus && <Spinner />}
 
-        {!isCheckingMintStatus && (
+        {!isCheckingMintStatus && !character && (
           <CharacterLoadingModal
             isOpen={
               // Currently minting
