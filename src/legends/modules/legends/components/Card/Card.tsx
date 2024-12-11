@@ -231,7 +231,7 @@ const Card: FC<Props> = ({
             {action.type === CardActionType.predefined &&
             action.predefinedId === 'wheelOfFortune' ? (
               <div className={styles.completedTextAvailable}>
-                {hoursUntilMidnight < 1
+                {hoursUntilMidnight <= 1
                   ? 'Available in < 1 hour'
                   : `Available in ${hoursUntilMidnight} hours`}
               </div>
