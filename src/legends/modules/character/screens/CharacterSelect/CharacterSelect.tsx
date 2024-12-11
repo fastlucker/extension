@@ -10,7 +10,6 @@ import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import styles from './CharacterSelect.module.scss'
 import CharacterLoadingModal from './components/CharacterLoadingModal'
-import CharacterOnMintModal from './components/CharacterOnMintModal'
 import CharacterSlider from './components/CharacterSlider'
 import useMintCharacter from './hooks/useMintCharacter'
 
@@ -53,10 +52,7 @@ const CharacterSelect = () => {
   return (
     <>
       <NonV2Modal isOpen={!!accountContext.nonV2Account} />
-      <CharacterOnMintModal
-        isOpen={!!(character || (character && isMinted))}
-        onButtonClick={redirectToCharacterPage}
-      />
+
       <div className={styles.wrapper}>
         <h1 className={styles.title}>Choose a Character</h1>
         <p className={styles.description}>
@@ -85,18 +81,20 @@ const CharacterSelect = () => {
         )}
         {isCheckingMintStatus && <Spinner />}
 
-        {!isCheckingMintStatus && !character && (
-          <CharacterLoadingModal
-            isOpen={
-              // Currently minting
-              isMinting ||
-              // Minted a short time ago and not caught by the relayer
-              (isMinted && !character && !isMintedAndNotCaughtByRelayer)
-            }
-            loadingMessage={loadingMessage}
-            errorMessage={errorMessage}
-          />
-        )}
+        <CharacterLoadingModal
+          isOpen={
+            // Currently minting
+            !!character ||
+            isMinting ||
+            // Minted a short time ago and not caught by the relayer
+            (isMinted && !character && !isMintedAndNotCaughtByRelayer)
+          }
+          isCheckingMintStatus={isCheckingMintStatus}
+          loadingMessage={loadingMessage}
+          errorMessage={errorMessage}
+          showOnMintModal={!!(character || (character && isMinted))}
+          onButtonClick={redirectToCharacterPage}
+        />
       </div>
     </>
   )
