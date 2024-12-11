@@ -30,7 +30,7 @@ const NAVIGATION_LINKS = [
   { to: LEGENDS_ROUTES.legends, text: 'Legends', icon: faMedal },
   { to: LEGENDS_ROUTES.leaderboard, text: 'Leaderboard', icon: faTrophy },
   {
-    to: 'https://grimoires.ambire.com/',
+    to: 'https://codex.ambire.com/',
     text: 'Guide',
     icon: faFileLines,
     newTab: true,
@@ -81,7 +81,11 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             <div className={styles.wheelContent}>
               <span className={styles.wheelTitle}>Daily Legend</span>
               <span className={styles.wheelText}>
-                {wheelSpinOfTheDay && !isLoading && `Available in ${hoursUntilMidnight} hours`}
+                {wheelSpinOfTheDay &&
+                  !isLoading &&
+                  (hoursUntilMidnight < 1
+                    ? 'Available in < 1 hour'
+                    : `Available in ${hoursUntilMidnight} hours`)}
                 {!wheelSpinOfTheDay && !isLoading && 'Spin the Wheel'}
                 {isLoading && 'Loading...'}
               </span>
