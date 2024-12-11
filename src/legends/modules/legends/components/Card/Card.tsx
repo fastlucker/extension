@@ -9,6 +9,7 @@ import Flask from '@legends/modules/legends/components/Card/Flask'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
+import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import {
   CardActionType,
