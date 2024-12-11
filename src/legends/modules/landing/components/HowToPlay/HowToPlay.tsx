@@ -39,7 +39,7 @@ const HowToPlay = () => {
           <img src={step2Image} alt="Step 2" className={styles.stepImage} />
           <h3 className={styles.stepTitle}>2. Create a Smart Account</h3>
           <p className={styles.stepText}>
-            Import your existing seed phrase, create a new one, or
+            Import your existing seed phrase, create a new one, or{' '}
             <strong>connect a hardware wallet</strong> to derive a Smart Account.
           </p>
           <p className={styles.stepDisclaimer}>
