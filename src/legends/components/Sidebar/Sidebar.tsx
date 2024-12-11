@@ -54,7 +54,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { wheelSpinOfTheDay, legends } = useLegendsContext()
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
-  console.log('legendLeader', legendLeader)
+
   const handleModal = () => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
   }

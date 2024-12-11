@@ -9,7 +9,7 @@ type RecentActivityContextType = {
   activity: ActivityResponse | null
   isLoading: boolean
   error: string | null
-  getActivity: () => Promise<void>
+  getActivity: () => Promise<ActivityResponse | null>
 }
 
 const RecentActivityContext = createContext<RecentActivityContextType>(
