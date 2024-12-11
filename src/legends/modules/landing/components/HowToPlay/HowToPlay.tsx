@@ -23,8 +23,8 @@ const HowToPlay = () => {
             and download it.
           </p>
           <p className={styles.stepDisclaimer}>
-            * To unlock the extension, <strong>you will need a code</strong>. Codes are distributed
-            to the Ambire community on{' '}
+            To unlock the extension, <strong>you will need a code</strong>. Codes are distributed to
+            the Ambire community on{' '}
             <a href="https://ambire.com/discord" target="_blank" rel="noreferrer">
               Discord
             </a>{' '}
@@ -39,11 +39,11 @@ const HowToPlay = () => {
           <img src={step2Image} alt="Step 2" className={styles.stepImage} />
           <h3 className={styles.stepTitle}>2. Create a Smart Account</h3>
           <p className={styles.stepText}>
-            Import your seed phrase into the wallet or start fresh with a new one to create a Smart
-            Account.
+            Import your existing seed phrase, create a new one, or
+            <strong>connect a hardware wallet</strong> to derive a Smart Account.
           </p>
           <p className={styles.stepDisclaimer}>
-            * If you already have an Ambire Smart Account created with the extension, go to step 3.
+            If you already have an Ambire Smart Account created with the extension, go to step 3.
           </p>
         </div>
         <div className={styles.step}>
@@ -53,7 +53,7 @@ const HowToPlay = () => {
             Connect your Smart Account wallet and choose a character to begin the onchain adventure.
           </p>
           <p className={styles.stepDisclaimer}>
-            * Ambire Legends is accessible to Ambire Extension wallets.
+            Ambire Legends is accessible to Ambire Extension wallets.
           </p>
         </div>
       </div>
