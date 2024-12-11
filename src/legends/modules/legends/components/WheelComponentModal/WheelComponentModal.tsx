@@ -6,6 +6,8 @@ import { createPortal } from 'react-dom'
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import { RELAYER_URL } from '@env'
+// @ts-ignore
+import CloseIcon from '@legends/components/CloseIcon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
@@ -15,8 +17,6 @@ import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 
 import chainImage from './assets/chain.png'
-// @ts-ignore
-import CloseIcon from '@legends/components/CloseIcon'
 import mainImage from './assets/main.png'
 import pointerImage from './assets/pointer.png'
 import spinnerImage from './assets/spinner.png'

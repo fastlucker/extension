@@ -11,22 +11,19 @@ import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 
 import CardActionWrapper from './CardActionWrapper'
+import { CardProps } from './types'
 
 const linkToSwap = () =>
   Linking.openURL(
     'https://app.uniswap.org/explore/tokens/ethereum/0x88800092ff476844f74dc2fc427974bbee2794ae'
   )
 
-type Props = {
-  onComplete: () => void
-}
-
 const walletIface = new Interface([
   'function approve(address,uint)',
   'function balanceOf(address) view returns (uint256)'
 ])
 
-const StakeWallet: FC<Props> = ({ onComplete }) => {
+const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [isInProgress, setIsInProgress] = useState(false)
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
@@ -88,14 +85,24 @@ const StakeWallet: FC<Props> = ({ onComplete }) => {
       )
       const receipt = await getCallsStatus(sendCallsIdentifier)
       if (receipt.status !== '0x1') throw new Error('Failed staking')
-      onComplete()
+      onComplete(receipt.transactionHash)
+      handleClose()
     } catch (e) {
       console.error(e)
       addToast('Failed to sign transaction', 'error')
     } finally {
       setIsInProgress(false)
     }
-  }, [connectedAccount, addToast, sendCalls, getCallsStatus, chainId, onComplete, walletBalance])
+  }, [
+    connectedAccount,
+    walletBalance,
+    sendCalls,
+    chainId,
+    getCallsStatus,
+    onComplete,
+    handleClose,
+    addToast
+  ])
 
   const onButtonClick = useCallback(async () => {
     if (!walletBalance) return linkToSwap()

@@ -14,7 +14,7 @@ const useActivity = ({ page, accountAddress }: Props) => {
   const [error, setError] = useState<string | null>(null)
 
   const getActivity = useCallback(async () => {
-    if (!accountAddress) return
+    if (!accountAddress) return null
 
     try {
       const activityResponse = await fetch(
@@ -28,6 +28,8 @@ const useActivity = ({ page, accountAddress }: Props) => {
 
       setActivity(response)
       setError(null)
+
+      return response as ActivityResponse
     } catch (e) {
       setActivity(null)
 

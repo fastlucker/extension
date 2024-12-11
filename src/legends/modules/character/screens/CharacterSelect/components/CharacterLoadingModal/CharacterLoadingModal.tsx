@@ -13,7 +13,7 @@ interface CharacterLoadingModalProps {
 
 const MESSAGES = [
   'Initializing character setup...',
-  'Connecting to the blockchain, please sign your transaction so we can proceed',
+  'Please sign the pending transaction to proceed',
   'Securing NFT...',
   'Finalizing details...'
 ]
