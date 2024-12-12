@@ -58,9 +58,24 @@
         line-height: 2rem;
         margin-bottom: 1rem;
         color: $primaryText;
+        min-height: 6rem;
       }
       .stepDisclaimer {
         color: $tertiaryText;
+      }
+    }
+  }
+
+  @include breakpoint-down-from(medium-desktop) {
+    .steps {
+      .step {
+        .stepContent {
+          flex: 1;
+          min-height: 26.25rem;
+        }
+        .stepDisclaimer {
+          flex: 0.15;
+        }
       }
     }
   }
@@ -69,6 +84,20 @@
     .steps {
       grid-template-columns: 30rem;
       justify-content: center;
+
+      .step {
+        .stepContent {
+          flex: unset;
+          min-height: 0;
+
+          .stepText {
+            min-height: auto;
+          }
+        }
+        .stepDisclaimer {
+          flex: unset;
+        }
+      }
     }
   }
   @include on-mobile {
