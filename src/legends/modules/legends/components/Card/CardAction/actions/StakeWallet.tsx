@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { BrowserProvider, Contract, Interface } from 'ethers'
 import React, { FC, useCallback, useEffect, useState } from 'react'
-import { Linking } from 'react-native'
 
 import { WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/network'
@@ -12,11 +11,6 @@ import useToast from '@legends/hooks/useToast'
 
 import CardActionWrapper from './CardActionWrapper'
 import { CardProps } from './types'
-
-const linkToSwap = () =>
-  Linking.openURL(
-    'https://app.uniswap.org/explore/tokens/ethereum/0x88800092ff476844f74dc2fc427974bbee2794ae'
-  )
 
 const walletIface = new Interface([
   'function approve(address,uint)',
@@ -105,7 +99,20 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
   ])
 
   const onButtonClick = useCallback(async () => {
-    if (!walletBalance) return linkToSwap()
+    if (!walletBalance) {
+      try {
+        await window.ambire.request({
+          method: 'open-wallet-route',
+          params: { route: 'swap-and-bridge' }
+        })
+      } catch {
+        addToast(
+          'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
+          'error'
+        )
+      }
+      return
+    }
     await switchNetwork()
     await stakeWallet()
   }, [switchNetwork, stakeWallet, walletBalance])
