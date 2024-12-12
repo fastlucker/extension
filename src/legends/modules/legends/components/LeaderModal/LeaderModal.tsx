@@ -1,28 +1,23 @@
 import React, { useState } from 'react'
 
-import CopyIcon from '@common/assets/svg/CopyIcon'
 import Modal from '@legends/components/Modal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import styles from '@legends/modules/legends/components/Card/Card.module.scss'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
-import Counter from '@legends/modules/legends/components/Card/Counter'
-import Flask from '@legends/modules/legends/components/Card/Flask'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
-import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
-import {
-  CardActionType,
-  CardFromResponse,
-  CardStatus,
-  CardType
-} from '@legends/modules/legends/types'
+import { CardActionType } from '@legends/modules/legends/types'
 
 import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 
-const LeaderModal = ({ setIsActionModalOpen, isActionModalOpen }) => {
+interface LeaderModalProps {
+  setIsActionModalOpen: (isOpen: boolean) => void
+  isActionModalOpen: boolean
+}
+
+const LeaderModal: React.FC<LeaderModalProps> = ({ setIsActionModalOpen, isActionModalOpen }) => {
   const { getActivity } = useRecentActivityContext()
   const { addToast } = useToast()
 
@@ -31,9 +26,8 @@ const LeaderModal = ({ setIsActionModalOpen, isActionModalOpen }) => {
   const card = !isLoading && legends.find((legend) => legend?.action?.predefinedId === 'referral')
 
   const { xp, title, flavor, contentSteps, contentImage, contentVideo, action, meta } = card || {}
-  const disabled = card.status === CardStatus.disabled
-  const isCompleted = card.status === CardStatus.completed
-  const predefinedId = action.type === CardActionType.predefined ? action.predefinedId : ''
+  const predefinedId =
+    action && action?.type === CardActionType.predefined ? action.predefinedId : ''
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[predefinedId] || 'Proceed'
   const [isOnLegendCompleteModalOpen, setIsOnLegendCompleteModalOpen] = useState(false)
 
@@ -47,7 +41,6 @@ const LeaderModal = ({ setIsActionModalOpen, isActionModalOpen }) => {
       addToast('Text with referral code copied to clipboard', 'success')
     } catch (e: any) {
       addToast('Failed to copy referral code', 'error')
-      console.error(e)
     }
   }
   const pollActivityUntilComplete = async (txnId: string, attempt: number) => {
@@ -56,7 +49,6 @@ const LeaderModal = ({ setIsActionModalOpen, isActionModalOpen }) => {
       return
     }
 
-    // We can't rely on state as it's not updated due to the self-invoking nature of the function
     const newActivity = await getActivity()
 
     const foundTxn = newActivity?.transactions?.find((txn) => txn.txId === txnId)
@@ -78,7 +70,6 @@ const LeaderModal = ({ setIsActionModalOpen, isActionModalOpen }) => {
       addToast('Transaction completed!', 'success')
     }
 
-    // Update all other states
     await onLegendComplete()
   }
 
@@ -86,14 +77,12 @@ const LeaderModal = ({ setIsActionModalOpen, isActionModalOpen }) => {
     await pollActivityUntilComplete(txnId, 0)
 
     if (
-      action.type === CardActionType.predefined &&
+      action?.type === CardActionType.predefined &&
       action.predefinedId === CARD_PREDEFINED_ID.addEOA
     ) {
       setIsOnLegendCompleteModalOpen(true)
     }
   }
-
-  const openActionModal = () => setIsActionModalOpen(true)
 
   const closeActionModal = () => setIsActionModalOpen(false)
 
@@ -105,11 +94,11 @@ const LeaderModal = ({ setIsActionModalOpen, isActionModalOpen }) => {
       </Modal.Heading>
       <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
       {contentSteps &&
-        action.predefinedId !== CARD_PREDEFINED_ID.LinkAccount &&
-        action.predefinedId !== CARD_PREDEFINED_ID.Referral && (
+        action?.predefinedId !== CARD_PREDEFINED_ID.LinkAccount &&
+        action?.predefinedId !== CARD_PREDEFINED_ID.Referral && (
           <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} video={contentVideo} />
         )}
-      {contentSteps && action.predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
+      {contentSteps && action?.predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
         <HowTo
           steps={contentSteps}
           image={contentImage}
@@ -122,7 +111,7 @@ const LeaderModal = ({ setIsActionModalOpen, isActionModalOpen }) => {
         onComplete={onLegendCompleteWrapped}
         handleClose={closeActionModal}
         buttonText={buttonText}
-        action={action}
+        action={action!}
       />
     </Modal>
   )
