@@ -293,7 +293,7 @@
   }
 
   @include on-mobile {
-    $image-size: 30vh;
+    $image-size: max(30vh, 15rem);
     padding: $image-size 2rem 10vh;
     align-items: flex-start;
     min-height: unset;
