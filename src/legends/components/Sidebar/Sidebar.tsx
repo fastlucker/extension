@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
+import LeaderModal from '@legends/modules/legends/components/LeaderModal'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
@@ -45,6 +46,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { wheelSpinOfTheDay, legends, isLoading } = useLegendsContext()
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false)
 
   const handleModal = () => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
@@ -98,6 +100,10 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             </div>
           </div>
         </div>
+        <LeaderModal
+          setIsActionModalOpen={setIsActionModalOpen}
+          isActionModalOpen={isActionModalOpen}
+        />
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
@@ -114,7 +120,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         {legendLeader && legendLeader?.meta && (
           <div className={styles.leaderSection}>
             <div className={styles.leaderHeader}>
-              <p className={styles.inviteTitle}>Invite a friend</p>
+              <button className={styles.inviteTitle} onClick={() => setIsActionModalOpen(true)}>
+                Invite a friend
+              </button>
               <div>
                 {[...Array(legendLeader?.meta?.timesCollectedSoFar || 0)].map((_, index) => (
                   // eslint-disable-next-line react/no-array-index-key
