@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import Alert from '@legends/components/Alert'
 import NonV2Modal from '@legends/components/NonV2Modal'
@@ -14,6 +14,8 @@ import CharacterSlider from './components/CharacterSlider'
 import useMintCharacter from './hooks/useMintCharacter'
 
 const CharacterSelect = () => {
+  const { connectedAccount } = useAccountContext()
+
   const navigate = useNavigate()
   const [characterId, setCharacterId] = useState(1)
   const accountContext = useAccountContext()
@@ -46,6 +48,8 @@ const CharacterSelect = () => {
   const redirectToCharacterPage = () => {
     navigate(LEGENDS_ROUTES.character)
   }
+
+  if (!connectedAccount) return <Navigate to="/" />
 
   return (
     <>
