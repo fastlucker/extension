@@ -12,8 +12,8 @@ import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp
 import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import { APP_VERSION, isProd } from '@common/config/env'
-import formatDecimals from '@common/utils/formatDecimals'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
