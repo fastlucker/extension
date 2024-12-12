@@ -7,11 +7,12 @@ type Props = {
   title: string
   text: string
   children: React.ReactNode
+  className?: string
 }
 
-const HighlightedLink: FC<Props> = ({ image, title, text, children }) => {
+const HighlightedLink: FC<Props> = ({ image, title, text, children, className }) => {
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${className}`}>
       <div className={styles.content}>
         {image && <img className={styles.image} src={image} alt={title} />}
         <div className={styles.textAndTitle}>

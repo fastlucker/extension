@@ -117,6 +117,8 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             />
           ))}
         </div>
+      </div>
+      <div>
         {legendLeader && legendLeader?.meta && (
           <div className={styles.leaderSection}>
             <div className={styles.leaderHeader}>
@@ -164,8 +166,8 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             </div>
           </div>
         )}
+        <Socials />
       </div>
-      <Socials />
     </div>
   )
 }
