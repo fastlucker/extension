@@ -120,7 +120,11 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         {legendLeader && legendLeader?.meta && (
           <div className={styles.leaderSection}>
             <div className={styles.leaderHeader}>
-              <button className={styles.inviteTitle} onClick={() => setIsActionModalOpen(true)}>
+              <button
+                type="button"
+                className={styles.inviteTitle}
+                onClick={() => setIsActionModalOpen(true)}
+              >
                 Invite a friend
               </button>
               <div>
