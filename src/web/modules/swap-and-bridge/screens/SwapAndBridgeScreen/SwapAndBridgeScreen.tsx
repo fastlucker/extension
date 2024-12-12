@@ -138,7 +138,6 @@ const SwapAndBridgeScreen = () => {
 
   if (!sessionIds.includes(sessionId)) return null
 
-  console.log(quote?.selectedRoute)
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
