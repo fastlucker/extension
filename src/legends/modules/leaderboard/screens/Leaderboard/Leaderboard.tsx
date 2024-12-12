@@ -95,6 +95,17 @@ const LeaderboardContainer: React.FC = () => {
                   currentUserRef={currentUserRef}
                 />
               ))}
+              {userLeaderboardData &&
+                !leaderboardData.some(
+                  ({ account }) => account === userLeaderboardData?.account
+                ) && (
+                  <Row
+                    key={userLeaderboardData.account}
+                    {...userLeaderboardData}
+                    stickyPosition={stickyPosition}
+                    currentUserRef={currentUserRef}
+                  />
+                )}
             </div>
           </>
         ) : null}

@@ -24,6 +24,10 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const updateAccountPortfolio = useCallback(async (address: string): Promise<AccountPortfolio> => {
     if (!window.ambire) return { error: 'The Ambire extension is not installed!' }
 
+    // Reset the portfolio to prevent displaying an outdated portfolio state for the previously connected account
+    // while fetching the portfolio for the new account (address).
+    setAccountPortfolio({ isReady: false })
+
     const portfolioRes = (await window.ambire.request({
       method: 'get_portfolioBalance',
       // TODO: impl a dynamic way of getting the chainIds
@@ -36,6 +40,9 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     if (!connectedAccount) return
+
+    // Ensure there isn't already a scheduled timeout before setting a new one.
+    if (getPortfolioIntervalRef.current) clearTimeout(getPortfolioIntervalRef.current)
 
     const runPortfolioContinuousUpdate = async () => {
       const portfolioRes = await updateAccountPortfolio(connectedAccount)

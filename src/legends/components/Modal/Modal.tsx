@@ -2,6 +2,7 @@ import React, { FC, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 import CloseIcon from '@legends/components/CloseIcon'
+import useEscModal from '@legends/hooks/useEscModal'
 import styles from './Modal.module.scss'
 
 type ComponentProps = {
@@ -36,6 +37,9 @@ const Modal = ({
   const closeModal = () => {
     if (isClosable && setIsOpen) setIsOpen(false)
   }
+
+  // Close Modal on ESC
+  useEscModal(isOpen, closeModal)
 
   // Close the modal when clicking outside of it
   useEffect(() => {

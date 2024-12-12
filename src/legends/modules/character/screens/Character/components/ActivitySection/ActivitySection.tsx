@@ -137,9 +137,7 @@ const ActivitySection = () => {
         </table>
       ) : null}
       {!transactions?.length && !isLoading && !error && <p>No activity found for this account</p>}
-      {activity && activity?.length ? (
-        <Pagination activity={activity} page={page} setPage={setPage} />
-      ) : null}
+      {activity ? <Pagination activity={activity} page={page} setPage={setPage} /> : null}
     </div>
   )
 }
