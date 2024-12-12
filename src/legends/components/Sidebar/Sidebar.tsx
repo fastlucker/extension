@@ -40,8 +40,6 @@ const NAVIGATION_LINKS = [
 
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { addToast } = useToast()
-
-  const hoursUntilMidnight = useMemo(() => timeUntilMidnight().hours, [])
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
   const { wheelSpinOfTheDay, legends, isLoading } = useLegendsContext()
@@ -60,6 +58,14 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
     navigator.clipboard.writeText(legendLeader?.meta?.invitationKey)
     addToast('Copied to clipboard')
   }
+
+  const wheelText = useMemo(() => {
+    if (isLoading) return 'Loading...'
+
+    if (wheelSpinOfTheDay) return timeUntilMidnight().label
+
+    return 'Spin the Wheel'
+  }, [wheelSpinOfTheDay, isLoading])
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -80,15 +86,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           >
             <div className={styles.wheelContent}>
               <span className={styles.wheelTitle}>Daily Legend</span>
-              <span className={styles.wheelText}>
-                {wheelSpinOfTheDay &&
-                  !isLoading &&
-                  (hoursUntilMidnight <= 1
-                    ? 'Available in < 1 hour'
-                    : `Available in ${hoursUntilMidnight} hours`)}
-                {!wheelSpinOfTheDay && !isLoading && 'Spin the Wheel'}
-                {isLoading && 'Loading...'}
-              </span>
+              <span className={styles.wheelText}>{wheelText}</span>
               <button
                 onClick={handleModal}
                 disabled={wheelSpinOfTheDay}
