@@ -58,6 +58,21 @@
       }
     }
   }
+
+  @include breakpoint-down-from(medium-desktop) {
+    padding: 2rem;
+    padding-top: 2.5rem;
+
+    .closeButton {
+      right: 0.75rem;
+      top: 0.75rem;
+
+      svg {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+    }
+  }
 }
 
 .heading {

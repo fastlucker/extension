@@ -227,3 +227,21 @@
   align-items: center;
   margin-bottom: 1rem;
 }
+
+@include breakpoint-down-from(medium-desktop) {
+  .modalHeading {
+    margin-bottom: 2rem;
+  }
+  .modalHeadingTitle {
+    font-size: 3rem;
+  }
+
+  .modalText {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+
+    &::first-letter {
+      font-size: 1.875rem;
+    }
+  }
+}
