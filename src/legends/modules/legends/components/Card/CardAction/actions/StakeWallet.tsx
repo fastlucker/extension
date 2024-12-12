@@ -116,7 +116,7 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
     }
     await switchNetwork()
     await stakeWallet()
-  }, [switchNetwork, stakeWallet, walletBalance])
+  }, [switchNetwork, stakeWallet, walletBalance, addToast])
 
   return (
     <CardActionWrapper
