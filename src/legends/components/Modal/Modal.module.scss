@@ -58,6 +58,10 @@
       }
     }
   }
+
+  @include breakpoint-down-from(medium-desktop) {
+    padding: 2rem;
+  }
 }
 
 .heading {

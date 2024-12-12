@@ -6,8 +6,8 @@
   width: 100%;
   text-transform: uppercase;
   background-color: $primaryBackground;
-  border: 2px solid $secondaryText;
-  box-shadow: 0 2.5px 0 $secondaryText;
+  border: 0.125rem solid $secondaryAccent;
+  box-shadow: 0 0.1563rem 0 $secondaryAccent;
   color: $secondaryText;
   font-weight: 600;
 
