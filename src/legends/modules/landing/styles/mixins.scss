@@ -3,6 +3,10 @@
 @mixin landing-container {
   @include container;
 
+  @include breakpoint-from(small-desktop) {
+    max-width: 75rem;
+  }
+
   @include breakpoint-from(medium-desktop) {
     max-width: 82.5rem;
   }
