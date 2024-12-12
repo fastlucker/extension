@@ -7,6 +7,16 @@
   transform: translate(-50%, -40%) scale(1);
 }
 
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  50% {
+    transform: translateY(1vh) translateX(-50%);
+  }
+}
+
 .wrapper {
   position: relative;
   width: 100%;
@@ -74,7 +84,7 @@
             }
           }
         }
-        @include on-mobile {
+        @include breakpoint-down-from(large-tablet) {
           &.open {
             .invitationMenu {
               @include hovered-menu;
@@ -194,12 +204,35 @@
         .disclaimer {
           position: absolute;
           transform: translateY(-1.25vh);
-          font-size: 2vh;
+          font-size: 2.2vh;
           color: #a0f053;
           text-shadow: 0.0938rem solid $primaryText;
           text-align: left;
         }
       }
+    }
+  }
+
+  .arrowDown {
+    position: absolute;
+    bottom: 3vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6vh;
+    height: 6vh;
+    cursor: pointer;
+    animation: bounce 1.5s infinite;
+    pointer-events: none;
+    opacity: 1;
+    transition: 0.3s opacity ease;
+
+    &.scrolled {
+      opacity: 0;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
     }
   }
 
@@ -275,6 +308,11 @@
       background: linear-gradient(180deg, transparent 0%, #120f0a $image-size, #120f0a 100%);
       z-index: 0;
     }
+
+    .arrowDown {
+      display: none;
+    }
+
     .background {
       height: $image-size;
       width: 100%;

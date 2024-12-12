@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import Alert from '@legends/components/Alert'
 import NonV2Modal from '@legends/components/NonV2Modal'
@@ -22,11 +22,12 @@ const CharacterSelect = () => {
   const { character, isLoading } = useCharacterContext()
   const { isMinting, mintedAt, isMinted, loadingMessage, isCheckingMintStatus, mintCharacter } =
     useMintCharacter()
+
   const isMintedAndNotCaughtByRelayer =
     isMinted && !character && !isLoading && mintedAt === 'past-block-watch'
 
   useEffect(() => {
-    if (character) {
+    if (character && !isMinting && !mintedAt) {
       navigate(LEGENDS_ROUTES.character)
       return
     }
@@ -36,17 +37,20 @@ const CharacterSelect = () => {
         'Character is already minted but could not be retrieved. Please try again or refresh the page.'
       )
     }
-  }, [character, isLoading, isMintedAndNotCaughtByRelayer, isMinting, navigate])
+  }, [character, isMinted, isLoading, isMintedAndNotCaughtByRelayer, mintedAt, isMinting, navigate])
 
   const onCharacterChange = (id: number) => {
     setCharacterId(id)
   }
 
-  if (!accountContext.connectedAccount) return <Navigate to="/" />
+  const redirectToCharacterPage = () => {
+    navigate(LEGENDS_ROUTES.character)
+  }
 
   return (
     <>
       <NonV2Modal isOpen={!!accountContext.nonV2Account} />
+
       <div className={styles.wrapper}>
         <h1 className={styles.title}>Choose a Character</h1>
         <p className={styles.description}>
@@ -75,18 +79,19 @@ const CharacterSelect = () => {
         )}
         {isCheckingMintStatus && <Spinner />}
 
-        {!isCheckingMintStatus && (
-          <CharacterLoadingModal
-            isOpen={
-              // Currently minting
-              isMinting ||
-              // Minted a short time ago and not caught by the relayer
-              (isMinted && !character && !isMintedAndNotCaughtByRelayer)
-            }
-            loadingMessage={loadingMessage}
-            errorMessage={errorMessage}
-          />
-        )}
+        <CharacterLoadingModal
+          isOpen={
+            !!character ||
+            // Currently minting
+            isMinting ||
+            // Minted a short time ago and not caught by the relayer
+            (isMinted && !character && !isMintedAndNotCaughtByRelayer)
+          }
+          loadingMessage={loadingMessage}
+          errorMessage={errorMessage}
+          showOnMintModal={!!(character || (character && isMinted))}
+          onButtonClick={redirectToCharacterPage}
+        />
       </div>
     </>
   )

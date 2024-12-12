@@ -25,7 +25,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
   const { getCharacter } = useCharacterContext()
-  const { activity, getActivity } = useRecentActivityContext()
+  const { getActivity } = useRecentActivityContext()
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -36,10 +36,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     [legends]
   )
 
-  const wheelSpinOfTheDay = useMemo(
-    () => isWheelSpinTodayDone({ legends, activity: activity?.transactions || [] }),
-    [legends, activity?.transactions]
-  )
+  const wheelSpinOfTheDay = useMemo(() => isWheelSpinTodayDone({ legends }), [legends])
 
   const getLegends = useCallback(async () => {
     setError(null)
