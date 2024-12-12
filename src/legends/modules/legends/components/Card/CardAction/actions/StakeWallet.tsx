@@ -100,17 +100,18 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
 
   const onButtonClick = useCallback(async () => {
     if (!walletBalance) {
-      try {
-        await window.ambire.request({
+      await window.ambire
+        .request({
           method: 'open-wallet-route',
           params: { route: 'swap-and-bridge' }
         })
-      } catch {
-        addToast(
-          'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
-          'error'
-        )
-      }
+        .catch((e) => {
+          console.error(e)
+          addToast(
+            'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
+            'error'
+          )
+        })
       return
     }
     await switchNetwork()
