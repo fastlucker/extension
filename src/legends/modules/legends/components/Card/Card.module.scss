@@ -167,16 +167,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 
   .modalHeadingTitle {
     color: $primaryText;
-    font-size: 4rem;
+    font-size: 3.5rem;
   }
 }
 
 .modalText {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   line-height: 2rem;
   font-style: italic;
   color: $secondaryText;
@@ -185,7 +185,7 @@
   padding: 0.75rem 0.625rem;
 
   &::first-letter {
-    font-size: 2.5rem;
+    font-size: 2rem;
     text-transform: uppercase;
   }
 }
