@@ -125,7 +125,7 @@ const Card: FC<Props> = ({
     }
   }
 
-  const hoursUntilMidnight = useMemo(() => timeUntilMidnight().hours, [])
+  const hoursUntilMidnightLabel = useMemo(() => timeUntilMidnight().label, [])
 
   const copyToClipboard = async () => {
     try {
@@ -230,11 +230,7 @@ const Card: FC<Props> = ({
             Completed
             {action.type === CardActionType.predefined &&
             action.predefinedId === 'wheelOfFortune' ? (
-              <div className={styles.completedTextAvailable}>
-                {hoursUntilMidnight <= 1
-                  ? 'Available in < 1 hour'
-                  : `Available in ${hoursUntilMidnight} hours`}
-              </div>
+              <div className={styles.completedTextAvailable}>{hoursUntilMidnightLabel}</div>
             ) : null}
           </div>
         </div>
