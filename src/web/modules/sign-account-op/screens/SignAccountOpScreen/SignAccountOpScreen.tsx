@@ -357,6 +357,12 @@ const SignAccountOpScreen = () => {
     return speeds.every((speed) => availableAmount < speed.amount)
   }, [signAccountOpState])
 
+  const isAddToCartDisabled = useMemo(() => {
+    const readyToSign = signAccountOpState?.readyToSign
+
+    return isSignLoading || (!readyToSign && !isViewOnly && !isInsufficientFundsForGas)
+  }, [isInsufficientFundsForGas, isSignLoading, isViewOnly, signAccountOpState?.readyToSign])
+
   return (
     <>
       {renderedButNotNecessarilyVisibleModal === 'warnings' && (
@@ -401,10 +407,7 @@ const SignAccountOpScreen = () => {
             // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
             // because they can't sign it anyway
 
-            isAddToCartDisabled={
-              isSignLoading ||
-              (!signAccountOpState?.readyToSign && !isViewOnly && !isInsufficientFundsForGas)
-            }
+            isAddToCartDisabled={isAddToCartDisabled}
             onSign={onSignButtonClick}
             inProgressButtonText={
               signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
