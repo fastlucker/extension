@@ -368,12 +368,15 @@ export class ProviderController {
       }
     }
 
+    const txnStatus = isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number)
+    const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
+
     return {
       status: 'CONFIRMED',
       receipts: [
         {
           logs: receipt.logs,
-          status: isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number),
+          status,
           chainId: toBeHex(network.chainId),
           blockHash: isUserOp ? receipt.receipt.blockHash : receipt.blockHash,
           blockNumber: isUserOp
