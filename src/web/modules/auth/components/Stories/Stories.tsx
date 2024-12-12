@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Image, Pressable, View } from 'react-native'
+import { Image, Linking, Pressable, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -15,6 +15,8 @@ import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 // @ts-ignore
+import Story5 from './images/story-5.jpg'
+// @ts-ignore
 import Story6 from './images/story-6.png'
 import getStyles, { STORY_CARD_WIDTH } from './styles'
 // @ts-ignore
@@ -25,10 +27,9 @@ import Video2 from './videos/2-MMReplacement.mp4'
 import Video3 from './videos/3-GasTank.mp4'
 // @ts-ignore
 import Video4 from './videos/4-HWs.mp4'
-// @ts-ignore
-import Video5 from './videos/5-WALLET.mp4'
 
 export const ONBOARDING_VERSION = '1.0.0'
+const LEGENDS_URL = 'https://legends.ambire.com/'
 
 const Stories = ({ onComplete }: { onComplete: () => void }) => {
   const { theme, styles } = useTheme(getStyles)
@@ -62,18 +63,11 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         Description: (
           <Trans>
             <Text fontSize={14}>
-              <Text fontSize={14}>{'The first '}</Text>
+              <Text fontSize={14}>{'Experience the best of both worlds with the first '}</Text>
               <Text fontSize={14} weight="semiBold">
-                {'hybrid self-custodial wallet '}
+                hybrid account abstraction self-custodial wallet
               </Text>
-              <Text fontSize={14}>
-                {
-                  'to support Basic (EOAs) and Smart Accounts without compromising user experience. '
-                }
-              </Text>
-              <Text fontSize={14} weight="semiBold">
-                Powered by Account Abstraction.
-              </Text>
+              <Text fontSize={14}>, seamlessly integrating Basic (EOA) and Smart Accounts.</Text>
             </Text>
           </Trans>
         )
@@ -94,9 +88,14 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         Description: (
           <Trans>
             <Text fontSize={14}>
-              Ambire works like MetaMask, but with the added Smart Accounts, you get features like
-              seedless accounts, transaction batching, transaction simulation, gas abstraction, and
-              more.
+              <Text fontSize={14}>{'Ambire '}</Text>
+              <Text fontSize={14} weight="semiBold">
+                works just like MetaMask, yet it integrates Smart Accounts
+              </Text>
+              <Text fontSize={14}>
+                . You get powerful features such as paying gas in ERC-20 tokens, transaction
+                simulation, bundling multiple actions in a single transaction, and more.{' '}
+              </Text>
             </Text>
           </Trans>
         )
@@ -111,19 +110,17 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
-            {t('Pay and prepay gas in custom tokens on any chain!')}
+            {t('Go gasless with the Ambire Gas Tank!')}
           </Text>
         ),
         Description: (
           <Trans>
             <Text fontSize={14}>
-              <Text fontSize={14}>{'With Smart Accounts and the Gas Tank feature, '}</Text>
+              <Text fontSize={14}>{'Ambire’s Gas Tank feature lets you '}</Text>
               <Text fontSize={14} weight="semiBold">
-                you can pay and prepay gas with stablecoins and custom tokens
+                pay gas with ERC-20 tokens across all supported networks
               </Text>
-              <Text fontSize={14}>
-                . Top up on one network and pay on any supported one to save on gas fees.
-              </Text>
+              <Text fontSize={14}>, saving you costs. Every transaction gets you cashback!</Text>
             </Text>
           </Trans>
         )
@@ -144,16 +141,10 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         Description: (
           <Trans>
             <Text fontSize={14}>
-              <Text fontSize={14}>{'Built on '}</Text>
-              <Text fontSize={14} weight="semiBold">
-                {'continuously audited '}
-              </Text>
-              <Text fontSize={14}>{'smart contracts by an experienced team, Ambire Wallet '}</Text>
-              <Text fontSize={14} weight="semiBold">
-                {'keeps your funds safe '}
-              </Text>{' '}
               <Text fontSize={14}>
-                with on-chain transaction simulation and hardware wallet support.
+                Built on continuously audited smart contracts by an experienced team. Ambire Wallet
+                keeps your funds safe with on-chain transaction simulation and hardware wallet
+                support.
               </Text>
             </Text>
           </Trans>
@@ -162,26 +153,37 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
       {
         id: 'story-5',
         GIF: (
-          // eslint-disable-next-line jsx-a11y/media-has-caption
-          <video autoPlay loop width={STORY_CARD_WIDTH} height={318} style={{ objectFit: 'fill' }}>
-            <source src={Video5} type="video/mp4" />
-          </video>
+          <Pressable
+            onPress={() => Linking.openURL(LEGENDS_URL)}
+            accessibilityRole="link"
+            style={styles.gif}
+            accessibilityLabel="Open legends page"
+          >
+            <Image source={Story5} style={styles.gif} />
+          </Pressable>
         ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
-            {t('Get rewarded for using Smart Accounts!')}
+            {t('Master Smart Accounts and get rewarded!')}
           </Text>
         ),
         Description: (
           <Trans>
             <Text fontSize={14}>
-              <Text fontSize={14}>{'The development of '}</Text>
-              <Text fontSize={14} weight="semiBold">
-                Ambire Wallet is governed by holders of our $WALLET token
-              </Text>
+              <TouchableOpacity onPress={() => Linking.openURL(LEGENDS_URL)}>
+                <Text fontSize={14} color={theme.infoDecorative} underline weight="regular">
+                  Join Ambire Legends
+                </Text>
+              </TouchableOpacity>
               <Text fontSize={14}>
-                . You earn $WALLET just by securely holding funds in your Ambire account.
+                {
+                  ' and explore the benefits of Smart Accounts. Embark on onchain quests, earn XP, and level up your character to '
+                }
               </Text>
+              <Text fontSize={14} weight="semiBold">
+                secure a $WALLET reward allocation
+              </Text>
+              <Text fontSize={14}>.</Text>
             </Text>
           </Trans>
         )
@@ -199,26 +201,31 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
           <View>
             <Trans>
               <Text style={spacings.mbLg}>
-                <Text fontSize={14}>Ambire Wallet is an</Text>{' '}
+                <Text fontSize={14}>{'Ambire Wallet is an '}</Text>
                 <Text fontSize={14} weight="semiBold">
-                  open-source, non-custodial
-                </Text>{' '}
-                <Text fontSize={14}>cryptocurrency wallet.</Text>{' '}
+                  open-source
+                </Text>
+                <Text fontSize={14}>{' and '}</Text>
+                <Text fontSize={14} weight="semiBold">
+                  fully self-custodial cryptocurrency wallet
+                </Text>
+                <Text fontSize={14}>{'. '}</Text>
                 <Text
                   fontSize={14}
                   underline
                   color={theme.infoDecorative}
                   onPress={() => navigate('terms', { state: { storyIndex: 5 } })}
                 >
-                  Read full Terms of Service.
+                  Please read the Terms of Service
                 </Text>
+                <Text fontSize={14}>.</Text>
               </Text>
             </Trans>
             <Checkbox
               value={agreedWithTerms}
               onValueChange={setAgreedWithTerms}
               uncheckedBorderColor={theme.primaryText}
-              label={t('I agree to the Terms of Service and Privacy Policy.')}
+              label={t('I agree to the Terms of Service.')}
             />
           </View>
         )

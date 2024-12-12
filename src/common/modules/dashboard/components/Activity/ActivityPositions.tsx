@@ -2,24 +2,24 @@ import React, { FC, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 
+import shortenAddress from '@ambire-common/utils/shortenAddress'
+import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import ActivityPositionsSkeleton from '@common/modules/dashboard/components/Activity/ActivityPositionsSkeleton'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import SubmittedTransactionSummary from '@web/modules/settings/components/TransactionHistory/SubmittedTransactionSummary'
 import { getUiType } from '@web/utils/uiType'
 
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import SubmittedTransactionSummary from '@web/modules/settings/components/TransactionHistory/SubmittedTransactionSummary'
-import spacings from '@common/styles/spacings'
-import shortenAddress from '@ambire-common/utils/shortenAddress'
-import { networks } from '@ambire-common/consts/networks'
-import Button from '@common/components/Button'
-import flexbox from '@common/styles/utils/flexbox'
-import ActivityPositionsSkeleton from './ActivityPositionsSkeleton'
 import styles from './styles'
 
 interface Props {
@@ -41,6 +41,7 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
   const { dispatch } = useBackgroundService()
   const { accountsOps } = useActivityControllerState()
   const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
+  const { networks } = useNetworksControllerState()
 
   useEffect(() => {
     dispatch({
@@ -153,7 +154,8 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
       dispatch,
       account,
       accountsOps,
-      sessionId
+      sessionId,
+      networks
     ]
   )
 

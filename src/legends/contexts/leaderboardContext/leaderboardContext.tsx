@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
 import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
@@ -10,14 +10,10 @@ type LeaderboardContextType = {
   leaderboardData: Array<LeaderboardEntry>
   userLeaderboardData: LeaderboardEntry | null
   error: string | null
+  updateLeaderboard: () => Promise<void>
 }
 
-const LeaderboardContext = createContext<LeaderboardContextType>({
-  isLeaderboardLoading: true,
-  leaderboardData: [],
-  userLeaderboardData: null,
-  error: null
-})
+const LeaderboardContext = createContext<LeaderboardContextType>({} as LeaderboardContextType)
 
 const LeaderboardContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true)
@@ -26,30 +22,30 @@ const LeaderboardContextProvider = ({ children }: { children: React.ReactNode })
   const [userLeaderboardData, setUserLeaderboardData] = useState<LeaderboardEntry | null>(null)
   const { connectedAccount } = useAccountContext()
 
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        setError(null)
-        const response = await getLeaderboard(connectedAccount ?? undefined)
+  const updateLeaderboard = useCallback(async () => {
+    try {
+      setError(null)
+      const response = await getLeaderboard(connectedAccount ?? undefined)
 
-        if (response) {
-          const { leaderboard, currentUser } = response
-          setLeaderboardData(leaderboard)
-          currentUser && setUserLeaderboardData(currentUser)
-        } else {
-          setError('Failed to fetch leaderboard')
-        }
-      } catch (e) {
-        console.error('Failed to fetch leaderboard:', e)
+      if (response) {
+        const { leaderboard, currentUser } = response
+        setLeaderboardData(leaderboard)
+        currentUser && setUserLeaderboardData(currentUser)
+      } else {
         setError('Failed to fetch leaderboard')
-        throw e
-      } finally {
-        setLoading(false)
       }
+    } catch (e) {
+      console.error('Failed to fetch leaderboard:', e)
+      setError('Failed to fetch leaderboard')
+      throw e
+    } finally {
+      setLoading(false)
     }
-
-    fetchLeaderboard()
   }, [connectedAccount])
+
+  useEffect(() => {
+    updateLeaderboard()
+  }, [connectedAccount, updateLeaderboard])
 
   const sortedData = useMemo(
     () =>
@@ -70,9 +66,10 @@ const LeaderboardContextProvider = ({ children }: { children: React.ReactNode })
       isLeaderboardLoading: loading,
       leaderboardData: sortedData,
       userLeaderboardData,
-      error
+      error,
+      updateLeaderboard
     }),
-    [loading, sortedData, userLeaderboardData, error]
+    [loading, sortedData, userLeaderboardData, error, updateLeaderboard]
   )
 
   return <LeaderboardContext.Provider value={value}>{children}</LeaderboardContext.Provider>

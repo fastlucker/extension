@@ -1,6 +1,6 @@
-import { CardAction, CardFromResponse, CardType } from '@legends/modules/legends/types'
+import { CardActionCalls, CardFromResponse, CardStatus } from '@legends/modules/legends/types'
 
-import { CARD_PREDEFINED_ID, EOA_ACCESSIBLE_CARDS } from '../constants'
+import { CARD_PREDEFINED_ID } from '../constants'
 
 const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
   const totalAXp = a.xp.reduce((acc, xp) => acc + xp.to + xp.from, 0)
@@ -10,44 +10,29 @@ const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
 }
 
 const sortCards = (cards: CardFromResponse[]) => {
-  return cards
-    .map((card) => {
-      if (
-        (card.action && card.action.calls && card.action.calls.length === 0) ||
-        card.action.predefinedId === 'linkX'
-      ) {
-        return { ...card, disabled: true }
-      }
-      return card
-    })
-    .sort((a, b) => {
-      // Display disabled cards last
-      if (a.disabled && !b.disabled) {
-        return 1
-      }
-      if (!a.disabled && b.disabled) {
-        return -1
-      }
+  return cards.sort((a, b) => {
+    // Display Wheel of Fortune first
+    if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+      return -1
+    }
+    if (b.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+      return 1
+    }
 
-      // Display Wheel of Fortune first
-      if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
-        return -1
-      }
+    const order = {
+      [CardStatus.active]: 1,
+      [CardStatus.completed]: 2,
+      [CardStatus.disabled]: 3
+    }
 
-      const order = {
-        [CardType.available]: 1,
-        [CardType.recurring]: 2,
-        [CardType.done]: 3
-      }
+    // Sort by card type
+    if (order[a.card.status] !== order[b.card.status]) {
+      return order[a.card.status] - order[b.card.status]
+    }
 
-      // Sort by card type
-      if (order[a.card.type] !== order[b.card.type]) {
-        return order[a.card.type] - order[b.card.type]
-      }
-
-      // Sort by highest XP
-      return sortByHighestXp(a, b)
-    })
+    // Sort by highest XP
+    return sortByHighestXp(a, b)
+  })
 }
 
 const handlePredefinedAction = (predefinedId?: string) => {
@@ -68,7 +53,7 @@ const handlePredefinedAction = (predefinedId?: string) => {
   console.log(predefinedId)
 }
 
-const handleCallsAction = (calls: CardAction['calls']) => {
+const handleCallsAction = (calls: CardActionCalls['calls']) => {
   // window.ambire.request(calls)
   console.log(calls)
 }

@@ -1,9 +1,10 @@
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { ActiveRoute, SocketAPIBridgeUserTx } from '@ambire-common/interfaces/swapAndBridge'
 import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button, { ButtonProps } from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
@@ -56,7 +57,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
     if (isInTheMiddle) return { text: t('Cancel Next Step'), type: 'danger' }
 
     // You can't really cancel ongoing txn, only closing it (it might got stuck)
-    if (activeRoute.routeStatus === 'in-progress') return { text: t('Close'), type: 'ghost' }
+    if (
+      activeRoute.routeStatus === 'in-progress' ||
+      activeRoute.routeStatus === 'waiting-approval-to-resolve'
+    )
+      return { text: t('Close'), type: 'ghost' }
 
     // In all other scenarios, you can cancel the process
     return { text: t('Cancel'), type: 'danger' }
@@ -71,7 +76,12 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
     if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') return t('Building Transaction...')
 
     const isFirstTxn = activeRoute.route.currentUserTxIndex === 0
-    if (isFirstTxn && activeRoute.routeStatus !== 'in-progress') return t('Proceed')
+    if (
+      isFirstTxn &&
+      activeRoute.routeStatus !== 'in-progress' &&
+      activeRoute.routeStatus !== 'waiting-approval-to-resolve'
+    )
+      return t('Proceed')
 
     const isLastTxn = activeRoute.route.totalUserTx === activeRoute.route.currentUserTxIndex + 1
     if (isLastTxn && activeRoute.routeStatus === 'in-progress') return t('Pending...')
@@ -100,6 +110,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
 
   return (
     <Panel forceContainerSmallSpacings style={getPanelContainerStyle()}>
+      {activeRoute.routeStatus === 'completed' && (
+        <Pressable style={styles.closeIcon} onPress={handleRejectActiveRoute}>
+          <CloseIcon />
+        </Pressable>
+      )}
       <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
         {activeRoute.routeStatus === 'completed' ? t('Completed Route') : t('Pending Route')}
       </Text>
@@ -116,7 +131,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
               ? activeRoute.route.totalUserTx
               : activeRoute.route.currentUserTxIndex
           }
-          loadingEnabled={!!activeRoute.userTxHash && activeRoute.routeStatus === 'in-progress'}
+          loadingEnabled={
+            !!activeRoute.userTxHash &&
+            (activeRoute.routeStatus === 'in-progress' ||
+              activeRoute.routeStatus === 'waiting-approval-to-resolve')
+          }
         />
       </View>
 
@@ -164,6 +183,19 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
                     <Spinner style={{ width: 16, height: 16 }} />
                   </>
                 )}
+              {activeRoute.routeStatus === 'waiting-approval-to-resolve' && (
+                <>
+                  <Text
+                    fontSize={12}
+                    weight="medium"
+                    style={spacings.mrTy}
+                    appearance="secondaryText"
+                  >
+                    {t('Approval in progress')}
+                  </Text>
+                  <Spinner style={{ width: 16, height: 16 }} />
+                </>
+              )}
             </View>
           )}
           {!!activeRoute.error && (

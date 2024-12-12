@@ -190,9 +190,16 @@ const SubmittedTransactionSummary = ({
                 <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
                   {t('Fee')}:{' '}
                 </Text>
-                <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
-                  {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
-                </Text>
+
+                {submittedAccountOp.gasFeePayment?.isSponsored ? (
+                  <Text fontSize={14} appearance="successText" style={spacings.mrTy}>
+                    Sponsored
+                  </Text>
+                ) : (
+                  <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
+                    {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
+                  </Text>
+                )}
               </View>
             )}
             <SubmittedOn

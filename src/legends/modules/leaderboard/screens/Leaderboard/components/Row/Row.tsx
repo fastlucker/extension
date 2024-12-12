@@ -20,7 +20,7 @@ const calculateRowStyle = (isConnectedAccountRow: boolean, stickyPosition: strin
       | 'relative',
     top: stickyPosition === 'top' && isConnectedAccountRow ? 0 : 'auto',
     bottom: stickyPosition === 'bottom' && isConnectedAccountRow ? 0 : 'auto',
-    zIndex: isConnectedAccountRow ? 1000 : 0
+    zIndex: isConnectedAccountRow ? 10 : 0
   }
 }
 

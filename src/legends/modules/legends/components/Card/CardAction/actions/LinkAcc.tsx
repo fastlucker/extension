@@ -1,34 +1,30 @@
-import { BrowserProvider, Contract, Interface, ZeroAddress } from 'ethers'
+/* eslint-disable no-console */
+import { BrowserProvider, Interface, ZeroAddress } from 'ethers'
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import { isValidAddress } from '@ambire-common/services/address'
-import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import Alert from '@legends/components/Alert'
 import Input from '@legends/components/Input'
 import Stepper from '@legends/components/Stepper'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 
 import styles from './Action.module.scss'
 import CardActionWrapper from './CardActionWrapper'
-
-type Props = {
-  onComplete: () => void
-}
+import { CardProps } from './types'
 
 enum STEPS {
   SIGN_MESSAGE,
-  SIGN_TRANSACTION,
-  SUCCESS
+  SIGN_TRANSACTION
 }
 
 const BUTTON_TEXT = {
   [STEPS.SIGN_MESSAGE]: 'Sign message',
-  [STEPS.SIGN_TRANSACTION]: 'Sign transaction',
-  [STEPS.SUCCESS]: 'Close'
+  [STEPS.SIGN_TRANSACTION]: 'Sign transaction'
 }
 
 const STEPPER_STEPS = [
@@ -38,12 +34,12 @@ const STEPPER_STEPS = [
 
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
-const LinkAcc: FC<Props> = ({ onComplete }) => {
+const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
   const [isInProgress, setIsInProgress] = useState(false)
   const [v1OrBasicSignature, setV1OrBasicSignature] = useState('')
   const [messageSignedForV2Account, setMessageSignedForV2Account] = useState('')
   const [v1OrEoaAddress, setV1OrEoaAddress] = useState('')
-  const [isFlowComplete, setIsFlowComplete] = useState(false)
+  const { sendCalls, getCallsStatus, chainId } = useErc5792()
 
   const { addToast } = useToast()
   const { connectedAccount, setAllowNonV2Connection } = useAccountContext()
@@ -60,21 +56,17 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
   }, [v1OrEoaAddress])
 
   const activeStep = useMemo(() => {
-    if (isFlowComplete) return STEPS.SUCCESS
     if (v1OrBasicSignature) return STEPS.SIGN_TRANSACTION
 
     return STEPS.SIGN_MESSAGE
-  }, [isFlowComplete, v1OrBasicSignature])
+  }, [v1OrBasicSignature])
 
   const isActionEnabled = useMemo(() => {
     if (activeStep === STEPS.SIGN_MESSAGE) {
       return !!inputValidation?.isValid
     }
-    if (activeStep === STEPS.SIGN_TRANSACTION) {
-      return messageSignedForV2Account === connectedAccount
-    }
 
-    return activeStep === STEPS.SUCCESS
+    return messageSignedForV2Account === connectedAccount
   }, [activeStep, inputValidation?.isValid, messageSignedForV2Account, connectedAccount])
 
   // We don't allow non-v2 accounts to connect to Legends,
@@ -119,31 +111,51 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
       const provider = new BrowserProvider(window.ethereum)
       const signer = await provider.getSigner(connectedAccount)
 
-      const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, LEGENDS_CONTRACT_INTERFACE, signer)
+      // no sponsorship for linkAcc
+      const useSponsorship = false
 
-      await contract.linkAndAcceptInvite(
-        connectedAccount,
-        v1OrEoaAddress,
-        ZeroAddress,
-        v1OrBasicSignature
+      const sendCallsIdentifier = await sendCalls(
+        chainId,
+        await signer.getAddress(),
+        [
+          {
+            to: LEGENDS_CONTRACT_ADDRESS,
+            data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('linkAndAcceptInvite', [
+              connectedAccount,
+              v1OrEoaAddress,
+              ZeroAddress,
+              v1OrBasicSignature
+            ])
+          }
+        ],
+        useSponsorship
       )
-      addToast('Successfully linked accounts', 'success')
-      setIsFlowComplete(true)
+      const receipt = await getCallsStatus(sendCallsIdentifier)
+      if (receipt.status !== '0x1') throw new Error('Failed linking')
+
+      onComplete(receipt.transactionHash)
+      handleClose()
     } catch (e) {
       console.error(e)
       addToast('Failed to sign transaction', 'error')
-      setIsFlowComplete(false)
+      setAllowNonV2Connection(false)
     } finally {
       setIsInProgress(false)
     }
-  }, [connectedAccount, v1OrEoaAddress, v1OrBasicSignature, addToast])
+  }, [
+    connectedAccount,
+    sendCalls,
+    chainId,
+    v1OrEoaAddress,
+    v1OrBasicSignature,
+    getCallsStatus,
+    onComplete,
+    handleClose,
+    addToast,
+    setAllowNonV2Connection
+  ])
 
   const onButtonClick = useCallback(async () => {
-    if (activeStep === STEPS.SUCCESS) {
-      onComplete()
-      setAllowNonV2Connection(false)
-      return
-    }
     await switchNetwork()
 
     if (activeStep === STEPS.SIGN_MESSAGE) {
@@ -151,14 +163,7 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
     } else if (activeStep === STEPS.SIGN_TRANSACTION) {
       await sendV2Transaction()
     }
-  }, [
-    switchNetwork,
-    activeStep,
-    signV1OrBasicAccountMessage,
-    sendV2Transaction,
-    onComplete,
-    setAllowNonV2Connection
-  ])
+  }, [activeStep, switchNetwork, signV1OrBasicAccountMessage, sendV2Transaction])
 
   return (
     <CardActionWrapper
@@ -185,15 +190,6 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
           validation={inputValidation}
           onChange={(e) => setV1OrEoaAddress(e.target.value)}
         />
-      )}
-      {activeStep === STEPS.SUCCESS && (
-        <>
-          <p>
-            🎉 Your Basic or v1 account has been successfully linked to your v2 account! Visit the
-            character page to check your earned XP.
-          </p>
-          <ConfettiAnimation width={650} height={500} autoPlay className={styles.confetti} />
-        </>
       )}
     </CardActionWrapper>
   )

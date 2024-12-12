@@ -168,7 +168,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
           spacings.mbLg
         ]}
       >
-        <SectionHeading withMb={false}>{t('Simulation results')}</SectionHeading>
+        <SectionHeading withMb={false}>{t('Transaction simulation')}</SectionHeading>
         <NetworkBadge networkId={network?.id} withOnPrefix />
       </View>
       {simulationView === 'changes' && (

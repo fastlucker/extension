@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Image, View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -35,7 +35,9 @@ const Estimation = ({
   hasEstimation,
   slowRequest,
   slowPaymasterRequest,
-  isViewOnly
+  isViewOnly,
+  isSponsored,
+  sponsor
 }: Props) => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
@@ -291,24 +293,59 @@ const Estimation = ({
 
   return (
     <EstimationWrapper>
-      <SectionedSelect
-        setValue={setFeeOption}
-        testID="fee-option-select"
-        label={t('Pay fee with')}
-        sections={feeOptionSelectSections}
-        renderSectionHeader={renderFeeOptionSectionHeader}
-        containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}
-        value={payValue || NO_FEE_OPTIONS}
-        disabled={
-          disabled ||
-          (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
-          defaultFeeOption.label === NO_FEE_OPTIONS.label
-        }
-        defaultValue={payValue ?? undefined}
-        withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
-        stickySectionHeadersEnabled
-      />
-      {areTwoHWSignaturesRequired && (
+      {isSponsored && (
+        <View>
+          {sponsor && (
+            <View style={[flexbox.alignCenter, spacings.mbLg]}>
+              {sponsor.icon && (
+                <Image
+                  source={{ uri: sponsor.icon }}
+                  resizeMode="contain"
+                  style={[
+                    {
+                      height: 150,
+                      width: 150
+                    }
+                  ]}
+                />
+              )}
+              <Text fontSize={16} color={theme.secondaryText} style={{ textAlign: 'center' }}>
+                <Text weight="number_black">{sponsor.name}</Text>
+                {'\n'}
+                <Text>is sponsoring this transaction</Text>
+              </Text>
+            </View>
+          )}
+          <Alert
+            type="success"
+            size="md"
+            text={t(
+              'This is a sponsored transaction with no gas fees. Please review the changes on the left before signing'
+            )}
+            style={spacings.mbSm}
+          />
+        </View>
+      )}
+      {!isSponsored && (
+        <SectionedSelect
+          setValue={setFeeOption}
+          testID="fee-option-select"
+          label={t('Pay fee with')}
+          sections={feeOptionSelectSections}
+          renderSectionHeader={renderFeeOptionSectionHeader}
+          containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}
+          value={payValue || NO_FEE_OPTIONS}
+          disabled={
+            disabled ||
+            (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
+            defaultFeeOption.label === NO_FEE_OPTIONS.label
+          }
+          defaultValue={payValue ?? undefined}
+          withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
+          stickySectionHeadersEnabled
+        />
+      )}
+      {!isSponsored && areTwoHWSignaturesRequired && (
         <Alert
           size="sm"
           text={t(
@@ -317,7 +354,7 @@ const Estimation = ({
           style={spacings.mbSm}
         />
       )}
-      {feeSpeeds.length > 0 && (
+      {!isSponsored && feeSpeeds.length > 0 && (
         <View style={[spacings.mbMd]}>
           <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
             {t('Transaction speed')}
@@ -346,14 +383,14 @@ const Estimation = ({
           </View>
         </View>
       )}
-      {!!selectedFee && !!payValue && (
+      {!isSponsored && !!selectedFee && !!payValue && (
         <AmountInfo
           label="Fee"
           amountFormatted={formatDecimals(parseFloat(selectedFee.amountFormatted))}
           symbol={payValue.token?.symbol}
         />
       )}
-      {!!signAccountOpState.gasSavedUSD && (
+      {!isSponsored && !!signAccountOpState.gasSavedUSD && (
         <AmountInfo.Wrapper>
           <AmountInfo.Label appearance="primary">{t('Gas Tank saves you')}</AmountInfo.Label>
           <AmountInfo.Text appearance="primary" selectable>
@@ -378,7 +415,7 @@ const Estimation = ({
           )
         }
       />
-      {isSmartAccountAndNotDeployed && !estimationFailed ? (
+      {!isSponsored && isSmartAccountAndNotDeployed && !estimationFailed ? (
         <Alert
           type="info"
           title={t('Note')}

@@ -65,6 +65,9 @@ describe('Invite Verification', () => {
       timeout: 60000
     })
 
+    // Added 500ms delay to make sure that toast animation is completed
+    await page.waitForTimeout(500)
+
     // and check if it is visible
     expect(await errorToast.isIntersectingViewport()).toBeTruthy()
   })
