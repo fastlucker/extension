@@ -27,8 +27,8 @@
           justify-content: center;
           font-size: 2rem;
           line-height: 2rem;
-          width: 4rem;
-          height: 4rem;
+          width: 3rem;
+          height: 3rem;
           color: $primaryText;
           background: $primaryBackground;
           border: 1px solid $tertiaryBorder;
@@ -38,7 +38,7 @@
         .stepTitle {
           display: flex;
           align-items: center;
-          font-size: 1.3125rem;
+          font-size: 1.125rem;
           font-weight: 400;
           color: $secondaryText;
         }
@@ -58,8 +58,6 @@
   }
 }
 
-
-
 .link {
   color: $success;
   text-decoration: none;
@@ -75,16 +73,15 @@
 .copyField {
   background-color: $primaryBackground;
   border: 1px solid $primaryBorder;
-  border-radius: .5rem;
-  padding: .5rem;
-
+  border-radius: 0.5rem;
+  padding: 0.5rem;
 }
 
 .copyIcon {
   cursor: pointer;
 }
 
-.copyHeader  {
+.copyHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
