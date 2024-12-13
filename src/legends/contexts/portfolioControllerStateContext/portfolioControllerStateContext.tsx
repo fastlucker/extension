@@ -18,7 +18,7 @@ const PortfolioControllerStateContext = createContext<{
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const getPortfolioIntervalRef: any = useRef(null)
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, nonV2Account } = useAccountContext()
   const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>()
 
   const updateAccountPortfolio = useCallback(async (address: string): Promise<AccountPortfolio> => {
@@ -31,8 +31,26 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     const portfolioRes = (await window.ambire.request({
       method: 'get_portfolioBalance',
       // TODO: impl a dynamic way of getting the chainIds
-      params: [{ chainIds: ['0x1', '0x2105', '0xa', '0xa4b1', '0x82750'] }, address]
-    })) as AccountPortfolio
+      params: [{ chainIds: ['0x1', '0x2105', '0xa', '0xa4b1', '0x82750'] }]
+    })) as AccountPortfolio & { account: string }
+
+    if (portfolioRes.account !== address) {
+      setAccountPortfolio((portfolio) => {
+        if (!portfolio?.isReady) {
+          return {
+            amount: 0,
+            amountFormatted: '-',
+            isReady: true
+          }
+        }
+
+        return portfolio
+      })
+
+      return {
+        isReady: true
+      }
+    }
 
     setAccountPortfolio(portfolioRes)
     return portfolioRes
@@ -43,6 +61,9 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
     // Ensure there isn't already a scheduled timeout before setting a new one.
     if (getPortfolioIntervalRef.current) clearTimeout(getPortfolioIntervalRef.current)
+
+    // We don't want to trigger a portfolio update for non v2 account
+    if (nonV2Account) return
 
     const runPortfolioContinuousUpdate = async () => {
       const portfolioRes = await updateAccountPortfolio(connectedAccount)
@@ -66,7 +87,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => {
       clearTimeout(getPortfolioIntervalRef.current)
     }
-  }, [connectedAccount, updateAccountPortfolio])
+  }, [connectedAccount, nonV2Account, updateAccountPortfolio])
 
   return (
     <PortfolioControllerStateContext.Provider
