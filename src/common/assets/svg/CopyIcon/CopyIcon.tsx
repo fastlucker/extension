@@ -3,7 +3,7 @@ import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
 
-const CopyIcon: React.FC<SvgProps> = ({
+const CopyIcon: React.FC<SvgProps & { className?: string; onClick?: () => void }> = ({
   width = 22,
   height = 22,
   color = iconColors.secondary,
