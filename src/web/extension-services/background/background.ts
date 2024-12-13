@@ -438,7 +438,7 @@ handleKeepAlive()
   }
 
   function createEstimateRecurringTimeout() {
-    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 60000)
+    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 30000)
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
