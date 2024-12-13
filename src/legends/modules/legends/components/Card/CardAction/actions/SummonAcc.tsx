@@ -3,6 +3,7 @@ import React, { FC, useMemo, useState } from 'react'
 import Input from '@legends/components/Input'
 import useToast from '@legends/hooks/useToast'
 import { useInviteEOA } from '@legends/modules/legends/hooks'
+import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import CardActionWrapper from './CardActionWrapper'
 import { CardProps } from './types'
@@ -40,7 +41,9 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
       onComplete(txnId)
       handleClose()
     } catch (e: any) {
-      addToast('Failed to invite EOA address', 'error')
+      const message = humanizeLegendsBroadcastError(e)
+
+      addToast(message || 'Failed to invite EOA address', 'error')
       console.error(e)
     } finally {
       setIsInProgress(false)

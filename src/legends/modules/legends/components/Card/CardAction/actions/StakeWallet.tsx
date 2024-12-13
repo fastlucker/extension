@@ -8,6 +8,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import CardActionWrapper from './CardActionWrapper'
 import { CardProps } from './types'
@@ -78,12 +79,13 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
         useSponsorship
       )
       const receipt = await getCallsStatus(sendCallsIdentifier)
-      if (receipt.status !== '0x1') throw new Error('Failed staking')
       onComplete(receipt.transactionHash)
       handleClose()
-    } catch (e) {
+    } catch (e: any) {
+      const message = humanizeLegendsBroadcastError(e)
+
       console.error(e)
-      addToast('Failed to sign transaction', 'error')
+      addToast(message || 'Failed to sign transaction', 'error')
     } finally {
       setIsInProgress(false)
     }

@@ -5,6 +5,7 @@ import { BASE_CHAIN_ID } from '@legends/constants/network'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useToast from '@legends/hooks/useToast'
 import { CardActionCalls } from '@legends/modules/legends/types'
+import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import CardActionButton from './CardActionButton'
 import { CardProps } from './types'
@@ -52,13 +53,14 @@ const SendAccOp: FC<Props> = ({ onComplete, handleClose, action }) => {
         false
       )
       const receipt = await getCallsStatus(sendCallsIdentifier)
-      if (receipt.status !== '0x1') throw new Error('Failed to process the transaction!')
 
       onComplete(receipt.transactionHash)
       handleClose()
-    } catch (e) {
+    } catch (e: any) {
+      const message = humanizeLegendsBroadcastError(e)
+
       console.error(e)
-      addToast('Failed to process the transaction!', 'error')
+      addToast(message || 'Failed to process the transaction!', 'error')
     }
   }, [
     changeNetworkToBase,
