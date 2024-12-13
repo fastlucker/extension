@@ -19,7 +19,7 @@ const CharacterSection = () => {
   const { character } = useCharacterContext()
   const { accountPortfolio } = usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
-  const { isReady, amountFormatted, amount } = accountPortfolio || {}
+  const { isReady, amountFormatted } = accountPortfolio || {}
 
   if (!character)
     return (
@@ -56,17 +56,14 @@ const CharacterSection = () => {
             {character?.characterName}
           </h1>
 
-          <div
+          <button
+            type="button"
             className={styles.infoIcon}
             onClick={openDescriptionModal}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') openDescriptionModal()
-            }}
-            role="button"
             tabIndex={0}
           >
             i
-          </div>
+          </button>
         </div>
 
         <div className={styles.characterLevelInfoWrapper}>

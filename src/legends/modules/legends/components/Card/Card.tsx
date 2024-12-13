@@ -10,7 +10,7 @@ import Flask from '@legends/modules/legends/components/Card/Flask'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
+import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import {
   CardActionType,
   CardFromResponse,
@@ -59,7 +59,7 @@ const Card: FC<Props> = ({
   contentImage,
   contentVideo
 }) => {
-  const { activity, getActivity } = useRecentActivityContext()
+  const { getActivity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
 
@@ -125,10 +125,7 @@ const Card: FC<Props> = ({
     }
   }
 
-  const hoursUntilMidnight = useMemo(
-    () => (activity?.transactions ? calculateHoursUntilMidnight(activity.transactions) : 0),
-    [activity]
-  )
+  const hoursUntilMidnightLabel = useMemo(() => timeUntilMidnight().label, [])
 
   const copyToClipboard = async () => {
     try {
@@ -233,9 +230,7 @@ const Card: FC<Props> = ({
             Completed
             {action.type === CardActionType.predefined &&
             action.predefinedId === 'wheelOfFortune' ? (
-              <div
-                className={styles.completedTextAvailable}
-              >{`Available in ${hoursUntilMidnight} hours`}</div>
+              <div className={styles.completedTextAvailable}>{hoursUntilMidnightLabel}</div>
             ) : null}
           </div>
         </div>

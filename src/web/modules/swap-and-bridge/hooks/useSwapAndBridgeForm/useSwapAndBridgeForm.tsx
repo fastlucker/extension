@@ -9,13 +9,13 @@ import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridg
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -310,8 +310,12 @@ const useSwapAndBridgeForm = () => {
 
     const stepTypes = quote.selectedRouteSteps.map((s) => s.type)
 
-    return stepTypes.includes('bridge') && stepTypes.includes('swap')
-  }, [quote])
+    return (
+      stepTypes.includes('bridge') &&
+      stepTypes.includes('swap') &&
+      formStatus === SwapAndBridgeFormStatus.ReadyToSubmit
+    )
+  }, [quote, formStatus])
 
   const handleSubmitForm = useCallback(() => {
     dispatch({

@@ -25,6 +25,23 @@
       background-color: $tertiaryBackground;
       border-radius: $primaryBorderRadius;
       border: 1px solid $tertiaryBorder;
+
+      &.discordSocial {
+        display: none;
+      }
+    }
+  }
+
+  @media screen and (max-height: 799px) {
+    .discordLinkWrapper {
+      display: none;
+    }
+    .socials {
+      .social {
+        &.discordSocial {
+          display: flex;
+        }
+      }
     }
   }
 }

@@ -15,6 +15,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
+import useEscModal from '@legends/hooks/useEscModal'
 
 import chainImage from './assets/chain.png'
 import mainImage from './assets/main.png'
@@ -178,6 +179,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       await onLegendComplete()
     }
   }
+
+  // Close Modal on ESC
+  useEscModal(isOpen, closeModal)
 
   const onButtonClick = async () => {
     if (wheelState === 'locked') {

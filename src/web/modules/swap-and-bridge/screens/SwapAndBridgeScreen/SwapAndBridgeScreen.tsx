@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import FlipIcon from '@common/assets/svg/FlipIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
@@ -20,7 +21,6 @@ import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -317,6 +317,7 @@ const SwapAndBridgeScreen = () => {
             {[
               SwapAndBridgeFormStatus.FetchingRoutes,
               SwapAndBridgeFormStatus.NoRoutesFound,
+              SwapAndBridgeFormStatus.InvalidRouteSelected,
               SwapAndBridgeFormStatus.ReadyToSubmit
             ].includes(formStatus) && (
               <View
@@ -368,15 +369,36 @@ const SwapAndBridgeScreen = () => {
                 />
               </View>
             )}
-            {formStatus === SwapAndBridgeFormStatus.ReadyToSubmit && (
+            {(formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
+              formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) && (
               <>
-                <View style={styles.secondaryContainer}>
+                <View
+                  style={[
+                    styles.secondaryContainer,
+                    !!quote!.selectedRoute.errorMessage && {
+                      borderWidth: 1,
+                      borderColor: theme.errorDecorative
+                    }
+                  ]}
+                >
                   <RouteStepsPreview
                     steps={quote!.selectedRouteSteps}
                     totalGasFeesInUsd={quote!.selectedRoute.totalGasFeesInUsd}
                     estimationInSeconds={quote!.selectedRoute.serviceTime}
                   />
                 </View>
+                {!!quote!.selectedRoute.errorMessage && (
+                  <View style={spacings.ptTy}>
+                    <Text
+                      fontSize={12}
+                      weight="medium"
+                      style={spacings.mrTy}
+                      appearance="errorText"
+                    >
+                      {quote!.selectedRoute.errorMessage}
+                    </Text>
+                  </View>
+                )}
                 {!!shouldConfirmFollowUpTransactions && (
                   <View style={spacings.pt}>
                     <Checkbox
