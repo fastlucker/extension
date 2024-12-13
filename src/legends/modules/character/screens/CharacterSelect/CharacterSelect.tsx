@@ -16,7 +16,7 @@ import useMintCharacter from './hooks/useMintCharacter'
 const CharacterSelect = () => {
   const navigate = useNavigate()
   const [characterId, setCharacterId] = useState(1)
-  const accountContext = useAccountContext()
+  const { connectedAccount, nonV2Account } = useAccountContext()
   const [errorMessage, setErrorMessage] = useState('')
 
   const { character, isLoading } = useCharacterContext()
@@ -47,11 +47,11 @@ const CharacterSelect = () => {
     navigate(LEGENDS_ROUTES.character)
   }
 
-  if (!accountContext.connectedAccount && !accountContext.nonV2Account) return <Navigate to="/" />
+  if (!connectedAccount && !nonV2Account) return <Navigate to="/" />
 
   return (
     <>
-      <NonV2Modal isOpen={!!accountContext.nonV2Account} />
+      <NonV2Modal isOpen={!!nonV2Account} />
 
       <div className={styles.wrapper}>
         <h1 className={styles.title}>Choose a Character</h1>
