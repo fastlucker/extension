@@ -2,8 +2,8 @@ import React, { FC, useCallback, useState } from 'react'
 import { View } from 'react-native'
 
 import { PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import useTheme from '@common/hooks/useTheme'
-import formatDecimals from '@common/utils/formatDecimals'
 
 import DeFiPosition from './DeFiPosition'
 import DeFiPositionHeader from './DeFiPositionHeader'

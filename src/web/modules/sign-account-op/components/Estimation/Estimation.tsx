@@ -6,6 +6,7 @@ import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
 import Alert from '@common/components/Alert'
@@ -15,7 +16,6 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -154,7 +154,22 @@ const Estimation = ({
       payValue?.value === NO_FEE_OPTIONS.value && defaultFeeOption.value !== NO_FEE_OPTIONS.value
     const feeOptionNoLongerViable = payValue?.disabled !== defaultFeeOption.disabled
 
-    if (!isInitialValueSet || canPayFeeAfterNotBeingAbleToPayInitially || feeOptionNoLongerViable) {
+    if (
+      !isInitialValueSet ||
+      canPayFeeAfterNotBeingAbleToPayInitially ||
+      feeOptionNoLongerViable ||
+      (payValue &&
+        !payOptionsPaidByUsOrGasTank.find(
+          (payOption) =>
+            payOption.paidBy === payValue.paidBy &&
+            payOption.token.address === payValue.token?.address
+        ) &&
+        !payOptionsPaidByEOA.find(
+          (payOption) =>
+            payOption.paidBy === payValue.paidBy &&
+            payOption.token.address === payValue.token?.address
+        ))
+    ) {
       setFeeOption(defaultFeeOption)
     }
   }, [
@@ -163,7 +178,9 @@ const Estimation = ({
     hasEstimation,
     defaultFeeOption.value,
     defaultFeeOption,
-    signAccountOpState?.account.addr
+    signAccountOpState?.account.addr,
+    payOptionsPaidByUsOrGasTank,
+    payOptionsPaidByEOA
   ])
 
   const feeSpeeds = useMemo(() => {

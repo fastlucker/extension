@@ -327,6 +327,15 @@ const TransferScreen = () => {
                 />
               </View>
             )}
+            {isTopUp && isSmartAccount && (
+              <View style={spacings.ptSm}>
+                <Alert
+                  type="warning"
+                  title={<Trans>Gas Tank deposits cannot be withdrawn.</Trans>}
+                  isTypeLabelHidden
+                />
+              </View>
+            )}
           </Panel>
         ) : (
           <SkeletonLoader

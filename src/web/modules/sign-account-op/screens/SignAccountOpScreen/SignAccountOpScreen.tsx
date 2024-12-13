@@ -21,7 +21,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -42,7 +41,6 @@ const SignAccountOpScreen = () => {
   const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
-  const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
@@ -341,6 +339,28 @@ const SignAccountOpScreen = () => {
     )
   }
 
+  const isInsufficientFundsForGas = useMemo(() => {
+    if (!signAccountOpState?.feeSpeeds || !signAccountOpState.selectedOption) {
+      return false
+    }
+
+    const keys = Object.keys(signAccountOpState.feeSpeeds)
+    if (!keys.length) return false
+
+    const speeds = signAccountOpState.feeSpeeds[keys[0]]
+    if (!Array.isArray(speeds)) return false
+
+    const { availableAmount } = signAccountOpState.selectedOption
+
+    return speeds.every((speed) => availableAmount < speed.amount)
+  }, [signAccountOpState])
+
+  const isAddToCartDisabled = useMemo(() => {
+    const readyToSign = signAccountOpState?.readyToSign
+
+    return isSignLoading || (!readyToSign && !isViewOnly && !isInsufficientFundsForGas)
+  }, [isInsufficientFundsForGas, isSignLoading, isViewOnly, signAccountOpState?.readyToSign])
+
   return (
     <>
       {renderedButNotNecessarilyVisibleModal === 'warnings' && (
@@ -382,9 +402,10 @@ const SignAccountOpScreen = () => {
               notReadyToSignButAlsoNotDone ||
               !signAccountOpState.readyToSign
             }
-            // Allow view only accounts to add to cart even if the txn is not ready to sign
+            // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
             // because they can't sign it anyway
-            isAddToCartDisabled={isSignLoading || (!signAccountOpState?.readyToSign && !isViewOnly)}
+
+            isAddToCartDisabled={isAddToCartDisabled}
             onSign={onSignButtonClick}
             inProgressButtonText={
               signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster

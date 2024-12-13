@@ -12,8 +12,8 @@ import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp
 import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import { APP_VERSION, isProd } from '@common/config/env'
-import formatDecimals from '@common/utils/formatDecimals'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
@@ -368,12 +368,15 @@ export class ProviderController {
       }
     }
 
+    const txnStatus = isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number)
+    const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
+
     return {
       status: 'CONFIRMED',
       receipts: [
         {
           logs: receipt.logs,
-          status: isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number),
+          status,
           chainId: toBeHex(network.chainId),
           blockHash: isUserOp ? receipt.receipt.blockHash : receipt.blockHash,
           blockNumber: isUserOp
