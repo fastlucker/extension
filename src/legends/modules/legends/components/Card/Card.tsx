@@ -6,6 +6,7 @@ import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
+import ActionModal from '@legends/modules/legends/components/ActionModal'
 import Counter from '@legends/modules/legends/components/Card/Counter'
 import Flask from '@legends/modules/legends/components/Card/Flask'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
@@ -189,38 +190,25 @@ const Card: FC<Props> = ({
           </button>
         </>
       </Modal>
-      <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen} className={styles.modal}>
-        <Modal.Heading className={styles.modalHeading}>
-          <div className={styles.modalHeadingTitle}>{title}</div>
-          {xp && <Rewards xp={xp} size="lg" />}
-        </Modal.Heading>
-        <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
-        {contentSteps &&
-          predefinedId !== CARD_PREDEFINED_ID.LinkAccount &&
-          predefinedId !== CARD_PREDEFINED_ID.Referral && (
-            <HowTo
-              steps={contentSteps}
-              image={contentImage}
-              imageAlt={flavor}
-              video={contentVideo}
-            />
-          )}
-        {contentSteps && predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
-          <HowTo
-            steps={contentSteps}
-            image={contentImage}
-            imageAlt={flavor}
-            meta={meta}
-            copyToClipboard={copyToClipboard}
-          />
-        )}
-        <CardActionComponent
-          onComplete={onLegendCompleteWrapped}
-          handleClose={closeActionModal}
-          buttonText={buttonText}
-          action={action}
-        />
-      </Modal>
+      <ActionModal
+        isOpen={isActionModalOpen}
+        setIsOpen={setIsActionModalOpen}
+        title={title}
+        flavor={flavor}
+        xp={xp}
+        contentSteps={contentSteps}
+        contentImage={contentImage}
+        contentVideo={contentVideo}
+        buttonText={buttonText}
+        isActionModalOpen={isActionModalOpen}
+        setIsActionModalOpen={setIsActionModalOpen}
+        onLegendCompleteWrapped={onLegendCompleteWrapped}
+        closeActionModal={closeActionModal}
+        copyToClipboard={copyToClipboard}
+        action={action}
+        meta={meta}
+        predefinedId={predefinedId}
+      />
       {action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune' && (
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
       )}
