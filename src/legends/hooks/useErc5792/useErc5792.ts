@@ -1,5 +1,6 @@
 import { delayPromise } from '@common/utils/promises'
 import { RELAYER_URL } from '@env'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 
 const ENTRY_POINT_BEFORE_EXECUTION_LOG_TOPIC =
   '0xbb47ee3e183a558b1a2ff0874b079f3fc5478b7454eacf2bfc5af2ff5878f972'
@@ -100,12 +101,9 @@ const useErc5792 = () => {
     const is4337 = logs.some((log: any) => log.topics[0] === ENTRY_POINT_BEFORE_EXECUTION_LOG_TOPIC)
 
     if (!is4337 && is4337Required)
-      throw new Error(
-        "Transactions broadcast with an EOA don't earn XP. Please use the Gas Tank or tokens from the Smart Account to cover the fees.",
-        {
-          cause: ERRORS.not4337
-        }
-      )
+      throw new Error(ERROR_MESSAGES.transactionCostsCoveredWithEOA, {
+        cause: ERRORS.not4337
+      })
 
     return receipt
   }

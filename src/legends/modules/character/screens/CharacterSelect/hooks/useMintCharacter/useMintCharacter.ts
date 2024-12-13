@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import LegendsNFT from '@contracts/compiled/LegendsNFTImplementation.json'
 import { LEGENDS_NFT_ADDRESS } from '@env'
+import { RETRY_OR_SUPPORT_MESSAGE } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
@@ -185,7 +186,11 @@ const useMintCharacter = () => {
         setIsMinting(false)
         const message = humanizeLegendsBroadcastError(e)
 
-        addToast(message || 'Error during minting process!', 'error')
+        addToast(
+          message ||
+            `An error occurred during the NFT minting process. ${RETRY_OR_SUPPORT_MESSAGE}`,
+          'error'
+        )
         console.log('Error during minting process:', e)
       }
     },

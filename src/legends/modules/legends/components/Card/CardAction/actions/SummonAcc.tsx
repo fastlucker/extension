@@ -1,6 +1,7 @@
 import React, { FC, useMemo, useState } from 'react'
 
 import Input from '@legends/components/Input'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useToast from '@legends/hooks/useToast'
 import { useInviteEOA } from '@legends/modules/legends/hooks'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
@@ -43,7 +44,7 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
     } catch (e: any) {
       const message = humanizeLegendsBroadcastError(e)
 
-      addToast(message || 'Failed to invite EOA address', 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
       console.error(e)
     } finally {
       setIsInProgress(false)

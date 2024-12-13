@@ -8,6 +8,7 @@ import Alert from '@legends/components/Alert'
 import Input from '@legends/components/Input'
 import Stepper from '@legends/components/Stepper'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
@@ -97,8 +98,9 @@ const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
 
       setV1OrBasicSignature(signature)
     } catch (e) {
+      const message = humanizeLegendsBroadcastError(e)
       console.error(e)
-      addToast('Failed to sign message', 'error')
+      addToast(message || ERROR_MESSAGES.messageSigningFailed, 'error')
     } finally {
       setIsInProgress(false)
     }
@@ -139,7 +141,7 @@ const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
       const message = humanizeLegendsBroadcastError(e)
 
       console.error(e)
-      addToast(message || 'Failed to sign transaction', 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
 
       setAllowNonV2Connection(false)
     } finally {

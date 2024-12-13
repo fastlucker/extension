@@ -3,6 +3,7 @@ import { BrowserProvider, Contract, Interface } from 'ethers'
 import React, { FC, useCallback, useEffect, useState } from 'react'
 
 import { WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/network'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
@@ -85,7 +86,7 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
       const message = humanizeLegendsBroadcastError(e)
 
       console.error(e)
-      addToast(message || 'Failed to sign transaction', 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
     } finally {
       setIsInProgress(false)
     }

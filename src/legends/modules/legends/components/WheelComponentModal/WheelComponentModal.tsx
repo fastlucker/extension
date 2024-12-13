@@ -9,6 +9,7 @@ import { RELAYER_URL } from '@env'
 // @ts-ignore
 import CloseIcon from '@legends/components/CloseIcon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -147,7 +148,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       const message = humanizeLegendsBroadcastError(e)
 
       console.error(e)
-      addToast(message || 'Failed to broadcast transaction', 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
       setWheelState('locked')
     }
   }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast, sendCalls, getCallsStatus])
