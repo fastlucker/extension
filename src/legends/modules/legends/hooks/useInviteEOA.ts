@@ -40,7 +40,6 @@ const useInviteEOA = () => {
       useSponsorship
     )
     const receipt = await getCallsStatus(sendCallsIdentifier)
-    if (receipt.status !== '0x1') throw new Error('Failed to invite EOA')
 
     return receipt.transactionHash
   }

@@ -1,3 +1,4 @@
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 
 import useAccountContext from '../useAccountContext'
@@ -17,7 +18,7 @@ const useSwitchNetwork = (newChainId: number = BASE_CHAIN_ID) => {
         params: [{ chainId: newChainId }]
       })
     } catch {
-      addToast('Failed to switch to Base Network', 'error')
+      addToast(ERROR_MESSAGES.networkSwitchFailed, 'error')
     }
   }
 
