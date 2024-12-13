@@ -4,10 +4,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import LegendsNFT from '@contracts/compiled/LegendsNFTImplementation.json'
 import { LEGENDS_NFT_ADDRESS } from '@env'
+import { RETRY_OR_SUPPORT_MESSAGE } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useToast from '@legends/hooks/useToast'
+import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 enum CharacterLoadingMessage {
   Initial = 'Initializing character setup...',
@@ -172,20 +174,23 @@ const useMintCharacter = () => {
 
         setLoadingMessage(CharacterLoadingMessage.Minting)
 
-        const receipt = await getCallsStatus(sendCallsIdentifier)
-        if (receipt.status === '0x1') {
-          setLoadingMessage(CharacterLoadingMessage.Minted)
-          // Transaction was successful, call getCharacter
-          await pollForCharacterAfterMint()
-          // Purposely not setting isMinting to false as we want to
-          // keep the modal displayed until the character is loaded
-          // in state
-        } else {
-          addToast('Error selecting a character: The transaction failed!', 'error')
-        }
+        await getCallsStatus(sendCallsIdentifier, false)
+
+        setLoadingMessage(CharacterLoadingMessage.Minted)
+        // Transaction was successful, call getCharacter
+        await pollForCharacterAfterMint()
+        // Purposely not setting isMinting to false as we want to
+        // keep the modal displayed until the character is loaded
+        // in state
       } catch (e) {
         setIsMinting(false)
-        addToast('Error during minting process!', 'error')
+        const message = humanizeLegendsBroadcastError(e)
+
+        addToast(
+          message ||
+            `An error occurred during the NFT minting process. ${RETRY_OR_SUPPORT_MESSAGE}`,
+          'error'
+        )
         console.log('Error during minting process:', e)
       }
     },

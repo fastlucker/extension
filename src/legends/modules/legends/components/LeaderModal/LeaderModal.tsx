@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import Modal from '@legends/components/Modal'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
@@ -45,7 +46,7 @@ const LeaderModal: React.FC<LeaderModalProps> = ({ setIsActionModalOpen, isActio
   }
   const pollActivityUntilComplete = async (txnId: string, attempt: number) => {
     if (attempt > 10) {
-      addToast('Failed to process the transaction!', 'error')
+      addToast(ERROR_MESSAGES.transactionProcessingFailed, 'error')
       return
     }
 
