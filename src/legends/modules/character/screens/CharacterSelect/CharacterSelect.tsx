@@ -14,8 +14,6 @@ import CharacterSlider from './components/CharacterSlider'
 import useMintCharacter from './hooks/useMintCharacter'
 
 const CharacterSelect = () => {
-  const { connectedAccount } = useAccountContext()
-
   const navigate = useNavigate()
   const [characterId, setCharacterId] = useState(1)
   const accountContext = useAccountContext()
@@ -49,7 +47,7 @@ const CharacterSelect = () => {
     navigate(LEGENDS_ROUTES.character)
   }
 
-  if (!connectedAccount) return <Navigate to="/" />
+  if (!accountContext.connectedAccount && !accountContext.nonV2Account) return <Navigate to="/" />
 
   return (
     <>
