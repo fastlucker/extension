@@ -1,8 +1,8 @@
 import { Block } from 'ethers'
 
 import { Network } from '@ambire-common/interfaces/network'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
-import formatDecimals from '@common/utils/formatDecimals'
 
 const doNotShow = ['dropped', 'rejected']
 
