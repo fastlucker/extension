@@ -3,11 +3,13 @@ import { BrowserProvider, Contract, Interface } from 'ethers'
 import React, { FC, useCallback, useEffect, useState } from 'react'
 
 import { WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/network'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import CardActionWrapper from './CardActionWrapper'
 import { CardProps } from './types'
@@ -78,12 +80,13 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
         useSponsorship
       )
       const receipt = await getCallsStatus(sendCallsIdentifier)
-      if (receipt.status !== '0x1') throw new Error('Failed staking')
       onComplete(receipt.transactionHash)
       handleClose()
-    } catch (e) {
+    } catch (e: any) {
+      const message = humanizeLegendsBroadcastError(e)
+
       console.error(e)
-      addToast('Failed to sign transaction', 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
     } finally {
       setIsInProgress(false)
     }
@@ -119,13 +122,15 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
   }, [switchNetwork, stakeWallet, walletBalance, addToast])
 
   return (
-    <CardActionWrapper
-      isLoading={isInProgress}
-      loadingText="Signing..."
-      disabled={isInProgress}
-      buttonText={isLoading ? 'Loading...' : !walletBalance ? 'Buy $WALLET' : 'Stake'}
-      onButtonClick={onButtonClick}
-    />
+    walletBalance && (
+      <CardActionWrapper
+        isLoading={isInProgress}
+        loadingText="Signing..."
+        disabled={isInProgress}
+        buttonText={isLoading ? 'Loading...' : !walletBalance ? 'Buy $WALLET' : 'Stake'}
+        onButtonClick={onButtonClick}
+      />
+    )
   )
 }
 
