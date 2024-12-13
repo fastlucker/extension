@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import Alert from '@legends/components/Alert'
 import NonV2Modal from '@legends/components/NonV2Modal'
@@ -16,7 +16,7 @@ import useMintCharacter from './hooks/useMintCharacter'
 const CharacterSelect = () => {
   const navigate = useNavigate()
   const [characterId, setCharacterId] = useState(1)
-  const accountContext = useAccountContext()
+  const { connectedAccount, nonV2Account } = useAccountContext()
   const [errorMessage, setErrorMessage] = useState('')
 
   const { character, isLoading } = useCharacterContext()
@@ -47,9 +47,11 @@ const CharacterSelect = () => {
     navigate(LEGENDS_ROUTES.character)
   }
 
+  if (!connectedAccount && !nonV2Account) return <Navigate to="/" />
+
   return (
     <>
-      <NonV2Modal isOpen={!!accountContext.nonV2Account} />
+      <NonV2Modal isOpen={!!nonV2Account} />
 
       <div className={styles.wrapper}>
         <h1 className={styles.title}>Choose a Character</h1>

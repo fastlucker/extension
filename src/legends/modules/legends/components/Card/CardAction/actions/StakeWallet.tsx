@@ -119,13 +119,15 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
   }, [switchNetwork, stakeWallet, walletBalance, addToast])
 
   return (
-    <CardActionWrapper
-      isLoading={isInProgress}
-      loadingText="Signing..."
-      disabled={isInProgress}
-      buttonText={isLoading ? 'Loading...' : !walletBalance ? 'Buy $WALLET' : 'Stake'}
-      onButtonClick={onButtonClick}
-    />
+    walletBalance && (
+      <CardActionWrapper
+        isLoading={isInProgress}
+        loadingText="Signing..."
+        disabled={isInProgress}
+        buttonText={isLoading ? 'Loading...' : !walletBalance ? 'Buy $WALLET' : 'Stake'}
+        onButtonClick={onButtonClick}
+      />
+    )
   )
 }
 
