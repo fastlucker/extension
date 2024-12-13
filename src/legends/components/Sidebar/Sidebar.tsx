@@ -130,14 +130,13 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
                 Invite a friend
               </button>
               <div>
-                {[...Array(legendLeader?.meta?.timesCollectedSoFar || 0)].map((_, index) => (
+                {[...Array(legendLeader?.meta?.timesUsed || 0)].map((_, index) => (
                   // eslint-disable-next-line react/no-array-index-key
                   <Leader key={`filled-${index}`} variant="filled" />
                 ))}
                 {[
                   ...Array(
-                    (legendLeader?.meta?.maxHits || 0) -
-                      (legendLeader?.meta?.timesCollectedSoFar || 0)
+                    (legendLeader?.meta?.maxHits || 0) - (legendLeader?.meta?.timesUsed || 0)
                   )
                 ].map((_, index) => (
                   // eslint-disable-next-line react/no-array-index-key
@@ -148,11 +147,11 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             <div className={styles.gradientBorder}>
               <div
                 className={`${styles.leaderInvitationKey} ${
-                  legendLeader?.meta?.timesCollectedSoFar === legendLeader?.meta?.maxHits &&
+                  legendLeader?.meta?.timesUsed === legendLeader?.meta?.maxHits &&
                   styles.gradientBorderInner
                 }`}
               >
-                {legendLeader?.meta?.timesCollectedSoFar === legendLeader?.meta?.maxHits ? (
+                {legendLeader?.meta?.timesUsed === legendLeader?.meta?.maxHits ? (
                   'You are a Leader'
                 ) : (
                   <>
