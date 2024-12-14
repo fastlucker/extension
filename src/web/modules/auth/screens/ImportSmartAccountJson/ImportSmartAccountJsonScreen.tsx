@@ -1,7 +1,7 @@
 import { computeAddress, getAddress, isAddress, isHexString } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { View } from 'react-native'
+import { Linking, TouchableOpacity, View } from 'react-native'
 
 import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
 import { Account, AccountCreation } from '@ambire-common/interfaces/account'
@@ -9,6 +9,7 @@ import { ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import ImportJsonIcon from '@common/assets/svg/ImportJsonIcon'
+import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
@@ -250,6 +251,29 @@ const SmartAccountImportScreen = () => {
                   </Text>
                 )}
               </View>
+              <Alert
+                title="Ambire v2 Smart Accounts only"
+                type="warning"
+                text={
+                  <Text>
+                    You can import backups only for v2 Smart Accounts created in the Ambire
+                    Extension. If you are looking to import v1 Smart Accounts from the web or mobile
+                    wallet check{' '}
+                    <TouchableOpacity
+                      onPress={() =>
+                        Linking.openURL(
+                          'https://help.ambire.com/hc/en-us/articles/15468208978332--Extension-How-to-add-your-v1-account-to-Ambire-Wallet-extension'
+                        )
+                      }
+                    >
+                      <Text color={theme.infoDecorative} underline weight="regular">
+                        this guide
+                      </Text>
+                    </TouchableOpacity>
+                    .
+                  </Text>
+                }
+              />
             </View>
           </div>
           {!!error && (
