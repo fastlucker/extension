@@ -1,7 +1,10 @@
+import { getAddress } from 'ethers'
 import React, { FC, useMemo, useState } from 'react'
 
+import { isValidAddress } from '@ambire-common/services/address'
 import Input from '@legends/components/Input'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
+import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 import { useInviteEOA } from '@legends/modules/legends/hooks'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
@@ -15,6 +18,7 @@ type Props = CardProps & {
 
 const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
   const { addToast } = useToast()
+  const { connectedAccount, allAccounts } = useAccountContext()
   const {
     inviteEOA,
     switchNetwork,
@@ -27,12 +31,46 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
 
   const inputValidation = useMemo(() => {
     if (!eoaAddress) return null
+    const isAddressValid = isValidAddress(eoaAddress)
+
+    if (!isAddressValid) {
+      return {
+        isValid: false,
+        message: 'Invalid address.'
+      }
+    }
+
+    let checksummedAddress = ''
+
+    try {
+      checksummedAddress = getAddress(eoaAddress)
+    } catch {
+      return {
+        isValid: false,
+        message: 'Invalid address checksum.'
+      }
+    }
+
+    if (checksummedAddress === connectedAccount) {
+      return {
+        isValid: false,
+        message: 'You cannot invite your connected account.'
+      }
+    }
+
+    if (allAccounts.includes(checksummedAddress)) {
+      return {
+        isValid: true,
+        message:
+          'You are trying to invite an account that is imported in your wallet. You will gain more XP if you tame it instead (Beastwhisperer).'
+      }
+    }
 
     return {
       isValid,
       message: !isValid ? 'Invalid address' : ''
     }
-  }, [eoaAddress, isValid])
+  }, [allAccounts, connectedAccount, eoaAddress, isValid])
 
   const onButtonClick = async () => {
     try {
