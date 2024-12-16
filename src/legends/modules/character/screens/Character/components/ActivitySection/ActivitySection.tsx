@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -29,13 +29,42 @@ const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
 }
 
 const ActivitySection = () => {
-  const { activity: recentActivity } = useRecentActivityContext()
   const { connectedAccount } = useAccountContext()
   const [page, setPage] = useState(0)
-  const { activity, isLoading, error, getActivity } = useActivity({
+  const {
+    activity: recentActivity,
+    isLoading: isRecentActivityLoading,
+    error: recentActivityError,
+    getActivity: getRecentActivity
+  } = useRecentActivityContext()
+  const {
+    activity: historyActivity,
+    isLoading: isHistoryActivityLoading,
+    error: historyActivityError,
+    getActivity: getHistoryActivity
+  } = useActivity({
     page,
-    accountAddress: connectedAccount
+    accountAddress: connectedAccount,
+    shouldGetOnInit: false
   })
+
+  const activity = useMemo(
+    () => (page === 0 ? recentActivity : historyActivity),
+    [page, recentActivity, historyActivity]
+  )
+
+  const isLoading = useMemo(
+    () => (page === 0 ? isRecentActivityLoading : isHistoryActivityLoading),
+    [page, isRecentActivityLoading, isHistoryActivityLoading]
+  )
+
+  const error = useMemo(
+    () => (page === 0 ? recentActivityError : historyActivityError),
+    [page, recentActivityError, historyActivityError]
+  )
+
+  const getActivity = page === 0 ? getRecentActivity : getHistoryActivity
+
   const { transactions, totalTransactionCount } = activity || {}
 
   useEffect(() => {
@@ -142,4 +171,4 @@ const ActivitySection = () => {
   )
 }
 
-export default ActivitySection
+export default React.memo(ActivitySection)
