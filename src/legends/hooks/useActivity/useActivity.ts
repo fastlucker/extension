@@ -1,23 +1,24 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { RELAYER_URL } from '@env'
 import { ActivityResponse } from '@legends/contexts/recentActivityContext/types'
 
 type Props = {
-  page: number
+  page: number | null
   accountAddress: string | null
   shouldGetOnInit?: boolean
 }
 
-const useActivity = ({ page, accountAddress, shouldGetOnInit = true }: Props) => {
+const useActivity = ({ page, accountAddress }: Props) => {
   const [activity, setActivity] = useState<ActivityResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const getActivity = useCallback(async () => {
-    if (!accountAddress) return null
-
     try {
+      if (!accountAddress) return null
+      if (!isLoading) setIsLoading(true)
+
       const activityResponse = await fetch(
         `${RELAYER_URL}/legends/activity/${accountAddress}?page=${page}`
       )
@@ -42,11 +43,15 @@ const useActivity = ({ page, accountAddress, shouldGetOnInit = true }: Props) =>
   }, [accountAddress, page])
 
   useEffect(() => {
-    if (shouldGetOnInit)
+    if (page !== null) {
       getActivity().catch(() =>
         setError("Couldn't fetch Character's activity! Please try again later!")
       )
-  }, [getActivity, shouldGetOnInit])
+    } else {
+      setActivity(null)
+      setError(null)
+    }
+  }, [getActivity, page])
 
   return {
     activity,

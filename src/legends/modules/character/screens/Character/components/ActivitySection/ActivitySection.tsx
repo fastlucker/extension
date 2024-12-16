@@ -43,10 +43,11 @@ const ActivitySection = () => {
     error: historyActivityError,
     getActivity: getHistoryActivity
   } = useActivity({
-    page,
-    accountAddress: connectedAccount,
-    shouldGetOnInit: false
+    page: page === 0 ? null : page,
+    accountAddress: connectedAccount
   })
+
+  console.log(page, historyActivity, isHistoryActivityLoading)
 
   const activity = useMemo(
     () => (page === 0 ? recentActivity : historyActivity),
