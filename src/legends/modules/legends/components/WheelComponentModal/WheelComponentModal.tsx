@@ -208,7 +208,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         return 'Spinning...'
       case 'spun':
         if (!prizeNumber) return 'We are unable to retrieve your prize at the moment'
-        return `You won ${prizeNumber} xp`
+        return 'Close'
       default:
         return 'Unlock the Wheel'
     }
