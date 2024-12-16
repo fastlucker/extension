@@ -35,7 +35,7 @@ const useErc5792 = () => {
     chainId: string,
     accAddr: string,
     calls: { to: string; data: string; value?: string }[],
-    useSponsorship = false
+    useSponsorship = true
   ) => {
     const sendCallsIdentifier: any = await window.ambire.request({
       method: 'wallet_sendCalls',
