@@ -50,7 +50,7 @@
     "test:e2e:web:dev:local": "docker stop $(docker ps -a -q) && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d && WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests",
     "test:e2e:web": "yarn build:web:webkit && jest test --forceExit --config=./tests/jest.config.js",
     "test:e2e:web:local": "docker stop $(docker ps -a -q) && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d && yarn build:web:webkit && jest test --config=./tests/jest.config.js",
-    "test": "jest --config=./jest.config.js",
+    "test": "jest --config=./jest.config.js --passWithNoTests",
     "postinstall": "patch-package"
   },
   "engines": {
@@ -78,7 +78,7 @@
     "@gnosis.pm/safe-apps-sdk": "6.2.0",
     "@gorhom/portal": "^1.0.11",
     "@ledgerhq/devices": "8.4.4",
-    "@ledgerhq/hw-app-eth": "6.39.0",
+    "@ledgerhq/hw-app-eth": "6.42.0",
     "@ledgerhq/hw-transport-webhid": "6.29.4",
     "@ledgerhq/react-native-hw-transport-ble": "6.32.5",
     "@metamask/eth-sig-util": "6.0.2",

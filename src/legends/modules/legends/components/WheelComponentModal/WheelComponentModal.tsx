@@ -6,17 +6,20 @@ import { createPortal } from 'react-dom'
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import { RELAYER_URL } from '@env'
+// @ts-ignore
+import CloseIcon from '@legends/components/CloseIcon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
+import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 
+import { humanizeLegendsBroadcastError } from '../../utils/errors/humanizeBroadcastError'
 import chainImage from './assets/chain.png'
-// @ts-ignore
-import CloseIcon from './assets/close.svg'
 import mainImage from './assets/main.png'
 import pointerImage from './assets/pointer.png'
 import spinnerImage from './assets/spinner.png'
@@ -85,13 +88,12 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       setWheelState('unlocked')
       // Don't await this, we don't want to block the UI
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      onLegendComplete()
       return true
     } catch (error) {
       console.error('Error fetching transaction status:', error)
       return false
     }
-  }, [connectedAccount, onLegendComplete, unlockChainAnimation])
+  }, [connectedAccount, unlockChainAnimation])
 
   const unlockWheel = useCallback(async () => {
     // Switch to Base chain
@@ -117,35 +119,36 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         }
       ])
 
-      const receipt = await getCallsStatus(callsId)
+      addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
 
-      if (receipt && receipt.status === '0x1') {
-        addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
-        const transactionFound = await checkTransactionStatus()
-        if (!transactionFound) {
-          const checkStatusWithTimeout = async (attempts: number) => {
-            if (attempts >= 10) {
-              console.error('Failed to fetch transaction status after 10 attempts')
-              addToast(
-                "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
-                'error'
-              )
-              setWheelState('error')
-              return
-            }
-            const found = await checkTransactionStatus()
+      await getCallsStatus(callsId)
 
-            if (!found) {
-              setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
-            }
+      const transactionFound = await checkTransactionStatus()
+      if (!transactionFound) {
+        const checkStatusWithTimeout = async (attempts: number) => {
+          if (attempts >= 10) {
+            console.error('Failed to fetch transaction status after 10 attempts')
+            addToast(
+              "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
+              'error'
+            )
+            setWheelState('error')
+            return
           }
+          const found = await checkTransactionStatus()
 
-          await checkStatusWithTimeout(0)
+          if (!found) {
+            setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
+          }
         }
+
+        await checkStatusWithTimeout(0)
       }
     } catch (e) {
-      console.error('Failed to broadcast transaction:', e)
-      addToast('Failed to broadcast transaction', 'error')
+      const message = humanizeLegendsBroadcastError(e)
+
+      console.error(e)
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
       setWheelState('locked')
     }
   }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast, sendCalls, getCallsStatus])
@@ -173,9 +176,15 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     }, 10000)
   }, [prizeNumber, wheelState])
 
-  const closeModal = () => {
+  const closeModal = async () => {
     setIsOpen(false)
+    if (wheelState === 'spun') {
+      await onLegendComplete()
+    }
   }
+
+  // Close Modal on ESC
+  useEscModal(isOpen, closeModal)
 
   const onButtonClick = async () => {
     if (wheelState === 'locked') {
@@ -183,7 +192,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
     } else if (wheelState === 'unlocked') {
       await spinWheel()
     } else if (wheelState === 'spun' || wheelState === 'error') {
-      closeModal()
+      await closeModal()
     }
   }
 
@@ -220,7 +229,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
             <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
           ) : null}
           <button type="button" onClick={closeModal} className={styles.closeButton}>
-            <img src={CloseIcon} width="32" height="32" alt="Close" />
+            <CloseIcon />
           </button>
           <h2 className={styles.title}>Wheel of Fortune</h2>
           <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />

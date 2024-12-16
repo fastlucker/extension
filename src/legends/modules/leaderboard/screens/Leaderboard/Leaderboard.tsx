@@ -69,8 +69,8 @@ const LeaderboardContainer: React.FC = () => {
         <div className={styles.heading}>
           <h1 className={styles.title}>Leaderboard</h1>
           <p className={styles.subtitle}>
-            This is where your earned XP showcases your legacy in the world of Web3. Compete, rise
-            through the ranks, and leave your mark among the top Legends!
+            Compete legends, earn XP and climb the leaderboard to secure your name among the
+            greatest. Will you rise to the top and become a true onchain champion?
           </p>
         </div>
         {loading && <Spinner />}
@@ -95,6 +95,17 @@ const LeaderboardContainer: React.FC = () => {
                   currentUserRef={currentUserRef}
                 />
               ))}
+              {userLeaderboardData &&
+                !leaderboardData.some(
+                  ({ account }) => account === userLeaderboardData?.account
+                ) && (
+                  <Row
+                    key={userLeaderboardData.account}
+                    {...userLeaderboardData}
+                    stickyPosition={stickyPosition}
+                    currentUserRef={currentUserRef}
+                  />
+                )}
             </div>
           </>
         ) : null}

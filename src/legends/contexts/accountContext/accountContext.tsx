@@ -4,10 +4,12 @@ import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import { RELAYER_URL } from '@env'
+import useToast from '@legends/hooks/useToast'
 
-const accountContext = createContext<{
+type AccountContextType = {
   connectedAccount: string | null
   nonV2Account: string | null
+  allAccounts: string[]
   allowNonV2Connection: boolean
   setAllowNonV2Connection: (arg: boolean) => void
   chainId: bigint | null
@@ -15,21 +17,14 @@ const accountContext = createContext<{
   error: string | null
   requestAccounts: () => void
   disconnectAccount: () => void
-}>({
-  connectedAccount: null,
-  nonV2Account: null,
-  allowNonV2Connection: false,
-  setAllowNonV2Connection: () => {},
-  chainId: null,
-  isLoading: true,
-  error: null,
-  requestAccounts: () => {},
-  disconnectAccount: () => {}
-})
+}
+
+const accountContext = createContext<AccountContextType>({} as AccountContextType)
 
 const LOCAL_STORAGE_ACC_KEY = 'connectedAccount'
 
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const { addToast } = useToast()
   // We keep only V2 accounts
   const [connectedAccount, setConnectedAccount] = React.useState<string | null>(() => {
     const storedAccount = localStorage.getItem(LOCAL_STORAGE_ACC_KEY)
@@ -39,6 +34,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     return storedAccount || null
   })
 
+  const [allAccounts, setAllAccounts] = React.useState<string[]>([])
   const [nonV2Account, setNonV2Account] = React.useState<string | null>(null)
   const [allowNonV2Connection, setAllowNonV2Connection] = React.useState<boolean>(false)
   const [chainId, setChainId] = React.useState<bigint | null>(null)
@@ -64,6 +60,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       method: 'eth_accounts',
       params: []
     })
+    setAllAccounts(accounts as string[])
 
     // @ts-ignore
     return accounts[0]
@@ -97,6 +94,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
           localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
           return
         }
+        setNonV2Account(address)
 
         if (!connectedAccount) {
           const isV1 = isAmbireV1LinkedAccount(factoryAddr)
@@ -111,21 +109,22 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
           return
         }
-
-        setNonV2Account(address)
       } catch (e: any) {
-        setError(
-          "We are experiencing a back-end outage and couldn't validate the connected account's identity. Please reload the page, and if the problem persists, contact support."
+        addToast(
+          "We are experiencing a back-end outage and couldn't validate the connected account's identity. Please reload the page, and if the problem persists, contact support.",
+          'error'
         )
         console.log(e)
       }
     },
-    [connectedAccount]
+    [addToast, connectedAccount]
   )
 
   const handleDisconnectFromWallet = useCallback(() => {
     setConnectedAccount(null)
+    setNonV2Account(null)
     setIsLoading(false)
+    setAllAccounts([])
     localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
   }, [])
 
@@ -177,7 +176,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, [getConnectedAccount, handleDisconnectFromWallet, validateAndSetAccount])
 
-  const contextValue = useMemo(
+  const contextValue: AccountContextType = useMemo(
     () => ({
       connectedAccount,
       nonV2Account,
@@ -186,6 +185,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       error,
       requestAccounts,
       disconnectAccount,
+      allAccounts,
       chainId,
       isLoading
     }),
@@ -194,6 +194,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       nonV2Account,
       allowNonV2Connection,
       setAllowNonV2Connection,
+      allAccounts,
       error,
       requestAccounts,
       disconnectAccount,

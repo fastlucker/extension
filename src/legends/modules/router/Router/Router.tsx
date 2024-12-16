@@ -10,9 +10,9 @@ import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioCon
 import { RecentActivityContextProvider } from '@legends/contexts/recentActivityContext'
 import Character from '@legends/modules/character/screens/Character'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
+import Landing from '@legends/modules/landing/screens/Landing'
 import Leaderboard from '@legends/modules/leaderboard/screens/Leaderboard'
 import Legends from '@legends/modules/legends/screens/Legends'
-import Welcome from '@legends/modules/welcome/screens/Welcome'
 
 import { LEGENDS_ROUTES } from '../constants'
 
@@ -45,8 +45,8 @@ const router = createHashRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: LEGENDS_ROUTES.welcome,
-        element: <Welcome />,
+        path: LEGENDS_ROUTES.landing,
+        element: <Landing />,
         index: true
       },
       {

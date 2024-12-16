@@ -4,12 +4,12 @@ import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { Position } from '@ambire-common/libs/defiPositions/types'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import formatDecimals from '@common/utils/formatDecimals'
 
 import DeFiPositionAssetsHeader from './DeFiPositionAssetsHeader'
 
