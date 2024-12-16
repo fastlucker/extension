@@ -47,8 +47,6 @@ const ActivitySection = () => {
     accountAddress: connectedAccount
   })
 
-  console.log(page, historyActivity, isHistoryActivityLoading)
-
   const activity = useMemo(
     () => (page === 0 ? recentActivity : historyActivity),
     [page, recentActivity, historyActivity]
