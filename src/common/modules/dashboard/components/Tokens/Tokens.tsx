@@ -97,7 +97,12 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
     [portfolio?.tokens, dashboardNetworkFilter, searchValue]
   )
 
-  const userHasNoBalance = useMemo(() => !tokens.some(hasAmount), [tokens])
+  const userHasNoBalance = useMemo(
+    // Exclude gas tank tokens from the check
+    // as new users get some Gas Tank balance by default
+    () => !tokens.some((token) => !token.flags.onGasTank && hasAmount(token)),
+    [tokens]
+  )
 
   const sortedTokens = useMemo(
     () =>
