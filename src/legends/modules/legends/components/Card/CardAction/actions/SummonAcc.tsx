@@ -62,7 +62,7 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
       return {
         isValid: true,
         message:
-          'You are trying to invite an account that is imported in your wallet. You will gain more XP if you tame it instead (Beastwhisperer).'
+          "The account you're trying to invite is imported in your wallet. You won't gain any additional XP by inviting it before taming it. You can directly tame your address using Beastwhisperer."
       }
     }
 
