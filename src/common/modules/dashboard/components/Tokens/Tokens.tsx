@@ -100,7 +100,7 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
   const userHasNoBalance = useMemo(
     // Exclude gas tank tokens from the check
     // as new users get some Gas Tank balance by default
-    () => !tokens.filter((token) => !token.flags.onGasTank).some(hasAmount),
+    () => !tokens.some((token) => !token.flags.onGasTank && hasAmount(token)),
     [tokens]
   )
 
