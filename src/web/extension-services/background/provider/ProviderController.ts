@@ -146,8 +146,7 @@ export class ProviderController {
     return {
       amount: totalBalance,
       amountFormatted: formatDecimals(totalBalance, 'price'),
-      isReady: this.mainCtrl.selectedAccount.portfolio.isAllReady,
-      account: this.mainCtrl.selectedAccount.account.addr
+      isReady: this.mainCtrl.selectedAccount.portfolio.isAllReady
     }
   }
 
