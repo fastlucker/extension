@@ -9,14 +9,16 @@ import { RELAYER_URL } from '@env'
 // @ts-ignore
 import CloseIcon from '@legends/components/CloseIcon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { BASE_CHAIN_ID } from '@legends/constants/network'
 import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
+import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
-import useEscModal from '@legends/hooks/useEscModal'
 
+import { humanizeLegendsBroadcastError } from '../../utils/errors/humanizeBroadcastError'
 import chainImage from './assets/chain.png'
 import mainImage from './assets/main.png'
 import pointerImage from './assets/pointer.png'
@@ -118,34 +120,35 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       ])
 
       addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
-      const receipt = await getCallsStatus(callsId)
 
-      if (receipt && receipt.status === '0x1') {
-        const transactionFound = await checkTransactionStatus()
-        if (!transactionFound) {
-          const checkStatusWithTimeout = async (attempts: number) => {
-            if (attempts >= 10) {
-              console.error('Failed to fetch transaction status after 10 attempts')
-              addToast(
-                "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
-                'error'
-              )
-              setWheelState('error')
-              return
-            }
-            const found = await checkTransactionStatus()
+      await getCallsStatus(callsId)
 
-            if (!found) {
-              setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
-            }
+      const transactionFound = await checkTransactionStatus()
+      if (!transactionFound) {
+        const checkStatusWithTimeout = async (attempts: number) => {
+          if (attempts >= 10) {
+            console.error('Failed to fetch transaction status after 10 attempts')
+            addToast(
+              "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
+              'error'
+            )
+            setWheelState('error')
+            return
           }
+          const found = await checkTransactionStatus()
 
-          await checkStatusWithTimeout(0)
+          if (!found) {
+            setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
+          }
         }
+
+        await checkStatusWithTimeout(0)
       }
     } catch (e) {
-      console.error('Failed to broadcast transaction:', e)
-      addToast('Failed to broadcast transaction', 'error')
+      const message = humanizeLegendsBroadcastError(e)
+
+      console.error(e)
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
       setWheelState('locked')
     }
   }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast, sendCalls, getCallsStatus])
