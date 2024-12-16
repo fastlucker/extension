@@ -2,20 +2,21 @@
 
 .modal {
     width: 61rem;
-  }
-  .modalHeading {
+}
+
+.modalHeading {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-  
+
     .modalHeadingTitle {
-      color: $primaryText;
-      font-size: 3.5rem;
+        color: $primaryText;
+        font-size: 3.5rem;
     }
-  }
-  
-  .modalText {
+}
+
+.modalText {
     font-size: 1.25rem;
     line-height: 2rem;
     font-style: italic;
@@ -23,64 +24,68 @@
     border-radius: $primaryBorderRadius;
     border: 1px solid $tertiaryBorder;
     padding: 0.75rem 0.625rem;
-  
+
     &::first-letter {
-      font-size: 2rem;
-      text-transform: uppercase;
+        font-size: 2rem;
+        text-transform: uppercase;
     }
-  }
-  .modalAction {
+}
+
+.modalAction {
     margin-bottom: 2rem;
-  }
-  
-  .button {
+}
+
+.button {
     @include primary-button;
     font-size: 1rem;
     color: $secondaryAccent;
-  }
-  
-  .link {
+}
+
+.link {
     color: $success;
     text-decoration: none;
     cursor: pointer;
+
     &:hover {
-      text-decoration: underline;
+        text-decoration: underline;
     }
-  }
-  
-  .copyField {
+}
+
+.copyField {
     background-color: $primaryBackground;
     border: 1px solid $primaryBorder;
     border-radius: 0.5rem;
     padding: 0.5rem;
     display: flex;
     align-items: start;
-  }
-  
-  .copyIcon {
+}
+
+.copyIcon {
     cursor: pointer;
-  }
-  
-  .copySectionWrapper {
+}
+
+.copySectionWrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-  }
-  
-  @include breakpoint-down-from(medium-desktop) {
+}
+
+@include breakpoint-down-from(medium-desktop) {
     .modalHeading {
-      margin-bottom: 2rem;
+        margin-bottom: 2rem;
     }
+
     .modalHeadingTitle {
-      font-size: 3rem;
+        font-size: 3rem;
     }
-  
+
     .modalText {
-      font-size: 1.125rem;
-      line-height: 1.5rem;
-  
-      &::first-letter {
-        font-size: 1.875rem;
-      }
+        font-size: 1.125rem;
+        line-height: 1.5rem;
+
+        &::first-letter {
+            font-size: 1.875rem;
+        }
     }
+}

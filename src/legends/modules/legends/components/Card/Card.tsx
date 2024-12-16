@@ -9,7 +9,6 @@ import useToast from '@legends/hooks/useToast'
 import ActionModal from '@legends/modules/legends/components/ActionModal'
 import Counter from '@legends/modules/legends/components/Card/Counter'
 import Flask from '@legends/modules/legends/components/Card/Flask'
-import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
@@ -22,7 +21,6 @@ import {
 
 import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
-import CardActionComponent from './CardAction'
 
 type Props = Pick<
   CardFromResponse,
@@ -147,6 +145,7 @@ const Card: FC<Props> = ({
     copyToClipboard()
     setIsOnLegendCompleteModalOpen(false)
   }
+
   return (
     <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
       <Modal isOpen={isOnLegendCompleteModalOpen} setIsOpen={setIsOnLegendCompleteModalOpen}>
@@ -200,8 +199,6 @@ const Card: FC<Props> = ({
         contentImage={contentImage}
         contentVideo={contentVideo}
         buttonText={buttonText}
-        isActionModalOpen={isActionModalOpen}
-        setIsActionModalOpen={setIsActionModalOpen}
         onLegendCompleteWrapped={onLegendCompleteWrapped}
         closeActionModal={closeActionModal}
         copyToClipboard={copyToClipboard}
