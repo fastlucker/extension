@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { BrowserProvider, Interface, ZeroAddress } from 'ethers'
+import { BrowserProvider, getAddress, Interface, ZeroAddress } from 'ethers'
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
@@ -44,18 +44,50 @@ const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
 
   const { addToast } = useToast()
-  const { connectedAccount, setAllowNonV2Connection } = useAccountContext()
+  const { connectedAccount, allAccounts, setAllowNonV2Connection } = useAccountContext()
   const switchNetwork = useSwitchNetwork()
 
   const inputValidation = useMemo(() => {
     if (!v1OrEoaAddress) return null
     const isAddressValid = isValidAddress(v1OrEoaAddress)
 
-    return {
-      isValid: isAddressValid,
-      message: !isAddressValid ? 'Invalid address' : ''
+    if (!isAddressValid) {
+      return {
+        isValid: false,
+        message: 'Invalid address.'
+      }
     }
-  }, [v1OrEoaAddress])
+
+    let checksummedAddress = ''
+
+    try {
+      checksummedAddress = getAddress(v1OrEoaAddress)
+    } catch {
+      return {
+        isValid: false,
+        message: 'Invalid address checksum.'
+      }
+    }
+
+    if (checksummedAddress === connectedAccount) {
+      return {
+        isValid: false,
+        message: 'You cannot tame your connected account.'
+      }
+    }
+
+    if (!allAccounts.includes(checksummedAddress)) {
+      return {
+        isValid: false,
+        message: 'You cannot tame an account that is not in your wallet.'
+      }
+    }
+
+    return {
+      isValid: true,
+      message: ''
+    }
+  }, [allAccounts, connectedAccount, v1OrEoaAddress])
 
   const activeStep = useMemo(() => {
     if (v1OrBasicSignature) return STEPS.SIGN_TRANSACTION
