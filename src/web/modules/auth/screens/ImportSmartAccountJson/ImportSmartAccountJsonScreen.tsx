@@ -1,5 +1,5 @@
 import { computeAddress, getAddress, isAddress, isHexString } from 'ethers'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
@@ -14,7 +14,7 @@ import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
+import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -207,6 +207,14 @@ const SmartAccountImportScreen = () => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: handleFileUpload })
 
+  const handleGuideLinkPressed = useCallback(
+    () =>
+      Linking.openURL(
+        'https://help.ambire.com/hc/en-us/articles/15468208978332--Extension-How-to-add-your-v1-account-to-Ambire-Wallet-extension'
+      ),
+    []
+  )
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -232,48 +240,46 @@ const SmartAccountImportScreen = () => {
               <View style={styles.dropArea}>
                 <input {...getInputProps()} />
                 <ImportJsonIcon />
-                {isDragActive ? (
-                  <Text weight="regular" style={text.center}>
-                    {t('Drop your file here...')}
-                  </Text>
-                ) : (
-                  <Text weight="regular" style={text.center}>
-                    {'Drag and drop the JSON backup file\nor '}
-                    <Text appearance="primary" weight="regular">
-                      upload
+                <Trans>
+                  {isDragActive ? (
+                    <Text weight="regular" style={text.center}>
+                      Drop your file here...
                     </Text>
-                    <Text weight="regular">{' it from your computer'}</Text>
-                    {isLoading && (
-                      <View style={spacings.mlTy}>
-                        <Spinner style={{ width: 16, height: 16 }} />
-                      </View>
-                    )}
-                  </Text>
-                )}
-              </View>
-              <Alert
-                title="Ambire v2 Smart Accounts only"
-                type="warning"
-                text={
-                  <Text>
-                    You can import backups only for v2 Smart Accounts created in the Ambire
-                    Extension. If you are looking to import v1 Smart Accounts from the web or mobile
-                    wallet check{' '}
-                    <TouchableOpacity
-                      onPress={() =>
-                        Linking.openURL(
-                          'https://help.ambire.com/hc/en-us/articles/15468208978332--Extension-How-to-add-your-v1-account-to-Ambire-Wallet-extension'
-                        )
-                      }
-                    >
-                      <Text color={theme.infoDecorative} underline weight="regular">
-                        this guide
+                  ) : (
+                    <Text weight="regular" style={text.center}>
+                      {'Drag and drop the JSON backup file\nor '}
+                      <Text appearance="primary" weight="regular">
+                        upload
                       </Text>
-                    </TouchableOpacity>
-                    .
-                  </Text>
-                }
-              />
+                      <Text weight="regular">{' it from your computer'}</Text>
+                      {isLoading && (
+                        <View style={spacings.mlTy}>
+                          <Spinner style={{ width: 16, height: 16 }} />
+                        </View>
+                      )}
+                    </Text>
+                  )}
+                </Trans>
+              </View>
+              <Trans>
+                <Alert
+                  title="Ambire v2 Smart Accounts only"
+                  type="warning"
+                  text={
+                    <Text>
+                      You can import backups only for v2 Smart Accounts created in the Ambire
+                      Extension. If you are looking to import v1 Smart Accounts from the web or
+                      mobile wallet check{' '}
+                      <TouchableOpacity onPress={handleGuideLinkPressed}>
+                        <Text color={theme.infoDecorative} underline weight="regular">
+                          this guide
+                        </Text>
+                      </TouchableOpacity>
+                      .
+                    </Text>
+                  }
+                />
+              </Trans>
             </View>
           </div>
           {!!error && (

@@ -30,7 +30,7 @@ const getStyles = (theme: ThemeProps) =>
     dropArea: {
       borderRadius: BORDER_RADIUS_PRIMARY,
       width: '100%',
-      height: 186,
+      minHeight: 186,
       borderWidth: 1,
       borderStyle: 'dashed',
       borderColor: theme.primary,
