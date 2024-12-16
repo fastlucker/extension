@@ -33,9 +33,16 @@ import Stepper from '@web/modules/router/components/Stepper'
 
 import getStyles from './styles'
 
-type ImportedJson = Account & { privateKey: string; creation: AccountCreation }
+type ImportedJson = Account & { privateKey: string; creation: AccountCreation; id?: string }
 
 const validateJson = (json: ImportedJson): { error?: string; success: boolean } => {
+  if ('id' in json && isAddress(json.id)) {
+    return {
+      error: 'Invalid json or you are trying to add Ambire v1 account which is not allowed.',
+      success: false
+    }
+  }
+
   if (!('addr' in json) || !isAddress(json.addr)) {
     return {
       error:
@@ -261,6 +268,11 @@ const SmartAccountImportScreen = () => {
                   )}
                 </Trans>
               </View>
+              {!!error && (
+                <Text weight="regular" fontSize={14} appearance="errorText">
+                  {error}
+                </Text>
+              )}
               <Trans>
                 <Alert
                   title="Ambire v2 Smart Accounts only"
@@ -282,11 +294,6 @@ const SmartAccountImportScreen = () => {
               </Trans>
             </View>
           </div>
-          {!!error && (
-            <Text weight="regular" fontSize={14} appearance="errorText">
-              {error}
-            </Text>
-          )}
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
