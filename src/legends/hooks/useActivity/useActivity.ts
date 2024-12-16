@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { RELAYER_URL } from '@env'
 import { ActivityResponse } from '@legends/contexts/recentActivityContext/types'
@@ -6,7 +6,6 @@ import { ActivityResponse } from '@legends/contexts/recentActivityContext/types'
 type Props = {
   page: number | null
   accountAddress: string | null
-  shouldGetOnInit?: boolean
 }
 
 const useActivity = ({ page, accountAddress }: Props) => {
