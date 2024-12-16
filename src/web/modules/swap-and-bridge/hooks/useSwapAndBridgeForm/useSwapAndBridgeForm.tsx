@@ -1,5 +1,4 @@
 import { formatUnits, getAddress, isAddress } from 'ethers'
-import { debounce } from 'lodash'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
@@ -135,18 +134,10 @@ const useSwapAndBridgeForm = () => {
   const onFromAmountChange = useCallback(
     (value: string) => {
       setFromAmountValue(value)
-
-      // Debounce dispatching an update to prevent too many updates / requests
-      if (!debouncedDispatchUpdateFormRef.current) {
-        debouncedDispatchUpdateFormRef.current = debounce((latestFromAmount: string) => {
-          dispatch({
-            type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-            params: { fromAmount: latestFromAmount }
-          })
-        }, 750)
-      }
-
-      debouncedDispatchUpdateFormRef.current(value) // Use the debounced function to dispatch the action
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+        params: { fromAmount: value }
+      })
     },
     [dispatch]
   )
