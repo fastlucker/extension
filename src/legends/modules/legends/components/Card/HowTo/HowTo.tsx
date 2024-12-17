@@ -48,7 +48,9 @@ const HowTo: FC<Props> = ({ steps, image, imageAlt, meta, copyToClipboard, video
                       🤑Join the biggest airdrop a WALLET <br />
                       has ever done! 🚀{' '}
                     </div>
-                    <CopyIcon className={styles.copyIcon} onClick={copyToClipboard} />
+                    <button type="button" onClick={copyToClipboard}>
+                      <CopyIcon className={styles.copyIcon} />
+                    </button>
                   </div>
                   <br />
                   Ambire Wallet is giving away 195M $WALLET tokens through the Ambire Legends

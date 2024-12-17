@@ -103,7 +103,7 @@ const ActivitySection = () => {
                     )}
                   </td>
                   <td>
-                    {NETWORK_ICONS[act.network]}
+                    {NETWORK_ICONS[act.network as Networks]}
                     <span className={styles.network}>{act.network}</span>
                   </td>
                   <td>
@@ -112,7 +112,9 @@ const ActivitySection = () => {
                   </td>
                   <td className={styles.legendsWrapper}>
                     {act.legends.activities?.map((legendActivity, i) => (
-                      <>
+                      <React.Fragment
+                        key={`${act.txId}-${legendActivity.action}-${legendActivity.xp}`}
+                      >
                         <div
                           className={styles.badge}
                           key={legendActivity.action + legendActivity.xp}
@@ -128,7 +130,7 @@ const ActivitySection = () => {
                         >
                           {legendActivity.labelText}
                         </Tooltip>
-                      </>
+                      </React.Fragment>
                     ))}
                   </td>
                 </tr>
