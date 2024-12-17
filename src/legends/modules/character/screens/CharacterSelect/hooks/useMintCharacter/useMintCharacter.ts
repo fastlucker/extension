@@ -125,7 +125,7 @@ const useMintCharacter = () => {
       if (pollAttempts > 10) {
         addToast(
           'We are unable to retrieve your character at this time. Please reload the page or contact support.',
-          'error'
+          { type: 'error' }
         )
         setIsMinting(false)
         return
@@ -189,7 +189,7 @@ const useMintCharacter = () => {
         addToast(
           message ||
             `An error occurred during the NFT minting process. ${RETRY_OR_SUPPORT_MESSAGE}`,
-          'error'
+          { type: 'error' }
         )
         console.log('Error during minting process:', e)
       }

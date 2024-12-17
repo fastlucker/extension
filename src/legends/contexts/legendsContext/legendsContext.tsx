@@ -72,7 +72,9 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
 
     // No need to bombard the user with three toast if the relayer is down
     if (hasActivityFailed && hasLegendsFailed && hasCharacterFailed) {
-      addToast('An error occurred while completing the legend. Please try again later.', 'error')
+      addToast('An error occurred while completing the legend. Please try again later.', {
+        type: 'error'
+      })
       return
     }
 
@@ -80,18 +82,20 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     if (activityResult.status === 'rejected') {
       addToast(
         'Your latest activity cannot be retrieved. Please refresh the page to see the latest data.',
-        'error'
+        { type: 'error' }
       )
     }
 
     if (legendsResult.status === 'rejected') {
-      addToast('We cannot retrieve your legends at the moment. Please refresh the page.', 'error')
+      addToast('We cannot retrieve your legends at the moment. Please refresh the page.', {
+        type: 'error'
+      })
     }
 
     if (characterResult.status === 'rejected') {
       addToast(
         'Your XP has been successfully gained, but there was an error retrieving it. Please refresh the page to see the latest XP.',
-        'error'
+        { type: 'error' }
       )
     }
   }, [addToast, getActivity, getCharacter, getLegends])

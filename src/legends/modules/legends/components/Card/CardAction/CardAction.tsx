@@ -30,7 +30,7 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, handleClose, onCom
     } catch {
       addToast(
         'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
-        'error'
+        { type: 'error' }
       )
     }
   }, [action, addToast])
