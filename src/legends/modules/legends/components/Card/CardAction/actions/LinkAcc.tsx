@@ -132,7 +132,7 @@ const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
     } catch (e) {
       const message = humanizeLegendsBroadcastError(e)
       console.error(e)
-      addToast(message || ERROR_MESSAGES.messageSigningFailed, 'error')
+      addToast(message || ERROR_MESSAGES.messageSigningFailed, { type: 'error' })
     } finally {
       setIsInProgress(false)
     }
@@ -173,7 +173,7 @@ const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
       const message = humanizeLegendsBroadcastError(e)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
 
       setAllowNonV2Connection(false)
     } finally {

@@ -41,12 +41,12 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
           .then(setWalletBalance)
           .catch((e) => {
             console.error(e)
-            addToast('Failed to get $WALLET token balance', 'error')
+            addToast('Failed to get $WALLET token balance', { type: 'error' })
           })
       )
       .catch((e) => {
         console.error(e)
-        addToast('Failed to switch network to Ethereum', 'error')
+        addToast('Failed to switch network to Ethereum', { type: 'error' })
       })
       .finally(() => setIsLoading(false))
   }, [connectedAccount, addToast, switchNetwork])
@@ -86,7 +86,7 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
       const message = humanizeLegendsBroadcastError(e)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
     } finally {
       setIsInProgress(false)
     }
@@ -112,7 +112,7 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
           console.error(e)
           addToast(
             'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
-            'error'
+            { type: 'error' }
           )
         })
       return

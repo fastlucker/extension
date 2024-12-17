@@ -112,7 +112,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       } catch (e: any) {
         addToast(
           "We are experiencing a back-end outage and couldn't validate the connected account's identity. Please reload the page, and if the problem persists, contact support.",
-          'error'
+          { type: 'error' }
         )
         console.log(e)
       }

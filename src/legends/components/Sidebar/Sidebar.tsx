@@ -54,7 +54,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
   const copyInvitationKey = () => {
     if (!legendLeader?.meta?.invitationKey) {
-      addToast('No invitation key to copy', 'error')
+      addToast('No invitation key to copy', { type: 'error' })
       return
     }
     navigator.clipboard.writeText(legendLeader?.meta?.invitationKey)

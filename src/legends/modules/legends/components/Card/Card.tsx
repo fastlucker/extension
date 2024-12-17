@@ -85,7 +85,7 @@ const Card: FC<Props> = ({
 
   const pollActivityUntilComplete = async (txnId: string, attempt: number) => {
     if (attempt > 10) {
-      addToast(ERROR_MESSAGES.transactionProcessingFailed, 'error')
+      addToast(ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
       return
     }
 
@@ -96,7 +96,7 @@ const Card: FC<Props> = ({
 
     if (!foundTxn) {
       if (attempt === 0) {
-        addToast('We are processing your transaction. Expect your reward shortly.', 'info')
+        addToast('We are processing your transaction. Expect your reward shortly.')
       }
 
       setTimeout(() => pollActivityUntilComplete(txnId, attempt + 1), 1000)
@@ -106,9 +106,9 @@ const Card: FC<Props> = ({
     const latestXpReward = foundTxn.legends.totalXp
 
     if (latestXpReward) {
-      addToast(`Transaction completed! Reward ${latestXpReward} XP`, 'success')
+      addToast(`Transaction completed! Reward ${latestXpReward} XP`, { type: 'success' })
     } else {
-      addToast('Transaction completed!', 'success')
+      addToast('Transaction completed!', { type: 'success' })
     }
 
     // Update all other states
@@ -135,9 +135,9 @@ const Card: FC<Props> = ({
           meta?.invitationKey || ''
         }\n3. Create a Smart Account in the extension and join Ambire Legends at https://legends.ambire.com/`
       )
-      addToast('Text with referral code copied to clipboard', 'success')
+      addToast('Text with referral code copied to clipboard', { type: 'success' })
     } catch (e: any) {
-      addToast('Failed to copy referral code', 'error')
+      addToast('Failed to copy referral code', { type: 'error' })
       console.error(e)
     }
   }
