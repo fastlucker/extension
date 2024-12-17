@@ -82,7 +82,7 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
     } catch (e: any) {
       const message = humanizeLegendsBroadcastError(e)
 
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
       console.error(e)
     } finally {
       setIsInProgress(false)

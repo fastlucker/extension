@@ -29,7 +29,11 @@ const Rewards: FC<Props> = ({ xp, size = 'lg', reverse }) => {
       {xp?.map(({ from, to, type, chains }) => (
         <div key={`${from}-${to}-${type}`} className={styles.item}>
           {chains && (
-            <div className={styles.itemNetworks}>{chains.map((chain) => NETWORK_ICONS[chain])}</div>
+            <div className={styles.itemNetworks}>
+              {chains.map((chain) => (
+                <span key={chain}>{NETWORK_ICONS[chain]}</span>
+              ))}
+            </div>
           )}
           <div className={styles.itemText}>
             {from}

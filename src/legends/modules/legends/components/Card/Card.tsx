@@ -6,22 +6,22 @@ import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
+import ActionModal from '@legends/modules/legends/components/ActionModal'
 import Counter from '@legends/modules/legends/components/Card/Counter'
 import Flask from '@legends/modules/legends/components/Card/Flask'
-import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
+import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '@legends/modules/legends/constants'
 import {
   CardActionType,
   CardFromResponse,
   CardStatus,
   CardType
 } from '@legends/modules/legends/types'
+import { isMatchingPredefinedId } from '@legends/modules/legends/utils/cards'
 
-import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
-import CardActionComponent from './CardAction'
 
 type Props = Pick<
   CardFromResponse,
@@ -74,18 +74,18 @@ const Card: FC<Props> = ({
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
   const openActionModal = () =>
-    action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune'
+    isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune)
       ? setIsFortuneWheelModalOpen(true)
       : setIsActionModalOpen(true)
 
   const closeActionModal = () =>
-    action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune'
+    isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune)
       ? setIsFortuneWheelModalOpen(false)
       : setIsActionModalOpen(false)
 
   const pollActivityUntilComplete = async (txnId: string, attempt: number) => {
     if (attempt > 10) {
-      addToast(ERROR_MESSAGES.transactionProcessingFailed, 'error')
+      addToast(ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
       return
     }
 
@@ -96,7 +96,7 @@ const Card: FC<Props> = ({
 
     if (!foundTxn) {
       if (attempt === 0) {
-        addToast('We are processing your transaction. Expect your reward shortly.', 'info')
+        addToast('We are processing your transaction. Expect your reward shortly.')
       }
 
       setTimeout(() => pollActivityUntilComplete(txnId, attempt + 1), 1000)
@@ -106,9 +106,9 @@ const Card: FC<Props> = ({
     const latestXpReward = foundTxn.legends.totalXp
 
     if (latestXpReward) {
-      addToast(`Transaction completed! Reward ${latestXpReward} XP`, 'success')
+      addToast(`Transaction completed! Reward ${latestXpReward} XP`, { type: 'success' })
     } else {
-      addToast('Transaction completed!', 'success')
+      addToast('Transaction completed!', { type: 'success' })
     }
 
     // Update all other states
@@ -118,10 +118,7 @@ const Card: FC<Props> = ({
   const onLegendCompleteWrapped = async (txnId: string) => {
     await pollActivityUntilComplete(txnId, 0)
 
-    if (
-      action.type === CardActionType.predefined &&
-      action.predefinedId === CARD_PREDEFINED_ID.addEOA
-    ) {
+    if (isMatchingPredefinedId(action, CARD_PREDEFINED_ID.addEOA)) {
       setIsOnLegendCompleteModalOpen(true)
     }
   }
@@ -135,9 +132,9 @@ const Card: FC<Props> = ({
           meta?.invitationKey || ''
         }\n3. Create a Smart Account in the extension and join Ambire Legends at https://legends.ambire.com/`
       )
-      addToast('Text with referral code copied to clipboard', 'success')
+      addToast('Text with referral code copied to clipboard', { type: 'success' })
     } catch (e: any) {
-      addToast('Failed to copy referral code', 'error')
+      addToast('Failed to copy referral code', { type: 'error' })
       console.error(e)
     }
   }
@@ -146,6 +143,7 @@ const Card: FC<Props> = ({
     copyToClipboard()
     setIsOnLegendCompleteModalOpen(false)
   }
+
   return (
     <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
       <Modal isOpen={isOnLegendCompleteModalOpen} setIsOpen={setIsOnLegendCompleteModalOpen}>
@@ -181,7 +179,9 @@ const Card: FC<Props> = ({
                   https://legends.ambire.com/{' '}
                 </a>
               </div>
-              <CopyIcon className={styles.copyIcon} onClick={copyToClipboard} />
+              <button type="button" onClick={copyToClipboard}>
+                <CopyIcon className={styles.copyIcon} />
+              </button>
             </div>
           </div>
           <button onClick={closeAndCopy} type="button" className={styles.button}>
@@ -189,39 +189,24 @@ const Card: FC<Props> = ({
           </button>
         </>
       </Modal>
-      <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen} className={styles.modal}>
-        <Modal.Heading className={styles.modalHeading}>
-          <div className={styles.modalHeadingTitle}>{title}</div>
-          {xp && <Rewards xp={xp} size="lg" />}
-        </Modal.Heading>
-        <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
-        {contentSteps &&
-          predefinedId !== CARD_PREDEFINED_ID.LinkAccount &&
-          predefinedId !== CARD_PREDEFINED_ID.Referral && (
-            <HowTo
-              steps={contentSteps}
-              image={contentImage}
-              imageAlt={flavor}
-              video={contentVideo}
-            />
-          )}
-        {contentSteps && predefinedId === CARD_PREDEFINED_ID.Referral && meta && (
-          <HowTo
-            steps={contentSteps}
-            image={contentImage}
-            imageAlt={flavor}
-            meta={meta}
-            copyToClipboard={copyToClipboard}
-          />
-        )}
-        <CardActionComponent
-          onComplete={onLegendCompleteWrapped}
-          handleClose={closeActionModal}
-          buttonText={buttonText}
-          action={action}
-        />
-      </Modal>
-      {action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune' && (
+      <ActionModal
+        isOpen={isActionModalOpen}
+        setIsOpen={setIsActionModalOpen}
+        title={title}
+        flavor={flavor}
+        xp={xp}
+        contentSteps={contentSteps}
+        contentImage={contentImage}
+        contentVideo={contentVideo}
+        buttonText={buttonText}
+        onLegendCompleteWrapped={onLegendCompleteWrapped}
+        closeActionModal={closeActionModal}
+        copyToClipboard={copyToClipboard}
+        action={action}
+        meta={meta}
+        predefinedId={predefinedId}
+      />
+      {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) && (
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
       )}
       {isCompleted ? (
@@ -229,8 +214,7 @@ const Card: FC<Props> = ({
           <Flask />
           <div className={styles.completedText}>
             Completed
-            {action.type === CardActionType.predefined &&
-            action.predefinedId === 'wheelOfFortune' ? (
+            {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) ? (
               <div className={styles.completedTextAvailable}>{hoursUntilMidnightLabel}</div>
             ) : null}
           </div>

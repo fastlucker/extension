@@ -119,7 +119,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
         }
       ])
 
-      addToast('The wheel will be unlocked shortly. ETA 10s', 'info')
+      addToast('The wheel will be unlocked shortly. ETA 10s')
 
       await getCallsStatus(callsId)
 
@@ -130,7 +130,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
             console.error('Failed to fetch transaction status after 10 attempts')
             addToast(
               "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
-              'error'
+              { type: 'error' }
             )
             setWheelState('error')
             return
@@ -148,7 +148,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
       const message = humanizeLegendsBroadcastError(e)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
       setWheelState('locked')
     }
   }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast, sendCalls, getCallsStatus])

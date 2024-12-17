@@ -78,10 +78,10 @@ function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   if (process.env.APP_ENV === 'production') return
 
   const args = parse(stringify(stateToLog))
-  const ctrlState = ctrlName === 'main' ? args[0] : args[0][ctrlName]
+  const ctrlState = ctrlName === 'main' ? args : args[ctrlName]
 
   const logData =
-    BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : [...args]
+    BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
 
   logInfoWithPrefix(event, logData)
 }
