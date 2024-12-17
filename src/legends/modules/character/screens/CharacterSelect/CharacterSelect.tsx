@@ -71,7 +71,9 @@ const CharacterSelect = () => {
         )}
         {!isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
           <button
-            onClick={() => mintCharacter(characterId)}
+            onClick={() => {
+              !isMinting && mintCharacter(characterId)
+            }}
             type="button"
             disabled={isMinting || isLoading || isMinted}
             className={styles.saveButton}
