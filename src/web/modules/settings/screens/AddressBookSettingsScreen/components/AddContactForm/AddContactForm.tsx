@@ -84,13 +84,8 @@ const AddContactForm = () => {
     t
   ])
 
-  const { validation, RHFValidate } = useAddressInput({
-    addressState,
-    setAddressState,
-    handleRevalidate,
-    overwriteError: customValidation,
-    addToast,
-    handleCacheResolvedDomain: (address: string, domain: string, type: 'ens' | 'ud') => {
+  const handleCacheResolvedDomain = useCallback(
+    (address: string, domain: string, type: 'ens' | 'ud') => {
       dispatch({
         type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
         params: {
@@ -99,7 +94,17 @@ const AddContactForm = () => {
           name: domain
         }
       })
-    }
+    },
+    [dispatch]
+  )
+
+  const { validation, RHFValidate } = useAddressInput({
+    addressState,
+    setAddressState,
+    handleRevalidate,
+    overwriteError: customValidation,
+    addToast,
+    handleCacheResolvedDomain
   })
 
   const submitForm = handleSubmit(() => {

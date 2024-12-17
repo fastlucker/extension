@@ -83,13 +83,8 @@ const AddressField: FC<Props> = ({
     trigger(`accounts.${index}.fieldValue`)
   }, [index, isLoading, trigger])
 
-  const { validation, RHFValidate } = useAddressInput({
-    addressState: value,
-    setAddressState,
-    overwriteError,
-    handleRevalidate,
-    addToast,
-    handleCacheResolvedDomain: (address: string, domain: string, type: 'ens' | 'ud') => {
+  const handleCacheResolvedDomain = useCallback(
+    (address: string, domain: string, type: 'ens' | 'ud') => {
       dispatch({
         type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
         params: {
@@ -98,7 +93,17 @@ const AddressField: FC<Props> = ({
           name: domain
         }
       })
-    }
+    },
+    [dispatch]
+  )
+
+  const { validation, RHFValidate } = useAddressInput({
+    addressState: value,
+    setAddressState,
+    overwriteError,
+    handleRevalidate,
+    addToast,
+    handleCacheResolvedDomain
   })
 
   return (
