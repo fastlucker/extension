@@ -103,7 +103,7 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
       isLoading={isInProgress}
       loadingText="Signing..."
       buttonText={buttonText}
-      disabled={!isValid}
+      disabled={!isValid || addressState.isDomainResolving}
       onButtonClick={onButtonClick}
     >
       <AddressInput
