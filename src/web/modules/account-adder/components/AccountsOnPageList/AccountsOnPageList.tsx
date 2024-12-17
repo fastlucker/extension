@@ -131,7 +131,7 @@ const AccountsOnPageList = ({
     ).length
   }, [linkedAccounts, state.selectedAccounts])
 
-  const shouldDisplayPagination = subType !== 'private-key'
+  const isImportingFromPrivateKey = subType === 'private-key'
 
   const getAccounts = useCallback(
     ({
@@ -169,7 +169,11 @@ const AccountsOnPageList = ({
             key={acc.account.addr}
             account={acc.account}
             type={getType(acc)}
-            shouldAddIntroStepsIds={['basic', 'smart'].includes(getType(acc)) && slotIndex === 0}
+            shouldAddIntroStepsIds={
+              ['basic', 'smart'].includes(getType(acc)) &&
+              slotIndex === 0 &&
+              !isImportingFromPrivateKey
+            }
             withBottomSpacing={hasBottomSpacing}
             unused={isUnused}
             isSelected={isSelected || acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
@@ -183,12 +187,13 @@ const AccountsOnPageList = ({
       })
     },
     [
-      handleDeselectAccount,
-      handleSelectAccount,
       onlySmartAccountsVisible,
+      getType,
       hideEmptyAccounts,
       state.selectedAccounts,
-      getType
+      isImportingFromPrivateKey,
+      handleSelectAccount,
+      handleDeselectAccount
     ]
   )
 
@@ -247,7 +252,6 @@ const AccountsOnPageList = ({
     state.accountsLoading,
     slots
   ])
-  const shouldDisplayHideEmptyAccountsToggle = subType !== 'private-key'
   const disableHideEmptyAccountsToggle =
     state.accountsLoading || !!state.pageError || isAccountAdderEmpty
   const shouldDisplayChangeHdPath = !!(
@@ -370,7 +374,7 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {(shouldDisplayHideEmptyAccountsToggle || shouldDisplayChangeHdPath) && (
+        {(!isImportingFromPrivateKey || shouldDisplayChangeHdPath) && (
           <View
             style={[
               spacings.mbLg,
@@ -384,7 +388,7 @@ const AccountsOnPageList = ({
                 }
               : {})}
           >
-            {shouldDisplayHideEmptyAccountsToggle && (
+            {!isImportingFromPrivateKey && (
               <Toggle
                 isOn={hideEmptyAccounts}
                 onToggle={() => setHideEmptyAccounts((p) => !p)}
@@ -409,7 +413,7 @@ const AccountsOnPageList = ({
             />
           )}
           <ScrollableWrapper
-            style={shouldDisplayPagination && spacings.mbLg}
+            style={!isImportingFromPrivateKey && spacings.mbLg}
             contentContainerStyle={{
               flexGrow: 1
             }}
@@ -466,7 +470,7 @@ const AccountsOnPageList = ({
               </Text>
             </View>
           </View>
-          {shouldDisplayPagination && (
+          {!isImportingFromPrivateKey && (
             <Pagination
               page={state.page}
               maxPages={1000}
