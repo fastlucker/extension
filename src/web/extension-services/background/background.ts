@@ -24,7 +24,12 @@ import {
 import wait from '@ambire-common/utils/wait'
 import { isProd } from '@common/config/env'
 import { createRecurringTimeout } from '@common/utils/timeout'
-import { RELAYER_URL, SOCKET_API_KEY, VELCRO_URL } from '@env'
+import {
+  BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
+  RELAYER_URL,
+  SOCKET_API_KEY,
+  VELCRO_URL
+} from '@env'
 import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -72,7 +77,13 @@ function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   // (instead of the entire state) to the user console, which aids in debugging without significant performance costs.
   if (process.env.APP_ENV === 'production') return
 
-  logInfoWithPrefix(event, ctrlName, parse(stringify(stateToLog)))
+  const args = parse(stringify(stateToLog))
+  const ctrlState = ctrlName === 'main' ? args[0] : args[0][ctrlName]
+
+  const logData =
+    BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : [...args]
+
+  logInfoWithPrefix(event, logData)
 }
 
 let mainCtrl: MainController
