@@ -4,6 +4,10 @@ import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/do
 
 import useDomainsContext from '../useDomainsContext'
 
+/**
+ * To be used in Benzin and Legends. Because useAddressInput is written in a way to work with
+ * react-hook-form, controller state and useState we have to write some boilerplate.
+ */
 const useStandaloneAddressInput = () => {
   const { domainsCtrl } = useDomainsContext()
   const [addressState, setAddressState] = useState<AddressState>({
