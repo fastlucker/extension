@@ -180,7 +180,9 @@ const Card: FC<Props> = ({
                   https://legends.ambire.com/{' '}
                 </a>
               </div>
-              <CopyIcon className={styles.copyIcon} onClick={copyToClipboard} />
+              <button type="button" onClick={copyToClipboard}>
+                <CopyIcon className={styles.copyIcon} />
+              </button>
             </div>
           </div>
           <button onClick={closeAndCopy} type="button" className={styles.button}>
