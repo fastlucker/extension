@@ -46,10 +46,14 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { wheelSpinOfTheDay, legends, isLoading } = useLegendsContext()
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
-  const [isActionModalOpen, setIsActionModalOpen] = useState(false)
+  const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
 
   const handleModal = () => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
+  }
+
+  const handleLeaderModal = () => {
+    setIsLeaderModalOpen(!isLeaderModalOpen)
   }
 
   const copyInvitationKey = () => {
@@ -101,8 +105,8 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           </div>
         </div>
         <LeaderModal
-          setIsActionModalOpen={setIsActionModalOpen}
-          isActionModalOpen={isActionModalOpen}
+          setIsLeaderModalOpen={setIsLeaderModalOpen}
+          isLeaderModalOpen={isLeaderModalOpen}
         />
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
         <div className={styles.links}>
@@ -122,11 +126,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         {legendLeader && legendLeader?.meta && (
           <div className={styles.leaderSection}>
             <div className={styles.leaderHeader}>
-              <button
-                type="button"
-                className={styles.inviteTitle}
-                onClick={() => setIsActionModalOpen(true)}
-              >
+              <button type="button" className={styles.inviteTitle} onClick={handleLeaderModal}>
                 Invite a friend
               </button>
               <div>
