@@ -53,7 +53,7 @@ import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
-function stateDebug(event: string, stateToLog: object) {
+function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
   // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
@@ -72,7 +72,7 @@ function stateDebug(event: string, stateToLog: object) {
   // (instead of the entire state) to the user console, which aids in debugging without significant performance costs.
   if (process.env.APP_ENV === 'production') return
 
-  logInfoWithPrefix(event, parse(stringify(stateToLog)))
+  logInfoWithPrefix(event, ctrlName, parse(stringify(stateToLog)))
 }
 
 let mainCtrl: MainController
@@ -465,7 +465,7 @@ handleKeepAlive()
       }
 
       pm.send('> ui', { method: ctrlName, params: stateToSendToFE, forceEmit })
-      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog)
+      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
     }
 
     /**
@@ -634,7 +634,7 @@ handleKeepAlive()
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl)
+            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
             pm.send('> ui-error', {
               method: ctrlName,
               params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
@@ -645,7 +645,7 @@ handleKeepAlive()
     })
   }, 'background')
   mainCtrl.onError(() => {
-    stateDebug('onError (main ctrl)', mainCtrl)
+    stateDebug('onError (main ctrl)', mainCtrl, 'main')
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }

@@ -29,13 +29,13 @@ const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
 }
 
 const ActivitySection = () => {
-  const { activity: recentActivity } = useRecentActivityContext()
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount: accountAddress } = useAccountContext()
   const [page, setPage] = useState(0)
-  const { activity, isLoading, error, getActivity } = useActivity({
-    page,
-    accountAddress: connectedAccount
-  })
+  const recentActivity = useRecentActivityContext()
+  const historyActivity = useActivity({ page: page === 0 ? null : page, accountAddress })
+
+  const { activity, isLoading, error, getActivity } = page === 0 ? recentActivity : historyActivity
+
   const { transactions, totalTransactionCount } = activity || {}
 
   useEffect(() => {
@@ -43,18 +43,19 @@ const ActivitySection = () => {
       page !== 0 ||
       // If the user had 0 transactions before, !0 will be true
       // so we need to check if totalTransactionCount is undefined
-      !recentActivity?.totalTransactionCount ||
+      !recentActivity?.activity?.totalTransactionCount ||
       typeof totalTransactionCount === 'undefined'
     )
       return
 
-    const isRecentActivityNewer = recentActivity?.totalTransactionCount > totalTransactionCount
+    const isRecentActivityNewer =
+      recentActivity?.activity?.totalTransactionCount > totalTransactionCount
 
     if (isRecentActivityNewer) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       getActivity()
     }
-  }, [getActivity, page, recentActivity?.totalTransactionCount, totalTransactionCount])
+  }, [getActivity, page, recentActivity?.activity?.totalTransactionCount, totalTransactionCount])
 
   return (
     <div className={styles.wrapper}>
@@ -142,4 +143,4 @@ const ActivitySection = () => {
   )
 }
 
-export default ActivitySection
+export default React.memo(ActivitySection)
