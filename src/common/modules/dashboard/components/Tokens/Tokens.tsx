@@ -16,6 +16,7 @@ import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { getDoesNetworkMatch } from '@common/utils/search'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
@@ -89,12 +90,23 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
         .filter((token) => {
           if (!searchValue) return true
 
-          const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
-          const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+          const lowercaseSearch = searchValue.toLowerCase()
 
-          return doesAddressMatch || doesSymbolMatch
+          const doesAddressMatch = token.address.toLowerCase().includes(lowercaseSearch)
+          const doesSymbolMatch = token.symbol.toLowerCase().includes(lowercaseSearch)
+
+          return (
+            doesAddressMatch ||
+            doesSymbolMatch ||
+            getDoesNetworkMatch({
+              networks,
+              tokenFlags: token.flags,
+              itemNetworkId: token.networkId,
+              lowercaseSearch
+            })
+          )
         }),
-    [portfolio?.tokens, dashboardNetworkFilter, searchValue]
+    [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
   )
 
   const userHasNoBalance = useMemo(
