@@ -3,9 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { resolveENSDomain } from '@ambire-common/services/ensDomains'
 import { resolveUDomain } from '@ambire-common/services/unstoppableDomains'
-import useBackgroundService from '@web/hooks/useBackgroundService'
+import { ToastOptions } from '@common/contexts/toastContext'
 
-import useToast from '../useToast'
 import getAddressInputValidation from './utils/validation'
 
 interface Props {
@@ -13,6 +12,8 @@ interface Props {
   setAddressState: (newState: AddressStateOptional) => void
   overwriteError?: string
   overwriteValidLabel?: string
+  addToast: (message: string, options?: ToastOptions) => void
+  handleCacheResolvedDomain: (address: string, domain: string, type: 'ens' | 'ud') => void
   // handleRevalidate is required when the address input is used
   // together with react-hook-form. It is used to trigger the revalidation of the input.
   // !!! Must be memoized with useCallback
@@ -24,10 +25,10 @@ const useAddressInput = ({
   setAddressState,
   overwriteError,
   overwriteValidLabel,
+  addToast,
+  handleCacheResolvedDomain,
   handleRevalidate
 }: Props) => {
-  const { dispatch } = useBackgroundService()
-  const { addToast } = useToast()
   const fieldValueRef = useRef(addressState.fieldValue)
   const fieldValue = addressState.fieldValue
   const [debouncedValidation, setDebouncedValidation] = useState({
@@ -68,14 +69,7 @@ const useAddressInput = ({
             // Don't save the resolved UD address because it won't be used anywhere for now
             // https://github.com/AmbireTech/ambire-app/issues/2681#issuecomment-2299460748
             // if (udAddress) {
-            //   dispatch({
-            //     type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
-            //     params: {
-            //       address: udAddress,
-            //       name: fieldValue,
-            //       type: 'ud'
-            //     }
-            //   })
+            //   handleCacheResolvedDomain(udAddress, fieldValue, 'ud')
             // }
           })
           .catch(() => {
@@ -89,14 +83,7 @@ const useAddressInput = ({
             ensAddress = newEnsAddress
 
             if (ensAddress) {
-              dispatch({
-                type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
-                params: {
-                  address: ensAddress,
-                  name: fieldValue,
-                  type: 'ens'
-                }
-              })
+              handleCacheResolvedDomain(ensAddress, fieldValue, 'ens')
             }
           })
           .catch(() => {
@@ -122,7 +109,7 @@ const useAddressInput = ({
           })
         })
     },
-    [addToast, fieldValue, dispatch, setAddressState]
+    [addToast, handleCacheResolvedDomain, fieldValue, setAddressState]
   )
 
   useEffect(() => {
@@ -230,7 +217,8 @@ const useAddressInput = ({
   return {
     validation: debouncedValidation,
     RHFValidate,
-    resetAddressInput: reset
+    resetAddressInput: reset,
+    address: addressState.ensAddress || addressState.udAddress || fieldValue
   }
 }
 

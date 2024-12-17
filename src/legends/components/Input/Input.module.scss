@@ -3,55 +3,55 @@
 .wrapper {
   display: flex;
   flex-direction: column;
+}
 
-  .label,
-  .input {
-    font-family: $primaryFont;
-  }
+.label,
+.input {
+  font-family: $primaryFont;
+}
 
-  .label {
+.label {
+  color: $tertiaryText;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+.input {
+  height: 2.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  border: 1px solid $primaryBorder;
+  border-radius: $primaryBorderRadius;
+  color: $secondaryText;
+  background-color: $tertiaryBackground;
+  font-weight: 400;
+
+  &::placeholder {
     color: $tertiaryText;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    margin-bottom: 0.25rem;
+    font-weight: 300;
   }
-  .input {
-    height: 2.75rem;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-    border: 1px solid $primaryBorder;
-    border-radius: $primaryBorderRadius;
-    color: $secondaryText;
-    background-color: $tertiaryBackground;
-    font-weight: 400;
 
-    &::placeholder {
-      color: $tertiaryText;
-      font-weight: 300;
-    }
+  &:focus::placeholder {
+    color: transparent;
+  }
 
-    &:focus::placeholder {
-      color: transparent;
-    }
-
-    &.error {
-      border-color: $error;
-    }
+  &.error {
+    border-color: $error;
   }
-  .validationMessage,
-  .infoLabel {
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
+}
+.validationMessage,
+.infoLabel {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+.validationMessage {
+  &.error {
+    color: $error;
   }
-  .validationMessage {
-    &.error {
-      color: $error;
-    }
-    &.success {
-      color: $success;
-    }
+  &.valid {
+    color: $success;
   }
-  .infoLabel {
-    color: $secondaryText;
-  }
+}
+.infoLabel {
+  color: $secondaryText;
 }

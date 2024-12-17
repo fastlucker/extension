@@ -1,5 +1,4 @@
 import { BrowserProvider, getAddress, Interface } from 'ethers'
-import { useState } from 'react'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import { isValidAddress } from '@ambire-common/services/address'
@@ -9,18 +8,21 @@ import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
-const useInviteEOA = () => {
+const useInviteCard = ({
+  address,
+  setAddress
+}: {
+  address: string
+  setAddress: (address: string) => void
+}) => {
   const switchNetwork = useSwitchNetwork()
-  const [eoaAddress, setEoaAddress] = useState('')
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
 
-  const isValid = isValidAddress(eoaAddress)
+  const isValid = isValidAddress(address)
 
   const inviteEOA = async (): Promise<string> => {
-    setEoaAddress('')
-    const checksummedAddress = getAddress(eoaAddress)
-
-    setEoaAddress('')
+    setAddress('')
+    const checksummedAddress = getAddress(address)
 
     const provider = new BrowserProvider(window.ethereum)
     const signer = await provider.getSigner()
@@ -47,10 +49,9 @@ const useInviteEOA = () => {
   return {
     inviteEOA,
     switchNetwork,
-    eoaAddress,
-    setEoaAddress,
+    address,
     isEOAAddressValid: isValid
   }
 }
 
-export default useInviteEOA
+export default useInviteCard

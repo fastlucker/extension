@@ -1,8 +1,9 @@
 import { getAddress } from 'ethers'
 import React, { FC, useMemo, useState } from 'react'
 
-import { isValidAddress } from '@ambire-common/services/address'
-import Input from '@legends/components/Input'
+import useAddressInput from '@common/hooks/useAddressInput'
+import useStandaloneAddressInput from '@common/hooks/useStandaloneAddressInput'
+import AddressInput from '@legends/components/AddressInput'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
@@ -19,58 +20,66 @@ type Props = CardProps & {
 const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
   const { addToast } = useToast()
   const { connectedAccount, allAccounts } = useAccountContext()
-  const {
-    inviteEOA,
-    switchNetwork,
-    eoaAddress,
-    setEoaAddress,
-    isEOAAddressValid: isValid
-  } = useInviteEOA()
 
   const [isInProgress, setIsInProgress] = useState(false)
 
-  const inputValidation = useMemo(() => {
-    if (!eoaAddress) return null
-    const isAddressValid = isValidAddress(eoaAddress)
+  const {
+    address: v1OrEoaAddress,
+    addressState,
+    setAddressState,
+    handleCacheResolvedDomain,
+    setAddressStateKeyValue
+  } = useStandaloneAddressInput()
 
-    if (!isAddressValid) {
-      return {
-        isValid: false,
-        message: 'Invalid address.'
-      }
-    }
-
+  const overwriteErrorMessage = useMemo(() => {
     let checksummedAddress = ''
 
     try {
-      checksummedAddress = getAddress(eoaAddress)
+      checksummedAddress = getAddress(v1OrEoaAddress)
     } catch {
-      return {
-        isValid: false,
-        message: 'Invalid address checksum.'
-      }
+      return 'Invalid address checksum.'
     }
 
     if (checksummedAddress === connectedAccount) {
-      return {
-        isValid: false,
-        message: 'You cannot invite your connected account.'
-      }
+      return 'You cannot invite your connected account.'
+    }
+
+    return ''
+  }, [connectedAccount, v1OrEoaAddress])
+
+  const overwriteSuccessMessage = useMemo(() => {
+    let checksummedAddress = ''
+
+    try {
+      checksummedAddress = getAddress(v1OrEoaAddress)
+    } catch {
+      return ''
     }
 
     if (allAccounts.includes(checksummedAddress)) {
-      return {
-        isValid: true,
-        message:
-          "The account you're trying to invite is imported in your wallet. You won't gain any additional XP by inviting it before taming it. You can directly tame your address using Beastwhisperer."
-      }
+      return "The account you're trying to invite is imported in your wallet. You won't gain any additional XP by inviting it before taming it. You can directly tame your address using Beastwhisperer."
     }
 
-    return {
-      isValid,
-      message: !isValid ? 'Invalid address' : ''
-    }
-  }, [allAccounts, connectedAccount, eoaAddress, isValid])
+    return ''
+  }, [allAccounts, v1OrEoaAddress])
+
+  const { validation } = useAddressInput({
+    addressState,
+    setAddressState: setAddressStateKeyValue,
+    addToast,
+    handleCacheResolvedDomain,
+    overwriteError: overwriteErrorMessage,
+    overwriteValidLabel: overwriteSuccessMessage
+  })
+
+  const {
+    inviteEOA,
+    switchNetwork,
+    isEOAAddressValid: isValid
+  } = useInviteEOA({
+    address: v1OrEoaAddress,
+    setAddress: (address) => setAddressStateKeyValue({ fieldValue: address })
+  })
 
   const onButtonClick = async () => {
     try {
@@ -97,12 +106,11 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
       disabled={!isValid}
       onButtonClick={onButtonClick}
     >
-      <Input
-        label="EOA or Ambire v1 Address"
-        placeholder="Enter an EOA or an Ambire v1 address"
-        value={eoaAddress}
-        validation={inputValidation}
-        onChange={(e) => setEoaAddress(e.target.value)}
+      <AddressInput
+        addressState={addressState}
+        setAddressState={setAddressState}
+        validation={validation}
+        label="Ambire v1 or Basic Account address"
       />
     </CardActionWrapper>
   )

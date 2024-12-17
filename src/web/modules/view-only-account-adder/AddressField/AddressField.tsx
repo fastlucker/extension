@@ -6,10 +6,12 @@ import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import AddressInput from '@common/components/AddressInput'
 import useAddressInput from '@common/hooks/useAddressInput'
+import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getAddressFromAddressState } from '@common/utils/domains'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 
 interface Props {
   duplicateAccountsIndexes: number[]
@@ -37,9 +39,11 @@ const AddressField: FC<Props> = ({
   setValue,
   trigger
 }) => {
+  const { addToast } = useToast()
+  const { dispatch } = useBackgroundService()
+  const accountsState = useAccountsControllerState()
   const accounts = watch('accounts')
   const value = watch(`accounts.${index}`)
-  const accountsState = useAccountsControllerState()
 
   const setAddressState = useCallback(
     (newState: AddressStateOptional) => {
@@ -83,7 +87,18 @@ const AddressField: FC<Props> = ({
     addressState: value,
     setAddressState,
     overwriteError,
-    handleRevalidate
+    handleRevalidate,
+    addToast,
+    handleCacheResolvedDomain: (address: string, domain: string, type: 'ens' | 'ud') => {
+      dispatch({
+        type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
+        params: {
+          type,
+          address,
+          name: domain
+        }
+      })
+    }
   })
 
   return (
