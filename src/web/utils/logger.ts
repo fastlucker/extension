@@ -14,6 +14,7 @@ logger.setDefaultLevel(
 )
 
 export const logInfoWithPrefix = (event: any, ctrlName: string, ...args: any) => {
+  console.log('args', args, ctrlName)
   const ctrlState = ctrlName === 'main' ? args[0] : args[0][ctrlName]
 
   const logData =
