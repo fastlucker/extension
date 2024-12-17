@@ -7,7 +7,7 @@ import AddressInput from '@legends/components/AddressInput'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
-import { useInviteEOA } from '@legends/modules/legends/hooks'
+import { useInviteCard } from '@legends/modules/legends/hooks'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import CardActionWrapper from './CardActionWrapper'
@@ -76,7 +76,7 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
     inviteEOA,
     switchNetwork,
     isEOAAddressValid: isValid
-  } = useInviteEOA({
+  } = useInviteCard({
     address: v1OrEoaAddress,
     setAddress: (address) => setAddressStateKeyValue({ fieldValue: address })
   })
