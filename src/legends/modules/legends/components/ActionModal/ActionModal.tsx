@@ -2,30 +2,31 @@ import React, { FC } from 'react'
 
 import Modal from '@legends/components/Modal'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
+import { CardActionComponentProps } from '@legends/modules/legends/components/Card/CardAction/CardAction'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
+import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
+import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardXp } from '@legends/modules/legends/types'
 
-import { CARD_PREDEFINED_ID } from '../../constants'
 import styles from './ActionModal.module.scss'
 
 type ActionModalProps = {
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
   title: string
-  flavor?: string
-  xp?: CardXp[]
-  contentImage?: string
-  buttonText: string
   onLegendCompleteWrapped: (txnId: string) => Promise<void>
   closeActionModal: () => void
-  copyToClipboard: () => void
+  action: CardAction | null
+  flavor?: string
+  xp: CardXp[] | undefined
+  contentImage?: string
   contentSteps?: string[]
   contentVideo?: string
-  action: CardAction
-  meta?: any
-  predefinedId: string
-}
+  predefinedId?: string
+  buttonText: string
+} & Partial<HowToProps> &
+  Partial<CardActionComponentProps>
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
@@ -63,12 +64,14 @@ const ActionModal: FC<ActionModalProps> = ({
           }
         />
       )}
-      <CardActionComponent
-        onComplete={onLegendCompleteWrapped}
-        handleClose={closeActionModal}
-        buttonText={buttonText}
-        action={action}
-      />
+      {!!action && (
+        <CardActionComponent
+          onComplete={onLegendCompleteWrapped}
+          handleClose={closeActionModal}
+          buttonText={buttonText}
+          action={action}
+        />
+      )}
     </Modal>
   )
 }

@@ -12,14 +12,15 @@ import Flask from '@legends/modules/legends/components/Card/Flask'
 import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
+import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '@legends/modules/legends/constants'
 import {
   CardActionType,
   CardFromResponse,
   CardStatus,
   CardType
 } from '@legends/modules/legends/types'
+import { isMatchingPredefinedId } from '@legends/modules/legends/utils/cards'
 
-import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
 import styles from './Card.module.scss'
 
 type Props = Pick<
@@ -73,12 +74,12 @@ const Card: FC<Props> = ({
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
 
   const openActionModal = () =>
-    action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune'
+    isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune)
       ? setIsFortuneWheelModalOpen(true)
       : setIsActionModalOpen(true)
 
   const closeActionModal = () =>
-    action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune'
+    isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune)
       ? setIsFortuneWheelModalOpen(false)
       : setIsActionModalOpen(false)
 
@@ -117,10 +118,7 @@ const Card: FC<Props> = ({
   const onLegendCompleteWrapped = async (txnId: string) => {
     await pollActivityUntilComplete(txnId, 0)
 
-    if (
-      action.type === CardActionType.predefined &&
-      action.predefinedId === CARD_PREDEFINED_ID.addEOA
-    ) {
+    if (isMatchingPredefinedId(action, CARD_PREDEFINED_ID.addEOA)) {
       setIsOnLegendCompleteModalOpen(true)
     }
   }
@@ -206,7 +204,7 @@ const Card: FC<Props> = ({
         meta={meta}
         predefinedId={predefinedId}
       />
-      {action.type === CardActionType.predefined && action.predefinedId === 'wheelOfFortune' && (
+      {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) && (
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
       )}
       {isCompleted ? (
@@ -214,8 +212,7 @@ const Card: FC<Props> = ({
           <Flask />
           <div className={styles.completedText}>
             Completed
-            {action.type === CardActionType.predefined &&
-            action.predefinedId === 'wheelOfFortune' ? (
+            {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) ? (
               <div className={styles.completedTextAvailable}>{hoursUntilMidnightLabel}</div>
             ) : null}
           </div>

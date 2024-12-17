@@ -52,6 +52,10 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
   }
 
+  const handleLeaderModal = () => {
+    setIsLeaderModalOpen(!isLeaderModalOpen)
+  }
+
   const copyInvitationKey = () => {
     if (!legendLeader?.meta?.invitationKey) {
       addToast('No invitation key to copy', 'error')
@@ -122,11 +126,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         {legendLeader && legendLeader?.meta && (
           <div className={styles.leaderSection}>
             <div className={styles.leaderHeader}>
-              <button
-                type="button"
-                className={styles.inviteTitle}
-                onClick={() => setIsLeaderModalOpen(true)}
-              >
+              <button type="button" className={styles.inviteTitle} onClick={handleLeaderModal}>
                 Invite a friend
               </button>
               <div>

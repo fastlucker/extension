@@ -6,7 +6,7 @@ import { CardFromResponse } from '@legends/modules/legends/types'
 import YouTubeVideo from './components/YouTubeVideo'
 import styles from './HowTo.module.scss'
 
-type Props = {
+export type HowToProps = {
   steps: string[]
   image?: string
   imageAlt?: string
@@ -15,7 +15,7 @@ type Props = {
   copyToClipboard?: () => void
 }
 
-const HowTo: FC<Props> = ({ steps, image, imageAlt, meta, copyToClipboard, video }) => {
+const HowTo: FC<HowToProps> = ({ steps, image, imageAlt, meta, copyToClipboard, video }) => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.column}>

@@ -5,9 +5,9 @@ import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import ActionModal from '@legends/modules/legends/components/ActionModal'
+import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType } from '@legends/modules/legends/types'
-
-import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
+import { isMatchingPredefinedId } from '@legends/modules/legends/utils/cards'
 
 interface LeaderModalProps {
   setIsLeaderModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -22,11 +22,7 @@ const LeaderModal: React.FC<LeaderModalProps> = ({ setIsLeaderModalOpen, isLeade
 
   const card =
     !isLoading &&
-    legends.find(
-      (legend) =>
-        legend?.action?.type === CardActionType.predefined &&
-        legend?.action?.predefinedId === 'referral'
-    )
+    legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.Referral))
 
   const { xp, title, flavor, contentSteps, contentImage, contentVideo, action, meta } = card || {}
   const predefinedId =
@@ -86,6 +82,7 @@ const LeaderModal: React.FC<LeaderModalProps> = ({ setIsLeaderModalOpen, isLeade
       xp={xp}
       contentImage={contentImage}
       buttonText={buttonText}
+      steps={contentSteps || []}
       onLegendCompleteWrapped={(txnId: string) => pollActivityUntilComplete(txnId, 0)}
       closeActionModal={closeActionModal}
       copyToClipboard={copyToClipboard}
