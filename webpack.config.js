@@ -353,10 +353,6 @@ module.exports = async function (env, argv) {
           return chunk.name !== 'ambire-inpage' && chunk.name !== 'ethereum-inpage'
         }
       }
-    } else {
-      const host = 'localhost'
-      config.devServer.client.webSocketURL.hostname = host
-      config.devServer.webSocketServer.options.host = host
     }
 
     config.experiments = {
