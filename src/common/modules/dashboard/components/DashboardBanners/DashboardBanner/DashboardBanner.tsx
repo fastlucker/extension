@@ -91,7 +91,7 @@ const DashboardBanner = ({
 
       if (action.actionName === 'reject-bridge' || action.actionName === 'close-bridge') {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+          type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
           params: { activeRouteId: action.meta.activeRouteId }
         })
       }

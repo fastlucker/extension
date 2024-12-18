@@ -448,7 +448,7 @@ type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   params: { activeRouteId: number }
 }
 type SwapAndBridgeControllerRemoveActiveRouteAction = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE'
+  type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: number }
 }
 
