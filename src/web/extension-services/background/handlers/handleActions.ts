@@ -360,7 +360,7 @@ export const handleActions = async (
       return await mainCtrl.buildSwapAndBridgeUserRequest()
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
-    case 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE':
+    case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
     case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
