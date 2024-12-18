@@ -49,6 +49,8 @@ const CharacterSelect = () => {
 
   if (!connectedAccount && !nonV2Account) return <Navigate to="/" />
 
+  const isButtonDisabled = isMinting || isLoading || isMinted
+
   return (
     <>
       <NonV2Modal isOpen={!!nonV2Account} />
@@ -72,10 +74,10 @@ const CharacterSelect = () => {
         {!isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
           <button
             onClick={() => {
-              !isMinting && mintCharacter(characterId)
+              !isButtonDisabled && mintCharacter(characterId)
             }}
             type="button"
-            disabled={isMinting || isLoading || isMinted}
+            disabled={isButtonDisabled}
             className={styles.saveButton}
           >
             {isMinting ? 'Please wait...' : 'Select'}
