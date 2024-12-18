@@ -45,8 +45,8 @@ module.exports = async function (env, argv) {
     }
     // Shorter for Safari on purpose (up to 100 characters allowed), all others allow up to 132 characters
     manifest.description = isSafari
-      ? 'Hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
-      : 'Secure and easy-to-use hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+      ? 'Hybrid account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+      : 'Secure and easy-to-use hybrid account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
 
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
