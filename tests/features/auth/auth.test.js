@@ -101,9 +101,6 @@ describe('auth', () => {
 
     await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', true, 1500)
-    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', true, 500)
-
     await page.waitForSelector(SELECTORS.checkbox, { visible: true })
 
     const selectedAccount = await page.$eval(SELECTORS.addAccountField, (element) => {

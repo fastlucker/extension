@@ -47,6 +47,10 @@ const CharacterSelect = () => {
     navigate(LEGENDS_ROUTES.character)
   }
 
+  useEffect(() => {
+    document.title = 'Ambire Legends'
+  }, [])
+
   if (!connectedAccount && !nonV2Account) return <Navigate to="/" />
 
   return (
