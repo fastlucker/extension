@@ -1,7 +1,6 @@
 import { BrowserProvider, getAddress, Interface } from 'ethers'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
-import { isValidAddress } from '@ambire-common/services/address'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
@@ -17,8 +16,6 @@ const useInviteCard = ({
 }) => {
   const switchNetwork = useSwitchNetwork()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
-
-  const isValid = isValidAddress(address)
 
   const inviteEOA = async (): Promise<string> => {
     setAddress('')
@@ -49,8 +46,7 @@ const useInviteCard = ({
   return {
     inviteEOA,
     switchNetwork,
-    address,
-    isEOAAddressValid: isValid
+    address
   }
 }
 

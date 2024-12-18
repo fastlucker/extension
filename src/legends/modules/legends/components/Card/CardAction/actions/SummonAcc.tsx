@@ -72,11 +72,7 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
     overwriteValidLabel: overwriteSuccessMessage
   })
 
-  const {
-    inviteEOA,
-    switchNetwork,
-    isEOAAddressValid: isValid
-  } = useInviteCard({
+  const { inviteEOA, switchNetwork } = useInviteCard({
     address: v1OrEoaAddress,
     setAddress: (address) => setAddressStateKeyValue({ fieldValue: address })
   })
@@ -103,7 +99,7 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
       isLoading={isInProgress}
       loadingText="Signing..."
       buttonText={buttonText}
-      disabled={!isValid || addressState.isDomainResolving}
+      disabled={validation.isError || addressState.isDomainResolving}
       onButtonClick={onButtonClick}
     >
       <AddressInput
