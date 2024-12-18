@@ -50,7 +50,7 @@ const SendAccOp: FC<Props> = ({ onComplete, handleClose, action }) => {
       const message = humanizeLegendsBroadcastError(e)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionProcessingFailed, 'error')
+      addToast(message || ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
     }
   }, [
     switchNetwork,
