@@ -13,13 +13,13 @@ const handleProviderRequests = async (
   mainCtrl: MainController
 ): Promise<any> => {
   const { method, params, session } = request
-
   if (method === 'tabCheckin') {
     mainCtrl.dapps.setSessionProp(session.sessionId, {
       origin: request.origin,
       name: params.name,
       icon: params.icon
     })
+    mainCtrl.dapps.updateDapp(params.origin, { name: params.name })
     return
   }
 
