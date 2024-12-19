@@ -9,9 +9,9 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
-import { useCardActionContext } from '../../../ActionModal/ActionModal'
 import CardActionWrapper from './CardActionWrapper'
 
 const walletIface = new Interface([

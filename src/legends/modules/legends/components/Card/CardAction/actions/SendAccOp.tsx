@@ -5,10 +5,10 @@ import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { CardActionCalls } from '@legends/modules/legends/types'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
-import { useCardActionContext } from '../../../ActionModal/ActionModal'
 import CardActionButton from './CardActionButton'
 
 type Props = {
