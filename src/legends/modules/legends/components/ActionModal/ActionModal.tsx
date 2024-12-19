@@ -3,12 +3,13 @@ import React, { FC } from 'react'
 import Modal from '@legends/components/Modal'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
 import { CardActionComponentProps } from '@legends/modules/legends/components/Card/CardAction/CardAction'
+import Rewards from '@legends/modules/legends/components/Card/CardContent/Rewards'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
-import Rewards from '@legends/modules/legends/components/Card/Rewards'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardXp } from '@legends/modules/legends/types'
 
+import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
 
 type ActionModalProps = {
@@ -45,6 +46,10 @@ const ActionModal: FC<ActionModalProps> = ({
   meta,
   predefinedId
 }) => {
+  if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+    return <WheelComponentModal isOpen={isOpen} setIsOpen={setIsOpen} />
+  }
+
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} className={styles.modal}>
       <Modal.Heading className={styles.modalHeading}>

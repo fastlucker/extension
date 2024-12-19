@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react'
+import React, { FC, useState } from 'react'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Modal from '@legends/components/Modal'
@@ -7,21 +7,12 @@ import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import ActionModal from '@legends/modules/legends/components/ActionModal'
-import Counter from '@legends/modules/legends/components/Card/Counter'
-import Flask from '@legends/modules/legends/components/Card/Flask'
-import Rewards from '@legends/modules/legends/components/Card/Rewards'
-import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CARD_PREDEFINED_ID, PREDEFINED_ACTION_LABEL_MAP } from '@legends/modules/legends/constants'
-import {
-  CardActionType,
-  CardFromResponse,
-  CardStatus,
-  CardType
-} from '@legends/modules/legends/types'
+import { CardActionType, CardFromResponse, CardStatus } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils/cards'
 
 import styles from './Card.module.scss'
+import CardContent from './CardContent'
 
 type Props = Pick<
   CardFromResponse,
@@ -39,13 +30,6 @@ type Props = Pick<
   | 'contentVideo'
 >
 
-const CARD_FREQUENCY: { [key in CardType]: string } = {
-  [CardType.daily]: 'Daily',
-  [CardType.oneTime]: 'One-time',
-  [CardType.recurring]: 'Ongoing',
-  [CardType.weekly]: 'Weekly'
-}
-
 const Card: FC<Props> = ({
   title,
   image,
@@ -60,28 +44,22 @@ const Card: FC<Props> = ({
   contentImage,
   contentVideo
 }) => {
-  const { getActivity } = useRecentActivityContext()
-  const { onLegendComplete } = useLegendsContext()
-  const { addToast } = useToast()
-
   const disabled = card.status === CardStatus.disabled
-  const isCompleted = card.status === CardStatus.completed
   const predefinedId = action.type === CardActionType.predefined ? action.predefinedId : ''
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[predefinedId] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
   const [isOnLegendCompleteModalOpen, setIsOnLegendCompleteModalOpen] = useState(false)
+  const { getActivity } = useRecentActivityContext()
+  const { onLegendComplete } = useLegendsContext()
+  const { addToast } = useToast()
 
-  const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
+  const openActionModal = () => {
+    setIsActionModalOpen(true)
+  }
 
-  const openActionModal = () =>
-    isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune)
-      ? setIsFortuneWheelModalOpen(true)
-      : setIsActionModalOpen(true)
-
-  const closeActionModal = () =>
-    isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune)
-      ? setIsFortuneWheelModalOpen(false)
-      : setIsActionModalOpen(false)
+  const closeActionModal = () => {
+    setIsActionModalOpen(false)
+  }
 
   const pollActivityUntilComplete = async (txnId: string, attempt: number) => {
     if (attempt > 10) {
@@ -123,8 +101,6 @@ const Card: FC<Props> = ({
     }
   }
 
-  const hoursUntilMidnightLabel = useMemo(() => timeUntilMidnight().label, [])
-
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(
@@ -145,7 +121,21 @@ const Card: FC<Props> = ({
   }
 
   return (
-    <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
+    <>
+      <CardContent
+        title={title}
+        description={description}
+        flavor={flavor}
+        xp={xp}
+        image={image}
+        timesCollectedToday={timesCollectedToday}
+        card={card}
+        action={action}
+        openActionModal={openActionModal}
+        disabled={disabled}
+        buttonText={buttonText}
+      />
+      {/* Modals */}
       <Modal isOpen={isOnLegendCompleteModalOpen} setIsOpen={setIsOnLegendCompleteModalOpen}>
         <>
           <div> 🎉 Congratulations! 🎉</div>
@@ -206,50 +196,7 @@ const Card: FC<Props> = ({
         meta={meta}
         predefinedId={predefinedId}
       />
-      {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) && (
-        <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
-      )}
-      {isCompleted ? (
-        <div className={styles.completed}>
-          <Flask />
-          <div className={styles.completedText}>
-            Completed
-            {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) ? (
-              <div className={styles.completedTextAvailable}>{hoursUntilMidnightLabel}</div>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-      <div className={styles.imageAndCounter}>
-        <button
-          disabled={disabled}
-          type="button"
-          onClick={openActionModal}
-          className={styles.imageButtonWrapper}
-        >
-          <img src={image} alt={title} className={styles.image} />
-        </button>
-        <Counter width={48} height={48} count={timesCollectedToday} className={styles.counter} />
-      </div>
-      <div className={styles.contentAndAction}>
-        <div className={styles.content}>
-          <h2 className={styles.heading}>{title}</h2>
-          <p className={styles.description}>{description}</p>
-          <span className={styles.rewardFrequency}>{CARD_FREQUENCY[card.type]}</span>
-          <div className={styles.rewards}>
-            <Rewards xp={xp} size="sm" reverse />
-          </div>
-        </div>
-        <button
-          disabled={disabled}
-          className={styles.button}
-          type="button"
-          onClick={openActionModal}
-        >
-          {action.type ? buttonText : 'Read more'}
-        </button>
-      </div>
-    </div>
+    </>
   )
 }
 
