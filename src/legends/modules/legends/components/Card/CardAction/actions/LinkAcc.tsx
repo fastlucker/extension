@@ -3,9 +3,10 @@ import { BrowserProvider, getAddress, Interface, ZeroAddress } from 'ethers'
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
-import { isValidAddress } from '@ambire-common/services/address'
+import useAddressInput from '@common/hooks/useAddressInput'
+import useStandaloneAddressInput from '@common/hooks/useStandaloneAddressInput'
+import AddressInput from '@legends/components/AddressInput'
 import Alert from '@legends/components/Alert'
-import Input from '@legends/components/Input'
 import Stepper from '@legends/components/Stepper'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
@@ -37,57 +38,50 @@ const STEPPER_STEPS = [
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
 const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
+  const { addToast } = useToast()
+  const { sendCalls, getCallsStatus, chainId } = useErc5792()
+  const switchNetwork = useSwitchNetwork()
+  const { connectedAccount, allAccounts, setAllowNonV2Connection } = useAccountContext()
+
   const [isInProgress, setIsInProgress] = useState(false)
   const [v1OrBasicSignature, setV1OrBasicSignature] = useState('')
   const [messageSignedForV2Account, setMessageSignedForV2Account] = useState('')
-  const [v1OrEoaAddress, setV1OrEoaAddress] = useState('')
-  const { sendCalls, getCallsStatus, chainId } = useErc5792()
 
-  const { addToast } = useToast()
-  const { connectedAccount, allAccounts, setAllowNonV2Connection } = useAccountContext()
-  const switchNetwork = useSwitchNetwork()
+  const {
+    address: v1OrEoaAddress,
+    addressState,
+    setAddressState,
+    handleCacheResolvedDomain,
+    setAddressStateKeyValue
+  } = useStandaloneAddressInput()
 
-  const inputValidation = useMemo(() => {
-    if (!v1OrEoaAddress) return null
-    const isAddressValid = isValidAddress(v1OrEoaAddress)
-
-    if (!isAddressValid) {
-      return {
-        isValid: false,
-        message: 'Invalid address.'
-      }
-    }
-
+  const overwriteErrorMessage = useMemo(() => {
     let checksummedAddress = ''
 
     try {
       checksummedAddress = getAddress(v1OrEoaAddress)
     } catch {
-      return {
-        isValid: false,
-        message: 'Invalid address checksum.'
-      }
+      return '' // There is validation for that in the useAddressInput hook
     }
 
     if (checksummedAddress === connectedAccount) {
-      return {
-        isValid: false,
-        message: 'You cannot tame your connected account.'
-      }
+      return 'You cannot tame your connected account.'
     }
 
     if (!allAccounts.includes(checksummedAddress)) {
-      return {
-        isValid: false,
-        message: 'You cannot tame an account that is not in your wallet.'
-      }
+      return 'You cannot tame an account that is not in your wallet.'
     }
 
-    return {
-      isValid: true,
-      message: ''
-    }
+    return ''
   }, [allAccounts, connectedAccount, v1OrEoaAddress])
+
+  const { validation } = useAddressInput({
+    addressState,
+    setAddressState: setAddressStateKeyValue,
+    addToast,
+    handleCacheResolvedDomain,
+    overwriteError: overwriteErrorMessage
+  })
 
   const activeStep = useMemo(() => {
     if (v1OrBasicSignature) return STEPS.SIGN_TRANSACTION
@@ -97,11 +91,17 @@ const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
 
   const isActionEnabled = useMemo(() => {
     if (activeStep === STEPS.SIGN_MESSAGE) {
-      return !!inputValidation?.isValid
+      return !validation?.isError && !addressState.isDomainResolving
     }
 
     return messageSignedForV2Account === connectedAccount
-  }, [activeStep, inputValidation?.isValid, messageSignedForV2Account, connectedAccount])
+  }, [
+    activeStep,
+    messageSignedForV2Account,
+    connectedAccount,
+    validation?.isError,
+    addressState.isDomainResolving
+  ])
 
   // We don't allow non-v2 accounts to connect to Legends,
   // except when the user needs to link an EOA/v1 account to their main v2 account.
@@ -220,12 +220,11 @@ const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
       )}
 
       {activeStep === STEPS.SIGN_MESSAGE && (
-        <Input
+        <AddressInput
+          addressState={addressState}
+          setAddressState={setAddressState}
+          validation={validation}
           label="Ambire v1 or Basic Account address"
-          placeholder="0x..."
-          value={v1OrEoaAddress}
-          validation={inputValidation}
-          onChange={(e) => setV1OrEoaAddress(e.target.value)}
         />
       )}
     </CardActionWrapper>
