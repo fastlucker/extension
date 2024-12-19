@@ -11,36 +11,12 @@ import { CardActionType, CardFromResponse, CardStatus } from '@legends/modules/l
 import CardContent from './CardContent'
 import OnCompleteModal from './OnCompleteModal'
 
-type Props = Pick<
-  CardFromResponse,
-  | 'title'
-  | 'description'
-  | 'flavor'
-  | 'xp'
-  | 'image'
-  | 'card'
-  | 'action'
-  | 'timesCollectedToday'
-  | 'meta'
-  | 'contentSteps'
-  | 'contentImage'
-  | 'contentVideo'
->
+type Props = {
+  cardData: CardFromResponse
+}
 
-const Card: FC<Props> = ({
-  title,
-  image,
-  description,
-  flavor,
-  xp,
-  timesCollectedToday,
-  card,
-  action,
-  meta,
-  contentSteps,
-  contentImage,
-  contentVideo
-}) => {
+const Card: FC<Props> = ({ cardData }) => {
+  const { card, action } = cardData
   const disabled = card.status === CardStatus.disabled
   const predefinedId = action.type === CardActionType.predefined ? action.predefinedId : ''
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[predefinedId] || 'Proceed'
@@ -98,12 +74,7 @@ const Card: FC<Props> = ({
   return (
     <>
       <CardContent
-        title={title}
-        description={description}
-        flavor={flavor}
-        xp={xp}
-        image={image}
-        timesCollectedToday={timesCollectedToday}
+        {...cardData}
         card={card}
         action={action}
         openActionModal={openActionModal}
@@ -117,19 +88,13 @@ const Card: FC<Props> = ({
         predefinedId={predefinedId}
       />
       <ActionModal
+        {...cardData}
         isOpen={isActionModalOpen}
         setIsOpen={setIsActionModalOpen}
-        title={title}
-        flavor={flavor}
-        xp={xp}
-        contentSteps={contentSteps}
-        contentImage={contentImage}
-        contentVideo={contentVideo}
         buttonText={buttonText}
         onLegendCompleteWrapped={onLegendCompleteWrapped}
         closeActionModal={closeActionModal}
         action={action}
-        meta={meta}
         predefinedId={predefinedId}
       />
     </>

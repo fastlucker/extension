@@ -30,21 +30,7 @@ const Legends = () => {
       {!isLoading ? (
         <div className={styles.cards}>
           {legends.map((card) => (
-            <Card
-              key={card.title + card.card.type}
-              title={card.title}
-              description={card.description}
-              flavor={card.flavor}
-              image={card.image}
-              xp={card.xp}
-              card={card.card}
-              action={card.action}
-              meta={card.meta}
-              timesCollectedToday={card.timesCollectedToday}
-              contentSteps={card.contentSteps}
-              contentImage={card.contentImage}
-              contentVideo={card.contentVideo}
-            />
+            <Card key={card.title + card.card.type} cardData={card} />
           ))}
         </div>
       ) : (
