@@ -68,9 +68,6 @@ const useAddressInput = ({
 
             // Don't save the resolved UD address because it won't be used anywhere for now
             // https://github.com/AmbireTech/ambire-app/issues/2681#issuecomment-2299460748
-            // if (udAddress) {
-            //   handleCacheResolvedDomain(udAddress, fieldValue, 'ud')
-            // }
           })
           .catch(() => {
             udAddress = ''
