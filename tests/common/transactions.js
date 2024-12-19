@@ -97,13 +97,32 @@ async function prepareGasTankTopUp(page, recipient, amount) {
   await typeText(page, amountField, amount)
 }
 
-async function handleTransaction(page, extensionURL, browser, feeToken, shouldStopBeforeSign) {
+async function handleTransaction(
+  page,
+  extensionURL,
+  browser,
+  feeToken,
+  shouldStopBeforeSign,
+  shouldQueueAndSignLater,
+  shouldRemoveTxnFromQueue
+) {
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
     SELECTORS.transferButtonConfirm
   )
+
+  if (shouldQueueAndSignLater) {
+    // TODO: remove hardcoded selector
+    await clickOnElement(newPage, '[data-testid="queue-and-sign-later-button"]')
+    return
+  }
+
+  if (shouldRemoveTxnFromQueue) {
+    // TODO: remove hardcoded selector
+    await clickOnElement(newPage, '[data-testid="delete-txn-call-0"]')
+  }
 
   if (shouldStopBeforeSign) return
 
@@ -144,7 +163,9 @@ export async function makeValidTransaction(
     tokenAmount = '0.0001',
     shouldStopBeforeSign = false,
     shouldUseAddressBookRecipient = false,
-    shouldTopUpGasTank = false
+    shouldTopUpGasTank = false,
+    shouldQueueAndSignLater = false,
+    shouldRemoveTxnFromQueue = false
   } = {}
 ) {
   if (shouldTopUpGasTank) {
@@ -161,7 +182,15 @@ export async function makeValidTransaction(
     })
   }
 
-  await handleTransaction(page, extensionURL, browser, feeToken, shouldStopBeforeSign)
+  await handleTransaction(
+    page,
+    extensionURL,
+    browser,
+    feeToken,
+    shouldStopBeforeSign,
+    shouldQueueAndSignLater,
+    shouldRemoveTxnFromQueue
+  )
 }
 
 async function selectTokenInUni(page, tokenId, search) {
