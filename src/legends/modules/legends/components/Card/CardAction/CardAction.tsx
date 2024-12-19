@@ -5,10 +5,7 @@ import CardActionButton from '@legends/modules/legends/components/Card/CardActio
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType } from '@legends/modules/legends/types'
 
-import LinkAcc from './actions/LinkAcc'
-import SendAccOp from './actions/SendAccOp'
-import StakeWallet from './actions/StakeWallet'
-import SummonAcc from './actions/SummonAcc'
+import { LinkAcc, SendAccOp, StakeWallet, SummonAcc } from './actions'
 
 export type CardActionComponentProps = {
   action: CardAction
