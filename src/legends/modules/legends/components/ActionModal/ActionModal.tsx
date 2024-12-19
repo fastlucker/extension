@@ -7,27 +7,25 @@ import Rewards from '@legends/modules/legends/components/Card/CardContent/Reward
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
-import { CardAction, CardXp } from '@legends/modules/legends/types'
+import { CardFromResponse } from '@legends/modules/legends/types'
 
 import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
+import Referral from './Referral/Referral'
 
 type ActionModalProps = {
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-  title: string
   onLegendCompleteWrapped: (txnId: string) => Promise<void>
   closeActionModal: () => void
-  action: CardAction | null
-  flavor?: string
-  xp: CardXp[] | undefined
-  contentImage?: string
-  contentSteps?: string[]
-  contentVideo?: string
   predefinedId?: string
   buttonText: string
 } & Partial<HowToProps> &
-  Partial<CardActionComponentProps>
+  Partial<CardActionComponentProps> &
+  Pick<
+    CardFromResponse,
+    'meta' | 'xp' | 'contentImage' | 'contentSteps' | 'contentVideo' | 'title' | 'flavor' | 'action'
+  >
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
@@ -39,11 +37,10 @@ const ActionModal: FC<ActionModalProps> = ({
   buttonText,
   onLegendCompleteWrapped,
   closeActionModal,
-  copyToClipboard,
   contentSteps,
   contentVideo,
-  action,
   meta,
+  action,
   predefinedId
 }) => {
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
@@ -58,16 +55,9 @@ const ActionModal: FC<ActionModalProps> = ({
       </Modal.Heading>
       <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
       {contentSteps && (
-        <HowTo
-          steps={contentSteps}
-          image={contentImage}
-          imageAlt={flavor}
-          video={contentVideo}
-          meta={predefinedId === CARD_PREDEFINED_ID.Referral ? meta : undefined}
-          copyToClipboard={
-            predefinedId === CARD_PREDEFINED_ID.Referral ? copyToClipboard : undefined
-          }
-        />
+        <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} video={contentVideo}>
+          {predefinedId === CARD_PREDEFINED_ID.Referral && <Referral meta={meta} />}
+        </HowTo>
       )}
       {!!action && (
         <CardActionComponent
