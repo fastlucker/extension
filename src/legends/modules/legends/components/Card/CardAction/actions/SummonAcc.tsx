@@ -37,7 +37,7 @@ const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
     try {
       checksummedAddress = getAddress(v1OrEoaAddress)
     } catch {
-      return 'Invalid address checksum.'
+      return '' // There is validation for that in the useAddressInput hook
     }
 
     if (checksummedAddress === connectedAccount) {

@@ -55,13 +55,13 @@ const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
     setAddressStateKeyValue
   } = useStandaloneAddressInput()
 
-  const customValidation = useMemo(() => {
+  const overwriteErrorMessage = useMemo(() => {
     let checksummedAddress = ''
 
     try {
       checksummedAddress = getAddress(v1OrEoaAddress)
     } catch {
-      return 'Invalid address checksum.'
+      return '' // There is validation for that in the useAddressInput hook
     }
 
     if (checksummedAddress === connectedAccount) {
@@ -80,7 +80,7 @@ const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
     setAddressState: setAddressStateKeyValue,
     addToast,
     handleCacheResolvedDomain,
-    overwriteError: customValidation
+    overwriteError: overwriteErrorMessage
   })
 
   const activeStep = useMemo(() => {
