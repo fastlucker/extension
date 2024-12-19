@@ -68,11 +68,14 @@ const Card: FC<Props> = ({ cardData }) => {
 
   const onLegendCompleteWrapped = async (txnId: string) => {
     await pollActivityUntilComplete(txnId, 0)
+    // This modal is displayed for a small number of specific
+    // actions. If the action isn't one of them nothing will happen.
     setIsOnCompleteModalVisible(true)
   }
 
   return (
     <>
+      {/* Card component */}
       <CardContent
         {...cardData}
         card={card}
