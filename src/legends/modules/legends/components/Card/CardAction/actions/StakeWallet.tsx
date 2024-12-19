@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { BrowserProvider, Contract, Interface } from 'ethers'
-import React, { FC, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
@@ -11,18 +11,19 @@ import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
+import { useCardActionContext } from '../../../ActionModal/ActionModal'
 import CardActionWrapper from './CardActionWrapper'
-import { CardProps } from './types'
 
 const walletIface = new Interface([
   'function approve(address,uint)',
   'function balanceOf(address) view returns (uint256)'
 ])
 
-const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
+const StakeWallet = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isInProgress, setIsInProgress] = useState(false)
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
+  const { onComplete, handleClose } = useCardActionContext()
 
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()

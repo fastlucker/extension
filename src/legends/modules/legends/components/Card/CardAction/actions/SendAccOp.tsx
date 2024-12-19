@@ -8,16 +8,17 @@ import useToast from '@legends/hooks/useToast'
 import { CardActionCalls } from '@legends/modules/legends/types'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
+import { useCardActionContext } from '../../../ActionModal/ActionModal'
 import CardActionButton from './CardActionButton'
-import { CardProps } from './types'
 
-type Props = CardProps & {
+type Props = {
   action: CardActionCalls
 }
 
-const SendAccOp: FC<Props> = ({ onComplete, handleClose, action }) => {
+const SendAccOp: FC<Props> = ({ action }) => {
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
+  const { onComplete, handleClose } = useCardActionContext()
   const [isInProgress, setIsInProgress] = useState(false)
   const switchNetwork = useSwitchNetwork()
 

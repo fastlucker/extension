@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { createContext, FC, useContext, useMemo } from 'react'
 
 import Modal from '@legends/components/Modal'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
@@ -12,6 +12,21 @@ import { CardFromResponse } from '@legends/modules/legends/types'
 import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
 import Referral from './Referral/Referral'
+
+type CardActionContextType = {
+  onComplete: (txnId: string) => Promise<void>
+  handleClose: () => void
+}
+
+const cardActionContext = createContext<CardActionContextType>({} as CardActionContextType)
+
+export const useCardActionContext = () => {
+  const context = useContext(cardActionContext)
+  if (context === undefined) {
+    throw new Error('useCardActionContext must be used within a CardActionContextProvider')
+  }
+  return context
+}
 
 type ActionModalProps = {
   isOpen: boolean
@@ -43,6 +58,11 @@ const ActionModal: FC<ActionModalProps> = ({
   action,
   predefinedId
 }) => {
+  const cardActionContextValue = useMemo(
+    () => ({ onComplete: onLegendCompleteWrapped, handleClose: closeActionModal }),
+    [closeActionModal, onLegendCompleteWrapped]
+  )
+
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
     return <WheelComponentModal isOpen={isOpen} setIsOpen={setIsOpen} />
   }
@@ -60,12 +80,9 @@ const ActionModal: FC<ActionModalProps> = ({
         </HowTo>
       )}
       {!!action && (
-        <CardActionComponent
-          onComplete={onLegendCompleteWrapped}
-          handleClose={closeActionModal}
-          buttonText={buttonText}
-          action={action}
-        />
+        <cardActionContext.Provider value={cardActionContextValue}>
+          <CardActionComponent buttonText={buttonText} action={action} />
+        </cardActionContext.Provider>
       )}
     </Modal>
   )

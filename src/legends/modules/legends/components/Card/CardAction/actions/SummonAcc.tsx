@@ -10,15 +10,16 @@ import useToast from '@legends/hooks/useToast'
 import { useInviteCard } from '@legends/modules/legends/hooks'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
+import { useCardActionContext } from '../../../ActionModal/ActionModal'
 import CardActionWrapper from './CardActionWrapper'
-import { CardProps } from './types'
 
-type Props = CardProps & {
+type Props = {
   buttonText: string
 }
 
-const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
+const SummonAcc: FC<Props> = ({ buttonText }) => {
   const { addToast } = useToast()
+  const { onComplete, handleClose } = useCardActionContext()
   const { connectedAccount, allAccounts } = useAccountContext()
 
   const [isInProgress, setIsInProgress] = useState(false)
