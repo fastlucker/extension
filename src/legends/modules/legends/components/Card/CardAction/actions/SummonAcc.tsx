@@ -7,18 +7,19 @@ import AddressInput from '@legends/components/AddressInput'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
+import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { useInviteCard } from '@legends/modules/legends/hooks'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import CardActionWrapper from './CardActionWrapper'
-import { CardProps } from './types'
 
-type Props = CardProps & {
+type Props = {
   buttonText: string
 }
 
-const SummonAcc: FC<Props> = ({ buttonText, handleClose, onComplete }) => {
+const SummonAcc: FC<Props> = ({ buttonText }) => {
   const { addToast } = useToast()
+  const { onComplete, handleClose } = useCardActionContext()
   const { connectedAccount, allAccounts } = useAccountContext()
 
   const [isInProgress, setIsInProgress] = useState(false)

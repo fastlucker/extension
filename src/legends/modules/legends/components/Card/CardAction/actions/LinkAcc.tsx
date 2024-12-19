@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { BrowserProvider, getAddress, Interface, ZeroAddress } from 'ethers'
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import useAddressInput from '@common/hooks/useAddressInput'
@@ -14,11 +14,11 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import styles from './Action.module.scss'
 import CardActionWrapper from './CardActionWrapper'
-import { CardProps } from './types'
 
 enum STEPS {
   SIGN_MESSAGE,
@@ -37,9 +37,10 @@ const STEPPER_STEPS = [
 
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
-const LinkAcc: FC<CardProps> = ({ onComplete, handleClose }) => {
+const LinkAcc = () => {
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
+  const { onComplete, handleClose } = useCardActionContext()
   const switchNetwork = useSwitchNetwork()
   const { connectedAccount, allAccounts, setAllowNonV2Connection } = useAccountContext()
 

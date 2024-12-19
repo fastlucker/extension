@@ -5,23 +5,14 @@ import CardActionButton from '@legends/modules/legends/components/Card/CardActio
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType } from '@legends/modules/legends/types'
 
-import LinkAcc from './actions/LinkAcc'
-import SendAccOp from './actions/SendAccOp'
-import StakeWallet from './actions/StakeWallet'
-import SummonAcc from './actions/SummonAcc'
-import { CardProps } from './actions/types'
+import { LinkAcc, SendAccOp, StakeWallet, SummonAcc } from './actions'
 
-export type CardActionComponentProps = CardProps & {
+export type CardActionComponentProps = {
   action: CardAction
   buttonText: string
 }
 
-const CardActionComponent: FC<CardActionComponentProps> = ({
-  action,
-  buttonText,
-  handleClose,
-  onComplete
-}) => {
+const CardActionComponent: FC<CardActionComponentProps> = ({ action, buttonText }) => {
   const { addToast } = useToast()
 
   const handleWalletRouteButtonPress = useCallback(async () => {
@@ -42,23 +33,20 @@ const CardActionComponent: FC<CardActionComponentProps> = ({
 
   if (action.type === CardActionType.predefined) {
     if (action.predefinedId === CARD_PREDEFINED_ID.addEOA) {
-      return <SummonAcc handleClose={handleClose} onComplete={onComplete} buttonText={buttonText} />
+      return <SummonAcc buttonText={buttonText} />
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.LinkAccount) {
-      return <LinkAcc handleClose={handleClose} onComplete={onComplete} />
+      return <LinkAcc />
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.staking) {
-      return <StakeWallet handleClose={handleClose} onComplete={onComplete} />
-    }
-    if (action.predefinedId === CARD_PREDEFINED_ID.Referral) {
-      return null
+      return <StakeWallet />
     }
 
     return null
   }
 
   if (action.type === CardActionType.calls) {
-    return <SendAccOp handleClose={handleClose} action={action} onComplete={onComplete} />
+    return <SendAccOp action={action} />
   }
 
   if (action.type === CardActionType.link) {
