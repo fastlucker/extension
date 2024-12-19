@@ -41,9 +41,6 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ action, buttonText 
     if (action.predefinedId === CARD_PREDEFINED_ID.staking) {
       return <StakeWallet />
     }
-    if (action.predefinedId === CARD_PREDEFINED_ID.Referral) {
-      return null
-    }
 
     return null
   }
