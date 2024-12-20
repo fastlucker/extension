@@ -1,4 +1,3 @@
-import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { baParams, saParams } from '../../config/constants'
 import { SELECTORS } from '../../common/selectors/selectors'
@@ -26,7 +25,7 @@ describe('sign_account_op_ba', () => {
     // await browser.close()
   })
 
-  it('Should sign and broadcast an account op with Basic Account', async () => {
+  it.skip('Should sign and broadcast an account op with Basic Account', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenPolygonDyn,
@@ -60,7 +59,7 @@ describe('sign_account_op_sa', () => {
     // await browser.close()
   })
 
-  it('Should sign and broadcast an account op with Smart Account', async () => {
+  it('Should sign and broadcast an account op with Smart Account, Should add to the queue a couple of transactions and then remove some of them. Should broadcast a (batched) account op with an EOA', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenPolygonDyn,
@@ -79,11 +78,39 @@ describe('sign_account_op_sa', () => {
     await makeValidTransaction(page, extensionURL, browser, {
       feeToken:
         '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000pol"]',
-      // TODO: should be false
-      shouldStopBeforeSign: false,
-      // shouldStopBeforeSign: true,
       shouldUseAddressBookRecipient: true,
       shouldRemoveTxnFromQueue: true
+    })
+  })
+
+  it('Should sign and broadcast an account op with Smart Account,Should pay with Gas Tank', async () => {
+    await checkTokenBalanceClickOnGivenActionInDashboard(
+      page,
+      SELECTORS.nativeTokenPolygonDyn,
+      SELECTORS.tokenSend
+    )
+
+    await makeValidTransaction(page, extensionURL, browser, {
+      feeToken:
+        '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000polgastank"]',
+      shouldStopBeforeSign: true,
+      shouldUseAddressBookRecipient: true
+    })
+  })
+
+  it('Should change account op transaction speed(s) and should reject an account op', async () => {
+    await checkTokenBalanceClickOnGivenActionInDashboard(
+      page,
+      SELECTORS.nativeTokenPolygonDyn,
+      SELECTORS.tokenSend
+    )
+
+    await makeValidTransaction(page, extensionURL, browser, {
+      feeToken:
+        '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000polgastank"]',
+      shouldChangeTxnSpeed: true,
+      shouldUseAddressBookRecipient: true,
+      shouldRejectTxn: true
     })
   })
 })

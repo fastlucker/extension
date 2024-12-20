@@ -104,7 +104,9 @@ async function handleTransaction(
   feeToken,
   shouldStopBeforeSign,
   shouldQueueAndSignLater,
-  shouldRemoveTxnFromQueue
+  shouldRemoveTxnFromQueue,
+  shouldChangeTxnSpeed,
+  shouldRejectTxn
 ) {
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
@@ -132,6 +134,20 @@ async function handleTransaction(
   if (feeToken) {
     await selectFeeToken(newPage, feeToken)
   }
+
+  if (shouldChangeTxnSpeed) {
+    await clickOnElement(newPage, '[data-testid="fee-slow:"]', true, 500)
+    await clickOnElement(newPage, '[data-testid="fee-medium:"]', true, 500)
+    await clickOnElement(newPage, '[data-testid="fee-fast:"]', true, 500)
+    await clickOnElement(newPage, '[data-testid="fee-ape:"]', true, 500)
+    await clickOnElement(newPage, '[data-testid="fee-fast:"]', true, 500)
+  }
+
+  if (shouldRejectTxn) {
+    await clickOnElement(newPage, '[data-testid="transaction-button-reject"]', true, 500)
+    return
+  }
+
   // Sign and confirm the transaction
   await signTransaction(newPage, transactionRecorder)
   await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
@@ -165,7 +181,9 @@ export async function makeValidTransaction(
     shouldUseAddressBookRecipient = false,
     shouldTopUpGasTank = false,
     shouldQueueAndSignLater = false,
-    shouldRemoveTxnFromQueue = false
+    shouldRemoveTxnFromQueue = false,
+    shouldChangeTxnSpeed = false,
+    shouldRejectTxn = false
   } = {}
 ) {
   if (shouldTopUpGasTank) {
@@ -189,7 +207,9 @@ export async function makeValidTransaction(
     feeToken,
     shouldStopBeforeSign,
     shouldQueueAndSignLater,
-    shouldRemoveTxnFromQueue
+    shouldRemoveTxnFromQueue,
+    shouldChangeTxnSpeed,
+    shouldRejectTxn
   )
 }
 
