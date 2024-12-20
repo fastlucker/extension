@@ -22,10 +22,10 @@ export const isMatchingPredefinedId = (legendAction: CardAction, predefinedIdToM
 const sortCards = (cards: CardFromResponse[]) => {
   return cards.sort((a, b) => {
     // Display Wheel of Fortune first
-    if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+    if (isMatchingPredefinedId(a.action, CARD_PREDEFINED_ID.wheelOfFortune)) {
       return -1
     }
-    if (b.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+    if (isMatchingPredefinedId(b.action, CARD_PREDEFINED_ID.wheelOfFortune)) {
       return 1
     }
 
