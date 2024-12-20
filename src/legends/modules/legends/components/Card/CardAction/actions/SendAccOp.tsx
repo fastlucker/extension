@@ -5,19 +5,20 @@ import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { CardActionCalls } from '@legends/modules/legends/types'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import CardActionButton from './CardActionButton'
-import { CardProps } from './types'
 
-type Props = CardProps & {
+type Props = {
   action: CardActionCalls
 }
 
-const SendAccOp: FC<Props> = ({ onComplete, handleClose, action }) => {
+const SendAccOp: FC<Props> = ({ action }) => {
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
+  const { onComplete, handleClose } = useCardActionContext()
   const [isInProgress, setIsInProgress] = useState(false)
   const switchNetwork = useSwitchNetwork()
 
@@ -50,7 +51,7 @@ const SendAccOp: FC<Props> = ({ onComplete, handleClose, action }) => {
       const message = humanizeLegendsBroadcastError(e)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionProcessingFailed, 'error')
+      addToast(message || ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
     }
   }, [
     switchNetwork,

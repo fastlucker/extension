@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { BrowserProvider, Contract, Interface } from 'ethers'
-import React, { FC, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
@@ -9,20 +9,21 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import CardActionWrapper from './CardActionWrapper'
-import { CardProps } from './types'
 
 const walletIface = new Interface([
   'function approve(address,uint)',
   'function balanceOf(address) view returns (uint256)'
 ])
 
-const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
+const StakeWallet = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isInProgress, setIsInProgress] = useState(false)
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
+  const { onComplete, handleClose } = useCardActionContext()
 
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
@@ -41,12 +42,12 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
           .then(setWalletBalance)
           .catch((e) => {
             console.error(e)
-            addToast('Failed to get $WALLET token balance', 'error')
+            addToast('Failed to get $WALLET token balance', { type: 'error' })
           })
       )
       .catch((e) => {
         console.error(e)
-        addToast('Failed to switch network to Ethereum', 'error')
+        addToast('Failed to switch network to Ethereum', { type: 'error' })
       })
       .finally(() => setIsLoading(false))
   }, [connectedAccount, addToast, switchNetwork])
@@ -86,7 +87,7 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
       const message = humanizeLegendsBroadcastError(e)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, 'error')
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
     } finally {
       setIsInProgress(false)
     }
@@ -112,7 +113,7 @@ const StakeWallet: FC<CardProps> = ({ onComplete, handleClose }) => {
           console.error(e)
           addToast(
             'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
-            'error'
+            { type: 'error' }
           )
         })
       return

@@ -3,6 +3,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import { isWheelSpinTodayDone } from '@legends/modules/legends/components/WheelComponentModal/helpers'
@@ -26,6 +27,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const { addToast } = useToast()
   const { getCharacter } = useCharacterContext()
   const { getActivity } = useRecentActivityContext()
+  const { updateLeaderboard } = useLeaderboardContext()
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -61,18 +63,18 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   }, [getLegends])
 
   const onLegendComplete = useCallback(async () => {
-    const [activityResult, legendsResult, characterResult] = await Promise.allSettled([
-      getActivity(),
-      getLegends(),
-      getCharacter()
-    ])
+    const [activityResult, legendsResult, characterResult, leaderboardResult] =
+      await Promise.allSettled([getActivity(), getLegends(), getCharacter(), updateLeaderboard()])
     const hasActivityFailed = activityResult.status === 'rejected'
     const hasLegendsFailed = legendsResult.status === 'rejected'
     const hasCharacterFailed = characterResult.status === 'rejected'
+    const leaderboardResultFailed = leaderboardResult.status === 'rejected'
 
     // No need to bombard the user with three toast if the relayer is down
-    if (hasActivityFailed && hasLegendsFailed && hasCharacterFailed) {
-      addToast('An error occurred while completing the legend. Please try again later.', 'error')
+    if (hasActivityFailed && hasLegendsFailed && hasCharacterFailed && leaderboardResultFailed) {
+      addToast('An error occurred while completing the legend. Please try again later.', {
+        type: 'error'
+      })
       return
     }
 
@@ -80,21 +82,30 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     if (activityResult.status === 'rejected') {
       addToast(
         'Your latest activity cannot be retrieved. Please refresh the page to see the latest data.',
-        'error'
+        { type: 'error' }
       )
     }
 
     if (legendsResult.status === 'rejected') {
-      addToast('We cannot retrieve your legends at the moment. Please refresh the page.', 'error')
+      addToast('We cannot retrieve your legends at the moment. Please refresh the page.', {
+        type: 'error'
+      })
     }
 
     if (characterResult.status === 'rejected') {
       addToast(
         'Your XP has been successfully gained, but there was an error retrieving it. Please refresh the page to see the latest XP.',
-        'error'
+        { type: 'error' }
       )
     }
-  }, [addToast, getActivity, getCharacter, getLegends])
+
+    if (leaderboardResult.status === 'rejected') {
+      addToast(
+        'Your XP has been successfully gained, but there was an error retrieving the leaderboard. Please refresh the page to see your latest place.',
+        { type: 'error' }
+      )
+    }
+  }, [addToast, getActivity, getCharacter, getLegends, updateLeaderboard])
 
   const contextValue: LegendsContextType = useMemo(
     () => ({

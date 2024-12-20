@@ -18,7 +18,7 @@ const useSwitchNetwork = (newChainId: number = BASE_CHAIN_ID) => {
         params: [{ chainId: newChainId }]
       })
     } catch {
-      addToast(ERROR_MESSAGES.networkSwitchFailed, 'error')
+      addToast(ERROR_MESSAGES.networkSwitchFailed, { type: 'error' })
     }
   }
 

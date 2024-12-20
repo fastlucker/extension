@@ -47,7 +47,13 @@ const CharacterSelect = () => {
     navigate(LEGENDS_ROUTES.character)
   }
 
+  useEffect(() => {
+    document.title = 'Ambire Legends'
+  }, [])
+
   if (!connectedAccount && !nonV2Account) return <Navigate to="/" />
+
+  const isButtonDisabled = isMinting || isLoading || isMinted
 
   return (
     <>
@@ -71,9 +77,11 @@ const CharacterSelect = () => {
         )}
         {!isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
           <button
-            onClick={() => mintCharacter(characterId)}
+            onClick={() => {
+              !isButtonDisabled && mintCharacter(characterId)
+            }}
             type="button"
-            disabled={isMinting || isLoading || isMinted}
+            disabled={isButtonDisabled}
             className={styles.saveButton}
           >
             {isMinting ? 'Please wait...' : 'Select'}

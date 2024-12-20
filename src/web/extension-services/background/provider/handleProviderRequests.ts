@@ -20,6 +20,7 @@ const handleProviderRequests = async (
       name: params.name,
       icon: params.icon
     })
+    mainCtrl.dapps.updateDapp(params.origin, { name: params.name })
     return
   }
 

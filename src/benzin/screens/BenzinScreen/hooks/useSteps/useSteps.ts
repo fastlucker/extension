@@ -340,7 +340,7 @@ const useSteps = ({
         // when we get a failed status, it could be a front run.
         // so we try to refetch the tx id one more time before
         // declaring it a failure
-        if (!hasCheckedFrontRun) {
+        if (userOpHash && !hasCheckedFrontRun) {
           setFoundTxnId(null)
           setTxn(null)
           setTxnReceipt({ actualGasCost: null, originatedFrom: null, blockNumber: null })

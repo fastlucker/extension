@@ -1,9 +1,10 @@
 import React from 'react'
-import Svg, { G, Path, SvgProps } from 'react-native-svg'
+import Svg, { G, Path } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
+import { LegendsSvgProps } from '@legends/types/svg'
 
-const CopyIcon: React.FC<SvgProps> = ({
+const CopyIcon: React.FC<LegendsSvgProps> = ({
   width = 22,
   height = 22,
   color = iconColors.secondary,
