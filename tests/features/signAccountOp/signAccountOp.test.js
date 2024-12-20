@@ -22,7 +22,7 @@ describe('sign_account_op_ba', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
   it.skip('Should sign and broadcast an account op with Basic Account', async () => {
@@ -34,7 +34,7 @@ describe('sign_account_op_ba', () => {
     await makeValidTransaction(page, extensionURL, browser, {
       // TODO: should be false
       // shouldStopBeforeSign: false
-      shouldStopBeforeSign: true,
+      // shouldStopBeforeSign: true,
       // TODO: remove hardcoded address
       recipient: '0x4C71d299f23eFC660b3295D1f631724693aE22Ac'
     })
@@ -56,7 +56,7 @@ describe('sign_account_op_sa', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
   it('Should sign and broadcast an account op with Smart Account, Should add to the queue a couple of transactions and then remove some of them. Should broadcast a (batched) account op with an EOA', async () => {
