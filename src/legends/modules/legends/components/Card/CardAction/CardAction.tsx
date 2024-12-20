@@ -5,18 +5,14 @@ import CardActionButton from '@legends/modules/legends/components/Card/CardActio
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType } from '@legends/modules/legends/types'
 
-import LinkAcc from './actions/LinkAcc'
-import SendAccOp from './actions/SendAccOp'
-import StakeWallet from './actions/StakeWallet'
-import SummonAcc from './actions/SummonAcc'
-import { CardProps } from './actions/types'
+import { LinkAcc, SendAccOp, StakeWallet, SummonAcc } from './actions'
 
-type Props = CardProps & {
+export type CardActionComponentProps = {
   action: CardAction
   buttonText: string
 }
 
-const CardActionComponent: FC<Props> = ({ action, buttonText, handleClose, onComplete }) => {
+const CardActionComponent: FC<CardActionComponentProps> = ({ action, buttonText }) => {
   const { addToast } = useToast()
 
   const handleWalletRouteButtonPress = useCallback(async () => {
@@ -30,30 +26,27 @@ const CardActionComponent: FC<Props> = ({ action, buttonText, handleClose, onCom
     } catch {
       addToast(
         'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
-        'error'
+        { type: 'error' }
       )
     }
   }, [action, addToast])
 
   if (action.type === CardActionType.predefined) {
     if (action.predefinedId === CARD_PREDEFINED_ID.addEOA) {
-      return <SummonAcc handleClose={handleClose} onComplete={onComplete} buttonText={buttonText} />
+      return <SummonAcc buttonText={buttonText} />
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.LinkAccount) {
-      return <LinkAcc handleClose={handleClose} onComplete={onComplete} />
+      return <LinkAcc />
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.staking) {
-      return <StakeWallet handleClose={handleClose} onComplete={onComplete} />
-    }
-    if (action.predefinedId === CARD_PREDEFINED_ID.Referral) {
-      return null
+      return <StakeWallet />
     }
 
     return null
   }
 
   if (action.type === CardActionType.calls) {
-    return <SendAccOp handleClose={handleClose} action={action} onComplete={onComplete} />
+    return <SendAccOp action={action} />
   }
 
   if (action.type === CardActionType.link) {

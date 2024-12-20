@@ -37,7 +37,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
 
   const handleRejectActiveRoute = useCallback(() => {
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+      type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
       params: { activeRouteId: activeRoute.activeRouteId }
     })
   }, [activeRoute.activeRouteId, dispatch])

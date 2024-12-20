@@ -18,10 +18,10 @@ const PortfolioControllerStateContext = createContext<{
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const getPortfolioIntervalRef: any = useRef(null)
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, nonV2Account, isLoading } = useAccountContext()
   const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>()
 
-  const updateAccountPortfolio = useCallback(async (address: string): Promise<AccountPortfolio> => {
+  const updateAccountPortfolio = useCallback(async (): Promise<AccountPortfolio> => {
     if (!window.ambire) return { error: 'The Ambire extension is not installed!' }
 
     // Reset the portfolio to prevent displaying an outdated portfolio state for the previously connected account
@@ -31,7 +31,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     const portfolioRes = (await window.ambire.request({
       method: 'get_portfolioBalance',
       // TODO: impl a dynamic way of getting the chainIds
-      params: [{ chainIds: ['0x1', '0x2105', '0xa', '0xa4b1', '0x82750'] }, address]
+      params: [{ chainIds: ['0x1', '0x2105', '0xa', '0xa4b1', '0x82750'] }]
     })) as AccountPortfolio
 
     setAccountPortfolio(portfolioRes)
@@ -39,13 +39,33 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [])
 
   useEffect(() => {
+    // While account is loading, we don't know yet what is the value of actual value of `nonV2Account`,
+    if (isLoading) return
+
     if (!connectedAccount) return
 
     // Ensure there isn't already a scheduled timeout before setting a new one.
     if (getPortfolioIntervalRef.current) clearTimeout(getPortfolioIntervalRef.current)
 
+    // We don't want to trigger a portfolio update (updateAccountPortfolio) for non v2 account
+    if (nonV2Account) {
+      return setAccountPortfolio((prevAccountPortfolio) => {
+        // If the user switches to a non-V2 account and we already have the balance for the `connectedAccount`,
+        // we want to display the balance of the `connectedAccount`.
+        if (prevAccountPortfolio) return prevAccountPortfolio
+
+        // If the balance of the `connectedAccount` has not been fetched, we simply show a placeholder balance for the `nonV2Account`,
+        // as we do not want to display its actual balance.
+        return {
+          amount: 0,
+          amountFormatted: '-',
+          isReady: true
+        }
+      })
+    }
+
     const runPortfolioContinuousUpdate = async () => {
-      const portfolioRes = await updateAccountPortfolio(connectedAccount)
+      const portfolioRes = await updateAccountPortfolio()
 
       getPortfolioIntervalRef.current = setTimeout(
         runPortfolioContinuousUpdate,
@@ -66,7 +86,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => {
       clearTimeout(getPortfolioIntervalRef.current)
     }
-  }, [connectedAccount, updateAccountPortfolio])
+  }, [isLoading, connectedAccount, nonV2Account, updateAccountPortfolio, setAccountPortfolio])
 
   return (
     <PortfolioControllerStateContext.Provider

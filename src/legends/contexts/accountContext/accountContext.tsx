@@ -6,9 +6,10 @@ import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import { RELAYER_URL } from '@env'
 import useToast from '@legends/hooks/useToast'
 
-const accountContext = createContext<{
+type AccountContextType = {
   connectedAccount: string | null
   nonV2Account: string | null
+  allAccounts: string[]
   allowNonV2Connection: boolean
   setAllowNonV2Connection: (arg: boolean) => void
   chainId: bigint | null
@@ -16,17 +17,9 @@ const accountContext = createContext<{
   error: string | null
   requestAccounts: () => void
   disconnectAccount: () => void
-}>({
-  connectedAccount: null,
-  nonV2Account: null,
-  allowNonV2Connection: false,
-  setAllowNonV2Connection: () => {},
-  chainId: null,
-  isLoading: true,
-  error: null,
-  requestAccounts: () => {},
-  disconnectAccount: () => {}
-})
+}
+
+const accountContext = createContext<AccountContextType>({} as AccountContextType)
 
 const LOCAL_STORAGE_ACC_KEY = 'connectedAccount'
 
@@ -41,6 +34,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     return storedAccount || null
   })
 
+  const [allAccounts, setAllAccounts] = React.useState<string[]>([])
   const [nonV2Account, setNonV2Account] = React.useState<string | null>(null)
   const [allowNonV2Connection, setAllowNonV2Connection] = React.useState<boolean>(false)
   const [chainId, setChainId] = React.useState<bigint | null>(null)
@@ -66,6 +60,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       method: 'eth_accounts',
       params: []
     })
+    setAllAccounts(accounts as string[])
 
     // @ts-ignore
     return accounts[0]
@@ -117,7 +112,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       } catch (e: any) {
         addToast(
           "We are experiencing a back-end outage and couldn't validate the connected account's identity. Please reload the page, and if the problem persists, contact support.",
-          'error'
+          { type: 'error' }
         )
         console.log(e)
       }
@@ -129,6 +124,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     setConnectedAccount(null)
     setNonV2Account(null)
     setIsLoading(false)
+    setAllAccounts([])
     localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
   }, [])
 
@@ -180,7 +176,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, [getConnectedAccount, handleDisconnectFromWallet, validateAndSetAccount])
 
-  const contextValue = useMemo(
+  const contextValue: AccountContextType = useMemo(
     () => ({
       connectedAccount,
       nonV2Account,
@@ -189,6 +185,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       error,
       requestAccounts,
       disconnectAccount,
+      allAccounts,
       chainId,
       isLoading
     }),
@@ -197,6 +194,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       nonV2Account,
       allowNonV2Connection,
       setAllowNonV2Connection,
+      allAccounts,
       error,
       requestAccounts,
       disconnectAccount,

@@ -1,4 +1,6 @@
-import { CardActionType, CardFromResponse, CardStatus } from '@legends/modules/legends/types'
+import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
+import { CardFromResponse, CardStatus } from '@legends/modules/legends/types'
+import { isMatchingPredefinedId } from '@legends/modules/legends/utils/cards'
 
 interface WheelSpinOfTheDayParams {
   legends: CardFromResponse[] | null
@@ -43,12 +45,9 @@ export const timeUntilMidnight = (): TimeUntilMidnight => {
 export const isWheelSpinTodayDone = ({ legends }: WheelSpinOfTheDayParams): boolean => {
   if (!legends || !legends.length) return true
 
-  const cardWheelOfFortune = legends.find((card: CardFromResponse) => {
-    return (
-      card.action.type === CardActionType.predefined &&
-      card.action.predefinedId === 'wheelOfFortune'
-    )
-  })
+  const cardWheelOfFortune = legends.find((card: CardFromResponse) =>
+    isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.wheelOfFortune)
+  )
 
   if (!cardWheelOfFortune) return false
 

@@ -18,7 +18,7 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Styles>({
     container: {
       width: CARD_WIDTH,
-      minHeight: 380,
+      minHeight: 400,
       backgroundColor: theme.primaryBackground,
       marginHorizontal: 'auto',
       borderLeftWidth: 1,

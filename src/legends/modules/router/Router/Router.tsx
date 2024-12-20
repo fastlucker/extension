@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react'
+import React, { FC, ReactNode, useEffect } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 
 import { DomainsContextProvider } from '@common/contexts/domainsContext'
@@ -28,17 +28,23 @@ import { LEGENDS_ROUTES } from '../constants'
 //      -> Private Area contexts are initialized
 //         -> PrivateRoute (prevents loading child routes if no account/character is set)
 //              -> child Route.
-const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => (
-  <LeaderboardContextProvider>
-    <RecentActivityContextProvider>
-      <LegendsContextProvider>
-        <PortfolioControllerStateProvider>
-          <DomainsContextProvider>{children}</DomainsContextProvider>
-        </PortfolioControllerStateProvider>
-      </LegendsContextProvider>
-    </RecentActivityContextProvider>
-  </LeaderboardContextProvider>
-)
+const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => {
+  useEffect(() => {
+    document.title = 'Ambire Legends'
+  }, [])
+
+  return (
+    <LeaderboardContextProvider>
+      <RecentActivityContextProvider>
+        <LegendsContextProvider>
+          <PortfolioControllerStateProvider>
+            <DomainsContextProvider>{children}</DomainsContextProvider>
+          </PortfolioControllerStateProvider>
+        </LegendsContextProvider>
+      </RecentActivityContextProvider>
+    </LeaderboardContextProvider>
+  )
+}
 
 const router = createHashRouter([
   {
