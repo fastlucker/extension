@@ -76,7 +76,7 @@ const ActionModal: FC<ActionModalProps> = ({
       <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
       {contentSteps && (
         <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} video={contentVideo}>
-          {predefinedId === CARD_PREDEFINED_ID.Referral && <Referral meta={meta} />}
+          {predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />}
         </HowTo>
       )}
       {!!action && (

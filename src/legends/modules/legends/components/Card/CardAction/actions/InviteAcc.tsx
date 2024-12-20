@@ -17,7 +17,7 @@ type Props = {
   buttonText: string
 }
 
-const SummonAcc: FC<Props> = ({ buttonText }) => {
+const InviteAcc: FC<Props> = ({ buttonText }) => {
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
   const { connectedAccount, allAccounts } = useAccountContext()
@@ -113,4 +113,4 @@ const SummonAcc: FC<Props> = ({ buttonText }) => {
   )
 }
 
-export default SummonAcc
+export default InviteAcc

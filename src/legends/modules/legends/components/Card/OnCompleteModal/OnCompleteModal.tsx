@@ -18,7 +18,7 @@ const OnCompleteModal: FC<Props> = ({ isVisible, setIsVisible, meta, predefinedI
   // All hooks and state should be up here
   const { addToast } = useToast()
 
-  if (predefinedId === CARD_PREDEFINED_ID.addEOA) {
+  if (predefinedId === CARD_PREDEFINED_ID.inviteAccount) {
     const copyToClipboard = async () => {
       try {
         await navigator.clipboard.writeText(
