@@ -10,7 +10,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Props {
-  id: bigint
   tokenId: bigint
   textSize?: number
   network: Network
