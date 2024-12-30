@@ -554,7 +554,7 @@ const useSteps = ({
         ? decodeUserOp(userOp)
         : reproduceCallsFromTxn(txn)
       const accountOp: AccountOp = {
-        accountAddr: userOp?.sender || txnReceipt.originatedFrom!,
+        accountAddr: userOp?.sender || account || txnReceipt.originatedFrom!,
         networkId: network.id,
         signingKeyAddr: txnReceipt.originatedFrom!, // irrelevant
         signingKeyType: 'internal', // irrelevant
