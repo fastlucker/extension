@@ -1,5 +1,5 @@
 import React, { FC, ReactNode } from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import Button from '@common/components/Button'
@@ -20,6 +20,7 @@ export interface Props {
   secondaryButtonText?: string
   primaryButtonTestID?: string
   secondaryButtonTestID?: string
+  buttonsContainerStyle?: ViewStyle
 }
 
 const DualChoiceModal: FC<Props> = ({
@@ -31,7 +32,8 @@ const DualChoiceModal: FC<Props> = ({
   primaryButtonText,
   secondaryButtonText,
   secondaryButtonTestID,
-  primaryButtonTestID
+  primaryButtonTestID,
+  buttonsContainerStyle
 }) => {
   const { styles } = useTheme(getStyles)
 
@@ -50,7 +52,7 @@ const DualChoiceModal: FC<Props> = ({
         )}
         <Text appearance="secondaryText">{description}</Text>
       </View>
-      <View style={styles.modalButtonsContainer}>
+      <View style={[styles.modalButtonsContainer, buttonsContainerStyle]}>
         {!!secondaryButtonText && !!onSecondaryButtonPress && (
           <Button
             text={secondaryButtonText}

@@ -369,6 +369,8 @@ export const handleActions = async (
       return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
       return mainCtrl.actions.focusActionWindow()
+    case 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW':
+      return mainCtrl.actions.closeActionWindow()
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
       return mainCtrl.actions.setCurrentActionById(params.actionId)
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':

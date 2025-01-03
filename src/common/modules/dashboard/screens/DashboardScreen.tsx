@@ -15,6 +15,7 @@ import { getUiType } from '@web/utils/uiType'
 import DAppFooter from '../components/DAppFooter'
 import DashboardOverview from '../components/DashboardOverview'
 import DashboardPages from '../components/DashboardPages'
+import PendingActionWindowModal from '../components/PendingActionWindowModal/PendingActionWindowModal'
 import PinExtension from '../components/PinExtension'
 import getStyles from './styles'
 
@@ -75,6 +76,7 @@ const DashboardScreen = () => {
   return (
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
+      <PendingActionWindowModal />
       <View style={styles.container}>
         <View style={[flexbox.flex1, spacings.ptSm]}>
           <DashboardOverview
