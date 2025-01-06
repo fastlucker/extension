@@ -9,11 +9,11 @@ import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappC
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
-import bundler from '@ambire-common/services/bundlers'
+import { getDefaultBundler } from '@ambire-common/services/bundlers/getBundler'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import { APP_VERSION, isProd } from '@common/config/env'
+import { APP_VERSION } from '@common/config/env'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
@@ -358,6 +358,7 @@ export class ProviderController {
     const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
     const isUserOp = identifiedBy.type === 'UserOperation'
+    const bundler = getDefaultBundler(network)
     const receipt = isUserOp
       ? await bundler.getReceipt(identifiedBy.identifier, network)
       : await provider.getTransactionReceipt(txnId)
