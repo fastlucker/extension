@@ -221,7 +221,7 @@ describe('sa_features', () => {
     )
 
     // Click on "Send"
-    await clickOnElement(page, '[data-testid="token-send"]')
+    await clickOnElement(page, '[data-testid="token-send"]', true, 500)
 
     await page.waitForFunction(
       () => {
