@@ -1,6 +1,8 @@
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { baParams, saParams } from '../../config/constants'
 import { SELECTORS } from '../../common/selectors/selectors'
+import { buildFeeTokenSelector } from './functions'
+import { POL_TOKEN_SELECTOR } from './constants'
 
 import {
   makeValidTransaction,
@@ -32,11 +34,7 @@ describe('sign_account_op_ba', () => {
       SELECTORS.tokenSend
     )
     await makeValidTransaction(page, extensionURL, browser, {
-      // TODO: should be false
-      // shouldStopBeforeSign: false
-      // shouldStopBeforeSign: true,
-      // TODO: remove hardcoded address
-      recipient: '0x4C71d299f23eFC660b3295D1f631724693aE22Ac'
+      recipient: saParams.envSelectedAccount
     })
   })
 })
@@ -46,6 +44,17 @@ describe('sign_account_op_sa', () => {
   let page
   let extensionURL
   let recorder
+
+  const feeTokenWithEOASelector = buildFeeTokenSelector(
+    baParams.envSelectedAccount,
+    POL_TOKEN_SELECTOR
+  )
+
+  const feeTokenWithGasTankSelector = buildFeeTokenSelector(
+    saParams.envSelectedAccount,
+    POL_TOKEN_SELECTOR,
+    true
+  )
 
   beforeEach(async () => {
     ;({ browser, page, recorder, extensionURL } = await bootstrapWithStorage(
@@ -76,8 +85,7 @@ describe('sign_account_op_sa', () => {
     })
 
     await makeValidTransaction(page, extensionURL, browser, {
-      feeToken:
-        '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000pol"]',
+      feeToken: feeTokenWithEOASelector,
       shouldUseAddressBookRecipient: true,
       shouldRemoveTxnFromQueue: true
     })
@@ -91,8 +99,7 @@ describe('sign_account_op_sa', () => {
     )
 
     await makeValidTransaction(page, extensionURL, browser, {
-      feeToken:
-        '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000polgastank"]',
+      feeToken: feeTokenWithGasTankSelector,
       shouldStopBeforeSign: true,
       shouldUseAddressBookRecipient: true
     })
@@ -106,8 +113,7 @@ describe('sign_account_op_sa', () => {
     )
 
     await makeValidTransaction(page, extensionURL, browser, {
-      feeToken:
-        '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000polgastank"]',
+      feeToken: feeTokenWithGasTankSelector,
       shouldChangeTxnSpeed: true,
       shouldUseAddressBookRecipient: true,
       shouldRejectTxn: true
