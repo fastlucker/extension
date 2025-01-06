@@ -27,7 +27,7 @@ describe('sign_account_op_ba', () => {
     await browser.close()
   })
 
-  it.skip('Should sign and broadcast an account op with Basic Account', async () => {
+  it('Should sign and broadcast an account op with Basic Account', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenPolygonDyn,
