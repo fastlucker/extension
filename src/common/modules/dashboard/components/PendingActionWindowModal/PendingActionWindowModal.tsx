@@ -6,7 +6,6 @@ import PendingActionWindowIcon from '@common/assets/svg/PendingActionWindowIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceModal from '@common/components/DualChoiceModal'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -22,10 +21,6 @@ const PendingActionWindowModal = () => {
   const onPrimaryButtonPress = useCallback(() => {
     dispatch({ type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW' })
     closeCurrentWindow()
-  }, [dispatch])
-
-  const onSecondaryButtonPress = useCallback(() => {
-    dispatch({ type: 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW' })
   }, [dispatch])
 
   const title = useMemo(() => {
@@ -57,25 +52,23 @@ const PendingActionWindowModal = () => {
         'Your transaction(s) are waiting for signature. Would you like to focus on the action window?'
       )
     if (currentAction.type === 'signMessage')
-      return t(
-        'Message signature is waiting. Would you like to focus on the action window, or close it to reject the message?'
-      )
+      return t('Message signature is waiting. Would you like to focus on the action window?')
     if (currentAction.type === 'switchAccount')
       return t(
-        'You have a pending switch account request. Would you like to focus on the action window, or close it to reject the request?'
+        'You have a pending switch account request. Would you like to focus on the action window?'
       )
     if (currentAction.type === 'dappRequest') {
       if (currentAction.userRequest.action.kind === 'dappConnect')
         return t(
-          'Connection request from an app is waiting. Would you like to focus on the action window, or close it to reject the request?'
+          'Connection request from an app is waiting. Would you like to focus on the action window?'
         )
       if (currentAction.userRequest.action.kind === 'walletAddEthereumChain')
         return t(
-          'There is a pending network addition window. Would you like to focus on the action window, or close it to reject the request?'
+          'There is a pending network addition window. Would you like to focus on the action window?'
         )
       if (currentAction.userRequest.action.kind === 'walletWatchAsset')
         return t(
-          'There is a pending token addition window. Would you like to focus on the action window, or close it to reject the request?'
+          'There is a pending token addition window. Would you like to focus on the action window?'
         )
     }
 
@@ -106,9 +99,7 @@ const PendingActionWindowModal = () => {
           Icon={PendingActionWindowIcon}
           primaryButtonText={t('Focus Window')}
           onPrimaryButtonPress={onPrimaryButtonPress}
-          secondaryButtonText={t('Close Window')}
-          onSecondaryButtonPress={onSecondaryButtonPress}
-          buttonsContainerStyle={{ ...flexbox.justifySpaceBetween }}
+          onCloseIconPress={closeBottomSheet}
         />
       </BottomSheet>
     )

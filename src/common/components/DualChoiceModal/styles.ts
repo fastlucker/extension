@@ -16,7 +16,9 @@ const getStyles = (theme: ThemeProps) =>
     modalHeader: {
       ...spacings.pvXl,
       ...spacings.phXl,
-      ...flexbox.justifyCenter
+      ...flexbox.alignCenter,
+      ...flexbox.justifySpaceBetween,
+      ...flexbox.directionRow
     },
     modalInnerContainer: {
       backgroundColor: theme.primaryBackground,
