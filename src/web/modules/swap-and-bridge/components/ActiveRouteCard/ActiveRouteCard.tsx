@@ -97,12 +97,17 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
 
   const getPanelContainerStyle = useCallback(() => {
     let panelStyles = {}
-    if (activeRoute.routeStatus === 'completed') panelStyles = { backgroundColor: '#edf6f1' }
     if (activeRoute.error)
       panelStyles = {
         borderWidth: 1,
         backgroundColor: theme.errorBackground,
         borderColor: theme.errorDecorative
+      }
+    if (activeRoute.routeStatus === 'completed')
+      panelStyles = {
+        borderWidth: 1,
+        backgroundColor: '#edf6f1',
+        borderColor: theme.successDecorative
       }
 
     return { ...panelStyles, ...spacings.mbTy }
