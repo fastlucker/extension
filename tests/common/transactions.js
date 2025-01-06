@@ -116,14 +116,12 @@ async function handleTransaction(
   )
 
   if (shouldQueueAndSignLater) {
-    // TODO: remove hardcoded selector
-    await clickOnElement(newPage, '[data-testid="queue-and-sign-later-button"]')
+    await clickOnElement(newPage, SELECTORS.queueAndSignLaterButton)
     return
   }
 
   if (shouldRemoveTxnFromQueue) {
-    // TODO: remove hardcoded selector
-    await clickOnElement(newPage, '[data-testid="delete-txn-call-0"]')
+    await clickOnElement(newPage, buildSelector(TEST_IDS.deleteTxnCallDyn, 0))
   }
 
   if (shouldStopBeforeSign) return
@@ -136,15 +134,15 @@ async function handleTransaction(
   }
 
   if (shouldChangeTxnSpeed) {
-    await clickOnElement(newPage, '[data-testid="fee-slow:"]', true, 500)
-    await clickOnElement(newPage, '[data-testid="fee-medium:"]', true, 500)
-    await clickOnElement(newPage, '[data-testid="fee-fast:"]', true, 500)
-    await clickOnElement(newPage, '[data-testid="fee-ape:"]', true, 500)
-    await clickOnElement(newPage, '[data-testid="fee-fast:"]', true, 500)
+    await clickOnElement(newPage, SELECTORS.feeSlow, true, 500)
+    await clickOnElement(newPage, SELECTORS.feeMedium, true, 500)
+    await clickOnElement(newPage, SELECTORS.feeFast, true, 500)
+    await clickOnElement(newPage, SELECTORS.feeApe, true, 500)
+    await clickOnElement(newPage, SELECTORS.feeFast, true, 500)
   }
 
   if (shouldRejectTxn) {
-    await clickOnElement(newPage, '[data-testid="transaction-button-reject"]', true, 500)
+    await clickOnElement(newPage, SELECTORS.transactionButtonReject, true, 500)
     return
   }
 
