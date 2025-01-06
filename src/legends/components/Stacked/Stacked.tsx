@@ -10,7 +10,7 @@ import { Networks } from '@legends/modules/legends/types'
 import styles from './Stacked.module.scss'
 
 interface StackedProps {
-  chains: string[]
+  chains: Networks[]
 }
 
 const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
@@ -21,8 +21,12 @@ const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
   scroll: <ScrollLogo />
 }
 
-const Stacked: React.FC<StackedProps> = ({ chains }) => {
-  return <div className={styles.itemNetworks}>{chains.map((chain) => NETWORK_ICONS[chain])}</div>
-}
+const Stacked: React.FC<StackedProps> = ({ chains }) => (
+  <div className={styles.itemNetworks}>
+    {chains.map((chain) => (
+      <React.Fragment key={chain}>{NETWORK_ICONS[chain]}</React.Fragment>
+    ))}
+  </div>
+)
 
 export default Stacked

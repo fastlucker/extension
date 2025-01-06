@@ -84,6 +84,20 @@ const TransferScreen = () => {
     [transferCtrl]
   )
 
+  const handleCacheResolvedDomain = useCallback(
+    (address: string, domain: string, type: 'ens' | 'ud') => {
+      dispatch({
+        type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
+        params: {
+          type,
+          address,
+          name: domain
+        }
+      })
+    },
+    [dispatch]
+  )
+
   const addressInputState = useAddressInput({
     addressState,
     setAddressState,
@@ -93,7 +107,9 @@ const TransferScreen = () => {
         : '',
     overwriteValidLabel: validationFormMsgs?.recipientAddress.success
       ? validationFormMsgs.recipientAddress.message
-      : ''
+      : '',
+    addToast,
+    handleCacheResolvedDomain
   })
 
   const isFormEmpty = useMemo(() => {

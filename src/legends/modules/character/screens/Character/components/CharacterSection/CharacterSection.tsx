@@ -111,7 +111,9 @@ const CharacterSection = () => {
           <div className={styles.characterItemWrapper}>
             <Crown className={`${styles.icon} ${styles.iconDiamond}`} width={64} height={64} />
             <div className={styles.characterItem}>
-              <span className={styles.item}>{userLeaderboardData?.rank}</span>
+              <span className={styles.item}>
+                {userLeaderboardData?.rank ? userLeaderboardData?.rank : 'Loading...'}
+              </span>
               Leaderboard
             </div>
           </div>

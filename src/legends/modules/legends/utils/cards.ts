@@ -1,4 +1,10 @@
-import { CardActionCalls, CardFromResponse, CardStatus } from '@legends/modules/legends/types'
+import {
+  CardAction,
+  CardActionCalls,
+  CardActionType,
+  CardFromResponse,
+  CardStatus
+} from '@legends/modules/legends/types'
 
 import { CARD_PREDEFINED_ID } from '../constants'
 
@@ -9,13 +15,17 @@ const sortByHighestXp = (a: CardFromResponse, b: CardFromResponse) => {
   return totalBXp - totalAXp
 }
 
+export const isMatchingPredefinedId = (legendAction: CardAction, predefinedIdToMatch: string) =>
+  legendAction.type === CardActionType.predefined &&
+  legendAction.predefinedId === predefinedIdToMatch
+
 const sortCards = (cards: CardFromResponse[]) => {
   return cards.sort((a, b) => {
     // Display Wheel of Fortune first
-    if (a.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+    if (isMatchingPredefinedId(a.action, CARD_PREDEFINED_ID.wheelOfFortune)) {
       return -1
     }
-    if (b.action.predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+    if (isMatchingPredefinedId(b.action, CARD_PREDEFINED_ID.wheelOfFortune)) {
       return 1
     }
 

@@ -9,6 +9,8 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
+import { getDoesNetworkMatch } from '@common/utils/search'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -31,6 +33,7 @@ const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, sessionId, onS
   const { t } = useTranslation()
   const { theme } = useTheme()
   const searchValue = watch('search')
+  const { networks } = useNetworksControllerState()
   const { defiPositions, areDefiPositionsLoading, dashboardNetworkFilter } =
     useSelectedAccountControllerState()
 
@@ -49,12 +52,19 @@ const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, sessionId, onS
         }
 
         if (searchValue) {
-          isMatchingSearch = providerName.toLowerCase().includes(searchValue.toLowerCase())
+          const lowercaseSearch = searchValue.toLowerCase()
+          isMatchingSearch =
+            providerName.toLowerCase().includes(lowercaseSearch) ||
+            getDoesNetworkMatch({
+              networks,
+              itemNetworkId: networkId,
+              lowercaseSearch
+            })
         }
 
         return isMatchingNetwork && isMatchingSearch
       }),
-    [defiPositions, dashboardNetworkFilter, searchValue]
+    [defiPositions, dashboardNetworkFilter, searchValue, networks]
   )
 
   const renderItem = useCallback(

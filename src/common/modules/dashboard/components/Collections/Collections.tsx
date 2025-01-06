@@ -12,6 +12,7 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
+import { getDoesNetworkMatch } from '@common/utils/search'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -71,14 +72,16 @@ const Collections: FC<Props> = ({
         }
 
         if (searchValue) {
+          const lowercaseSearch = searchValue.toLowerCase()
           isMatchingSearch =
-            name.toLowerCase().includes(searchValue.toLowerCase()) ||
-            address.toLowerCase().includes(searchValue.toLowerCase())
+            name.toLowerCase().includes(lowercaseSearch) ||
+            address.toLowerCase().includes(lowercaseSearch) ||
+            getDoesNetworkMatch({ networks, itemNetworkId: networkId, lowercaseSearch })
         }
 
         return isMatchingNetwork && isMatchingSearch && collectibles.length
       }),
-    [portfolio?.collections, dashboardNetworkFilter, searchValue]
+    [portfolio?.collections, dashboardNetworkFilter, searchValue, networks]
   )
 
   const renderItem = useCallback(

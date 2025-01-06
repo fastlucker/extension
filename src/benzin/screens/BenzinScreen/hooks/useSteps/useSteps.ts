@@ -340,7 +340,7 @@ const useSteps = ({
         // when we get a failed status, it could be a front run.
         // so we try to refetch the tx id one more time before
         // declaring it a failure
-        if (!hasCheckedFrontRun) {
+        if (userOpHash && !hasCheckedFrontRun) {
           setFoundTxnId(null)
           setTxn(null)
           setTxnReceipt({ actualGasCost: null, originatedFrom: null, blockNumber: null })
@@ -554,7 +554,7 @@ const useSteps = ({
         ? decodeUserOp(userOp)
         : reproduceCallsFromTxn(txn)
       const accountOp: AccountOp = {
-        accountAddr: userOp?.sender || txnReceipt.originatedFrom!,
+        accountAddr: userOp?.sender || account || txnReceipt.originatedFrom!,
         networkId: network.id,
         signingKeyAddr: txnReceipt.originatedFrom!, // irrelevant
         signingKeyType: 'internal', // irrelevant
