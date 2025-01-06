@@ -85,7 +85,9 @@ const ActivitySection = () => {
                   <td>
                     {network ? (
                       <a
-                        href={`${network.explorerUrl}/tx/${act.txId}`}
+                        href={`https://benzin.ambire.com/?chainId=${String(
+                          network.chainId
+                        )}&txnId=${act.txId}`}
                         target="_blank"
                         rel="noreferrer"
                         className={styles.link}
