@@ -53,7 +53,8 @@ const setAmbireProvider = () => {
       enumerable: true,
       get() {
         return window.ambire
-      }
+      },
+      set() {} // Prevent other wallet providers from throwing errors when attempting to override `window.ethereum`
     })
   } catch (e) {
     console.error(e)
