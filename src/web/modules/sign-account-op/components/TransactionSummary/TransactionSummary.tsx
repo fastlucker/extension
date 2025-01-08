@@ -1,6 +1,6 @@
 import { formatUnits } from 'ethers'
-import React, { ReactNode, useCallback, useMemo } from 'react'
-import { TouchableOpacity, View, ViewStyle } from 'react-native'
+import React, { useCallback, useMemo } from 'react'
+import { View, ViewStyle } from 'react-native'
 
 import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { NetworkId } from '@ambire-common/interfaces/network'
@@ -23,8 +23,6 @@ interface Props {
   style: ViewStyle
   call: IrCall
   networkId: NetworkId
-  rightIcon?: ReactNode
-  onRightIconPress?: () => void
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
   testID?: string
@@ -41,8 +39,6 @@ const TransactionSummary = ({
   style,
   call,
   networkId,
-  rightIcon,
-  onRightIconPress,
   size = 'lg',
   isHistory,
   testID,
@@ -69,9 +65,6 @@ const TransactionSummary = ({
   }, [call.data])
 
   const [bindDeleteIconAnim, deleteIconAnimStyle] = useHover({
-    preset: 'opacityInverted'
-  })
-  const [bindRightIconAnim, rightIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
 
@@ -114,16 +107,7 @@ const TransactionSummary = ({
               hasPadding={enableExpand}
             />
           )}
-          {!!rightIcon && (
-            <TouchableOpacity
-              onPress={onRightIconPress}
-              style={rightIconAnimStyle}
-              {...bindRightIconAnim}
-            >
-              {rightIcon}
-            </TouchableOpacity>
-          )}
-          {!!call.fromUserRequestId && !rightIcon && !isHistory && (
+          {!!call.fromUserRequestId && !isHistory && (
             <AnimatedPressable
               style={deleteIconAnimStyle}
               onPress={handleRemoveCall}

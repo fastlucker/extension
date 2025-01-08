@@ -12,14 +12,17 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import OpenIcon from '@common/assets/svg/OpenIcon'
-import NetworkBadge from '@common/components/NetworkBadge'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import LinkIcon from '@common/assets/svg/LinkIcon'
+import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
+import Badge from '@common/components/Badge'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import TransactionSummary, {
@@ -32,23 +35,15 @@ import SubmittedOn from './SubmittedOn'
 interface Props {
   submittedAccountOp: SubmittedAccountOp
   style?: ViewStyle
-  showFee?: boolean
-  enableExpand?: boolean
-  showHeading?: boolean
-  showNetworkBadge?: boolean
-  blockExplorerAlignedRight?: boolean
   size?: 'sm' | 'md' | 'lg'
+  defaultType: 'summary' | 'full-info'
 }
 
 const SubmittedTransactionSummary = ({
   submittedAccountOp,
-  showFee = true,
-  enableExpand = true,
-  showHeading = true,
-  showNetworkBadge,
-  blockExplorerAlignedRight = false,
   size = 'lg',
-  style
+  style,
+  defaultType
 }: Props) => {
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
@@ -56,13 +51,7 @@ const SubmittedTransactionSummary = ({
   const { t } = useTranslation()
   const textSize = 14 * sizeMultiplier[size]
   const iconSize = 26 * sizeMultiplier[size]
-  const footerHorizontalPadding = 28 * sizeMultiplier[size]
-  const footerVerticalPadding = SPACING_SM * sizeMultiplier[size]
-  const styleFooter = {
-    ...styles.footer,
-    paddingHorizontal: footerHorizontalPadding,
-    paddingVertical: footerVerticalPadding
-  }
+  const [isFooterExpanded, setIsFooterExpanded] = useState(defaultType === 'full-info')
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
 
@@ -148,141 +137,179 @@ const SubmittedTransactionSummary = ({
         }
       ]}
     >
-      {calls.map((call: IrCall, index) => (
+      {calls.map((call: IrCall) => (
         <TransactionSummary
           key={call.fromUserRequestId}
           style={{ ...styles.summaryItem, marginBottom: SPACING_SM * sizeMultiplier[size] }}
           call={call}
           networkId={submittedAccountOp.networkId}
-          rightIcon={
-            index === 0 &&
-            (!submittedAccountOp.status ||
-              (submittedAccountOp.status !== AccountOpStatus.Rejected &&
-                submittedAccountOp.status !== AccountOpStatus.BroadcastButStuck &&
-                submittedAccountOp.status !== AccountOpStatus.UnknownButPastNonce)) ? (
-              <OpenIcon />
-            ) : null
-          }
-          onRightIconPress={handleOpenBenzina}
           isHistory
-          enableExpand={enableExpand}
+          enableExpand={defaultType === 'full-info'}
           size={size}
         />
       ))}
       {submittedAccountOp.status !== AccountOpStatus.Rejected &&
         submittedAccountOp.status !== AccountOpStatus.BroadcastButStuck &&
         submittedAccountOp.status !== AccountOpStatus.UnknownButPastNonce && (
-          <View style={styleFooter}>
-            {submittedAccountOp.status === AccountOpStatus.Failure && (
-              <View style={styles.footerItem}>
-                <Text
-                  fontSize={textSize}
-                  appearance="errorText"
-                  weight="semiBold"
-                  style={spacings.mrTy}
-                >
-                  {t('Failed')}
-                </Text>
-              </View>
-            )}
-            {showFee && (
-              <View style={styles.footerItem}>
-                <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
-                  {t('Fee')}:{' '}
-                </Text>
+          <View style={spacings.phMd}>
+            <View style={styles.footer}>
+              {submittedAccountOp.status === AccountOpStatus.Failure && (
+                <Badge type="error" weight="medium" text={t('Failed')} withRightSpacing />
+              )}
+              {submittedAccountOp.status === AccountOpStatus.Success && (
+                <Badge type="success" weight="medium" text={t('Confirmed')} withRightSpacing />
+              )}
+              {!!isFooterExpanded && (
+                <View style={spacings.mrTy}>
+                  <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
+                    {t('Fee')}:
+                  </Text>
 
-                {submittedAccountOp.gasFeePayment?.isSponsored ? (
-                  <Text fontSize={14} appearance="successText" style={spacings.mrTy}>
-                    Sponsored
+                  {submittedAccountOp.gasFeePayment?.isSponsored ? (
+                    <Text fontSize={14} appearance="successText" style={spacings.mrTy}>
+                      {t('Sponsored')}
+                    </Text>
+                  ) : (
+                    <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
+                      {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
+                    </Text>
+                  )}
+                </View>
+              )}
+              <SubmittedOn
+                fontSize={textSize}
+                iconSize={iconSize}
+                networkId={network.id}
+                submittedAccountOp={submittedAccountOp}
+                numberOfLines={isFooterExpanded ? 2 : 1}
+              />
+              {isFooterExpanded ? (
+                <View style={flexbox.alignEnd}>
+                  <TouchableOpacity
+                    style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
+                    onPress={handleOpenBenzina}
+                  >
+                    <Text
+                      fontSize={textSize}
+                      appearance="secondaryText"
+                      weight="medium"
+                      style={spacings.mrMi}
+                      underline
+                    >
+                      {t('View transaction')}
+                    </Text>
+                    <LinkIcon />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[flexbox.directionRow, flexbox.alignCenter]}
+                    onPress={handleOpenBlockExplorer}
+                  >
+                    <Text
+                      fontSize={textSize}
+                      appearance="secondaryText"
+                      weight="medium"
+                      style={spacings.mrMi}
+                      underline
+                    >
+                      {t('View in block explorer')}
+                    </Text>
+                    <LinkIcon />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={[flexbox.directionRow, flexbox.alignCenter]}
+                  onPress={() => setIsFooterExpanded(true)}
+                >
+                  <Text
+                    fontSize={textSize}
+                    appearance="secondaryText"
+                    weight="medium"
+                    style={spacings.mrMi}
+                  >
+                    {t('Show more')}
                   </Text>
-                ) : (
-                  <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
-                    {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
+                  <DownArrowIcon />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {defaultType === 'summary' && isFooterExpanded && (
+              <View style={[flexbox.alignEnd, spacings.mbSm]}>
+                <TouchableOpacity
+                  style={[flexbox.directionRow, flexbox.alignCenter]}
+                  onPress={() => setIsFooterExpanded(false)}
+                >
+                  <Text
+                    fontSize={textSize}
+                    appearance="secondaryText"
+                    weight="medium"
+                    style={spacings.mrMi}
+                  >
+                    {t('Show less')}
                   </Text>
-                )}
+                  <UpArrowIcon />
+                </TouchableOpacity>
               </View>
             )}
-            <SubmittedOn
-              fontSize={textSize}
-              showHeading={showHeading}
-              submittedAccountOp={submittedAccountOp}
-            />
-            {showNetworkBadge && (
-              <NetworkBadge
-                networkId={network.id}
-                withOnPrefix
-                fontSize={textSize}
-                style={{ ...spacings.pv0, paddingLeft: 0 }}
-                iconSize={iconSize}
-              />
-            )}
-            <View
-              style={{ ...styles.footerItem, marginLeft: blockExplorerAlignedRight ? 'auto' : 0 }}
-            >
-              <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
-                {t('Block Explorer')}:{' '}
-              </Text>
-              <TouchableOpacity onPress={handleOpenBlockExplorer}>
-                <Text fontSize={textSize} appearance="secondaryText" selectable underline>
-                  {new URL(network.explorerUrl).hostname}
-                </Text>
-              </TouchableOpacity>
-            </View>
           </View>
         )}
       {submittedAccountOp.status === AccountOpStatus.Rejected && (
-        <View style={styleFooter}>
-          <View style={styles.footerItem}>
+        <View style={styles.footer}>
+          <View style={spacings.mrTy}>
             <Text
               fontSize={textSize}
               appearance="errorText"
               style={spacings.mrTy}
               weight="semiBold"
             >
-              Failed to send
+              {t('Failed to send')}
             </Text>
           </View>
           <SubmittedOn
             fontSize={textSize}
-            showHeading={showHeading}
+            iconSize={iconSize}
+            networkId={network.id}
             submittedAccountOp={submittedAccountOp}
           />
         </View>
       )}
       {submittedAccountOp.status === AccountOpStatus.BroadcastButStuck && (
-        <View style={styleFooter}>
-          <View style={styles.footerItem}>
+        <View style={styles.footer}>
+          <View style={spacings.mrTy}>
             <Text
               fontSize={textSize}
               appearance="errorText"
               style={spacings.mrTy}
               weight="semiBold"
             >
-              Dropped or stuck in mempool with fee too low
+              {t('Dropped or stuck in mempool with fee too low')}
             </Text>
           </View>
           <SubmittedOn
             fontSize={textSize}
-            showHeading={showHeading}
+            iconSize={iconSize}
+            networkId={network.id}
             submittedAccountOp={submittedAccountOp}
           />
         </View>
       )}
       {submittedAccountOp.status === AccountOpStatus.UnknownButPastNonce && (
-        <View style={styleFooter}>
-          <View style={styles.footerItem}>
+        <View style={styles.footer}>
+          <View style={spacings.mrTy}>
             <Text
               fontSize={textSize}
               appearance="errorText"
               style={spacings.mrTy}
               weight="semiBold"
             >
-              Replaced by fee (RBF)
+              {t('Replaced by fee (RBF)')}
             </Text>
           </View>
           <SubmittedOn
             fontSize={textSize}
-            showHeading={showHeading}
+            iconSize={iconSize}
+            networkId={network.id}
             submittedAccountOp={submittedAccountOp}
           />
         </View>

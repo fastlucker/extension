@@ -30,6 +30,10 @@ const getBadgeTypes = (theme: ThemeProps) => ({
     color: theme.warningText,
     iconColor: theme.warningDecorative
   },
+  error: {
+    color: theme.errorText,
+    iconColor: theme.errorDecorative
+  },
   ok: {
     color: theme.secondaryText,
     iconColor: theme.successText
@@ -38,6 +42,7 @@ const getBadgeTypes = (theme: ThemeProps) => ({
 
 const Badge = ({
   text,
+  weight,
   tooltipText,
   withRightSpacing,
   type = 'default',
@@ -59,6 +64,7 @@ const Badge = ({
         type === 'default' && styles.defaultBadge,
         type === 'warning' && styles.warningBadge,
         type === 'info' && styles.infoBadge,
+        type === 'error' && styles.errorBadge,
         {
           height: 20
         },
@@ -69,7 +75,7 @@ const Badge = ({
       nativeID={nativeID}
     >
       {text && (
-        <Text weight="regular" fontSize={10} color={color} style={[spacings.mrMi]}>
+        <Text weight={weight || 'regular'} fontSize={10} color={color} style={[spacings.mrMi]}>
           {text}
         </Text>
       )}
