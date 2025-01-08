@@ -20,6 +20,7 @@ runs:
     - name: Get Yarn Cache Directory Path
       id: yarn-cache-dir-path
       run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Restore Dependencies Cache
       uses: actions/cache/restore@v3
@@ -33,6 +34,7 @@ runs:
 
     - name: Install Dependencies
       run: yarn
+      shell: bash
 
     - name: Cache Dependencies
       uses: actions/cache/save@v3
