@@ -44,9 +44,17 @@ jobs:
 
       - name: Setup Environment
         uses: ./.github/composite-actions/setup
-
+  
+      - name: Cache Chrome
+        id: cache-chrome
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/chrome
+          key: ${{ runner.os }}-chrome
+      
       - name: Install Chrome
-        run: npx @puppeteer/browsers install chrome@stable
+        if: steps.cache-chrome.outputs.cache-hit != 'true'
+        run: node node_modules/puppeteer/install.js
         shell: bash
 
       # Set up Docker
