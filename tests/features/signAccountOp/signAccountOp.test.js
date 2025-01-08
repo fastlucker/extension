@@ -9,7 +9,7 @@ import {
   checkTokenBalanceClickOnGivenActionInDashboard
 } from '../../common/transactions.js'
 
-describe('sign_account_op_ba', () => {
+describe('Signing and broadcasting an account operation with a Basic Account', () => {
   let browser
   let page
   let extensionURL
@@ -39,7 +39,7 @@ describe('sign_account_op_ba', () => {
   })
 })
 
-describe('sign_account_op_sa', () => {
+describe('Signing and broadcasting account operations with a Smart Account', () => {
   let browser
   let page
   let extensionURL
