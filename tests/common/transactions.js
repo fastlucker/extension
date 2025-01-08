@@ -97,6 +97,32 @@ async function prepareGasTankTopUp(page, recipient, amount) {
   await typeText(page, amountField, amount)
 }
 
+async function checkInnerElementBorderColor(page, selector, expectedBorderColor, delay = 0) {
+  await new Promise((resolve) => setTimeout(resolve, delay))
+  // Select the inner element
+  const innerElement = await page.$(`${selector} > div`)
+  // Assert that the inner element exists
+  expect(innerElement).not.toBeNull()
+
+  // Get the computed style of the inner element and extract the border color
+  const borderColor = await page.evaluate((el) => {
+    return window.getComputedStyle(el).borderColor
+  }, innerElement)
+
+  // Assert that the border color matches the expected value
+  expect(borderColor).toBe(expectedBorderColor)
+}
+
+async function processTnxSpeedSteps(page, selectors, expectedColor, delayTimeInMs) {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const selector of selectors) {
+    // eslint-disable-next-line no-await-in-loop
+    await clickOnElement(page, selector, true, delayTimeInMs)
+    // eslint-disable-next-line no-await-in-loop
+    await checkInnerElementBorderColor(page, selector, expectedColor, delayTimeInMs)
+  }
+}
+
 async function handleTransaction(
   page,
   extensionURL,
@@ -133,12 +159,19 @@ async function handleTransaction(
     await selectFeeToken(newPage, feeToken)
   }
 
+  // expectedColor is the border color when the speed element is selected
+  const expectedColor = 'rgb(96, 0, 255)'
+  const delayTimeInMs = 500
+
   if (shouldChangeTxnSpeed) {
-    await clickOnElement(newPage, SELECTORS.feeSlow, true, 500)
-    await clickOnElement(newPage, SELECTORS.feeMedium, true, 500)
-    await clickOnElement(newPage, SELECTORS.feeFast, true, 500)
-    await clickOnElement(newPage, SELECTORS.feeApe, true, 500)
-    await clickOnElement(newPage, SELECTORS.feeFast, true, 500)
+    const feeSelectorsSequence = [
+      SELECTORS.feeSlow,
+      SELECTORS.feeMedium,
+      SELECTORS.feeFast,
+      SELECTORS.feeApe,
+      SELECTORS.feeFast
+    ]
+    await processTnxSpeedSteps(newPage, feeSelectorsSequence, expectedColor, delayTimeInMs)
   }
 
   if (shouldRejectTxn) {

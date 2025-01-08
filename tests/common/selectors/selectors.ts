@@ -79,7 +79,7 @@ export const TEST_IDS = {
   tokenSend: 'token-send',
   queueAndSignLaterButton:'queue-and-sign-later-button',
   deleteTxnCallDyn:'delete-txn-call',
-  feeSlow:'fee-medium:',
+  feeSlow:'fee-slow:',
   feeMedium:'fee-medium:',
   feeFast:'fee-fast:',
   feeApe:'fee-ape:',
