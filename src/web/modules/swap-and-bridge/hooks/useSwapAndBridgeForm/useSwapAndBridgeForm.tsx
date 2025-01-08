@@ -66,7 +66,14 @@ const useSwapAndBridgeForm = () => {
     ) {
       const tokenToSelectOnInit = portfolio.tokens.find(
         (t) =>
-          t.address === searchParams.get('address') && t.networkId === searchParams.get('networkId')
+          t.address === searchParams.get('address') &&
+          t.networkId === searchParams.get('networkId') &&
+          // One can have the same token in the Gas Tank and in its portfolio.
+          // Exclude the one in the Gas Tank (swapping Gas Tank tokens is not supported).
+          !t.flags.onGasTank &&
+          // One can have the same token as a reward and in its portfolio.
+          // Exclude the rewards one (swapping rewards is not supported).
+          !t.flags.rewardsType
       )
 
       if (tokenToSelectOnInit) {
