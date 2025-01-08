@@ -4,8 +4,8 @@ import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { FormattedPendingAmounts, PendingAmounts } from '@ambire-common/libs/portfolio/interfaces'
 import { calculatePendingAmounts } from '@ambire-common/libs/portfolio/pendingAmountsHelper'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
-import formatDecimals from '@common/utils/formatDecimals'
 
 const formatPendingAmounts = (
   pendingAmounts: PendingAmounts | null,

@@ -35,16 +35,15 @@ const CHECKBOXES = [
   {
     id: 0,
     label:
-      'It is extremely important to keep it safe and not share it with anybody else, regardless of the reason.'
+      'It is crucial to keep your seed phrase in a safe place and never share it with anyone, no matter the reason.'
   },
   {
     id: 1,
-    label: 'Compromising the security of your Seed Phrase compromises the security of your account.'
+    label: 'If your seed phrase is compromised, your account security is at risk.'
   },
   {
     id: 2,
-    label:
-      'You should use the Seed Phrase of your Smart Wallet account only to get access or recover access to it.'
+    label: 'Use your wallet’s seed phrase only to access or recover your account.'
   }
 ]
 
@@ -70,10 +69,10 @@ const CreateSeedPhrasePrepareScreen = () => {
     navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
   }, [addToast, navigate])
 
-  // prevent proceeding with new seed phrase setup if there is a default seed phrase already associated with the keystore
+  // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
   useEffect(() => {
-    if (keystoreState.hasKeystoreDefaultSeed) goBack()
-  }, [goBack, keystoreState.hasKeystoreDefaultSeed])
+    if (keystoreState.hasKeystoreSavedSeed) goBack()
+  }, [goBack, keystoreState.hasKeystoreSavedSeed])
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
@@ -100,7 +99,7 @@ const CreateSeedPhrasePrepareScreen = () => {
           <BackButton
             onPress={() => {
               if (accounts.length) {
-                navigate(WEB_ROUTES.createHotWallet)
+                navigate(WEB_ROUTES.dashboard)
                 return
               }
               navigate(WEB_ROUTES.getStarted)
@@ -137,14 +136,14 @@ const CreateSeedPhrasePrepareScreen = () => {
           >
             <WarningIcon color={theme.warningDecorative} width={32} height={32} />
             <Text weight="medium" style={[spacings.mlSm]} fontSize={20}>
-              {t('Important information about Seed phrase recovery')}
+              {t('Important information about the seed phrase')}
             </Text>
           </View>
           <View style={[panelPaddingStyle, spacings.pt]}>
             <View style={{ maxWidth: 560 }}>
               <Text weight="semiBold" fontSize={16} style={spacings.mbLg}>
                 {t(
-                  'The Seed Phrase is a unique set of 12 or 24 words, that allows you to access and recover your Smart Wallet account.'
+                  'The seed phrase is a unique set of 12 or 24 words used to access and recover your account.'
                 )}
               </Text>
               {CHECKBOXES.map(({ id, label }, index) => (
@@ -193,7 +192,7 @@ const CreateSeedPhrasePrepareScreen = () => {
               >
                 <Text fontSize={16} weight="semiBold" color={theme.infoText}>
                   {t(
-                    'Now, take a pen and a piece of paper, and prepare to write down your Seed Phrase.'
+                    'Grab a pen and a piece of paper, and get ready to write down your seed phrase.'
                   )}
                 </Text>
               </View>

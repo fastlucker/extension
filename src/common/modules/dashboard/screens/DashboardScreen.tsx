@@ -4,9 +4,9 @@ import { useModalize } from 'react-native-modalize'
 
 import { isWeb } from '@common/config/env'
 import useDebounce from '@common/hooks/useDebounce'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import DefaultWalletControl from '@common/modules/dashboard/components/DefaultWalletControl'
+import PendingActionWindowModal from '@common/modules/dashboard/components/PendingActionWindowModal'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
@@ -24,9 +24,8 @@ const { isPopup } = getUiType()
 export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 
 const DashboardScreen = () => {
-  const route = useRoute()
   const { styles } = useTheme(getStyles)
-  const { state } = usePortfolioControllerState()
+  const { tokenPreferences } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const lastOffsetY = useRef(0)
   const scrollUpStartedAt = useRef(0)
@@ -36,8 +35,6 @@ const DashboardScreen = () => {
   })
   const debouncedDashboardOverviewSize = useDebounce({ value: dashboardOverviewSize, delay: 100 })
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
-
-  const filterByNetworkId = route?.state?.filterByNetworkId || null
 
   const onScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -79,6 +76,7 @@ const DashboardScreen = () => {
   return (
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
+      <PendingActionWindowModal />
       <View style={styles.container}>
         <View style={[flexbox.flex1, spacings.ptSm]}>
           <DashboardOverview
@@ -87,11 +85,7 @@ const DashboardScreen = () => {
             dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}
           />
-          <DashboardPages
-            tokenPreferences={state?.tokenPreferences}
-            filterByNetworkId={filterByNetworkId}
-            onScroll={onScroll}
-          />
+          <DashboardPages tokenPreferences={tokenPreferences} onScroll={onScroll} />
         </View>
         {!!isPopup && <DAppFooter />}
       </View>

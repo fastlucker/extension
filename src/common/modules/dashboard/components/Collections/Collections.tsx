@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { Network } from '@ambire-common/interfaces/network'
 import CollectibleModal, { SelectedCollectible } from '@common/components/CollectibleModal'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -12,7 +12,8 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getDoesNetworkMatch } from '@common/utils/search'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Collection from './Collection'
@@ -25,7 +26,7 @@ interface Props {
   initTab?: {
     [key: string]: boolean
   }
-  filterByNetworkId: NetworkId
+  sessionId: string
   onScroll: FlatListProps<any>['onScroll']
   networks: Network[]
 }
@@ -36,21 +37,16 @@ const Collections: FC<Props> = ({
   openTab,
   setOpenTab,
   initTab,
+  sessionId,
   onScroll,
-  filterByNetworkId,
   networks
 }) => {
-  const { accountPortfolio } = usePortfolioControllerState()
+  const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const [selectedCollectible, setSelectedCollectible] = useState<SelectedCollectible | null>(null)
-  const { control, watch, setValue } = useForm({
-    mode: 'all',
-    defaultValues: {
-      search: ''
-    }
-  })
+  const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const searchValue = watch('search')
 
   const closeCollectibleModal = useCallback(() => {
@@ -67,23 +63,25 @@ const Collections: FC<Props> = ({
 
   const filteredPortfolioCollections = useMemo(
     () =>
-      (accountPortfolio?.collections || []).filter(({ name, address, networkId, collectibles }) => {
+      (portfolio?.collections || []).filter(({ name, address, networkId, collectibles }) => {
         let isMatchingNetwork = true
         let isMatchingSearch = true
 
-        if (filterByNetworkId) {
-          isMatchingNetwork = networkId === filterByNetworkId
+        if (dashboardNetworkFilter) {
+          isMatchingNetwork = networkId === dashboardNetworkFilter
         }
 
         if (searchValue) {
+          const lowercaseSearch = searchValue.toLowerCase()
           isMatchingSearch =
-            name.toLowerCase().includes(searchValue.toLowerCase()) ||
-            address.toLowerCase().includes(searchValue.toLowerCase())
+            name.toLowerCase().includes(lowercaseSearch) ||
+            address.toLowerCase().includes(lowercaseSearch) ||
+            getDoesNetworkMatch({ networks, itemNetworkId: networkId, lowercaseSearch })
         }
 
         return isMatchingNetwork && isMatchingSearch && collectibles.length
       }),
-    [accountPortfolio?.collections, filterByNetworkId, searchValue]
+    [portfolio?.collections, dashboardNetworkFilter, searchValue, networks]
   )
 
   const renderItem = useCallback(
@@ -91,7 +89,12 @@ const Collections: FC<Props> = ({
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+            <TabsAndSearch
+              openTab={openTab}
+              setOpenTab={setOpenTab}
+              searchControl={control}
+              sessionId={sessionId}
+            />
           </View>
         )
       }
@@ -99,9 +102,11 @@ const Collections: FC<Props> = ({
       if (item === 'empty') {
         return (
           <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
-            {!searchValue && !filterByNetworkId && t("You don't have any collectibles (NFTs) yet")}
             {!searchValue &&
-              filterByNetworkId &&
+              !dashboardNetworkFilter &&
+              t("You don't have any collectibles (NFTs) yet")}
+            {!searchValue &&
+              dashboardNetworkFilter &&
               t("You don't have any collectibles (NFTs) on this network")}
             {searchValue && t('No collectibles (NFTs) found')}
           </Text>
@@ -131,15 +136,17 @@ const Collections: FC<Props> = ({
     },
     [
       control,
-      filterByNetworkId,
+      dashboardNetworkFilter,
       filteredPortfolioCollections.length,
       initTab?.collectibles,
+      networks,
       openCollectibleModal,
       openTab,
       searchValue,
       setOpenTab,
       t,
-      theme.primaryBackground
+      theme.primaryBackground,
+      sessionId
     ]
   )
 
@@ -168,8 +175,8 @@ const Collections: FC<Props> = ({
         data={[
           'header',
           ...(initTab?.collectibles ? filteredPortfolioCollections : []),
-          !filteredPortfolioCollections.length && accountPortfolio?.isAllReady ? 'empty' : '',
-          !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning'
+          !filteredPortfolioCollections.length && portfolio?.isAllReady ? 'empty' : '',
+          !portfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning'
         ]}
         renderItem={renderItem}
         keyExtractor={keyExtractor}

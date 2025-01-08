@@ -1,26 +1,31 @@
-import React, { FC, useCallback, useMemo } from 'react'
-import { useModalize } from 'react-native-modalize'
+import React, { useCallback, useMemo } from 'react'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
-import Banner from '@common/components/Banner'
+import Banner, { BannerButton } from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
-import RPCSelectBottomSheet from './RPCSelectBottomSheet'
+const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge']
 
-const ERROR_ACTIONS = ['reject-accountOp']
-
-const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions = [] }) => {
+const DashboardBanner = ({
+  banner,
+  setBottomSheetBanner
+}: {
+  banner: BannerType
+  setBottomSheetBanner: (banner: BannerType) => void
+}) => {
+  const { type, category, title, text, actions = [] } = banner
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { visibleActionsQueue } = useActionsControllerState()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { statuses } = useMainControllerState()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
@@ -28,17 +33,6 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
 
     return null
   }, [category])
-
-  const withRpcUrlSelectBottomSheet = useMemo(
-    () => !!actions.filter((a) => a.actionName === 'select-rpc-url').length,
-    [actions]
-  )
-
-  const handleOpenBottomSheet = useCallback(() => {
-    if (withRpcUrlSelectBottomSheet) {
-      openBottomSheet()
-    }
-  }, [openBottomSheet, withRpcUrlSelectBottomSheet])
 
   const handleActionPress = useCallback(
     (action: Action) => {
@@ -88,38 +82,78 @@ const DashboardBanner: FC<BannerType> = ({ type, category, title, text, actions 
       }
 
       if (action.actionName === 'select-rpc-url') {
-        handleOpenBottomSheet()
+        setBottomSheetBanner(banner)
+      }
+
+      if (action.actionName === 'open-swap-and-bridge-tab') {
+        navigate(ROUTES.swapAndBridge)
+      }
+
+      if (action.actionName === 'reject-bridge' || action.actionName === 'close-bridge') {
+        dispatch({
+          type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+          params: { activeRouteId: action.meta.activeRouteId }
+        })
+      }
+
+      if (action.actionName === 'proceed-bridge') {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
+          params: { activeRouteId: action.meta.activeRouteId }
+        })
+      }
+
+      if (action.actionName === 'hide-activity-banner') {
+        dispatch({
+          type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
+          params: action.meta
+        })
+      }
+
+      if (action.actionName === 'confirm-temp-seed') {
+        navigate(ROUTES.saveImportedSeed)
+      }
+
+      if (action.actionName === 'update-extension-version') {
+        dispatch({
+          type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
+        })
       }
     },
-    [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]
+    [visibleActionsQueue, type, banner, setBottomSheetBanner, dispatch, addToast, navigate]
   )
 
   const renderButtons = useMemo(
     () =>
-      actions.map((action) => {
-        const isReject = ERROR_ACTIONS.includes(action.actionName)
+      actions.map((action: Action) => {
+        const isReject =
+          ERROR_ACTIONS.includes(action.actionName) ||
+          ('meta' in action && 'isHideStyle' in action.meta && action.meta.isHideStyle)
+        let actionText = action.label
+        let isDisabled = false
+
+        if (action.actionName === 'proceed-bridge') {
+          if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
+            actionText = 'Preparing...'
+            isDisabled = true
+          }
+        }
 
         return (
-          <Banner.Button
+          <BannerButton
             key={action.actionName}
             isReject={isReject}
-            text={action.label}
+            text={actionText}
+            disabled={isDisabled}
             onPress={() => handleActionPress(action)}
           />
         )
       }),
-    [actions, handleActionPress]
+    [actions, handleActionPress, statuses.buildSwapAndBridgeUserRequest]
   )
 
   return (
-    <Banner CustomIcon={Icon} title={title} type={type} text={text} renderButtons={renderButtons}>
-      <RPCSelectBottomSheet
-        actions={actions}
-        sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
-        isVisible={withRpcUrlSelectBottomSheet}
-      />
-    </Banner>
+    <Banner CustomIcon={Icon} title={title} type={type} text={text} renderButtons={renderButtons} />
   )
 }
 

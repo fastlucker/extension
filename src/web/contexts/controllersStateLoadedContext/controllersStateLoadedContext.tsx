@@ -8,13 +8,16 @@ import useAddressBookControllerState from '@web/hooks/useAddressBookControllerSt
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useExtensionUpdateControllerState from '@web/hooks/useExtensionUpdateControllerState'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
 const ControllersStateLoadedContext = createContext<{
@@ -34,16 +37,19 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const networksState = useNetworksControllerState()
   const providersState = useProvidersControllerState()
   const accountsState = useAccountsControllerState()
+  const selectedAccountState = useSelectedAccountControllerState()
   const walletState = useWalletStateController()
   const signMessageState = useSignMessageControllerState()
   const actionsState = useActionsControllerState()
   const activityState = useActivityControllerState()
-  const { state: portfolioState } = usePortfolioControllerState()
+  const portfolioState = usePortfolioControllerState()
   const emailVaultState = useEmailVaultControllerState()
   const { state: dappsState } = useDappsControllerState()
   const addressBookState = useAddressBookControllerState()
   const domainsControllerState = useDomainsControllerState()
   const inviteControllerState = useInviteControllerState()
+  const swapAndBridgeControllerState = useSwapAndBridgeControllerState()
+  const extensionUpdateControllerState = useExtensionUpdateControllerState()
 
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
@@ -60,6 +66,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const hasAccountsState: boolean = useMemo(
     () => !!Object.keys(accountsState).length,
     [accountsState]
+  )
+  const hasSelectedAccountState: boolean = useMemo(
+    () => !!Object.keys(selectedAccountState).length,
+    [selectedAccountState]
   )
   const hasWalletState: boolean = useMemo(
     () => !!Object.keys(walletState).length && !!walletState?.isReady,
@@ -106,6 +116,14 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(inviteControllerState).length,
     [inviteControllerState]
   )
+  const hasSwapAndBridgeState: boolean = useMemo(
+    () => !!Object.keys(swapAndBridgeControllerState).length,
+    [swapAndBridgeControllerState]
+  )
+  const hasExtensionUpdateState: boolean = useMemo(
+    () => !!Object.keys(extensionUpdateControllerState).length,
+    [extensionUpdateControllerState]
+  )
 
   useEffect(() => {
     if (areControllerStatesLoaded) return
@@ -120,6 +138,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasNetworksState &&
       hasProvidersState &&
       hasAccountsState &&
+      hasSelectedAccountState &&
       hasWalletState &&
       hasAccountAdderState &&
       hasKeystoreState &&
@@ -131,7 +150,9 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasDappsState &&
       hasDomainsState &&
       hasAddressBookState &&
-      hasInviteState
+      hasInviteState &&
+      hasSwapAndBridgeState &&
+      hasExtensionUpdateState
     ) {
       clearTimeout(timeout)
       setAreControllerStatesLoaded(true)
@@ -143,6 +164,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasNetworksState,
     hasProvidersState,
     hasAccountsState,
+    hasSelectedAccountState,
     hasWalletState,
     hasAccountAdderState,
     hasKeystoreState,
@@ -155,7 +177,9 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     areControllerStatesLoaded,
     hasDomainsState,
     hasAddressBookState,
-    hasInviteState
+    hasInviteState,
+    hasSwapAndBridgeState,
+    hasExtensionUpdateState
   ])
 
   return (

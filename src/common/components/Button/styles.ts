@@ -16,6 +16,7 @@ interface Style {
   buttonContainerStylesSizeLarge: ViewStyle
   buttonContainerStylesSizeRegular: ViewStyle
   buttonContainerStylesSizeSmall: ViewStyle
+  buttonContainerStylesSizeTiny: ViewStyle
 
   buttonTextPrimary: TextStyle
   buttonTextSecondary: TextStyle
@@ -26,6 +27,7 @@ interface Style {
   buttonTextStylesSizeLarge: TextStyle
   buttonTextStylesSizeRegular: TextStyle
   buttonTextStylesSizeSmall: TextStyle
+  buttonTextStylesSizeTiny: TextStyle
 
   disabled: ViewStyle
 }
@@ -82,6 +84,12 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phSm,
       ...spacings.mbTy
     },
+    buttonContainerStylesSizeTiny: {
+      height: 20,
+      ...spacings.pvMi,
+      ...spacings.phSm,
+      ...spacings.mbTy
+    },
 
     // Button text styles by type
     buttonTextPrimary: {
@@ -110,6 +118,10 @@ const getStyles = (theme: ThemeProps) =>
     buttonTextStylesSizeSmall: {
       fontSize: 14,
       // On iOS no visual difference, but on Android, it vertically centers better
+      lineHeight: 19
+    },
+    buttonTextStylesSizeTiny: {
+      fontSize: 12,
       lineHeight: 19
     },
 

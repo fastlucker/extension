@@ -1,10 +1,10 @@
 const CARD_PREDEFINED_ID = {
-  addEOA: 'addEOA',
+  inviteAccount: 'addEOA',
+  linkAccount: 'LinkAccount',
   linkX: 'linkX',
   wheelOfFortune: 'wheelOfFortune',
-  LinkAccount: 'LinkAccount'
+  staking: 'staking',
+  referral: 'referral'
 }
 
-const EOA_ACCESSIBLE_CARDS = [CARD_PREDEFINED_ID.addEOA, CARD_PREDEFINED_ID.LinkAccount]
-
-export { CARD_PREDEFINED_ID, EOA_ACCESSIBLE_CARDS }
+export { CARD_PREDEFINED_ID }

@@ -69,8 +69,11 @@ const KeyStoreResetScreen = () => {
   )
 
   const handleSendResetEmail = useCallback(() => {
-    dispatch({ type: 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY', params: { email: formEmail } })
-  }, [formEmail])
+    dispatch({
+      type: 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY',
+      params: { email: formEmail, flow: 'recovery' }
+    })
+  }, [dispatch, formEmail])
 
   const handleCancelLoginAttempt = useCallback(() => {
     dispatch({
@@ -85,7 +88,7 @@ const KeyStoreResetScreen = () => {
         params: { email, newPass: password }
       })
     })()
-  }, [dispatch, handleSubmit])
+  }, [dispatch, email, handleSubmit])
 
   useEffect(() => {
     if (keystoreState.isUnlocked) {

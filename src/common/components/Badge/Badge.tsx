@@ -29,6 +29,10 @@ const getBadgeTypes = (theme: ThemeProps) => ({
   warning: {
     color: theme.warningText,
     iconColor: theme.warningDecorative
+  },
+  ok: {
+    color: theme.secondaryText,
+    iconColor: theme.successText
   }
 })
 
@@ -38,7 +42,8 @@ const Badge = ({
   withRightSpacing,
   type = 'default',
   style,
-  nativeID
+  nativeID,
+  children
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
@@ -63,9 +68,12 @@ const Badge = ({
       ]}
       nativeID={nativeID}
     >
-      <Text weight="regular" fontSize={10} color={color} style={spacings.mrMi}>
-        {text}
-      </Text>
+      {text && (
+        <Text weight="regular" fontSize={10} color={color} style={[spacings.mrMi]}>
+          {text}
+        </Text>
+      )}
+      {children}
       {!!tooltipText && (
         <>
           <InformationIcon data-tooltip-id={tooltipId} color={iconColor} width={14} height={14} />

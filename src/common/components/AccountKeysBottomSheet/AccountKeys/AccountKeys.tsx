@@ -2,23 +2,36 @@ import React, { Dispatch, FC, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { Key } from '@ambire-common/interfaces/keystore'
+import { AMBIRE_V1_QUICK_ACC_MANAGER } from '@ambire-common/consts/addresses'
+import { Account } from '@ambire-common/interfaces/account'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 interface Props {
-  associatedKeys: string[]
-  importedAccountKeys: Key[]
   setCurrentKeyDetails: Dispatch<SetStateAction<AccountKeyType | null>>
+  account: Account
+  openAddAccountBottomSheet?: () => void
+  keyIconColor?: string
+  showExportImport?: boolean
 }
 
-const AccountKeys: FC<Props> = ({ associatedKeys, importedAccountKeys, setCurrentKeyDetails }) => {
+const AccountKeys: FC<Props> = ({
+  setCurrentKeyDetails,
+  account,
+  openAddAccountBottomSheet,
+  keyIconColor,
+  showExportImport
+}) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
 
+  const { keys } = useKeystoreControllerState()
+  const associatedKeys = account?.associatedKeys || []
+  const importedAccountKeys = keys.filter(({ addr }) => associatedKeys.includes(addr))
   const notImportedAccountKeys = associatedKeys.filter(
     (keyAddr) =>
       !importedAccountKeys.some(({ addr }) => addr.toLowerCase() === keyAddr.toLowerCase())
@@ -40,6 +53,8 @@ const AccountKeys: FC<Props> = ({ associatedKeys, importedAccountKeys, setCurren
     ...notImportedAccountKeys.map((keyAddr) => ({
       isImported: false,
       addr: keyAddr,
+      label:
+        keyAddr === AMBIRE_V1_QUICK_ACC_MANAGER ? 'Email/password signer (Ambire v1)' : undefined,
       dedicatedToOneSA: false
     }))
   ]
@@ -75,6 +90,10 @@ const AccountKeys: FC<Props> = ({ associatedKeys, importedAccountKeys, setCurren
               showCopyAddr={!dedicatedToOneSA}
               {...accountKeyProps}
               handleOnKeyDetailsPress={handleOnKeyDetailsPress}
+              account={account}
+              openAddAccountBottomSheet={openAddAccountBottomSheet}
+              keyIconColor={keyIconColor}
+              showExportImport={showExportImport}
             />
           )
         })}

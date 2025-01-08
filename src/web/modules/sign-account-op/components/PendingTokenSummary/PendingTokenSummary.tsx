@@ -4,13 +4,13 @@ import { View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { BigIntMath } from '@common/utils/bigint'
-import formatDecimals from '@common/utils/formatDecimals'
 import { getTokenId } from '@web/utils/token'
 
 import getStyles from './styles'
@@ -35,7 +35,7 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
 
     if (!usdPrice) return null
 
-    const value = usdPrice * Number(formatUnits(token.simulationAmount!, token.decimals))
+    const value = Math.abs(usdPrice * Number(formatUnits(token.simulationAmount!, token.decimals)))
 
     return formatDecimals(value)
   }, [token])

@@ -1,54 +1,61 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useCallback, useState } from 'react'
 import { Modalize } from 'react-native-modalize'
 
-import { Key } from '@ambire-common/interfaces/keystore'
+import { Account } from '@ambire-common/interfaces/account'
 import { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import BottomSheet from '@common/components/BottomSheet'
+import { iconColors } from '@common/styles/themeConfig'
 
 import AccountKeyDetails from './AccountKeyDetails'
 import AccountKeys from './AccountKeys'
-import AddAccountKeys from './AddAccountKeys'
 
 interface Props {
   sheetRef: React.RefObject<Modalize>
-  associatedKeys: string[]
-  importedAccountKeys: Key[]
   closeBottomSheet: () => void
-  isSmartAccount: boolean
+  account: Account
+  openAddAccountBottomSheet?: () => void
+  showExportImport?: boolean
 }
 
 const AccountKeysBottomSheet: FC<Props> = ({
   sheetRef,
-  associatedKeys,
-  importedAccountKeys,
   closeBottomSheet,
-  isSmartAccount
+  account,
+  openAddAccountBottomSheet,
+  showExportImport = false
 }) => {
   const [currentKeyDetails, setCurrentKeyDetails] = useState<AccountKeyType | null>(null)
 
-  const closeCurrentKeyDetails = () => setCurrentKeyDetails(null)
+  const closeCurrentKeyDetails = useCallback(() => setCurrentKeyDetails(null), [])
 
-  const closeBottomSheetWrapped = () => {
+  const closeBottomSheetWrapped = useCallback(() => {
     closeCurrentKeyDetails()
     closeBottomSheet()
-  }
+  }, [closeBottomSheet, closeCurrentKeyDetails])
+
+  const handleOpenAccountBottomSheet = useCallback(() => {
+    closeBottomSheetWrapped()
+    openAddAccountBottomSheet && openAddAccountBottomSheet()
+  }, [closeBottomSheetWrapped, openAddAccountBottomSheet])
 
   return (
     <BottomSheet id="account-keys" sheetRef={sheetRef} closeBottomSheet={closeBottomSheetWrapped}>
       {!currentKeyDetails ? (
-        <>
-          <AccountKeys
-            associatedKeys={associatedKeys}
-            importedAccountKeys={importedAccountKeys}
-            setCurrentKeyDetails={setCurrentKeyDetails}
-          />
-          <AddAccountKeys
-            isSmartAccount={isSmartAccount}
-            importedAccountKeys={importedAccountKeys}
-          />
-        </>
+        <AccountKeys
+          setCurrentKeyDetails={setCurrentKeyDetails}
+          account={account}
+          openAddAccountBottomSheet={handleOpenAccountBottomSheet}
+          keyIconColor={iconColors.black}
+          showExportImport={showExportImport}
+        />
       ) : (
-        <AccountKeyDetails details={currentKeyDetails} closeDetails={closeCurrentKeyDetails} />
+        <AccountKeyDetails
+          details={currentKeyDetails}
+          closeDetails={closeCurrentKeyDetails}
+          account={account}
+          keyIconColor={iconColors.black}
+          showExportImport={showExportImport}
+        />
       )}
     </BottomSheet>
   )

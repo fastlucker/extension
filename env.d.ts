@@ -7,11 +7,13 @@ declare module '@env' {
   export type EnvTypes = {
     RELAYER_URL: string
     VELCRO_URL: string
+    SOCKET_API_KEY: string
     SENTRY_DSN?: string
     ENVIRONMENT: string
     DEFAULT_INVITATION_CODE_DEV: string
     DEFAULT_KEYSTORE_PASSWORD_DEV: string
     NFT_CDN_URL: string
+    LEGENDS_NFT_ADDRESS: string
   }
 
   /**
@@ -51,6 +53,13 @@ declare module '@env' {
   export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: log.LogLevelDesc
 
   /**
+   * This value can be used to control the state of the controller logs.
+   * If set to "true", the logs will be displayed only for the controller which is updated.
+   * Due to the high volume of logs causing memory leak on FF, it is recommended to use this only for debugging purposes.
+   */
+  export const BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY: string
+
+  /**
    * This value can be used to control the unique ID of an extension, when it is
    * loaded during development. In prod, the ID is generated in Chrome Web Store
    * and can't be changed (could be retrieved from Chrome Web Store).
@@ -78,4 +87,17 @@ declare module '@env' {
    * E2E tests can be run against both DEV and PROD environments.
    */
   export const IS_TESTING: string
+
+  /**
+   * Socket API is part of the Bungee API. It allows developers to easily transfer
+   * liquidity across chains, access aggregated liquidity and information from
+   * hundreds of on-chain and off-chain decentralized exchange networks, bridges,
+   * across multiple blockchains. Access is restricted and requires an API key.
+   */
+  export const SOCKET_API_KEY: EnvTypes['SOCKET_API_KEY']
+
+  /**
+   * The address of the Legends NFT contract (same on PROD and STAGING)
+   */
+  export const LEGENDS_NFT_ADDRESS: EnvTypes['LEGENDS_NFT_ADDRESS']
 }

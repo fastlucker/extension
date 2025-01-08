@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import Address from '@common/components/Address'
+import HumanizerAddress from '@common/components/HumanizerAddress'
 import Text from '@common/components/Text'
 import TokenOrNft from '@common/components/TokenOrNft'
 import useTheme from '@common/hooks/useTheme'
@@ -18,12 +18,16 @@ import { COLLECTIBLE_SIZE } from '../Collectible/styles'
 import ChainVisualization from './ChainVisualization/ChainVisualization'
 import DeadlineItem from './DeadlineItem'
 
-const visualizeContent = (kind: string, content?: string | Uint8Array) => {
+export const visualizeContent = (kind: string, content?: string | Uint8Array) => {
   if ((kind === 'message' && !content) || content === '0x') {
     return 'Empty message '
   }
   return `${getMessageAsText(content).replace('\n', '')} `
 }
+function stopPropagation(e: React.MouseEvent) {
+  e.stopPropagation()
+}
+
 interface Props {
   data: IrCall['fullVisualization']
   sizeMultiplierSize?: number
@@ -31,6 +35,8 @@ interface Props {
   networkId: NetworkId
   isHistory?: boolean
   testID?: string
+  hasPadding?: boolean
+  imageSize?: number
 }
 
 const HumanizedVisualization: FC<Props> = ({
@@ -39,7 +45,9 @@ const HumanizedVisualization: FC<Props> = ({
   textSize = 16,
   networkId,
   isHistory,
-  testID
+  testID,
+  hasPadding = true,
+  imageSize = 36
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { theme } = useTheme()
@@ -52,14 +60,14 @@ const HumanizedVisualization: FC<Props> = ({
         flexbox.alignCenter,
         flexbox.wrap,
         {
-          marginHorizontal: SPACING_SM * sizeMultiplierSize
+          marginHorizontal: hasPadding ? SPACING_SM * sizeMultiplierSize : 0
         }
       ]}
     >
       {data.map((item) => {
         if (!item || item.isHidden) return null
         const key = item.id
-        if (item.type === 'token' && item.value) {
+        if (item.type === 'token') {
           return (
             <TokenOrNft
               key={key}
@@ -76,7 +84,11 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'address' && item.address) {
           return (
             <View key={key} style={{ marginRight }}>
-              <Address fontSize={textSize} address={item.address} explorerNetworkId={networkId} />
+              <HumanizerAddress
+                fontSize={textSize}
+                address={item.address}
+                explorerNetworkId={networkId}
+              />
             </View>
           )
         }
@@ -103,9 +115,10 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'image' && item.content) {
           return (
             <ManifestImage
+              key={key}
               uri={item.content}
               containerStyle={spacings.mrSm}
-              size={36}
+              size={imageSize}
               skeletonAppearance="primaryBackground"
               fallback={() => (
                 <View
@@ -128,6 +141,20 @@ const HumanizedVisualization: FC<Props> = ({
                 marginRight: 0
               }}
             />
+          )
+        }
+        if (item.type === 'link') {
+          return (
+            <a
+              onClick={stopPropagation}
+              style={{ maxWidth: '100%', marginRight }}
+              key={key}
+              href={item.url!}
+            >
+              <Text fontSize={textSize} weight="semiBold" appearance="successText">
+                {item.content}
+              </Text>
+            </a>
           )
         }
         if (item.content) {

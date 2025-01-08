@@ -5,13 +5,13 @@ const BADGE_PRESETS: { [preset in Preset]: BadgePreset } = {
     text: 'Smart Account',
     type: 'success',
     tooltipText:
-      'Smart Account includes many advanced security features, such as account recovery, paying transaction fees in stablecoins, performing multiple actions in one transaction (transaction batching), and more.'
+      'Smart Accounts unlock the full potential of Ethereum and EVM networks, offering advanced features like paying gas fees in stablecoins, simulating transaction outcomes, and batching multiple actions into a single transaction.'
   },
   'basic-account': {
     text: 'Basic Account',
     type: 'warning',
     tooltipText:
-      'Basic Accounts, also known as EOAs (Externally Owned Accounts), provide basic functionalities only.'
+      'We refer to EOAs (Externally Owned Accounts) as Basic Accounts. These native accounts on Ethereum and EVM networks offer limited functionality compared to Smart Accounts.'
   },
   'view-only': {
     text: 'View-only',

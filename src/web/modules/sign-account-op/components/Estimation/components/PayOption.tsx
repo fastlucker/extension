@@ -4,15 +4,16 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 const PayOption = ({
   feeOption,
@@ -22,7 +23,8 @@ const PayOption = ({
   disabledReason?: string
 }) => {
   const { t } = useTranslation()
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { accounts } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
 
   const iconSize = 24
@@ -47,7 +49,7 @@ const PayOption = ({
     return networks.find((n) => n.id === feeOption.token.networkId)?.name || ''
   }, [feeOption.token.flags.onGasTank, feeOption.token.networkId, networks])
 
-  const isPaidByAnotherAccount = feeOption.paidBy !== selectedAccount
+  const isPaidByAnotherAccount = feeOption.paidBy !== account?.addr
 
   const paidByLabel = useMemo(() => {
     return paidByAccountData?.preferences.label
@@ -95,7 +97,13 @@ const PayOption = ({
       {isPaidByAnotherAccount && (
         <View style={[flexbox.alignEnd]}>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <Avatar size={16} pfp={feeOption.paidBy} style={spacings.prTy} />
+            <Avatar
+              size={16}
+              pfp={feeOption.paidBy}
+              style={spacings.prTy}
+              isSmart={false}
+              displayTypeBadge={false}
+            />
             <Text fontSize={10} weight="semiBold" numberOfLines={1}>
               {paidByLabel}
             </Text>

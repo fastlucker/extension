@@ -70,9 +70,13 @@ const AccountPersonalizeScreen = () => {
         params: data.accounts.map((a) => ({ addr: a.addr, preferences: a.preferences }))
       })
 
-      navigate('/')
+      if (stepperState?.currentFlow === 'seed-with-option-to-save') {
+        navigate(WEB_ROUTES.saveImportedSeed)
+      } else {
+        navigate('/')
+      }
     },
-    [navigate, dispatch]
+    [navigate, dispatch, stepperState]
   )
 
   return (
@@ -110,7 +114,7 @@ const AccountPersonalizeScreen = () => {
               numberOfLines={1}
               style={[spacings.mrTy, flexbox.flex1]}
             >
-              {t('Personalize your accounts')}
+              {t('Name your accounts')}
             </Text>
 
             <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>

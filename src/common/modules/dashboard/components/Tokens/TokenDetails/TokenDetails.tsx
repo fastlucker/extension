@@ -1,38 +1,39 @@
-import { getAddress, ZeroAddress } from 'ethers'
+import { getAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
-import BridgeIcon from '@common/assets/svg/BridgeIcon'
+import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
-import SwapIcon from '@common/assets/svg/SwapIcon'
+import SwapAndBridgeIcon from '@common/assets/svg/SwapAndBridgeIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
+import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
-import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getTokenId } from '@web/utils/token'
 
 import TokenDetailsButton from './Button'
@@ -48,26 +49,32 @@ const TokenDetails = ({
   handleClose: () => void
   tokenPreferences: CustomToken[]
 }) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { isOffline } = useConnectivity()
-  const { selectedAccount, accounts } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
+  const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
+  const network = useMemo(
+    () => networks.find((n) => n.id === token?.networkId),
+    [networks, token?.networkId]
+  )
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
   const isGasTankOrRewardsToken = token?.flags.onGasTank || !!token?.flags.rewardsType
   const isAmountZero = token && getTokenAmount(token) === 0n
   const canToToppedUp = token?.flags.canTopUpGasTank
-  const selectedAccountData = accounts.find((acc) => acc.addr === selectedAccount)
-  const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
+  const isSmartAccount = account ? getIsSmartAccount(account) : false
   const tokenId = token ? getTokenId(token) : ''
+  const shouldDisableSwapAndBridge =
+    !getIsNetworkSupported(supportedChainIds, network) || isGasTankOrRewardsToken || isAmountZero
 
   const actions = useMemo(
     () => [
@@ -76,43 +83,19 @@ const TokenDetails = ({
         text: t('Send'),
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
-          navigate(`transfer?networkId=${networkId}&address=${address}`),
+          navigate(`${WEB_ROUTES.transfer}?networkId=${networkId}&address=${address}`),
         isDisabled: isGasTankOrRewardsToken || isAmountZero,
         strokeWidth: 1.5,
         testID: 'token-send'
       },
       {
-        id: 'swap',
-        text: t('Swap'),
-        icon: SwapIcon,
-        onPress: async ({ networkId, address }: TokenResult) => {
-          const networkData = networks.find((n) => n.id === networkId)
-
-          if (!networkData) {
-            addToast(t('Network not found'), { type: 'error' })
-            return
-          }
-
-          let inputCurrency = address
-
-          if (address === ZeroAddress) {
-            // Uniswap doesn't select the native token if you pass its address
-            inputCurrency = 'native'
-          }
-
-          // Change the current dapp network to the selected one,
-          // otherwise uniswap will select the token from the current network
-          dispatch({
-            type: 'CHANGE_CURRENT_DAPP_NETWORK',
-            params: {
-              chainId: Number(networkData.chainId),
-              origin: 'https://app.uniswap.org'
-            }
-          })
-
-          await createTab(`https://app.uniswap.org/swap?inputCurrency=${inputCurrency}`)
-        },
-        isDisabled: isGasTankOrRewardsToken,
+        id: 'swap-or-bridge',
+        text: t('Swap or Bridge'),
+        icon: SwapAndBridgeIcon,
+        iconWidth: 86,
+        onPress: ({ networkId, address }: TokenResult) =>
+          navigate(`${WEB_ROUTES.swapAndBridge}?networkId=${networkId}&address=${address}`),
+        isDisabled: shouldDisableSwapAndBridge,
         strokeWidth: 1.5
       },
       {
@@ -136,7 +119,8 @@ const TokenDetails = ({
           const canTopUp = !!assets.find(
             (a) => getAddress(a.address) === getAddress(address) && a.network === networkId
           )
-          if (canTopUp) navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`)
+          if (canTopUp)
+            navigate(`${WEB_ROUTES.topUpGasTank}?networkId=${networkId}&address=${address}`)
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
         isDisabled: !canToToppedUp || !isSmartAccount,
@@ -150,29 +134,6 @@ const TokenDetails = ({
         onPress: () => {},
         isDisabled: true,
         strokeWidth: 1
-      },
-      {
-        id: 'bridge',
-        text: t('Bridge'),
-        icon: BridgeIcon,
-        onPress: async ({ networkId, address }) => {
-          const networkData = networks.find((network) => network.id === networkId)
-
-          if (networkData) {
-            let formattedAddress = address
-
-            if (address === ZeroAddress) {
-              // Bungee expects the native address to be formatted as 0xeee...eee
-              formattedAddress = `0x${'e'.repeat(40)}`
-            }
-
-            await createTab(
-              `${BRIDGE_URL}?fromChainId=${networkData?.chainId}&fromTokenAddress=${formattedAddress}`
-            )
-          }
-        },
-        isDisabled: isGasTankOrRewardsToken,
-        strokeWidth: 1.5
       },
       {
         id: 'withdraw',
@@ -189,13 +150,12 @@ const TokenDetails = ({
         onPress: async () => {
           if (!hasTokenInfo || !token || !networks.length) return
 
-          const networkData = networks.find((n) => n.id === token?.networkId)
-          if (!networkData) {
+          if (!network) {
             addToast(t('Network not found'), { type: 'error' })
             return
           }
 
-          const coingeckoId = geckoIdMapper(token?.address, networkData)
+          const coingeckoId = geckoIdMapper(token?.address, network)
 
           try {
             await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`)
@@ -216,10 +176,10 @@ const TokenDetails = ({
       hasTokenInfo,
       navigate,
       networks,
-      dispatch,
       addToast,
       token,
-      handleClose
+      handleClose,
+      network
     ]
   )
   useEffect(() => {
@@ -227,13 +187,12 @@ const TokenDetails = ({
 
     setIsTokenInfoLoading(true)
 
-    const networkData = networks.find((n) => n.id === token?.networkId)
-    if (!networkData) {
+    if (!network) {
       addToast(t('Network not found'), { type: 'error' })
       setIsTokenInfoLoading(false)
       return
     }
-    const coingeckoId = geckoIdMapper(token?.address, networkData)
+    const coingeckoId = geckoIdMapper(token?.address, network)
 
     const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`
 
@@ -254,7 +213,7 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [t, token?.address, token?.networkId, networks, addToast, isOffline])
+  }, [t, token?.address, token?.networkId, networks, addToast, isOffline, network])
 
   const handleHideToken = () => {
     if (!token) return
@@ -282,6 +241,10 @@ const TokenDetails = ({
         token: newToken
       }
     })
+
+    // The modal closes anyway so it's better to close it right
+    // after hiding the token
+    handleClose()
   }
   if (!token) return null
 
@@ -328,12 +291,16 @@ const TokenDetails = ({
             </View>
             {!onGasTank && !isRewards && !isVesting && (
               <View style={[flexbox.alignSelfEnd]}>
-                <Toggle
-                  isOn={isHidden}
-                  onToggle={handleHideToken}
-                  label={isHidden ? t('Show Token') : t('Hide Token')}
-                  toggleStyle={spacings.mrTy}
-                />
+                <Pressable
+                  style={[flexbox.directionRow, flexbox.alignCenter]}
+                  onPress={handleHideToken}
+                  disabled={isHidden}
+                >
+                  <Text weight="medium" fontSize={12}>
+                    {t('Hide')}
+                  </Text>
+                  <VisibilityIcon color={theme.successDecorative} style={styles.visibilityIcon} />
+                </Pressable>
               </View>
             )}
           </View>
@@ -388,6 +355,7 @@ const TokenDetails = ({
             token={token}
             isTokenInfoLoading={isTokenInfoLoading}
             handleClose={handleClose}
+            iconWidth={action.iconWidth}
           />
         ))}
       </View>

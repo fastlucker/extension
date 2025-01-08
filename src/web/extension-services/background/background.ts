@@ -6,33 +6,39 @@ import 'setimmediate'
 
 import { nanoid } from 'nanoid'
 
-import {
-  BIP44_STANDARD_DERIVATION_TEMPLATE,
-  HD_PATH_TEMPLATE_TYPE
-} from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
-import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
+import { NetworkId } from '@ambire-common/interfaces/network'
+import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
-import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import {
-  getAccountKeysCount,
-  getDefaultKeyLabel,
-  getExistingKeyLabel
-} from '@ambire-common/libs/keys/keys'
+import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import {
+  getActiveRoutesLowestServiceTime,
+  getActiveRoutesUpdateInterval
+} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import wait from '@ambire-common/utils/wait'
+import { isProd } from '@common/config/env'
 import { createRecurringTimeout } from '@common/utils/timeout'
-import { RELAYER_URL, VELCRO_URL } from '@env'
+import {
+  BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
+  RELAYER_URL,
+  SOCKET_API_KEY,
+  VELCRO_URL
+} from '@env'
 import { browser } from '@web/constants/browserapi'
+import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
+import ExtensionUpdateController from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
+import { handleActions } from '@web/extension-services/background/handlers/handleActions'
+import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
+import { handleCleanUpOnPortDisconnect } from '@web/extension-services/background/handlers/handleCleanUpOnPortDisconnect'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
@@ -42,20 +48,17 @@ import { notificationManager } from '@web/extension-services/background/webapi/n
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
-import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 import LatticeSigner from '@web/modules/hardware-wallet/libs/LatticeSigner'
-import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
-import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
-function stateDebug(event: string, stateToLog: object) {
+function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
   // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
@@ -74,7 +77,13 @@ function stateDebug(event: string, stateToLog: object) {
   // (instead of the entire state) to the user console, which aids in debugging without significant performance costs.
   if (process.env.APP_ENV === 'production') return
 
-  logInfoWithPrefix(event, parse(stringify(stateToLog)))
+  const args = parse(stringify(stateToLog))
+  const ctrlState = ctrlName === 'main' ? args : args[ctrlName]
+
+  const logData =
+    BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+
+  logInfoWithPrefix(event, logData)
 }
 
 let mainCtrl: MainController
@@ -117,8 +126,11 @@ handleKeepAlive()
     hasSignAccountOpCtrlInitialized: boolean
     portfolioLastUpdatedByIntervalAt: number
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
+    updateDefiPositionsInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
+    updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
+    updateSwapAndBridgeQuoteInterval?: ReturnType<typeof setTimeout>
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
@@ -150,9 +162,9 @@ handleKeepAlive()
     // As of v4.26.0, custom extension-specific headers. TBD for the other apps.
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
     initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
-    const sliceOfKeyStoreUid = mainCtrl.keystore.keyStoreUid?.substring(10, 21) || ''
+    const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
     const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
-    initWithCustomHeaders.headers['x-app-source'] = sliceOfKeyStoreUid + inviteVerifiedCode
+    initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
 
     // As of v4.36.0, for metric purposes, pass the account keys count as an
     // additional param for the batched velcro discovery requests.
@@ -183,11 +195,14 @@ handleKeepAlive()
     return fetch(url, initWithCustomHeaders)
   }
 
+  await handleCleanDappSessions()
+
   mainCtrl = new MainController({
     storage,
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
+    socketApiKey: SOCKET_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -204,6 +219,9 @@ handleKeepAlive()
       ...windowManager,
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
+      },
+      sendWindowUiMessage: (params) => {
+        pm.send('> ui', { method: 'receiveOneTimeData', params })
       }
     },
     notificationManager
@@ -212,9 +230,10 @@ handleKeepAlive()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
+  const extensionUpdateCtrl = new ExtensionUpdateController()
 
-  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000
-  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000
+  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000 // 1 minute
+  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000 // 10 minutes
   async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
@@ -265,6 +284,26 @@ handleKeepAlive()
     }
   }
 
+  const ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL = 180000 // 3 minutes
+  const INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL = 600000 // 10 minutes
+  async function initDefiPositionsContinuousUpdate() {
+    if (backgroundState.updateDefiPositionsInterval)
+      clearTimeout(backgroundState.updateDefiPositionsInterval)
+
+    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
+    const updateInterval = isExtensionActive
+      ? ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
+      : INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL
+
+    async function updateDefiPositions() {
+      await mainCtrl.defiPositions.updatePositions()
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
+    }
+
+    backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
+  }
+
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
     if (backgroundState.accountsOpsStatusesInterval)
       clearTimeout(backgroundState.accountsOpsStatusesInterval)
@@ -279,12 +318,68 @@ handleKeepAlive()
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
+  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: ActiveRoute[]) {
+    if (!activeRoutesInProgress || !activeRoutesInProgress.length) {
+      !!backgroundState.updateActiveRoutesInterval &&
+        clearTimeout(backgroundState.updateActiveRoutesInterval)
+      delete backgroundState.updateActiveRoutesInterval
+      return
+    }
+    if (backgroundState.updateActiveRoutesInterval) return
+
+    let minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress)
+
+    async function updateActiveRoutes() {
+      minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress!)
+      await mainCtrl.swapAndBridge.checkForNextUserTxForActiveRoutes()
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateActiveRoutesInterval = setTimeout(
+        updateActiveRoutes,
+        getActiveRoutesUpdateInterval(minServiceTime)
+      )
+    }
+
+    backgroundState.updateActiveRoutesInterval = setTimeout(
+      updateActiveRoutes,
+      getActiveRoutesUpdateInterval(minServiceTime)
+    )
+  }
+
+  function initSwapAndBridgeQuoteContinuousUpdate() {
+    if (mainCtrl.swapAndBridge.formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+      !!backgroundState.updateSwapAndBridgeQuoteInterval &&
+        clearTimeout(backgroundState.updateSwapAndBridgeQuoteInterval)
+      delete backgroundState.updateSwapAndBridgeQuoteInterval
+      return
+    }
+    if (backgroundState.updateSwapAndBridgeQuoteInterval) return
+
+    async function updateSwapAndBridgeQuote() {
+      if (mainCtrl.swapAndBridge.formStatus === SwapAndBridgeFormStatus.ReadyToSubmit)
+        await mainCtrl.swapAndBridge.updateQuote({
+          skipPreviousQuoteRemoval: true,
+          skipQuoteUpdateOnSameValues: false,
+          skipStatusUpdate: true
+        })
+
+      // Schedule the next update only when the previous one completes
+      backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
+    }
+
+    backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
+  }
+
   async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
     if (backgroundState.accountStateLatestInterval)
       clearTimeout(backgroundState.accountStateLatestInterval)
 
     const updateAccountState = async () => {
-      await mainCtrl.accounts.updateAccountStates('latest')
+      if (!mainCtrl.selectedAccount.account) {
+        console.error('No selected account to latest state')
+        return
+      }
+      await mainCtrl.accounts.updateAccountState(mainCtrl.selectedAccount.account.addr, 'latest')
       backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
     }
 
@@ -293,16 +388,34 @@ handleKeepAlive()
   }
 
   async function initPendingAccountStateContinuousUpdate(intervalLength: number) {
+    if (!mainCtrl.selectedAccount.account) {
+      console.error('No selected account to update pending state')
+      return
+    }
+
     if (backgroundState.accountStatePendingInterval)
       clearTimeout(backgroundState.accountStatePendingInterval)
 
     const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
       .map((op) => op.networkId)
       .filter((networkId, index, self) => self.indexOf(networkId) === index)
-    await mainCtrl.accounts.updateAccountStates('pending', networksToUpdate)
+    await mainCtrl.accounts.updateAccountState(
+      mainCtrl.selectedAccount.account.addr,
+      'pending',
+      networksToUpdate
+    )
 
     const updateAccountState = async (networkIds: NetworkId[]) => {
-      await mainCtrl.accounts.updateAccountStates('pending', networkIds)
+      if (!mainCtrl.selectedAccount.account) {
+        console.error('No selected account to update pending state')
+        return
+      }
+
+      await mainCtrl.accounts.updateAccountState(
+        mainCtrl.selectedAccount.account.addr,
+        'pending',
+        networkIds
+      )
 
       // if there are no more broadcastedButNotConfirmed ops for the network,
       // remove the timeout
@@ -336,7 +449,7 @@ handleKeepAlive()
   }
 
   function createEstimateRecurringTimeout() {
-    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 60000)
+    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 30000)
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
@@ -346,16 +459,24 @@ handleKeepAlive()
     forceEmit?: boolean
   ): 'DEBOUNCED' | 'EMITTED' {
     const sendUpdate = () => {
-      pm.send('> ui', {
-        method: ctrlName,
-        // We are removing the portfolio to avoid the CPU-intensive task of parsing + stringifying.
-        // The portfolio controller is particularly resource-heavy. Additionally, we should access the portfolio
-        // directly from its contexts instead of through the main, which applies to other nested controllers as well.
+      let stateToSendToFE
+
+      if (ctrlName === 'main') {
+        const state = { ...ctrl.toJSON() }
+        // We are removing the state of the nested controllers in main to avoid the CPU-intensive task of parsing + stringifying.
+        // We should access the state of the nested controllers directly from their context instead of accessing them through the main ctrl state on the FE.
         // Keep in mind: if we just spread `ctrl` instead of calling `ctrl.toJSON()`, the getters won't be included.
-        params: ctrlName === 'main' ? { ...ctrl.toJSON(), portfolio: null } : ctrl,
-        forceEmit
-      })
-      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog)
+        Object.keys(controllersNestedInMainMapping).forEach((nestedCtrlName) => {
+          delete state[nestedCtrlName]
+        })
+
+        stateToSendToFE = state
+      } else {
+        stateToSendToFE = ctrl
+      }
+
+      pm.send('> ui', { method: ctrlName, params: stateToSendToFE, forceEmit })
+      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
     }
 
     /**
@@ -443,7 +564,7 @@ handleKeepAlive()
                   mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
                   mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
-                    mainCtrl.accounts.selectedAccount
+                    mainCtrl.selectedAccount.account?.addr
                   ])
                 }
                 backgroundState.isUnlocked = controller.isUnlocked
@@ -511,6 +632,10 @@ handleKeepAlive()
                 }
               }
             }
+            if (ctrlName === 'swapAndBridge') {
+              initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
+              initSwapAndBridgeQuoteContinuousUpdate()
+            }
           }, 'background')
         }
       }
@@ -520,7 +645,7 @@ handleKeepAlive()
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl)
+            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
             pm.send('> ui-error', {
               method: ctrlName,
               params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
@@ -531,7 +656,7 @@ handleKeepAlive()
     })
   }, 'background')
   mainCtrl.onError(() => {
-    stateDebug('onError (main ctrl)', mainCtrl)
+    stateDebug('onError (main ctrl)', mainCtrl, 'main')
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }
@@ -565,6 +690,22 @@ handleKeepAlive()
     })
   })
 
+  // Broadcast onUpdate for the extension-update controller
+  extensionUpdateCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick(
+      'extensionUpdate',
+      extensionUpdateCtrl,
+      extensionUpdateCtrl,
+      forceEmit
+    )
+  })
+  extensionUpdateCtrl.onError(() => {
+    pm.send('> ui-error', {
+      method: 'extensionUpdate',
+      params: { errors: extensionUpdateCtrl.emittedErrors, controller: 'extensionUpdate' }
+    })
+  })
+
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
     if (['popup', 'tab', 'action-window'].includes(port.name)) {
@@ -573,23 +714,16 @@ handleKeepAlive()
       pm.addPort(port)
       const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
 
-      const timeSinceLastUpdate =
-        Date.now() - (backgroundState.portfolioLastUpdatedByIntervalAt || 0)
-
-      // Call portfolio update if the extension is inactive and 30 seconds have passed since the last update
-      // in order to have the latest data when the user opens the extension
-      // otherwise, the portfolio will be updated by the interval after 1 minute
-      // and there is no broadcasted but not confirmed acc op, due to the fact that this will cost it being
+      // Update if there is no broadcasted but not confirmed acc op, due to the fact that this will cost it being
       // removed from the UI and we will lose the simulation
       // Also do not trigger update on every new port but only if there is only one port
-      if (
-        timeSinceLastUpdate > ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL / 2 &&
-        pm.ports.length === 1 &&
-        port.name === 'popup' &&
-        !hasBroadcastedButNotConfirmed
-      ) {
+      if (pm.ports.length === 1 && port.name === 'popup' && !hasBroadcastedButNotConfirmed) {
         try {
-          await mainCtrl.updateSelectedAccountPortfolio()
+          // These promises shouldn't be awaited as that will slow down the popup opening
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          mainCtrl.updateSelectedAccountPortfolio()
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          mainCtrl.domains.batchReverseLookup(mainCtrl.accounts?.accounts.map((acc) => acc.addr))
           backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
         } catch (error) {
           console.error('Error during immediate portfolio update:', error)
@@ -597,490 +731,24 @@ handleKeepAlive()
       }
 
       initPortfolioContinuousUpdate()
+      initDefiPositionsContinuousUpdate()
 
       // @ts-ignore
-      pm.addListener(port.id, async (messageType, { type, params }) => {
+      pm.addListener(port.id, async (messageType, action: Action) => {
+        const { type } = action
         try {
           if (messageType === '> background' && type) {
-            switch (type) {
-              case 'INIT_CONTROLLER_STATE': {
-                if (params.controller === ('main' as any)) {
-                  pm.send('> ui', { method: 'main', params: mainCtrl })
-                } else if (params.controller === ('walletState' as any)) {
-                  pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
-                } else if (params.controller === ('autoLock' as any)) {
-                  pm.send('> ui', { method: 'autoLock', params: autoLockCtrl })
-                } else {
-                  pm.send('> ui', {
-                    method: params.controller,
-                    params: (mainCtrl as any)[params.controller]
-                  })
-                }
-                break
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-                return await mainCtrl.handleAccountAdderInitLedger(LedgerKeyIterator)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                const { walletSDK } = trezorCtrl
-                await mainCtrl.accountAdder.init({
-                  keyIterator: new TrezorKeyIterator({ walletSDK }),
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
-                })
-
-                return await mainCtrl.accountAdder.setPage({ page: 1 })
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
-                return await mainCtrl.handleAccountAdderInitLattice(LatticeKeyIterator)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-                const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
-                const keyIterator = new KeyIterator(params.privKeyOrSeed)
-                if (keyIterator.subType === 'seed' && params.shouldPersist) {
-                  await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
-                }
-
-                await mainCtrl.accountAdder.init({
-                  keyIterator,
-                  pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
-                  hdPathTemplate
-                })
-
-                return await mainCtrl.accountAdder.setPage({ page: 1 })
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE': {
-                if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-                const keystoreDefaultSeed = await mainCtrl.keystore.getDefaultSeed()
-
-                if (!keystoreDefaultSeed) return
-                const keyIterator = new KeyIterator(keystoreDefaultSeed.seed)
-                await mainCtrl.accountAdder.init({
-                  keyIterator,
-                  pageSize: 5,
-                  hdPathTemplate: keystoreDefaultSeed.hdPathTemplate
-                })
-
-                return await mainCtrl.accountAdder.setPage({ page: 1 })
-              }
-              case 'MAIN_CONTROLLER_TRACE_CALL': {
-                return await mainCtrl.traceCall(params.estimation)
-              }
-              case 'MAIN_CONTROLLER_ADD_NETWORK': {
-                return await mainCtrl.addNetwork(params)
-              }
-              case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
-                return await mainCtrl.removeNetwork(params)
-              }
-              case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
-                return await mainCtrl.accounts.updateAccountPreferences(params)
-              }
-              case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
-                return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
-              }
-              case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
-                return await mainCtrl.networks.setNetworkToAddOrUpdate(null)
-              }
-              case 'KEYSTORE_CONTROLLER_UPDATE_KEY_PREFERENCES': {
-                return await mainCtrl.keystore.updateKeyPreferences(params)
-              }
-              case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
-                return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
-              }
-              case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
-                return await mainCtrl.accounts.selectAccount(params.accountAddr)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
-                return mainCtrl.accountAdder.selectAccount(params.account)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
-                return mainCtrl.accountAdder.deselectAccount(params.account)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED': {
-                if (mainCtrl.accountAdder.isInitialized) {
-                  mainCtrl.accountAdder.reset()
-                }
-                break
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
-                return await mainCtrl.accountAdder.setPage(params)
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
-                return await mainCtrl.accountAdder.setHDPathTemplate(params)
-              }
-              case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
-                const readyToAddKeys: ReadyToAddKeys = {
-                  internal: [],
-                  external: []
-                }
-
-                if (mainCtrl.accountAdder.type === 'internal') {
-                  readyToAddKeys.internal =
-                    mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
-                } else {
-                  // External keys flow
-                  const keyType = mainCtrl.accountAdder.type as ExternalKey['type']
-
-                  const deviceIds: { [key in ExternalKey['type']]: string } = {
-                    ledger: ledgerCtrl.deviceId,
-                    trezor: trezorCtrl.deviceId,
-                    lattice: latticeCtrl.deviceId
-                  }
-
-                  const deviceModels: { [key in ExternalKey['type']]: string } = {
-                    ledger: ledgerCtrl.deviceModel,
-                    trezor: trezorCtrl.deviceModel,
-                    lattice: latticeCtrl.deviceModel
-                  }
-
-                  const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                    ({ account, accountKeys }) =>
-                      accountKeys.map(({ addr, index }, i) => ({
-                        addr,
-                        type: keyType,
-                        label: `${
-                          HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountAdder.type as Key['type']]
-                        } ${
-                          getExistingKeyLabel(
-                            mainCtrl.keystore.keys,
-                            addr,
-                            mainCtrl.accountAdder.type as Key['type']
-                          ) ||
-                          getDefaultKeyLabel(
-                            mainCtrl.keystore.keys.filter((key) =>
-                              account.associatedKeys.includes(key.addr)
-                            ),
-                            i
-                          )
-                        }`,
-                        dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
-                        meta: {
-                          deviceId: deviceIds[keyType],
-                          deviceModel: deviceModels[keyType],
-                          // always defined in the case of external keys
-                          hdPathTemplate: mainCtrl.accountAdder
-                            .hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                          index,
-                          createdAt: new Date().getTime()
-                        }
-                      }))
-                  )
-
-                  readyToAddKeys.external = readyToAddExternalKeys
-                }
-
-                return await mainCtrl.accountAdder.addAccounts(
-                  mainCtrl.accountAdder.selectedAccounts,
-                  readyToAddKeys
-                )
-              }
-              case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
-                // Since these accounts are view-only, directly add them in the
-                // MainController, bypassing the AccountAdder flow.
-                await mainCtrl.accounts.addAccounts(params.accounts)
-                break
-              }
-              // This flow interacts manually with the AccountAdder controller so that it can
-              // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
-              case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-                await mainCtrl.importSmartAccountFromDefaultSeed(params.seed)
-                break
-              }
-              case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
-                await mainCtrl.importSmartAccountFromDefaultSeed()
-                break
-              }
-              case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
-                return await mainCtrl.removeAccount(params.accountAddr)
-              }
-              case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
-                return await mainCtrl.buildTransferUserRequest(
-                  params.amount,
-                  params.recipientAddress,
-                  params.selectedToken,
-                  params.executionType
-                )
-              case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
-                return await mainCtrl.addUserRequest(params)
-              case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-                return mainCtrl.removeUserRequest(params.id)
-              case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
-                return mainCtrl.resolveUserRequest(params.data, params.id)
-              case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-                return mainCtrl.rejectUserRequest(params.err, params.id)
-              case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
-                return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
-              case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
-                return mainCtrl.rejectAccountOpAction(
-                  params.err,
-                  params.actionId,
-                  params.shouldOpenNextAction
-                )
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
-                return await mainCtrl.signMessage.init(params)
-              }
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
-                return mainCtrl.signMessage.reset()
-              case 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE': {
-                mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
-                return await mainCtrl.handleSignMessage()
-              }
-              case 'MAIN_CONTROLLER_ACTIVITY_INIT':
-                return mainCtrl.activity.init(params?.filters)
-              case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
-                return mainCtrl.activity.setFilters(params.filters)
-              case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
-                return mainCtrl.activity.setAccountsOpsPagination(params.pagination)
-              case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION':
-                return mainCtrl.activity.setSignedMessagesPagination(params.pagination)
-              case 'MAIN_CONTROLLER_ACTIVITY_RESET':
-                return mainCtrl.activity.reset()
-
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
-                return mainCtrl?.signAccountOp?.update(params)
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
-                return mainCtrl?.signAccountOp?.updateStatus(params.status)
-              case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
-                return await mainCtrl.handleSignAndBroadcastAccountOp()
-              }
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
-                return mainCtrl.initSignAccOp(params.actionId)
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
-                return mainCtrl.destroySignAccOp()
-              case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
-                return mainCtrl.actions.addOrUpdateAction(params)
-              case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
-                return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
-              case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
-                return mainCtrl.actions.focusActionWindow()
-              case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
-                return mainCtrl.actions.setCurrentActionById(params.actionId)
-              case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
-                return mainCtrl.actions.setCurrentActionByIndex(params.index)
-              case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
-                return mainCtrl.actions.setWindowLoaded()
-
-              case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
-                return await mainCtrl.reloadSelectedAccount()
-              }
-
-              case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
-                if (!mainCtrl.accounts.selectedAccount) return
-
-                return await mainCtrl.portfolio.getTemporaryTokens(
-                  mainCtrl.accounts.selectedAccount,
-                  params.networkId,
-                  params.additionalHint
-                )
-              }
-              case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
-                const token = params.token
-                let tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
-                const tokenIsNotInPreferences =
-                  (tokenPreferences?.length &&
-                    tokenPreferences.find(
-                      (_token) =>
-                        _token.address.toLowerCase() === token.address.toLowerCase() &&
-                        params.token.networkId === _token?.networkId
-                    )) ||
-                  false
-
-                if (!tokenIsNotInPreferences) {
-                  tokenPreferences.push(token)
-                } else {
-                  const updatedTokenPreferences = tokenPreferences.map((t: any) => {
-                    if (
-                      t.address.toLowerCase() === token.address.toLowerCase() &&
-                      t.networkId === token.networkId
-                    ) {
-                      return params.token
-                    }
-                    return t
-                  })
-                  tokenPreferences = updatedTokenPreferences.filter((t) => t.isHidden || t.standard)
-                }
-                const tokenNetwork: Network | undefined = mainCtrl.networks.networks.find(
-                  (n) => n.id === token.networkId
-                )
-
-                await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
-                return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts.selectedAccount || '',
-                  tokenNetwork,
-                  undefined,
-                  {
-                    forceUpdate: true
-                  }
-                )
-              }
-              case 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES': {
-                const tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
-
-                const tokenIsNotInPreferences =
-                  tokenPreferences.find(
-                    (_token) =>
-                      _token.address.toLowerCase() === params.token.address.toLowerCase() &&
-                      _token.networkId === params.token.networkId
-                  ) || false
-                if (!tokenIsNotInPreferences) return
-                const newTokenPreferences = tokenPreferences.filter(
-                  (_token) =>
-                    _token.address.toLowerCase() !== params.token.address.toLowerCase() ||
-                    _token.networkId !== params.token.networkId
-                )
-
-                const tokenNetwork: Network | undefined = mainCtrl.networks.networks.find(
-                  (n) => n.id === params.token.networkId
-                )
-
-                await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
-                return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts.selectedAccount || '',
-                  tokenNetwork,
-                  undefined,
-                  {
-                    forceUpdate: true
-                  }
-                )
-              }
-              case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
-                if (!mainCtrl.accounts.selectedAccount) return
-                return await mainCtrl.portfolio.updateTokenValidationByStandard(
-                  params.token,
-                  mainCtrl.accounts.selectedAccount
-                )
-              }
-              case 'KEYSTORE_CONTROLLER_ADD_SECRET':
-                return await mainCtrl.keystore.addSecret(
-                  params.secretId,
-                  params.secret,
-                  params.extraEntropy,
-                  params.leaveUnlocked
-                )
-              case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
-                return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
-              case 'KEYSTORE_CONTROLLER_LOCK':
-                return mainCtrl.keystore.lock()
-              case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
-                return mainCtrl.keystore.resetErrorState()
-              case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
-                return await mainCtrl.keystore.changeKeystorePassword(
-                  params.newSecret,
-                  params.secret
-                )
-              case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
-                // In the case we change the user's device password through the recovery process,
-                // we don't know the old password, which is why we send only the new password.
-                return await mainCtrl.keystore.changeKeystorePassword(params.newSecret)
-
-              case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
-                return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
-              case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
-                return await mainCtrl.emailVault.uploadKeyStoreSecret(params.email)
-              case 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY':
-                return await mainCtrl.emailVault.handleMagicLinkKey(params.email)
-              case 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION':
-                return mainCtrl.emailVault.cancelEmailConfirmation()
-              case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
-                return await mainCtrl.emailVault.recoverKeyStore(params.email, params.newPass)
-              case 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS':
-                return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
-              case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
-                return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
-              case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
-                return await mainCtrl.addressBook.addContact(params.name, params.address)
-              }
-              case 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT': {
-                const { address, newName } = params
-
-                const account = mainCtrl.accounts.accounts.find(
-                  ({ addr }) => addr.toLowerCase() === address.toLowerCase()
-                )
-
-                if (!account) {
-                  await mainCtrl.addressBook.renameManuallyAddedContact(address, newName)
-                  return
-                }
-
-                return await mainCtrl.accounts.updateAccountPreferences([
-                  {
-                    addr: address,
-                    preferences: {
-                      pfp: account.preferences.pfp,
-                      label: newName
-                    }
-                  }
-                ])
-              }
-              case 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT':
-                return await mainCtrl.addressBook.removeManuallyAddedContact(params.address)
-              case 'DOMAINS_CONTROLLER_REVERSE_LOOKUP':
-                return await mainCtrl.domains.reverseLookup(params.address)
-              case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
-                return mainCtrl.domains.saveResolvedReverseLookup(params)
-              case 'SET_IS_DEFAULT_WALLET': {
-                return await walletStateCtrl.setDefaultWallet(params.isDefaultWallet)
-              }
-              case 'SET_ONBOARDING_STATE': {
-                walletStateCtrl.onboardingState = params
-                break
-              }
-              case 'SET_IS_PINNED': {
-                walletStateCtrl.isPinned = params.isPinned
-                break
-              }
-              case 'SET_IS_SETUP_COMPLETE': {
-                walletStateCtrl.isSetupComplete = params.isSetupComplete
-                break
-              }
-              case 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME': {
-                autoLockCtrl.setLastActiveTime()
-                break
-              }
-              case 'AUTO_LOCK_CONTROLLER_SET_AUTO_LOCK_TIME': {
-                autoLockCtrl.autoLockTime = params
-                break
-              }
-
-              case 'INVITE_CONTROLLER_VERIFY': {
-                return await mainCtrl.invite.verify(params.code)
-              }
-
-              case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
-                mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
-                mainCtrl.dapps.updateDapp(params, { isConnected: false })
-                break
-              }
-              case 'CHANGE_CURRENT_DAPP_NETWORK': {
-                mainCtrl.dapps.updateDapp(params.origin, { chainId: params.chainId })
-                mainCtrl.dapps.broadcastDappSessionEvent(
-                  'chainChanged',
-                  {
-                    chain: `0x${params.chainId.toString(16)}`,
-                    networkVersion: `${params.chainId}`
-                  },
-                  params.origin
-                )
-                break
-              }
-              case 'DAPP_CONTROLLER_ADD_DAPP': {
-                return mainCtrl.dapps.addDapp(params)
-              }
-              case 'DAPP_CONTROLLER_UPDATE_DAPP': {
-                return mainCtrl.dapps.updateDapp(params.url, params.dapp)
-              }
-              case 'DAPP_CONTROLLER_REMOVE_DAPP': {
-                mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
-                return mainCtrl.dapps.removeDapp(params)
-              }
-
-              default:
-                return console.error(
-                  `Dispatched ${type} action, but handler in the extension background process not found!`
-                )
-            }
+            await handleActions(action, {
+              pm,
+              port,
+              mainCtrl,
+              ledgerCtrl,
+              trezorCtrl,
+              latticeCtrl,
+              walletStateCtrl,
+              autoLockCtrl,
+              extensionUpdateCtrl
+            })
           }
         } catch (err: any) {
           console.error(err)
@@ -1105,6 +773,8 @@ handleKeepAlive()
         pm.dispose(port.id)
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
+        initDefiPositionsContinuousUpdate()
+        handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -1116,6 +786,7 @@ handleKeepAlive()
   })
 
   initPortfolioContinuousUpdate()
+  initDefiPositionsContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
   await clearHumanizerMetaObjectFromStorage(storage)
 })()
@@ -1128,15 +799,14 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
     // eslint-disable-next-line no-await-in-loop
     await wait(200)
   }
-  const sessionId = meta.sender?.tab?.id
-  if (sessionId === undefined || !meta.sender?.url) {
+  const tabId = meta.sender?.tab?.id
+  if (tabId === undefined || !meta.sender?.url) {
     return
   }
 
   const origin = getOriginFromUrl(meta.sender.url)
-  const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
-  session.setMessenger(bridgeMessenger)
-
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
   // Temporarily resolves the subscription methods as successful
   // but the rpc block subscription is actually not implemented because it causes app crashes
   if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
@@ -1172,7 +842,7 @@ try {
       // eslint-disable-next-line no-await-in-loop
       await wait(200)
     }
-    const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
+    const sessionKeys = Object.keys(mainCtrl.dapps.dappSessions || {})
     // eslint-disable-next-line no-restricted-syntax
     for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
       mainCtrl.dapps.deleteDappSession(key)
@@ -1187,7 +857,9 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
   // It makes Puppeteer tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
   if (process.env.IS_TESTING === 'true') return
-  browser.runtime.setUninstallURL('https://www.ambire.com/uninstall')
+  if (isProd) {
+    browser.runtime.setUninstallURL('https://www.ambire.com/uninstall')
+  }
   if (reason === 'install') {
     setTimeout(() => {
       const extensionURL = browser.runtime.getURL('tab.html')

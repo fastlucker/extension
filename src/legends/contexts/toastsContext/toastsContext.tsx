@@ -1,7 +1,9 @@
 import React, { createContext, FC, useCallback, useMemo, useReducer } from 'react'
 
+import { ToastOptions } from '@common/contexts/toastContext'
+
 import ToastsContainer from './ToastContainer'
-import { ToastProps, ToastType } from './types'
+import { ToastProps } from './types'
 
 const toastReducer = (
   state: { toasts: ToastProps[] },
@@ -32,7 +34,7 @@ const toastReducer = (
 }
 
 const ToastContext = createContext<{
-  addToast: (message: string, type?: ToastType) => void
+  addToast: (message: string, options?: ToastOptions) => void
   dismissToast: (id: number) => void
 }>({
   addToast: () => {},
@@ -44,7 +46,8 @@ const ToastContextProvider: FC<{
 }> = ({ children }) => {
   const [state, dispatch] = useReducer(toastReducer, { toasts: [] })
 
-  const addToast = useCallback((message: string, type: ToastType = 'info') => {
+  const addToast = useCallback((message: string, options?: ToastOptions) => {
+    const { type = 'info' } = options || {}
     const id = Math.floor(Math.random() * 10000000)
     dispatch({ type: 'ADD_TOAST', payload: { id, message, type } })
   }, [])

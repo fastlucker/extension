@@ -35,10 +35,12 @@ const generateConfirmationWords = (seed: string[]) => {
   const confirmationWords: { numberInSeed: number; word: string }[] = []
 
   // Select one random word from each group
-  wordGroups.forEach((group) => {
-    const randomIndex = Math.floor(Math.random() * group.length)
+  wordGroups.forEach((group, groupIndex) => {
+    const randomIndex = Math.floor(Math.random() * (group.length - 1))
+    const indexOfWord = groupIndex * 3 + randomIndex
+
     confirmationWords.push({
-      numberInSeed: seed.indexOf(group[randomIndex]) + 1,
+      numberInSeed: indexOfWord + 1,
       word: group[randomIndex]
     })
   })
@@ -100,9 +102,9 @@ const CreateSeedPhraseWriteScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title="Recovery with Seed Phrase">
+        <Panel title="Secure your seed phrase">
           <Text appearance="infoText" fontSize={16} style={spacings.mbXl}>
-            {t('Write down and secure the Seed Phrase for your account')}
+            {t('Write down the seed phrase and store it in a safe place')}
           </Text>
           <View style={[flexbox.directionRow, flexbox.wrap]}>
             {(seed as string[]).map((word, index) => (

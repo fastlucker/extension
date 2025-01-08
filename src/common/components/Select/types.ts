@@ -24,10 +24,14 @@ export type CommonSelectProps = {
   menuOptionHeight?: number
   menuStyle?: ViewStyle
   withSearch?: boolean
+  searchPlaceholder?: string
   testID?: string
+  extraSearchProps?: { [key: string]: string }
 }
 export type SelectProps = CommonSelectProps & {
   options: SelectValue[]
+  attemptToFetchMoreOptions?: (search: string) => void
+  emptyListPlaceholderText?: string
 }
 
 export type SectionedSelectProps = CommonSelectProps &

@@ -4,7 +4,7 @@ import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface, ImportStatus } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
-import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
+import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Avatar from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
@@ -40,7 +40,8 @@ const Account = ({
   onSelect,
   onDeselect,
   isDisabled,
-  importStatus
+  importStatus,
+  displayTypeBadge = true
 }: {
   account: AccountInterface & { usedOnNetworks: Network[] }
   type: 'basic' | 'smart' | 'linked'
@@ -52,6 +53,7 @@ const Account = ({
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
   importStatus: ImportStatus
+  displayTypeBadge?: boolean
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -109,7 +111,12 @@ const Account = ({
             >
               {isAccountImported ? (
                 <>
-                  <Avatar pfp={account.preferences.pfp} size={24} />
+                  <Avatar
+                    pfp={account.preferences.pfp}
+                    size={24}
+                    isSmart={isSmartAccount(account)}
+                    displayTypeBadge={displayTypeBadge}
+                  />
                   <Text
                     fontSize={16}
                     weight="medium"

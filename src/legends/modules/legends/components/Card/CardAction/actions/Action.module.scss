@@ -1,0 +1,21 @@
+@import '@legends/styles/base';
+
+.stepper {
+  margin-bottom: 1rem;
+}
+
+.confetti {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.modalAction {
+  margin-bottom: 2rem;
+}
+
+.button {
+  @include primary-button;
+  font-size: 1rem;
+  color: $secondaryAccent;
+}

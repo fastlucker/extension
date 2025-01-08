@@ -34,10 +34,10 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
@@ -60,9 +60,8 @@ const TransferScreen = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-  const { selectedAccount, accounts } = useAccountsControllerState()
-  const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
-  const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
+  const { account } = useSelectedAccountControllerState()
+  const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
@@ -74,15 +73,29 @@ const TransferScreen = () => {
 
   const transactionUserRequests = useMemo(() => {
     return userRequests.filter(
-      (r) => r.action.kind === 'calls' && r.meta.accountAddr === selectedAccount
+      (r) => r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
     )
-  }, [selectedAccount, userRequests])
+  }, [account, userRequests])
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
       transferCtrl.update({ addressState: newPartialAddressState })
     },
     [transferCtrl]
+  )
+
+  const handleCacheResolvedDomain = useCallback(
+    (address: string, domain: string, type: 'ens' | 'ud') => {
+      dispatch({
+        type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
+        params: {
+          type,
+          address,
+          name: domain
+        }
+      })
+    },
+    [dispatch]
   )
 
   const addressInputState = useAddressInput({
@@ -94,7 +107,9 @@ const TransferScreen = () => {
         : '',
     overwriteValidLabel: validationFormMsgs?.recipientAddress.success
       ? validationFormMsgs.recipientAddress.message
-      : ''
+      : '',
+    addToast,
+    handleCacheResolvedDomain
   })
 
   const isFormEmpty = useMemo(() => {
@@ -324,6 +339,15 @@ const TransferScreen = () => {
                       .
                     </Trans>
                   }
+                  isTypeLabelHidden
+                />
+              </View>
+            )}
+            {isTopUp && isSmartAccount && (
+              <View style={spacings.ptSm}>
+                <Alert
+                  type="warning"
+                  title={<Trans>Gas Tank deposits cannot be withdrawn.</Trans>}
                   isTypeLabelHidden
                 />
               </View>

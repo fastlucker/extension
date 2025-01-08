@@ -2,7 +2,12 @@ import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
 import ImportFromDefaultOrExternalSeedIcon from '@common/assets/svg/ImportFromDefaultOrExternalSeedIcon'
+import ImportJsonIcon from '@common/assets/svg/ImportJsonIcon'
+import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
+import SeedPhraseIcon from '@common/assets/svg/SeedPhraseIcon'
+import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceModal from '@common/components/DualChoiceModal'
@@ -11,6 +16,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -20,18 +26,20 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
-import useBackgroundService from '@web/hooks/useBackgroundService'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
-import options from '@web/modules/auth/screens/HotWalletImportSelectorScreen/options'
+import { showEmailVaultInterest } from '@web/modules/auth/utils/emailVault'
+import { getExtensionInstanceId } from '@web/utils/analytics'
 
 const HotWalletImportSelectorScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { isReadyToStoreKeys, hasKeystoreDefaultSeed } = useKeystoreControllerState()
-  const { dispatch } = useBackgroundService()
+  const { isReadyToStoreKeys, hasKeystoreSavedSeed, keyStoreUid } = useKeystoreControllerState()
+  const { addToast } = useToast()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { accounts } = useAccountsControllerState()
   const accountAdderCtrlState = useAccountAdderControllerState()
   useEffect(() => {
     if (
@@ -50,94 +58,190 @@ const HotWalletImportSelectorScreen = () => {
     navigate
   ])
 
-  const handleImportFromDefaultSeed = useCallback(() => {
-    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_DEFAULT_SEED_PHRASE' })
-  }, [dispatch])
-
   const handleImportFromExternalSeed = useCallback(() => {
     navigate(WEB_ROUTES.importSeedPhrase)
   }, [navigate])
 
+  const handleImportSeed = useCallback(() => {
+    if (!isReadyToStoreKeys) {
+      navigate(WEB_ROUTES.keyStoreSetup, {
+        state: { flow: hasKeystoreSavedSeed ? 'seed' : 'seed-with-option-to-save' }
+      })
+      return
+    }
+
+    navigate(WEB_ROUTES.importSeedPhrase)
+  }, [navigate, isReadyToStoreKeys, hasKeystoreSavedSeed])
+
+  const handleCreateSeed = useCallback(() => {
+    if (!isReadyToStoreKeys) {
+      navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'create-seed' } })
+      return
+    }
+
+    navigate(WEB_ROUTES.createSeedPhrasePrepare)
+  }, [navigate, isReadyToStoreKeys])
+
+  const isImportOnly = hasKeystoreSavedSeed || accounts.length
   const onOptionPress = async (flow: string) => {
+    if (flow === 'seed') {
+      // if the extension has already been init once, this option
+      // will allow import a seed only as it will be availableo only
+      // from the bottom sheet
+      if (isImportOnly) {
+        // if you've added a view only account / hardware wallet,
+        // you won't have a device password => check it
+        if (!isReadyToStoreKeys) {
+          navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'seed' } })
+          return
+        }
+
+        handleImportFromExternalSeed()
+        return
+      }
+
+      openBottomSheet()
+      return
+    }
+
+    if (flow === 'email') {
+      await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
+      return
+    }
+
     if (!isReadyToStoreKeys) {
       navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
       return
     }
     if (flow === 'private-key') {
       navigate(WEB_ROUTES.importPrivateKey)
-      return
     }
-    if (flow === 'seed') {
-      if (hasKeystoreDefaultSeed) {
-        openBottomSheet()
-      } else {
-        navigate(WEB_ROUTES.importSeedPhrase)
-      }
+
+    if (flow === 'import-json') {
+      navigate(WEB_ROUTES.importSmartAccountJson)
     }
+
     // @TODO: Implement email vault
   }
 
+  const options = [
+    {
+      testID: 'button-proceed-seed-phrase',
+      title: 'Seed Phrase (Basic & Smart Accounts)',
+      text: isImportOnly
+        ? 'Import existing Basic (EOA) or Smart Account(s) with a seed phrase.'
+        : 'Create a new seed phrase or import an existing one to add account(s) or securely unlock new Basic (EOA) or Smart Account(s).',
+      image: SeedPhraseIcon,
+      buttonText: 'Proceed',
+      flow: 'seed'
+    },
+    {
+      testID: 'button-import-private-key',
+      title: 'Private Key\n(Basic Accounts)',
+      text: 'Import an existing Basic Account (EOA) with a private key.',
+      image: PrivateKeyIcon,
+      buttonText: 'Import',
+      flow: 'private-key'
+    },
+    {
+      testID: 'button-import-json',
+      title: 'JSON Backup\n(Smart Accounts)',
+      text: (
+        <View>
+          <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
+            Restore a Smart Account{' '}
+            <Text weight="semiBold" fontSize={14}>
+              created in the Ambire extension
+            </Text>{' '}
+            via a JSON backup file.
+          </Text>
+          <Alert type="warning">
+            <Text fontSize={14} appearance="secondaryText">
+              Backups from the web and app wallets cannot be imported into the extension.
+            </Text>
+          </Alert>
+        </View>
+      ),
+      image: ImportJsonIcon,
+      buttonText: 'Import',
+      flow: 'import-json'
+    }
+  ]
+
   return (
     <TabLayoutContainer
-      width="lg"
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
       footer={<BackButton fallbackBackRoute={WEB_ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Select one of the following options')}>
+        <Panel title={t('Select an option')}>
           <View style={[flexbox.directionRow]}>
-            {options.map((option, index) => (
+            {options.map((option) => (
               <Card
                 testID={option.testID}
-                style={index === 1 ? spacings.mh : {}}
+                style={[flexbox.flex1, spacings.mr]}
                 key={option.title}
                 title={option.title}
                 text={option.text}
                 icon={option.image}
                 onPress={() => onOptionPress(option.flow)}
                 buttonText={option.buttonText}
-                isDisabled={option?.isDisabled}
+                titleStyle={[spacings.mb]}
               />
             ))}
+            {/* the email vault option is fairly different than the others */}
+            {/* therefore, we hardcode it here */}
+            <Card
+              title={t('Email-Based Account')}
+              style={[flexbox.flex1]}
+              icon={EmailRecoveryIcon}
+              buttonText={t('Sign me up')}
+              onPress={() => onOptionPress('email')}
+              isPartiallyDisabled
+              titleStyle={[spacings.mb2Xl]}
+              isSecondary
+            >
+              <Alert
+                title=""
+                type="info"
+                text="Email-based accounts are in the pipeline. Let us know if you want to see this feature sooner."
+                style={spacings.mbSm}
+              />
+            </Card>
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
-      {!!hasKeystoreDefaultSeed && (
-        <BottomSheet
-          id="import-seed-phrase"
-          sheetRef={sheetRef}
-          closeBottomSheet={closeBottomSheet}
-          backgroundColor="secondaryBackground"
-          style={{ overflow: 'hidden', width: 632, ...spacings.ph0, ...spacings.pv0 }}
-          type="modal"
-        >
-          <DualChoiceModal
-            title={t('Import from default or external Seed Phrase')}
-            description={
-              <View>
-                <Text style={spacings.mbTy} appearance="secondaryText">
-                  {t(
-                    'If you use default seed, you will be given the option to import selected accounts from the currently associated seed phase.'
-                  )}
-                </Text>
-                <Text appearance="secondaryText">
-                  {t(
-                    'If you use external seed, you can import selected accounts from a seed phrase that you enter now. The seed phase itself won’t be persisted.'
-                  )}
-                </Text>
-              </View>
-            }
-            Icon={ImportFromDefaultOrExternalSeedIcon}
-            onSecondaryButtonPress={handleImportFromExternalSeed}
-            onPrimaryButtonPress={handleImportFromDefaultSeed}
-            secondaryButtonText={t('Use external seed')}
-            secondaryButtonTestID="use-external-seed-btn"
-            primaryButtonText={t('Use default seed')}
-            primaryButtonTestID="use-default-seed-btn"
-          />
-        </BottomSheet>
-      )}
+
+      <BottomSheet
+        id="create-or-import-seed-phrase"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        backgroundColor="secondaryBackground"
+        style={{ overflow: 'hidden', width: 632, ...spacings.ph0, ...spacings.pv0 }}
+        type="modal"
+      >
+        <DualChoiceModal
+          title={t('Create or import a seed phrase')}
+          description={
+            <View>
+              <Text style={spacings.mbTy} appearance="secondaryText">
+                {t('If you have a seed phrase you want to import, select Import seed.')}
+              </Text>
+              <Text appearance="secondaryText">
+                {t('Alternatively, to create a new one, proceed with Create seed.')}
+              </Text>
+            </View>
+          }
+          Icon={ImportFromDefaultOrExternalSeedIcon}
+          onSecondaryButtonPress={handleImportSeed}
+          onPrimaryButtonPress={handleCreateSeed}
+          secondaryButtonText={t('Import seed')}
+          secondaryButtonTestID="import-existing-seed-btn"
+          primaryButtonText={t('Create seed')}
+          primaryButtonTestID="create-seed-btn"
+        />
+      </BottomSheet>
     </TabLayoutContainer>
   )
 }

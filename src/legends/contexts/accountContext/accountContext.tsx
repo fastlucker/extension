@@ -1,41 +1,42 @@
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
+import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
+import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
 import { RELAYER_URL } from '@env'
+import useToast from '@legends/hooks/useToast'
 
-const accountContext = createContext<{
-  lastConnectedV2Account: string | null
+type AccountContextType = {
   connectedAccount: string | null
+  nonV2Account: string | null
+  allAccounts: string[]
+  allowNonV2Connection: boolean
+  setAllowNonV2Connection: (arg: boolean) => void
   chainId: bigint | null
-  isConnectedAccountV2: boolean
   isLoading: boolean
   error: string | null
   requestAccounts: () => void
   disconnectAccount: () => void
-}>({
-  lastConnectedV2Account: null,
-  connectedAccount: null,
-  chainId: null,
-  isConnectedAccountV2: false,
-  isLoading: true,
-  error: null,
-  requestAccounts: () => {},
-  disconnectAccount: () => {}
-})
+}
+
+const accountContext = createContext<AccountContextType>({} as AccountContextType)
 
 const LOCAL_STORAGE_ACC_KEY = 'connectedAccount'
 
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
-  // We keep track of the last connected v2 account so users can access Legends with the
-  // state of the last connected account, even if they switch to a non-v2 account. This is
-  // useful for actions which require a message/transaction to be signed with a Basic Account/v1.
-  const [lastConnectedV2Account, setLastConnectedV2Account] = React.useState<string | null>(() => {
+  const { addToast } = useToast()
+  // We keep only V2 accounts
+  const [connectedAccount, setConnectedAccount] = React.useState<string | null>(() => {
     const storedAccount = localStorage.getItem(LOCAL_STORAGE_ACC_KEY)
+
+    if (!window.ambire) return null
 
     return storedAccount || null
   })
-  // Can be Basic Account/Ambire v1 or v2
-  const [connectedAccount, setConnectedAccount] = React.useState<string | null>(null)
+
+  const [allAccounts, setAllAccounts] = React.useState<string[]>([])
+  const [nonV2Account, setNonV2Account] = React.useState<string | null>(null)
+  const [allowNonV2Connection, setAllowNonV2Connection] = React.useState<boolean>(false)
   const [chainId, setChainId] = React.useState<bigint | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -59,6 +60,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       method: 'eth_accounts',
       params: []
     })
+    setAllAccounts(accounts as string[])
 
     // @ts-ignore
     return accounts[0]
@@ -79,27 +81,50 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   const validateAndSetAccount = useCallback(
     async (address: string) => {
-      setConnectedAccount(address)
-      const identity = await getIdentity(address, fetch as any, RELAYER_URL)
+      try {
+        // Add: timeout to this request
+        const identity = await getIdentity(address, fetch as any, RELAYER_URL)
+        const factoryAddr = identity.creation?.factoryAddr
+        const isV2 = factoryAddr === AMBIRE_ACCOUNT_FACTORY
 
-      if (!identity.creation) {
-        if (!lastConnectedV2Account) {
-          setError('You are trying to connect a non Ambire v2 account. Please switch your account!')
+        if (isV2) {
+          setError(null)
+          setNonV2Account(null)
+          setConnectedAccount(address)
+          localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
+          return
         }
-        return
-      }
+        setNonV2Account(address)
 
-      setError(null)
-      setLastConnectedV2Account(address)
-      localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
+        if (!connectedAccount) {
+          const isV1 = isAmbireV1LinkedAccount(factoryAddr)
+
+          if (isV1) {
+            setError('You are trying to connect an Ambire v1 account. Please switch your account!')
+          } else {
+            setError(
+              'You are trying to connect a non Ambire v2 account. Please switch your account!'
+            )
+          }
+
+          return
+        }
+      } catch (e: any) {
+        addToast(
+          "We are experiencing a back-end outage and couldn't validate the connected account's identity. Please reload the page, and if the problem persists, contact support.",
+          { type: 'error' }
+        )
+        console.log(e)
+      }
     },
-    [lastConnectedV2Account]
+    [addToast, connectedAccount]
   )
 
   const handleDisconnectFromWallet = useCallback(() => {
     setConnectedAccount(null)
-    setLastConnectedV2Account(null)
+    setNonV2Account(null)
     setIsLoading(false)
+    setAllAccounts([])
     localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
   }, [])
 
@@ -115,7 +140,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     window.ambire?.on('chainChanged', onChainChanged)
 
     return () => {
-      window.ambire.removeListener('chainChanged', onChainChanged)
+      window.ambire?.removeListener('chainChanged', onChainChanged)
     }
   }, [getChainId])
 
@@ -129,7 +154,6 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
       }
 
       await validateAndSetAccount(accounts[0])
-      setIsLoading(false)
     }
 
     getConnectedAccount()
@@ -148,24 +172,29 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     window.ambire?.on('accountsChanged', onAccountsChanged)
 
     return () => {
-      window.ambire.removeListener('accountsChanged', onAccountsChanged)
+      window.ambire?.removeListener('accountsChanged', onAccountsChanged)
     }
   }, [getConnectedAccount, handleDisconnectFromWallet, validateAndSetAccount])
 
-  const contextValue = useMemo(
+  const contextValue: AccountContextType = useMemo(
     () => ({
-      lastConnectedV2Account,
       connectedAccount,
-      isConnectedAccountV2: connectedAccount === lastConnectedV2Account,
+      nonV2Account,
+      allowNonV2Connection,
+      setAllowNonV2Connection,
       error,
       requestAccounts,
       disconnectAccount,
+      allAccounts,
       chainId,
       isLoading
     }),
     [
-      lastConnectedV2Account,
       connectedAccount,
+      nonV2Account,
+      allowNonV2Connection,
+      setAllowNonV2Connection,
+      allAccounts,
       error,
       requestAccounts,
       disconnectAccount,

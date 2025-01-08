@@ -9,7 +9,7 @@ import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
-import { DISCORD_URL, TWITTER_URL } from '@web/constants/social'
+import { DISCORD_URL, TELEGRAM_URL, TWITTER_URL } from '@web/constants/social'
 import VerifyInviteCodeForm from '@web/modules/invite/components/VerifyInviteCodeForm'
 
 import getStyles from './style'
@@ -20,6 +20,7 @@ const InviteVerifyScreen = () => {
 
   const handleOpenDiscord = useCallback(() => Linking.openURL(DISCORD_URL), [])
   const handleOpenTwitter = useCallback(() => Linking.openURL(TWITTER_URL), [])
+  const handleOpenTelegram = useCallback(() => Linking.openURL(TELEGRAM_URL), [])
 
   return (
     <TabLayoutContainer
@@ -40,12 +41,20 @@ const InviteVerifyScreen = () => {
           <VerifyInviteCodeForm />
           <SeparatorWithText text={t("Don't have one?")} />
           <Trans>
-            <Text>
+            <Text style={spacings.mbTy}>
               <Text color={theme.secondaryText}>{'You can join our '}</Text>
               <Text style={styles.link} onPress={handleOpenDiscord}>
                 Discord
               </Text>
-              <Text color={theme.secondaryText}>{' or check '}</Text>
+              <Text color={theme.secondaryText}>{' or '}</Text>
+              <Text style={styles.link} onPress={handleOpenTelegram}>
+                Telegram.
+              </Text>
+            </Text>
+          </Trans>
+          <Trans>
+            <Text>
+              <Text color={theme.secondaryText}>{'Alternatively, you can check our '}</Text>
               <Text style={styles.link} onPress={handleOpenTwitter}>
                 Twitter
               </Text>

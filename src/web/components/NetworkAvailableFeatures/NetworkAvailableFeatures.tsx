@@ -26,9 +26,9 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import getStyles from './styles'
 
@@ -43,7 +43,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
-  const { selectedAccount, accounts } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
@@ -82,9 +82,8 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
   const handleDeploy = useCallback(async () => {
     if (!selectedNetwork) return // this should not happen...
 
-    const account = accounts.filter((acc) => acc.addr === selectedAccount)[0]
     // we need a basic account
-    if (isSmartAccount(account) || !account) {
+    if (isSmartAccount(account || undefined) || !account) {
       addToast(
         'Deploy cannot be made with a smart account. Please select a basic account and try again',
         { type: 'error' }
@@ -123,13 +122,13 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
       meta: {
         isSignAction: true,
         networkId: selectedNetwork.id,
-        accountAddr: selectedAccount as string
+        accountAddr: account.addr as string
       },
       action: txn
     }
 
     dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: userRequest })
-  }, [accounts, addToast, dispatch, selectedAccount, selectedNetwork])
+  }, [addToast, dispatch, account, selectedNetwork])
 
   const shouldRenderRetryButton = useMemo(
     () => !!features && !!features.find((f) => f.id === 'flagged') && withRetryButton,

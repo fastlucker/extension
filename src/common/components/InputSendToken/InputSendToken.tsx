@@ -3,6 +3,7 @@ import isEqual from 'react-fast-compare'
 import { Pressable, View } from 'react-native'
 
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import FlipIcon from '@common/assets/svg/FlipIcon'
 import NumberInput from '@common/components/NumberInput'
 import Text from '@common/components/Text'
@@ -11,7 +12,6 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 
 import SkeletonLoader from '../SkeletonLoader'
 
@@ -115,7 +115,7 @@ const InputSendToken = ({
         leftIconStyle={amountFieldMode === 'token' ? spacings.pl0 : spacings.plTy}
         inputStyle={amountFieldMode === 'token' ? {} : spacings.plMi}
         onButtonPress={handleSetMaxAmount}
-        buttonProps={{ withBackground: true }}
+        buttonProps={{ withBackground: true, disabled: disabled || isLoading }}
         disabled={disabled}
       />
       <View

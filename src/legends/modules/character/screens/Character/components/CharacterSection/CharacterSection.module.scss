@@ -1,74 +1,212 @@
 @import '@legends/styles/base.scss';
 
+.error {
+  margin-bottom: 1.5rem;
+}
+
+.modal {
+  min-width: 50rem;
+  .modalTitle {
+    font-size: 2.5rem;
+    font-weight: 500;
+  }
+  .modalText {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-style: italic;
+    color: $secondaryText;
+    border-radius: $primaryBorderRadius;
+    border: 1px solid $tertiaryBorder;
+    padding: 0.75rem 0.625rem;
+
+    &::first-letter {
+      font-size: 2.5rem;
+      text-transform: uppercase;
+    }
+  }
+}
+
 .wrapper {
   display: flex;
   position: relative;
   margin-bottom: 3rem;
   padding-top: 2rem;
-  height: 37.5rem;
+
+  .logoAndBalanceWrapper {
+    display: inline-block;
+    position: relative;
+  }
+
+  .iconDiamond {
+    align-self: baseline;
+  }
+  .logoWrapper {
+    display: flex;
+    justify-content: end;
+    position: absolute;
+    top: -12px;
+    right: 0;
+  }
 
   .characterInfo {
-    max-width: 25rem;
+    position: relative;
+    z-index: 2;
 
+    .characterNameWrapper {
+      margin-bottom: 3rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .infoIcon {
+      border: 1px solid $primaryText;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 1.2rem;
+      align-self: flex-start;
+      cursor: pointer;
+    }
     .kicker {
       font-size: 1rem;
       font-weight: 600;
       color: $tertiaryText;
     }
-    .characterNameAndLevel {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.25rem;
 
-      .characterName {
-        font-family: $secondaryFont;
-        font-size: 4rem;
-        line-height: 1;
-        font-weight: 500;
-        color: $primaryText;
-        text-transform: capitalize;
+    .characterName {
+      font-family: $secondaryFont;
+      font-size: 4rem;
+      line-height: 1.2;
+      font-weight: 500;
+      color: $primaryText;
+      text-transform: capitalize;
+
+      &.small {
+        font-size: 3rem;
       }
+    }
 
-      /* Container for the circular progress bar */
-      .levelWrapper {
-        position: relative;
-        width: 2.5rem;
-        height: 2.5rem;
+    .characterLevelInfoWrapper {
+      .characterItemWrapper {
+        display: flex;
+        margin-bottom: 2.5rem;
 
-        /* Outer progress circle */
-        .outerCircle {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
+        .icon {
+          margin-right: 1.5625rem;
+        }
+        .iconCoin {
+          align-self: center;
         }
 
-        /* Inner white circle */
-        .innerCircle {
-          position: absolute;
-          z-index: 3;
-          top: 10%;
-          left: 10%;
-          width: 80%;
-          height: 80%;
-          background-color: $primaryBackground;
-          border-radius: 50%;
+        .characterItem {
+          display: flex;
+          flex-direction: column;
+          font-size: 1rem;
+          font-weight: 500;
+          line-height: 1.5rem;
+          color: $secondaryText;
+          align-self: end;
+        }
+
+        .levelWrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+
+          .levelInfoTop {
+            margin-bottom: 0.5rem;
+          }
+
+          .levelInfo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .level {
+              color: $secondaryText;
+              font-size: 1rem;
+              font-weight: 500;
+              line-height: 1.5rem;
+              text-align: left;
+            }
+          }
+
+          .levelProgress {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            border-radius: $secondaryBorderRadius;
+            background-color: $secondaryBackground;
+            border: 0.0625rem solid $primaryBorder;
+            overflow: hidden;
+            position: relative;
+            min-width: 11.25rem;
+            color: $primaryText;
+            margin-bottom: 0.5rem;
+            text-align: center;
+
+            .xp {
+              position: relative;
+              font-size: 2rem;
+              font-weight: 500;
+              line-height: 2.75rem;
+              text-align: center;
+              z-index: 2;
+              color: $primaryText;
+            }
+
+            .levelProgressBar {
+              position: absolute;
+              top: 0;
+              left: 0;
+              z-index: 1;
+              height: 100%;
+              background-color: $secondaryAccent200;
+              display: flex;
+              align-items: center;
+              justify-content: flex-end;
+              white-space: nowrap;
+              transition: width 0.3s ease;
+            }
+          }
+        }
+      }
+
+      .item {
+        min-width: 11.25rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: $secondaryBorderRadius;
+        background-color: $secondaryBackground;
+        border: 1px solid $primaryBorder;
+        font-size: 1.5rem;
+        font-weight: 500;
+        line-height: 2.75rem;
+        text-align: center;
+        color: $primaryText;
+        margin-bottom: 0.5rem;
+
+        .itemTitleRow {
           display: flex;
           align-items: center;
-          justify-content: center;
+          justify-content: space-between;
 
-          /* Level number in the middle */
-          .level {
-            color: $primaryText;
-            font-family: $primaryFont;
-            font-size: 1.5rem;
-            line-height: 1;
-            font-weight: 500;
+          .itemTitle {
+            display: block;
+            color: $secondaryText;
+            font-family: $secondaryFont;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            margin-bottom: 0.5rem;
+          }
+
+          .progressText {
+            font-size: 0.75rem;
+            color: $secondaryText;
           }
         }
       }
     }
+
     .characterAbout {
       font-size: 1rem;
       color: $secondaryText;
@@ -76,61 +214,50 @@
       margin-bottom: 0.5rem;
     }
   }
+
   .character {
     position: absolute;
-    right: 0;
-    top: 0;
+    z-index: 0;
+    right: 5rem;
+    top: 2rem;
 
     .characterRelativeWrapper {
       position: relative;
 
-      &::before {
-        content: '';
-        position: absolute;
-        bottom: -2rem;
-        left: 52%;
-        transform: translateX(-50%);
-        width: 23.375rem;
-        height: 5.875rem;
-        border-radius: 50%;
-        background-color: $tertiaryBackground;
-        z-index: 1;
-        box-shadow: inset 0 0.25rem 0.25rem $primaryBorder;
-      }
-
       .characterImage {
         position: relative;
         z-index: 2;
-        width: 37.5rem;
-        height: 37.5rem;
+        width: 29.0625rem;
+        height: 34.4375rem;
+        object-fit: contain;
       }
     }
   }
 
   @include breakpoint-down-from(small-desktop) {
     padding-top: 1rem;
-    height: 30rem;
 
     .characterInfo {
-      .characterNameAndLevel {
-        .characterName {
-          font-size: 3rem;
-        }
+      .characterName {
+        font-size: 3rem;
       }
+
       .characterAbout {
         font-size: 0.875rem;
       }
     }
+
     .character {
       .characterRelativeWrapper {
         &::before {
           width: 18.75rem;
           height: 4.6875rem;
         }
-        .characterImage {
-          width: 30rem;
-          height: 30rem;
-        }
+      }
+
+      .characterImage {
+        width: 30rem;
+        height: 30rem;
       }
     }
   }

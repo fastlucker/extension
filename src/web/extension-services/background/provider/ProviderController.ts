@@ -5,22 +5,19 @@ import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
+import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappCommunication'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import {
-  AccountOpIdentifiedBy,
-  fetchTxnId,
-  isIdentifiedByTxn,
-  pollTxnId
-} from '@ambire-common/libs/accountOp/submittedAccountOp'
+import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
-import { APP_VERSION } from '@common/config/env'
-import { delayPromise } from '@common/utils/promises'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
+import { APP_VERSION, isProd } from '@common/config/env'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
-import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
-import formatDecimals from '@common/utils/formatDecimals'
 
+import { createTab } from '../webapi/tab'
 import { RequestRes, Web3WalletPermission } from './types'
 
 type ProviderRequest = DappProviderRequest & { requestRes: RequestRes }
@@ -50,6 +47,25 @@ export class ProviderController {
     this.isUnlocked = this.mainCtrl.keystore.isReadyToStoreKeys
       ? this.mainCtrl.keystore.isUnlocked
       : true
+  }
+
+  _internalGetAccounts = (origin: string) => {
+    if (ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS.includes(origin)) {
+      const allOtherAccountAddresses = this.mainCtrl.accounts.accounts.reduce((prevValue, acc) => {
+        if (acc.addr !== this.mainCtrl.selectedAccount.account?.addr) {
+          prevValue.push(acc.addr)
+        }
+
+        return prevValue
+      }, [] as string[])
+
+      // Selected account goes first in the list
+      return [this.mainCtrl.selectedAccount.account?.addr, ...allOtherAccountAddresses]
+    }
+
+    return this.mainCtrl.selectedAccount.account?.addr
+      ? [this.mainCtrl.selectedAccount.account?.addr]
+      : []
   }
 
   getDappNetwork = (origin: string) => {
@@ -90,34 +106,47 @@ export class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    const account = this.mainCtrl.accounts.selectedAccount
-      ? [this.mainCtrl.accounts.selectedAccount]
-      : []
+    const account = this._internalGetAccounts(origin)
+
     this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
   }
 
-  getPortfolioBalance = async ({ session: { origin } }: DappProviderRequest) => {
+  getPortfolioBalance = async ({
+    params: [chainParams],
+    session: { origin }
+  }: DappProviderRequest) => {
     if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
-      return null
+      throw ethErrors.provider.unauthorized()
     }
 
-    const hasSignAccOp = !!this.mainCtrl.actions?.visibleActionsQueue?.filter(
-      (action) => action.type === 'accountOp'
-    )
+    if (!this.mainCtrl.selectedAccount.account) {
+      throw new Error('wallet account not selected')
+    }
 
-    const portfolio = calculateAccountPortfolio(
-      this.mainCtrl.accounts.selectedAccount,
-      this.mainCtrl.portfolio,
-      undefined,
-      hasSignAccOp
-    )
+    let totalBalance: number = 0
+
+    if (chainParams && chainParams.chainIds?.length) {
+      chainParams.chainIds.forEach((chainId: string) => {
+        const network = this.mainCtrl.networks.networks.find(
+          (n) => Number(n.chainId) === Number(chainId)
+        )
+        if (!network) return
+
+        const portfolioNetwork = this.mainCtrl.selectedAccount.portfolio.pending[network.id]
+        if (!portfolioNetwork) return
+
+        totalBalance += portfolioNetwork.result?.total.usd || 0
+      })
+    } else {
+      totalBalance = this.mainCtrl.selectedAccount.portfolio.totalBalance
+    }
 
     return {
-      amount: portfolio.totalAmount,
-      amountFormatted: formatDecimals(portfolio.totalAmount, 'price'),
-      isReady: portfolio.isAllReady
+      amount: totalBalance,
+      amountFormatted: formatDecimals(totalBalance, 'price'),
+      isReady: this.mainCtrl.selectedAccount.portfolio.isAllReady
     }
   }
 
@@ -127,7 +156,7 @@ export class ProviderController {
       return []
     }
 
-    return this.mainCtrl.accounts.selectedAccount ? [this.mainCtrl.accounts.selectedAccount] : []
+    return this._internalGetAccounts(origin)
   }
 
   ethCoinbase = async ({ session: { origin } }: DappProviderRequest) => {
@@ -135,7 +164,7 @@ export class ProviderController {
       return null
     }
 
-    return this.mainCtrl.accounts.selectedAccount || null
+    return this.mainCtrl.selectedAccount.account?.addr || null
   }
 
   @Reflect.metadata('SAFE', true)
@@ -148,30 +177,8 @@ export class ProviderController {
 
   @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
   ethSendTransaction = async (request: ProviderRequest) => {
-    const { session } = request
     const { requestRes } = cloneDeep(request)
-
-    if (requestRes?.submittedAccountOp) {
-      const dappNetwork = this.getDappNetwork(session.origin)
-      const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
-      const txnId = await pollTxnId(
-        requestRes.submittedAccountOp.identifiedBy,
-        network,
-        this.mainCtrl.fetch,
-        this.mainCtrl.callRelayer
-      )
-      if (!txnId) throw new Error('Transaction failed!')
-
-      // delay just for better UX
-      // when the action-window is closed and the user views the dapp, we wait for the user
-      // to see the actual update in the dapp's UI once the request is resolved.
-      //
-      // do this only if we don't have to fetch the txnId
-      if (isIdentifiedByTxn(requestRes.submittedAccountOp.identifiedBy)) await delayPromise(400)
-
-      return txnId
-    }
-
+    if (requestRes?.hash) return requestRes.hash
     throw new Error('Transaction failed!')
   }
 
@@ -284,6 +291,18 @@ export class ProviderController {
       capabilities[toBeHex(network.chainId)] = {
         atomicBatch: {
           supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+        },
+        auxiliaryFunds: {
+          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+        },
+        paymasterService: {
+          supported:
+            !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA &&
+            // enabled: obvious, it means we're operaring with 4337
+            // hasBundlerSupport means it might not be 4337 but we support it
+            // our default may be the relayer but we will broadcast an userOp
+            // in case of sponsorships
+            (network.erc4337.enabled || network.erc4337.hasBundlerSupport)
         }
       }
     })
@@ -292,9 +311,8 @@ export class ProviderController {
 
   @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
   walletSendCalls = async (data: any) => {
-    if (data.requestRes && data.requestRes.submittedAccountOp) {
-      const identifiedBy = data.requestRes.submittedAccountOp.identifiedBy
-      return `${identifiedBy.type}:${identifiedBy.identifier}`
+    if (data.requestRes && data.requestRes.hash) {
+      return data.requestRes.hash
     }
 
     throw new Error('Transaction failed!')
@@ -326,6 +344,11 @@ export class ProviderController {
       this.mainCtrl.fetch,
       this.mainCtrl.callRelayer
     )
+    if (txnIdData.status === 'rejected') {
+      return {
+        status: 'FAILURE'
+      }
+    }
     if (txnIdData.status !== 'success') {
       return {
         status: 'PENDING'
@@ -334,21 +357,68 @@ export class ProviderController {
 
     const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
-    const receipt = await provider.getTransactionReceipt(txnId)
+    const isUserOp = identifiedBy.type === 'UserOperation'
+    const receipt = isUserOp
+      ? await bundler.getReceipt(identifiedBy.identifier, network)
+      : await provider.getTransactionReceipt(txnId)
+
     if (!receipt) {
       return {
         status: 'PENDING'
       }
     }
 
+    const txnStatus = isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number)
+    const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
+
     return {
       status: 'CONFIRMED',
-      receipts: [receipt]
+      receipts: [
+        {
+          logs: receipt.logs,
+          status,
+          chainId: toBeHex(network.chainId),
+          blockHash: isUserOp ? receipt.receipt.blockHash : receipt.blockHash,
+          blockNumber: isUserOp
+            ? receipt.receipt.blockNumber
+            : toBeHex(receipt.blockNumber as number),
+          gasUsed: isUserOp ? receipt.receipt.gasUsed : toBeHex(receipt.gasUsed),
+          transactionHash: isUserOp ? receipt.receipt.transactionHash : receipt.hash
+        }
+      ]
     }
   }
 
+  // open benzina in a separate tab upon a dapp request
   walletShowCallsStatus = async (data: any) => {
-    // TODO: open a modal with information about the transaction
+    if (!data.params || !data.params.length) {
+      throw ethErrors.rpc.invalidParams('params is required but got []')
+    }
+
+    const id = data.params[0]
+    if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
+
+    const splitInTwo = id.split(':')
+    if (splitInTwo.length !== 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
+
+    const type = splitInTwo[0]
+    const identifier = splitInTwo[1]
+    const identifiedBy: AccountOpIdentifiedBy = {
+      type,
+      identifier
+    }
+
+    const dappNetwork = this.getDappNetwork(data.session.origin)
+    const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
+    const chainId = Number(network.chainId)
+
+    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
+      txnId: identifiedBy.type === 'Transaction' ? identifiedBy.identifier : null,
+      chainId,
+      identifiedBy
+    })}`
+
+    await createTab(link)
   }
 
   @Reflect.metadata('ACTION_REQUEST', [

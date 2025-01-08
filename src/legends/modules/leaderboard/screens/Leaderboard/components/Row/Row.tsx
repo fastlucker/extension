@@ -1,10 +1,11 @@
 import React, { FC } from 'react'
 
-import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import BronzeTrophy from '@legends/modules/leaderboard/screens/Leaderboard/BronzeTrophy'
+import GoldTrophy from '@legends/modules/leaderboard/screens/Leaderboard/GoldTrophy'
 import styles from '@legends/modules/leaderboard/screens/Leaderboard/Leaderboard.module.scss'
+import SilverTrophy from '@legends/modules/leaderboard/screens/Leaderboard/SilverTrophy'
 import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
 type Props = LeaderboardEntry & {
@@ -19,26 +20,21 @@ const calculateRowStyle = (isConnectedAccountRow: boolean, stickyPosition: strin
       | 'relative',
     top: stickyPosition === 'top' && isConnectedAccountRow ? 0 : 'auto',
     bottom: stickyPosition === 'bottom' && isConnectedAccountRow ? 0 : 'auto',
-    zIndex: isConnectedAccountRow ? 1000 : 0
+    zIndex: isConnectedAccountRow ? 10 : 0
   }
 }
 
 const getBadge = (rank: number) => {
-  const rankClasses: {
-    [key: number]: string
-  } = {
-    1: styles.firstPlaceThrophy,
-    2: styles.secondPlaceThrophy,
-    3: styles.thirdPlaceThrophy
+  switch (rank) {
+    case 1:
+      return <GoldTrophy className={styles.trophy} />
+    case 2:
+      return <SilverTrophy className={styles.trophy} />
+    case 3:
+      return <BronzeTrophy className={styles.trophy} />
+    default:
+      return null
   }
-
-  const className = rankClasses[rank]
-
-  if (className) {
-    return <FontAwesomeIcon className={`${styles.trophy} ${className}`} icon={faTrophy} />
-  }
-
-  return null
 }
 
 const Row: FC<Props> = ({
@@ -50,8 +46,8 @@ const Row: FC<Props> = ({
   stickyPosition,
   currentUserRef
 }) => {
-  const { lastConnectedV2Account } = useAccountContext()
-  const isConnectedAccountRow = account === lastConnectedV2Account
+  const { connectedAccount } = useAccountContext()
+  const isConnectedAccountRow = account === connectedAccount
 
   return (
     <div
@@ -65,11 +61,25 @@ const Row: FC<Props> = ({
       <div className={styles.rankWrapper}>{rank > 3 ? rank : getBadge(rank)}</div>
       <div className={styles.cell}>
         <img src={image_avatar} alt="avatar" className={styles.avatar} />
-        <Address
-          skeletonClassName={styles.addressSkeleton}
-          address={account}
-          maxAddressLength={23}
-        />
+        {isConnectedAccountRow ? (
+          <>
+            You (
+            <Address
+              skeletonClassName={styles.addressSkeleton}
+              className={styles.address}
+              address={account}
+              maxAddressLength={23}
+            />
+            )
+          </>
+        ) : (
+          <Address
+            skeletonClassName={styles.addressSkeleton}
+            className={styles.address}
+            address={account}
+            maxAddressLength={23}
+          />
+        )}
       </div>
       <h5 className={styles.cell}>{level}</h5>
       <h5 className={styles.cell}>{xp}</h5>

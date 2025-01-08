@@ -33,14 +33,12 @@ const TABS: {
   {
     testID: 'tab-defi',
     type: 'defi',
-    tabLabel: 'DeFi',
-    disabled: true
+    tabLabel: 'DeFi'
   },
   {
     testID: 'tab-activity',
     type: 'activity',
-    tabLabel: 'Activity',
-    disabled: true
+    tabLabel: 'Activity'
   }
 ]
 

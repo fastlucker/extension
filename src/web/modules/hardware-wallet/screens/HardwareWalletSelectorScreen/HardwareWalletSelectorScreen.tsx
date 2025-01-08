@@ -95,7 +95,7 @@ const HardwareWalletSelectorScreen = () => {
       footer={<BackButton fallbackBackRoute={ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Select your hardware wallet device')}>
+        <Panel title={t('Select your hardware wallet')}>
           <View style={[flexbox.directionRow]}>
             {options.map((option, index) => (
               <HardwareWalletSelectorItem

@@ -11,6 +11,7 @@ interface Style {
   domainIcons: ViewStyle
   plTy: ViewStyle
   button: ViewStyle
+  bottomLabel: TextStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -24,7 +25,10 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mlTy
     },
     plTy: spacings.plTy,
-    button: getInputStyles(theme).button
+    button: getInputStyles(theme).button,
+    bottomLabel: {
+      fontSize: 12
+    }
   })
 
 export default getStyles

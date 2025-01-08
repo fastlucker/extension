@@ -15,13 +15,12 @@ const UnpinIcon: React.FC<SvgProps> = ({
         <Path fill="none" stroke={color} d="M9 8h24v24H9z" />
       </ClipPath>
     </Defs>
-    <Path fill="none" d="M0 0h24v24H0z" data-name="Rectangle 1280" />
-    <G clipPath="url(#a)" data-name="Mask Group 30" transform="translate(-9 -8)">
+    <Path fill="none" d="M0 0h24v24H0z" />
+    <G clipPath="url(#a)" transform="translate(-9 -8)">
       <G stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
         <Path
           fill={color}
           d="M12.692 21.057a7.025 7.025 0 0 1 6.065-2.646l3.036-5.257a5.508 5.508 0 0 1-.436-3.832l9.166 5.292a5.485 5.485 0 0 1-3.53 1.542l-3.037 5.259a7.017 7.017 0 0 1 .738 6.573Z"
-          data-name="Union 51"
         />
         <Path fill="none" d="m18.694 24.52-3.5 6.062" />
       </G>

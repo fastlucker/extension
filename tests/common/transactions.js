@@ -9,7 +9,9 @@ import { selectFeeToken } from '../common-helpers/selectFeeToken'
 import { signTransaction } from '../common-helpers/signTransaction'
 import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
-import { SELECTORS } from './selectors/selectors'
+import { SELECTORS, TEST_IDS } from './selectors/selectors'
+import { buildSelector } from '../common-helpers/buildSelector'
+import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../constants/constants'
 
 // When we run tests in GitHub Actions in parallel (with different PRs running tests simultaneously),
 // it's very likely that the nonce we use for the transaction may already have been used.
@@ -22,7 +24,7 @@ const overcomeNonceError = async (page) => {
   let hasNonceError = false
   try {
     const nonceError = await page.waitForXPath(
-      '//*[contains(text(), "Perhaps wrong nonce set in Account op")]',
+      '//*[contains(text(), "Perhaps wrong nonce set in Account op") or contains(text(), "replacement transaction underpriced")]',
       { timeout: 3000 }
     )
 
@@ -39,52 +41,68 @@ const overcomeNonceError = async (page) => {
 
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
-const amountField = '[data-testid="amount-field"]'
+const amountField = SELECTORS.amountField
+const polTokenSelector = SELECTORS.nativeTokenPolygonDyn
+const TARGET_HEIGHT = 58.7
+const MAX_TIME_WAIT = 30000
 //--------------------------------------------------------------------------------------------------------------
-export async function makeValidTransaction(
+
+async function isAriaDisabled(page, selector) {
+  await page.waitForSelector(selector)
+  const ariaDisabledValue = await page.$eval(selector, (el) => el.getAttribute('aria-disabled'))
+
+  return ariaDisabledValue === 'true'
+}
+
+export async function prepareTransaction(
   page,
-  extensionURL,
-  browser,
-  { shouldStopBeforeSign, feeToken } = {
-    shouldStopBeforeSign: false
-  }
+  recipient,
+  amount,
+  { shouldUseAddressBookRecipient = false, shouldSendButtonBeDisabled = false } = {}
 ) {
-  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
-
-  // Check if POL on Gas Tank are under 0.01
-  await checkBalanceOfToken(
-    page,
-    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-    0.01
-  )
-  // Click on "Send" button
-  await clickOnElement(page, '[data-testid="dashboard-button-send"]')
-
-  await page.waitForSelector('[data-testid="amount-field"]')
+  await page.waitForSelector(amountField)
   await selectPolToken(page)
-  await typeText(page, '[data-testid="amount-field"]', '0.0001') // Type the amount
+  await typeText(page, amountField, amount)
 
-  // Type the address of the recipient
-  await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
-  await page.waitForXPath(
-    '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
-  )
+  if (!shouldUseAddressBookRecipient) {
+    await typeText(page, SELECTORS.addressEnsField, recipient)
+    await page.waitForXPath(
+      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+    )
 
-  // Check the checkbox "Confirm sending to a previously unknown address"
-  await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
+    // Check the checkbox "Confirm sending to a previously unknown address"
+    await clickOnElement(page, SELECTORS.recipientAddressUnknownCheckbox)
 
-  // Check the checkbox "I confirm this address is not a Binance wallets...."
-  const checkboxExists = await page.evaluate(
-    (selector) => !!document.querySelector(selector),
-    SELECTORS.checkbox
-  )
-  if (checkboxExists) await clickOnElement(page, SELECTORS.checkbox)
+    // Check the checkbox "I confirm this address is not a Binance wallets...."
+    const checkboxExists = await page.evaluate(
+      (selector) => !!document.querySelector(selector),
+      SELECTORS.checkbox
+    )
+    if (checkboxExists) await clickOnElement(page, SELECTORS.checkbox)
+  } else {
+    await clickOnElement(page, SELECTORS.addressEnsField)
+    await clickOnElement(page, buildSelector(TEST_IDS.addressBookMyWalletContactDyn, 1))
+  }
 
+  if (shouldSendButtonBeDisabled) {
+    const isDisabled = await isAriaDisabled(page, SELECTORS.transferButtonConfirm)
+
+    expect(isDisabled).toBe(true)
+  }
+}
+
+async function prepareGasTankTopUp(page, recipient, amount) {
+  await page.waitForSelector(amountField)
+  await selectPolToken(page)
+  await typeText(page, amountField, amount)
+}
+
+async function handleTransaction(page, extensionURL, browser, feeToken, shouldStopBeforeSign) {
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="transfer-button-confirm"]'
+    SELECTORS.transferButtonConfirm
   )
 
   if (shouldStopBeforeSign) return
@@ -98,6 +116,52 @@ export async function makeValidTransaction(
   // Sign and confirm the transaction
   await signTransaction(newPage, transactionRecorder)
   await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
+}
+
+export async function checkTokenBalanceClickOnGivenActionInDashboard(
+  page,
+  selectedToken,
+  selectedAction,
+  minBalance = 0.01
+) {
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
+  // Check ths balance of the selected token if it's lower than 'minBalance' and throws an error if it is
+  await checkBalanceOfToken(page, selectedToken, minBalance)
+  // Click on the token, which opens the modal with actions
+  await clickOnElement(page, selectedToken)
+  // Click on given action
+  await clickOnElement(page, selectedAction, true, 500)
+}
+
+export async function makeValidTransaction(
+  page,
+  extensionURL,
+  browser,
+  {
+    feeToken,
+    recipient = SMART_ACC_VIEW_ONLY_ADDRESS,
+    tokenAmount = '0.0001',
+    shouldStopBeforeSign = false,
+    shouldUseAddressBookRecipient = false,
+    shouldTopUpGasTank = false
+  } = {}
+) {
+  if (shouldTopUpGasTank) {
+    await page.waitForFunction(() => window.location.href.includes('/top-up-gas-tank'))
+  } else {
+    await page.waitForFunction(() => window.location.href.includes('/transfer'))
+  }
+
+  if (shouldTopUpGasTank) {
+    await prepareGasTankTopUp(page, recipient, tokenAmount)
+  } else {
+    await prepareTransaction(page, recipient, tokenAmount, {
+      shouldUseAddressBookRecipient
+    })
+  }
+
+  await handleTransaction(page, extensionURL, browser, feeToken, shouldStopBeforeSign)
 }
 
 async function selectTokenInUni(page, tokenId, search) {
@@ -151,26 +215,90 @@ async function prepareSwap(page) {
   await selectTokenInUni(page, 'token-option-137-USDT', 'USDT')
 }
 
+// Utility function to check if element's parent height matches the target
+const isParentHeightEqual = async (elHandle, targetHeight) => {
+  const heightOfParent = await elHandle.evaluate(
+    (el) => el.parentElement.getBoundingClientRect().height
+  )
+  return parseFloat(heightOfParent.toFixed(1)) === targetHeight
+}
+
+// Utility function to check if element's parent is disabled based on aria-disabled attribute
+const isParentDisabled = async (elHandle) => {
+  return elHandle.evaluate((el) => el.parentElement.getAttribute('aria-disabled') === 'true')
+}
+
+// Utility function to wait for the parent element to become enabled
+const waitForParentEnabled = async (page, elHandle, timeout = 500, maxWaitTime = MAX_TIME_WAIT) => {
+  let isDisabled = true
+  const startTime = Date.now()
+
+  // Use a loop to repeatedly check if the element is enabled
+  /* eslint-disable no-await-in-loop */
+  while (isDisabled) {
+    isDisabled = await isParentDisabled(elHandle)
+
+    if (isDisabled) {
+      const elapsedTime = Date.now() - startTime
+
+      // Break the loop if maxWaitTime exceeded
+      if (elapsedTime >= maxWaitTime) {
+        console.log('Timeout exceeded for enabling the button, breaking the loop')
+        break
+      }
+
+      await page.waitForTimeout(timeout) // Wait for a defined timeout before rechecking
+    }
+  }
+
+  return !isDisabled
+}
+
+// Main function to handle clicking on elements that meet conditions
+const clickMatchingElements = async (page, elementsHandles, targetHeight = TARGET_HEIGHT) => {
+  await Promise.all(
+    elementsHandles.map(async (elHandle) => {
+      try {
+        // Check if the parent's height matches the target height
+        const heightMatches = await isParentHeightEqual(elHandle, targetHeight)
+
+        if (heightMatches) {
+          // Wait until the parent is enabled (aria-disabled = false)
+          const isEnabled = await waitForParentEnabled(page, elHandle)
+
+          if (isEnabled) {
+            // Click the parent element once enabled
+            await elHandle.evaluate((el) => el.parentElement.click())
+          } else {
+            console.log(`Element did not become enabled within a ${MAX_TIME_WAIT / 1000} seconds`)
+          }
+        }
+      } catch (err) {
+        console.error('Error while processing element:', err)
+      }
+    })
+  )
+}
+
 //--------------------------------------------------------------------------------------------------------------
 export async function makeSwap(
   page,
   extensionURL,
   browser,
-  { shouldStopBeforeSign, feeToken } = {
-    shouldStopBeforeSign: false
-  }
+  { feeToken, shouldStopBeforeSign = false, swapButtonText = 'Swap' } = {}
 ) {
   await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
-  const hasUnichainModal = await page.waitForSelector(
-    'xpath///span[contains(text(), "Introducing Unichain")]',
-    { timeout: 3000 }
-  )
+  try {
+    // Handle a modal that appears occasionally
+    await page.waitForSelector('xpath///span[contains(text(), "Introducing Unichain")]', {
+      timeout: 3000
+    })
 
-  if (hasUnichainModal) {
     const dismissButton = await page.waitForSelector('xpath///span[contains(text(), "Dismiss")]')
-
     await dismissButton.click()
+  } catch {
+    // Modal might be missing! Continue with the flow.
   }
 
   // Click somewhere just to hide the modal
@@ -225,15 +353,32 @@ export async function makeSwap(
     await prepareSwap(page)
   }
 
-  await typeText(page, 'input#swap-currency-output', '0.0001')
+  await typeText(page, '[data-testid="amount-input-out"]', '0.0001')
 
-  await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
+  // TODO: Temporary solution with a delay (the DOM element is not a btn anymore)
+  await clickOnElement(page, 'xpath///span[contains(text(), "Review")]', true, 3000)
+
+  await page.waitForSelector(
+    `xpath///span[contains(@class, "font_button") and contains(text(), "${swapButtonText}")]`,
+    {
+      visible: true,
+      timeout: 3000
+    }
+  )
+
+  const elementsHandles = await page.$x(
+    `//span[contains(@class, "font_button") and contains(text(), "${swapButtonText}")]`
+  )
+
+  if (elementsHandles.length) await clickMatchingElements(page, elementsHandles)
+  else throw new Error('No elements found')
 
   const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
     page,
     extensionURL,
     browser,
-    '[data-testid="confirm-swap-button"]:not([disabled])'
+    '',
+    false
   )
 
   // Check for sign message window
@@ -262,6 +407,10 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
   await selectPolToken(page)
 
+  // Wait for the max amount to load
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000)
+  })
   // Get the available balance
   const maxAvailableAmount = await page.evaluate(() => {
     const balance = document.querySelector('[data-testid="max-available-amount"]')
@@ -288,11 +437,7 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 //--------------------------------------------------------------------------------------------------------------
 export async function sendFundsToSmartContract(page, extensionURL) {
   // Check if POL on Polygon are under 0.0015
-  await checkBalanceOfToken(
-    page,
-    '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]',
-    0.0002
-  )
+  await checkBalanceOfToken(page, polTokenSelector, 0.0002)
 
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
   await page.waitForSelector('[data-testid="max-available-amount"]')

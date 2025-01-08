@@ -6,8 +6,6 @@ import { useModalize } from 'react-native-modalize'
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
-import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
@@ -23,7 +21,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -44,16 +41,16 @@ const SignAccountOpScreen = () => {
   const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
-  const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
-  const [isLedgerConnectModalVisible, setIsLedgerConnectModalVisible] = useState(false)
+  const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
+  const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(false)
   const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
   const {
@@ -89,6 +86,7 @@ const SignAccountOpScreen = () => {
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
     signAccountOpState?.status?.type === SigningStatus.UpdatesPaused ||
+    signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster ||
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
@@ -109,6 +107,23 @@ const SignAccountOpScreen = () => {
       clearTimeout(timeout)
     }
   }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster) {
+        setSlowPaymasterRequest(true)
+      }
+    }, 3000)
+
+    if (signAccountOpState?.status?.type !== SigningStatus.WaitingForPaymaster) {
+      clearTimeout(timeout)
+      setSlowPaymasterRequest(false)
+    }
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [signAccountOpState?.status?.type])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
@@ -144,22 +159,6 @@ const SignAccountOpScreen = () => {
     }
   }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, dispatch])
 
-  useEffect(() => {
-    if (!accountOpAction) return
-
-    if (!activityState.isInitialized) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-        params: {
-          filters: {
-            account: accountOpAction.accountOp.accountAddr,
-            network: accountOpAction.accountOp.networkId
-          }
-        }
-      })
-    }
-  }, [activityState.isInitialized, accountOpAction, dispatch])
-
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
   }, [networks, signAccountOpState?.accountOp?.networkId])
@@ -181,21 +180,9 @@ const SignAccountOpScreen = () => {
     closeCurrentWindow()
   }, [])
 
-  const humanizedCalls: IrCall[] | null = useMemo(
-    () =>
-      signAccountOpState?.accountOp ? humanizeAccountOp(signAccountOpState.accountOp, {}) : null,
-    [signAccountOpState?.accountOp]
-  )
-
   useEffect(() => {
-    const destroy = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
-    }
-    window.addEventListener('beforeunload', destroy)
-
     return () => {
-      destroy()
-      window.removeEventListener('beforeunload', destroy)
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
     }
   }, [dispatch])
 
@@ -217,8 +204,13 @@ const SignAccountOpScreen = () => {
   )
 
   const handleDismissLedgerConnectModal = useCallback(() => {
-    setIsLedgerConnectModalVisible(false)
-  }, [])
+    setShouldDisplayLedgerConnectModal(false)
+
+    // Resume if paused (might happen if user have acknowledged warnings, but
+    // opts in to sign with Ledger, but a Ledger is NOT connected yet).
+    if (signAccountOpState?.status?.type === SigningStatus.UpdatesPaused)
+      updateControllerSigningStatus(SigningStatus.ReadyToSign)
+  }, [signAccountOpState?.status?.type, updateControllerSigningStatus])
 
   const warningToPromptBeforeSign = useMemo(
     () =>
@@ -230,20 +222,23 @@ const SignAccountOpScreen = () => {
 
   const handleSign = useCallback(
     (_chosenSigningKeyType?: string, _warningAccepted?: boolean) => {
-      const isAtLeastOneOfTheCurrentKeysInvolvedLedger = _chosenSigningKeyType
-        ? _chosenSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
-        : isAtLeastOneOfTheKeysInvolvedLedger
-
-      if (isAtLeastOneOfTheCurrentKeysInvolvedLedger && !isLedgerConnected) {
-        setIsLedgerConnectModalVisible(true)
-        return
-      }
-
+      // Prioritize warning(s) modals over all others
       if (warningToPromptBeforeSign && !_warningAccepted) {
         openWarningAgreementModal()
         updateControllerSigningStatus(SigningStatus.UpdatesPaused)
         return
       }
+
+      const isLedgerKeyInvolvedInTheJustChosenKeys = _chosenSigningKeyType
+        ? _chosenSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
+        : isAtLeastOneOfTheKeysInvolvedLedger
+
+      if (isLedgerKeyInvolvedInTheJustChosenKeys && !isLedgerConnected) {
+        setShouldDisplayLedgerConnectModal(true)
+        updateControllerSigningStatus(SigningStatus.UpdatesPaused)
+        return
+      }
+
       dispatch({ type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP' })
     },
     [
@@ -294,10 +289,10 @@ const SignAccountOpScreen = () => {
   }, [warningToPromptBeforeSign, closeWarningAgreementModal, handleSign])
 
   useEffect(() => {
-    if (isLedgerConnectModalVisible && isLedgerConnected) {
+    if (shouldDisplayLedgerConnectModal && isLedgerConnected) {
       handleDismissLedgerConnectModal()
     }
-  }, [handleDismissLedgerConnectModal, isLedgerConnectModalVisible, isLedgerConnected])
+  }, [handleDismissLedgerConnectModal, shouldDisplayLedgerConnectModal, isLedgerConnected])
 
   const dismissWarning = useCallback(() => {
     updateControllerSigningStatus(SigningStatus.ReadyToSign)
@@ -312,8 +307,10 @@ const SignAccountOpScreen = () => {
 
   const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
     useMemo(() => {
-      if (isAtLeastOneOfTheKeysInvolvedLedger && !isLedgerConnected) return 'ledger-connect'
+      // Prioritize warning(s) modals over all others
       if (warningToPromptBeforeSign) return 'warnings'
+
+      if (shouldDisplayLedgerConnectModal) return 'ledger-connect'
 
       const isAtLeastOneOfTheKeysInvolvedExternal =
         (!!signingKeyType && signingKeyType !== 'internal') ||
@@ -324,8 +321,7 @@ const SignAccountOpScreen = () => {
       return null
     }, [
       feePayerKeyType,
-      isAtLeastOneOfTheKeysInvolvedLedger,
-      isLedgerConnected,
+      shouldDisplayLedgerConnectModal,
       signingKeyType,
       warningToPromptBeforeSign
     ])
@@ -342,6 +338,28 @@ const SignAccountOpScreen = () => {
       </View>
     )
   }
+
+  const isInsufficientFundsForGas = useMemo(() => {
+    if (!signAccountOpState?.feeSpeeds || !signAccountOpState.selectedOption) {
+      return false
+    }
+
+    const keys = Object.keys(signAccountOpState.feeSpeeds)
+    if (!keys.length) return false
+
+    const speeds = signAccountOpState.feeSpeeds[keys[0]]
+    if (!Array.isArray(speeds)) return false
+
+    const { availableAmount } = signAccountOpState.selectedOption
+
+    return speeds.every((speed) => availableAmount < speed.amount)
+  }, [signAccountOpState])
+
+  const isAddToCartDisabled = useMemo(() => {
+    const readyToSign = signAccountOpState?.readyToSign
+
+    return isSignLoading || (!readyToSign && !isViewOnly && !isInsufficientFundsForGas)
+  }, [isInsufficientFundsForGas, isSignLoading, isViewOnly, signAccountOpState?.readyToSign])
 
   return (
     <>
@@ -384,10 +402,16 @@ const SignAccountOpScreen = () => {
               notReadyToSignButAlsoNotDone ||
               !signAccountOpState.readyToSign
             }
-            // Allow view only accounts to add to cart even if the txn is not ready to sign
+            // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
             // because they can't sign it anyway
-            isAddToCartDisabled={isSignLoading || (!signAccountOpState?.readyToSign && !isViewOnly)}
+
+            isAddToCartDisabled={isAddToCartDisabled}
             onSign={onSignButtonClick}
+            inProgressButtonText={
+              signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
+                ? t('Sending...')
+                : t('Signing...')
+            }
           />
         }
       >
@@ -398,6 +422,7 @@ const SignAccountOpScreen = () => {
             handleClose={() => setIsChooseSignerShown(false)}
             selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
             handleChooseSigningKey={handleChangeSigningKey}
+            account={signAccountOpState.account}
           />
         ) : null}
         <TabLayoutWrapperMainContent scrollEnabled={false}>
@@ -407,7 +432,7 @@ const SignAccountOpScreen = () => {
                 network={network}
                 isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
               />
-              <PendingTransactions callsToVisualize={humanizedCalls || []} network={network} />
+              <PendingTransactions network={network} />
             </View>
             <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
             <Estimation
@@ -415,7 +440,10 @@ const SignAccountOpScreen = () => {
               disabled={isSignLoading}
               hasEstimation={!!hasEstimation}
               slowRequest={slowRequest}
+              slowPaymasterRequest={slowPaymasterRequest}
               isViewOnly={isViewOnly}
+              isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
+              sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
             />
 
             {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
@@ -429,7 +457,7 @@ const SignAccountOpScreen = () => {
 
             {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
               <LedgerConnectModal
-                isVisible={isLedgerConnectModalVisible}
+                isVisible={shouldDisplayLedgerConnectModal}
                 handleClose={handleDismissLedgerConnectModal}
                 displayOptionToAuthorize={false}
               />

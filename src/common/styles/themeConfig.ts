@@ -57,6 +57,14 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#E7E9FB'
   },
+  quaternaryBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#767DAD14'
+  },
+  quaternaryBackgroundSolid: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#F4F5F8'
+  },
   backdrop: {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#54597ACC'
@@ -141,7 +149,10 @@ export const iconColors = {
   primary: '#54597A',
   secondary: colors.martinique,
   danger: '#EA0129',
-  favorite: '#ffbc00'
+  favorite: '#ffbc00',
+  dark: '#141833',
+  black: '#000',
+  white: '#fff'
 }
 
 export const lightOnlyRoutesOnMobile = []

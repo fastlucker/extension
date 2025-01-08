@@ -8,12 +8,31 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import HighlightedLink from '../HighlightedLink'
 import styles from './Socials.module.scss'
 
+const SOCIALS = [
+  {
+    name: 'telegram',
+    icon: faTelegram,
+    link: 'https://t.me/AmbireOfficial'
+  },
+  {
+    name: 'twitter',
+    icon: faXTwitter,
+    link: 'https://x.com/AmbireWallet'
+  },
+  {
+    name: 'discord',
+    icon: faDiscord,
+    link: 'https://www.ambire.com/discord'
+  }
+]
+
 const Socials = () => {
   return (
     <div className={styles.wrapper}>
       <HighlightedLink
-        title="Ambire Discord"
+        title="Ambire Discord Server"
         text="Join our Discord server for support and announcements."
+        className={styles.discordLinkWrapper}
       >
         <a
           target="_blank"
@@ -26,22 +45,17 @@ const Socials = () => {
         </a>
       </HighlightedLink>
       <div className={styles.socials}>
-        <a
-          href="https://t.me/AmbireOfficial"
-          target="_blank"
-          rel="noreferrer"
-          className={styles.social}
-        >
-          <FontAwesomeIcon icon={faTelegram} />
-        </a>
-        <a
-          href="https://x.com/AmbireWallet"
-          target="_blank"
-          rel="noreferrer"
-          className={styles.social}
-        >
-          <FontAwesomeIcon icon={faXTwitter} />
-        </a>
+        {SOCIALS.map((social) => (
+          <a
+            key={social.link}
+            href={social.link}
+            target="_blank"
+            rel="noreferrer"
+            className={`${styles.social} ${styles[`${social.name}Social`]}`}
+          >
+            <FontAwesomeIcon icon={social.icon} />
+          </a>
+        ))}
       </div>
     </div>
   )

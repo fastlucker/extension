@@ -1,9 +1,8 @@
 import React, { FC, useEffect } from 'react'
-import ReactDOM from 'react-dom'
+import { createPortal } from 'react-dom'
 
-import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
+import CloseIcon from '@legends/components/CloseIcon'
+import useEscModal from '@legends/hooks/useEscModal'
 import styles from './Modal.module.scss'
 
 type ComponentProps = {
@@ -13,7 +12,9 @@ type ComponentProps = {
 
 type ModalProps = ComponentProps & {
   isOpen: boolean
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
+  isClosable?: boolean
+  showCloseButton?: boolean
 }
 
 const Heading: FC<ComponentProps> = ({ children, className }) => {
@@ -23,12 +24,22 @@ const Text: FC<ComponentProps> = ({ children, className }) => {
   return <p className={`${styles.text} ${className}`}>{children}</p>
 }
 
-const Modal = ({ children, className, isOpen, setIsOpen }: ModalProps) => {
+const Modal = ({
+  children,
+  className,
+  isOpen,
+  setIsOpen,
+  isClosable = true,
+  showCloseButton = true
+}: ModalProps) => {
   const modalRef = React.useRef<HTMLDivElement>(null)
 
   const closeModal = () => {
-    setIsOpen(false)
+    if (isClosable && setIsOpen) setIsOpen(false)
   }
+
+  // Close Modal on ESC
+  useEscModal(isOpen, closeModal)
 
   // Close the modal when clicking outside of it
   useEffect(() => {
@@ -47,15 +58,17 @@ const Modal = ({ children, className, isOpen, setIsOpen }: ModalProps) => {
   const modalContent = (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
       <div ref={modalRef} className={`${styles.modal} ${className}`}>
-        <button onClick={closeModal} type="button" className={styles.closeButton}>
-          <FontAwesomeIcon icon={faTimes} />
-        </button>
-        {children}
+        {isClosable && showCloseButton && (
+          <button onClick={closeModal} type="button" className={styles.closeButton}>
+            <CloseIcon />
+          </button>
+        )}
+        {isOpen && children}
       </div>
     </div>
   )
 
-  return ReactDOM.createPortal(modalContent, document.getElementById('modal-root') as HTMLElement)
+  return createPortal(modalContent, document.getElementById('modal-root') as HTMLElement)
 }
 
 Modal.Heading = Heading

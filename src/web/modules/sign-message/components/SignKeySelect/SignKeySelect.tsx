@@ -1,6 +1,7 @@
 import React from 'react'
 import { Pressable, View } from 'react-native'
 
+import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import AccountKey from '@common/components/AccountKey'
 import Spinner from '@common/components/Spinner'
@@ -19,6 +20,7 @@ type Props = {
   isVisible: boolean
   isSigning: boolean
   handleClose: () => void
+  account: Account
 }
 
 const SigningKeySelect = ({
@@ -26,7 +28,8 @@ const SigningKeySelect = ({
   handleChooseSigningKey,
   isVisible,
   isSigning,
-  handleClose
+  handleClose,
+  account
 }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
@@ -69,6 +72,8 @@ const SigningKeySelect = ({
                   isLast={i === selectedAccountKeyStoreKeys.length - 1}
                   isImported={isImported}
                   enableEditing={false}
+                  account={account}
+                  keyIconColor="#000"
                 />
               </Pressable>
             )

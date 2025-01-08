@@ -23,11 +23,11 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
@@ -36,7 +36,6 @@ import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
 import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
-import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
@@ -46,7 +45,7 @@ const SignMessageScreen = () => {
   const signStatus = signMessageState.statuses.sign
   const [hasReachedBottom, setHasReachedBottom] = useState<boolean | null>(null)
   const keystoreState = useKeystoreControllerState()
-  const { accounts, selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { isLedgerConnected } = useLedger()
@@ -70,15 +69,9 @@ const SignMessageScreen = () => {
     return signMessageAction.userRequest
   }, [signMessageAction])
 
-  const selectedAccountFull = useMemo(
-    () => accounts.find((acc) => acc.addr === selectedAccount),
-    [accounts, selectedAccount]
-  )
-
   const selectedAccountKeyStoreKeys = useMemo(
-    () =>
-      keystoreState.keys.filter((key) => selectedAccountFull?.associatedKeys.includes(key.addr)),
-    [keystoreState.keys, selectedAccountFull?.associatedKeys]
+    () => keystoreState.keys.filter((key) => account?.associatedKeys.includes(key.addr)),
+    [keystoreState.keys, account?.associatedKeys]
   )
 
   const network = useMemo(
@@ -86,8 +79,7 @@ const SignMessageScreen = () => {
       networks.find((n) => {
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
-          ? n.chainId.toLocaleString() ===
-              signMessageState.messageToSign?.content.domain.chainId.toLocaleString()
+          ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
           : n.id === signMessageState.messageToSign?.networkId
       }),
     [networks, signMessageState.messageToSign]
@@ -118,16 +110,6 @@ const SignMessageScreen = () => {
     if (!userRequest || !signMessageAction) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-      params: {
-        filters: {
-          account: userRequest.meta.accountAddr,
-          network: userRequest.meta.networkId
-        }
-      }
-    })
-
-    dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
       params: {
         dapp: {
@@ -146,22 +128,8 @@ const SignMessageScreen = () => {
   }, [dispatch, userRequest, signMessageAction])
 
   useEffect(() => {
-    if (!getUiType().isActionWindow) return
-    const reset = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
-      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
-    }
-    window.addEventListener('beforeunload', reset)
-
-    return () => {
-      window.removeEventListener('beforeunload', reset)
-    }
-  }, [dispatch])
-
-  useEffect(() => {
     return () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
-      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
   }, [dispatch])
 
@@ -211,7 +179,7 @@ const SignMessageScreen = () => {
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
   // loading spinner instead (would better be a skeleton, but whatever).
-  if (!signMessageState.isInitialized) {
+  if (!signMessageState.isInitialized || !account) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />
@@ -239,6 +207,7 @@ const SignMessageScreen = () => {
         selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
         handleChooseSigningKey={handleSign}
         handleClose={() => setIsChooseSignerShown(false)}
+        account={account}
       />
       {isViewOnly && (
         <View style={styles.noKeysToSignAlert}>

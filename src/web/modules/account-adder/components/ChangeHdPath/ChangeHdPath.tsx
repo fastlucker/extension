@@ -20,7 +20,7 @@ interface Props {}
 const ChangeHdPath: React.FC<Props> = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { hdPathTemplate, accountsLoading } = useAccountAdderControllerState()
+  const { hdPathTemplate, isPageLocked, pageError } = useAccountAdderControllerState()
 
   const value = useMemo(
     () => DERIVATION_OPTIONS.find((o) => o.value === hdPathTemplate),
@@ -51,14 +51,14 @@ const ChangeHdPath: React.FC<Props> = () => {
         dataSet={{
           tooltipId: 'hd-path-tooltip',
           tooltipContent: t(
-            "If you don't see the accounts you expect, try changing the HD path to access different sets of addresses within this wallet."
+            "Your account(s) might be created using a different HD path. If you don't see the expected accounts, try switching the HD path to access other sets of addresses within this wallet."
           )
         }}
       />
       <Tooltip id="hd-path-tooltip" />
       <Select
         testID="select-change-hd-path"
-        disabled={accountsLoading}
+        disabled={isPageLocked || !!pageError}
         setValue={handleChangeHdPath}
         containerStyle={styles.selectContainer}
         selectStyle={{ height: 40 }}

@@ -1,4 +1,5 @@
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Sponsor } from '@ambire-common/libs/erc7677/types'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { SelectValue } from '@common/components/Select/types'
@@ -13,7 +14,10 @@ type Props = {
   disabled: boolean
   hasEstimation: boolean
   slowRequest: boolean
+  slowPaymasterRequest: boolean
   isViewOnly: boolean
+  isSponsored: boolean
+  sponsor: Sponsor | undefined
 }
 
 export type { FeeOption, Props }

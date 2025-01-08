@@ -11,7 +11,7 @@ import Button from '@common/components/Button'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
-import useAccounts from '@common/hooks/useAccounts'
+import useAccountsList from '@common/hooks/useAccountsList'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import DashboardSkeleton from '@common/modules/dashboard/screens/Skeleton'
@@ -21,6 +21,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 
@@ -28,17 +29,17 @@ import getStyles from './styles'
 
 const AccountSelectScreen = () => {
   const { styles, theme } = useTheme(getStyles)
+  const flatlistRef = useRef(null)
   const {
     accounts,
     control,
-    selectedAccountIndex,
     onContentSizeChange,
     keyExtractor,
     getItemLayout,
     isReadyToScrollToSelectedAccount
-  } = useAccounts()
+  } = useAccountsList({ flatlistRef })
   const { navigate } = useNavigation()
-  const { selectedAccount } = useAccountsControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
   const accountsContainerRef = useRef(null)
@@ -49,26 +50,19 @@ const AccountSelectScreen = () => {
     []
   )
 
-  const renderItem = ({ item: account }: { item: AccountType }) => {
-    return (
-      <Account
-        onSelect={onAccountSelect}
-        key={account.addr}
-        account={account}
-        withSettings={false}
-      />
-    )
+  const renderItem = ({ item: acc }: { item: AccountType }) => {
+    return <Account onSelect={onAccountSelect} key={acc.addr} account={acc} withSettings={false} />
   }
 
   useEffect(() => {
     // Navigate to the dashboard after the account is selected to avoid showing the dashboard
     // of the previously selected account.
-    if (!selectedAccount || !pendingToBeSetSelectedAccount) return
+    if (!account || !pendingToBeSetSelectedAccount) return
 
-    if (selectedAccount === pendingToBeSetSelectedAccount) {
+    if (account.addr === pendingToBeSetSelectedAccount) {
       navigate(ROUTES.dashboard)
     }
-  }, [selectedAccount, navigate, pendingToBeSetSelectedAccount])
+  }, [account, navigate, pendingToBeSetSelectedAccount])
 
   return !pendingToBeSetSelectedAccount ? (
     <TabLayoutContainer
@@ -78,7 +72,12 @@ const AccountSelectScreen = () => {
       hideFooterInPopup
     >
       <View style={[flexbox.flex1, spacings.pv]} ref={accountsContainerRef}>
-        <Search control={control} placeholder="Search for account" style={styles.searchBar} />
+        <Search
+          autoFocus
+          control={control}
+          placeholder="Search for account"
+          style={styles.searchBar}
+        />
         <ScrollableWrapper
           type={WRAPPER_TYPES.FLAT_LIST}
           style={[
@@ -87,12 +86,12 @@ const AccountSelectScreen = () => {
               opacity: isReadyToScrollToSelectedAccount ? 1 : 0
             }
           ]}
+          wrapperRef={flatlistRef}
           data={accounts}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
           onContentSizeChange={onContentSizeChange}
           keyExtractor={keyExtractor}
-          initialScrollIndex={selectedAccountIndex}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />
         <View style={[spacings.ptSm, { width: '100%' }]}>

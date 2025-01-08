@@ -1,14 +1,15 @@
 import React, { FC, memo, useEffect, useMemo, useState } from 'react'
 
-import { extraNetworks, networks as hardcodedNetwork } from '@ambire-common/consts/networks'
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkId } from '@ambire-common/interfaces/network'
+import { CollectionResult, TokenResult } from '@ambire-common/libs/portfolio'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
+import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import { SPACING_TY } from '@common/styles/spacings'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import Nft from './components/Nft'
 import Token from './components/Token'
@@ -32,18 +33,20 @@ const TokenOrNft: FC<Props> = ({
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { addToast } = useToast()
-  const [assetInfo, setAssetInfo] = useState<any>({})
-  const { networks: stateNetworks } = useNetworksControllerState()
-  const { accountPortfolio } = usePortfolioControllerState()
+  const [assetInfo, setAssetInfo] = useState<{
+    tokenInfo?: TokenResult
+    nftInfo?: CollectionResult
+  }>({})
+  const { portfolio } = useSelectedAccountControllerState()
+
   const { t } = useTranslation()
-  const networks: Network[] = useMemo(
-    // @TODO: get rid of extraNetworks as they are no longer used in benzin
-    () => [...(stateNetworks || hardcodedNetwork), ...(extraNetworks as Network[])],
-    [stateNetworks]
-  )
+  const { networks: controllerNetworks } = useNetworksControllerState()
+  const { benzinNetworks, addNetwork } = useBenzinNetworksContext()
+  // Component used across Benzin and Extension, make sure to always set networks
+  const networks = controllerNetworks ?? benzinNetworks
   const network = useMemo(
-    () => networks.find((n) => (chainId ? n.chainId === chainId : n.id === networkId)),
-    [networks, networkId, chainId]
+    () => networks.find((n) => (chainId ? n.chainId === chainId : n.id === networkId)) || null,
+    [networks, chainId, networkId]
   )
   const [isLoading, setIsLoading] = useState(true)
 
@@ -53,11 +56,15 @@ const TokenOrNft: FC<Props> = ({
   }, [])
 
   useEffect(() => {
-    const tokenFromPortfolio = accountPortfolio?.tokens?.find(
+    if (addNetwork && chainId && !network) {
+      addNetwork(chainId)
+      return
+    }
+    const tokenFromPortfolio = portfolio?.tokens?.find(
       (token) =>
         token.address.toLowerCase() === address.toLowerCase() && token.networkId === network?.id
     )
-    const nftFromPortfolio = accountPortfolio?.collections?.find(
+    const nftFromPortfolio = portfolio?.collections?.find(
       (c) => c.address.toLowerCase() === address.toLowerCase() && c.networkId === network?.id
     )
     if (tokenFromPortfolio || nftFromPortfolio)
@@ -65,37 +72,56 @@ const TokenOrNft: FC<Props> = ({
     else if (network)
       resolveAssetInfo(address, network, (_assetInfo: any) => {
         setAssetInfo(_assetInfo)
-      }).catch(() => {
+      }).catch((e) => {
+        console.error(e)
         addToast(t('We were unable to fetch token info'), { type: 'error' })
       })
-  }, [address, network, addToast, accountPortfolio?.collections, accountPortfolio?.tokens, t])
-  return (
-    <>
-      {!assetInfo.nftInfo && !assetInfo.tokenInfo && isLoading && (
-        <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
-      )}
+  }, [
+    address,
+    network,
+    addToast,
+    portfolio?.collections,
+    portfolio?.tokens,
+    t,
+    addNetwork,
+    chainId
+  ])
 
-      {network && assetInfo?.nftInfo && (
-        <Nft
-          address={address}
-          network={network}
-          networks={networks}
-          tokenId={value}
-          nftInfo={assetInfo.nftInfo}
-          hideSendNft
-        />
-      )}
-      {(assetInfo?.tokenInfo || !isLoading) && !assetInfo.nftInfo && (
+  if (!assetInfo.nftInfo && !assetInfo.tokenInfo)
+    if (isLoading) return <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
+    else
+      return (
         <Token
           textSize={textSize}
-          network={network}
+          network={network ?? undefined}
           address={address}
           amount={value}
           tokenInfo={assetInfo?.tokenInfo}
           marginRight={marginRight}
         />
-      )}
-    </>
+      )
+
+  if (network && assetInfo.nftInfo && !assetInfo.tokenInfo)
+    return (
+      <Nft
+        address={address}
+        network={network}
+        networks={networks}
+        tokenId={value}
+        nftInfo={assetInfo.nftInfo}
+        hideSendNft
+      />
+    )
+
+  return (
+    <Token
+      textSize={textSize}
+      network={network ?? undefined}
+      address={address}
+      amount={value}
+      tokenInfo={assetInfo?.tokenInfo}
+      marginRight={marginRight}
+    />
   )
 }
 

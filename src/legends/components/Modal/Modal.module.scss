@@ -32,8 +32,8 @@
 .modal {
   position: relative;
   background-color: $secondaryBackground;
-  border-radius: $secondaryBorderRadius;
-  padding: 1.5rem;
+  border-radius: $tertiaryBorderRadius;
+  padding: 3rem;
   width: 30rem;
   opacity: 0.5;
   transform: scale(0.7);
@@ -42,13 +42,35 @@
 
   .closeButton {
     position: absolute;
-    right: 1.5rem;
-    top: 1.25rem;
+    right: 1rem;
+    top: 1rem;
 
     svg {
-      width: 1.25rem;
-      height: 1.25rem;
-      color: $secondaryText;
+      width: 2rem;
+      height: 2rem;
+
+      rect {
+        stroke: $secondaryText;
+      }
+
+      path {
+        fill: $secondaryText;
+      }
+    }
+  }
+
+  @include breakpoint-down-from(medium-desktop) {
+    padding: 2rem;
+    padding-top: 2.5rem;
+
+    .closeButton {
+      right: 0.75rem;
+      top: 0.75rem;
+
+      svg {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
     }
   }
 }

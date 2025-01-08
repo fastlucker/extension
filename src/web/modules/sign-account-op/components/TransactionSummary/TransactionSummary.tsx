@@ -4,7 +4,7 @@ import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { NetworkId } from '@ambire-common/interfaces/network'
-import { AbiFragment, IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
@@ -28,9 +28,10 @@ interface Props {
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
   testID?: string
+  enableExpand?: boolean
 }
 
-const sizeMultiplier = {
+export const sizeMultiplier = {
   sm: 0.75,
   md: 0.85,
   lg: 1
@@ -44,9 +45,11 @@ const TransactionSummary = ({
   onRightIconPress,
   size = 'lg',
   isHistory,
-  testID
+  testID,
+  enableExpand = true
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
+  const imageSize = 32 * sizeMultiplier[size]
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { styles } = useTheme(getStyles)
@@ -81,6 +84,8 @@ const TransactionSummary = ({
 
   return (
     <ExpandableCard
+      enableExpand={enableExpand}
+      hasArrow={enableExpand}
       style={{
         ...(call.warnings?.length ? { ...styles.warningContainer, ...style } : { ...style })
       }}
@@ -95,15 +100,18 @@ const TransactionSummary = ({
               data={call.fullVisualization}
               sizeMultiplierSize={sizeMultiplier[size]}
               textSize={textSize}
+              imageSize={imageSize}
               networkId={networkId}
               isHistory={isHistory}
               testID={testID}
+              hasPadding={enableExpand}
             />
           ) : (
             <FallbackVisualization
               call={call}
               sizeMultiplierSize={sizeMultiplier[size]}
               textSize={textSize}
+              hasPadding={enableExpand}
             />
           )}
           {!!rightIcon && (

@@ -1,121 +1,186 @@
-import { ethers } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import LegendsNFT from '@contracts/compiled/LegendsNft.json'
 import { RELAYER_URL } from '@env'
+import LevelUpModal from '@legends/components/LevelUpModal'
+import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import { getDidEvolve } from '@legends/utils/character'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
+  characterName: string
   name: string
   description: string
   level: number
   xp: number
   image: string
   image_avatar: string
+  image_fixed: string
+  address: string
 }
 
-const CharacterContext = createContext<{
+type LevelUpData = {
+  oldLevel: number
+  newLevel: number
+  oldCharacterImage: string
+  newCharacterImage: string
+  didEvolve: boolean
+} | null
+
+type CharacterContextValue = {
   character: Character | null
-  getCharacter: () => void
-  mintCharacter: (type: number) => void
+  getCharacter: () => Promise<void>
   isLoading: boolean
-  isMinting: boolean
-}>({
-  character: null,
-  getCharacter: () => {},
-  mintCharacter: () => {},
-  isLoading: false,
-  isMinting: false
-})
+  error: string | null
+  levelUpData: LevelUpData
+  setLevelUpData: React.Dispatch<React.SetStateAction<LevelUpData>>
+}
+
+const CharacterContext = createContext<CharacterContextValue>({} as CharacterContextValue)
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
-  const { lastConnectedV2Account, isConnectedAccountV2 } = useAccountContext()
+  const { connectedAccount, isLoading: isConnectedAccountLoading } = useAccountContext()
   const [character, setCharacter] = useState<Character | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isMinting, setIsMinting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [levelUpData, setLevelUpData] = useState<LevelUpData>(null)
+  const [lastKnownLevels, setLastKnownLevels] = useState<{ [address: string]: number }>(() => {
+    const storageValue = localStorage.getItem('lastKnownLevels')
+
+    return storageValue ? JSON.parse(storageValue) : {}
+  })
+  // In case of this error, a global <ErrorPage /> will be rendered in place of all other components,
+  // as loading a character is crucial for playing in Legends.
+  const [error, setError] = useState<string | null>(null)
+
+  const saveLastKnownLevel = useCallback(
+    (address: string, level: number) => {
+      const newLastKnownLevels = {
+        ...lastKnownLevels,
+        [address]: level
+      }
+
+      setLastKnownLevels(newLastKnownLevels)
+      localStorage.setItem('lastKnownLevels', JSON.stringify(newLastKnownLevels))
+    },
+    [lastKnownLevels]
+  )
+
+  const handleLevelUpIfNeeded = useCallback(
+    (newCharacter: Character, oldCharacter: Character | null) => {
+      // Leveled up from actions, outside of Legends
+      // E.g. Swap
+      if (!oldCharacter) {
+        const lastKnownLevel = lastKnownLevels[newCharacter.address]
+
+        if (!lastKnownLevel || newCharacter.level <= lastKnownLevel) {
+          setLevelUpData(null)
+          return
+        }
+
+        setLevelUpData({
+          oldLevel: lastKnownLevel,
+          oldCharacterImage: newCharacter.image_fixed,
+          newCharacterImage: newCharacter.image_fixed,
+          newLevel: newCharacter.level,
+          didEvolve: getDidEvolve(lastKnownLevel, newCharacter.level)
+        })
+        return
+      }
+
+      // Leveled up from in-game actions. E.g. Wheel of Fortune
+      const didAccountChange = newCharacter.address !== oldCharacter.address
+      const didLevelUp = newCharacter.level > oldCharacter.level
+
+      if (!didLevelUp || didAccountChange) {
+        setLevelUpData(null)
+        return
+      }
+
+      setLevelUpData({
+        oldLevel: oldCharacter.level,
+        oldCharacterImage: oldCharacter.image_fixed,
+        newCharacterImage: newCharacter.image_fixed,
+        newLevel: newCharacter.level,
+        didEvolve: getDidEvolve(oldCharacter.level, newCharacter.level)
+      })
+    },
+    [lastKnownLevels]
+  )
 
   const getCharacter = useCallback(async () => {
-    if (!lastConnectedV2Account) {
+    if (!connectedAccount) {
       setCharacter(null)
-      setIsLoading(false)
+      setIsLoading(true)
       return
     }
 
-    setIsLoading(true)
-    setCharacter(null)
+    setLevelUpData(null)
 
-    const characterResponse = await fetch(
-      `${RELAYER_URL}/legends/nft-meta/${lastConnectedV2Account}`
-    )
+    try {
+      setIsLoading(true)
+      const characterResponse = await fetch(`${RELAYER_URL}/legends/nft-meta/${connectedAccount}`)
 
-    setIsLoading(false)
-    setCharacter(await characterResponse.json())
-  }, [lastConnectedV2Account])
+      const characterJson = await characterResponse.json()
 
-  const mintCharacter = useCallback(
-    async (type: number) => {
-      if (!isConnectedAccountV2 || !window.ambire) return
-
-      // Switch to Base chain
-      await window.ambire.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x2105' }] // chainId must be in hexadecimal numbers
-      })
-
-      setIsMinting(true)
-
-      const provider = new ethers.BrowserProvider(window.ambire)
-
-      const signer = await provider.getSigner()
-
-      const abi = LegendsNFT.abi
-      const contractAddress = '0x52d067EBB7b06F31AEB645Bd34f92c3Ac13a29ea'
-
-      // Create a contract instance
-      const nftContract = new ethers.Contract(contractAddress, abi, signer)
-
-      // TODO: Keep the error in the state and render it in a component
-      try {
-        // Call the mint function and wait for the transaction response
-        const tx = await nftContract.mint(type)
-
-        // Wait for the transaction to be mined
-        const receipt = await tx.wait()
-
-        if (receipt.status === 1) {
-          // Transaction was successful, call getCharacter
-          await getCharacter()
-          setIsMinting(false)
-        } else {
-          alert('Error selecting a character: The transaction failed!')
-        }
-      } catch (error) {
-        setIsMinting(false)
-        alert('Error during minting process!')
-        console.log('Error during minting process:', error)
+      if (characterJson.characterType === 'unknown') {
+        setIsLoading(false)
+        setCharacter(null)
+        return
       }
-    },
-    [isConnectedAccountV2, getCharacter]
-  )
+
+      const newCharacter = {
+        ...characterJson,
+        level: characterJson.level,
+        address: connectedAccount
+      } as Character
+
+      saveLastKnownLevel(newCharacter.address, newCharacter.level)
+      handleLevelUpIfNeeded(newCharacter, character)
+
+      setCharacter(newCharacter)
+      setError(null)
+    } catch (e) {
+      console.error(e)
+
+      throw e
+    } finally {
+      setIsLoading(false)
+    }
+  }, [character, connectedAccount, handleLevelUpIfNeeded, saveLastKnownLevel])
 
   useEffect(() => {
-    getCharacter()
-  }, [getCharacter])
+    if (character && character.address === connectedAccount) return
+
+    getCharacter().catch(() => {
+      setError(`Couldn't load the requested character: ${connectedAccount}`)
+    })
+  }, [character, connectedAccount, getCharacter, isConnectedAccountLoading])
+
+  const contextValue = useMemo(
+    () => ({
+      character,
+      getCharacter,
+      isLoading,
+      error,
+      levelUpData,
+      setLevelUpData
+    }),
+    [character, getCharacter, isLoading, error, levelUpData]
+  )
+
+  // Important: Short-circuit evaluation to prevent loading of child contexts/components
+  // in the case character's address mismatches the currently connected account.
+  // We should only load child contexts if the character's address matches the connected account.
+  // How can this mismatch occur?
+  // If we're connected to a v2 account, `character.address` and `connectedAccounts` should match.
+  // However, when switching to another v2 account without a character, there may be a brief delay as the new character is fetched.
+  // During this delay, child contexts could try to operate with the new `connectedAccount` but the previous `character`, which is incorrect.
+  // This validation ensures `connectedAccount` and `character` are always in sync.
+  if (character && character.address !== connectedAccount) return <Spinner isCentered />
 
   return (
-    <CharacterContext.Provider
-      value={useMemo(
-        () => ({
-          character,
-          getCharacter,
-          mintCharacter,
-          isLoading,
-          isMinting
-        }),
-        [character, getCharacter, mintCharacter, isLoading, isMinting]
-      )}
-    >
+    <CharacterContext.Provider value={contextValue}>
+      <LevelUpModal />
       {children}
     </CharacterContext.Provider>
   )

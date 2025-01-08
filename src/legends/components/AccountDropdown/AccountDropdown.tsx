@@ -1,21 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 
 import styles from './AccountDropdown.module.scss'
 
 const AccountDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { lastConnectedV2Account, isConnectedAccountV2, disconnectAccount, chainId } =
-    useAccountContext()
+  const { connectedAccount, disconnectAccount, chainId } = useAccountContext()
   const { character } = useCharacterContext()
+  const { userLeaderboardData } = useLeaderboardContext()
 
-  const toggleIsOpen = () => setIsOpen((prev) => !prev)
+  // const toggleIsOpen = () => setIsOpen((prev) => !prev)
 
   const networkData = useMemo(() => {
     return networks.find((network) => network.chainId === chainId)
@@ -38,38 +39,26 @@ const AccountDropdown = () => {
     }
   }, [])
 
-  if (!lastConnectedV2Account || !character) return null
-
   return (
-    <div className={`${styles.wrapper} ${isConnectedAccountV2 ? styles.connected : ''}`}>
-      <button
-        disabled={!isConnectedAccountV2}
-        className={styles.button}
-        type="button"
-        onClick={toggleIsOpen}
-      >
+    <div className={`${styles.wrapper} ${connectedAccount ? styles.connected : ''}`}>
+      {/* TODO: Implement disconnectAccount and add back the dropdown logic */}
+      <button className={styles.button} type="button">
         <div className={styles.avatarWrapper}>
-          <img alt="avatar" className={styles.avatar} src={character.image_avatar} />
+          <img alt="avatar" className={styles.avatar} src={character!.image_avatar} />
         </div>
         <div className={styles.account}>
           <Address
             skeletonClassName={styles.addressSkeleton}
             className={styles.address}
-            address={lastConnectedV2Account}
+            address={connectedAccount!}
             maxAddressLength={12}
           />
-          {isConnectedAccountV2 ? (
-            <p className={`${styles.levelAndRank} ${styles.activityDot}`}>
-              Level {character.level} / Rank 203
-            </p>
-          ) : (
-            <p className={styles.levelAndRank}>V2 Disconnected</p>
-          )}
+          <p className={`${styles.levelAndRank} ${styles.activityDot}`}>Level {character!.level}</p>
         </div>
-        <FontAwesomeIcon
+        {/* <FontAwesomeIcon
           className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}
           icon={faChevronDown}
-        />
+        /> */}
       </button>
       <div className={`${styles.dropdown} ${isOpen ? styles.open : ''}`}>
         <p className={styles.network}>

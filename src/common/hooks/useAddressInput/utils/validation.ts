@@ -51,13 +51,13 @@ const getAddressInputValidation = ({
   }
   if (isValidUDomain) {
     return {
-      message: 'Valid Unstoppable domainsⓇ domain',
+      message: 'Valid Unstoppable domains® domain',
       isError: false
     }
   }
   if (isValidEns) {
     return {
-      message: 'Valid Ethereum Name ServicesⓇ domain',
+      message: 'Valid Ethereum Name Services® domain',
       isError: false
     }
   }
