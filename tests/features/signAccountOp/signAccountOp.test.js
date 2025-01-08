@@ -100,7 +100,6 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
 
     await makeValidTransaction(page, extensionURL, browser, {
       feeToken: feeTokenWithGasTankSelector,
-      shouldStopBeforeSign: true,
       shouldUseAddressBookRecipient: true
     })
   })
