@@ -11,8 +11,8 @@ export async function checkMinimumBalance(page, balanceSelector, minBalanceInUsd
   // Remove dollar sign and parse as an integer
   const trimmedTotalBalanceInteger = parseInt(totalBalanceIntegerText.replace('$', ''), 10)
 
-  // Check if the balance is less than or equal to the minimum required balance
-  if (trimmedTotalBalanceInteger <= minBalanceInUsd) {
+  // Check if the balance is less than the minimum required balance
+  if (trimmedTotalBalanceInteger < minBalanceInUsd) {
     throw new Error(
       `The total balance of $${trimmedTotalBalanceInteger} is lower than: $${minBalanceInUsd}`
     )
