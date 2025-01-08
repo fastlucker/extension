@@ -83,7 +83,8 @@ export const TEST_IDS = {
   feeMedium:'fee-medium:',
   feeFast:'fee-fast:',
   feeApe:'fee-ape:',
-  transactionButtonReject:'transaction-button-reject'
+  transactionButtonReject:'transaction-button-reject',
+  totalPortfolioAmountInteger:'total-portfolio-amount-integer'
 
 }
 

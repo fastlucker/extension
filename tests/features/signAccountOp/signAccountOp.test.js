@@ -1,9 +1,8 @@
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { baParams, saParams } from '../../config/constants'
 import { SELECTORS } from '../../common/selectors/selectors'
-import { buildFeeTokenSelector } from './functions'
-import { POL_TOKEN_SELECTOR } from './constants'
-
+import { buildFeeTokenSelector, checkMinimumBalance } from './functions'
+import { POL_TOKEN_SELECTOR, MIN_TOTAL_BALANCE_IN_USD } from './constants'
 import {
   makeValidTransaction,
   checkTokenBalanceClickOnGivenActionInDashboard
@@ -92,6 +91,9 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
   })
 
   it('Should sign and broadcast an account op with Smart Account,Should pay with Gas Tank', async () => {
+    // When paying a txn with a Gas Tank we have to be sure that the total balance of the account isn't lower than MIN_TOTAL_BALANCE_IN_USD
+    await checkMinimumBalance(page, SELECTORS.totalPortfolioAmountInteger, MIN_TOTAL_BALANCE_IN_USD)
+
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenPolygonDyn,
@@ -105,6 +107,9 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
   })
 
   it('Should change account op transaction speed(s) and should reject an account op', async () => {
+    // When paying a txn with a Gas Tank we have to be sure that the total balance of the account isn't lower than MIN_TOTAL_BALANCE_IN_USD
+    await checkMinimumBalance(page, SELECTORS.totalPortfolioAmountInteger, MIN_TOTAL_BALANCE_IN_USD)
+
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenPolygonDyn,
