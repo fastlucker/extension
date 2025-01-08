@@ -45,6 +45,10 @@ jobs:
       - name: Setup Environment
         uses: ./.github/composite-actions/setup
 
+      - name: Install Chrome
+        run: npx @puppeteer/browsers install chrome@stable
+        shell: bash
+
       # Set up Docker
       - name: Set up Docker
         run: sudo apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose -y
