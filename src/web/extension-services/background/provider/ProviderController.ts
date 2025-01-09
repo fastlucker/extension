@@ -331,7 +331,7 @@ export class ProviderController {
 
     const type = splitInParts[0]
     const identifier = splitInParts[1]
-    const bundlerName = splitInParts.length === 3 ? splitInParts[2] : undefined
+    const bundlerName = splitInParts.length >= 3 ? splitInParts[2] : undefined
     const identifiedBy: AccountOpIdentifiedBy = {
       type,
       identifier,
@@ -401,14 +401,16 @@ export class ProviderController {
     const id = data.params[0]
     if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
 
-    const splitInTwo = id.split(':')
-    if (splitInTwo.length !== 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
+    const splitInParts = id.split(':')
+    if (splitInParts.length < 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
 
-    const type = splitInTwo[0]
-    const identifier = splitInTwo[1]
+    const type = splitInParts[0]
+    const identifier = splitInParts[1]
+    const bundlerName = splitInParts.length >= 3 ? splitInParts[2] : undefined
     const identifiedBy: AccountOpIdentifiedBy = {
       type,
-      identifier
+      identifier,
+      bundler: bundlerName
     }
 
     const dappNetwork = this.getDappNetwork(data.session.origin)

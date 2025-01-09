@@ -2,9 +2,11 @@ import { setStringAsync } from 'expo-clipboard'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
+import { allBundlers, BUNDLER } from '@ambire-common/consts/bundlers'
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { AccountOpIdentifiedBy } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
+import { getDefaultBundler } from '@ambire-common/services/bundlers/getBundler'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
@@ -34,7 +36,8 @@ const getParams = (search?: string) => {
     relayerId: params.get('relayerId') ?? null,
     isRenderedInternally: typeof params.get('isInternal') === 'string',
     chainId: params.get('chainId'),
-    networkId: params.get('networkId')
+    networkId: params.get('networkId'),
+    bundler: params.get('bundler') ?? null
   }
 }
 
@@ -59,7 +62,8 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     relayerId,
     isRenderedInternally,
     chainId: paramChainId,
-    networkId
+    networkId,
+    bundler
   } = getParams(route?.search)
 
   const chainId = getChainId(networkId, paramChainId)
@@ -76,6 +80,12 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
   const isInitialized = !isNetworkLoading
 
+  const userOpBundler = useMemo(() => {
+    if (bundler && allBundlers.includes(bundler)) return bundler as BUNDLER
+    if (!network) return undefined
+    return getDefaultBundler(network).getName()
+  }, [bundler, network])
+
   const stepsState = useSteps({
     txnId,
     userOpHash,
@@ -83,7 +93,8 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     network,
     standardOptions,
     setActiveStep,
-    provider
+    provider,
+    bundler: userOpBundler
   })
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
