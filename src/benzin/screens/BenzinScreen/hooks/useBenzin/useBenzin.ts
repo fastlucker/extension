@@ -99,9 +99,9 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
-    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash, bundler: userOpBundler }
     return { type: 'Transaction', identifier: txnId as string }
-  }, [relayerId, userOpHash, txnId])
+  }, [relayerId, userOpHash, txnId, userOpBundler])
 
   useEffect(() => {
     if (!network && bigintChainId) {
