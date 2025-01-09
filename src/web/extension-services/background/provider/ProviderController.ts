@@ -9,7 +9,7 @@ import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappC
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
-import { getDefaultBundler } from '@ambire-common/services/bundlers/getBundler'
+import { getBundlerByName, getDefaultBundler } from '@ambire-common/services/bundlers/getBundler'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -326,14 +326,16 @@ export class ProviderController {
     const id = data.params[0]
     if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
 
-    const splitInTwo = id.split(':')
-    if (splitInTwo.length !== 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
+    const splitInParts = id.split(':')
+    if (splitInParts.length < 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
 
-    const type = splitInTwo[0]
-    const identifier = splitInTwo[1]
+    const type = splitInParts[0]
+    const identifier = splitInParts[1]
+    const bundlerName = splitInParts.length === 3 ? splitInParts[2] : undefined
     const identifiedBy: AccountOpIdentifiedBy = {
       type,
-      identifier
+      identifier,
+      bundler: bundlerName
     }
 
     const dappNetwork = this.getDappNetwork(data.session.origin)
@@ -358,7 +360,7 @@ export class ProviderController {
     const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
     const isUserOp = identifiedBy.type === 'UserOperation'
-    const bundler = getDefaultBundler(network)
+    const bundler = bundlerName ? getBundlerByName(bundlerName) : getDefaultBundler(network)
     const receipt = isUserOp
       ? await bundler.getReceipt(identifiedBy.identifier, network)
       : await provider.getTransactionReceipt(txnId)
