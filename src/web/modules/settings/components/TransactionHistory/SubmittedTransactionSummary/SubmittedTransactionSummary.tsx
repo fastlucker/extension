@@ -255,63 +255,72 @@ const SubmittedTransactionSummary = ({
           </View>
         )}
       {submittedAccountOp.status === AccountOpStatus.Rejected && (
-        <View style={styles.footer}>
-          <View style={spacings.mrTy}>
-            <Text
+        <View style={spacings.phMd}>
+          <View style={[styles.footer, flexbox.justifyStart]}>
+            <View style={spacings.mrTy}>
+              <Text
+                fontSize={textSize}
+                appearance="errorText"
+                style={spacings.mrTy}
+                weight="semiBold"
+              >
+                {t('Failed to send')}
+              </Text>
+            </View>
+            <SubmittedOn
               fontSize={textSize}
-              appearance="errorText"
-              style={spacings.mrTy}
-              weight="semiBold"
-            >
-              {t('Failed to send')}
-            </Text>
+              iconSize={iconSize}
+              networkId={network.id}
+              submittedAccountOp={submittedAccountOp}
+              numberOfLines={1}
+            />
           </View>
-          <SubmittedOn
-            fontSize={textSize}
-            iconSize={iconSize}
-            networkId={network.id}
-            submittedAccountOp={submittedAccountOp}
-          />
         </View>
       )}
       {submittedAccountOp.status === AccountOpStatus.BroadcastButStuck && (
-        <View style={styles.footer}>
-          <View style={spacings.mrTy}>
-            <Text
+        <View style={spacings.phMd}>
+          <View style={[styles.footer, flexbox.justifyStart]}>
+            <View style={spacings.mrTy}>
+              <Text
+                fontSize={textSize}
+                appearance="errorText"
+                style={spacings.mrTy}
+                weight="semiBold"
+              >
+                {t('Dropped or stuck in mempool with fee too low')}
+              </Text>
+            </View>
+            <SubmittedOn
               fontSize={textSize}
-              appearance="errorText"
-              style={spacings.mrTy}
-              weight="semiBold"
-            >
-              {t('Dropped or stuck in mempool with fee too low')}
-            </Text>
+              iconSize={iconSize}
+              networkId={network.id}
+              submittedAccountOp={submittedAccountOp}
+              numberOfLines={2}
+            />
           </View>
-          <SubmittedOn
-            fontSize={textSize}
-            iconSize={iconSize}
-            networkId={network.id}
-            submittedAccountOp={submittedAccountOp}
-          />
         </View>
       )}
       {submittedAccountOp.status === AccountOpStatus.UnknownButPastNonce && (
-        <View style={styles.footer}>
-          <View style={spacings.mrTy}>
-            <Text
+        <View style={spacings.phMd}>
+          <View style={[styles.footer, flexbox.justifyStart]}>
+            <View style={spacings.mrTy}>
+              <Text
+                fontSize={textSize}
+                appearance="errorText"
+                style={spacings.mrTy}
+                weight="semiBold"
+              >
+                {t('Replaced by fee (RBF)')}
+              </Text>
+            </View>
+            <SubmittedOn
               fontSize={textSize}
-              appearance="errorText"
-              style={spacings.mrTy}
-              weight="semiBold"
-            >
-              {t('Replaced by fee (RBF)')}
-            </Text>
+              iconSize={iconSize}
+              networkId={network.id}
+              submittedAccountOp={submittedAccountOp}
+              numberOfLines={1}
+            />
           </View>
-          <SubmittedOn
-            fontSize={textSize}
-            iconSize={iconSize}
-            networkId={network.id}
-            submittedAccountOp={submittedAccountOp}
-          />
         </View>
       )}
     </View>
