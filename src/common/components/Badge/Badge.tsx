@@ -75,7 +75,12 @@ const Badge = ({
       nativeID={nativeID}
     >
       {text && (
-        <Text weight={weight || 'regular'} fontSize={10} color={color} style={[spacings.mrMi]}>
+        <Text
+          weight={weight || 'regular'}
+          fontSize={10}
+          color={color}
+          style={[!!tooltipText && spacings.mrMi]}
+        >
           {text}
         </Text>
       )}
