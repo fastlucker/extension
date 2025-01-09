@@ -40,6 +40,7 @@ const Footer = ({
     <View style={styles.container}>
       <View style={[!isAddToCartDisplayed && flexbox.flex1, flexbox.alignStart]}>
         <Button
+          testID="transaction-button-reject"
           type="danger"
           text={t('Reject')}
           onPress={onReject}
