@@ -24,14 +24,21 @@ import {
 import wait from '@ambire-common/utils/wait'
 import { isProd } from '@common/config/env'
 import { createRecurringTimeout } from '@common/utils/timeout'
-import { RELAYER_URL, SOCKET_API_KEY, VELCRO_URL } from '@env'
+import {
+  BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
+  RELAYER_URL,
+  SOCKET_API_KEY,
+  VELCRO_URL
+} from '@env'
 import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
+import ExtensionUpdateController from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { handleActions } from '@web/extension-services/background/handlers/handleActions'
 import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
+import { handleCleanUpOnPortDisconnect } from '@web/extension-services/background/handlers/handleCleanUpOnPortDisconnect'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
@@ -51,7 +58,7 @@ import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
-function stateDebug(event: string, stateToLog: object) {
+function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
   // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
@@ -70,7 +77,13 @@ function stateDebug(event: string, stateToLog: object) {
   // (instead of the entire state) to the user console, which aids in debugging without significant performance costs.
   if (process.env.APP_ENV === 'production') return
 
-  logInfoWithPrefix(event, parse(stringify(stateToLog)))
+  const args = parse(stringify(stateToLog))
+  const ctrlState = ctrlName === 'main' ? args : args[ctrlName]
+
+  const logData =
+    BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+
+  logInfoWithPrefix(event, logData)
 }
 
 let mainCtrl: MainController
@@ -217,6 +230,7 @@ handleKeepAlive()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
+  const extensionUpdateCtrl = new ExtensionUpdateController()
 
   const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000 // 1 minute
   const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000 // 10 minutes
@@ -435,7 +449,7 @@ handleKeepAlive()
   }
 
   function createEstimateRecurringTimeout() {
-    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 60000)
+    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 30000)
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
@@ -462,7 +476,7 @@ handleKeepAlive()
       }
 
       pm.send('> ui', { method: ctrlName, params: stateToSendToFE, forceEmit })
-      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog)
+      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
     }
 
     /**
@@ -631,7 +645,7 @@ handleKeepAlive()
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl)
+            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
             pm.send('> ui-error', {
               method: ctrlName,
               params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
@@ -642,7 +656,7 @@ handleKeepAlive()
     })
   }, 'background')
   mainCtrl.onError(() => {
-    stateDebug('onError (main ctrl)', mainCtrl)
+    stateDebug('onError (main ctrl)', mainCtrl, 'main')
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }
@@ -676,6 +690,22 @@ handleKeepAlive()
     })
   })
 
+  // Broadcast onUpdate for the extension-update controller
+  extensionUpdateCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick(
+      'extensionUpdate',
+      extensionUpdateCtrl,
+      extensionUpdateCtrl,
+      forceEmit
+    )
+  })
+  extensionUpdateCtrl.onError(() => {
+    pm.send('> ui-error', {
+      method: 'extensionUpdate',
+      params: { errors: extensionUpdateCtrl.emittedErrors, controller: 'extensionUpdate' }
+    })
+  })
+
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
     if (['popup', 'tab', 'action-window'].includes(port.name)) {
@@ -690,10 +720,7 @@ handleKeepAlive()
       if (pm.ports.length === 1 && port.name === 'popup' && !hasBroadcastedButNotConfirmed) {
         try {
           // These promises shouldn't be awaited as that will slow down the popup opening
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          mainCtrl.updateSelectedAccountPortfolio()
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          mainCtrl.domains.batchReverseLookup(mainCtrl.accounts?.accounts.map((acc) => acc.addr))
+          mainCtrl.onLoad()
           backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
         } catch (error) {
           console.error('Error during immediate portfolio update:', error)
@@ -710,12 +737,14 @@ handleKeepAlive()
           if (messageType === '> background' && type) {
             await handleActions(action, {
               pm,
+              port,
               mainCtrl,
               ledgerCtrl,
               trezorCtrl,
               latticeCtrl,
               walletStateCtrl,
-              autoLockCtrl
+              autoLockCtrl,
+              extensionUpdateCtrl
             })
           }
         } catch (err: any) {
@@ -742,6 +771,7 @@ handleKeepAlive()
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
         initDefiPositionsContinuousUpdate()
+        handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises

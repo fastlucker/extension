@@ -1,17 +1,18 @@
-import React, { FC, ReactNode } from 'react'
+import React, { FC, ReactNode, useEffect } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 
 import { DomainsContextProvider } from '@common/contexts/domainsContext'
+import ErrorPage from '@legends/components/ErrorPage'
 import PrivateRoute from '@legends/components/PrivateRoute'
-import { ActivityContextProvider } from '@legends/contexts/activityContext'
 import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
 import { LegendsContextProvider } from '@legends/contexts/legendsContext'
 import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
+import { RecentActivityContextProvider } from '@legends/contexts/recentActivityContext'
 import Character from '@legends/modules/character/screens/Character'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
+import Landing from '@legends/modules/landing/screens/Landing'
 import Leaderboard from '@legends/modules/leaderboard/screens/Leaderboard'
 import Legends from '@legends/modules/legends/screens/Legends'
-import Welcome from '@legends/modules/welcome/screens/Welcome'
 
 import { LEGENDS_ROUTES } from '../constants'
 
@@ -27,46 +28,57 @@ import { LEGENDS_ROUTES } from '../constants'
 //      -> Private Area contexts are initialized
 //         -> PrivateRoute (prevents loading child routes if no account/character is set)
 //              -> child Route.
-const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => (
-  <LeaderboardContextProvider>
-    <ActivityContextProvider>
-      <LegendsContextProvider>
-        <PortfolioControllerStateProvider>
-          <DomainsContextProvider>{children}</DomainsContextProvider>
-        </PortfolioControllerStateProvider>
-      </LegendsContextProvider>
-    </ActivityContextProvider>
-  </LeaderboardContextProvider>
-)
+const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => {
+  useEffect(() => {
+    document.title = 'Ambire Legends'
+  }, [])
+
+  return (
+    <LeaderboardContextProvider>
+      <RecentActivityContextProvider>
+        <LegendsContextProvider>
+          <PortfolioControllerStateProvider>
+            <DomainsContextProvider>{children}</DomainsContextProvider>
+          </PortfolioControllerStateProvider>
+        </LegendsContextProvider>
+      </RecentActivityContextProvider>
+    </LeaderboardContextProvider>
+  )
+}
 
 const router = createHashRouter([
   {
-    path: LEGENDS_ROUTES.welcome,
-    element: <Welcome />,
-    index: true
-  },
-  {
-    path: LEGENDS_ROUTES.characterSelect,
-    element: <CharacterSelect />
-  },
-  {
-    element: (
-      <PrivateArea>
-        <PrivateRoute />
-      </PrivateArea>
-    ),
+    errorElement: <ErrorPage />,
     children: [
       {
-        path: LEGENDS_ROUTES.legends,
-        element: <Legends />
+        path: LEGENDS_ROUTES.landing,
+        element: <Landing />,
+        index: true
       },
       {
-        path: LEGENDS_ROUTES.leaderboard,
-        element: <Leaderboard />
+        path: LEGENDS_ROUTES.characterSelect,
+        element: <CharacterSelect />
       },
       {
-        path: LEGENDS_ROUTES.character,
-        element: <Character />
+        element: (
+          <PrivateArea>
+            <PrivateRoute />
+          </PrivateArea>
+        ),
+        children: [
+          {
+            path: LEGENDS_ROUTES.legends,
+            element: <Legends />
+          },
+          {
+            path: LEGENDS_ROUTES.leaderboard,
+            element: <Leaderboard />
+          },
+          {
+            path: LEGENDS_ROUTES.character,
+            element: <Character />
+          }
+        ]
       }
     ]
   }

@@ -48,13 +48,13 @@
     "eas:secret:push": "eas secret:push --scope project --env-file .env",
     "test:e2e:web:dev": "WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests",
     "test:e2e:web:dev:local": "docker stop $(docker ps -a -q) && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d && WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests",
-    "test:e2e:web": "yarn build:web:webkit && jest test --config=./tests/jest.config.js",
+    "test:e2e:web": "yarn build:web:webkit && jest test --forceExit --config=./tests/jest.config.js",
     "test:e2e:web:local": "docker stop $(docker ps -a -q) && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d && yarn build:web:webkit && jest test --config=./tests/jest.config.js",
-    "test": "jest --config=./jest.config.js",
+    "test": "jest --config=./jest.config.js --passWithNoTests",
     "postinstall": "patch-package"
   },
   "engines": {
-    "node": ">=18.20.3 <19.0.0",
+    "node": ">=22.12.0 <23.0.0",
     "yarn": ">=1.22.0 <2.0.0"
   },
   "dependencies": {
@@ -78,8 +78,8 @@
     "@gnosis.pm/safe-apps-sdk": "6.2.0",
     "@gorhom/portal": "^1.0.11",
     "@ledgerhq/devices": "8.4.4",
-    "@ledgerhq/hw-app-eth": "6.39.0",
-    "@ledgerhq/hw-transport-webhid": "6.29.4",
+    "@ledgerhq/hw-app-eth": "6.42.1",
+    "@ledgerhq/hw-transport-webhid": "6.30.0",
     "@ledgerhq/react-native-hw-transport-ble": "6.32.5",
     "@metamask/eth-sig-util": "6.0.2",
     "@metamask/obs-store": "^6.0.2",
@@ -96,8 +96,8 @@
     "@react-navigation/native-stack": "6.6.2",
     "@sentry/react-native": "5.0.0-alpha.10",
     "@tradle/react-native-http": "^2.0.0",
-    "@trezor/connect-plugin-ethereum": "9.0.3",
-    "@trezor/connect-webextension": "9.4.2",
+    "@trezor/connect-plugin-ethereum": "9.0.5",
+    "@trezor/connect-webextension": "9.4.7",
     "@trezor/trezor-user-env-link": "^1.0.0",
     "@types/react-dom": "^18.2.0",
     "@types/w3c-web-hid": "^1.0.3",

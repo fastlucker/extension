@@ -3,9 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import OpenIcon from '@common/assets/svg/OpenIcon'
-import SendIcon from '@common/assets/svg/SendIcon'
 import BottomSheet from '@common/components/BottomSheet'
-import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -27,6 +25,7 @@ export type SelectedCollectible = {
   name: string
   networkId: string
   lastPrice: string
+  id: bigint
   image: string
   collectionName: string
 } | null
@@ -49,8 +48,8 @@ const CollectibleModal = ({
   const ModalInner = useCallback(() => {
     if (!selectedCollectible) return null
 
-    const { address, image, name, collectionName, networkId, lastPrice } = selectedCollectible
-    const networkData = networks.find(({ id }) => networkId === id)
+    const { address, image, name, collectionName, networkId, id, lastPrice } = selectedCollectible
+    const networkData = networks.find(({ id: nId }) => networkId === nId)
     return (
       <>
         <ManifestImage
@@ -94,7 +93,9 @@ const CollectibleModal = ({
           </Text>
           <Pressable
             style={spacings.mlTy}
-            onPress={() => createTab(`${networkData?.explorerUrl}/address/${address}`)}
+            onPress={() =>
+              createTab(`${networkData?.explorerUrl}/address/${address}/${String(id)}`)
+            }
           >
             {({ hovered }: any) => (
               <OpenIcon
@@ -111,7 +112,7 @@ const CollectibleModal = ({
           style={[
             spacings.phSm,
             spacings.pvSm,
-            !hideSendNft && spacings.mbSm,
+            // !hideSendNft && spacings.mbSm,
             {
               borderRadius: BORDER_RADIUS_PRIMARY,
               backgroundColor: theme.secondaryBackground,
@@ -124,7 +125,7 @@ const CollectibleModal = ({
           <Row title={t('Last Price')} text={lastPrice || '$-'} noMb />
         </View>
         {/* @TODO: Implement NFT transfer */}
-        {!hideSendNft && (
+        {/* {!hideSendNft && (
           <Button
             disabled
             childrenPosition="right"
@@ -138,7 +139,7 @@ const CollectibleModal = ({
               height={26}
             />
           </Button>
-        )}
+        )} */}
       </>
     )
   }, [

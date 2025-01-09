@@ -1,7 +1,7 @@
 @import '@legends/styles/base.scss';
 
 .modal {
-  min-width: 20rem;
+  min-width: 40rem;
 }
 .modalContent {
   display: flex;
@@ -39,11 +39,38 @@
   background-color: $secondaryBackground;
   border-radius: 0.25rem;
   overflow: hidden;
-        
+
   .progress {
-    height: .625rem;
+    height: 0.625rem;
     background-color: $accent;
     width: 0;
     transition: width 0.3s ease;
   }
+}
+
+.title {
+  font-size: 1.5rem;
+  line-height: 2.5rem;
+  font-weight: 600;
+  color: $primaryText;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.description {
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+  color: $secondaryText;
+}
+.button {
+  @include primary-button;
+  font-size: 1rem;
+  color: $secondaryAccent;
+}
+
+.stackedWrapper {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: end;
 }

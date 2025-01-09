@@ -62,30 +62,38 @@
 
         .wheelContent {
           padding: 1rem;
-          padding-left: 0.75rem;
+          padding-left: 6rem;
           flex: 1;
 
           .wheelTitle,
           .wheelText {
             display: block;
+            color: $primaryBackground;
           }
           .wheelTitle {
             font-size: 1.125rem;
             font-weight: 500;
             line-height: 1.5rem;
             text-transform: uppercase;
-            color: $secondaryText;
           }
           .wheelText {
             font-size: 0.875rem;
             margin-bottom: 0.75rem;
           }
           .wheelButton {
-            @include secondary-button;
+            background: $secondaryGradient;
+            border: 2px solid $primaryBackground;
+            box-shadow: 0 0.125rem 0 $primaryBackground;
+            border-radius: $primaryBorderRadius;
+            height: 2.25rem;
+            font-weight: 500;
             font-size: 0.875rem;
-            background: $primaryGradient;
             width: 100%;
             text-transform: none;
+
+            &:hover {
+              opacity: 1;
+            }
           }
         }
       }
@@ -93,6 +101,12 @@
     .disabled {
       opacity: 0.5;
       animation: none;
+      cursor: not-allowed;
+      user-select: none;
+
+      .wheelButton {
+        pointer-events: none;
+      }
     }
 
     .tooltip {
@@ -134,6 +148,68 @@
       padding-top: 2rem;
     }
   }
+
+  .leaderSection {
+    padding-top: 1.875rem;
+    padding-bottom: 1.875rem;
+    .leaderHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    
+      .inviteTitle {
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.5rem;
+        color: $secondaryText;
+      }
+    }
+
+    .leaderCopyButton {
+      cursor: pointer;
+    }
+
+    .leaderInvitationKey {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: .5rem;
+      background: $primaryBackground;
+      padding: 4px 10px 4px 10px;
+      gap: 10px;
+      border-radius: 0.5rem;
+      border-radius: $primaryBorderRadius;
+      border: 1px solid $primaryBorder;
+
+      font-size: 1.5rem;
+      font-weight: 500;
+      line-height: 2.0625rem;
+
+    }
+
+    .gradientBorder {
+      position: relative;
+      border-radius: 10px;
+      height: 100%;
+      width: 100%;
+      
+      .gradientBorderInner {
+        border: none;
+        &::after {
+          position: absolute;
+          top: -4px; bottom: -4px;
+          left: -4px; right: -4px;
+          background: linear-gradient(90deg, #D8B98C 0%, #FFE8C6 27%, #FFFFFF 46%, #F7D7A7 65%, #7F643D 100%);
+          content: '';
+          z-index: -1;
+          border-radius: .625rem;
+        }
+      }
+    }
+
+  }
+  
 
   @include breakpoint-from(large-tablet) {
     position: static;

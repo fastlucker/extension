@@ -1,0 +1,14 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  position: relative;
+  display: inline-block;
+
+  .count {
+    position: absolute;
+    left: 1.813rem;
+    bottom: 0.5rem;
+    font-size: 0.688rem;
+    font-weight: bold;
+  }
+}

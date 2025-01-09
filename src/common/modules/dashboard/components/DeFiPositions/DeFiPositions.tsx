@@ -9,6 +9,8 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
+import { getDoesNetworkMatch } from '@common/utils/search'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -20,16 +22,18 @@ interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   initTab?: { [key: string]: boolean }
+  sessionId: string
   onScroll: FlatListProps<any>['onScroll']
 }
 
 const { isPopup } = getUiType()
 
-const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
+const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, sessionId, onScroll }) => {
   const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const { t } = useTranslation()
   const { theme } = useTheme()
   const searchValue = watch('search')
+  const { networks } = useNetworksControllerState()
   const { defiPositions, areDefiPositionsLoading, dashboardNetworkFilter } =
     useSelectedAccountControllerState()
 
@@ -48,12 +52,19 @@ const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) =>
         }
 
         if (searchValue) {
-          isMatchingSearch = providerName.toLowerCase().includes(searchValue.toLowerCase())
+          const lowercaseSearch = searchValue.toLowerCase()
+          isMatchingSearch =
+            providerName.toLowerCase().includes(lowercaseSearch) ||
+            getDoesNetworkMatch({
+              networks,
+              itemNetworkId: networkId,
+              lowercaseSearch
+            })
         }
 
         return isMatchingNetwork && isMatchingSearch
       }),
-    [defiPositions, dashboardNetworkFilter, searchValue]
+    [defiPositions, dashboardNetworkFilter, searchValue, networks]
   )
 
   const renderItem = useCallback(
@@ -61,7 +72,12 @@ const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) =>
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+            <TabsAndSearch
+              openTab={openTab}
+              setOpenTab={setOpenTab}
+              searchControl={control}
+              sessionId={sessionId}
+            />
           </View>
         )
       }
@@ -86,7 +102,17 @@ const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) =>
 
       return <DeFiPosition key={item.providerName + item.network} {...item} />
     },
-    [control, dashboardNetworkFilter, initTab?.defi, openTab, searchValue, setOpenTab, t, theme]
+    [
+      control,
+      dashboardNetworkFilter,
+      initTab?.defi,
+      openTab,
+      searchValue,
+      setOpenTab,
+      t,
+      theme,
+      sessionId
+    ]
   )
 
   const keyExtractor = useCallback((positionOrElement: any) => {

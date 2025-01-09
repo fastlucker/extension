@@ -1,40 +1,58 @@
-import { Activity, LegendActivity } from '@legends/contexts/activityContext/types'
-import { CardFromResponse, CardType } from '@legends/modules/legends/types'
+import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
+import { CardFromResponse, CardStatus } from '@legends/modules/legends/types'
+import { isMatchingPredefinedId } from '@legends/modules/legends/utils/cards'
 
 interface WheelSpinOfTheDayParams {
   legends: CardFromResponse[] | null
-  activity: Activity[] | null
 }
 
-export const calculateHoursUntilMidnight = (activity: Activity[]) => {
-  const submittedAt = activity && activity[0] && activity[0].submittedAt
-
-  const submittedAtOffset = submittedAt
-    ? new Date(submittedAt).getTimezoneOffset()
-    : new Date().getTimezoneOffset()
-
-  const adjustedNow = new Date(new Date().getTime() - submittedAtOffset * 60000)
-
-  // Calculate hours and minutes left until midnight in the adjusted timezone
-  return 23 - adjustedNow.getUTCHours()
+type TimeUntilMidnight = {
+  time: {
+    hours: number
+    minutes: number
+    seconds: number
+  }
+  label: string
 }
 
-export const isWheelSpinTodayDone = ({ legends, activity }: WheelSpinOfTheDayParams): boolean => {
+export const timeUntilMidnight = (): TimeUntilMidnight => {
+  const now = new Date()
+  const hoursLeft = 23 - now.getUTCHours()
+  const minutesLeft = 59 - now.getUTCMinutes()
+  const secondsLeft = 59 - now.getUTCSeconds()
+
+  // For now, we keep the label short, as there isn't much space in the components.
+  // Therefore, we only display the hours and omit the minutes, seconds.
+  let label
+  if (hoursLeft < 1) {
+    label = 'Available in < 1 hour'
+  } else if (hoursLeft === 1) {
+    label = `Available in ${hoursLeft} hour`
+  } else {
+    label = `Available in ${hoursLeft} hours`
+  }
+
+  return {
+    time: {
+      hours: hoursLeft,
+      minutes: minutesLeft,
+      seconds: secondsLeft
+    },
+    label
+  }
+}
+
+export const isWheelSpinTodayDone = ({ legends }: WheelSpinOfTheDayParams): boolean => {
   if (!legends || !legends.length) return true
-  const today = new Date().toISOString().split('T')[0]
 
-  const cardwheelOfFortune =
-    legends.find((card: CardFromResponse) => {
-      return card.action.predefinedId === 'wheelOfFortune' && card.card.type === CardType.done
-    }) ||
-    (activity && activity.length
-      ? (activity.find((txn: Activity) => {
-          return (
-            txn.legends.activities.find((acc: LegendActivity) =>
-              acc.action.startsWith('WheelOfFortune')
-            ) && txn.submittedAt.startsWith(today)
-          )
-        }) as unknown as CardFromResponse | null)
-      : null)
-  return !!cardwheelOfFortune
+  const cardWheelOfFortune = legends.find((card: CardFromResponse) =>
+    isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.wheelOfFortune)
+  )
+
+  if (!cardWheelOfFortune) return false
+
+  return (
+    cardWheelOfFortune.card.status === CardStatus.completed ||
+    cardWheelOfFortune.card.status === CardStatus.disabled
+  )
 }

@@ -6,6 +6,7 @@ import { isWeb } from '@common/config/env'
 import useDebounce from '@common/hooks/useDebounce'
 import useTheme from '@common/hooks/useTheme'
 import DefaultWalletControl from '@common/modules/dashboard/components/DefaultWalletControl'
+import PendingActionWindowModal from '@common/modules/dashboard/components/PendingActionWindowModal'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import GasTankModal from '@web/components/GasTankModal'
@@ -118,6 +119,7 @@ const DashboardScreen = () => {
         account={account}
       />
 
+      <PendingActionWindowModal />
       <View style={styles.container}>
         <View style={[flexbox.flex1, spacings.ptSm]}>
           <DashboardOverview

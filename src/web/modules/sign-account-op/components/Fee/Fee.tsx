@@ -2,12 +2,12 @@ import React from 'react'
 import { Animated, Pressable } from 'react-native'
 
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import { useCustomHover } from '@web/hooks/useHover'
 
 import getStyles from './styles'

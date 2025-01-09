@@ -35,20 +35,27 @@ const getSearchPlaceholder = (openTab: TabType, t: TFunction) => {
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
-  searchControl: any
+  searchControl?: any
+  sessionId: string
 }
 
 // We want to change the query param without refreshing the page.
-const handleChangeQuery = (tab: string) => {
+const handleChangeQuery = (tab: string, sessionId: string) => {
   if (window.location.href.includes('?tab=')) {
-    window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${tab}`)
+    window.history.pushState(
+      null,
+      '',
+      `${window.location.href.split('?')[0]}?tab=${tab}&sessionId=${sessionId}`
+    )
     return
   }
 
-  window.history.pushState(null, '', `${window.location.href}?tab=${tab}`)
+  window.history.pushState(null, '', `${window.location.href}?tab=${tab}&sessionId=${sessionId}`)
 }
 
-const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }: Props) => {
+const TABS = ['tokens', 'collectibles', 'defi']
+
+const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId }) => {
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const allBanners = useBanners()
@@ -72,8 +79,12 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }: Props)
 
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
-      <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-      {['tokens', 'collectibles', 'defi'].includes(openTab) && (
+      <Tabs
+        handleChangeQuery={(tab) => handleChangeQuery(tab, sessionId)}
+        setOpenTab={setOpenTab}
+        openTab={openTab}
+      />
+      {TABS.includes(openTab) && (
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <SelectNetwork />
           <AnimatedPressable

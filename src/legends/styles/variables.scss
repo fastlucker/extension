@@ -18,7 +18,8 @@ $secondaryBackground: #f5ede2;
 $tertiaryBackground: #efe3d3;
 $accent: #e75132;
 $secondaryAccent: #1c510b;
-$bronzeBackground: #F5D4B5;
+$secondaryAccent200: #d8ebca;
+$bronzeBackground: #f5d4b5;
 $bronzeDecorative: #d08d4c;
 $bronzeText: #8a6037;
 $silverBackground: #e8e6e3;
@@ -27,11 +28,18 @@ $silverText: #686663;
 $goldBackground: #f8e3b7;
 $goldDecorative: #e7aa27;
 $goldText: #b67d02;
+$blackText: #000000;
 $backdrop: rgba($primaryText, 0.75);
 $primaryBadgeBackground: #2c567d;
 $primaryBadgeDecorative: #113a60;
 $secondaryBadgeBackground: #7d2c2d;
 $secondaryBadgeDecorative: #601119;
+
+// Landing colors
+// These colors are here in hopes that
+// they the two colors schemes will be merged in the future.
+$landingBoxShadow: #372f23;
+$landingAccent: #374d26;
 
 $success: #4e9200;
 $warning: #ba8315;
@@ -47,6 +55,8 @@ $primaryGradient: linear-gradient(
   #7f643d 100%
 );
 
+$secondaryGradient: linear-gradient(90deg, #fee852 0%, #f6b92e 64%, #d19a3a 100%);
+
 // Typography
 $primaryFont: 'Sentient', serif;
 $secondaryFont: 'Sentient', serif;
@@ -54,3 +64,4 @@ $secondaryFont: 'Sentient', serif;
 // Other
 $primaryBorderRadius: 0.375rem;
 $secondaryBorderRadius: 0.75rem;
+$tertiaryBorderRadius: 2rem;

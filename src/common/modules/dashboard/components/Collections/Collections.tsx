@@ -12,6 +12,7 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
+import { getDoesNetworkMatch } from '@common/utils/search'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -25,13 +26,21 @@ interface Props {
   initTab?: {
     [key: string]: boolean
   }
+  sessionId: string
   onScroll: FlatListProps<any>['onScroll']
   networks: Network[]
 }
 
 const { isPopup } = getUiType()
 
-const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll, networks }) => {
+const Collections: FC<Props> = ({
+  openTab,
+  setOpenTab,
+  initTab,
+  sessionId,
+  onScroll,
+  networks
+}) => {
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
@@ -63,14 +72,16 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll, networ
         }
 
         if (searchValue) {
+          const lowercaseSearch = searchValue.toLowerCase()
           isMatchingSearch =
-            name.toLowerCase().includes(searchValue.toLowerCase()) ||
-            address.toLowerCase().includes(searchValue.toLowerCase())
+            name.toLowerCase().includes(lowercaseSearch) ||
+            address.toLowerCase().includes(lowercaseSearch) ||
+            getDoesNetworkMatch({ networks, itemNetworkId: networkId, lowercaseSearch })
         }
 
         return isMatchingNetwork && isMatchingSearch && collectibles.length
       }),
-    [portfolio?.collections, dashboardNetworkFilter, searchValue]
+    [portfolio?.collections, dashboardNetworkFilter, searchValue, networks]
   )
 
   const renderItem = useCallback(
@@ -78,7 +89,12 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll, networ
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+            <TabsAndSearch
+              openTab={openTab}
+              setOpenTab={setOpenTab}
+              searchControl={control}
+              sessionId={sessionId}
+            />
           </View>
         )
       }
@@ -129,7 +145,8 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll, networ
       searchValue,
       setOpenTab,
       t,
-      theme.primaryBackground
+      theme.primaryBackground,
+      sessionId
     ]
   )
 

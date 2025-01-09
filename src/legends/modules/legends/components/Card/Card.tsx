@@ -1,162 +1,107 @@
-import React, { FC, useMemo, useState } from 'react'
+import React, { FC, useState } from 'react'
 
-import { faInfinity } from '@fortawesome/free-solid-svg-icons/faInfinity'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Modal from '@legends/components/Modal'
-import useActivityContext from '@legends/hooks/useActivityContext'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
-import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import { calculateHoursUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
-import { CardFromResponse, CardType, CardXpType } from '@legends/modules/legends/types'
+import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
+import useToast from '@legends/hooks/useToast'
+import ActionModal from '@legends/modules/legends/components/ActionModal'
+import { PREDEFINED_ACTION_LABEL_MAP } from '@legends/modules/legends/constants'
+import { CardActionType, CardFromResponse, CardStatus } from '@legends/modules/legends/types'
 
-import { PREDEFINED_ACTION_LABEL_MAP } from '../../constants'
-import Badge from './Badge'
-import styles from './Card.module.scss'
-import CardActionComponent from './CardAction'
+import CardContent from './CardContent'
+import OnCompleteModal from './OnCompleteModal'
 
-type Props = Pick<
-  CardFromResponse,
-  'title' | 'description' | 'xp' | 'image' | 'card' | 'action' | 'disabled'
-> & {
-  children?: React.ReactNode | React.ReactNode[]
+type Props = {
+  cardData: CardFromResponse
 }
 
-const CARD_XP_TYPE_LABELS: {
-  [key in CardXpType]: string
-} = {
-  0: 'Reward',
-  1: 'Mainnet',
-  2: 'Layer 2'
-}
-
-const getBadgeType = (reward: number, type: CardXpType) => {
-  if (type === CardXpType.l2) {
-    return 'secondary'
-  }
-  if (reward > 100) {
-    return 'highlight'
-  }
-
-  return 'primary'
-}
-
-const Card: FC<Props> = ({ title, image, description, children, xp, card, action, disabled }) => {
-  const { activity } = useActivityContext()
-  const { onLegendComplete } = useLegendsContext()
-
-  const isCompleted = card?.type === CardType.done
-  const isRecurring = card?.type === CardType.recurring
-  const shortenedDescription = description.length > 55 ? `${description.slice(0, 55)}...` : null
-  const buttonText = PREDEFINED_ACTION_LABEL_MAP[action.predefinedId || ''] || 'Proceed'
+const Card: FC<Props> = ({ cardData }) => {
+  const { card, action } = cardData
+  const disabled = card.status === CardStatus.disabled
+  const predefinedId = action.type === CardActionType.predefined ? action.predefinedId : ''
+  const buttonText = PREDEFINED_ACTION_LABEL_MAP[predefinedId] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
+  const [isOnCompleteModalVisible, setIsOnCompleteModalVisible] = useState(false)
+  const { getActivity } = useRecentActivityContext()
+  const { onLegendComplete } = useLegendsContext()
+  const { addToast } = useToast()
 
-  const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-
-  const openActionModal = () =>
-    action.predefinedId === 'wheelOfFortune'
-      ? setIsFortuneWheelModalOpen(true)
-      : setIsActionModalOpen(true)
-
-  const closeActionModal = () =>
-    action.predefinedId === 'wheelOfFortune'
-      ? setIsFortuneWheelModalOpen(false)
-      : setIsActionModalOpen(false)
-
-  const onLegendCompleteWrapped = async () => {
-    await onLegendComplete()
-    closeActionModal()
+  const openActionModal = () => {
+    setIsActionModalOpen(true)
   }
 
-  const hoursUntilMidnight = useMemo(
-    () => (activity ? calculateHoursUntilMidnight(activity) : 0),
-    [activity]
-  )
+  const closeActionModal = () => {
+    setIsActionModalOpen(false)
+  }
+
+  const pollActivityUntilComplete = async (txnId: string, attempt: number) => {
+    if (attempt > 10) {
+      addToast(ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
+      return
+    }
+
+    // We can't rely on state as it's not updated due to the self-invoking nature of the function
+    const newActivity = await getActivity()
+
+    const foundTxn = newActivity?.transactions?.find((txn) => txn.txId === txnId)
+
+    if (!foundTxn) {
+      if (attempt === 0) {
+        addToast('We are processing your transaction. Expect your reward shortly.')
+      }
+
+      setTimeout(() => pollActivityUntilComplete(txnId, attempt + 1), 1000)
+      return
+    }
+
+    const latestXpReward = foundTxn.legends.totalXp
+
+    if (latestXpReward) {
+      addToast(`Transaction completed! Reward ${latestXpReward} XP`, { type: 'success' })
+    } else {
+      addToast('Transaction completed!', { type: 'success' })
+    }
+
+    // Update all other states
+    await onLegendComplete()
+  }
+
+  const onLegendCompleteWrapped = async (txnId: string) => {
+    await pollActivityUntilComplete(txnId, 0)
+    // This modal is displayed for a small number of specific
+    // actions. If the action isn't one of them nothing will happen.
+    setIsOnCompleteModalVisible(true)
+  }
 
   return (
-    <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
-      <Modal isOpen={isActionModalOpen} setIsOpen={setIsActionModalOpen}>
-        <Modal.Heading>{title}</Modal.Heading>
-        <Modal.Text className={styles.modalText}>{description}</Modal.Text>
-        <CardActionComponent
-          onComplete={onLegendCompleteWrapped}
-          buttonText={buttonText}
-          action={action}
-        />
-      </Modal>
-      {action.predefinedId === 'wheelOfFortune' && (
-        <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
-      )}
-      {isCompleted ? (
-        <div className={styles.completed}>
-          <span className={styles.completedText}>
-            Completed <br />
-            {action.predefinedId === 'wheelOfFortune' ? (
-              <span
-                className={styles.completedTextAvailable}
-              >{`Available in ${hoursUntilMidnight} hours`}</span>
-            ) : null}
-          </span>
-        </div>
-      ) : null}
-      <div className={styles.imageAndBadges}>
-        <div className={styles.badges}>
-          {xp?.map(({ from, to, type }) => (
-            <Badge
-              type={getBadgeType(to, type)}
-              key={`${from}-${to}-${type}`}
-              label={CARD_XP_TYPE_LABELS[type]}
-              value={to}
-            />
-          ))}
-        </div>
-        <img src={image} alt={title} className={styles.image} />
-      </div>
-      <div className={styles.contentAndAction}>
-        <div className={styles.content}>
-          <h2 className={styles.heading}>{title}</h2>
-          <p className={styles.description}>
-            {shortenedDescription || description}{' '}
-            {shortenedDescription ? (
-              <button type="button" onClick={openActionModal} className={styles.readMore}>
-                Read more
-              </button>
-            ) : null}
-          </p>
-          <h3 className={styles.rewardsHeading}>
-            XP rewards{' '}
-            {isRecurring ? (
-              <>
-                (Repeatable <FontAwesomeIcon className={styles.repeatableIcon} icon={faInfinity} />)
-              </>
-            ) : (
-              ''
-            )}
-          </h3>
-          <div className={`${styles.rewards} ${children ? styles.mb : ''}`}>
-            {xp?.map(({ from, to, type }) => (
-              <div key={`${from}-${to}-${type}`} className={styles.reward}>
-                <span className={styles.rewardLabel}>{CARD_XP_TYPE_LABELS[type]}</span>
-                <span className={styles.rewardValue}>
-                  + {from}
-                  {to !== from ? `-${to}` : ''} xp
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        {!!action.type && (
-          <button
-            disabled={disabled}
-            className={styles.button}
-            type="button"
-            onClick={openActionModal}
-          >
-            {buttonText}
-          </button>
-        )}
-      </div>
-    </div>
+    <>
+      {/* Card component */}
+      <CardContent
+        {...cardData}
+        card={card}
+        action={action}
+        openActionModal={openActionModal}
+        disabled={disabled}
+        buttonText={buttonText}
+      />
+      {/* Modals */}
+      <OnCompleteModal
+        isVisible={isOnCompleteModalVisible}
+        setIsVisible={setIsOnCompleteModalVisible}
+        predefinedId={predefinedId}
+      />
+      <ActionModal
+        {...cardData}
+        isOpen={isActionModalOpen}
+        setIsOpen={setIsActionModalOpen}
+        buttonText={buttonText}
+        onLegendCompleteWrapped={onLegendCompleteWrapped}
+        closeActionModal={closeActionModal}
+        action={action}
+        predefinedId={predefinedId}
+      />
+    </>
   )
 }
 
-export default Card
+export default React.memo(Card)

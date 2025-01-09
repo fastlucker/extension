@@ -1,9 +1,8 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, View } from 'react-native'
 
-import { Account } from '@ambire-common/interfaces/account'
-import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -18,7 +17,6 @@ import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens
 import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -233,6 +231,7 @@ const DashboardOverview: FC<Props> = ({
                           weight="number_bold"
                           color={theme.primaryBackground}
                           selectable
+                          testID="total-portfolio-amount-integer"
                         >
                           {totalPortfolioAmountInteger}
                         </Text>

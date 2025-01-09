@@ -2,11 +2,12 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import useActivityContext from '@legends/hooks/useActivityContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
+import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import { isWheelSpinTodayDone } from '@legends/modules/legends/components/WheelComponentModal/helpers'
-import { CardFromResponse, CardType } from '@legends/modules/legends/types'
+import { CardFromResponse, CardStatus } from '@legends/modules/legends/types'
 import { sortCards } from '@legends/modules/legends/utils'
 
 type LegendsContextType = {
@@ -25,21 +26,19 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
   const { getCharacter } = useCharacterContext()
-  const { activity, getActivity } = useActivityContext()
+  const { getActivity } = useRecentActivityContext()
+  const { updateLeaderboard } = useLeaderboardContext()
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [legends, setLegends] = useState<CardFromResponse[]>([])
 
   const completedCount = useMemo(
-    () => legends.filter((card) => card.card.type === CardType.done).length,
+    () => legends.filter((card) => card.card.status === CardStatus.completed).length,
     [legends]
   )
 
-  const wheelSpinOfTheDay = useMemo(
-    () => isWheelSpinTodayDone({ legends, activity }),
-    [legends, activity]
-  )
+  const wheelSpinOfTheDay = useMemo(() => isWheelSpinTodayDone({ legends }), [legends])
 
   const getLegends = useCallback(async () => {
     setError(null)
@@ -64,31 +63,49 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   }, [getLegends])
 
   const onLegendComplete = useCallback(async () => {
-    const [activityResult, legendsResult, characterResult] = await Promise.allSettled([
-      getActivity(),
-      getLegends(),
-      getCharacter()
-    ])
+    const [activityResult, legendsResult, characterResult, leaderboardResult] =
+      await Promise.allSettled([getActivity(), getLegends(), getCharacter(), updateLeaderboard()])
+    const hasActivityFailed = activityResult.status === 'rejected'
+    const hasLegendsFailed = legendsResult.status === 'rejected'
+    const hasCharacterFailed = characterResult.status === 'rejected'
+    const leaderboardResultFailed = leaderboardResult.status === 'rejected'
+
+    // No need to bombard the user with three toast if the relayer is down
+    if (hasActivityFailed && hasLegendsFailed && hasCharacterFailed && leaderboardResultFailed) {
+      addToast('An error occurred while completing the legend. Please try again later.', {
+        type: 'error'
+      })
+      return
+    }
 
     // Handle errors based on the index of each result
     if (activityResult.status === 'rejected') {
       addToast(
         'Your latest activity cannot be retrieved. Please refresh the page to see the latest data.',
-        'error'
+        { type: 'error' }
       )
     }
 
     if (legendsResult.status === 'rejected') {
-      addToast('We cannot retrieve your legends at the moment. Please refresh the page.', 'error')
+      addToast('We cannot retrieve your legends at the moment. Please refresh the page.', {
+        type: 'error'
+      })
     }
 
     if (characterResult.status === 'rejected') {
       addToast(
         'Your XP has been successfully gained, but there was an error retrieving it. Please refresh the page to see the latest XP.',
-        'error'
+        { type: 'error' }
       )
     }
-  }, [addToast, getActivity, getCharacter, getLegends])
+
+    if (leaderboardResult.status === 'rejected') {
+      addToast(
+        'Your XP has been successfully gained, but there was an error retrieving the leaderboard. Please refresh the page to see your latest place.',
+        { type: 'error' }
+      )
+    }
+  }, [addToast, getActivity, getCharacter, getLegends, updateLeaderboard])
 
   const contextValue: LegendsContextType = useMemo(
     () => ({

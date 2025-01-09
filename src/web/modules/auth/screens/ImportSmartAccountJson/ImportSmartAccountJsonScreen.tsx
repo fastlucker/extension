@@ -1,7 +1,7 @@
 import { computeAddress, getAddress, isAddress, isHexString } from 'ethers'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { View } from 'react-native'
+import { Linking, TouchableOpacity, View } from 'react-native'
 
 import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
 import { Account, AccountCreation } from '@ambire-common/interfaces/account'
@@ -9,11 +9,12 @@ import { ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import ImportJsonIcon from '@common/assets/svg/ImportJsonIcon'
+import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
+import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -32,9 +33,16 @@ import Stepper from '@web/modules/router/components/Stepper'
 
 import getStyles from './styles'
 
-type ImportedJson = Account & { privateKey: string; creation: AccountCreation }
+type ImportedJson = Account & { privateKey: string; creation: AccountCreation; id?: string }
 
 const validateJson = (json: ImportedJson): { error?: string; success: boolean } => {
+  if ('id' in json && isAddress(json.id)) {
+    return {
+      error: 'Invalid json or you are trying to add Ambire v1 account which is not allowed.',
+      success: false
+    }
+  }
+
   if (!('addr' in json) || !isAddress(json.addr)) {
     return {
       error:
@@ -206,6 +214,14 @@ const SmartAccountImportScreen = () => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: handleFileUpload })
 
+  const handleGuideLinkPressed = useCallback(
+    () =>
+      Linking.openURL(
+        'https://help.ambire.com/hc/en-us/articles/15468208978332--Extension-How-to-add-your-v1-account-to-Ambire-Wallet-extension'
+      ),
+    []
+  )
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -218,7 +234,7 @@ const SmartAccountImportScreen = () => {
       footer={<BackButton fallbackBackRoute={ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Import existing smart account json')}>
+        <Panel title={t('Import a JSON backup file')}>
           <div
             {...getRootProps()}
             style={{
@@ -231,32 +247,53 @@ const SmartAccountImportScreen = () => {
               <View style={styles.dropArea}>
                 <input {...getInputProps()} />
                 <ImportJsonIcon />
-                {isDragActive ? (
-                  <Text weight="regular" style={text.center}>
-                    {t('Drop your file here...')}
-                  </Text>
-                ) : (
-                  <Text weight="regular" style={text.center}>
-                    {'Drop your JSON file here,\nor '}
-                    <Text appearance="primary" weight="regular">
-                      upload
+                <Trans>
+                  {isDragActive ? (
+                    <Text weight="regular" style={text.center}>
+                      Drop your file here...
                     </Text>
-                    <Text weight="regular">{' from your computer'}</Text>
-                    {isLoading && (
-                      <View style={spacings.mlTy}>
-                        <Spinner style={{ width: 16, height: 16 }} />
-                      </View>
-                    )}
-                  </Text>
-                )}
+                  ) : (
+                    <Text weight="regular" style={text.center}>
+                      {'Drag and drop the JSON backup file\nor '}
+                      <Text appearance="primary" weight="regular">
+                        upload
+                      </Text>
+                      <Text weight="regular">{' it from your computer'}</Text>
+                      {isLoading && (
+                        <View style={spacings.mlTy}>
+                          <Spinner style={{ width: 16, height: 16 }} />
+                        </View>
+                      )}
+                    </Text>
+                  )}
+                </Trans>
               </View>
+              {!!error && (
+                <Text weight="regular" fontSize={14} appearance="errorText">
+                  {error}
+                </Text>
+              )}
+              <Trans>
+                <Alert
+                  title="Ambire v2 Smart Accounts only"
+                  type="warning"
+                  text={
+                    <Text>
+                      You can import backups only for v2 Smart Accounts created in the Ambire
+                      Extension. If you are looking to import v1 Smart Accounts from the web or
+                      mobile wallet check{' '}
+                      <TouchableOpacity onPress={handleGuideLinkPressed}>
+                        <Text color={theme.infoDecorative} underline weight="regular">
+                          this guide
+                        </Text>
+                      </TouchableOpacity>
+                      .
+                    </Text>
+                  }
+                />
+              </Trans>
             </View>
           </div>
-          {!!error && (
-            <Text weight="regular" fontSize={14} appearance="errorText">
-              {error}
-            </Text>
-          )}
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

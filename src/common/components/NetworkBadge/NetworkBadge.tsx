@@ -16,9 +16,11 @@ interface Props {
   networkId?: Network['id']
   withOnPrefix?: boolean
   style?: ViewStyle
+  fontSize?: number
+  iconSize?: number
 }
 
-const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix, style }) => {
+const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix, style, fontSize= 16, iconSize = 32 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
@@ -42,15 +44,15 @@ const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix, style }) => {
         ...style
       }}
     >
-      <Text fontSize={16} weight="medium" appearance="secondaryText">
+      <Text fontSize={fontSize} weight="medium" appearance="secondaryText">
         {withOnPrefix ? (
-          <Text fontSize={16} weight="medium" appearance="tertiaryText">
+          <Text fontSize={fontSize} weight="medium" appearance="tertiaryText">
             on{' '}
           </Text>
         ) : null}
         {networkName || t('Unknown network')}
       </Text>
-      <NetworkIcon style={{ backgroundColor: 'transparent' }} id={networkId} size={32} />
+      <NetworkIcon style={{ backgroundColor: 'transparent' }} id={networkId} size={iconSize} />
     </View>
   )
 }

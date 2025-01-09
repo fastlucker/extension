@@ -22,6 +22,11 @@ import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
+type UpdateNavigationUrl = {
+  type: 'UPDATE_PORT_URL'
+  params: { url: string }
+}
+
 type InitControllerStateAction = {
   type: 'INIT_CONTROLLER_STATE'
   params: {
@@ -210,24 +215,21 @@ type MainControllerHandleSignMessage = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE'
   params: { keyAddr: Key['addr']; keyType: Key['type'] }
 }
-type MainControllerActivityInitAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params?: { filters?: Filters }
+type MainControllerActivitySetAccOpsFiltersAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS'
+  params: { filters: Filters; pagination?: Pagination; sessionId: string }
 }
-type MainControllerActivitySetFiltersAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
-  params: { filters: Filters }
+type MainControllerActivitySetSignedMessagesFiltersAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_FILTERS'
+  params: { filters: Filters; pagination?: Pagination; sessionId: string }
 }
-type MainControllerActivitySetAccountOpsPaginationAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION'
-  params: { pagination: Pagination }
+type MainControllerActivityResetAccOpsAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS'
+  params: { sessionId: string }
 }
-type MainControllerActivitySetSignedMessagesPaginationAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION'
-  params: { pagination: Pagination }
-}
-type MainControllerActivityResetAction = {
-  type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
+type MainControllerActivityResetSignedMessagesAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_RESET_SIGNED_MESSAGES_FILTERS'
+  params: { sessionId: string }
 }
 type MainControllerActivityHideBanner = {
   type: 'ACTIVITY_CONTROLLER_HIDE_BANNER'
@@ -454,7 +456,7 @@ type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   params: { activeRouteId: number }
 }
 type SwapAndBridgeControllerRemoveActiveRouteAction = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE'
+  type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: number }
 }
 
@@ -468,6 +470,9 @@ type ActionsControllerRemoveFromActionsQueue = {
 }
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
+}
+type ActionsControllerCloseActionWindow = {
+  type: 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW'
 }
 
 type ActionsControllerMakeAllActionsActive = {
@@ -558,7 +563,12 @@ type ImportSmartAccountJson = {
   params: { readyToAddAccount: Account; keys: ReadyToAddKeys['internal'] }
 }
 
+type ExtensionUpdateControllerApplyUpdate = {
+  type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
+}
+
 export type Action =
+  | UpdateNavigationUrl
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
   | MainControllerAccountAdderInitTrezorAction
@@ -596,11 +606,10 @@ export type Action =
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerHandleSignMessage
-  | MainControllerActivityInitAction
-  | MainControllerActivitySetFiltersAction
-  | MainControllerActivitySetAccountOpsPaginationAction
-  | MainControllerActivitySetSignedMessagesPaginationAction
-  | MainControllerActivityResetAction
+  | MainControllerActivitySetAccOpsFiltersAction
+  | MainControllerActivitySetSignedMessagesFiltersAction
+  | MainControllerActivityResetAccOpsAction
+  | MainControllerActivityResetSignedMessagesAction
   | MainControllerSignAccountOpInitAction
   | MainControllerSignAccountOpDestroyAction
   | MainControllerSignAccountOpUpdateMainDepsAction
@@ -646,6 +655,7 @@ export type Action =
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
+  | ActionsControllerCloseActionWindow
   | ActionsControllerMakeAllActionsActive
   | ActionsControllerSetCurrentActionById
   | ActionsControllerSetCurrentActionByIndex
@@ -667,3 +677,4 @@ export type Action =
   | MainControllerActivityHideBanner
   | KeystoreControllerDeleteSavedSeed
   | KeystoreControllerMoveSeedFromTemp
+  | ExtensionUpdateControllerApplyUpdate

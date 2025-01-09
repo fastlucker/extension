@@ -1,16 +1,15 @@
 import React from 'react'
-import Svg, { G, Path, SvgProps } from 'react-native-svg'
+import Svg, { G, Path } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
+import { LegendsSvgProps } from '@legends/types/svg'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
+interface Props extends LegendsSvgProps {
   isActive?: boolean
 }
 
-const EnsIcon: React.FC<Props> = ({ width = 24, height = 24, isActive }) => (
-  <Svg width={width} height={height} viewBox="0 0 24 24">
+const EnsIcon: React.FC<Props> = ({ width = 24, height = 24, isActive, ...rest }) => (
+  <Svg width={width} height={height} viewBox="0 0 24 24" {...rest}>
     <G transform="translate(-1641 -298)">
       <G transform="translate(1642.2 298)" opacity={isActive ? '1' : '0.25'}>
         <Path

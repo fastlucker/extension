@@ -1,0 +1,91 @@
+import React, { createContext, FC, useContext, useMemo } from 'react'
+
+import Modal from '@legends/components/Modal'
+import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
+import { CardActionComponentProps } from '@legends/modules/legends/components/Card/CardAction/CardAction'
+import Rewards from '@legends/modules/legends/components/Card/CardContent/Rewards'
+import HowTo from '@legends/modules/legends/components/Card/HowTo'
+import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
+import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
+import { CardFromResponse } from '@legends/modules/legends/types'
+
+import WheelComponentModal from '../WheelComponentModal'
+import styles from './ActionModal.module.scss'
+import Referral from './Referral/Referral'
+
+type CardActionContextType = {
+  onComplete: (txnId: string) => Promise<void>
+  handleClose: () => void
+}
+
+const cardActionContext = createContext<CardActionContextType>({} as CardActionContextType)
+
+export const useCardActionContext = () => {
+  const context = useContext(cardActionContext)
+  if (context === undefined) {
+    throw new Error('useCardActionContext must be used within a CardActionContextProvider')
+  }
+  return context
+}
+
+type ActionModalProps = {
+  isOpen: boolean
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  onLegendCompleteWrapped: (txnId: string) => Promise<void>
+  closeActionModal: () => void
+  predefinedId?: string
+  buttonText: string
+} & Partial<HowToProps> &
+  Partial<CardActionComponentProps> &
+  Pick<
+    CardFromResponse,
+    'meta' | 'xp' | 'contentImage' | 'contentSteps' | 'contentVideo' | 'title' | 'flavor' | 'action'
+  >
+
+const ActionModal: FC<ActionModalProps> = ({
+  isOpen,
+  setIsOpen,
+  title,
+  flavor,
+  xp,
+  contentImage,
+  buttonText,
+  onLegendCompleteWrapped,
+  closeActionModal,
+  contentSteps,
+  contentVideo,
+  meta,
+  action,
+  predefinedId
+}) => {
+  const cardActionContextValue = useMemo(
+    () => ({ onComplete: onLegendCompleteWrapped, handleClose: closeActionModal }),
+    [closeActionModal, onLegendCompleteWrapped]
+  )
+
+  if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
+    return <WheelComponentModal isOpen={isOpen} setIsOpen={setIsOpen} />
+  }
+
+  return (
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} className={styles.modal}>
+      <Modal.Heading className={styles.modalHeading}>
+        <div className={styles.modalHeadingTitle}>{title}</div>
+        {xp && <Rewards xp={xp} size="lg" />}
+      </Modal.Heading>
+      <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
+      {contentSteps && (
+        <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} video={contentVideo}>
+          {predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />}
+        </HowTo>
+      )}
+      {!!action && (
+        <cardActionContext.Provider value={cardActionContextValue}>
+          <CardActionComponent buttonText={buttonText} action={action} />
+        </cardActionContext.Provider>
+      )}
+    </Modal>
+  )
+}
+
+export default ActionModal

@@ -9,12 +9,15 @@ import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappC
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import { APP_VERSION, isProd } from '@common/config/env'
-import formatDecimals from '@common/utils/formatDecimals'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
+import { createTab } from '../webapi/tab'
 import { RequestRes, Web3WalletPermission } from './types'
 
 type ProviderRequest = DappProviderRequest & { requestRes: RequestRes }
@@ -110,22 +113,39 @@ export class ProviderController {
     return account
   }
 
-  getPortfolioBalance = async ({ session: { origin } }: DappProviderRequest) => {
-    if (
-      !this.mainCtrl.dapps.hasPermission(origin) ||
-      !this.isUnlocked ||
-      !this.mainCtrl.selectedAccount.account ||
-      !this.mainCtrl.selectedAccount.portfolio
-    ) {
-      return null
+  getPortfolioBalance = async ({
+    params: [chainParams],
+    session: { origin }
+  }: DappProviderRequest) => {
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    if (!this.mainCtrl.selectedAccount.account) {
+      throw new Error('wallet account not selected')
+    }
+
+    let totalBalance: number = 0
+
+    if (chainParams && chainParams.chainIds?.length) {
+      chainParams.chainIds.forEach((chainId: string) => {
+        const network = this.mainCtrl.networks.networks.find(
+          (n) => Number(n.chainId) === Number(chainId)
+        )
+        if (!network) return
+
+        const portfolioNetwork = this.mainCtrl.selectedAccount.portfolio.pending[network.id]
+        if (!portfolioNetwork) return
+
+        totalBalance += portfolioNetwork.result?.total.usd || 0
+      })
+    } else {
+      totalBalance = this.mainCtrl.selectedAccount.portfolio.totalBalance
     }
 
     return {
-      amount: this.mainCtrl.selectedAccount.portfolio.totalBalance,
-      amountFormatted: formatDecimals(
-        this.mainCtrl.selectedAccount.portfolio.totalBalance,
-        'price'
-      ),
+      amount: totalBalance,
+      amountFormatted: formatDecimals(totalBalance, 'price'),
       isReady: this.mainCtrl.selectedAccount.portfolio.isAllReady
     }
   }
@@ -271,6 +291,18 @@ export class ProviderController {
       capabilities[toBeHex(network.chainId)] = {
         atomicBatch: {
           supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+        },
+        auxiliaryFunds: {
+          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+        },
+        paymasterService: {
+          supported:
+            !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA &&
+            // enabled: obvious, it means we're operaring with 4337
+            // hasBundlerSupport means it might not be 4337 but we support it
+            // our default may be the relayer but we will broadcast an userOp
+            // in case of sponsorships
+            (network.erc4337.enabled || network.erc4337.hasBundlerSupport)
         }
       }
     })
@@ -279,9 +311,8 @@ export class ProviderController {
 
   @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
   walletSendCalls = async (data: any) => {
-    if (data.requestRes && data.requestRes.submittedAccountOp) {
-      const identifiedBy = data.requestRes.submittedAccountOp.identifiedBy
-      return `${identifiedBy.type}:${identifiedBy.identifier}`
+    if (data.requestRes && data.requestRes.hash) {
+      return data.requestRes.hash
     }
 
     throw new Error('Transaction failed!')
@@ -313,6 +344,11 @@ export class ProviderController {
       this.mainCtrl.fetch,
       this.mainCtrl.callRelayer
     )
+    if (txnIdData.status === 'rejected') {
+      return {
+        status: 'FAILURE'
+      }
+    }
     if (txnIdData.status !== 'success') {
       return {
         status: 'PENDING'
@@ -321,21 +357,68 @@ export class ProviderController {
 
     const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
-    const receipt = await provider.getTransactionReceipt(txnId)
+    const isUserOp = identifiedBy.type === 'UserOperation'
+    const receipt = isUserOp
+      ? await bundler.getReceipt(identifiedBy.identifier, network)
+      : await provider.getTransactionReceipt(txnId)
+
     if (!receipt) {
       return {
         status: 'PENDING'
       }
     }
 
+    const txnStatus = isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number)
+    const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
+
     return {
       status: 'CONFIRMED',
-      receipts: [receipt]
+      receipts: [
+        {
+          logs: receipt.logs,
+          status,
+          chainId: toBeHex(network.chainId),
+          blockHash: isUserOp ? receipt.receipt.blockHash : receipt.blockHash,
+          blockNumber: isUserOp
+            ? receipt.receipt.blockNumber
+            : toBeHex(receipt.blockNumber as number),
+          gasUsed: isUserOp ? receipt.receipt.gasUsed : toBeHex(receipt.gasUsed),
+          transactionHash: isUserOp ? receipt.receipt.transactionHash : receipt.hash
+        }
+      ]
     }
   }
 
+  // open benzina in a separate tab upon a dapp request
   walletShowCallsStatus = async (data: any) => {
-    // TODO: open a modal with information about the transaction
+    if (!data.params || !data.params.length) {
+      throw ethErrors.rpc.invalidParams('params is required but got []')
+    }
+
+    const id = data.params[0]
+    if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
+
+    const splitInTwo = id.split(':')
+    if (splitInTwo.length !== 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
+
+    const type = splitInTwo[0]
+    const identifier = splitInTwo[1]
+    const identifiedBy: AccountOpIdentifiedBy = {
+      type,
+      identifier
+    }
+
+    const dappNetwork = this.getDappNetwork(data.session.origin)
+    const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
+    const chainId = Number(network.chainId)
+
+    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
+      txnId: identifiedBy.type === 'Transaction' ? identifiedBy.identifier : null,
+      chainId,
+      identifiedBy
+    })}`
+
+    await createTab(link)
   }
 
   @Reflect.metadata('ACTION_REQUEST', [

@@ -42,23 +42,23 @@ const DEFAULT_SEED_LENGTH = 12
 
 const SEED_LENGTH_SELECT_OPTIONS = [
   {
-    label: '12-word Seed Phrase',
+    label: '12-word seed phrase',
     value: 12
   },
   {
-    label: '15-word Seed Phrase',
+    label: '15-word seed phrase',
     value: 15
   },
   {
-    label: '18-word Seed Phrase',
+    label: '18-word seed phrase',
     value: 18
   },
   {
-    label: '21-word Seed Phrase',
+    label: '21-word seed phrase',
     value: 21
   },
   {
-    label: '24-word Seed Phrase',
+    label: '24-word seed phrase',
     value: 24
   }
 ]
@@ -187,7 +187,7 @@ const SeedPhraseImportScreen = () => {
             })
           })
         }, 1)
-        addToast(t('Seed Phrase successfully pasted from clipboard'))
+        addToast(t('Seed phrase successfully pasted from clipboard'))
         return
       }
 
@@ -221,7 +221,7 @@ const SeedPhraseImportScreen = () => {
       // The user may want to paste the words one by one
       if (words.length === 1) return
 
-      addToast(t('Invalid Seed Phrase'), {
+      addToast(t('Invalid seed phrase'), {
         type: 'error'
       })
     },
@@ -280,7 +280,7 @@ const SeedPhraseImportScreen = () => {
                 numberOfLines={1}
                 style={spacings.mrTy}
               >
-                {t('Enter your Seed Phrase')}
+                {t('Enter your seed phrase')}
               </Text>
             </View>
             <Controller
@@ -304,7 +304,9 @@ const SeedPhraseImportScreen = () => {
           <Alert
             style={spacings.mbLg}
             type="info"
-            title={t('You can paste your entire Seed Phrase in any field')}
+            title={t(
+              'Type in the words individually or paste the entire seed phrase (if separated by spaces) into any field.'
+            )}
           />
           <View style={[flexbox.directionRow, flexbox.wrap]}>
             {fields.map((field, index) => (

@@ -53,6 +53,13 @@ declare module '@env' {
   export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: log.LogLevelDesc
 
   /**
+   * This value can be used to control the state of the controller logs.
+   * If set to "true", the logs will be displayed only for the controller which is updated.
+   * Due to the high volume of logs causing memory leak on FF, it is recommended to use this only for debugging purposes.
+   */
+  export const BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY: string
+
+  /**
    * This value can be used to control the unique ID of an extension, when it is
    * loaded during development. In prod, the ID is generated in Chrome Web Store
    * and can't be changed (could be retrieved from Chrome Web Store).
@@ -90,9 +97,7 @@ declare module '@env' {
   export const SOCKET_API_KEY: EnvTypes['SOCKET_API_KEY']
 
   /**
-   * The address of the legends nft we will be using
-   * we are placing this in env variable instead of hardcoding it,
-   * because we will use two difference nfts on staging nad prod
+   * The address of the Legends NFT contract (same on PROD and STAGING)
    */
   export const LEGENDS_NFT_ADDRESS: EnvTypes['LEGENDS_NFT_ADDRESS']
 }

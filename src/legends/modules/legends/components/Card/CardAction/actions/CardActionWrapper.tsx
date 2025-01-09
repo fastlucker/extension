@@ -1,11 +1,10 @@
 import React from 'react'
 
-import styles from '@legends/modules/legends/components/Card/Card.module.scss'
-
+import styles from './Action.module.scss'
 import CardActionButton, { ButtonProps } from './CardActionButton'
 
 type WrapperProps = {
-  children: React.ReactNode
+  children?: React.ReactNode
 } & ButtonProps
 
 const CardActionWrapper = ({ children, ...buttonProps }: WrapperProps) => {

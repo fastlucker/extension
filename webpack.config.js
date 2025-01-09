@@ -12,6 +12,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { validateEnvVariables } = require('./scripts/validateEnv')
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
@@ -44,8 +45,8 @@ module.exports = async function (env, argv) {
     }
     // Shorter for Safari on purpose (up to 100 characters allowed), all others allow up to 132 characters
     manifest.description = isSafari
-      ? 'Hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
-      : 'Secure and easy-to-use hybrid Account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+      ? 'Hybrid account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+      : 'Secure and easy-to-use hybrid account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
 
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
@@ -220,6 +221,10 @@ module.exports = async function (env, argv) {
 
   // Environment specific configurations
   if (isExtension) {
+    console.log('Building extension with relayer:', process.env.RELAYER_URL)
+    if (process.env.IS_TESTING !== 'true') {
+      validateEnvVariables({ ...process.env }, process.env.APP_ENV)
+    }
     const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
     const templatePath = (fileName = '') => path.join(__dirname, './src/web', fileName)
     const templatePaths = {
@@ -459,7 +464,8 @@ module.exports = async function (env, argv) {
       new HtmlWebpackPlugin({
         template: './src/legends/public/index.html',
         filename: 'index.html',
-        inject: 'body'
+        inject: 'body',
+        hash: true
       }),
       new CopyPlugin({
         patterns: [

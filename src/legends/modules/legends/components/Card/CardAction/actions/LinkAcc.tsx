@@ -1,34 +1,33 @@
-import { BrowserProvider, Contract, Interface, ZeroAddress } from 'ethers'
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
+/* eslint-disable no-console */
+import { BrowserProvider, getAddress, Interface, ZeroAddress } from 'ethers'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
-import { isValidAddress } from '@ambire-common/services/address'
-import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
+import useAddressInput from '@common/hooks/useAddressInput'
+import useStandaloneAddressInput from '@common/hooks/useStandaloneAddressInput'
+import AddressInput from '@legends/components/AddressInput'
 import Alert from '@legends/components/Alert'
-import Input from '@legends/components/Input'
 import Stepper from '@legends/components/Stepper'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
+import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
+import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
 import styles from './Action.module.scss'
 import CardActionWrapper from './CardActionWrapper'
 
-type Props = {
-  onComplete: () => void
-}
-
 enum STEPS {
   SIGN_MESSAGE,
-  SIGN_TRANSACTION,
-  SUCCESS
+  SIGN_TRANSACTION
 }
 
 const BUTTON_TEXT = {
   [STEPS.SIGN_MESSAGE]: 'Sign message',
-  [STEPS.SIGN_TRANSACTION]: 'Sign transaction',
-  [STEPS.SUCCESS]: 'Close'
+  [STEPS.SIGN_TRANSACTION]: 'Sign transaction'
 }
 
 const STEPPER_STEPS = [
@@ -38,44 +37,72 @@ const STEPPER_STEPS = [
 
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
-const LinkAcc: FC<Props> = ({ onComplete }) => {
+const LinkAcc = () => {
+  const { addToast } = useToast()
+  const { sendCalls, getCallsStatus, chainId } = useErc5792()
+  const { onComplete, handleClose } = useCardActionContext()
+  const switchNetwork = useSwitchNetwork()
+  const { connectedAccount, allAccounts, setAllowNonV2Connection } = useAccountContext()
+
   const [isInProgress, setIsInProgress] = useState(false)
   const [v1OrBasicSignature, setV1OrBasicSignature] = useState('')
   const [messageSignedForV2Account, setMessageSignedForV2Account] = useState('')
-  const [v1OrEoaAddress, setV1OrEoaAddress] = useState('')
-  const [isFlowComplete, setIsFlowComplete] = useState(false)
 
-  const { addToast } = useToast()
-  const { connectedAccount, setAllowNonV2Connection } = useAccountContext()
-  const switchNetwork = useSwitchNetwork()
+  const {
+    address: v1OrEoaAddress,
+    addressState,
+    setAddressState,
+    handleCacheResolvedDomain,
+    setAddressStateKeyValue
+  } = useStandaloneAddressInput()
 
-  const inputValidation = useMemo(() => {
-    if (!v1OrEoaAddress) return null
-    const isAddressValid = isValidAddress(v1OrEoaAddress)
+  const overwriteErrorMessage = useMemo(() => {
+    let checksummedAddress = ''
 
-    return {
-      isValid: isAddressValid,
-      message: !isAddressValid ? 'Invalid address' : ''
+    try {
+      checksummedAddress = getAddress(v1OrEoaAddress)
+    } catch {
+      return '' // There is validation for that in the useAddressInput hook
     }
-  }, [v1OrEoaAddress])
+
+    if (checksummedAddress === connectedAccount) {
+      return 'You cannot tame your connected account.'
+    }
+
+    if (!allAccounts.includes(checksummedAddress)) {
+      return 'You cannot tame an account that is not in your wallet.'
+    }
+
+    return ''
+  }, [allAccounts, connectedAccount, v1OrEoaAddress])
+
+  const { validation } = useAddressInput({
+    addressState,
+    setAddressState: setAddressStateKeyValue,
+    addToast,
+    handleCacheResolvedDomain,
+    overwriteError: overwriteErrorMessage
+  })
 
   const activeStep = useMemo(() => {
-    if (isFlowComplete) return STEPS.SUCCESS
     if (v1OrBasicSignature) return STEPS.SIGN_TRANSACTION
 
     return STEPS.SIGN_MESSAGE
-  }, [isFlowComplete, v1OrBasicSignature])
+  }, [v1OrBasicSignature])
 
   const isActionEnabled = useMemo(() => {
     if (activeStep === STEPS.SIGN_MESSAGE) {
-      return !!inputValidation?.isValid
-    }
-    if (activeStep === STEPS.SIGN_TRANSACTION) {
-      return messageSignedForV2Account === connectedAccount
+      return !validation?.isError && !addressState.isDomainResolving
     }
 
-    return activeStep === STEPS.SUCCESS
-  }, [activeStep, inputValidation?.isValid, messageSignedForV2Account, connectedAccount])
+    return messageSignedForV2Account === connectedAccount
+  }, [
+    activeStep,
+    messageSignedForV2Account,
+    connectedAccount,
+    validation?.isError,
+    addressState.isDomainResolving
+  ])
 
   // We don't allow non-v2 accounts to connect to Legends,
   // except when the user needs to link an EOA/v1 account to their main v2 account.
@@ -96,7 +123,7 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
       setIsInProgress(true)
       const signature = await window.ambire.request({
         method: 'personal_sign',
-        params: [`Assign to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
+        params: [`Assign ${v1OrEoaAddress} to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
       })
       setMessageSignedForV2Account(connectedAccount!)
 
@@ -104,8 +131,9 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
 
       setV1OrBasicSignature(signature)
     } catch (e) {
+      const message = humanizeLegendsBroadcastError(e)
       console.error(e)
-      addToast('Failed to sign message', 'error')
+      addToast(message || ERROR_MESSAGES.messageSigningFailed, { type: 'error' })
     } finally {
       setIsInProgress(false)
     }
@@ -119,31 +147,53 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
       const provider = new BrowserProvider(window.ethereum)
       const signer = await provider.getSigner(connectedAccount)
 
-      const contract = new Contract(LEGENDS_CONTRACT_ADDRESS, LEGENDS_CONTRACT_INTERFACE, signer)
+      // no sponsorship for linkAcc
+      const useSponsorship = false
 
-      await contract.linkAndAcceptInvite(
-        connectedAccount,
-        v1OrEoaAddress,
-        ZeroAddress,
-        v1OrBasicSignature
+      const sendCallsIdentifier = await sendCalls(
+        chainId,
+        await signer.getAddress(),
+        [
+          {
+            to: LEGENDS_CONTRACT_ADDRESS,
+            data: LEGENDS_CONTRACT_INTERFACE.encodeFunctionData('linkAndAcceptInvite', [
+              connectedAccount,
+              v1OrEoaAddress,
+              ZeroAddress,
+              v1OrBasicSignature
+            ])
+          }
+        ],
+        useSponsorship
       )
-      addToast('Successfully linked accounts', 'success')
-      setIsFlowComplete(true)
-    } catch (e) {
+      const receipt = await getCallsStatus(sendCallsIdentifier)
+
+      onComplete(receipt.transactionHash)
+      handleClose()
+    } catch (e: any) {
+      const message = humanizeLegendsBroadcastError(e)
+
       console.error(e)
-      addToast('Failed to sign transaction', 'error')
-      setIsFlowComplete(false)
+      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
+
+      setAllowNonV2Connection(false)
     } finally {
       setIsInProgress(false)
     }
-  }, [connectedAccount, v1OrEoaAddress, v1OrBasicSignature, addToast])
+  }, [
+    connectedAccount,
+    sendCalls,
+    chainId,
+    v1OrEoaAddress,
+    v1OrBasicSignature,
+    getCallsStatus,
+    onComplete,
+    handleClose,
+    addToast,
+    setAllowNonV2Connection
+  ])
 
   const onButtonClick = useCallback(async () => {
-    if (activeStep === STEPS.SUCCESS) {
-      onComplete()
-      setAllowNonV2Connection(false)
-      return
-    }
     await switchNetwork()
 
     if (activeStep === STEPS.SIGN_MESSAGE) {
@@ -151,14 +201,7 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
     } else if (activeStep === STEPS.SIGN_TRANSACTION) {
       await sendV2Transaction()
     }
-  }, [
-    switchNetwork,
-    activeStep,
-    signV1OrBasicAccountMessage,
-    sendV2Transaction,
-    onComplete,
-    setAllowNonV2Connection
-  ])
+  }, [activeStep, switchNetwork, signV1OrBasicAccountMessage, sendV2Transaction])
 
   return (
     <CardActionWrapper
@@ -178,22 +221,12 @@ const LinkAcc: FC<Props> = ({ onComplete }) => {
       )}
 
       {activeStep === STEPS.SIGN_MESSAGE && (
-        <Input
-          label="EOA Address"
-          placeholder="Enter EOA Address"
-          value={v1OrEoaAddress}
-          validation={inputValidation}
-          onChange={(e) => setV1OrEoaAddress(e.target.value)}
+        <AddressInput
+          addressState={addressState}
+          setAddressState={setAddressState}
+          validation={validation}
+          label="Ambire v1 or Basic Account address"
         />
-      )}
-      {activeStep === STEPS.SUCCESS && (
-        <>
-          <p>
-            🎉 Your Basic or v1 account has been successfully linked to your v2 account! Visit the
-            character page to check your earned XP.
-          </p>
-          <ConfettiAnimation width={650} height={500} autoPlay className={styles.confetti} />
-        </>
       )}
     </CardActionWrapper>
   )

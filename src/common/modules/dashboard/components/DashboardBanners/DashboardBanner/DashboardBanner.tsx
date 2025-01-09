@@ -93,7 +93,7 @@ const DashboardBanner = ({
 
       if (action.actionName === 'reject-bridge' || action.actionName === 'close-bridge') {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+          type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
           params: { activeRouteId: action.meta.activeRouteId }
         })
       }
@@ -121,6 +121,12 @@ const DashboardBanner = ({
         dispatch({
           type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
           params: { accountAddr: account.addr }
+        })
+      }
+
+      if (action.actionName === 'update-extension-version') {
+        dispatch({
+          type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
         })
       }
     },

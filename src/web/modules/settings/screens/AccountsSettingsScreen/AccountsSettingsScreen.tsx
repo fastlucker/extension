@@ -68,7 +68,7 @@ const AccountsSettingsScreen = () => {
   return (
     <>
       <SettingsPageHeader title="Accounts">
-        <Search placeholder="Search for account" control={control} />
+        <Search autoFocus placeholder="Search for account" control={control} />
       </SettingsPageHeader>
       <View style={flexbox.flex1} ref={accountsContainerRef}>
         <ScrollableWrapper

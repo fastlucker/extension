@@ -1,3 +1,3 @@
-import useInviteEOA from './useInviteEOA'
+import useInviteCard from './useInviteCard'
 
-export { useInviteEOA }
+export { useInviteCard }

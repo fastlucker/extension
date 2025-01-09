@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import Alert from '@legends/components/Alert'
 import Page from '@legends/components/Page'
@@ -14,11 +14,11 @@ const LeaderboardContainer: React.FC = () => {
     leaderboardData,
     userLeaderboardData,
     isLeaderboardLoading: loading,
-    error
+    error,
+    updateLeaderboard
   } = useLeaderboardContext()
 
   const tableRef = useRef<HTMLDivElement>(null)
-
   const pageRef = useRef<HTMLDivElement>(null)
   const currentUserRef = useRef<HTMLDivElement>(null)
 
@@ -57,14 +57,20 @@ const LeaderboardContainer: React.FC = () => {
     }
   }, [currentUserRef, leaderboardData, userLeaderboardData])
 
+  useEffect(() => {
+    if (loading) return
+
+    updateLeaderboard()
+  }, [updateLeaderboard])
+
   return (
     <Page pageRef={pageRef}>
       <div className={styles.wrapper}>
         <div className={styles.heading}>
           <h1 className={styles.title}>Leaderboard</h1>
           <p className={styles.subtitle}>
-            This is where your earned XP showcases your legacy in the world of Web3. Compete, rise
-            through the ranks, and leave your mark among the top Legends!
+            Compete legends, earn XP and climb the leaderboard to secure your name among the
+            greatest. Will you rise to the top and become a true onchain champion?
           </p>
         </div>
         {loading && <Spinner />}
@@ -89,6 +95,17 @@ const LeaderboardContainer: React.FC = () => {
                   currentUserRef={currentUserRef}
                 />
               ))}
+              {userLeaderboardData &&
+                !leaderboardData.some(
+                  ({ account }) => account === userLeaderboardData?.account
+                ) && (
+                  <Row
+                    key={userLeaderboardData.account}
+                    {...userLeaderboardData}
+                    stickyPosition={stickyPosition}
+                    currentUserRef={currentUserRef}
+                  />
+                )}
             </div>
           </>
         ) : null}

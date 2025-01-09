@@ -16,6 +16,7 @@ import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { getDoesNetworkMatch } from '@common/utils/search'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
@@ -31,6 +32,7 @@ import Skeleton from './TokensSkeleton'
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
+  sessionId: string
   tokenPreferences: CustomToken[]
   initTab?: {
     [key: string]: boolean
@@ -60,7 +62,7 @@ const calculateTokenBalance = (token: TokenResult) => {
 
 const { isPopup } = getUiType()
 
-const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, onScroll }: Props) => {
+const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onScroll }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
@@ -89,15 +91,31 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, onScroll }: Pr
         .filter((token) => {
           if (!searchValue) return true
 
-          const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
-          const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+          const lowercaseSearch = searchValue.toLowerCase()
 
-          return doesAddressMatch || doesSymbolMatch
+          const doesAddressMatch = token.address.toLowerCase().includes(lowercaseSearch)
+          const doesSymbolMatch = token.symbol.toLowerCase().includes(lowercaseSearch)
+
+          return (
+            doesAddressMatch ||
+            doesSymbolMatch ||
+            getDoesNetworkMatch({
+              networks,
+              tokenFlags: token.flags,
+              itemNetworkId: token.networkId,
+              lowercaseSearch
+            })
+          )
         }),
-    [portfolio?.tokens, dashboardNetworkFilter, searchValue]
+    [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
   )
 
-  const userHasNoBalance = useMemo(() => !tokens.some(hasAmount), [tokens])
+  const userHasNoBalance = useMemo(
+    // Exclude gas tank tokens from the check
+    // as new users get some Gas Tank balance by default
+    () => !tokens.some((token) => !token.flags.onGasTank && hasAmount(token)),
+    [tokens]
+  )
 
   const sortedTokens = useMemo(
     () =>
@@ -179,7 +197,12 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, onScroll }: Pr
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+            <TabsAndSearch
+              openTab={openTab}
+              setOpenTab={setOpenTab}
+              searchControl={control}
+              sessionId={sessionId}
+            />
             {/* TODO: fix zIndex: -1 */}
             <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy, { zIndex: -1 }]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
@@ -261,7 +284,8 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, onScroll }: Pr
       searchValue,
       dashboardNetworkFilter,
       portfolio?.isAllReady,
-      navigateToAddCustomToken
+      navigateToAddCustomToken,
+      sessionId
     ]
   )
 

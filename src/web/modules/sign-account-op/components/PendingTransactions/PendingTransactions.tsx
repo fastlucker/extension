@@ -49,17 +49,21 @@ const PendingTransactions: FC<Props> = ({ network }) => {
 
   return (
     <View style={styles.transactionsContainer}>
-      <SectionHeading>{t('Waiting Transactions')}</SectionHeading>
+      <SectionHeading>
+        {t('Pending {{noun}}', { noun: callsToVisualize.length > 1 ? t('actions') : t('action') })}
+      </SectionHeading>
       <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
         {network && callsToVisualize.length ? (
           callsToVisualize.map((call, i) => {
+            const key = call.fromUserRequestId ?? `fallback-key-${i}`
+
             return (
               <TransactionSummary
-                key={`${call.fromUserRequestId!}+${i}`}
+                key={key}
                 style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                 call={call}
                 networkId={network.id}
-                testID={`recipient-address-${i}`}
+                index={i}
               />
             )
           })
