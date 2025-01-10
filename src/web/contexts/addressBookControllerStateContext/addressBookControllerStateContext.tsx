@@ -25,7 +25,7 @@ const AddressBookControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, mainState.isReady, state])
 
-  const memoizedState = useDeepMemo(state)
+  const memoizedState = useDeepMemo(state, controller)
 
   return (
     <AddressBookControllerStateContext.Provider

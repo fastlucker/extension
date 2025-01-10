@@ -24,7 +24,7 @@ const KeystoreControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, mainState.isReady, state])
 
-  const memoizedState = useDeepMemo(state)
+  const memoizedState = useDeepMemo(state, controller)
 
   return (
     <KeystoreControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>

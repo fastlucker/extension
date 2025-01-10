@@ -24,7 +24,7 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch])
 
-  const memoizedState = useDeepMemo(state)
+  const memoizedState = useDeepMemo(state, controller)
 
   const prevCurrentActionId = usePrevious(memoizedState.currentAction?.id)
 

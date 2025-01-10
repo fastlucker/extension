@@ -22,7 +22,7 @@ const WalletStateControllerProvider: React.FC<any> = ({ children }) => {
     })
   }, [dispatch])
 
-  const memoizedState = useDeepMemo(state)
+  const memoizedState = useDeepMemo(state, controller)
 
   return (
     <WalletStateControllerContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>

@@ -20,7 +20,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, state])
 
-  const memoizedState = useDeepMemo(state)
+  const memoizedState = useDeepMemo(state, controller)
 
   return (
     <PortfolioControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>

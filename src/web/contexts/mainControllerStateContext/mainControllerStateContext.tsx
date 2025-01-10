@@ -19,7 +19,7 @@ const MainControllerStateProvider: React.FC<any> = ({ children }) => {
     })
   }, [dispatch])
 
-  const memoizedState = useDeepMemo(state)
+  const memoizedState = useDeepMemo(state, controller)
 
   return (
     <MainControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>

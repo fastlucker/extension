@@ -21,7 +21,7 @@ const ProvidersControllerStateProvider: React.FC<any> = ({ children }) => {
       dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller } })
   }, [dispatch, mainState.isReady, state])
 
-  const memoizedState = useDeepMemo(state)
+  const memoizedState = useDeepMemo(state, controller)
 
   return (
     <ProvidersControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>

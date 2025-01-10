@@ -19,7 +19,7 @@ const AccountsControllerStateProvider: React.FC<any> = ({ children }) => {
       dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller } })
   }, [dispatch, mainState.isReady, state])
 
-  const memoizedState = useDeepMemo(state)
+  const memoizedState = useDeepMemo(state, controller)
 
   return (
     <AccountsControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>

@@ -24,7 +24,7 @@ const ActivityControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, mainState.isReady, state])
 
-  const memoizedState = useDeepMemo(state)
+  const memoizedState = useDeepMemo(state, controller)
 
   return (
     <ActivityControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
