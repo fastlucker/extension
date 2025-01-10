@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -20,8 +21,10 @@ const ProvidersControllerStateProvider: React.FC<any> = ({ children }) => {
       dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller } })
   }, [dispatch, mainState.isReady, state])
 
+  const memoizedState = useDeepMemo(state)
+
   return (
-    <ProvidersControllerStateContext.Provider value={useMemo(() => state, [state])}>
+    <ProvidersControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
       {children}
     </ProvidersControllerStateContext.Provider>
   )

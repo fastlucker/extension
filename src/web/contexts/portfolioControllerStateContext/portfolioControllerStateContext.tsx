@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 
@@ -19,8 +20,10 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, state])
 
+  const memoizedState = useDeepMemo(state)
+
   return (
-    <PortfolioControllerStateContext.Provider value={useMemo(() => state, [state])}>
+    <PortfolioControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
       {children}
     </PortfolioControllerStateContext.Provider>
   )

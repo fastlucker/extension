@@ -2,9 +2,10 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useControllerState from '@web/hooks/useControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 const SignMessageControllerStateContext = createContext<SignMessageController>(
   {} as SignMessageController
@@ -22,8 +23,12 @@ const SignMessageControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, mainState.isReady, state])
 
+  const memoizedState = useDeepMemo(state)
+
   return (
-    <SignMessageControllerStateContext.Provider value={useMemo(() => state, [state])}>
+    <SignMessageControllerStateContext.Provider
+      value={useMemo(() => memoizedState, [memoizedState])}
+    >
       {children}
     </SignMessageControllerStateContext.Provider>
   )

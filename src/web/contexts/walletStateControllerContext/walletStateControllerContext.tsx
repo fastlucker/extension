@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo } from 'react'
 
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
@@ -21,8 +22,10 @@ const WalletStateControllerProvider: React.FC<any> = ({ children }) => {
     })
   }, [dispatch])
 
+  const memoizedState = useDeepMemo(state)
+
   return (
-    <WalletStateControllerContext.Provider value={useMemo(() => state, [state])}>
+    <WalletStateControllerContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
       {children}
     </WalletStateControllerContext.Provider>
   )

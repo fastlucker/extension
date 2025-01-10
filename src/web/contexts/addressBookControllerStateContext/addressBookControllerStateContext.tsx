@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -24,8 +25,12 @@ const AddressBookControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, mainState.isReady, state])
 
+  const memoizedState = useDeepMemo(state)
+
   return (
-    <AddressBookControllerStateContext.Provider value={useMemo(() => state, [state])}>
+    <AddressBookControllerStateContext.Provider
+      value={useMemo(() => memoizedState, [memoizedState])}
+    >
       {children}
     </AddressBookControllerStateContext.Provider>
   )
