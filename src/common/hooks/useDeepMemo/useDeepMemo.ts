@@ -1,5 +1,5 @@
-import isEqual from 'lodash/isEqual'
 import { useRef } from 'react'
+import isEqual from 'react-fast-compare'
 
 function useDeepMemo(value: any) {
   const ref = useRef(value)
