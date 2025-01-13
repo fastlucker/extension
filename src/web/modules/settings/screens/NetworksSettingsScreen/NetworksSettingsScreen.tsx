@@ -83,6 +83,7 @@ const NetworksSettingsScreen = () => {
             placeholder={t('Search for network')}
             control={control}
             containerStyle={spacings.mb}
+            autoFocus
           />
           <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
             {filteredNetworkBySearch.length > 0 ? (

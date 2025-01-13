@@ -70,7 +70,7 @@ export const SETTINGS_LINKS = [
   {
     key: 'security',
     Icon: SidebarSecurityIcon,
-    label: 'Security & Privacy',
+    label: 'Saved Seed Phrase',
     path: ROUTES.securityAndPrivacy
   },
   {

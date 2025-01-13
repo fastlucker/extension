@@ -25,7 +25,7 @@ interface Props {
   networkId: NetworkId
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
-  testID?: string
+  index?: number
   enableExpand?: boolean
 }
 
@@ -41,7 +41,7 @@ const TransactionSummary = ({
   networkId,
   size = 'lg',
   isHistory,
-  testID,
+  index,
   enableExpand = true
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
@@ -96,7 +96,7 @@ const TransactionSummary = ({
               imageSize={imageSize}
               networkId={networkId}
               isHistory={isHistory}
-              testID={testID}
+              testID={`recipient-address-${index}`}
               hasPadding={enableExpand}
             />
           ) : (
@@ -112,6 +112,7 @@ const TransactionSummary = ({
               style={deleteIconAnimStyle}
               onPress={handleRemoveCall}
               {...bindDeleteIconAnim}
+              testID={`delete-txn-call-${index}`}
             >
               <DeleteIcon />
             </AnimatedPressable>
