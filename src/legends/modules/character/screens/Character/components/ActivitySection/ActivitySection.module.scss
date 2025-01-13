@@ -7,18 +7,27 @@
   color: $secondaryText;
   border-collapse: collapse;
 
-  td, th {
+  td,
+  th {
     vertical-align: top;
 
-    &:nth-child(1) { flex: 2; }
-    &:nth-child(2) { flex: 1.5; }
-    &:nth-child(3) { flex: 1.5; }
-    &:nth-child(4) { flex: 3.5; }
+    &:nth-child(1) {
+      flex: 2;
+    }
+    &:nth-child(2) {
+      flex: 1.5;
+    }
+    &:nth-child(3) {
+      flex: 1.5;
+    }
+    &:nth-child(4) {
+      flex: 3.5;
+    }
   }
 
   td {
     padding: 2rem 0 2rem;
-    border-bottom: .0938rem solid $primaryBorder;
+    border-bottom: 0.0938rem solid $primaryBorder;
   }
   tr {
     display: flex;
@@ -35,6 +44,12 @@
     margin: 0 0 1em;
   }
 
+  .linksWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem 0;
+  }
+
   .link {
     text-decoration: underline;
     font-size: 1rem;
@@ -42,7 +57,7 @@
     color: $secondaryText;
     flex: 1;
   }
-  
+
   .network {
     font-size: 1rem;
     font-weight: 500;
@@ -54,7 +69,7 @@
   .xp {
     font-size: 1.5rem;
     font-weight: 700;
-    margin-right: .75rem;
+    margin-right: 0.75rem;
   }
 
   .coin {
@@ -65,22 +80,22 @@
     display: flex;
     align-items: start;
     flex-wrap: wrap;
-    gap: .875rem;
+    gap: 0.875rem;
   }
 
   .badge {
-    padding: .5rem;
+    padding: 0.5rem;
     display: flex;
     align-items: center;
     border-radius: $secondaryBorderRadius;
     background-color: $secondaryBackground;
-    border: .0625rem solid $primaryBorder;
+    border: 0.0625rem solid $primaryBorder;
     font-size: 1rem;
     font-weight: 500;
   }
 
   .tooltip {
-    margin-left: .5rem;
+    margin-left: 0.5rem;
     font-size: 1rem;
     color: $primaryBackground;
     opacity: 1;
@@ -88,7 +103,7 @@
   }
 
   .sword {
-    margin-right: .75rem;
+    margin-right: 0.75rem;
   }
 }
 
