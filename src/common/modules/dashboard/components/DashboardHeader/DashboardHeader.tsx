@@ -33,8 +33,7 @@ const DashboardHeader = () => {
   const { theme, styles } = useTheme(getStyles)
 
   // Temporary measure because UX was found to be confusing
-  const ENABLE_MAXIMIZE = false
-
+  const ENABLE_MAXIMIZE = process.env.APP_ENV === 'development' || false
   if (!account) return null
 
   return (
