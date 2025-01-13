@@ -11,6 +11,7 @@ import {
 } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 
+import { BUNDLER } from '@ambire-common/consts/bundlers'
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
@@ -47,6 +48,7 @@ interface Props {
   }
   setActiveStep: (step: ActiveStepType) => void
   provider: JsonRpcProvider | null
+  bundler?: BUNDLER
 }
 
 export interface StepsData {
@@ -68,7 +70,8 @@ const setUrlToTxnId = (
   transactionHash: string,
   userOpHash: string | null,
   relayerId: string | null,
-  chainId: bigint
+  chainId: bigint,
+  bundler?: BUNDLER
 ) => {
   const splitUrl = (window.location.href || '').split('?')
   const search = splitUrl[1]
@@ -77,7 +80,7 @@ const setUrlToTxnId = (
 
   const getIdentifiedBy = (): AccountOpIdentifiedBy => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
-    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash, bundler }
     return { type: 'Transaction', identifier: transactionHash }
   }
 
@@ -113,7 +116,8 @@ const useSteps = ({
   network,
   standardOptions,
   setActiveStep,
-  provider
+  provider,
+  bundler
 }: Props): StepsData => {
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
@@ -137,9 +141,14 @@ const useSteps = ({
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
-    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    if (userOpHash)
+      return {
+        type: 'UserOperation',
+        identifier: userOpHash,
+        bundler
+      }
     return { type: 'Transaction', identifier: txnId as string }
-  }, [relayerId, userOpHash, txnId])
+  }, [relayerId, userOpHash, txnId, bundler])
 
   const receiptAlreadyFetched = useMemo(() => !!txnReceipt.blockNumber, [txnReceipt.blockNumber])
 
@@ -170,7 +179,7 @@ const useSteps = ({
         if (resultTxnId !== foundTxnId) {
           setFoundTxnId(resultTxnId)
           setActiveStep('in-progress')
-          setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.chainId)
+          setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.chainId, bundler)
         }
 
         // if there's no txn and receipt, keep searching
@@ -197,7 +206,8 @@ const useSteps = ({
     relayerId,
     userOpHash,
     txn,
-    receiptAlreadyFetched
+    receiptAlreadyFetched,
+    bundler
   ])
 
   // find the transaction
