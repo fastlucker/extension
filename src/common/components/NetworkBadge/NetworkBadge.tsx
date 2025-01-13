@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
-import Text from '@common/components/Text'
+import Text, { TextWeight } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
@@ -17,10 +17,18 @@ interface Props {
   withOnPrefix?: boolean
   style?: ViewStyle
   fontSize?: number
+  weight?: TextWeight
   iconSize?: number
 }
 
-const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix, style, fontSize= 16, iconSize = 32 }) => {
+const NetworkBadge: FC<Props> = ({
+  networkId,
+  withOnPrefix,
+  style,
+  fontSize = 16,
+  weight,
+  iconSize = 32
+}) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
@@ -44,9 +52,9 @@ const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix, style, fontSize= 16,
         ...style
       }}
     >
-      <Text fontSize={fontSize} weight="medium" appearance="secondaryText">
+      <Text fontSize={fontSize} weight={weight || 'medium'} appearance="secondaryText">
         {withOnPrefix ? (
-          <Text fontSize={fontSize} weight="medium" appearance="tertiaryText">
+          <Text fontSize={fontSize} weight={weight || 'medium'} appearance="tertiaryText">
             on{' '}
           </Text>
         ) : null}

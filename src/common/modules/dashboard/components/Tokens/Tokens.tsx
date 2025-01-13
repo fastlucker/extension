@@ -1,4 +1,3 @@
-import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { FlatListProps, View } from 'react-native'
@@ -6,7 +5,7 @@ import { FlatListProps, View } from 'react-native'
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { Network } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
-import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { getTokenAmount, getTokenBalanceInUSD } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -49,15 +48,6 @@ const hasAmount = (token: TokenResult) => {
 // we should not show it on dashboard
 const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: Network[]) => {
   return token.flags.onGasTank && !networks.find((n) => n.id === token.networkId && n.hasRelayer)
-}
-const calculateTokenBalance = (token: TokenResult) => {
-  const amount = getTokenAmount(token)
-  const { decimals, priceIn } = token
-  const balance = parseFloat(formatUnits(amount, decimals))
-  const price =
-    priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
-
-  return balance * price
 }
 
 const { isPopup } = getUiType()
@@ -164,8 +154,8 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
             return 1
           }
 
-          const aBalance = calculateTokenBalance(a)
-          const bBalance = calculateTokenBalance(b)
+          const aBalance = getTokenBalanceInUSD(a)
+          const bBalance = getTokenBalanceInUSD(b)
 
           if (a.flags.rewardsType === b.flags.rewardsType) {
             if (aBalance === bBalance) {
