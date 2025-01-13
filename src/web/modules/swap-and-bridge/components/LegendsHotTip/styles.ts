@@ -16,7 +16,7 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       borderColor: theme.infoDecorative,
       padding: SPACING_SM,
-      width: 186,
+      width: 184,
       overflow: 'hidden'
     }
   })

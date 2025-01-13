@@ -64,9 +64,8 @@ const LegendsHotTip = ({ chainId }: Props) => {
         >
           {t('Hot tip')}
         </Text>
-        <View style={[{ height: 24, width: 32 }, flexbox.alignCenter, flexbox.justifyCenter]}>
-          <Image source={LegendsLogo as any} style={{ width: 44, height: 44 }} />
-        </View>
+
+        <Image source={LegendsLogo as any} style={{ width: 38, height: 32 }} />
       </View>
       {!!isHovered && (
         <View
