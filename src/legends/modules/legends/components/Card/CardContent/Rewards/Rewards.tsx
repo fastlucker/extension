@@ -31,7 +31,7 @@ const Rewards: FC<Props> = ({ xp, size = 'lg', reverse }) => {
           {chains && (
             <div className={styles.itemNetworks}>
               {chains.map((chain) => (
-                <span key={chain}>{NETWORK_ICONS[chain]}</span>
+                <React.Fragment key={chain}>{NETWORK_ICONS[chain]}</React.Fragment>
               ))}
             </div>
           )}

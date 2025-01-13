@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
@@ -6,6 +7,8 @@ import 'setimmediate'
 
 import { nanoid } from 'nanoid'
 
+import EmittableError from '@ambire-common/classes/EmittableError'
+import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
@@ -723,10 +726,7 @@ handleKeepAlive()
       if (pm.ports.length === 1 && port.name === 'popup' && !hasBroadcastedButNotConfirmed()) {
         try {
           // These promises shouldn't be awaited as that will slow down the popup opening
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          mainCtrl.updateSelectedAccountPortfolio()
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          mainCtrl.domains.batchReverseLookup(mainCtrl.accounts?.accounts.map((acc) => acc.addr))
+          mainCtrl.onLoad()
           backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
         } catch (error) {
           console.error('Error during immediate portfolio update:', error)
@@ -754,15 +754,22 @@ handleKeepAlive()
             })
           }
         } catch (err: any) {
-          console.error(err)
+          console.error(`${type} action failed:`, err)
+          const shortenedError =
+            err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
+
+          let message = `Something went wrong! Please contact support. Error: ${shortenedError}`
+          // Emit the raw error only if it's a custom error
+          if (err instanceof EmittableError || err instanceof ExternalSignerError) {
+            message = err.message
+          }
+
           pm.send('> ui-error', {
             method: type,
             params: {
               errors: [
                 {
-                  message:
-                    err?.message ||
-                    `Something went wrong while handling action: ${type}. Please try again! If the problem persists, please contact support`,
+                  message,
                   level: 'major',
                   error: err
                 }

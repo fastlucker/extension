@@ -1,7 +1,8 @@
 import React, { FC, ReactNode } from 'react'
-import { View } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -16,10 +17,12 @@ export interface Props {
   Icon?: React.FC<SvgProps>
   onPrimaryButtonPress: () => void
   onSecondaryButtonPress?: () => void
+  onCloseIconPress?: () => void
   primaryButtonText: string
   secondaryButtonText?: string
   primaryButtonTestID?: string
   secondaryButtonTestID?: string
+  buttonsContainerStyle?: ViewStyle
 }
 
 const DualChoiceModal: FC<Props> = ({
@@ -28,19 +31,26 @@ const DualChoiceModal: FC<Props> = ({
   Icon,
   onSecondaryButtonPress,
   onPrimaryButtonPress,
+  onCloseIconPress,
   primaryButtonText,
   secondaryButtonText,
   secondaryButtonTestID,
-  primaryButtonTestID
+  primaryButtonTestID,
+  buttonsContainerStyle
 }) => {
   const { styles } = useTheme(getStyles)
 
   return (
     <View>
       <View style={styles.modalHeader}>
-        <Text weight="medium" fontSize={20}>
+        <Text weight="medium" fontSize={20} numberOfLines={1}>
           {title}
         </Text>
+        {!!onCloseIconPress && (
+          <Pressable onPress={onCloseIconPress}>
+            <CloseIcon />
+          </Pressable>
+        )}
       </View>
       <View style={styles.modalInnerContainer}>
         {!!Icon && (
@@ -50,7 +60,7 @@ const DualChoiceModal: FC<Props> = ({
         )}
         <Text appearance="secondaryText">{description}</Text>
       </View>
-      <View style={styles.modalButtonsContainer}>
+      <View style={[styles.modalButtonsContainer, buttonsContainerStyle]}>
         {!!secondaryButtonText && !!onSecondaryButtonPress && (
           <Button
             text={secondaryButtonText}

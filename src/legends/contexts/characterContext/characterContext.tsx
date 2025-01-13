@@ -149,7 +149,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   }, [character, connectedAccount, handleLevelUpIfNeeded, saveLastKnownLevel])
 
   useEffect(() => {
-    if (character && character.address === connectedAccount) return
+    if ((character && character.address === connectedAccount) || isConnectedAccountLoading) return
 
     getCharacter().catch(() => {
       setError(`Couldn't load the requested character: ${connectedAccount}`)

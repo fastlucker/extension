@@ -41,7 +41,16 @@ module.exports = async function (env, argv) {
   function processManifest(content) {
     const manifest = JSON.parse(content.toString())
     if (config.mode === 'development') {
-      manifest.name = 'Ambire Wallet Dev'
+      manifest.name = `${manifest.name} (DEV build)`
+      const devBuildIcons = {}
+      Object.keys(manifest.icons).forEach((size) => {
+        const iconPath = manifest.icons[size]
+        const dotIndex = iconPath.lastIndexOf('.')
+        const prefix = iconPath.slice(0, dotIndex)
+        const extension = iconPath.slice(dotIndex)
+        devBuildIcons[size] = `${prefix}-dev-build-ONLY${extension}`
+      })
+      manifest.icons = devBuildIcons
     }
     // Shorter for Safari on purpose (up to 100 characters allowed), all others allow up to 132 characters
     manifest.description = isSafari

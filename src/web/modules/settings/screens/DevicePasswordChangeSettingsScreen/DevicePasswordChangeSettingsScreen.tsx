@@ -114,6 +114,7 @@ const DevicePasswordChangeSettingsScreen = () => {
                 errors.password &&
                 (errors.password.message || t('Please fill in at least 8 characters for password.'))
               }
+              autoFocus
               containerStyle={[spacings.mbTy]}
               onSubmitEditing={handleChangeKeystorePassword}
             />

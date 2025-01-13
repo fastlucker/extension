@@ -24,7 +24,7 @@ const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
 const Stacked: React.FC<StackedProps> = ({ chains }) => (
   <div className={styles.itemNetworks}>
     {chains.map((chain) => (
-      <div key={chain}>{NETWORK_ICONS[chain]}</div>
+      <React.Fragment key={chain}>{NETWORK_ICONS[chain]}</React.Fragment>
     ))}
   </div>
 )

@@ -313,6 +313,10 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
+type MainControllerLockAction = {
+  type: 'MAIN_CONTROLLER_LOCK'
+}
+
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
@@ -320,9 +324,6 @@ type KeystoreControllerAddSecretAction = {
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
-}
-type KeystoreControllerLockAction = {
-  type: 'KEYSTORE_CONTROLLER_LOCK'
 }
 type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
@@ -463,6 +464,9 @@ type ActionsControllerRemoveFromActionsQueue = {
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
 }
+type ActionsControllerCloseActionWindow = {
+  type: 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW'
+}
 
 type ActionsControllerMakeAllActionsActive = {
   type: 'ACTIONS_CONTROLLER_MAKE_ALL_ACTIONS_ACTIVE'
@@ -583,6 +587,7 @@ export type Action =
   | AddNextSmartAccountFromSavedSeedPhraseAction
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
+  | MainControllerLockAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
   | MainControllerBuildMintVestingUserRequest
@@ -613,7 +618,6 @@ export type Action =
   | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
-  | KeystoreControllerLockAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
   | KeystoreControllerChangePasswordFromRecoveryAction
@@ -643,6 +647,7 @@ export type Action =
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
+  | ActionsControllerCloseActionWindow
   | ActionsControllerMakeAllActionsActive
   | ActionsControllerSetCurrentActionById
   | ActionsControllerSetCurrentActionByIndex

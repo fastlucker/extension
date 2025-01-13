@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import React, { FC, useState } from 'react'
 import { Trans } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
@@ -12,7 +13,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 
-import { nanoid } from 'nanoid'
 import HistorySettingsPage from '../../components/TransactionHistory/HistorySettingsPage'
 import SubmittedTransactionSummary from '../../components/TransactionHistory/SubmittedTransactionSummary'
 
@@ -50,6 +50,7 @@ const AccountOpHistory: FC<{ network?: Network; account: Account; sessionId: str
         (item: SubmittedAccountOp, i) => (
           <SubmittedTransactionSummary
             key={item.txnId}
+            defaultType="full-info"
             submittedAccountOp={item}
             style={
               i !== activityState.accountsOps[sessionId].result.items.length - 1

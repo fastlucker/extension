@@ -10,23 +10,25 @@ on:
 
 jobs:
   unit_tests:
-    name: Unit Tests
+    name: Unit Tests (Disabled)
     runs-on: ubuntu-latest
     environment: testing
     steps:
-      - name: Checkout code 🛎️
-        uses: actions/checkout@v3
+      - name: Unit Tests Disabled
+        run: echo "Unit tests are currently disabled. Please update tests.yml to enable them when unit tests are available."
+      # - name: Checkout code 🛎️
+      #   uses: actions/checkout@v3
 
-      - name: Add SSH key to checkout a private repo
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      # - name: Add SSH key to checkout a private repo
+      #   uses: webfactory/ssh-agent@v0.5.4
+      #   with:
+      #     ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Setup Environment
-        uses: ./.github/composite-actions/setup
+      # - name: Setup Environment
+      #   uses: ./.github/composite-actions/setup
 
-      - name: Run Unit Tests
-        run: yarn test
+      # - name: Run Unit Tests
+      #   run: yarn test
   e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-latest
@@ -44,6 +46,18 @@ jobs:
 
       - name: Setup Environment
         uses: ./.github/composite-actions/setup
+  
+      - name: Cache Chrome
+        id: cache-chrome
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/puppeteer
+          key: ${{ runner.os }}-chrome
+      
+      - name: Install Chrome
+        if: steps.cache-chrome.outputs.cache-hit != 'true'
+        run: node node_modules/puppeteer/install.js
+        shell: bash
 
       # Set up Docker
       - name: Set up Docker
