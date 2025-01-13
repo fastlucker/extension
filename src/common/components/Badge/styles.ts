@@ -11,6 +11,7 @@ interface Style {
   defaultBadge: ViewStyle
   successBadge: ViewStyle
   warningBadge: ViewStyle
+  errorBadge: ViewStyle
 }
 
 const label: ViewStyle = {
@@ -46,6 +47,11 @@ const getStyles = (theme: ThemeProps) =>
       ...label,
       borderColor: theme.successDecorative,
       backgroundColor: theme.successBackground
+    },
+    errorBadge: {
+      ...label,
+      borderColor: theme.errorDecorative,
+      backgroundColor: theme.errorBackground
     }
   })
 
