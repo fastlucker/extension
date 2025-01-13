@@ -121,13 +121,14 @@ const HotWalletImportSelectorScreen = () => {
         await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
         return
       }
+      if (flow === 'private-key') {
+        openPrivateKeyBottomSheet()
+        return
+      }
 
       if (!isReadyToStoreKeys) {
         navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
         return
-      }
-      if (flow === 'private-key') {
-        openPrivateKeyBottomSheet()
       }
 
       if (flow === 'import-json') {
@@ -154,6 +155,14 @@ const HotWalletImportSelectorScreen = () => {
     setIsWarning2Checked(false)
     closePrivateKeyBottomSheet()
   }, [closePrivateKeyBottomSheet])
+
+  const handlePrivateKeyBottomSheetProceed = useCallback(() => {
+    if (!isReadyToStoreKeys) {
+      navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'private-key' } })
+      return
+    }
+    navigate(WEB_ROUTES.importPrivateKey)
+  }, [isReadyToStoreKeys, navigate])
 
   const options = [
     {
@@ -254,11 +263,14 @@ const HotWalletImportSelectorScreen = () => {
         <DualChoiceWarningModal
           title={t('Dangers of importing a Private Key')}
           Icon={ImportFromDefaultOrExternalSeedIcon}
-          onPrimaryButtonPress={() => navigate(WEB_ROUTES.importPrivateKey)}
+          onPrimaryButtonPress={handlePrivateKeyBottomSheetProceed}
           onSecondaryButtonPress={closePrivateKeyBottomSheetWrapped}
           secondaryButtonText={t('Cancel')}
           primaryButtonText={t('Proceed')}
-          primaryButtonProps={{ disabled: !isWarning1Checked || !isWarning2Checked }}
+          primaryButtonProps={{
+            disabled: !isWarning1Checked || !isWarning2Checked,
+            testID: 'proceed-btn'
+          }}
         >
           <View style={spacings.mbSm}>
             <Checkbox

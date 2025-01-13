@@ -71,7 +71,7 @@ describe('auth', () => {
     const parsedInvitation = JSON.parse(inviteFromStorage.invite)
     expect(parsedInvitation.status).toBe(INVITE_STATUS_VERIFIED)
 
-    await setAmbKeyStore(page, SELECTORS.importPrivateBtn, false)
+    await setAmbKeyStore(page, SELECTORS.importPrivateBtn, 'privateKey')
     await page.waitForSelector(SELECTORS.enterSeedPhraseField)
 
     const enterSeedPhraseFieldPlaceholder = await page.$eval(
