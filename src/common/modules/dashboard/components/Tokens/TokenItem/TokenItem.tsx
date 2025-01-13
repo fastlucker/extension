@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import CartIcon from '@common/assets/svg/CartIcon'
@@ -19,7 +18,6 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -52,8 +50,6 @@ const TokenItem = ({
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { account } = useSelectedAccountControllerState()
-  const activityState = useActivityControllerState()
 
   const { styles, theme } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -66,8 +62,7 @@ const TokenItem = ({
   })
   const tokenId = getTokenId(token)
 
-  const pendingLastKnownNonce = portfolio.simulationNonces[token.networkId]
-  const activityNonce = activityState?.lastKnownNonce[token.networkId]
+  const simulatedAccountOp = portfolio.networkSimulatedAccountOp[token.networkId]
   const tokenAmounts = useMemo(
     () =>
       portfolio.tokenAmounts.find(
@@ -96,14 +91,9 @@ const TokenItem = ({
     pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getTokenDetails(token, networks, tokenAmounts, activityNonce, pendingLastKnownNonce)
+  } = getTokenDetails(token, networks, tokenAmounts, simulatedAccountOp)
 
-  // By design, we should simulate only for SA on the DashboardScreen
-  const isPending = useMemo(() => {
-    if (!isSmartAccount(account || undefined)) return false
-
-    return !!hasPendingBadges
-  }, [account, hasPendingBadges])
+  const isPending = !!hasPendingBadges
 
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
 
