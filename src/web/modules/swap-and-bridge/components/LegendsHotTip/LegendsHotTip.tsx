@@ -10,6 +10,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
@@ -18,8 +19,6 @@ import getStyles from './styles'
 type Props = {
   chainId: number | null
 }
-
-const LEGENDS_SUPPORTED_NETWORKS = [1, 10, 43114, 8453, 534352] // Ethereum, Optimism, Avalanche, Base, Scroll
 
 const LegendsHotTip = ({ chainId }: Props) => {
   const { account } = useSelectedAccountControllerState()
@@ -45,7 +44,7 @@ const LegendsHotTip = ({ chainId }: Props) => {
     outputRange: [56, 56 + contentHeight] // 56 is the heading height
   })
 
-  if (!chainId || !LEGENDS_SUPPORTED_NETWORKS.includes(chainId)) return null
+  if (!chainId || !LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID.includes(chainId)) return null
 
   return (
     <Animated.View
