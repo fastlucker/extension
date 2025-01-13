@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import { networks } from '@ambire-common/consts/networks'
+import LinkIcon from '@common/assets/svg/LinkIcon'
+import spacings from '@common/styles/spacings'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
 import SwordIcon from '@legends/common/assets/svg/SwordIcon'
 import Alert from '@legends/components/Alert'
@@ -83,26 +85,40 @@ const ActivitySection = () => {
               return (
                 <tr key={act.txId}>
                   <td>
-                    {network ? (
-                      <a
-                        href={`https://benzin.ambire.com/?chainId=${String(
-                          network.chainId
-                        )}&txnId=${act.txId}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.link}
-                      >
-                        {new Date(act.submittedAt).toLocaleString([], {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </a>
-                    ) : (
-                      new Date(act.submittedAt).toLocaleString()
-                    )}
+                    <div className={styles.linksWrapper}>
+                      {new Date(act.submittedAt).toLocaleString([], {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+
+                      {!!network && (
+                        <>
+                          <a
+                            href={`https://benzin.ambire.com/?chainId=${String(
+                              network.chainId
+                            )}&txnId=${act.txId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={styles.link}
+                          >
+                            View transaction
+                            <LinkIcon style={spacings.phTy} />
+                          </a>
+                          <a
+                            href={`${network.explorerUrl}/tx/${act.txId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={styles.link}
+                          >
+                            View in block explorer
+                            <LinkIcon style={spacings.phTy} />
+                          </a>
+                        </>
+                      )}
+                    </div>
                   </td>
                   <td>
                     {NETWORK_ICONS[act.network as Networks]}

@@ -9,7 +9,6 @@ interface Style {
   container: ViewStyle
   summaryItem: ViewStyle
   footer: ViewStyle
-  footerItem: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -21,19 +20,18 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground
     },
     summaryItem: {
-      ...spacings.phSm,
+      ...spacings.phTy,
       backgroundColor: 'transparent',
       borderWidth: 0
     },
     footer: {
       ...flexbox.directionRow,
+      ...flexbox.justifySpaceBetween,
       ...flexbox.flex1,
       ...flexbox.alignCenter,
       borderTopColor: theme.secondaryBorder,
-      borderTopWidth: 1
-    },
-    footerItem: {
-      ...flexbox.directionRow
+      borderTopWidth: 1,
+      ...spacings.pvSm
     }
   })
 

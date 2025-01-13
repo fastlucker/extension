@@ -133,14 +133,10 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
       return (
         <SubmittedTransactionSummary
           key={item.txnId}
+          defaultType="summary"
           submittedAccountOp={item}
-          showFee={false}
-          enableExpand={false}
-          showHeading={false}
           style={spacings.mbSm}
           size="md"
-          blockExplorerAlignedRight
-          showNetworkBadge
         />
       )
     },
