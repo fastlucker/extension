@@ -98,7 +98,7 @@ const PrivateKeyImportScreen = () => {
               <Alert
                 type="warning"
                 title={t(
-                  'Only one seed phase can be stored.\nYou can delete it anytime in the Security & Privacy settings\nwithout affecting the imported accounts.'
+                  'Only one seed phase can be stored.\nYou can delete it anytime in the "Saved Seed Phrase" settings\nwithout affecting the imported accounts.'
                 )}
               />
             </View>
