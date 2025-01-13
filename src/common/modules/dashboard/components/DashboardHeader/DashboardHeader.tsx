@@ -3,6 +3,7 @@ import { Animated, Pressable, View } from 'react-native'
 
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
+import { isDev } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -33,7 +34,7 @@ const DashboardHeader = () => {
   const { theme, styles } = useTheme(getStyles)
 
   // Temporary measure because UX was found to be confusing
-  const ENABLE_MAXIMIZE = process.env.APP_ENV === 'development' || false
+  const ENABLE_MAXIMIZE = isDev
   if (!account) return null
 
   return (
