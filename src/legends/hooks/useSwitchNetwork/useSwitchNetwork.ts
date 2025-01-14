@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
-import { BASE_CHAIN_ID } from '@legends/constants/network'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
 
 import useAccountContext from '../useAccountContext'
 import useToast from '../useToast'

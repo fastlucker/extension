@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 import { WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
-import { ETHEREUM_CHAIN_ID } from '@legends/constants/network'
+import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'

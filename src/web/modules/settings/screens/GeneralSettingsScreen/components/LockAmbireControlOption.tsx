@@ -20,11 +20,7 @@ const LockAmbireControlOption = () => {
 
   const handleLockAmbire = useCallback(() => {
     dispatch({
-      type: 'KEYSTORE_CONTROLLER_LOCK'
-    })
-
-    dispatch({
-      type: 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS'
+      type: 'MAIN_CONTROLLER_LOCK'
     })
   }, [dispatch])
 
