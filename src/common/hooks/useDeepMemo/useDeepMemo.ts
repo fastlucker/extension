@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import isEqual from 'react-fast-compare'
 
-function useDeepMemo(value: any, testId?: string) {
+function useDeepMemo<T>(value: T, testId?: string): T {
   const ref = useRef(value)
   // logs for testing the performance
   // console.time(`${testId} Performance`)
