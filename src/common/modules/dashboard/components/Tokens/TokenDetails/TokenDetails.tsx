@@ -1,9 +1,9 @@
-import { getAddress } from 'ethers'
+import { getAddress, ZeroAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import { geckoIdMapper } from '@ambire-common/consts/coingecko'
+import { geckoTokenAddressMapper } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
@@ -40,6 +40,8 @@ import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
 
+const COINGECKO_COINS_API_URL = 'https://api.coingecko.com/api/v3/coins/'
+
 const TokenDetails = ({
   token,
   handleClose,
@@ -58,7 +60,7 @@ const TokenDetails = ({
   const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const [hasTokenInfo, setHasTokenInfo] = useState(false)
+  const [coinGeckoWebSlug, setTokenCoinGeckoWebSlug] = useState('')
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
   const network = useMemo(
@@ -148,23 +150,21 @@ const TokenDetails = ({
         text: t('Token Info'),
         icon: InfoIcon,
         onPress: async () => {
-          if (!hasTokenInfo || !token || !networks.length) return
+          if (!coinGeckoWebSlug || !token || !networks.length) return
 
           if (!network) {
             addToast(t('Network not found'), { type: 'error' })
             return
           }
 
-          const coingeckoId = geckoIdMapper(token?.address, network)
-
           try {
-            await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`)
+            await createTab(`https://www.coingecko.com/en/coins/${coinGeckoWebSlug}`)
             handleClose()
           } catch {
             addToast(t('Could not open token info'), { type: 'error' })
           }
         },
-        isDisabled: !hasTokenInfo
+        isDisabled: !coinGeckoWebSlug
       }
     ],
     [
@@ -173,13 +173,14 @@ const TokenDetails = ({
       isAmountZero,
       canToToppedUp,
       isSmartAccount,
-      hasTokenInfo,
+      coinGeckoWebSlug,
       navigate,
       networks,
       addToast,
       token,
       handleClose,
-      network
+      network,
+      shouldDisableSwapAndBridge
     ]
   )
   useEffect(() => {
@@ -192,21 +193,18 @@ const TokenDetails = ({
       setIsTokenInfoLoading(false)
       return
     }
-    const coingeckoId = geckoIdMapper(token?.address, network)
 
-    const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`
+    const geckoTokenAddress = geckoTokenAddressMapper(token.address)
+    const geckoNetworkId = network.platformId
 
-    fetch(tokenInfoUrl, {
-      method: 'HEAD'
-    })
-      .then((result) => {
-        if (result.ok) {
-          setHasTokenInfo(true)
-          return
-        }
+    // CoinGecko does not handle native assets (ETH, MATIC, BNB...) via the /contract endpoint.
+    // Instead, native assets are identified by the `geckoNetworkId` directly.
+    const tokenAddressInUrl = token.address === ZeroAddress ? '' : `/contract/${geckoTokenAddress}`
+    const tokenInfoUrl = `${COINGECKO_COINS_API_URL}${geckoNetworkId}${tokenAddressInUrl}`
 
-        setHasTokenInfo(false)
-      })
+    fetch(tokenInfoUrl)
+      .then((response) => response.json())
+      .then((result) => setTokenCoinGeckoWebSlug(result.web_slug))
       .catch(() => {
         addToast(t('Token info not found'), { type: 'error' })
       })
