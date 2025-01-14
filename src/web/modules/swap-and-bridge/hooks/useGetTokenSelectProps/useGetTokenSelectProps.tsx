@@ -2,7 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
-import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
@@ -56,7 +56,7 @@ const useGetTokenSelectProps = ({
   isLoading,
   isToToken = false
 }: {
-  tokens: SocketAPIToken[] | TokenResult[]
+  tokens: SwapAndBridgeToToken[] | TokenResult[]
   token: string
   networks: Network[]
   supportedChainIds: Network['chainId'][]
@@ -75,22 +75,23 @@ const useGetTokenSelectProps = ({
     value = noTokensEmptyState[0]
     options = noTokensEmptyState
   } else {
-    options = tokens.map((t: SocketAPIToken | TokenResult) => {
+    options = tokens.map((t: SwapAndBridgeToToken | TokenResult) => {
       const symbol = isToToken
         ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
-          (t as SocketAPIToken).symbol?.trim() || 'No symbol'
+          (t as SwapAndBridgeToToken).symbol?.trim() || 'No symbol'
         : t.symbol
       const name = isToToken
         ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
-          (t as SocketAPIToken).name?.trim() || 'No name'
+          (t as SwapAndBridgeToToken).name?.trim() || 'No name'
         : ''
       const network = networks.find((n) =>
         isToToken
-          ? Number(n.chainId) === (t as SocketAPIToken).chainId
+          ? Number(n.chainId) === (t as SwapAndBridgeToToken).chainId
           : n.id === (t as TokenResult).networkId
       )
       const tooltipId = `token-${t.address}-on-network-${network?.chainId}-not-supported-tooltip`
       const isTokenNetworkSupported = getIsNetworkSupported(supportedChainIds, network)
+      const isInAccPortfolio = isToToken ? (t as SwapAndBridgeToToken).isInAccPortfolio : true
 
       const label = isToToken ? (
         <>
@@ -132,13 +133,14 @@ const useGetTokenSelectProps = ({
       )
 
       const networkIdOrChainId = isToToken
-        ? (t as SocketAPIToken).chainId
+        ? (t as SwapAndBridgeToToken).chainId
         : (t as TokenResult).networkId
 
       return {
         value: getTokenId(t),
         disabled: !isTokenNetworkSupported,
         extraSearchProps: { symbol, name, address: t.address },
+        isInAccPortfolio,
         label,
         icon: (
           <TokenIcon
@@ -148,7 +150,7 @@ const useGetTokenSelectProps = ({
             networkSize={12}
             withContainer
             withNetworkIcon={!isToToken}
-            uri={isToToken ? (t as SocketAPIToken).icon : undefined}
+            uri={isToToken ? (t as SwapAndBridgeToToken).icon : undefined}
             address={t.address}
             networkId={networkIdOrChainId}
           />
