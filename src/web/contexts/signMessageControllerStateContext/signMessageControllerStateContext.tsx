@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import useDeepMemo from '@common/hooks/useDeepMemo'
@@ -26,9 +26,7 @@ const SignMessageControllerStateProvider: React.FC<any> = ({ children }) => {
   const memoizedState = useDeepMemo(state, controller)
 
   return (
-    <SignMessageControllerStateContext.Provider
-      value={useMemo(() => memoizedState, [memoizedState])}
-    >
+    <SignMessageControllerStateContext.Provider value={memoizedState}>
       {children}
     </SignMessageControllerStateContext.Provider>
   )

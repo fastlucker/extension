@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import useDeepMemo from '@common/hooks/useDeepMemo'
@@ -35,7 +35,7 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [prevCurrentActionId, memoizedState.currentAction?.id, navigate])
 
   return (
-    <ActionsControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
+    <ActionsControllerStateContext.Provider value={memoizedState}>
       {children}
     </ActionsControllerStateContext.Provider>
   )

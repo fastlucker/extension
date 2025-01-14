@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 import { flushSync } from 'react-dom'
 
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -27,9 +27,7 @@ const SignAccountOpControllerStateProvider: React.FC<any> = ({ children }) => {
   const memoizedState = useDeepMemo(state, 'signAccountOp')
 
   return (
-    <SignAccountOpControllerStateContext.Provider
-      value={useMemo(() => memoizedState, [memoizedState])}
-    >
+    <SignAccountOpControllerStateContext.Provider value={memoizedState}>
       {children}
     </SignAccountOpControllerStateContext.Provider>
   )

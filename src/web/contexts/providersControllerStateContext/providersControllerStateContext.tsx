@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
 import useDeepMemo from '@common/hooks/useDeepMemo'
@@ -24,7 +24,7 @@ const ProvidersControllerStateProvider: React.FC<any> = ({ children }) => {
   const memoizedState = useDeepMemo(state, controller)
 
   return (
-    <ProvidersControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
+    <ProvidersControllerStateContext.Provider value={memoizedState}>
       {children}
     </ProvidersControllerStateContext.Provider>
   )

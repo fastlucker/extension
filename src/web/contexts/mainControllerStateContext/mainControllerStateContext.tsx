@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import useDeepMemo from '@common/hooks/useDeepMemo'
@@ -22,7 +22,7 @@ const MainControllerStateProvider: React.FC<any> = ({ children }) => {
   const memoizedState = useDeepMemo(state, controller)
 
   return (
-    <MainControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
+    <MainControllerStateContext.Provider value={memoizedState}>
       {children}
     </MainControllerStateContext.Provider>
   )

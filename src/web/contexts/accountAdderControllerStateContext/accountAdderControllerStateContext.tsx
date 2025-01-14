@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import useDeepMemo from '@common/hooks/useDeepMemo'
@@ -26,9 +26,7 @@ const AccountAdderControllerStateProvider: React.FC<any> = ({ children }) => {
   const memoizedState = useDeepMemo(state, controller)
 
   return (
-    <AccountAdderControllerStateContext.Provider
-      value={useMemo(() => memoizedState, [memoizedState])}
-    >
+    <AccountAdderControllerStateContext.Provider value={memoizedState}>
       {children}
     </AccountAdderControllerStateContext.Provider>
   )

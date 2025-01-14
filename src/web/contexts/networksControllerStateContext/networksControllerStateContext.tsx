@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { NetworksController } from '@ambire-common/controllers/networks/networks'
 import useDeepMemo from '@common/hooks/useDeepMemo'
@@ -22,7 +22,7 @@ const NetworksControllerStateProvider: React.FC<any> = ({ children }) => {
   const memoizedState = useDeepMemo(state, controller)
 
   return (
-    <NetworksControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
+    <NetworksControllerStateContext.Provider value={memoizedState}>
       {children}
     </NetworksControllerStateContext.Provider>
   )

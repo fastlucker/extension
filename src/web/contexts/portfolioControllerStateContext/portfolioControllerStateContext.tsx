@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import useDeepMemo from '@common/hooks/useDeepMemo'
@@ -23,7 +23,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const memoizedState = useDeepMemo(state, controller)
 
   return (
-    <PortfolioControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
+    <PortfolioControllerStateContext.Provider value={memoizedState}>
       {children}
     </PortfolioControllerStateContext.Provider>
   )

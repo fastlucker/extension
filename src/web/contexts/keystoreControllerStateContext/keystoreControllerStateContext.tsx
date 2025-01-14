@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
 import useDeepMemo from '@common/hooks/useDeepMemo'
@@ -27,7 +27,7 @@ const KeystoreControllerStateProvider: React.FC<any> = ({ children }) => {
   const memoizedState = useDeepMemo(state, controller)
 
   return (
-    <KeystoreControllerStateContext.Provider value={useMemo(() => memoizedState, [memoizedState])}>
+    <KeystoreControllerStateContext.Provider value={memoizedState}>
       {children}
     </KeystoreControllerStateContext.Provider>
   )
