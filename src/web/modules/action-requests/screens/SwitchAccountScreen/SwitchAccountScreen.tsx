@@ -102,8 +102,8 @@ const SwitchAccountScreen = () => {
   }, [addToast, dAppAction, dispatch, nextAccount, t])
 
   const responsiveSizeMultiplier = useMemo(() => {
-    if (minHeightSize('s')) return 0.75
-    if (minHeightSize('m')) return 0.85
+    if (minHeightSize('s')) return 0.85
+    if (minHeightSize('m')) return 0.95
 
     return 1
   }, [minHeightSize])
@@ -138,7 +138,7 @@ const SwitchAccountScreen = () => {
           styles.container,
           {
             paddingVertical: SPACING_LG * responsiveSizeMultiplier,
-            width: responsiveSizeMultiplier * 454
+            width: responsiveSizeMultiplier * 530
           }
         ]}
       >

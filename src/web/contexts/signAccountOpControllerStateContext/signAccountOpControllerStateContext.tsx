@@ -1,7 +1,8 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 import { flushSync } from 'react-dom'
 
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import eventBus from '@web/extension-services/event/eventBus'
 
 const SignAccountOpControllerStateContext = createContext<SignAccountOpController | null>(null)
@@ -23,8 +24,10 @@ const SignAccountOpControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('signAccountOp', onUpdate)
   }, [])
 
+  const memoizedState = useDeepMemo(state, 'signAccountOp')
+
   return (
-    <SignAccountOpControllerStateContext.Provider value={useMemo(() => state, [state])}>
+    <SignAccountOpControllerStateContext.Provider value={memoizedState}>
       {children}
     </SignAccountOpControllerStateContext.Provider>
   )
