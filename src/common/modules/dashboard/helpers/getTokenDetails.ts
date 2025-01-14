@@ -6,6 +6,7 @@ import { FormattedPendingAmounts, PendingAmounts } from '@ambire-common/libs/por
 import { calculatePendingAmounts } from '@ambire-common/libs/portfolio/pendingAmountsHelper'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 
 const formatPendingAmounts = (
   pendingAmounts: PendingAmounts | null,
@@ -63,8 +64,7 @@ const getTokenDetails = (
     address: string
     networkId: string
   },
-  lastKnownActivityNonce?: bigint,
-  lastKnownPortfolioNonce?: bigint
+  simulatedAccountOp?: AccountOp
 ) => {
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'
@@ -88,8 +88,7 @@ const getTokenDetails = (
           tokenAmounts?.pendingAmount,
           amountPostSimulation,
           simulationAmount,
-          lastKnownActivityNonce,
-          lastKnownPortfolioNonce
+          simulatedAccountOp
         )
       : null,
     decimals,
