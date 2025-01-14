@@ -1,9 +1,9 @@
-import { getAddress, ZeroAddress } from 'ethers'
+import { getAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import { geckoTokenAddressMapper } from '@ambire-common/consts/coingecko'
+import { getGeckoTokenCoinsApiUrl } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
@@ -39,8 +39,6 @@ import { getTokenId } from '@web/utils/token'
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
-
-const COINGECKO_COINS_API_URL = 'https://api.coingecko.com/api/v3/coins/'
 
 const TokenDetails = ({
   token,
@@ -194,14 +192,7 @@ const TokenDetails = ({
       return
     }
 
-    const geckoTokenAddress = geckoTokenAddressMapper(token.address)
-    const geckoNetworkId = network.platformId
-
-    // CoinGecko does not handle native assets (ETH, MATIC, BNB...) via the /contract endpoint.
-    // Instead, native assets are identified by the `geckoNetworkId` directly.
-    const tokenAddressInUrl = token.address === ZeroAddress ? '' : `/contract/${geckoTokenAddress}`
-    const tokenInfoUrl = `${COINGECKO_COINS_API_URL}${geckoNetworkId}${tokenAddressInUrl}`
-
+    const tokenInfoUrl = getGeckoTokenCoinsApiUrl(token.address, network.platformId)
     fetch(tokenInfoUrl)
       .then((response) => response.json())
       .then((result) => setTokenCoinGeckoWebSlug(result.web_slug))
