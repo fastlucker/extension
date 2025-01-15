@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import { getCoinGeckoTokenApiUrl } from '@ambire-common/consts/coingecko'
+import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
@@ -58,7 +58,7 @@ const TokenDetails = ({
   const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const [coinGeckoWebSlug, setTokenCoinGeckoWebSlug] = useState('')
+  const [coinGeckoTokenSlug, setTokenCoinGeckoTokenSlug] = useState('')
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
   const network = useMemo(
@@ -148,7 +148,7 @@ const TokenDetails = ({
         text: t('Token Info'),
         icon: InfoIcon,
         onPress: async () => {
-          if (!coinGeckoWebSlug || !token || !networks.length) return
+          if (!coinGeckoTokenSlug || !token || !networks.length) return
 
           if (!network) {
             addToast(t('Network not found'), { type: 'error' })
@@ -156,13 +156,13 @@ const TokenDetails = ({
           }
 
           try {
-            await createTab(`https://www.coingecko.com/en/coins/${coinGeckoWebSlug}`)
+            await createTab(getCoinGeckoTokenUrl(coinGeckoTokenSlug))
             handleClose()
           } catch {
             addToast(t('Could not open token info'), { type: 'error' })
           }
         },
-        isDisabled: !coinGeckoWebSlug
+        isDisabled: !coinGeckoTokenSlug
       }
     ],
     [
@@ -171,7 +171,7 @@ const TokenDetails = ({
       isAmountZero,
       canToToppedUp,
       isSmartAccount,
-      coinGeckoWebSlug,
+      coinGeckoTokenSlug,
       navigate,
       networks,
       addToast,
@@ -198,7 +198,7 @@ const TokenDetails = ({
     const tokenInfoUrl = getCoinGeckoTokenApiUrl({ tokenAddr, geckoChainId, geckoNativeCoinId })
     fetch(tokenInfoUrl)
       .then((response) => response.json())
-      .then((result) => setTokenCoinGeckoWebSlug(result.web_slug))
+      .then((result) => setTokenCoinGeckoTokenSlug(result.web_slug))
       .catch(() => {
         addToast(t('Token info not found'), { type: 'error' })
       })
