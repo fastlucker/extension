@@ -105,7 +105,7 @@ const TokenDetails = ({
       //   text: t('Deposit'),
       //   icon: DepositIcon,
       //   onPress: () => {},
-      //   isNotImplementedYet: true,
+      //   isDisabled: true,
       //   strokeWidth: 1
       // },
       // TODO: Temporarily moved to the "Deposit" place as of v4.49.0, due to aesthetic reasons solely.
@@ -114,12 +114,13 @@ const TokenDetails = ({
         text: t('Earn'),
         icon: EarnIcon,
         onPress: () => {},
-        isNotImplementedYet: true,
+        isDisabled: true,
+        tooltipText: t('Coming sometime in {{year}}.', { year: new Date().getFullYear() }),
         strokeWidth: 1
       },
       {
         id: 'top-up',
-        text: canToToppedUp ? t('Top Up Gas Tank') : t('Top Up'),
+        text: t('Top Up Gas Tank'),
         icon: TopUpIcon,
         onPress: async ({ networkId, address }: TokenResult) => {
           const assets: { network: string; address: string }[] = await fetch(
@@ -135,6 +136,13 @@ const TokenDetails = ({
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
         isDisabled: !canToToppedUp || !isSmartAccount,
+        tooltipText: !isSmartAccount
+          ? t('Feature only available for Smart Accounts.')
+          : !canToToppedUp
+          ? t(
+              'This token is not eligible for filling up the Gas Tank. Please select a supported token instead.'
+            )
+          : undefined,
         strokeWidth: 1,
         testID: 'top-up-button'
       },
@@ -143,7 +151,8 @@ const TokenDetails = ({
         text: t('Withdraw'),
         icon: WithdrawIcon,
         onPress: () => {},
-        isNotImplementedYet: true,
+        isDisabled: true,
+        tooltipText: t('Coming sometime in {{year}}.', { year: new Date().getFullYear() }),
         strokeWidth: 1
       },
       {
