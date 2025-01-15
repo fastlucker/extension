@@ -202,7 +202,11 @@ const TokenDetails = ({
             addToast(t('Could not open token info'), { type: 'error' })
           }
         },
-        isDisabled: !hasTokenInfo
+        isDisabled: !hasTokenInfo,
+        tooltipText:
+          !hasTokenInfo && !isTokenInfoLoading
+            ? t('No data found for this token on CoinGecko.')
+            : undefined
       }
     ],
     [
@@ -222,7 +226,8 @@ const TokenDetails = ({
       isNetworkNotSupportedForSwapAndBridge,
       unavailableBecauseGasTankOrRewardsTokenTooltipText,
       notImplementedYetTooltipText,
-      isGasTankToken
+      isGasTankToken,
+      isTokenInfoLoading
     ]
   )
   useEffect(() => {
