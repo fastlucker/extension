@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import { getGeckoTokenCoinsApiUrl } from '@ambire-common/consts/coingecko'
+import { getCoinGeckoTokenApiUrl } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
@@ -192,7 +192,10 @@ const TokenDetails = ({
       return
     }
 
-    const tokenInfoUrl = getGeckoTokenCoinsApiUrl(token.address, network.platformId)
+    const tokenAddr = token.address
+    const geckoChainId = network.platformId
+    const geckoNativeCoinId = network.nativeAssetId
+    const tokenInfoUrl = getCoinGeckoTokenApiUrl({ tokenAddr, geckoChainId, geckoNativeCoinId })
     fetch(tokenInfoUrl)
       .then((response) => response.json())
       .then((result) => setTokenCoinGeckoWebSlug(result.web_slug))
