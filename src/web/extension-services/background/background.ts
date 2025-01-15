@@ -720,18 +720,7 @@ handleKeepAlive()
       port.id = nanoid()
       pm.addPort(port)
 
-      // Update if there is no broadcasted but not confirmed acc op, due to the fact that this will cost it being
-      // removed from the UI and we will lose the simulation
-      // Also do not trigger update on every new port but only if there is only one port
-      if (pm.ports.length === 1 && port.name === 'popup' && !hasBroadcastedButNotConfirmed()) {
-        try {
-          // These promises shouldn't be awaited as that will slow down the popup opening
-          mainCtrl.onLoad()
-          backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
-        } catch (error) {
-          console.error('Error during immediate portfolio update:', error)
-        }
-      }
+      mainCtrl.selectedAccount.resetSelectedAccountPortfolio()
 
       initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()

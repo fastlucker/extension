@@ -313,6 +313,10 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
+type MainControllerOnLoadAction = {
+  type: 'MAIN_CONTROLLER_ON_LOAD'
+}
+
 type MainControllerLockAction = {
   type: 'MAIN_CONTROLLER_LOCK'
 }
@@ -588,6 +592,7 @@ export type Action =
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction
+  | MainControllerOnLoadAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
   | MainControllerBuildMintVestingUserRequest
