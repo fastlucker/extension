@@ -6,11 +6,12 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  arrowStart: ViewStyle
+  arrowStatus: ViewStyle
   arrowLine: ViewStyle
   badgeMiddle: ViewStyle
   badgeTop: ViewStyle
   arrowTipWrapper: ViewStyle
+  arrowConnector: ViewStyle
   arrowLineSuccess: ViewStyle
 }
 
@@ -21,12 +22,12 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...flexbox.alignCenter
     },
-    arrowStart: {
+    arrowStatus: {
       width: 12,
       height: 12,
       borderRadius: 50,
       borderWidth: 1,
-      backgroundColor: 'transparent'
+      backgroundColor: theme.primaryBackground
     },
     arrowLine: {
       width: '100%',
@@ -53,12 +54,18 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       zIndex: 2,
       position: 'absolute',
-      bottom: 10,
+      bottom: 16,
       ...flexbox.alignSelfCenter,
       maxWidth: 120
     },
+    arrowConnector: {
+      borderTopWidth: 1,
+      position: 'absolute',
+      width: 6,
+      height: 0
+    },
     arrowTipWrapper: {
-      transform: [{ translateX: -4 }]
+      ...flexbox.justifyCenter
     }
   })
 

@@ -56,20 +56,6 @@ const RouteStepsArrow = ({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {type === 'success' ? (
-        <CheckIcon width={12} height={12} color={theme.successDecorative} />
-      ) : (
-        <Animated.View
-          style={[
-            styles.arrowStart,
-            { borderColor: getArrowColor },
-            !!isLoading && {
-              borderStyle: 'dashed',
-              transform: [{ rotateZ: spinInterpolate || '0deg' }]
-            }
-          ]}
-        />
-      )}
       <View
         style={[
           styles.arrowLine,
@@ -77,6 +63,24 @@ const RouteStepsArrow = ({
           { borderColor: getArrowColor }
         ]}
       >
+        {!(badgePosition === 'middle' && !!badge) && (
+          <View>
+            {type === 'success' ? (
+              <CheckIcon width={12} height={12} color={theme.successDecorative} />
+            ) : (
+              <Animated.View
+                style={[
+                  styles.arrowStatus,
+                  { borderColor: getArrowColor },
+                  !!isLoading && {
+                    borderStyle: 'dashed',
+                    transform: [{ rotateZ: spinInterpolate || '0deg' }]
+                  }
+                ]}
+              />
+            )}
+          </View>
+        )}
         {!!badge && (
           <View style={{ backgroundColor: theme.secondaryBackground }}>
             <View
@@ -92,7 +96,8 @@ const RouteStepsArrow = ({
           </View>
         )}
       </View>
-      <View style={styles.arrowTipWrapper}>
+      <View style={[styles.arrowTipWrapper]}>
+        <View style={[styles.arrowConnector, { borderColor: getArrowColor }]} />
         <RightArrowIcon color={getArrowColor} height={11} />
       </View>
     </View>
