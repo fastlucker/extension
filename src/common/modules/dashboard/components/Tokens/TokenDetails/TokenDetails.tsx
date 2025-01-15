@@ -98,10 +98,21 @@ const TokenDetails = ({
         isDisabled: shouldDisableSwapAndBridge,
         strokeWidth: 1.5
       },
+      // TODO: Temporarily hidden as of v4.49.0, because displaying it disabled
+      // causes confusion. It's planned to be displayed again when the feature is implemented.
+      // {
+      //   id: 'deposit',
+      //   text: t('Deposit'),
+      //   icon: DepositIcon,
+      //   onPress: () => {},
+      //   isDisabled: true,
+      //   strokeWidth: 1
+      // },
+      // TODO: Temporarily moved to the "Deposit" place as of v4.49.0, due to aesthetic reasons solely.
       {
-        id: 'deposit',
-        text: t('Deposit'),
-        icon: DepositIcon,
+        id: 'earn',
+        text: t('Earn'),
+        icon: EarnIcon,
         onPress: () => {},
         isDisabled: true,
         strokeWidth: 1
@@ -126,14 +137,6 @@ const TokenDetails = ({
         isDisabled: !canToToppedUp || !isSmartAccount,
         strokeWidth: 1,
         testID: 'top-up-button'
-      },
-      {
-        id: 'earn',
-        text: t('Earn'),
-        icon: EarnIcon,
-        onPress: () => {},
-        isDisabled: true,
-        strokeWidth: 1
       },
       {
         id: 'withdraw',
@@ -179,7 +182,8 @@ const TokenDetails = ({
       addToast,
       token,
       handleClose,
-      network
+      network,
+      shouldDisableSwapAndBridge
     ]
   )
   useEffect(() => {
