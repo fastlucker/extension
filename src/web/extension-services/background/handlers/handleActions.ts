@@ -362,6 +362,14 @@ export const handleActions = async (
       return await mainCtrl.buildSwapAndBridgeUserRequest()
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
+      await mainCtrl.swapAndBridge.updateQuote({
+        skipPreviousQuoteRemoval: true,
+        skipQuoteUpdateOnSameValues: false,
+        skipStatusUpdate: false
+      })
+      break
+    }
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 

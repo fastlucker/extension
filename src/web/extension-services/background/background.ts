@@ -367,7 +367,7 @@ handleKeepAlive()
         await mainCtrl.swapAndBridge.updateQuote({
           skipPreviousQuoteRemoval: true,
           skipQuoteUpdateOnSameValues: false,
-          skipStatusUpdate: true
+          skipStatusUpdate: false
         })
 
       // Schedule the next update only when the previous one completes

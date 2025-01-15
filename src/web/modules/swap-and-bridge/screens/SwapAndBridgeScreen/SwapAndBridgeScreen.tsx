@@ -30,6 +30,7 @@ import ActiveRouteCard from '@web/modules/swap-and-bridge/components/ActiveRoute
 import LegendsHotTip from '@web/modules/swap-and-bridge/components/LegendsHotTip'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
 import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
+import RoutesRefreshButton from '@web/modules/swap-and-bridge/components/RoutesRefreshButton'
 import RouteStepsPlaceholder from '@web/modules/swap-and-bridge/components/RouteStepsPlaceholder'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 import SettingsModal from '@web/modules/swap-and-bridge/components/SettingsModal'
@@ -202,7 +203,7 @@ const SwapAndBridgeScreen = () => {
                   appearance="secondaryText"
                   fontSize={14}
                   weight="medium"
-                  style={spacings.mbMi}
+                  style={spacings.mbTy}
                 >
                   {t('Send')}
                 </Text>
@@ -303,10 +304,11 @@ const SwapAndBridgeScreen = () => {
                   appearance="secondaryText"
                   fontSize={14}
                   weight="medium"
-                  style={spacings.mbMi}
+                  style={spacings.mbTy}
                 >
                   {t('Receive')}
                 </Text>
+
                 <View style={styles.secondaryContainer}>
                   <View style={[flexbox.directionRow, spacings.mb]}>
                     <Select
@@ -355,20 +357,25 @@ const SwapAndBridgeScreen = () => {
                 <View
                   style={[
                     spacings.ptTy,
-                    spacings.mbMi,
+                    spacings.mbTy,
                     flexbox.directionRow,
                     flexbox.alignCenter,
                     flexbox.flex1
                   ]}
                 >
-                  <Text
-                    appearance="secondaryText"
-                    fontSize={14}
-                    weight="medium"
-                    style={[flexbox.flex1]}
-                  >
-                    {t('Preview route')}
-                  </Text>
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Text
+                      appearance="secondaryText"
+                      fontSize={14}
+                      weight="medium"
+                      style={spacings.mrSm}
+                    >
+                      {t('Preview route')}
+                    </Text>
+                    <View style={styles.routesRefreshButtonWrapper}>
+                      <RoutesRefreshButton width={28} height={28} />
+                    </View>
+                  </View>
                   {!!shouldEnableRoutesSelection && (
                     <Pressable
                       style={styles.selectAnotherRouteButton}
