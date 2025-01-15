@@ -68,13 +68,26 @@ const TokenDetails = ({
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
-  const isGasTankOrRewardsToken = token?.flags.onGasTank || !!token?.flags.rewardsType
+  const isGasTankToken = !!token?.flags.onGasTank
+  const isRewardsToken = !!token?.flags.rewardsType
+  const isGasTankOrRewardsToken = isGasTankToken || isRewardsToken
   const isAmountZero = token && getTokenAmount(token) === 0n
   const canToToppedUp = token?.flags.canTopUpGasTank
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const tokenId = token ? getTokenId(token) : ''
+  const isNetworkNotSupportedForSwapAndBridge = !getIsNetworkSupported(supportedChainIds, network)
   const shouldDisableSwapAndBridge =
-    !getIsNetworkSupported(supportedChainIds, network) || isGasTankOrRewardsToken || isAmountZero
+    isNetworkNotSupportedForSwapAndBridge || isGasTankOrRewardsToken || isAmountZero
+
+  const unavailableBecauseGasTankOrRewardsTokenTooltipText = t(
+    'Unavailable. {{tokenType}} tokens cannot be sent, swapped, or bridged.',
+    {
+      tokenType: isGasTankToken ? t('Gas Tank') : t('Reward')
+    }
+  )
+  const notImplementedYetTooltipText = t('Coming sometime in {{year}}.', {
+    year: new Date().getFullYear()
+  })
 
   const actions = useMemo(
     () => [
@@ -85,6 +98,9 @@ const TokenDetails = ({
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`${WEB_ROUTES.transfer}?networkId=${networkId}&address=${address}`),
         isDisabled: isGasTankOrRewardsToken || isAmountZero,
+        tooltipText: isGasTankOrRewardsToken
+          ? unavailableBecauseGasTankOrRewardsTokenTooltipText
+          : undefined,
         strokeWidth: 1.5,
         testID: 'token-send'
       },
@@ -96,6 +112,14 @@ const TokenDetails = ({
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`${WEB_ROUTES.swapAndBridge}?networkId=${networkId}&address=${address}`),
         isDisabled: shouldDisableSwapAndBridge,
+        tooltipText: isNetworkNotSupportedForSwapAndBridge
+          ? t(
+              'Unavailable. {{network}} network is not supported by our Swap & Bridge service provider.',
+              { network: network?.name || t('This') }
+            )
+          : isGasTankOrRewardsToken
+          ? unavailableBecauseGasTankOrRewardsTokenTooltipText
+          : undefined,
         strokeWidth: 1.5
       },
       // TODO: Temporarily hidden as of v4.49.0, because displaying it disabled
@@ -115,7 +139,7 @@ const TokenDetails = ({
         icon: EarnIcon,
         onPress: () => {},
         isDisabled: true,
-        tooltipText: t('Coming sometime in {{year}}.', { year: new Date().getFullYear() }),
+        tooltipText: notImplementedYetTooltipText,
         strokeWidth: 1
       },
       {
@@ -152,7 +176,9 @@ const TokenDetails = ({
         icon: WithdrawIcon,
         onPress: () => {},
         isDisabled: true,
-        tooltipText: t('Coming sometime in {{year}}.', { year: new Date().getFullYear() }),
+        tooltipText: isGasTankToken
+          ? t('Gas Tank deposits cannot be withdrawn.')
+          : notImplementedYetTooltipText,
         strokeWidth: 1
       },
       {
@@ -192,7 +218,11 @@ const TokenDetails = ({
       token,
       handleClose,
       network,
-      shouldDisableSwapAndBridge
+      shouldDisableSwapAndBridge,
+      isNetworkNotSupportedForSwapAndBridge,
+      unavailableBecauseGasTankOrRewardsTokenTooltipText,
+      notImplementedYetTooltipText,
+      isGasTankToken
     ]
   )
   useEffect(() => {
