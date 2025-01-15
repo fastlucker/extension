@@ -105,7 +105,7 @@ const TokenDetails = ({
       //   text: t('Deposit'),
       //   icon: DepositIcon,
       //   onPress: () => {},
-      //   isDisabled: true,
+      //   isNotImplementedYet: true,
       //   strokeWidth: 1
       // },
       // TODO: Temporarily moved to the "Deposit" place as of v4.49.0, due to aesthetic reasons solely.
@@ -114,7 +114,7 @@ const TokenDetails = ({
         text: t('Earn'),
         icon: EarnIcon,
         onPress: () => {},
-        isDisabled: true,
+        isNotImplementedYet: true,
         strokeWidth: 1
       },
       {
@@ -143,7 +143,7 @@ const TokenDetails = ({
         text: t('Withdraw'),
         icon: WithdrawIcon,
         onPress: () => {},
-        isDisabled: true,
+        isNotImplementedYet: true,
         strokeWidth: 1
       },
       {

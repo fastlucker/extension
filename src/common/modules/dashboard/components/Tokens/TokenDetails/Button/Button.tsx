@@ -23,6 +23,7 @@ interface Props {
   isTokenInfoLoading: boolean
   strokeWidth?: number
   isDisabled?: boolean
+  isNotImplementedYet?: boolean
   testID?: string
   iconWidth?: number
 }
@@ -33,6 +34,7 @@ const TokenDetailsButton: FC<Props> = ({
   iconWidth = 32,
   text: btnText,
   isDisabled,
+  isNotImplementedYet,
   onPress,
   icon: Icon,
   token,
@@ -58,12 +60,13 @@ const TokenDetailsButton: FC<Props> = ({
         testID={testID}
         key={id}
         // @ts-ignore missing type, but the prop is valid
-        dataSet={isDisabled && { tooltipId }}
-        style={[styles.action, animStyle, isDisabled && { opacity: 0.4 }]}
-        // Purposely don't disable - in order to show the tooltip, but block `onPress` when disabled
-        // disabled={isDisabled}
+        dataSet={isNotImplementedYet && { tooltipId }}
+        style={[styles.action, animStyle, (isDisabled || isNotImplementedYet) && { opacity: 0.4 }]}
+        disabled={isDisabled}
         onPress={() => {
-          if (isDisabled) return
+          // Purposely don't disable the button (but block the onPress action),
+          // as it should be clickable to show the tooltip.
+          if (isNotImplementedYet) return
 
           onPress(token)
           handleClose()
@@ -81,7 +84,7 @@ const TokenDetailsButton: FC<Props> = ({
           {btnText}
         </Text>
       </AnimatedPressable>
-      {isDisabled && (
+      {isNotImplementedYet && (
         <Tooltip id={tooltipId}>
           <Text fontSize={14} appearance="secondaryText">
             {t('Coming sometime in {{year}}.', { year: new Date().getFullYear() })}
