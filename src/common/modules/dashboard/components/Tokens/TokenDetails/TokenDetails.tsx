@@ -58,7 +58,7 @@ const TokenDetails = ({
   const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const [coinGeckoTokenSlug, setTokenCoinGeckoTokenSlug] = useState('')
+  const [coinGeckoTokenSlug, setCoinGeckoTokenSlug] = useState('')
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
   const network = useMemo(
@@ -198,13 +198,8 @@ const TokenDetails = ({
     const tokenInfoUrl = getCoinGeckoTokenApiUrl({ tokenAddr, geckoChainId, geckoNativeCoinId })
     fetch(tokenInfoUrl)
       .then((response) => response.json())
-      .then((result) => setTokenCoinGeckoTokenSlug(result.web_slug))
-      .catch(() => {
-        addToast(t('Token info not found'), { type: 'error' })
-      })
-      .finally(() => {
-        setIsTokenInfoLoading(false)
-      })
+      .then((result) => setCoinGeckoTokenSlug(result.web_slug))
+      .finally(() => setIsTokenInfoLoading(false))
   }, [t, token?.address, token?.networkId, networks, addToast, isOffline, network])
 
   const handleHideToken = () => {
