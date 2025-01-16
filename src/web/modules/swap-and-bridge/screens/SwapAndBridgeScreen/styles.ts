@@ -32,8 +32,7 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.phSm,
-      ...spacings.pt,
-      ...spacings.pbSm
+      ...spacings.pvSm
     },
     secondaryContainerWarning: {
       borderWidth: 1,
@@ -42,11 +41,13 @@ const getStyles = (theme: ThemeProps) =>
     },
     networkSelectorContainer: {
       ...flexbox.directionRow,
+      ...flexbox.justifyEnd,
+      ...flexbox.alignCenter,
       borderBottomWidth: 1,
-      borderBottomColor: theme.secondaryBorder,
-      ...spacings.pbTy,
-      ...spacings.mbSm,
-      ...spacings.phSm
+      borderBottomColor: theme.tertiaryBackground,
+      ...spacings.mbTy,
+      ...spacings.phSm,
+      ...spacings.pbTy
     },
     previewRouteContainer: {
       backgroundColor: '#F5F6FA',
