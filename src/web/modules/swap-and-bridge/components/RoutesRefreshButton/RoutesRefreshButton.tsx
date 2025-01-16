@@ -53,7 +53,7 @@ const RoutesRefreshButton = ({ width = 32, height = 32 }: SvgProps) => {
     }
   }, [])
 
-  const offset = useMemo(() => circumference - (progress / 100) * circumference, [progress])
+  const offset = useMemo(() => (progress / 100) * circumference, [progress])
 
   const spinAnimation = useState(new Animated.Value(1))[0]
 
@@ -128,7 +128,7 @@ const RoutesRefreshButton = ({ width = 32, height = 32 }: SvgProps) => {
             fill="none"
             strokeWidth={strokeWidth + 1}
             strokeDasharray={circumference}
-            strokeDashoffset={offset}
+            strokeDashoffset={-offset}
             transform="rotate(-90 11 11)"
           />
           <G transform="translate(-3.5 -3.5)">
