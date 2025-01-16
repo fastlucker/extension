@@ -93,9 +93,20 @@ const useGetTokenSelectProps = ({
       const tooltipId = `token-${t.address}-on-network-${network?.chainId}-not-supported-tooltip`
       const isTokenNetworkSupported = getIsNetworkSupported(supportedChainIds, network)
       const isInAccPortfolio = isToToken ? (t as SwapAndBridgeToToken).isInAccPortfolio : true
-      const balanceUSDFormatted = isToToken
-        ? (t as SwapAndBridgeToToken).formattedTokenDetails?.balanceUSDFormatted
-        : getAndFormatTokenDetails(t as TokenResult, networks)?.balanceUSDFormatted
+      const { balanceUSDFormatted, balanceFormatted } = isToToken
+        ? (t as SwapAndBridgeToToken).formattedTokenDetails || {}
+        : getAndFormatTokenDetails(t as TokenResult, networks)
+
+      const formattedBalancesLabel = !!balanceUSDFormatted && (
+        <View style={flexbox.alignEnd}>
+          <Text fontSize={14} appearance="secondaryText">
+            {balanceUSDFormatted}
+          </Text>
+          <Text fontSize={10} appearance="secondaryText">
+            {balanceFormatted}
+          </Text>
+        </View>
+      )
 
       const label = isToToken ? (
         <>
@@ -113,11 +124,7 @@ const useGetTokenSelectProps = ({
               {name}
             </Text>
           </View>
-          {!!balanceUSDFormatted && (
-            <Text fontSize={14} appearance="secondaryText">
-              {balanceUSDFormatted}
-            </Text>
-          )}
+          {formattedBalancesLabel}
           {!isTokenNetworkSupported && (
             <NotSupportedNetworkTooltip tooltipId={tooltipId} network={network} />
           )}
@@ -135,11 +142,7 @@ const useGetTokenSelectProps = ({
               {network?.name || 'Unknown network'}
             </Text>
           </Text>
-          {!!balanceUSDFormatted && (
-            <Text fontSize={14} appearance="secondaryText">
-              {balanceUSDFormatted}
-            </Text>
-          )}
+          {formattedBalancesLabel}
           {!isTokenNetworkSupported && (
             <NotSupportedNetworkTooltip tooltipId={tooltipId} network={network} />
           )}
