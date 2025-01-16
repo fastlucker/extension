@@ -114,8 +114,7 @@ const ToTokenSelect: React.FC<Props> = ({
       emptyListPlaceholderText={
         isAttemptingToAddToTokenByAddress ? t('Pulling token details...') : notFoundPlaceholderText
       }
-      // TODO: Support these for the <SectionedSelect component
-      // attemptToFetchMoreOptions={handleAttemptToFetchMoreOptions}
+      attemptToFetchMoreOptions={handleAttemptToFetchMoreOptions}
       containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
       selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
     />

@@ -28,10 +28,10 @@ export type CommonSelectProps = {
   searchPlaceholder?: string
   testID?: string
   extraSearchProps?: { [key: string]: string }
+  attemptToFetchMoreOptions?: (search: string) => void
 }
 export type SelectProps = CommonSelectProps & {
   options: SelectValue[]
-  attemptToFetchMoreOptions?: (search: string) => void
 }
 
 export type SectionedSelectProps = CommonSelectProps &

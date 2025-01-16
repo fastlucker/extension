@@ -2,6 +2,8 @@
 import React, { useMemo } from 'react'
 import { SectionList } from 'react-native'
 
+import usePrevious from '@common/hooks/usePrevious'
+
 import EmptyListPlaceholder from './components/EmptyListPlaceholder'
 import SelectContainer from './components/SelectContainer'
 import { SectionedSelectProps, SelectValue } from './types'
@@ -16,11 +18,13 @@ const SectionedSelect = ({
   SectionSeparatorComponent,
   stickySectionHeadersEnabled,
   emptyListPlaceholderText,
+  attemptToFetchMoreOptions,
   testID,
   ...props
 }: SectionedSelectProps) => {
   const selectData = useSelectInternal({ menuOptionHeight, setValue, value })
   const { renderItem, keyExtractor, search } = selectData
+  const prevSearch = usePrevious(search)
 
   const filteredSections = useMemo(() => {
     if (!search) return sections
@@ -63,10 +67,14 @@ const SectionedSelect = ({
       }
     })
 
-    return sectionsWithFilteredData.every((section) => section.data.length === 0)
-      ? []
-      : sectionsWithFilteredData
-  }, [sections, search])
+    const noMatchesFound = sectionsWithFilteredData.every((section) => section.data.length === 0)
+    const isAnotherSearchTerm = search !== prevSearch
+    const shouldAttemptToFetchMoreOptions =
+      noMatchesFound && isAnotherSearchTerm && !!attemptToFetchMoreOptions
+    if (shouldAttemptToFetchMoreOptions) attemptToFetchMoreOptions(search)
+
+    return noMatchesFound ? [] : sectionsWithFilteredData
+  }, [sections, search, attemptToFetchMoreOptions, prevSearch])
 
   return (
     <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
