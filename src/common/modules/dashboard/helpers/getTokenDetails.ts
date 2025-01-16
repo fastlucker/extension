@@ -1,12 +1,12 @@
 import { formatUnits } from 'ethers'
 
 import { Network } from '@ambire-common/interfaces/network'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { FormattedPendingAmounts, PendingAmounts } from '@ambire-common/libs/portfolio/interfaces'
 import { calculatePendingAmounts } from '@ambire-common/libs/portfolio/pendingAmountsHelper'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
-import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 
 const formatPendingAmounts = (
   pendingAmounts: PendingAmounts | null,
@@ -47,6 +47,7 @@ const formatPendingAmounts = (
   return formattedAmounts
 }
 
+// TODO: Delete (and re-use the one in ambire-common)
 const getTokenDetails = (
   {
     flags: { rewardsType },
