@@ -23,8 +23,8 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter
     },
     arrowStatus: {
-      width: 12,
-      height: 12,
+      width: 14,
+      height: 14,
       borderRadius: 50,
       borderWidth: 1,
       backgroundColor: theme.primaryBackground

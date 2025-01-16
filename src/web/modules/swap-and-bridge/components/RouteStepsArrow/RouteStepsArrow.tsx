@@ -66,7 +66,7 @@ const RouteStepsArrow = ({
         {!(badgePosition === 'middle' && !!badge) && (
           <View>
             {type === 'success' ? (
-              <CheckIcon width={12} height={12} color={theme.successDecorative} />
+              <CheckIcon width={14} height={14} color={theme.successDecorative} />
             ) : (
               <Animated.View
                 style={[
