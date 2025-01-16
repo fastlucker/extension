@@ -4,7 +4,10 @@ import { Linking } from 'react-native'
 
 import { allBundlers, BUNDLER } from '@ambire-common/consts/bundlers'
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
-import { AccountOpIdentifiedBy } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import {
+  AccountOpIdentifiedBy,
+  SubmittedAccountOp
+} from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
 import { getDefaultBundler } from '@ambire-common/services/bundlers/getBundler'
 import { getRpcProvider } from '@ambire-common/services/provider'
@@ -25,6 +28,7 @@ const standardOptions = {
 
 interface Props {
   onOpenExplorer?: () => void
+  extensionAccOp?: SubmittedAccountOp
 }
 
 const getParams = (search?: string) => {
@@ -53,7 +57,7 @@ const getChainId = (networkId: string | null, paramsChainId: string | null) => {
   return String(chainIdDerivedFromNetworkId)
 }
 
-const useBenzin = ({ onOpenExplorer }: Props = {}) => {
+const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
   const { addToast } = useToast()
   const route = useRoute()
   const {
@@ -94,7 +98,8 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     standardOptions,
     setActiveStep,
     provider,
-    bundler: userOpBundler
+    bundler: userOpBundler,
+    extensionAccOp
   })
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
