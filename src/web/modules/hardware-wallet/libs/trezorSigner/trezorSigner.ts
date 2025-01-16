@@ -273,6 +273,11 @@ class TrezorSigner implements KeystoreSigner {
 
     return addHexPrefix(res.payload.signature)
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  async sign7702(hex: string): Promise<string> {
+    throw new Error('not support', { cause: hex })
+  }
 }
 
 export default TrezorSigner

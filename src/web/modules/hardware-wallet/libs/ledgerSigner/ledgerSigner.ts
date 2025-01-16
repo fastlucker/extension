@@ -7,9 +7,7 @@ import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, {
-  ledgerService
-} from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, { ledgerService } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -173,6 +171,11 @@ class LedgerSigner implements KeystoreSigner {
           'Signing the message failed. Please try again or contact Ambire support if issue persists.'
       )
     }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async sign7702(hex: string): Promise<string> {
+    throw new Error('not support', { cause: hex })
   }
 }
 
