@@ -99,7 +99,7 @@ const useGetTokenSelectProps = ({
 
       const formattedBalancesLabel = !!balanceUSDFormatted && (
         <View style={flexbox.alignEnd}>
-          <Text fontSize={14} appearance="secondaryText">
+          <Text fontSize={14} weight="medium" appearance="primaryText">
             {balanceUSDFormatted}
           </Text>
           <Text fontSize={10} appearance="secondaryText">
@@ -112,15 +112,15 @@ const useGetTokenSelectProps = ({
         <>
           <View dataSet={{ tooltipId }} style={flexbox.flex1}>
             <Text numberOfLines={1}>
-              <Text fontSize={16} weight="medium">
+              <Text fontSize={14} weight="medium">
                 {symbol}
               </Text>
-              <Text fontSize={12} appearance="secondaryText">
+              <Text fontSize={10} appearance="secondaryText">
                 {' '}
                 ({shortenAddress(t.address, 13)})
               </Text>
             </Text>
-            <Text numberOfLines={1} fontSize={12}>
+            <Text numberOfLines={1} fontSize={10}>
               {name}
             </Text>
           </View>
