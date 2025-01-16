@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Animated, Easing, Pressable, View } from 'react-native'
 import { Circle, G, Path, Svg, SvgProps } from 'react-native-svg'
 
+import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import usePrevious from '@common/hooks/usePrevious'
@@ -15,10 +16,12 @@ const radius = 9.5
 const strokeWidth = 1
 const circumference = 2 * Math.PI * radius
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+
 const RoutesRefreshButton = ({ width = 32, height = 32 }: SvgProps) => {
   const [progress, setProgress] = useState(0)
   const { dispatch } = useBackgroundService()
-  const { updateQuoteStatus } = useSwapAndBridgeControllerState()
+  const { updateQuoteStatus, formStatus } = useSwapAndBridgeControllerState()
   const prevUpdateQuoteStatus = usePrevious(updateQuoteStatus)
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -52,17 +55,56 @@ const RoutesRefreshButton = ({ width = 32, height = 32 }: SvgProps) => {
 
   const offset = useMemo(() => circumference - (progress / 100) * circumference, [progress])
 
+  const spinAnimation = useState(new Animated.Value(1))[0]
+
+  useEffect(() => {
+    if (updateQuoteStatus === 'LOADING') {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(spinAnimation, {
+            toValue: 0,
+            duration: 450,
+            easing: Easing.linear,
+            useNativeDriver: false
+          }),
+          Animated.timing(spinAnimation, {
+            toValue: 1,
+            duration: 450,
+            easing: Easing.linear,
+            useNativeDriver: false
+          })
+        ])
+      ).start()
+    } else {
+      spinAnimation.stopAnimation()
+    }
+  }, [updateQuoteStatus, spinAnimation])
+
+  const opacityInterpolation = spinAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.1, 0.8]
+  })
+
   const handleOnPress = useCallback(() => {
     dispatch({
       type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE'
     })
   }, [dispatch])
 
+  const opacity = useMemo(() => {
+    if (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+      return 0
+    }
+    if (updateQuoteStatus === 'LOADING') return opacityInterpolation
+
+    return 1
+  }, [formStatus, opacityInterpolation, updateQuoteStatus])
+
   return (
     <>
-      <Pressable
+      <AnimatedPressable
         onPress={handleOnPress}
-        style={{ opacity: updateQuoteStatus === 'LOADING' ? 0.5 : 1 }}
+        style={{ opacity }}
         disabled={updateQuoteStatus === 'LOADING'}
         // @ts-ignore
         dataSet={{ tooltipId: 'export-icon-tooltip' }}
@@ -113,7 +155,7 @@ const RoutesRefreshButton = ({ width = 32, height = 32 }: SvgProps) => {
             />
           </G>
         </Svg>
-      </Pressable>
+      </AnimatedPressable>
       <Tooltip
         id="export-icon-tooltip"
         place="right"
