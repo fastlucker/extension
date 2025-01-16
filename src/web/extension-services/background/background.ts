@@ -148,6 +148,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
     updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
     updateSwapAndBridgeQuoteInterval?: ReturnType<typeof setTimeout>
+    swapAndBridgeQuoteStatus: 'INITIAL' | 'LOADING'
     gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
@@ -167,6 +168,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     },
     activityRefreshInterval: 5000,
     hasSignAccountOpCtrlInitialized: false,
+    swapAndBridgeQuoteStatus: 'INITIAL',
     portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
   }
 
@@ -376,6 +378,18 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       delete backgroundState.updateSwapAndBridgeQuoteInterval
       return
     }
+
+    // This logic is triggered when the user manually refreshes the quotes,
+    // resetting the interval to synchronize with the UI.
+    if (
+      backgroundState.updateSwapAndBridgeQuoteInterval &&
+      backgroundState.swapAndBridgeQuoteStatus === 'LOADING' &&
+      mainCtrl.swapAndBridge.updateQuoteStatus === 'INITIAL'
+    ) {
+      clearTimeout(backgroundState.updateSwapAndBridgeQuoteInterval)
+      delete backgroundState.updateSwapAndBridgeQuoteInterval
+    }
+
     if (backgroundState.updateSwapAndBridgeQuoteInterval) return
 
     async function updateSwapAndBridgeQuote() {
@@ -666,6 +680,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             if (ctrlName === 'swapAndBridge') {
               initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
               initSwapAndBridgeQuoteContinuousUpdate()
+              backgroundState.swapAndBridgeQuoteStatus = controller.updateQuoteStatus
             }
           }, 'background')
         }
