@@ -238,7 +238,11 @@ const SwapAndBridgeScreen = () => {
                       searchPlaceholder={t('Token name or address...')}
                       emptyListPlaceholderText={t('No tokens found.')}
                       containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
-                      selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+                      selectStyle={{
+                        backgroundColor: '#54597A14',
+                        borderWidth: 0,
+                        ...spacings.phTy
+                      }}
                     />
                   </View>
                   <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.ptSm]}>
@@ -307,15 +311,44 @@ const SwapAndBridgeScreen = () => {
                 >
                   {t('Receive')}
                 </Text>
-                <View style={styles.secondaryContainer}>
-                  <View style={[flexbox.directionRow, spacings.mb]}>
+                <View style={[styles.secondaryContainer, spacings.ph0]}>
+                  <View style={styles.networkSelectorContainer}>
+                    <Text appearance="secondaryText" fontSize={14} style={spacings.mrTy}>
+                      {t('Network')}
+                    </Text>
                     <Select
                       setValue={handleSetToNetworkValue}
-                      containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
+                      containerStyle={{ ...spacings.mb0, width: 215 }}
                       options={toNetworksOptions}
+                      size="sm"
                       value={getToNetworkSelectValue}
                       selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
                     />
+                  </View>
+                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm]}>
+                    <View style={[flexbox.flex1]}>
+                      <Text
+                        fontSize={20}
+                        weight="medium"
+                        numberOfLines={1}
+                        appearance={
+                          formattedToAmount && formattedToAmount !== '0'
+                            ? 'primaryText'
+                            : 'secondaryText'
+                        }
+                        style={spacings.mr}
+                      >
+                        {formattedToAmount}
+                        {!!formattedToAmount &&
+                          formattedToAmount !== '0' &&
+                          !!quote?.selectedRoute && (
+                            <Text fontSize={20} appearance="secondaryText">{` (${formatDecimals(
+                              quote.selectedRoute.outputValueInUsd,
+                              'price'
+                            )})`}</Text>
+                          )}
+                      </Text>
+                    </View>
                     <ToTokenSelect
                       toTokenOptions={toTokenOptions}
                       toTokenValue={toTokenValue}
@@ -324,25 +357,6 @@ const SwapAndBridgeScreen = () => {
                       handleAddToTokenByAddress={handleAddToTokenByAddress}
                     />
                   </View>
-
-                  <Text
-                    fontSize={20}
-                    weight="medium"
-                    numberOfLines={1}
-                    appearance={
-                      formattedToAmount && formattedToAmount !== '0'
-                        ? 'primaryText'
-                        : 'secondaryText'
-                    }
-                  >
-                    {formattedToAmount}
-                    {!!formattedToAmount && formattedToAmount !== '0' && !!quote?.selectedRoute && (
-                      <Text fontSize={20} appearance="secondaryText">{` (${formatDecimals(
-                        quote.selectedRoute.outputValueInUsd,
-                        'price'
-                      )})`}</Text>
-                    )}
-                  </Text>
                 </View>
               </View>
 
