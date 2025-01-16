@@ -24,6 +24,7 @@ export type CommonSelectProps = {
   disabled?: boolean
   menuOptionHeight?: number
   menuStyle?: ViewStyle
+  menuLeftHorizontalOffset?: number
   withSearch?: boolean
   searchPlaceholder?: string
   testID?: string
