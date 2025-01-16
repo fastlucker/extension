@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard'
-import React, { useContext, useEffect } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface, ImportStatus } from '@ambire-common/interfaces/account'
@@ -12,9 +12,11 @@ import BadgeWithPreset from '@common/components/BadgeWithPreset'
 import Checkbox from '@common/components/Checkbox'
 import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
+import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -55,30 +57,50 @@ const Account = ({
   importStatus: ImportStatus
   displayTypeBadge?: boolean
 }) => {
+  const { isLoading: isDomainResolving, ens, ud } = useReverseLookup({ address: account.addr })
+  const domainName = ens || ud
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { setShowIntroSteps } = useContext(AccountAdderIntroStepsContext)
   const { minWidthSize, maxWidthSize } = useWindowSize()
   const { addToast } = useToast()
-  if (!account.addr) return null
   const isAccountImported = importStatus !== ImportStatus.NotImported
 
-  const toggleSelectedState = () => {
+  const toggleSelectedState = useCallback(() => {
     if (isSelected) {
       !!onDeselect && onDeselect(account)
     } else {
       !!onSelect && onSelect(account)
     }
-  }
+  }, [isSelected, onSelect, onDeselect, account])
+
+  const formattedAddress = useMemo(() => {
+    if (minWidthSize('m') || domainName) {
+      return shortenAddress(account.addr, 16)
+    }
+    if (maxWidthSize('m') && minWidthSize('l')) {
+      return shortenAddress(account.addr, 26)
+    }
+    if (maxWidthSize('l')) {
+      return account.addr
+    }
+    return shortenAddress(account.addr, 16)
+  }, [account.addr, domainName, maxWidthSize, minWidthSize])
 
   useEffect(() => {
     if (shouldAddIntroStepsIds) setShowIntroSteps(true)
   }, [shouldAddIntroStepsIds, setShowIntroSteps])
 
-  const handleCopyAddress = () => {
+  const handleCopyAddress = useCallback(() => {
     Clipboard.setStringAsync(account.addr)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
+  }, [account.addr, addToast, t])
+
+  if (isDomainResolving) {
+    return <SkeletonLoader height={56} width="100%" />
   }
+
+  if (!account.addr) return null
 
   return (
     <Pressable
@@ -138,19 +160,31 @@ const Account = ({
                   <Tooltip content={account.addr} id={account.addr} />
                 </>
               ) : (
-                <Text
-                  testID={`add-account-${account.addr}`}
-                  fontSize={16}
-                  appearance="primaryText"
-                  style={spacings.mrMi}
-                >
-                  {minWidthSize('m') && shortenAddress(account.addr, 16)}
-                  {maxWidthSize('m') && minWidthSize('l') && shortenAddress(account.addr, 26)}
-                  {maxWidthSize('l') && account.addr}
-                </Text>
+                <>
+                  {domainName ? (
+                    <Text
+                      fontSize={16}
+                      weight="medium"
+                      appearance="primaryText"
+                      style={spacings.mrTy}
+                    >
+                      {domainName}
+                    </Text>
+                  ) : null}
+                  <Text
+                    testID={`add-account-${account.addr}`}
+                    fontSize={domainName ? 14 : 16}
+                    appearance={domainName ? 'secondaryText' : 'primaryText'}
+                    style={spacings.mrMi}
+                  >
+                    {domainName ? '(' : ''}
+                    {formattedAddress}
+                    {domainName ? ')' : ''}
+                  </Text>
+                </>
               )}
 
-              {(minWidthSize('l') || isAccountImported) && (
+              {(minWidthSize('l') || isAccountImported || domainName) && (
                 <Pressable onPress={handleCopyAddress}>
                   <CopyIcon width={14} height={14} />
                 </Pressable>

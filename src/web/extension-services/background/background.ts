@@ -14,7 +14,7 @@ import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridg
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
-import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { AccountOp, AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -95,6 +95,19 @@ let mainCtrl: MainController
 handleRegisterScripts()
 handleKeepAlive()
 
+function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
+  // 5s + new Date().getTime() - timestamp of newest op / 10
+  // here are some example of what this means:
+  // 1s diff between now and newestOpTimestamp: 5.1s
+  // 10s diff between now and newestOpTimestamp: 6s
+  // 60s diff between now and newestOpTimestamp: 11s
+  // 5m diff between now and newestOpTimestamp: 35s
+  // 10m diff between now and newestOpTimestamp: 65s
+  return newestOpTimestamp === 0
+    ? constUpdateInterval
+    : constUpdateInterval + (new Date().getTime() - newestOpTimestamp) / 10
+}
+
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
@@ -126,6 +139,7 @@ handleKeepAlive()
       retriedFastAccountStateReFetchForNetworks: string[]
       fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
+    activityRefreshInterval: number
     hasSignAccountOpCtrlInitialized: boolean
     portfolioLastUpdatedByIntervalAt: number
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
@@ -151,6 +165,7 @@ handleKeepAlive()
       standBy: 300000,
       retriedFastAccountStateReFetchForNetworks: []
     },
+    activityRefreshInterval: 5000,
     hasSignAccountOpCtrlInitialized: false,
     portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
   }
@@ -235,6 +250,12 @@ handleKeepAlive()
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
   const extensionUpdateCtrl = new ExtensionUpdateController()
 
+  function hasBroadcastedButNotConfirmed() {
+    return !!Object.values(mainCtrl.selectedAccount.portfolio.networkSimulatedAccountOp).find(
+      (accOp) => accOp.status === AccountOpStatus.BroadcastedButNotConfirmed
+    )
+  }
+
   const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000 // 1 minute
   const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000 // 10 minutes
   async function initPortfolioContinuousUpdate() {
@@ -247,8 +268,6 @@ handleKeepAlive()
       : INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
 
     async function updatePortfolio() {
-      const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
-
       // Postpone the portfolio update for the next interval
       // if we have broadcasted but not yet confirmed acc op.
       // Here's why:
@@ -261,7 +280,7 @@ handleKeepAlive()
       //    Once the acc op is confirmed or failed, the portfolio interval will resume as normal.
       // 6. Gotcha: If the user forcefully updates the portfolio, we will also lose the simulation.
       //    However, this is not a frequent case, and we can make a compromise here.
-      if (hasBroadcastedButNotConfirmed) {
+      if (hasBroadcastedButNotConfirmed()) {
         backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
         return
       }
@@ -312,10 +331,11 @@ handleKeepAlive()
       clearTimeout(backgroundState.accountsOpsStatusesInterval)
 
     async function updateStatuses() {
-      await mainCtrl.updateAccountsOpsStatuses()
+      const { newestOpTimestamp } = await mainCtrl.updateAccountsOpsStatuses()
 
       // Schedule the next update only when the previous one completes
-      backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+      const interval = getIntervalRefreshTime(updateInterval, newestOpTimestamp)
+      backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, interval)
     }
 
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
@@ -429,9 +449,16 @@ handleKeepAlive()
         clearTimeout(backgroundState.accountStatePendingInterval)
       } else {
         // Schedule the next update
+        const newestOpTimestamp = mainCtrl.activity.broadcastedButNotConfirmed.reduce(
+          (newestTimestamp, accOp) => {
+            return accOp.timestamp > newestTimestamp ? accOp.timestamp : newestTimestamp
+          },
+          0
+        )
+        const interval = getIntervalRefreshTime(intervalLength, newestOpTimestamp)
         backgroundState.accountStatePendingInterval = setTimeout(
           () => updateAccountState(networksToUpdate),
-          intervalLength
+          interval
         )
       }
     }
@@ -540,6 +567,7 @@ handleKeepAlive()
     if (mainCtrl.statuses.broadcastSignedAccountOp === 'SUCCESS') {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
+      initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
     }
 
     Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
@@ -579,7 +607,7 @@ handleKeepAlive()
               if (controller?.broadcastedButNotConfirmed.length) {
                 // If the interval is already set, then do nothing.
                 if (!backgroundState.accountsOpsStatusesInterval) {
-                  initAccountsOpsStatusesContinuousUpdate(5000)
+                  initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
                 }
               } else {
                 !!backgroundState.accountsOpsStatusesInterval &&
@@ -715,12 +743,11 @@ handleKeepAlive()
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
-      const hasBroadcastedButNotConfirmed = !!mainCtrl.activity.broadcastedButNotConfirmed.length
 
       // Update if there is no broadcasted but not confirmed acc op, due to the fact that this will cost it being
       // removed from the UI and we will lose the simulation
       // Also do not trigger update on every new port but only if there is only one port
-      if (pm.ports.length === 1 && port.name === 'popup' && !hasBroadcastedButNotConfirmed) {
+      if (pm.ports.length === 1 && port.name === 'popup' && !hasBroadcastedButNotConfirmed()) {
         try {
           // These promises shouldn't be awaited as that will slow down the popup opening
           mainCtrl.onLoad()

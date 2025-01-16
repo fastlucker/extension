@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -10,7 +10,9 @@ import SeedPhraseIcon from '@common/assets/svg/SeedPhraseIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
+import Checkbox from '@common/components/Checkbox'
 import DualChoiceModal from '@common/components/DualChoiceModal'
+import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -32,15 +34,25 @@ import Card from '@web/modules/auth/components/Card'
 import { showEmailVaultInterest } from '@web/modules/auth/utils/emailVault'
 import { getExtensionInstanceId } from '@web/utils/analytics'
 
+import getStyles from './style'
+
 const HotWalletImportSelectorScreen = () => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { isReadyToStoreKeys, hasKeystoreSavedSeed, keyStoreUid } = useKeystoreControllerState()
   const { addToast } = useToast()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const {
+    ref: privateKeySheetRef,
+    open: openPrivateKeyBottomSheet,
+    close: closePrivateKeyBottomSheet
+  } = useModalize()
   const { accounts } = useAccountsControllerState()
   const accountAdderCtrlState = useAccountAdderControllerState()
+  const [isWarning1Checked, setIsWarning1Checked] = useState(false)
+  const [isWarning2Checked, setIsWarning2Checked] = useState(false)
+
   useEffect(() => {
     if (
       accountAdderCtrlState.isInitialized &&
@@ -83,46 +95,74 @@ const HotWalletImportSelectorScreen = () => {
   }, [navigate, isReadyToStoreKeys])
 
   const isImportOnly = hasKeystoreSavedSeed || accounts.length
-  const onOptionPress = async (flow: string) => {
-    if (flow === 'seed') {
-      // if the extension has already been init once, this option
-      // will allow import a seed only as it will be availableo only
-      // from the bottom sheet
-      if (isImportOnly) {
-        // if you've added a view only account / hardware wallet,
-        // you won't have a device password => check it
-        if (!isReadyToStoreKeys) {
-          navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'seed' } })
+  const onOptionPress = useCallback(
+    async (flow: string) => {
+      if (flow === 'seed') {
+        // if the extension has already been init once, this option
+        // will allow import a seed only as it will be availableo only
+        // from the bottom sheet
+        if (isImportOnly) {
+          // if you've added a view only account / hardware wallet,
+          // you won't have a device password => check it
+          if (!isReadyToStoreKeys) {
+            navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'seed' } })
+            return
+          }
+
+          handleImportFromExternalSeed()
           return
         }
 
-        handleImportFromExternalSeed()
+        openBottomSheet()
         return
       }
 
-      openBottomSheet()
-      return
-    }
+      if (flow === 'email') {
+        await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
+        return
+      }
+      if (flow === 'private-key') {
+        openPrivateKeyBottomSheet()
+        return
+      }
 
-    if (flow === 'email') {
-      await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
-      return
-    }
+      if (!isReadyToStoreKeys) {
+        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
+        return
+      }
 
+      if (flow === 'import-json') {
+        navigate(WEB_ROUTES.importSmartAccountJson)
+      }
+
+      // @TODO: Implement email vault
+    },
+    [
+      accounts.length,
+      addToast,
+      handleImportFromExternalSeed,
+      isImportOnly,
+      isReadyToStoreKeys,
+      keyStoreUid,
+      navigate,
+      openBottomSheet,
+      openPrivateKeyBottomSheet
+    ]
+  )
+
+  const closePrivateKeyBottomSheetWrapped = useCallback(() => {
+    setIsWarning1Checked(false)
+    setIsWarning2Checked(false)
+    closePrivateKeyBottomSheet()
+  }, [closePrivateKeyBottomSheet])
+
+  const handlePrivateKeyBottomSheetProceed = useCallback(() => {
     if (!isReadyToStoreKeys) {
-      navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
+      navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'private-key' } })
       return
     }
-    if (flow === 'private-key') {
-      navigate(WEB_ROUTES.importPrivateKey)
-    }
-
-    if (flow === 'import-json') {
-      navigate(WEB_ROUTES.importSmartAccountJson)
-    }
-
-    // @TODO: Implement email vault
-  }
+    navigate(WEB_ROUTES.importPrivateKey)
+  }, [isReadyToStoreKeys, navigate])
 
   const options = [
     {
@@ -212,6 +252,55 @@ const HotWalletImportSelectorScreen = () => {
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
+
+      <BottomSheet
+        id="import-private-key-warning"
+        sheetRef={privateKeySheetRef}
+        closeBottomSheet={closePrivateKeyBottomSheetWrapped}
+        backgroundColor="secondaryBackground"
+        style={styles.warningModal}
+      >
+        <DualChoiceWarningModal
+          title={t('Dangers of importing a Private Key')}
+          Icon={ImportFromDefaultOrExternalSeedIcon}
+          onPrimaryButtonPress={handlePrivateKeyBottomSheetProceed}
+          onSecondaryButtonPress={closePrivateKeyBottomSheetWrapped}
+          secondaryButtonText={t('Cancel')}
+          primaryButtonText={t('Proceed')}
+          primaryButtonProps={{
+            disabled: !isWarning1Checked || !isWarning2Checked,
+            testID: 'proceed-btn'
+          }}
+        >
+          <View style={spacings.mbSm}>
+            <Checkbox
+              testID="private-key-warning-checkbox-1"
+              label={t(
+                'I understand that this private key cannot be tied to the main seed phrase and therefore it cannot be recovered using your main seed phrase. I am responsible of safekeeping this private key separately, as it cannot be recovered using the built-in Ambire methods.'
+              )}
+              labelProps={{ fontSize: 14 }}
+              value={isWarning1Checked}
+              onValueChange={setIsWarning1Checked}
+            />
+            <Checkbox
+              testID="private-key-warning-checkbox-2"
+              label={t(
+                'I understand that I can only import a Basic Account (EOA) from this private key.'
+              )}
+              labelProps={{ fontSize: 14 }}
+              value={isWarning2Checked}
+              onValueChange={setIsWarning2Checked}
+            />
+          </View>
+          <Alert
+            type="info"
+            title={t(
+              'Pro tip: to import a Smart Account, you can use a hardware wallet, an existing seed phrase or a new seed phrase.'
+            )}
+            size="sm"
+          />
+        </DualChoiceWarningModal>
+      </BottomSheet>
 
       <BottomSheet
         id="create-or-import-seed-phrase"

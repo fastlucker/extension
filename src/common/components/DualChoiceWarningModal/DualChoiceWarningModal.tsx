@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import { View, ViewStyle } from 'react-native'
 
 import WarningIcon from '@common/assets/svg/WarningIcon'
-import Button from '@common/components/Button'
+import Button, { Props as ButtonProps } from '@common/components/Button'
 import { Props as DualChoiceModalProps } from '@common/components/DualChoiceModal/DualChoiceModal'
 import CommonText from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -57,16 +57,24 @@ const DualChoiceWarningModal = ({
   onSecondaryButtonPress,
   onPrimaryButtonPress,
   primaryButtonText,
+  children,
   secondaryButtonText,
-  primaryButtonTestID,
-  secondaryButtonTestID
-}: Omit<DualChoiceModalProps, 'description'> & { title: string; description?: string }) => {
+  primaryButtonProps,
+  secondaryButtonProps
+}: Omit<DualChoiceModalProps, 'description' | 'primaryButtonTestID' | 'secondaryButtonTestID'> & {
+  title: string
+  description?: string
+  children?: React.ReactNode | React.ReactNode[]
+  primaryButtonProps?: ButtonProps
+  secondaryButtonProps?: ButtonProps
+}) => {
   const { theme } = useTheme()
   return (
     <Wrapper>
       <ContentWrapper>
-        <TitleAndIcon style={spacings.mbXl} title={title} />
+        <TitleAndIcon title={title} />
         {!!description && <Text text={description} />}
+        {children}
       </ContentWrapper>
       <ButtonWrapper>
         <Button
@@ -74,8 +82,8 @@ const DualChoiceWarningModal = ({
           onPress={onPrimaryButtonPress}
           type="warning"
           hasBottomSpacing={false}
-          testID={primaryButtonTestID}
           style={spacings.ph2Xl}
+          {...primaryButtonProps}
         />
         {secondaryButtonText && onSecondaryButtonPress && (
           <Button
@@ -83,9 +91,9 @@ const DualChoiceWarningModal = ({
             onPress={onSecondaryButtonPress}
             type="outline"
             hasBottomSpacing={false}
-            testID={secondaryButtonTestID}
             style={spacings.phXl}
             accentColor={theme.secondaryText}
+            {...secondaryButtonProps}
           />
         )}
       </ButtonWrapper>
@@ -93,6 +101,7 @@ const DualChoiceWarningModal = ({
   )
 }
 
+DualChoiceWarningModal.Wrapper = Wrapper
 DualChoiceWarningModal.TitleAndIcon = TitleAndIcon
 DualChoiceWarningModal.Text = Text
 DualChoiceWarningModal.ContentWrapper = ContentWrapper
