@@ -594,7 +594,7 @@ const useSteps = ({
         ? decodeUserOp(userOp)
         : reproduceCallsFromTxn(txn)
       const accountOp: AccountOp = {
-        accountAddr: userOp?.sender || account || txnReceipt.originatedFrom || 'fetching...',
+        accountAddr: userOp?.sender || account || txnReceipt.originatedFrom || 'Loading...',
         networkId: network.id,
         signingKeyAddr: txnReceipt.originatedFrom, // irrelevant
         signingKeyType: 'internal', // irrelevant
@@ -607,7 +607,7 @@ const useSteps = ({
       }
       const humanizedCalls = humanizeAccountOp(accountOp, { network })
       setCalls(parseHumanizer(humanizedCalls))
-      setFrom(account ?? 'fetching...')
+      setFrom(account ?? 'Loading...')
     }
   }, [network, txnReceipt, txn, userOpHash, userOp, txnId, calls.length, extensionAccOp, from])
 
