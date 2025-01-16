@@ -111,10 +111,10 @@ const ToTokenSelect: React.FC<Props> = ({
       value={toTokenValue}
       testID="to-token-select"
       searchPlaceholder={t('Token name or address...')}
+      emptyListPlaceholderText={
+        isAttemptingToAddToTokenByAddress ? t('Pulling token details...') : notFoundPlaceholderText
+      }
       // TODO: Support these for the <SectionedSelect component
-      // emptyListPlaceholderText={
-      //   isAttemptingToAddToTokenByAddress ? t('Pulling token details...') : notFoundPlaceholderText
-      // }
       // attemptToFetchMoreOptions={handleAttemptToFetchMoreOptions}
       containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
       selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}

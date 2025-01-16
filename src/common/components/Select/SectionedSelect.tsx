@@ -15,6 +15,7 @@ const SectionedSelect = ({
   renderSectionHeader,
   SectionSeparatorComponent,
   stickySectionHeadersEnabled,
+  emptyListPlaceholderText,
   testID,
   ...props
 }: SectionedSelectProps) => {
@@ -79,7 +80,7 @@ const SectionedSelect = ({
         maxToRenderPerBatch={20}
         SectionSeparatorComponent={SectionSeparatorComponent}
         removeClippedSubviews
-        ListEmptyComponent={<EmptyListPlaceholder />}
+        ListEmptyComponent={<EmptyListPlaceholder placeholderText={emptyListPlaceholderText} />}
         stickySectionHeadersEnabled={stickySectionHeadersEnabled}
       />
     </SelectContainer>
