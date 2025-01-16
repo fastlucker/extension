@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { Network } from '@ambire-common/interfaces/network'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { getAndFormatTokenDetails } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Text from '@common/components/Text'
@@ -92,6 +93,9 @@ const useGetTokenSelectProps = ({
       const tooltipId = `token-${t.address}-on-network-${network?.chainId}-not-supported-tooltip`
       const isTokenNetworkSupported = getIsNetworkSupported(supportedChainIds, network)
       const isInAccPortfolio = isToToken ? (t as SwapAndBridgeToToken).isInAccPortfolio : true
+      const balanceUSDFormatted = isToToken
+        ? (t as SwapAndBridgeToToken).formattedTokenDetails?.balanceUSDFormatted
+        : getAndFormatTokenDetails(t as TokenResult, networks)?.balanceUSDFormatted
 
       const label = isToToken ? (
         <>
@@ -109,6 +113,11 @@ const useGetTokenSelectProps = ({
               {name}
             </Text>
           </View>
+          {!!balanceUSDFormatted && (
+            <Text fontSize={14} appearance="secondaryText">
+              {balanceUSDFormatted}
+            </Text>
+          )}
           {!isTokenNetworkSupported && (
             <NotSupportedNetworkTooltip tooltipId={tooltipId} network={network} />
           )}
@@ -126,6 +135,11 @@ const useGetTokenSelectProps = ({
               {network?.name || 'Unknown network'}
             </Text>
           </Text>
+          {!!balanceUSDFormatted && (
+            <Text fontSize={14} appearance="secondaryText">
+              {balanceUSDFormatted}
+            </Text>
+          )}
           {!isTokenNetworkSupported && (
             <NotSupportedNetworkTooltip tooltipId={tooltipId} network={network} />
           )}
