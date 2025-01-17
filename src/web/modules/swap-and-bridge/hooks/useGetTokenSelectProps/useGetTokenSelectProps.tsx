@@ -124,16 +124,26 @@ const useGetTokenSelectProps = ({
     const simulatedAccountOp = portfolio.networkSimulatedAccountOp[networkId]
     const tokenInPortfolio = getIsToTokenTypeGuard(currentToken)
       ? portfolio.tokens.find(
-          (pt) => pt.address === currentToken.address && pt.networkId === networkId
+          (pt) =>
+            pt.address === currentToken.address &&
+            pt.networkId === networkId &&
+            !pt.flags.onGasTank &&
+            !pt.flags.rewardsType
         )
       : currentToken
     const tokenAmounts = portfolio.tokenAmounts.find((tAmount) => {
       const isOnGasTank = getIsToTokenTypeGuard(currentToken)
         ? tokenInPortfolio?.flags.onGasTank ?? false // always assume false if missing in portfolio
         : currentToken.flags.onGasTank
+      const rewardsType = getIsToTokenTypeGuard(currentToken)
+        ? tokenInPortfolio?.flags.rewardsType ?? null
+        : currentToken.flags.rewardsType
 
       return (
-        tAmount.address === currentToken.address && tAmount.networkId === networkId && !isOnGasTank
+        tAmount.address === currentToken.address &&
+        tAmount.networkId === networkId &&
+        !isOnGasTank &&
+        !rewardsType
       )
     })
 
