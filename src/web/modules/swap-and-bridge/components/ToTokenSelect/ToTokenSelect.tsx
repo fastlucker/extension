@@ -56,7 +56,7 @@ const ToTokenSelect: React.FC<Props> = ({
       }
       attemptToFetchMoreOptions={handleAttemptToFetchMoreOptions}
       containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
-      selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+      selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0, ...spacings.phTy }}
     />
   )
 }

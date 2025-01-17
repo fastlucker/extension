@@ -95,6 +95,19 @@ let mainCtrl: MainController
 handleRegisterScripts()
 handleKeepAlive()
 
+function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
+  // 5s + new Date().getTime() - timestamp of newest op / 10
+  // here are some example of what this means:
+  // 1s diff between now and newestOpTimestamp: 5.1s
+  // 10s diff between now and newestOpTimestamp: 6s
+  // 60s diff between now and newestOpTimestamp: 11s
+  // 5m diff between now and newestOpTimestamp: 35s
+  // 10m diff between now and newestOpTimestamp: 65s
+  return newestOpTimestamp === 0
+    ? constUpdateInterval
+    : constUpdateInterval + (new Date().getTime() - newestOpTimestamp) / 10
+}
+
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
@@ -126,6 +139,7 @@ handleKeepAlive()
       retriedFastAccountStateReFetchForNetworks: string[]
       fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
+    activityRefreshInterval: number
     hasSignAccountOpCtrlInitialized: boolean
     portfolioLastUpdatedByIntervalAt: number
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
@@ -151,6 +165,7 @@ handleKeepAlive()
       standBy: 300000,
       retriedFastAccountStateReFetchForNetworks: []
     },
+    activityRefreshInterval: 5000,
     hasSignAccountOpCtrlInitialized: false,
     portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
   }
@@ -316,10 +331,11 @@ handleKeepAlive()
       clearTimeout(backgroundState.accountsOpsStatusesInterval)
 
     async function updateStatuses() {
-      await mainCtrl.updateAccountsOpsStatuses()
+      const { newestOpTimestamp } = await mainCtrl.updateAccountsOpsStatuses()
 
       // Schedule the next update only when the previous one completes
-      backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
+      const interval = getIntervalRefreshTime(updateInterval, newestOpTimestamp)
+      backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, interval)
     }
 
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
@@ -433,9 +449,16 @@ handleKeepAlive()
         clearTimeout(backgroundState.accountStatePendingInterval)
       } else {
         // Schedule the next update
+        const newestOpTimestamp = mainCtrl.activity.broadcastedButNotConfirmed.reduce(
+          (newestTimestamp, accOp) => {
+            return accOp.timestamp > newestTimestamp ? accOp.timestamp : newestTimestamp
+          },
+          0
+        )
+        const interval = getIntervalRefreshTime(intervalLength, newestOpTimestamp)
         backgroundState.accountStatePendingInterval = setTimeout(
           () => updateAccountState(networksToUpdate),
-          intervalLength
+          interval
         )
       }
     }
@@ -544,6 +567,7 @@ handleKeepAlive()
     if (mainCtrl.statuses.broadcastSignedAccountOp === 'SUCCESS') {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
+      initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
     }
 
     Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
@@ -583,7 +607,7 @@ handleKeepAlive()
               if (controller?.broadcastedButNotConfirmed.length) {
                 // If the interval is already set, then do nothing.
                 if (!backgroundState.accountsOpsStatusesInterval) {
-                  initAccountsOpsStatusesContinuousUpdate(5000)
+                  initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
                 }
               } else {
                 !!backgroundState.accountsOpsStatusesInterval &&
