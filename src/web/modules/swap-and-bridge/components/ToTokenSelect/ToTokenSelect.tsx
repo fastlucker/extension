@@ -53,15 +53,6 @@ const ToTokenSelect: React.FC<Props> = ({
     : t('Not found. Try with token address?')
 
   const selectSections = useMemo(() => {
-    // TODO: No tokens case
-    // if (!toTokenValue.length && !payOptionsPaidByEOA.length)
-    //   return [
-    //     {
-    //       data: [NO_FEE_OPTIONS],
-    //       key: 'no-options'
-    //     }
-    //   ]
-
     const { toTokenOptionsInAccount, restToTokenOptions } = toTokenOptions.reduce<{
       toTokenOptionsInAccount: SelectValue[]
       restToTokenOptions: SelectValue[]
@@ -74,11 +65,9 @@ const ToTokenSelect: React.FC<Props> = ({
             getIsTokenEligibleForSwapAndBridgeToToken(pt)
         )
 
-        if (isInPortfolioAndEligible) {
-          acc.toTokenOptionsInAccount.push(option)
-        } else {
-          acc.restToTokenOptions.push(option)
-        }
+        isInPortfolioAndEligible
+          ? acc.toTokenOptionsInAccount.push(option)
+          : acc.restToTokenOptions.push(option)
 
         return acc
       },
@@ -87,23 +76,17 @@ const ToTokenSelect: React.FC<Props> = ({
 
     return [
       {
-        title: {
-          icon: <CoinsIcon />,
-          text: t('Tokens in the current account')
-        },
+        title: { icon: <CoinsIcon />, text: t('Tokens in the current account') },
         data: toTokenOptionsInAccount,
         key: 'swap-and-bridge-to-account-tokens'
       },
       {
-        title: {
-          icon: <StarFilledIcon />, // TODO: Different icon
-          text: t('Tokens')
-        },
+        title: { icon: <StarFilledIcon />, text: t('Tokens') },
         data: restToTokenOptions,
         key: 'swap-and-bridge-to-service-provider-tokens'
       }
     ]
-  }, [toTokenOptions, t])
+  }, [toTokenOptions, t, portfolio.tokens])
 
   const renderFeeOptionSectionHeader = useCallback(({ section }: any) => {
     if (section.data.length === 0 || !section.title) return null
