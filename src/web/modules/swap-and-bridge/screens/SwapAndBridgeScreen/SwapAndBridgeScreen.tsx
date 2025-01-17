@@ -92,6 +92,7 @@ const SwapAndBridgeScreen = () => {
     isSwitchFromAndToTokensEnabled,
     isHealthy,
     shouldEnableRoutesSelection,
+    updateQuoteStatus,
     statuses: swapAndBridgeCtrlStatuses
   } = useSwapAndBridgeControllerState()
   const { statuses: mainCtrlStatuses } = useMainControllerState()
@@ -369,14 +370,21 @@ const SwapAndBridgeScreen = () => {
               ].includes(formStatus) && (
                 <View
                   style={[
-                    spacings.ptTy,
+                    spacings.mtTy,
                     spacings.mbTy,
                     flexbox.directionRow,
                     flexbox.alignCenter,
                     flexbox.flex1
                   ]}
                 >
-                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <View
+                    style={[
+                      flexbox.directionRow,
+                      flexbox.alignCenter,
+                      flexbox.flex1,
+                      { minHeight: 23.5 } // prevents UI jump
+                    ]}
+                  >
                     <Text
                       appearance="secondaryText"
                       fontSize={14}
@@ -508,7 +516,8 @@ const SwapAndBridgeScreen = () => {
                 disabled={
                   formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
                   shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
-                  mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                  mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
+                  updateQuoteStatus === 'LOADING'
                 }
                 onPress={handleSubmitForm}
               />
