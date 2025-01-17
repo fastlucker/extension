@@ -161,14 +161,14 @@ const useGetTokenSelectProps = ({
         style={flexbox.alignEnd}
       >
         <Text
-          fontSize={14}
+          fontSize={16}
           weight="medium"
           appearance="primaryText"
           color={isPending && theme.warningText}
         >
           {isPending ? pendingBalanceFormatted : balanceUSDFormatted}
         </Text>
-        <Text fontSize={10} appearance="secondaryText" color={isPending && theme.warningText}>
+        <Text fontSize={12} appearance="secondaryText" color={isPending && theme.warningText}>
           {isPending ? pendingBalanceUSDFormatted : balanceFormatted}
         </Text>
         {isPending && (
@@ -221,6 +221,7 @@ const useGetTokenSelectProps = ({
       </View>
     )
 
+    const isNameDifferentThanSymbol = name.toLowerCase() !== symbol.toLowerCase()
     const label = getIsToTokenTypeGuard(currentToken) ? (
       <>
         <View
@@ -229,18 +230,20 @@ const useGetTokenSelectProps = ({
           style={flexbox.flex1}
         >
           <Text numberOfLines={1}>
-            <Text fontSize={14} weight="medium">
-              {symbol}
+            <Text fontSize={16} weight="medium" numberOfLines={1}>
+              {symbol}{' '}
             </Text>
-            <Text fontSize={10} appearance="secondaryText">
-              {' '}
-              ({isSelected ? shortenAddress(currentToken.address, 13) : currentToken.address})
-            </Text>
+            {isNameDifferentThanSymbol && (
+              <Text fontSize={14} appearance="secondaryText">
+                ({name})
+              </Text>
+            )}
           </Text>
-          <Text numberOfLines={1} fontSize={10}>
-            {name}
+          <Text numberOfLines={1} fontSize={12} appearance="secondaryText">
+            {isSelected ? shortenAddress(currentToken.address, 13) : currentToken.address}
           </Text>
         </View>
+
         {!isSelected && formattedBalancesLabel}
         {!isTokenNetworkSupported && (
           <NotSupportedNetworkTooltip tooltipId={tooltipIdNotSupported} network={network} />
