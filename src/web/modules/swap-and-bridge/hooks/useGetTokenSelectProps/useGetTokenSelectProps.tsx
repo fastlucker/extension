@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
@@ -7,9 +8,17 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getAndFormatTokenDetails } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
+import CartIcon from '@common/assets/svg/CartIcon'
+import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import Tooltip from '@common/components/Tooltip'
+import useTheme from '@common/hooks/useTheme'
+import PendingBadge from '@common/modules/dashboard/components/Tokens/TokenItem/PendingBadge'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import { getTokenId } from '@web/utils/token'
 
@@ -64,6 +73,10 @@ const useGetTokenSelectProps = ({
   isLoading?: boolean
   isToToken?: boolean
 }) => {
+  const { t } = useTranslation()
+  const { theme } = useTheme()
+  const { portfolio } = useSelectedAccountControllerState()
+
   if (isLoading)
     return {
       options: LOADING_TOKEN_ITEMS,
@@ -81,48 +94,149 @@ const useGetTokenSelectProps = ({
     }
   }
 
-  const renderItem = (t: SwapAndBridgeToToken | TokenResult, isSelected: boolean = false) => {
+  const renderItem = (
+    currentToken: SwapAndBridgeToToken | TokenResult,
+    isSelected: boolean = false
+  ) => {
     const symbol = isToToken
       ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
-        (t as SwapAndBridgeToToken).symbol?.trim() || 'No symbol'
-      : t.symbol
+        (currentToken as SwapAndBridgeToToken).symbol?.trim() || 'No symbol'
+      : currentToken.symbol
     const name = isToToken
       ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
-        (t as SwapAndBridgeToToken).name?.trim() || 'No name'
+        (currentToken as SwapAndBridgeToToken).name?.trim() || 'No name'
       : ''
     const network = networks.find((n) =>
       isToToken
-        ? Number(n.chainId) === (t as SwapAndBridgeToToken).chainId
-        : n.id === (t as TokenResult).networkId
+        ? Number(n.chainId) === (currentToken as SwapAndBridgeToToken).chainId
+        : n.id === (currentToken as TokenResult).networkId
     )
-    const tooltipId = `token-${t.address}-on-network-${network?.chainId}-not-supported-tooltip`
+    const tooltipIdNotSupported = `token-${currentToken.address}-on-network-${network?.chainId}-not-supported-tooltip`
+    const tooltipIdPendingBalance = `token-${currentToken.address}-on-network-${network?.chainId}-pending-balance`
     const isTokenNetworkSupported = getIsNetworkSupported(supportedChainIds, network)
-    const isInAccPortfolio = isToToken ? (t as SwapAndBridgeToToken).isInAccPortfolio : true
-    const { balanceUSDFormatted, balanceFormatted } = isToToken
-      ? (t as SwapAndBridgeToToken).formattedTokenDetails || {}
-      : getAndFormatTokenDetails(t as TokenResult, networks)
+    const isInAccPortfolio = isToToken
+      ? (currentToken as SwapAndBridgeToToken).isInAccPortfolio
+      : true
+    const networkId = network!.id
+    const simulatedAccountOp = portfolio.networkSimulatedAccountOp[networkId]
+    const tokenInPortfolio: TokenResult = isToToken
+      ? portfolio.tokens.find(
+          (pt) => pt.address === currentToken.address && pt.networkId === networkId
+        )
+      : currentToken
+    const tokenAmounts = portfolio.tokenAmounts.find(
+      (tokenAmount) =>
+        tokenAmount.address === currentToken.address &&
+        tokenAmount.networkId === networkId &&
+        (isToToken && tokenInPortfolio
+          ? !tokenInPortfolio.flags.onGasTank
+          : !(currentToken as TokenResult).flags.onGasTank)
+    )
 
-    const formattedBalancesLabel = !!balanceUSDFormatted && (
-      <View style={flexbox.alignEnd}>
-        <Text fontSize={14} weight="medium" appearance="primaryText">
-          {balanceUSDFormatted}
+    const {
+      balanceUSDFormatted,
+      balanceFormatted,
+      isPending,
+      pendingToBeConfirmed,
+      pendingToBeConfirmedFormatted,
+      pendingToBeSigned,
+      pendingToBeSignedFormatted,
+      balanceLatestFormatted,
+      pendingBalanceFormatted,
+      pendingBalanceUSDFormatted
+    } =
+      (isToToken
+        ? tokenInPortfolio
+          ? getAndFormatTokenDetails(tokenInPortfolio, networks, tokenAmounts, simulatedAccountOp)
+          : {}
+        : getAndFormatTokenDetails(
+            currentToken as TokenResult,
+            networks,
+            tokenAmounts,
+            simulatedAccountOp
+          )) || {}
+
+    const formattedBalancesLabel = !!tokenInPortfolio && (
+      <View
+        // @ts-ignore missing in the types, but React Native Web supports it
+        dataSet={isPending && { tooltipId: tooltipIdPendingBalance }}
+        style={flexbox.alignEnd}
+      >
+        <Text
+          fontSize={14}
+          weight="medium"
+          appearance="primaryText"
+          color={isPending && theme.warningText}
+        >
+          {isPending ? pendingBalanceFormatted : balanceUSDFormatted}
         </Text>
-        <Text fontSize={10} appearance="secondaryText">
-          {balanceFormatted}
+        <Text fontSize={10} appearance="secondaryText" color={isPending && theme.warningText}>
+          {isPending ? pendingBalanceUSDFormatted : balanceFormatted}
         </Text>
+        {isPending && (
+          <Tooltip id={tooltipIdPendingBalance}>
+            <View style={spacings.mtMi}>
+              <View style={[flexbox.directionRow, spacings.mbTy]}>
+                <Text
+                  selectable
+                  style={[spacings.mrMi, { opacity: 0.7 }]}
+                  color={theme.successText}
+                  fontSize={14}
+                  weight="number_bold"
+                  numberOfLines={1}
+                >
+                  {balanceLatestFormatted} {symbol} ({balanceUSDFormatted})
+                </Text>
+                <Text
+                  selectable
+                  style={{ opacity: 0.7 }}
+                  color={theme.successText}
+                  fontSize={12}
+                  numberOfLines={1}
+                >
+                  {t('(On-chain)')}
+                </Text>
+              </View>
+              {!!pendingToBeSigned && !!pendingToBeSignedFormatted && (
+                <PendingBadge
+                  amount={pendingToBeSigned}
+                  amountFormatted={pendingToBeSignedFormatted}
+                  label={t('{{symbol}} Pending transaction signature', { symbol })}
+                  backgroundColor={colors.lightBrown}
+                  textColor={theme.warningText}
+                  Icon={CartIcon}
+                />
+              )}
+              {!!pendingToBeConfirmed && !!pendingToBeConfirmedFormatted && (
+                <PendingBadge
+                  amount={pendingToBeConfirmed}
+                  amountFormatted={pendingToBeConfirmedFormatted}
+                  label={t('Pending to be confirmed')}
+                  backgroundColor={colors.lightAzureBlue}
+                  textColor={colors.azureBlue}
+                  Icon={PendingToBeConfirmedIcon}
+                />
+              )}
+            </View>
+          </Tooltip>
+        )}
       </View>
     )
 
     const label = isToToken ? (
       <>
-        <View dataSet={{ tooltipId }} style={flexbox.flex1}>
+        <View
+          // @ts-ignore missing in the types, but React Native Web supports it
+          dataSet={tooltipIdNotSupported && { tooltipId: tooltipIdNotSupported }}
+          style={flexbox.flex1}
+        >
           <Text numberOfLines={1}>
             <Text fontSize={14} weight="medium">
               {symbol}
             </Text>
             <Text fontSize={10} appearance="secondaryText">
               {' '}
-              ({isSelected ? shortenAddress(t.address, 13) : t.address})
+              ({isSelected ? shortenAddress(currentToken.address, 13) : currentToken.address})
             </Text>
           </Text>
           <Text numberOfLines={1} fontSize={10}>
@@ -131,12 +245,16 @@ const useGetTokenSelectProps = ({
         </View>
         {!isSelected && formattedBalancesLabel}
         {!isTokenNetworkSupported && (
-          <NotSupportedNetworkTooltip tooltipId={tooltipId} network={network} />
+          <NotSupportedNetworkTooltip tooltipId={tooltipIdNotSupported} network={network} />
         )}
       </>
     ) : (
       <>
-        <Text numberOfLines={1} dataSet={{ tooltipId }} style={flexbox.flex1}>
+        <Text
+          numberOfLines={1}
+          dataSet={{ tooltipId: tooltipIdNotSupported }}
+          style={flexbox.flex1}
+        >
           <Text fontSize={16} weight="medium">
             {symbol}
           </Text>
@@ -149,31 +267,31 @@ const useGetTokenSelectProps = ({
         </Text>
         {!isSelected && formattedBalancesLabel}
         {!isTokenNetworkSupported && (
-          <NotSupportedNetworkTooltip tooltipId={tooltipId} network={network} />
+          <NotSupportedNetworkTooltip tooltipId={tooltipIdNotSupported} network={network} />
         )}
       </>
     )
 
     const networkIdOrChainId = isToToken
-      ? (t as SwapAndBridgeToToken).chainId
-      : (t as TokenResult).networkId
+      ? (currentToken as SwapAndBridgeToToken).chainId
+      : (currentToken as TokenResult).networkId
 
     return {
-      value: getTokenId(t),
+      value: getTokenId(currentToken),
       disabled: !isTokenNetworkSupported,
-      extraSearchProps: { symbol, name, address: t.address },
+      extraSearchProps: { symbol, name, address: currentToken.address },
       isInAccPortfolio,
       label,
       icon: (
         <TokenIcon
-          key={`${networkIdOrChainId}-${t.address}`}
+          key={`${networkIdOrChainId}-${currentToken.address}`}
           containerHeight={30}
           containerWidth={30}
           networkSize={12}
           withContainer
           withNetworkIcon={!isToToken}
-          uri={isToToken ? (t as SwapAndBridgeToToken).icon : undefined}
-          address={t.address}
+          uri={isToToken ? (currentToken as SwapAndBridgeToToken).icon : undefined}
+          address={currentToken.address}
           networkId={networkIdOrChainId}
         />
       )
@@ -181,7 +299,7 @@ const useGetTokenSelectProps = ({
   }
 
   const options = tokens.map((t) => renderItem(t, false))
-  const selectedToken = tokens.find((t) => getTokenId(t) === token)
+  const selectedToken = tokens.find((tk) => getTokenId(tk) === token)
 
   return {
     options,
