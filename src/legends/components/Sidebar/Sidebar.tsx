@@ -9,9 +9,11 @@ import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
+import TreasureChestClosed from '@legends/common/assets/svg/TreasureChestClosed'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
+import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
@@ -43,7 +45,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { addToast } = useToast()
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
+  const isChestOpenedForToday = false
   const { wheelSpinOfTheDay, legends, isLoading } = useLegendsContext()
+  const [isTreasureChestModalOpen, setIsTreasureChestModalOpen] = useState(true)
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
@@ -104,11 +108,17 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             </div>
           </div>
         </div>
+
         <LeaderModal
           setIsLeaderModalOpen={setIsLeaderModalOpen}
           isLeaderModalOpen={isLeaderModalOpen}
         />
         <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
+
+        <TreasureChestComponentModal
+          isOpen={isTreasureChestModalOpen}
+          setIsOpen={setIsTreasureChestModalOpen}
+        />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
             <Link
@@ -120,6 +130,19 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
               newTab={link.newTab}
             />
           ))}
+        </div>
+
+        <div className={styles.treasureChestWrapper}>
+          {isChestOpenedForToday ? (
+            <div className={styles.chestAvailableLabel}>Available in: 22:15:59 </div>
+          ) : (
+            ''
+          )}
+          <TreasureChestClosed
+            width={100}
+            height={80}
+            onClick={!isChestOpenedForToday && setIsTreasureChestModalOpen}
+          />
         </div>
       </div>
       <div>
