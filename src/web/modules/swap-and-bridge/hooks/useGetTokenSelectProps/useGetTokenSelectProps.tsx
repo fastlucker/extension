@@ -5,8 +5,11 @@ import { View } from 'react-native'
 import { Network } from '@ambire-common/interfaces/network'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { getAndFormatTokenDetails, getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
-import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { getAndFormatTokenDetails } from '@ambire-common/libs/portfolio/helpers'
+import {
+  getIsNetworkSupported,
+  getIsTokenEligibleForSwapAndBridgeToToken
+} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
@@ -127,9 +130,7 @@ const useGetTokenSelectProps = ({
           (pt) =>
             pt.address === currentToken.address &&
             pt.networkId === networkId &&
-            !pt.flags.onGasTank &&
-            !pt.flags.rewardsType &&
-            Number(getTokenAmount(pt)) > 0
+            getIsTokenEligibleForSwapAndBridgeToToken(pt)
         )
       : currentToken
     const tokenAmounts = portfolio.tokenAmounts.find((tAmount) => {
@@ -290,6 +291,8 @@ const useGetTokenSelectProps = ({
 
     return {
       value: getTokenId(currentToken),
+      address: currentToken.address,
+      networkId,
       disabled: !isTokenNetworkSupported,
       extraSearchProps: { symbol, name, address: currentToken.address },
       isInAccPortfolio: !!tokenInPortfolio,

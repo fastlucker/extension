@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { getIsTokenEligibleForSwapAndBridgeToToken } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import CoinsIcon from '@common/assets/svg/CoinsIcon'
 import StarFilledIcon from '@common/assets/svg/StarFilledIcon'
 import { SectionedSelect } from '@common/components/Select'
@@ -11,6 +13,7 @@ import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 interface Props {
   toTokenOptions: SelectValue[]
@@ -28,6 +31,7 @@ const ToTokenSelect: React.FC<Props> = ({
   handleAddToTokenByAddress
 }) => {
   const { t } = useTranslation()
+  const { portfolio } = useSelectedAccountControllerState()
   const [didAttemptSearchingTokenByAddress, setDidAttemptSearchingTokenByAddress] =
     React.useState(false)
 
@@ -58,13 +62,36 @@ const ToTokenSelect: React.FC<Props> = ({
     //     }
     //   ]
 
+    const { toTokenOptionsInAccount, restToTokenOptions } = toTokenOptions.reduce<{
+      toTokenOptionsInAccount: SelectValue[]
+      restToTokenOptions: SelectValue[]
+    }>(
+      (acc, option) => {
+        const isInPortfolioAndEligible = portfolio.tokens.some(
+          (pt) =>
+            pt.address === option.address &&
+            pt.networkId === option.networkId &&
+            getIsTokenEligibleForSwapAndBridgeToToken(pt)
+        )
+
+        if (isInPortfolioAndEligible) {
+          acc.toTokenOptionsInAccount.push(option)
+        } else {
+          acc.restToTokenOptions.push(option)
+        }
+
+        return acc
+      },
+      { toTokenOptionsInAccount: [], restToTokenOptions: [] }
+    )
+
     return [
       {
         title: {
           icon: <CoinsIcon />,
           text: t('Tokens in the current account')
         },
-        data: toTokenOptions.filter((option) => option.isInAccPortfolio),
+        data: toTokenOptionsInAccount,
         key: 'swap-and-bridge-to-account-tokens'
       },
       {
@@ -72,7 +99,7 @@ const ToTokenSelect: React.FC<Props> = ({
           icon: <StarFilledIcon />, // TODO: Different icon
           text: t('Tokens')
         },
-        data: toTokenOptions.filter((option) => !option.isInAccPortfolio),
+        data: restToTokenOptions,
         key: 'swap-and-bridge-to-service-provider-tokens'
       }
     ]
