@@ -64,7 +64,7 @@ const useGetTokenSelectProps = ({
   networks,
   supportedChainIds,
   isLoading,
-  isToToken = false
+  isToToken: _isToToken = false
 }: {
   tokens: SwapAndBridgeToToken[] | TokenResult[]
   token: string
@@ -85,7 +85,7 @@ const useGetTokenSelectProps = ({
     }
 
   if (tokens?.length === 0) {
-    const noTokensEmptyState = getTokenOptionsEmptyState(isToToken)
+    const noTokensEmptyState = getTokenOptionsEmptyState(_isToToken)
 
     return {
       options: noTokensEmptyState,
@@ -94,44 +94,48 @@ const useGetTokenSelectProps = ({
     }
   }
 
+  /** Type guard to ensure TypeScript correctly infers the type of a token after a conditional check */
+  const getIsToTokenTypeGuard = (
+    tk: SwapAndBridgeToToken | TokenResult
+  ): tk is SwapAndBridgeToToken => _isToToken
+
   const renderItem = (
     currentToken: SwapAndBridgeToToken | TokenResult,
     isSelected: boolean = false
   ) => {
-    const symbol = isToToken
+    const symbol = getIsToTokenTypeGuard(currentToken)
       ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
-        (currentToken as SwapAndBridgeToToken).symbol?.trim() || 'No symbol'
+        currentToken.symbol?.trim() || 'No symbol'
       : currentToken.symbol
-    const name = isToToken
+
+    const name = getIsToTokenTypeGuard(currentToken)
       ? // Overprotective on purpose here, the API does return `null` values, although it shouldn't
-        (currentToken as SwapAndBridgeToToken).name?.trim() || 'No name'
+        currentToken.name?.trim() || 'No name'
       : ''
     const network = networks.find((n) =>
-      isToToken
-        ? Number(n.chainId) === (currentToken as SwapAndBridgeToToken).chainId
-        : n.id === (currentToken as TokenResult).networkId
+      getIsToTokenTypeGuard(currentToken)
+        ? Number(n.chainId) === currentToken.chainId
+        : n.id === currentToken.networkId
     )
     const tooltipIdNotSupported = `token-${currentToken.address}-on-network-${network?.chainId}-not-supported-tooltip`
     const tooltipIdPendingBalance = `token-${currentToken.address}-on-network-${network?.chainId}-pending-balance`
     const isTokenNetworkSupported = getIsNetworkSupported(supportedChainIds, network)
-    const isInAccPortfolio = isToToken
-      ? (currentToken as SwapAndBridgeToToken).isInAccPortfolio
-      : true
-    const networkId = network!.id
+    const networkId = network?.id || ''
     const simulatedAccountOp = portfolio.networkSimulatedAccountOp[networkId]
-    const tokenInPortfolio: TokenResult = isToToken
+    const tokenInPortfolio = getIsToTokenTypeGuard(currentToken)
       ? portfolio.tokens.find(
           (pt) => pt.address === currentToken.address && pt.networkId === networkId
         )
       : currentToken
-    const tokenAmounts = portfolio.tokenAmounts.find(
-      (tokenAmount) =>
-        tokenAmount.address === currentToken.address &&
-        tokenAmount.networkId === networkId &&
-        (isToToken && tokenInPortfolio
-          ? !tokenInPortfolio.flags.onGasTank
-          : !(currentToken as TokenResult).flags.onGasTank)
-    )
+    const tokenAmounts = portfolio.tokenAmounts.find((tAmount) => {
+      const isOnGasTank = getIsToTokenTypeGuard(currentToken)
+        ? tokenInPortfolio?.flags.onGasTank ?? false // always assume false if missing in portfolio
+        : currentToken.flags.onGasTank
+
+      return (
+        tAmount.address === currentToken.address && tAmount.networkId === networkId && !isOnGasTank
+      )
+    })
 
     const {
       balanceUSDFormatted,
@@ -145,16 +149,11 @@ const useGetTokenSelectProps = ({
       pendingBalanceFormatted,
       pendingBalanceUSDFormatted
     } =
-      (isToToken
+      (getIsToTokenTypeGuard(currentToken)
         ? tokenInPortfolio
           ? getAndFormatTokenDetails(tokenInPortfolio, networks, tokenAmounts, simulatedAccountOp)
           : {}
-        : getAndFormatTokenDetails(
-            currentToken as TokenResult,
-            networks,
-            tokenAmounts,
-            simulatedAccountOp
-          )) || {}
+        : getAndFormatTokenDetails(currentToken, networks, tokenAmounts, simulatedAccountOp)) || {}
 
     const formattedBalancesLabel = !!tokenInPortfolio && (
       <View
@@ -223,7 +222,7 @@ const useGetTokenSelectProps = ({
       </View>
     )
 
-    const label = isToToken ? (
+    const label = getIsToTokenTypeGuard(currentToken) ? (
       <>
         <View
           // @ts-ignore missing in the types, but React Native Web supports it
@@ -272,15 +271,15 @@ const useGetTokenSelectProps = ({
       </>
     )
 
-    const networkIdOrChainId = isToToken
-      ? (currentToken as SwapAndBridgeToToken).chainId
-      : (currentToken as TokenResult).networkId
+    const networkIdOrChainId = getIsToTokenTypeGuard(currentToken)
+      ? currentToken.chainId
+      : currentToken.networkId
 
     return {
       value: getTokenId(currentToken),
       disabled: !isTokenNetworkSupported,
       extraSearchProps: { symbol, name, address: currentToken.address },
-      isInAccPortfolio,
+      isInAccPortfolio: !!tokenInPortfolio,
       label,
       icon: (
         <TokenIcon
@@ -289,8 +288,8 @@ const useGetTokenSelectProps = ({
           containerWidth={30}
           networkSize={12}
           withContainer
-          withNetworkIcon={!isToToken}
-          uri={isToToken ? (currentToken as SwapAndBridgeToToken).icon : undefined}
+          withNetworkIcon={!_isToToken}
+          uri={getIsToTokenTypeGuard(currentToken) ? currentToken.icon : undefined}
           address={currentToken.address}
           networkId={networkIdOrChainId}
         />
