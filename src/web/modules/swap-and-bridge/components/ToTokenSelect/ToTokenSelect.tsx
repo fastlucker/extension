@@ -18,6 +18,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 interface Props {
   toTokenOptions: SelectValue[]
   toTokenValue: SelectValue
+  toTokenAmountSelectDisabled: boolean
   handleChangeToToken: (value: SelectValue) => void
   addToTokenByAddressStatus: SwapAndBridgeController['statuses']['addToTokenByAddress']
   handleAddToTokenByAddress: (searchTerm: string) => void
@@ -26,6 +27,7 @@ interface Props {
 const ToTokenSelect: React.FC<Props> = ({
   toTokenOptions,
   toTokenValue,
+  toTokenAmountSelectDisabled,
   handleChangeToToken,
   addToTokenByAddressStatus,
   handleAddToTokenByAddress
@@ -119,6 +121,7 @@ const ToTokenSelect: React.FC<Props> = ({
       sections={selectSections}
       renderSectionHeader={renderFeeOptionSectionHeader}
       value={toTokenValue}
+      disabled={toTokenAmountSelectDisabled}
       testID="to-token-select"
       searchPlaceholder={t('Token name or address...')}
       menuLeftHorizontalOffset={285}

@@ -58,6 +58,7 @@ const SwapAndBridgeScreen = () => {
     handleSetToNetworkValue,
     toTokenOptions,
     toTokenValue,
+    toTokenAmountSelectDisabled,
     handleAddToTokenByAddress,
     handleChangeToToken,
     handleSwitchFromAmountFieldMode,
@@ -354,6 +355,7 @@ const SwapAndBridgeScreen = () => {
                       toTokenOptions={toTokenOptions}
                       toTokenValue={toTokenValue}
                       handleChangeToToken={handleChangeToToken}
+                      toTokenAmountSelectDisabled={toTokenAmountSelectDisabled}
                       addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
                       handleAddToTokenByAddress={handleAddToTokenByAddress}
                     />
