@@ -1,12 +1,12 @@
 import * as React from 'react'
 import Svg, {
+  Defs,
+  G,
+  LinearGradient,
   Path,
   RadialGradient,
-  SvgProps,
-  G,
-  Defs,
-  LinearGradient,
-  Stop
+  Stop,
+  SvgProps
 } from 'react-native-svg'
 
 interface Props extends SvgProps {
@@ -14,8 +14,8 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const Flask: React.FC<Props> = ({ width = 79, height = 88, ...rest }) => (
-  <Svg width={79} height={88} viewBox="0 0 79 88" fill="none" {...rest}>
+const Flask: React.FC<Props> = ({ width = 80, height = 80, ...rest }) => (
+  <Svg width={width} height={height} viewBox="0 0 78 88" fill="none" {...rest}>
     <Path
       d="M71.46 40.056c-.1-.15-.755-.15-.755-.15s.554 1.358-.553.956c-1.107-.403-1.158-3.12-1.158-3.12s-6.542-3.422-7.095-3.623c-.554-.202-2.315.15-4.177.805l4.63.855c.201.151-1.007 6.492-1.007 6.492l5.486 14.14s2.666-1.46 2.868-1.761c.201-.352 8.655-6.039 8.655-6.039l.201-.805s-6.994-7.548-7.095-7.7v-.05z"
       fill="#D14F4F"

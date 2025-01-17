@@ -1,5 +1,6 @@
 import React, { FC, useMemo } from 'react'
 
+import GoldenLockIcon from '@legends/common/assets/svg/GoldenLockIcon'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
@@ -45,16 +46,22 @@ const CardContent: FC<Props> = ({
   return (
     <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
       {isCompleted ? (
-        <div className={styles.completed}>
+        <div className={styles.overlay}>
           <Flask />
-          <div className={styles.completedText}>
+          <div className={styles.overlayTitle}>
             Completed
             {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) ? (
-              <div className={styles.completedTextAvailable}>{hoursUntilMidnightLabel}</div>
+              <div className={styles.overlayText}>{hoursUntilMidnightLabel}</div>
             ) : null}
           </div>
         </div>
       ) : null}
+      {disabled && (
+        <div className={styles.overlay}>
+          <GoldenLockIcon className={styles.lockIcon} width={80} height={80} />
+          <div className={styles.overlayTitle}>Coming soon</div>
+        </div>
+      )}
       <div className={styles.imageAndCounter}>
         <button
           disabled={disabled}
