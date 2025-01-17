@@ -82,7 +82,7 @@ const RoutesRefreshButton = ({ width = 32, height = 32 }: SvgProps) => {
 
   const opacityInterpolation = spinAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.1, 0.8]
+    outputRange: [0.1, 0.65]
   })
 
   const handleOnPress = useCallback(() => {
