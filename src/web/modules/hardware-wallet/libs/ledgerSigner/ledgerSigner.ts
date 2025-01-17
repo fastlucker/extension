@@ -1,15 +1,18 @@
 import { Signature, Transaction, TransactionLike } from 'ethers'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
-import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { Hex } from '@ambire-common/interfaces/hex'
+import { ExternalKey, KeystoreSignerInterface } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, { ledgerService } from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, {
+  ledgerService
+} from '@web/modules/hardware-wallet/controllers/LedgerController'
 
-class LedgerSigner implements KeystoreSigner {
+class LedgerSigner implements KeystoreSignerInterface {
   key: ExternalKey
 
   controller: LedgerController | null = null
@@ -64,7 +67,7 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
+  signRawTransaction: KeystoreSignerInterface['signRawTransaction'] = async (txnRequest) => {
     await this.#prepareForSigning()
 
     // In case `maxFeePerGas` is provided, treat as an EIP-1559 transaction,
@@ -115,7 +118,7 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  signTypedData: KeystoreSigner['signTypedData'] = async ({
+  signTypedData: KeystoreSignerInterface['signTypedData'] = async ({
     domain,
     types,
     message,
@@ -146,7 +149,7 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  signMessage: KeystoreSigner['signMessage'] = async (hex) => {
+  signMessage: KeystoreSignerInterface['signMessage'] = async (hex) => {
     if (!stripHexPrefix(hex)) {
       throw new ExternalSignerError(
         'Request for signing an empty message detected. Signing empty messages with Ambire is disallowed.'
@@ -174,7 +177,7 @@ class LedgerSigner implements KeystoreSigner {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async sign7702(hex: string): Promise<string> {
+  sign7702(hex: string): { yParity: Hex; r: Hex; s: Hex } {
     throw new Error('not support', { cause: hex })
   }
 }

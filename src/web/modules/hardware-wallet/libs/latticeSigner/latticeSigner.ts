@@ -2,14 +2,15 @@ import { hexlify, Signature, Transaction, TransactionLike } from 'ethers'
 import * as SDK from 'gridplus-sdk'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
-import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { Hex } from '@ambire-common/interfaces/hex'
+import { ExternalKey, KeystoreSignerInterface } from '@ambire-common/interfaces/keystore'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import wait from '@ambire-common/utils/wait'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 
-class LatticeSigner implements KeystoreSigner {
+class LatticeSigner implements KeystoreSignerInterface {
   key: ExternalKey
 
   controller: LatticeController | null = null
@@ -86,7 +87,7 @@ class LatticeSigner implements KeystoreSigner {
     }
   }
 
-  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
+  signRawTransaction: KeystoreSignerInterface['signRawTransaction'] = async (txnRequest) => {
     await this.#prepareForSigning()
 
     // EIP1559 and EIP2930 support was added to Lattice in firmware v0.11.0,
@@ -158,7 +159,7 @@ class LatticeSigner implements KeystoreSigner {
     }
   }
 
-  signTypedData: KeystoreSigner['signTypedData'] = async ({
+  signTypedData: KeystoreSignerInterface['signTypedData'] = async ({
     domain,
     types,
     message,
@@ -173,7 +174,7 @@ class LatticeSigner implements KeystoreSigner {
     return this._signMsgRequest({ domain, types, primaryType, message }, 'eip712')
   }
 
-  signMessage: KeystoreSigner['signMessage'] = async (hash) => {
+  signMessage: KeystoreSignerInterface['signMessage'] = async (hash) => {
     return this._signMsgRequest(hash, 'signPersonal')
   }
 
@@ -203,7 +204,7 @@ class LatticeSigner implements KeystoreSigner {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async sign7702(hex: string): Promise<string> {
+  sign7702(hex: string): { yParity: Hex; r: Hex; s: Hex } {
     throw new Error('not support', { cause: hex })
   }
 }
