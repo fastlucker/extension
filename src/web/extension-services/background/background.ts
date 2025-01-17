@@ -9,6 +9,16 @@ import { nanoid } from 'nanoid'
 
 import EmittableError from '@ambire-common/classes/EmittableError'
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
+import {
+  ACCOUNT_STATE_PENDING_INTERVAL,
+  ACCOUNT_STATE_STAND_BY_INTERVAL,
+  ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL,
+  ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
+  ACTIVITY_REFRESH_INTERVAL,
+  INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL,
+  INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
+  UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
+} from '@ambire-common/consts/intervals'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
@@ -162,11 +172,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     isUnlocked: false,
     ctrlOnUpdateIsDirtyFlags: {},
     accountStateIntervals: {
-      pending: 8000,
-      standBy: 300000,
+      pending: ACCOUNT_STATE_PENDING_INTERVAL,
+      standBy: ACCOUNT_STATE_STAND_BY_INTERVAL,
       retriedFastAccountStateReFetchForNetworks: []
     },
-    activityRefreshInterval: 5000,
+    activityRefreshInterval: ACTIVITY_REFRESH_INTERVAL,
     hasSignAccountOpCtrlInitialized: false,
     swapAndBridgeQuoteStatus: 'INITIAL',
     portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
@@ -258,8 +268,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     )
   }
 
-  const ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 60000 // 1 minute
-  const INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL = 600000 // 10 minutes
   async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
@@ -308,8 +316,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     }
   }
 
-  const ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL = 180000 // 3 minutes
-  const INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL = 600000 // 10 minutes
   async function initDefiPositionsContinuousUpdate() {
     if (backgroundState.updateDefiPositionsInterval)
       clearTimeout(backgroundState.updateDefiPositionsInterval)
@@ -401,10 +407,16 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         })
 
       // Schedule the next update only when the previous one completes
-      backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
+      backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(
+        updateSwapAndBridgeQuote,
+        UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
+      )
     }
 
-    backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(updateSwapAndBridgeQuote, 60000)
+    backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(
+      updateSwapAndBridgeQuote,
+      UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
+    )
   }
 
   async function initLatestAccountStateContinuousUpdate(intervalLength: number) {

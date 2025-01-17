@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Animated, Easing, Pressable, View } from 'react-native'
 import { Circle, G, Path, Svg, SvgProps } from 'react-native-svg'
 
+import { UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL } from '@ambire-common/consts/intervals'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
@@ -29,9 +30,8 @@ const RoutesRefreshButton = ({ width = 32, height = 32 }: SvgProps) => {
 
   useEffect(() => {
     if (prevUpdateQuoteStatus === 'LOADING' && updateQuoteStatus === 'INITIAL') {
-      const totalDuration = 60000
       const interval = 100
-      const step = (100 / totalDuration) * interval
+      const step = (100 / UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL) * interval
 
       let currentProgress = 0
       !!timer.current && clearInterval(timer.current)
