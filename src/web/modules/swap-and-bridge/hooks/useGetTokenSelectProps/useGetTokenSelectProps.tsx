@@ -25,13 +25,19 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import { getTokenId } from '@web/utils/token'
 
+const TextFallbackState: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <Text weight="medium" fontSize={14}>
+    {children}
+  </Text>
+)
+
 const getTokenOptionsEmptyState = (isToToken = false) => [
   {
     value: 'noTokens',
     label: (
-      <Text weight="medium" fontSize={14}>
+      <TextFallbackState>
         {isToToken ? 'Failed to retrieve tokens' : "You don't have any tokens"}
-      </Text>
+      </TextFallbackState>
     ),
     icon: null
   }
@@ -40,11 +46,7 @@ const getTokenOptionsEmptyState = (isToToken = false) => [
 const LOADING_TOKEN_ITEMS = [
   {
     value: 'loading',
-    label: (
-      <Text weight="medium" fontSize={14}>
-        Fetching tokens...
-      </Text>
-    ),
+    label: <TextFallbackState>Fetching tokens...</TextFallbackState>,
     icon: null
   }
 ]
@@ -52,11 +54,7 @@ const LOADING_TOKEN_ITEMS = [
 const NO_VALUE_SELECTED = [
   {
     value: 'no-selection',
-    label: (
-      <Text weight="medium" fontSize={14}>
-        Please select token
-      </Text>
-    ),
+    label: <TextFallbackState>Please select token</TextFallbackState>,
     icon: null
   }
 ]
