@@ -138,22 +138,21 @@ const useGetTokenSelectProps = ({
     })
 
     const {
-      balanceUSDFormatted,
-      balanceFormatted,
-      isPending,
-      pendingToBeConfirmed,
-      pendingToBeConfirmedFormatted,
-      pendingToBeSigned,
-      pendingToBeSignedFormatted,
-      balanceLatestFormatted,
-      pendingBalanceFormatted,
-      pendingBalanceUSDFormatted
-    } =
-      (getIsToTokenTypeGuard(currentToken)
-        ? tokenInPortfolio
-          ? getAndFormatTokenDetails(tokenInPortfolio, networks, tokenAmounts, simulatedAccountOp)
-          : {}
-        : getAndFormatTokenDetails(currentToken, networks, tokenAmounts, simulatedAccountOp)) || {}
+      balanceUSDFormatted = '',
+      balanceFormatted = '',
+      isPending = false,
+      pendingToBeConfirmed = '',
+      pendingToBeConfirmedFormatted = '',
+      pendingToBeSigned = '',
+      pendingToBeSignedFormatted = '',
+      balanceLatestFormatted = '',
+      pendingBalanceFormatted = '',
+      pendingBalanceUSDFormatted = ''
+    } = getIsToTokenTypeGuard(currentToken)
+      ? tokenInPortfolio
+        ? getAndFormatTokenDetails(tokenInPortfolio, networks, tokenAmounts, simulatedAccountOp)
+        : {}
+      : getAndFormatTokenDetails(currentToken, networks, tokenAmounts, simulatedAccountOp)
 
     const formattedBalancesLabel = !!tokenInPortfolio && (
       <View
