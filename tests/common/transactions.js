@@ -42,7 +42,7 @@ const overcomeNonceError = async (page) => {
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = SELECTORS.amountField
-const polTokenSelector = SELECTORS.nativeTokenPolygonDyn
+const ethTokenSelector = SELECTORS.usdcTokenBaseDashboard
 const TARGET_HEIGHT = 58.7
 const MAX_TIME_WAIT = 30000
 //--------------------------------------------------------------------------------------------------------------
@@ -61,7 +61,6 @@ export async function prepareTransaction(
   { shouldUseAddressBookRecipient = false, shouldSendButtonBeDisabled = false } = {}
 ) {
   await page.waitForSelector(amountField)
-  await selectPolToken(page)
   await typeText(page, amountField, amount)
 
   if (!shouldUseAddressBookRecipient) {
@@ -93,7 +92,6 @@ export async function prepareTransaction(
 
 async function prepareGasTankTopUp(page, recipient, amount) {
   await page.waitForSelector(amountField)
-  await selectPolToken(page)
   await typeText(page, amountField, amount)
 }
 
@@ -516,15 +514,14 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function sendFundsToSmartContract(page, extensionURL) {
-  // Check if POL on Polygon are under 0.0015
-  await checkBalanceOfToken(page, polTokenSelector, 0.0002)
+  await checkBalanceOfToken(page, ethTokenSelector, 0.0002)
 
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
   await page.waitForSelector('[data-testid="max-available-amount"]')
   await selectPolToken(page)
 
   // Type the amount
-  await typeText(page, amountField, '0.0001')
+  await typeText(page, amountField, '0.00001')
 
   // Type the address of smart contract in the "Add Recipient" field
   await typeText(page, recipientField, '0x4e15361fd6b4bb609fa63c81a2be19d873717870')
