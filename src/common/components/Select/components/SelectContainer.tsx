@@ -33,6 +33,7 @@ const SelectContainer: FC<Props> = ({
   isMenuOpen,
   selectRef,
   menuProps,
+  menuLeftHorizontalOffset,
   menuRef,
   toggleMenu,
   control,
@@ -66,7 +67,12 @@ const SelectContainer: FC<Props> = ({
         size={size}
       />
       {!!isMenuOpen && (
-        <MenuContainer menuRef={menuRef} menuStyle={menuStyle} menuProps={menuProps}>
+        <MenuContainer
+          menuRef={menuRef}
+          menuStyle={menuStyle}
+          menuProps={menuProps}
+          menuLeftHorizontalOffset={menuLeftHorizontalOffset}
+        >
           {!!withSearch && menuProps.position === 'bottom' && (
             <Search
               placeholder={searchPlaceholder || t('Search...')}
