@@ -3,13 +3,13 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import { geckoIdMapper } from '@ambire-common/consts/coingecko'
+import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-import DepositIcon from '@common/assets/svg/DepositIcon'
+// import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
@@ -58,7 +58,7 @@ const TokenDetails = ({
   const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const [hasTokenInfo, setHasTokenInfo] = useState(false)
+  const [coinGeckoTokenSlug, setCoinGeckoTokenSlug] = useState('')
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
   const network = useMemo(
@@ -186,25 +186,23 @@ const TokenDetails = ({
         text: t('Token Info'),
         icon: InfoIcon,
         onPress: async () => {
-          if (!hasTokenInfo || !token || !networks.length) return
+          if (!coinGeckoTokenSlug || !token || !networks.length) return
 
           if (!network) {
             addToast(t('Network not found'), { type: 'error' })
             return
           }
 
-          const coingeckoId = geckoIdMapper(token?.address, network)
-
           try {
-            await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`)
+            await createTab(getCoinGeckoTokenUrl(coinGeckoTokenSlug))
             handleClose()
           } catch {
             addToast(t('Could not open token info'), { type: 'error' })
           }
         },
-        isDisabled: !hasTokenInfo,
+        isDisabled: !coinGeckoTokenSlug,
         tooltipText:
-          !hasTokenInfo && !isTokenInfoLoading
+          !coinGeckoTokenSlug && !isTokenInfoLoading
             ? t('No data found for this token on CoinGecko.')
             : undefined
       }
@@ -215,7 +213,7 @@ const TokenDetails = ({
       isAmountZero,
       canToToppedUp,
       isSmartAccount,
-      hasTokenInfo,
+      coinGeckoTokenSlug,
       navigate,
       networks,
       addToast,
@@ -240,27 +238,15 @@ const TokenDetails = ({
       setIsTokenInfoLoading(false)
       return
     }
-    const coingeckoId = geckoIdMapper(token?.address, network)
 
-    const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`
-
-    fetch(tokenInfoUrl, {
-      method: 'HEAD'
-    })
-      .then((result) => {
-        if (result.ok) {
-          setHasTokenInfo(true)
-          return
-        }
-
-        setHasTokenInfo(false)
-      })
-      .catch(() => {
-        addToast(t('Token info not found'), { type: 'error' })
-      })
-      .finally(() => {
-        setIsTokenInfoLoading(false)
-      })
+    const tokenAddr = token.address
+    const geckoChainId = network.platformId
+    const geckoNativeCoinId = network.nativeAssetId
+    const tokenInfoUrl = getCoinGeckoTokenApiUrl({ tokenAddr, geckoChainId, geckoNativeCoinId })
+    fetch(tokenInfoUrl)
+      .then((response) => response.json())
+      .then((result) => setCoinGeckoTokenSlug(result.web_slug))
+      .finally(() => setIsTokenInfoLoading(false))
   }, [t, token?.address, token?.networkId, networks, addToast, isOffline, network])
 
   const handleHideToken = () => {
