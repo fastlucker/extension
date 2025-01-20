@@ -1,6 +1,6 @@
 import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View, ViewStyle } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -17,6 +17,7 @@ interface Props {
   renderIcon: React.ReactNode
   children: React.ReactNode
   style?: ViewStyle
+  onPress?: () => void
 }
 
 const ControlOption: FC<Props> = ({
@@ -25,18 +26,21 @@ const ControlOption: FC<Props> = ({
   readMoreLink,
   children,
   renderIcon,
-  style
+  style,
+  onPress
 }) => {
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { t } = useTranslation()
+
+  const ParentElement = onPress ? Pressable : View
 
   const openReadMoreLink = () => {
     openInTab(readMoreLink, false).catch(() => addToast(t('Failed to open link')))
   }
 
   return (
-    <View
+    <ParentElement
       style={[
         spacings.pv,
         spacings.ph,
@@ -49,6 +53,7 @@ const ControlOption: FC<Props> = ({
         },
         style
       ]}
+      onPress={onPress}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1, spacings.pr]}>
         <View
@@ -80,7 +85,7 @@ const ControlOption: FC<Props> = ({
         </View>
       </View>
       {children}
-    </View>
+    </ParentElement>
   )
 }
 
