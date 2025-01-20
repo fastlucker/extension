@@ -3,13 +3,13 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import { geckoIdMapper } from '@ambire-common/consts/coingecko'
+import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
-import { getAndFormatTokenDetails, getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-import DepositIcon from '@common/assets/svg/DepositIcon'
+// import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
@@ -23,6 +23,7 @@ import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
@@ -57,7 +58,7 @@ const TokenDetails = ({
   const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const [hasTokenInfo, setHasTokenInfo] = useState(false)
+  const [coinGeckoTokenSlug, setCoinGeckoTokenSlug] = useState('')
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
   const network = useMemo(
@@ -67,13 +68,26 @@ const TokenDetails = ({
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
-  const isGasTankOrRewardsToken = token?.flags.onGasTank || !!token?.flags.rewardsType
+  const isGasTankToken = !!token?.flags.onGasTank
+  const isRewardsToken = !!token?.flags.rewardsType
+  const isGasTankOrRewardsToken = isGasTankToken || isRewardsToken
   const isAmountZero = token && getTokenAmount(token) === 0n
   const canToToppedUp = token?.flags.canTopUpGasTank
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const tokenId = token ? getTokenId(token) : ''
+  const isNetworkNotSupportedForSwapAndBridge = !getIsNetworkSupported(supportedChainIds, network)
   const shouldDisableSwapAndBridge =
-    !getIsNetworkSupported(supportedChainIds, network) || isGasTankOrRewardsToken || isAmountZero
+    isNetworkNotSupportedForSwapAndBridge || isGasTankOrRewardsToken || isAmountZero
+
+  const unavailableBecauseGasTankOrRewardsTokenTooltipText = t(
+    'Unavailable. {{tokenType}} tokens cannot be sent, swapped, or bridged.',
+    {
+      tokenType: isGasTankToken ? t('Gas Tank') : t('Reward')
+    }
+  )
+  const notImplementedYetTooltipText = t('Coming sometime in {{year}}.', {
+    year: new Date().getFullYear()
+  })
 
   const actions = useMemo(
     () => [
@@ -84,6 +98,9 @@ const TokenDetails = ({
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`${WEB_ROUTES.transfer}?networkId=${networkId}&address=${address}`),
         isDisabled: isGasTankOrRewardsToken || isAmountZero,
+        tooltipText: isGasTankOrRewardsToken
+          ? unavailableBecauseGasTankOrRewardsTokenTooltipText
+          : undefined,
         strokeWidth: 1.5,
         testID: 'token-send'
       },
@@ -95,19 +112,39 @@ const TokenDetails = ({
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`${WEB_ROUTES.swapAndBridge}?networkId=${networkId}&address=${address}`),
         isDisabled: shouldDisableSwapAndBridge,
+        tooltipText: isNetworkNotSupportedForSwapAndBridge
+          ? t(
+              'Unavailable. {{network}} network is not supported by our Swap & Bridge service provider.',
+              { network: network?.name || t('This') }
+            )
+          : isGasTankOrRewardsToken
+          ? unavailableBecauseGasTankOrRewardsTokenTooltipText
+          : undefined,
         strokeWidth: 1.5
       },
+      // TODO: Temporarily hidden as of v4.49.0, because displaying it disabled
+      // causes confusion. It's planned to be displayed again when the feature is implemented.
+      // {
+      //   id: 'deposit',
+      //   text: t('Deposit'),
+      //   icon: DepositIcon,
+      //   onPress: () => {},
+      //   isDisabled: true,
+      //   strokeWidth: 1
+      // },
+      // TODO: Temporarily moved to the "Deposit" place as of v4.49.0, due to aesthetic reasons solely.
       {
-        id: 'deposit',
-        text: t('Deposit'),
-        icon: DepositIcon,
+        id: 'earn',
+        text: t('Earn'),
+        icon: EarnIcon,
         onPress: () => {},
         isDisabled: true,
+        tooltipText: notImplementedYetTooltipText,
         strokeWidth: 1
       },
       {
         id: 'top-up',
-        text: canToToppedUp ? t('Top Up Gas Tank') : t('Top Up'),
+        text: t('Top Up Gas Tank'),
         icon: TopUpIcon,
         onPress: async ({ networkId, address }: TokenResult) => {
           const assets: { network: string; address: string }[] = await fetch(
@@ -123,16 +160,15 @@ const TokenDetails = ({
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
         isDisabled: !canToToppedUp || !isSmartAccount,
+        tooltipText: !isSmartAccount
+          ? t('Feature only available for Smart Accounts.')
+          : !canToToppedUp
+          ? t(
+              'This token is not eligible for filling up the Gas Tank. Please select a supported token instead.'
+            )
+          : undefined,
         strokeWidth: 1,
         testID: 'top-up-button'
-      },
-      {
-        id: 'earn',
-        text: t('Earn'),
-        icon: EarnIcon,
-        onPress: () => {},
-        isDisabled: true,
-        strokeWidth: 1
       },
       {
         id: 'withdraw',
@@ -140,6 +176,9 @@ const TokenDetails = ({
         icon: WithdrawIcon,
         onPress: () => {},
         isDisabled: true,
+        tooltipText: isGasTankToken
+          ? t('Gas Tank deposits cannot be withdrawn.')
+          : notImplementedYetTooltipText,
         strokeWidth: 1
       },
       {
@@ -147,23 +186,25 @@ const TokenDetails = ({
         text: t('Token Info'),
         icon: InfoIcon,
         onPress: async () => {
-          if (!hasTokenInfo || !token || !networks.length) return
+          if (!coinGeckoTokenSlug || !token || !networks.length) return
 
           if (!network) {
             addToast(t('Network not found'), { type: 'error' })
             return
           }
 
-          const coingeckoId = geckoIdMapper(token?.address, network)
-
           try {
-            await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`)
+            await createTab(getCoinGeckoTokenUrl(coinGeckoTokenSlug))
             handleClose()
           } catch {
             addToast(t('Could not open token info'), { type: 'error' })
           }
         },
-        isDisabled: !hasTokenInfo
+        isDisabled: !coinGeckoTokenSlug,
+        tooltipText:
+          !coinGeckoTokenSlug && !isTokenInfoLoading
+            ? t('No data found for this token on CoinGecko.')
+            : undefined
       }
     ],
     [
@@ -172,13 +213,19 @@ const TokenDetails = ({
       isAmountZero,
       canToToppedUp,
       isSmartAccount,
-      hasTokenInfo,
+      coinGeckoTokenSlug,
       navigate,
       networks,
       addToast,
       token,
       handleClose,
-      network
+      network,
+      shouldDisableSwapAndBridge,
+      isNetworkNotSupportedForSwapAndBridge,
+      unavailableBecauseGasTankOrRewardsTokenTooltipText,
+      notImplementedYetTooltipText,
+      isGasTankToken,
+      isTokenInfoLoading
     ]
   )
   useEffect(() => {
@@ -191,27 +238,15 @@ const TokenDetails = ({
       setIsTokenInfoLoading(false)
       return
     }
-    const coingeckoId = geckoIdMapper(token?.address, network)
 
-    const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`
-
-    fetch(tokenInfoUrl, {
-      method: 'HEAD'
-    })
-      .then((result) => {
-        if (result.ok) {
-          setHasTokenInfo(true)
-          return
-        }
-
-        setHasTokenInfo(false)
-      })
-      .catch(() => {
-        addToast(t('Token info not found'), { type: 'error' })
-      })
-      .finally(() => {
-        setIsTokenInfoLoading(false)
-      })
+    const tokenAddr = token.address
+    const geckoChainId = network.platformId
+    const geckoNativeCoinId = network.nativeAssetId
+    const tokenInfoUrl = getCoinGeckoTokenApiUrl({ tokenAddr, geckoChainId, geckoNativeCoinId })
+    fetch(tokenInfoUrl)
+      .then((response) => response.json())
+      .then((result) => setCoinGeckoTokenSlug(result.web_slug))
+      .finally(() => setIsTokenInfoLoading(false))
   }, [t, token?.address, token?.networkId, networks, addToast, isOffline, network])
 
   const handleHideToken = () => {

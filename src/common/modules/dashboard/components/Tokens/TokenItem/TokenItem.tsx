@@ -4,7 +4,6 @@ import { useModalize } from 'react-native-modalize'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
-import { getAndFormatTokenDetails } from '@ambire-common/libs/portfolio/helpers'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
@@ -15,6 +14,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -63,16 +63,6 @@ const TokenItem = ({
   const tokenId = getTokenId(token)
 
   const simulatedAccountOp = portfolio.networkSimulatedAccountOp[token.networkId]
-  const tokenAmounts = useMemo(
-    () =>
-      portfolio.tokenAmounts.find(
-        (tokenAmount) =>
-          tokenAmount.address === token.address &&
-          tokenAmount.networkId === token.networkId &&
-          !token.flags.onGasTank
-      ),
-    [portfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
-  )
 
   const {
     balanceFormatted,
@@ -91,7 +81,7 @@ const TokenItem = ({
     pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getAndFormatTokenDetails(token, networks, tokenAmounts, simulatedAccountOp)
+  } = getAndFormatTokenDetails(token, networks, simulatedAccountOp)
 
   const isPending = !!hasPendingBadges
 

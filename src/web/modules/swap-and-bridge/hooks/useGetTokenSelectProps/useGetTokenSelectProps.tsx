@@ -5,7 +5,6 @@ import { View } from 'react-native'
 import { Network } from '@ambire-common/interfaces/network'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { getAndFormatTokenDetails } from '@ambire-common/libs/portfolio/helpers'
 import {
   getIsNetworkSupported,
   getIsTokenEligibleForSwapAndBridge
@@ -18,6 +17,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import PendingBadge from '@common/modules/dashboard/components/Tokens/TokenItem/PendingBadge'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -131,21 +131,6 @@ const useGetTokenSelectProps = ({
             getIsTokenEligibleForSwapAndBridge(pt)
         )
       : currentToken
-    const tokenAmounts = portfolio.tokenAmounts.find((tAmount) => {
-      const isOnGasTank = getIsToTokenTypeGuard(currentToken)
-        ? tokenInPortfolio?.flags.onGasTank ?? false // always assume false if missing in portfolio
-        : currentToken.flags.onGasTank
-      const rewardsType = getIsToTokenTypeGuard(currentToken)
-        ? tokenInPortfolio?.flags.rewardsType ?? null
-        : currentToken.flags.rewardsType
-
-      return (
-        tAmount.address === currentToken.address &&
-        tAmount.networkId === networkId &&
-        !isOnGasTank &&
-        !rewardsType
-      )
-    })
 
     const {
       balanceUSDFormatted = '',
@@ -160,9 +145,9 @@ const useGetTokenSelectProps = ({
       pendingBalanceUSDFormatted = ''
     } = getIsToTokenTypeGuard(currentToken)
       ? tokenInPortfolio
-        ? getAndFormatTokenDetails(tokenInPortfolio, networks, tokenAmounts, simulatedAccountOp)
+        ? getAndFormatTokenDetails(tokenInPortfolio, networks, simulatedAccountOp)
         : {}
-      : getAndFormatTokenDetails(currentToken, networks, tokenAmounts, simulatedAccountOp)
+      : getAndFormatTokenDetails(currentToken, networks, simulatedAccountOp)
 
     const formattedBalancesLabel = !!tokenInPortfolio && (
       <View

@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable } from 'react-native'
 
+import { getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { Network } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import HumanizerAddress from '@common/components/HumanizerAddress'
@@ -35,11 +36,11 @@ const InnerToken: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const openExplorer = useCallback(async () => {
-    let targetUrl = `${network?.explorerUrl}/address/${address}`
-
-    if (address === ZeroAddress) {
-      targetUrl = `https://www.coingecko.com/en/coins/${network?.nativeAssetId}`
-    }
+    const targetUrl =
+      address === ZeroAddress && network?.nativeAssetId
+        ? // Exception for native tokens, they don't have a block explorer URLs
+          getCoinGeckoTokenUrl(network.nativeAssetId)
+        : `${network?.explorerUrl}/address/${address}`
 
     if (network) await Linking.openURL(targetUrl)
   }, [network, address])
