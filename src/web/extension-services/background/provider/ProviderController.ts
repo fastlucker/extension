@@ -157,7 +157,6 @@ export class ProviderController {
     params: { account, assetFilter: _assetFilter },
     session: { origin }
   }: DappProviderRequest) => {
-    // @TODO fix
     const assetFilter = _assetFilter as { [a: string]: string[] }
 
     if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
@@ -168,7 +167,7 @@ export class ProviderController {
       throw new Error('wallet account not selected')
     }
 
-    if (typeof assetFilter !== 'object') throw new Error('wtf')
+    if (typeof assetFilter !== 'object') throw new Error('Wrong request data format')
 
     const res: { [chainId: string]: any[] } = {}
 
@@ -179,7 +178,6 @@ export class ProviderController {
       )
       if (!network) return
       const tokensInPortfolio = this.mainCtrl.selectedAccount.portfolio.tokens
-      // console.log({ portfolioNetwork })
       if (!tokensInPortfolio) return
 
       tokens.forEach((requestedTokenAddress) => {
@@ -194,7 +192,7 @@ export class ProviderController {
           metadata: {
             symbol: token.symbol,
             decimals: token.decimals,
-            // @TODO: by the ERC7811 standard this should be name, not symbol
+            // @NOTE: by the ERC7811 standard this should be name, not symbol, but we do not store token names
             name: token.symbol
           }
         })
