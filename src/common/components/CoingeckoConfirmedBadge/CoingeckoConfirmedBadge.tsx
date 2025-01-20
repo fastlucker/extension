@@ -47,11 +47,15 @@ const CoingeckoConfirmedBadge = ({ text, address, network, containerStyle }: Pro
     const geckoNativeCoinId = network.nativeAssetId
     const tokenInfoUrl = getCoinGeckoTokenApiUrl({ tokenAddr, geckoChainId, geckoNativeCoinId })
 
+    const abortController = new AbortController()
+    const signal = abortController.signal
     setIsTokenInfoLoading(true)
-    fetch(tokenInfoUrl)
+    fetch(tokenInfoUrl, { signal })
       .then((response) => response.json())
-      .then((result) => setCoinGeckoTokenSlug(result.web_slug))
-      .finally(() => setIsTokenInfoLoading(false))
+      .then((result) => !signal.aborted && setCoinGeckoTokenSlug(result.web_slug))
+      .finally(() => !signal.aborted && setIsTokenInfoLoading(false))
+
+    return () => abortController.abort()
   }, [addToast, t, address, network, coinGeckoTokenSlug])
 
   if (isTokenInfoLoading) return <Spinner style={{ width: 16, height: 16 }} />
