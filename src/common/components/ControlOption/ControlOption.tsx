@@ -1,6 +1,6 @@
 import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View, ViewStyle } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -9,6 +9,7 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 interface Props {
   title: string
@@ -32,8 +33,13 @@ const ControlOption: FC<Props> = ({
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const [bindAnim, animStyle] = useCustomHover({
+    property: 'backgroundColor',
+    values: { from: theme.secondaryBackground, to: theme.tertiaryBackground },
+    duration: 200
+  })
 
-  const ParentElement = onPress ? Pressable : View
+  const ParentElement = onPress ? AnimatedPressable : View
 
   const openReadMoreLink = () => {
     openInTab(readMoreLink, false).catch(() => addToast(t('Failed to open link')))
@@ -51,9 +57,11 @@ const ControlOption: FC<Props> = ({
         {
           backgroundColor: theme.secondaryBackground
         },
+        animStyle,
         style
       ]}
       onPress={onPress}
+      {...bindAnim}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1, spacings.pr]}>
         <View
