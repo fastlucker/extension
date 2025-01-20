@@ -7,7 +7,7 @@ import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
-import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { getAndFormatTokenDetails, getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
@@ -23,7 +23,6 @@ import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
@@ -256,7 +255,7 @@ const TokenDetails = ({
   } = token
 
   const { priceUSDFormatted, balanceUSDFormatted, isRewards, isVesting, networkData, balance } =
-    getTokenDetails(token, networks)
+    getAndFormatTokenDetails(token, networks)
 
   return (
     <View>

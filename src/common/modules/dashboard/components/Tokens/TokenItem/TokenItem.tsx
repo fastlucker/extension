@@ -4,6 +4,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { getAndFormatTokenDetails } from '@ambire-common/libs/portfolio/helpers'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
@@ -14,7 +15,6 @@ import TokenIcon from '@common/components/TokenIcon'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -91,7 +91,7 @@ const TokenItem = ({
     pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getTokenDetails(token, networks, tokenAmounts, simulatedAccountOp)
+  } = getAndFormatTokenDetails(token, networks, tokenAmounts, simulatedAccountOp)
 
   const isPending = !!hasPendingBadges
 
