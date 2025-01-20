@@ -100,10 +100,6 @@ const ToTokenSelect: React.FC<Props> = ({
           spacings.ph,
           spacings.pt,
           section?.key === 'swap-and-bridge-to-account-tokens' ? spacings.pbSm : spacings.pbSm
-          // TODO: Maybe?
-          // section?.key === 'swap-and-bridge-to-service-provider-tokens' && {
-          //   borderTopWidth: 1
-          // }
         ]}
       >
         {section.title.icon}
