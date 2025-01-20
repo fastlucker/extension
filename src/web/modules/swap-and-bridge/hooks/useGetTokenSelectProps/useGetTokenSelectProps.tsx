@@ -8,7 +8,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getAndFormatTokenDetails } from '@ambire-common/libs/portfolio/helpers'
 import {
   getIsNetworkSupported,
-  getIsTokenEligibleForSwapAndBridgeToToken
+  getIsTokenEligibleForSwapAndBridge
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CartIcon from '@common/assets/svg/CartIcon'
@@ -128,7 +128,7 @@ const useGetTokenSelectProps = ({
           (pt) =>
             pt.address === currentToken.address &&
             pt.networkId === networkId &&
-            getIsTokenEligibleForSwapAndBridgeToToken(pt)
+            getIsTokenEligibleForSwapAndBridge(pt)
         )
       : currentToken
     const tokenAmounts = portfolio.tokenAmounts.find((tAmount) => {
@@ -293,7 +293,6 @@ const useGetTokenSelectProps = ({
       networkId,
       disabled: !isTokenNetworkSupported,
       extraSearchProps: { symbol, name, address: currentToken.address },
-      isInAccPortfolio: !!tokenInPortfolio,
       label,
       icon: (
         <TokenIcon

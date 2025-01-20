@@ -5,7 +5,7 @@ import { View } from 'react-native'
 
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
-import { getIsTokenEligibleForSwapAndBridgeToToken } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import CoinsIcon from '@common/assets/svg/CoinsIcon'
 import StarFilledIcon from '@common/assets/svg/StarFilledIcon'
 import { SectionedSelect } from '@common/components/Select'
@@ -64,7 +64,7 @@ const ToTokenSelect: React.FC<Props> = ({
           (pt) =>
             pt.address === option.address &&
             pt.networkId === option.networkId &&
-            getIsTokenEligibleForSwapAndBridgeToToken(pt)
+            getIsTokenEligibleForSwapAndBridge(pt)
         )
 
         isInPortfolioAndEligible
