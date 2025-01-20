@@ -82,6 +82,8 @@ export const handleActions = async (
       }
       break
     }
+    case 'MAIN_CONTROLLER_ON_LOAD':
+      return mainCtrl.onLoad()
     case 'MAIN_CONTROLLER_LOCK':
       return mainCtrl.lock()
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
