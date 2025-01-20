@@ -608,6 +608,7 @@ export const handleActions = async (
     }
 
     default:
+      // eslint-disable-next-line no-console
       return console.error(
         `Dispatched ${type} action, but handler in the extension background process not found!`
       )

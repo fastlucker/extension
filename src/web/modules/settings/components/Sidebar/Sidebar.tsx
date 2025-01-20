@@ -44,6 +44,12 @@ export const SETTINGS_LINKS = [
     path: ROUTES.accountsSettings
   },
   {
+    key: 'smarterEOAs',
+    Icon: React.memo(AccountsIcon),
+    label: 'Basic to Smart',
+    path: ROUTES.smarterEOAsSettings
+  },
+  {
     key: 'address-book',
     Icon: React.memo(AddressBookIcon),
     label: 'Address Book',

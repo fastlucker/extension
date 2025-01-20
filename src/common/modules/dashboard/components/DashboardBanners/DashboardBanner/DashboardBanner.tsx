@@ -119,6 +119,10 @@ const DashboardBanner = ({
           type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
         })
       }
+
+      if (action.actionName === 'activate-7702') {
+        navigate(ROUTES.smarterEOAsSettings)
+      }
     },
     [visibleActionsQueue, type, banner, setBottomSheetBanner, dispatch, addToast, navigate]
   )

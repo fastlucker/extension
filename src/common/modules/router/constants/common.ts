@@ -69,6 +69,7 @@ const WEB_ROUTES = {
   settingsTerms: 'settings/terms',
   networksSettings: 'settings/networks',
   accountsSettings: 'settings/accounts',
+  smarterEOAsSettings: 'settings/basic-to-smart',
   exportKey: 'settings/accounts/exportKey',
   devicePasswordSet: 'settings/device-password-set',
   devicePasswordChange: 'settings/device-password-change',

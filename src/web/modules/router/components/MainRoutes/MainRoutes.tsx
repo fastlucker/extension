@@ -52,6 +52,7 @@ import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettin
 import SavedSeedScreen from '@web/modules/settings/screens/SavedSeedScreen'
 import SecurityAndPrivacyScreen from '@web/modules/settings/screens/SecurityAndPrivacyScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen'
+import SmarterEOAsSettings from '@web/modules/settings/screens/SmarterEOAsSettings'
 import TermsSettingsScreen from '@web/modules/settings/screens/TermsSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
@@ -156,6 +157,7 @@ const MainRoutes = () => {
                     element={<SecurityAndPrivacyScreen />}
                   />
                   <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
+                  <Route path={WEB_ROUTES.smarterEOAsSettings} element={<SmarterEOAsSettings />} />
                   <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
                   <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
                   <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
