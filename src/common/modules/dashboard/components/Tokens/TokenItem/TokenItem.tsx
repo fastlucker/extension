@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -63,16 +63,6 @@ const TokenItem = ({
   const tokenId = getTokenId(token)
 
   const simulatedAccountOp = portfolio.networkSimulatedAccountOp[token.networkId]
-  const tokenAmounts = useMemo(
-    () =>
-      portfolio.tokenAmounts.find(
-        (tokenAmount) =>
-          tokenAmount.address === token.address &&
-          tokenAmount.networkId === token.networkId &&
-          !token.flags.onGasTank
-      ),
-    [portfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
-  )
 
   const {
     balanceFormatted,
@@ -91,7 +81,7 @@ const TokenItem = ({
     pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getTokenDetails(token, networks, tokenAmounts, simulatedAccountOp)
+  } = getTokenDetails(token, networks, simulatedAccountOp)
 
   const isPending = !!hasPendingBadges
 
