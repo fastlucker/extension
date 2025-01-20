@@ -11,7 +11,7 @@ import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -38,7 +38,7 @@ const Token = ({
     () =>
       temporaryToken &&
       temporaryToken?.flags &&
-      getTokenDetails(temporaryToken as TokenResult, networks),
+      getAndFormatTokenDetails(temporaryToken as TokenResult, networks),
     [temporaryToken, networks]
   )
 

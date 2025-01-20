@@ -68,8 +68,8 @@ const TransferScreen = () => {
   const actionsState = useActionsControllerState()
 
   const hasOpenedActionWindow = useMemo(
-    () => actionsState.currentAction || actionsState.actionWindow.id,
-    [actionsState.currentAction, actionsState.actionWindow.id]
+    () => actionsState.currentAction || actionsState.actionWindow.windowProps,
+    [actionsState.currentAction, actionsState.actionWindow.windowProps]
   )
 
   const transactionUserRequests = useMemo(() => {

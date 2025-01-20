@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events'
 
+import { WindowProps } from '@ambire-common/interfaces/window'
 import { SPACING } from '@common/styles/spacings'
 import { browser, engine, isExtension, isSafari } from '@web/constants/browserapi'
 import { IS_WINDOWS } from '@web/constants/common'
@@ -55,7 +56,7 @@ const getScreenWidth = (w: number) => {
 
 // creates a browser new window that is 15% smaller
 // of the current page and is centered in the browser app
-const createFullScreenWindow = async (url: string) => {
+const createFullScreenWindow = async (url: string): Promise<WindowProps> => {
   let screenWidth = 0
   let screenHeight = 0
 
@@ -115,9 +116,19 @@ const createFullScreenWindow = async (url: string) => {
                 top: topPosition <= SPACING ? Math.round(SPACING) : Math.round(topPosition),
                 state: 'normal'
               },
-              // @ts-ignore
               (win) => {
-                resolve(win)
+                resolve(
+                  win?.id
+                    ? {
+                        id: win.id,
+                        width: desiredWidth,
+                        height: desiredHeight,
+                        left:
+                          leftPosition <= SPACING ? Math.round(SPACING) : Math.round(leftPosition),
+                        top: topPosition <= SPACING ? Math.round(SPACING) : Math.round(topPosition)
+                      }
+                    : null
+                )
               }
             )
           }
@@ -127,22 +138,25 @@ const createFullScreenWindow = async (url: string) => {
   })
 }
 
-const create = async (url: string): Promise<number> => {
-  const win: any = await createFullScreenWindow(url)
-  return win.id
+const create = async (url: string): Promise<WindowProps> => {
+  const windowProps = await createFullScreenWindow(url)
+  return windowProps
 }
 
 const remove = async (winId: number) => {
   await chrome.windows.remove(winId)
 }
 
-const open = async (route?: string): Promise<number> => {
+const open = async (route?: string): Promise<WindowProps> => {
   const url = `action-window.html${route ? `#/${route}` : ''}`
   return create(url)
 }
 
-const focus = async (windowId: number) => {
-  await chrome.windows.update(windowId, { focused: true })
+const focus = async (windowProps: WindowProps) => {
+  if (windowProps) {
+    const { id, top, left, width, height } = windowProps
+    await chrome.windows.update(id, { focused: true, top, left, width, height })
+  }
 }
 
 const closeCurrentWindow = async () => {

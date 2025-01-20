@@ -7,7 +7,10 @@ import { useSearchParams } from 'react-router-dom'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import {
+  getIsNetworkSupported,
+  getIsTokenEligibleForSwapAndBridge
+} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
@@ -68,11 +71,7 @@ const useSwapAndBridgeForm = () => {
         (t) =>
           t.address === searchParams.get('address') &&
           t.networkId === searchParams.get('networkId') &&
-          // The same token can be in the Gas Tank (or as a Reward) and in the portfolio.
-          // Exclude the one in the Gas Tank (swapping Gas Tank tokens is not supported).
-          !t.flags.onGasTank &&
-          // And exclude the rewards ones (swapping rewards is not supported).
-          !t.flags.rewardsType
+          getIsTokenEligibleForSwapAndBridge(t)
       )
 
       if (tokenToSelectOnInit) {
