@@ -452,6 +452,9 @@ type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
   params: { activeRouteId: number }
 }
+type SwapAndBridgeControllerUpdateQuoteAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE'
+}
 type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: number }
@@ -648,6 +651,7 @@ export type Action =
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerSubmitFormAction
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
+  | SwapAndBridgeControllerUpdateQuoteAction
   | SwapAndBridgeControllerRemoveActiveRouteAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
