@@ -1,7 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue
+  Action as ActionFromActionsQueue,
+  ActionExecutionType
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -161,7 +162,7 @@ type MainControllerBuildTransferUserRequest = {
     amount: string
     selectedToken: TokenResult
     recipientAddress: string
-    executionType: 'queue' | 'open'
+    actionExecutionType: ActionExecutionType
   }
 }
 type MainControllerBuildClaimWalletUserRequest = {
@@ -460,10 +461,6 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
   params: { activeRouteId: number }
 }
 
-type ActionsControllerAddToActionsQueue = {
-  type: 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE'
-  params: ActionFromActionsQueue
-}
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
   params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
@@ -653,7 +650,6 @@ export type Action =
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerUpdateQuoteAction
   | SwapAndBridgeControllerRemoveActiveRouteAction
-  | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
   | ActionsControllerCloseActionWindow
