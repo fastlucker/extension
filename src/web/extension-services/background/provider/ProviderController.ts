@@ -150,6 +150,60 @@ export class ProviderController {
     }
   }
 
+  // ERC-7811 https://github.com/ethereum/ERCs/pull/709/
+  // Adding 'custom' in then name as the ERC is still not completed and might update some
+  // specifications.
+  walletCustomGetAssets = async ({
+    params: { account, assetFilter: _assetFilter },
+    session: { origin }
+  }: DappProviderRequest) => {
+    // @TODO fix
+    const assetFilter = _assetFilter as { [a: string]: string[] }
+
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    if (!this.mainCtrl.selectedAccount.account) {
+      throw new Error('wallet account not selected')
+    }
+
+    if (typeof assetFilter !== 'object') throw new Error('wtf')
+
+    const res: { [chainId: string]: any[] } = {}
+
+    Object.entries(assetFilter).forEach(([chainId, tokens]: [string, string[]]) => {
+      if (!res[chainId]) res[chainId] = []
+      const network = this.mainCtrl.networks.networks.find(
+        (n) => Number(n.chainId) === Number(chainId)
+      )
+      if (!network) return
+      const tokensInPortfolio = this.mainCtrl.selectedAccount.portfolio.tokens
+      // console.log({ portfolioNetwork })
+      if (!tokensInPortfolio) return
+
+      tokens.forEach((requestedTokenAddress) => {
+        const token = (tokensInPortfolio || []).find(({ address, networkId }) => {
+          return address === requestedTokenAddress && networkId === network.id
+        })
+        if (!token) return
+        res[chainId].push({
+          address: token.address,
+          balance: `0x${(token.pendingAmount || token.latestAmount || 0).toString(16)}`,
+          type: 'ERC20',
+          metadata: {
+            symbol: token.symbol,
+            decimals: token.decimals,
+            // @TODO: by the ERC7811 standard this should be name, not symbol
+            name: token.symbol
+          }
+        })
+      })
+    })
+
+    return res
+  }
+
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }: DappProviderRequest) => {
     if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
