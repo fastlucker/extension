@@ -6,6 +6,7 @@ import { SvgProps } from 'react-native-svg'
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
 import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
 import BugIcon from '@common/assets/svg/BugIcon'
+import BulbIcon from '@common/assets/svg/BulbIcon'
 import CustomTokensIcon from '@common/assets/svg/CustomTokensIcon'
 import EmailVaultIcon from '@common/assets/svg/EmailVaultIcon'
 import HelpIcon from '@common/assets/svg/HelpIcon'
@@ -117,9 +118,10 @@ const OTHER_LINKS = [
     isExternal: true
   },
   {
-    key: 'terms-of-service',
-    label: 'Terms of Service',
-    path: ROUTES.settingsTerms
+    key: 'about',
+    Icon: BulbIcon,
+    label: 'About',
+    path: ROUTES.settingsAbout
   }
 ]
 
