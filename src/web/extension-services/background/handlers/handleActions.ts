@@ -82,6 +82,10 @@ export const handleActions = async (
       }
       break
     }
+    case 'MAIN_CONTROLLER_ON_LOAD':
+      return mainCtrl.onLoad()
+    case 'MAIN_CONTROLLER_LOCK':
+      return mainCtrl.lock()
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
       return await mainCtrl.handleAccountAdderInitLedger(LedgerKeyIterator)
     }
@@ -480,8 +484,6 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
       return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
-    case 'KEYSTORE_CONTROLLER_LOCK':
-      return mainCtrl.keystore.lock()
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
       return mainCtrl.keystore.resetErrorState()
     case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':

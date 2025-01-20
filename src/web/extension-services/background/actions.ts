@@ -321,6 +321,14 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
+type MainControllerOnLoadAction = {
+  type: 'MAIN_CONTROLLER_ON_LOAD'
+}
+
+type MainControllerLockAction = {
+  type: 'MAIN_CONTROLLER_LOCK'
+}
+
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
@@ -328,9 +336,6 @@ type KeystoreControllerAddSecretAction = {
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
-}
-type KeystoreControllerLockAction = {
-  type: 'KEYSTORE_CONTROLLER_LOCK'
 }
 type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
@@ -594,6 +599,8 @@ export type Action =
   | AddNextSmartAccountFromSavedSeedPhraseAction
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
+  | MainControllerLockAction
+  | MainControllerOnLoadAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
   | MainControllerBuildMintVestingUserRequest
@@ -625,7 +632,6 @@ export type Action =
   | PortfolioControllerUpdateConfettiToShown
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
-  | KeystoreControllerLockAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
   | KeystoreControllerChangePasswordFromRecoveryAction

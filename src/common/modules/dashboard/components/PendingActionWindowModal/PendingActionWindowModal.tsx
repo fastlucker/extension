@@ -24,64 +24,63 @@ const PendingActionWindowModal = () => {
   }, [dispatch])
 
   const title = useMemo(() => {
-    if (!currentAction) return t('Pending Action Window')
+    if (!currentAction) return null
 
-    if (currentAction.type === 'accountOp') return t('Pending transaction signature window')
-    if (currentAction.type === 'signMessage') return t('Pending message signature window')
-    if (currentAction.type === 'switchAccount') return t('Pending switch account window')
+    if (currentAction.type === 'accountOp') return t('Finish your pending transaction(s)')
+    if (currentAction.type === 'signMessage') return t('Finish your pending message signature')
+    if (currentAction.type === 'switchAccount') return t('Finish switching accounts')
     if (currentAction.type === 'dappRequest') {
       if (currentAction.userRequest.action.kind === 'dappConnect')
-        return t('Pending app connection window')
+        return t('Finish connecting to an app')
       if (currentAction.userRequest.action.kind === 'walletAddEthereumChain')
-        return t('Adding a network is pending')
+        return t('Finish adding a new network')
       if (currentAction.userRequest.action.kind === 'walletWatchAsset')
-        return t('Adding a token is pending')
+        return t('Finish adding a new token')
     }
 
-    return t('Pending Action Window')
+    return null
   }, [currentAction, t])
 
   const description = useMemo(() => {
-    if (!currentAction)
-      return t(
-        'You have an opened action window that is minimized. Would you like to focus on the action window?'
-      )
+    if (!currentAction) return null
 
     if (currentAction.type === 'accountOp')
       return t(
-        'Your transaction(s) are waiting for signature. Would you like to focus on the action window?'
+        'One or more transactions are waiting for you to sign them. Would you like to open the active window?'
       )
     if (currentAction.type === 'signMessage')
-      return t('Message signature is waiting. Would you like to focus on the action window?')
+      return t(
+        'There is a message waiting for you to sign it. Would you like to open the active window?'
+      )
     if (currentAction.type === 'switchAccount')
       return t(
-        'You have a pending switch account request. Would you like to focus on the action window?'
+        'You started switching accounts and never finished. Would you like to open the active window?'
       )
     if (currentAction.type === 'dappRequest') {
       if (currentAction.userRequest.action.kind === 'dappConnect')
         return t(
-          'Connection request from an app is waiting. Would you like to focus on the action window?'
+          'An app is waiting for you to connect to it. Would you like to open the active window?'
         )
       if (currentAction.userRequest.action.kind === 'walletAddEthereumChain')
         return t(
-          'There is a pending network addition window. Would you like to focus on the action window?'
+          'You started adding a new network and never finished. Would you like to open the active window?'
         )
       if (currentAction.userRequest.action.kind === 'walletWatchAsset')
         return t(
-          'There is a pending token addition window. Would you like to focus on the action window?'
+          'You started adding a new token and never finished. Would you like to open the active window?'
         )
     }
 
-    return t(
-      'You have an opened action window that is minimized. Would you like to focus on the action window?'
-    )
+    return null
   }, [currentAction, t])
 
   if (
     isPopup &&
     actionWindow?.id &&
     currentAction &&
-    !['benzin', 'unlock'].includes(currentAction.type)
+    !['benzin', 'unlock'].includes(currentAction.type) &&
+    title &&
+    description
   ) {
     return (
       <BottomSheet
@@ -97,7 +96,7 @@ const PendingActionWindowModal = () => {
           title={title}
           description={description}
           Icon={PendingActionWindowIcon}
-          primaryButtonText={t('Focus Window')}
+          primaryButtonText={t('Open Active Window')}
           onPrimaryButtonPress={onPrimaryButtonPress}
           onCloseIconPress={closeBottomSheet}
         />

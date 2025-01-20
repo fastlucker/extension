@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Network } from '@ambire-common/interfaces/network'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -130,27 +131,39 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     ]
   )
 
-  const simulationView: 'no-changes' | 'changes' | 'error' | 'error-handled-elsewhere' | null =
-    useMemo(() => {
-      if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
+  const simulationView:
+    | 'no-changes'
+    | 'changes'
+    | 'error'
+    | 'error-handled-elsewhere'
+    | 'simulation-not-supported'
+    | null = useMemo(() => {
+    if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
-      if (signAccountOpState.status?.type === SigningStatus.EstimationError)
-        return 'error-handled-elsewhere'
+    if (signAccountOpState.status?.type === SigningStatus.EstimationError)
+      return 'error-handled-elsewhere'
 
-      if (simulationErrorMsg) return 'error'
+    if (simulationErrorMsg) return 'error'
 
-      return pendingSendCollection.length || pendingReceiveCollection.length || pendingTokens.length
-        ? 'changes'
-        : 'no-changes'
-    }, [
-      shouldShowLoader,
-      signAccountOpState?.isInitialized,
-      signAccountOpState?.status,
-      simulationErrorMsg,
-      pendingSendCollection.length,
-      pendingReceiveCollection.length,
-      pendingTokens.length
-    ])
+    if (pendingSendCollection.length || pendingReceiveCollection.length || pendingTokens.length)
+      return 'changes'
+
+    // no-changes from here
+    if (!isSmartAccount(signAccountOpState.account) && !!network?.rpcNoStateOverride)
+      return 'simulation-not-supported'
+
+    return 'no-changes'
+  }, [
+    shouldShowLoader,
+    signAccountOpState?.isInitialized,
+    signAccountOpState?.status,
+    simulationErrorMsg,
+    pendingSendCollection.length,
+    pendingReceiveCollection.length,
+    pendingTokens.length,
+    network?.rpcNoStateOverride,
+    signAccountOpState?.account
+  ])
 
   useEffect(() => {
     if (simulationView && !initialSimulationLoaded) {
@@ -294,6 +307,19 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                 carefully
               </Text>{' '}
               review the transaction preview below.
+            </Trans>
+          }
+        />
+      )}
+      {simulationView === 'simulation-not-supported' && (
+        <Alert
+          type="warning"
+          isTypeLabelHidden
+          title={
+            <Trans>
+              The RPC cannot perform simulations for Basic Accounts. Try changing the RPC from
+              Settings. If you wish to proceed regardless, please carefully review the transaction
+              preview below.
             </Trans>
           }
         />

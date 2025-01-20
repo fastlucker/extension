@@ -11,6 +11,7 @@ import {
 } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 
+import { BUNDLER } from '@ambire-common/consts/bundlers'
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
@@ -18,11 +19,13 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import {
   AccountOpIdentifiedBy,
   fetchTxnId,
-  isIdentifiedByTxn
+  isIdentifiedByTxn,
+  SubmittedAccountOp
 } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
+import { parseLogs } from '@ambire-common/libs/userOperation/userOperation'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import {
   handleOps060,
@@ -31,7 +34,6 @@ import {
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
-import { parseLogs } from './utils/parseLogs'
 import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
@@ -47,6 +49,8 @@ interface Props {
   }
   setActiveStep: (step: ActiveStepType) => void
   provider: JsonRpcProvider | null
+  bundler?: BUNDLER
+  extensionAccOp?: SubmittedAccountOp // only for in-app benzina
 }
 
 export interface StepsData {
@@ -68,7 +72,8 @@ const setUrlToTxnId = (
   transactionHash: string,
   userOpHash: string | null,
   relayerId: string | null,
-  chainId: bigint
+  chainId: bigint,
+  bundler?: BUNDLER
 ) => {
   const splitUrl = (window.location.href || '').split('?')
   const search = splitUrl[1]
@@ -77,7 +82,7 @@ const setUrlToTxnId = (
 
   const getIdentifiedBy = (): AccountOpIdentifiedBy => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
-    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash, bundler }
     return { type: 'Transaction', identifier: transactionHash }
   }
 
@@ -113,7 +118,9 @@ const useSteps = ({
   network,
   standardOptions,
   setActiveStep,
-  provider
+  provider,
+  bundler,
+  extensionAccOp
 }: Props): StepsData => {
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
@@ -134,12 +141,19 @@ const useSteps = ({
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
   const [foundTxnId, setFoundTxnId] = useState<null | string>(txnId)
   const [hasCheckedFrontRun, setHasCheckedFrontRun] = useState<boolean>(false)
+  const [calls, setCalls] = useState<IrCall[]>([])
+  const [from, setFrom] = useState<null | string>(null)
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
-    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash }
+    if (userOpHash)
+      return {
+        type: 'UserOperation',
+        identifier: userOpHash,
+        bundler
+      }
     return { type: 'Transaction', identifier: txnId as string }
-  }, [relayerId, userOpHash, txnId])
+  }, [relayerId, userOpHash, txnId, bundler])
 
   const receiptAlreadyFetched = useMemo(() => !!txnReceipt.blockNumber, [txnReceipt.blockNumber])
 
@@ -170,7 +184,7 @@ const useSteps = ({
         if (resultTxnId !== foundTxnId) {
           setFoundTxnId(resultTxnId)
           setActiveStep('in-progress')
-          setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.chainId)
+          setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.chainId, bundler)
         }
 
         // if there's no txn and receipt, keep searching
@@ -197,7 +211,8 @@ const useSteps = ({
     relayerId,
     userOpHash,
     txn,
-    receiptAlreadyFetched
+    receiptAlreadyFetched,
+    bundler
   ])
 
   // find the transaction
@@ -364,7 +379,7 @@ const useSteps = ({
               : error.message
         })
       })
-  }, [provider, txn, finalizedStatus, hasCheckedFrontRun])
+  }, [provider, txn, finalizedStatus, hasCheckedFrontRun, userOpHash])
 
   // calculate pending time
   useEffect(() => {
@@ -430,6 +445,7 @@ const useSteps = ({
         ? handleOps060.decodeFunctionData('handleOps', txn.data)
         : handleOps070.decodeFunctionData('handleOps', txn.data)
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log('this txn is an userOp but does not call handleOps')
       setUserOp({
         sender: '',
@@ -543,20 +559,44 @@ const useSteps = ({
     }
   }, [network, txn, userOpHash, userOp])
 
-  const { calls, from }: { calls?: IrCall[]; from?: string } = useMemo(() => {
-    if (userOpHash && userOp?.hashStatus !== 'found') return {}
-    if (!network) return {}
-    if (txnReceipt.actualGasCost) setCost(formatEther(txnReceipt.actualGasCost!.toString()))
-    if (userOp?.hashStatus !== 'found' && txn && txnId && entryPointTxnSplit[txn.data.slice(0, 10)])
-      return { calls: entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId) }
-    if (txnReceipt.originatedFrom && txn) {
+  // update the gas cost
+  useEffect(() => {
+    if (!txnReceipt.actualGasCost || cost) return
+
+    setCost(formatEther(txnReceipt.actualGasCost.toString()))
+  }, [txnReceipt.actualGasCost, cost])
+
+  useEffect(() => {
+    if (!network || (calls.length && from)) return
+
+    // if we have the extension account op passed, we do not need to
+    // wait to show the calls
+    if (extensionAccOp) {
+      const humanizedCalls = humanizeAccountOp(extensionAccOp, { network })
+      setCalls(parseHumanizer(humanizedCalls))
+      setFrom(extensionAccOp.accountAddr)
+      return
+    }
+
+    if (userOpHash && userOp?.hashStatus !== 'found') return
+    if (
+      userOp?.hashStatus !== 'found' &&
+      txn &&
+      txnId &&
+      entryPointTxnSplit[txn.data.slice(0, 10)]
+    ) {
+      setCalls(entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId))
+      return
+    }
+
+    if (txn) {
       const { calls: decodedCalls, from: account } = userOp
         ? decodeUserOp(userOp)
         : reproduceCallsFromTxn(txn)
       const accountOp: AccountOp = {
-        accountAddr: userOp?.sender || account || txnReceipt.originatedFrom!,
+        accountAddr: userOp?.sender || account || txnReceipt.originatedFrom || 'Loading...',
         networkId: network.id,
-        signingKeyAddr: txnReceipt.originatedFrom!, // irrelevant
+        signingKeyAddr: txnReceipt.originatedFrom, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
         calls: decodedCalls,
@@ -566,10 +606,11 @@ const useSteps = ({
         accountOpToExecuteBefore: null
       }
       const humanizedCalls = humanizeAccountOp(accountOp, { network })
-      return { calls: parseHumanizer(humanizedCalls), from: account }
+      setCalls(parseHumanizer(humanizedCalls))
+      setFrom(account ?? 'Loading...')
     }
-    return {}
-  }, [network, txnReceipt, txn, userOpHash, userOp, txnId])
+  }, [network, txnReceipt, txn, userOpHash, userOp, txnId, calls.length, extensionAccOp, from])
+
   return {
     nativePrice,
     blockData,

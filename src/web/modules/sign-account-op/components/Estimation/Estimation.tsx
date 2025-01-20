@@ -438,7 +438,7 @@ const Estimation = ({
           title={t('Note')}
           style={spacings.mtTy}
           text={t(
-            'Because this is your first Ambire transaction, the fee is 32% higher than usual because we have to deploy your smart wallet. Subsequent transactions will be cheaper.'
+            'This is your first transaction on this network, so a one-time Smart Account setup fee will increase the gas cost by around 32%. Future transactions will be cheaper.'
           )}
         />
       ) : null}

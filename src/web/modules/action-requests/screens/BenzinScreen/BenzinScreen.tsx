@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { BenzinAction } from '@ambire-common/interfaces/actions'
 import Benzin from '@benzin/screens/BenzinScreen/components/Benzin/Benzin'
 import Buttons from '@benzin/screens/BenzinScreen/components/Buttons'
 import useBenzin from '@benzin/screens/BenzinScreen/hooks/useBenzin'
@@ -30,7 +31,13 @@ const BenzinScreen = () => {
     })
   }, [actionsState.currentAction, dispatch])
 
-  const state = useBenzin({ onOpenExplorer: resolveAction })
+  const extensionAccOp = (actionsState.currentAction as BenzinAction)?.userRequest?.meta
+    ?.submittedAccountOp
+
+  const state = useBenzin({
+    onOpenExplorer: resolveAction,
+    extensionAccOp
+  })
 
   const pendingRequests = useMemo(() => {
     if (!actionsState.visibleActionsQueue) return []
