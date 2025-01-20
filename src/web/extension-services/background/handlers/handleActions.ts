@@ -280,7 +280,7 @@ export const handleActions = async (
         params.amount,
         params.recipientAddress,
         params.selectedToken,
-        params.executionType
+        params.actionExecutionType
       )
 
     case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
@@ -367,8 +367,6 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
-    case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
-      return mainCtrl.actions.addOrUpdateAction(params)
     case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
       return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
