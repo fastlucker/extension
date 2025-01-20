@@ -1,2 +1,6 @@
+import { SELECTORS } from '../../common/selectors/selectors'
+
+export const ETH_TOKEN_SELECTOR = '0x0000000000000000000000000000000000000000eth'
 export const POL_TOKEN_SELECTOR = '0x0000000000000000000000000000000000000000pol'
 export const MIN_TOTAL_BALANCE_IN_USD = 10
+export const SEND_TOKEN_SELECTOR = SELECTORS.usdcTokenBaseDashboard

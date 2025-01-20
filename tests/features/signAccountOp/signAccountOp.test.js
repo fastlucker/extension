@@ -2,7 +2,12 @@ import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { baParams, saParams } from '../../config/constants'
 import { SELECTORS } from '../../common/selectors/selectors'
 import { buildFeeTokenSelector, checkMinimumBalance } from './functions'
-import { POL_TOKEN_SELECTOR, MIN_TOTAL_BALANCE_IN_USD } from './constants'
+import {
+  POL_TOKEN_SELECTOR,
+  MIN_TOTAL_BALANCE_IN_USD,
+  SEND_TOKEN_SELECTOR,
+  ETH_TOKEN_SELECTOR
+} from './constants'
 import {
   makeValidTransaction,
   checkTokenBalanceClickOnGivenActionInDashboard
@@ -29,7 +34,7 @@ describe('Signing and broadcasting an account operation with a Basic Account', (
   it('Should sign and broadcast an account op with Basic Account', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      SELECTORS.nativeTokenPolygonDyn,
+      SEND_TOKEN_SELECTOR,
       SELECTORS.tokenSend
     )
     await makeValidTransaction(page, extensionURL, browser, {
@@ -46,7 +51,7 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
 
   const feeTokenWithEOASelector = buildFeeTokenSelector(
     baParams.envSelectedAccount,
-    POL_TOKEN_SELECTOR
+    ETH_TOKEN_SELECTOR
   )
 
   const feeTokenWithGasTankSelector = buildFeeTokenSelector(
@@ -70,7 +75,7 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
   it('Should sign and broadcast an account op with Smart Account, Should add to the queue a couple of transactions and then remove some of them. Should broadcast a (batched) account op with an EOA', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      SELECTORS.nativeTokenPolygonDyn,
+      SEND_TOKEN_SELECTOR,
       SELECTORS.tokenSend
     )
     await makeValidTransaction(page, extensionURL, browser, {
@@ -96,7 +101,7 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
 
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      SELECTORS.nativeTokenPolygonDyn,
+      SEND_TOKEN_SELECTOR,
       SELECTORS.tokenSend
     )
 
@@ -112,7 +117,7 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
 
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      SELECTORS.nativeTokenPolygonDyn,
+      SEND_TOKEN_SELECTOR,
       SELECTORS.tokenSend
     )
 
