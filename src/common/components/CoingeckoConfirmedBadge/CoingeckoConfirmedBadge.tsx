@@ -39,6 +39,7 @@ const CoingeckoConfirmedBadge = ({ text, address, network, containerStyle }: Pro
   }, [addToast, coinGeckoTokenSlug, t])
 
   useEffect(() => {
+    if (coinGeckoTokenSlug) return // already fetched
     if (!address || !network) return
 
     const tokenAddr = address
@@ -51,7 +52,7 @@ const CoingeckoConfirmedBadge = ({ text, address, network, containerStyle }: Pro
       .then((response) => response.json())
       .then((result) => setCoinGeckoTokenSlug(result.web_slug))
       .finally(() => setIsTokenInfoLoading(false))
-  }, [addToast, t, address, network])
+  }, [addToast, t, address, network, coinGeckoTokenSlug])
 
   if (isTokenInfoLoading) return <Spinner style={{ width: 16, height: 16 }} />
 
