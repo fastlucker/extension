@@ -87,7 +87,8 @@ export const TEST_IDS = {
   totalPortfolioAmountInteger: 'total-portfolio-amount-integer',
   proceedBtn: 'proceed-btn',
   privateKeyWarningCheckbox1: 'private-key-warning-checkbox-1',
-  privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2'
+  privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
+  usdcTokenBaseDashboard: 'token-0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913-base'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
