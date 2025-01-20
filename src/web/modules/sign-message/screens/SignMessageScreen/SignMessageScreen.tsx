@@ -63,7 +63,11 @@ const SignMessageScreen = () => {
 
   const userRequest = useMemo(() => {
     if (!signMessageAction) return undefined
-    if (!['typedMessage', 'message'].includes(signMessageAction.userRequest.action.kind))
+    if (
+      !['typedMessage', 'message', 'authorization-7702'].includes(
+        signMessageAction.userRequest.action.kind
+      )
+    )
       return undefined
 
     return signMessageAction.userRequest
@@ -241,11 +245,10 @@ const SignMessageScreen = () => {
           {/* @TODO: Replace with Badge; add size prop to badge; add tooltip  */}
           <View style={styles.kindOfMessage}>
             <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
-              {t(
-                signMessageState.messageToSign?.content.kind === 'typedMessage'
-                  ? 'EIP-712'
-                  : 'Standard'
-              )}{' '}
+              {signMessageState.messageToSign?.content.kind === 'typedMessage' && t('EIP-712')}
+              {signMessageState.messageToSign?.content.kind === 'message' && t('Standard')}
+              {signMessageState.messageToSign?.content.kind === 'authorization-7702' &&
+                t('EIP-7702')}{' '}
               {t('Type')}
             </Text>
           </View>

@@ -1,16 +1,27 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { EIP_7702_AMBIRE_ACCOUNT } from '@ambire-common/consts/deploy'
 import { Account } from '@ambire-common/interfaces/account'
 import { canBecomeSmarter } from '@ambire-common/libs/account/account'
+import { getEip7702Authorization } from '@ambire-common/libs/signMessage/signMessage'
+import Alert from '@common/components/Alert'
+import Button from '@common/components/Button'
+import NetworkIcon from '@common/components/NetworkIcon'
 import AccountOption from '@common/components/Option/AccountOption'
 import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
+import Text from '@common/components/Text'
 import useAccountsList from '@common/hooks/useAccountsList'
 import useWindowSize from '@common/hooks/useWindowSize'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
@@ -20,8 +31,12 @@ const SmarterEOAsSettings = () => {
   const { accounts } = useAccountsList()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { account: accountData } = useSelectedAccountControllerState()
+  const { accountStates } = useAccountsControllerState()
+  const { networks } = useNetworksControllerState()
   const { keys } = useKeystoreControllerState()
   const { maxWidthSize } = useWindowSize()
+  const { dispatch } = useBackgroundService()
+  const { t } = useTranslation()
 
   useEffect(() => {
     setCurrentSettingsPage('basic-to-smart')
@@ -63,20 +78,113 @@ const SmarterEOAsSettings = () => {
     [accounts]
   )
 
+  const activate = (chainId: bigint) => {
+    const selectedNet = networks.find((net) => net.chainId === chainId)
+    if (!selectedNet || !account) return
+
+    const accountState = accountStates[account.addr]
+      ? accountStates[account.addr][selectedNet.id]
+      : undefined
+    if (!accountState) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+      params: {
+        id: new Date().getTime(),
+        meta: {
+          isSignAction: true,
+          networkId: selectedNet.id,
+          accountAddr: account.addr
+        },
+        action: {
+          kind: 'authorization-7702',
+          chainId,
+          nonce: accountState.nonce,
+          contractAddr: EIP_7702_AMBIRE_ACCOUNT,
+          message: getEip7702Authorization(chainId, EIP_7702_AMBIRE_ACCOUNT, accountState.nonce)
+        }
+      }
+    })
+  }
+
   return (
     <>
       <SettingsPageHeader title="Basic to Smart" />
-      {accountsOptions && account ? (
-        <View style={[flexbox.directionRow, spacings.mbLg]}>
-          <Select
-            setValue={handleSetAccountValue}
-            containerStyle={{ width: maxWidthSize('xl') ? 420 : 340, ...spacings.mr }}
-            options={accountsOptions}
-            value={accountsOptions.filter((opt) => opt.value === account.addr)[0]}
-          />
-        </View>
+      {accountsOptions.length && account ? (
+        <>
+          <View style={[flexbox.directionRow, spacings.mbLg]}>
+            <Select
+              setValue={handleSetAccountValue}
+              containerStyle={{ width: maxWidthSize('xl') ? 420 : 340, ...spacings.mr }}
+              options={accountsOptions}
+              value={accountsOptions.filter((opt) => opt.value === account.addr)[0]}
+            />
+          </View>
+          <View
+            style={[
+              {
+                borderBottomWidth: 1
+              },
+              flexbox.directionRow,
+              spacings.mb
+            ]}
+          >
+            <View style={[flexbox.flex1]}>
+              <Text weight="semiBold">Network</Text>
+            </View>
+            <View style={[flexbox.flex1]}>
+              <Text weight="semiBold">Enabled</Text>
+            </View>
+            <View style={[flexbox.flex1, flexbox.alignEnd]}>
+              <Text weight="semiBold">Action</Text>
+            </View>
+          </View>
+          {networks.map((net) => (
+            <View
+              key={net.id}
+              style={[
+                {
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.lightAzureBlue
+                },
+                flexbox.directionRow,
+                flexbox.alignCenter,
+                spacings.pb,
+                spacings.mb
+              ]}
+            >
+              <View style={[flexbox.flex1]}>
+                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <NetworkIcon id={net.id} style={spacings.mrTy} />
+                  <Text>{net.name}</Text>
+                </View>
+              </View>
+              <View style={[flexbox.flex1]}>
+                <Text>False</Text>
+              </View>
+              <View style={[flexbox.flex1, flexbox.alignEnd]}>
+                <View style={[flexbox.directionRow]}>
+                  <Button
+                    size="small"
+                    style={[spacings.mb0]}
+                    onPress={() => activate(net.chainId)}
+                    text="Activate"
+                  />
+                </View>
+              </View>
+            </View>
+          ))}
+        </>
       ) : (
-        'Noo options'
+        <View>
+          <Alert type="info" size="md">
+            <Text fontSize={16} appearance="infoText">
+              {t(
+                'No accounts available. Turning Basic Accounts into Smart is only available for hot wallets (wallets whose key is directly imported into the extension) as none of the hardware wallets support this functionality, yet. To proceed, please import a Basic Account through private key import'
+              )}
+            </Text>
+          </Alert>
+        </View>
       )}
     </>
   )

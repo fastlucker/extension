@@ -24,6 +24,18 @@ const getParsedSignedMessageContent = (content: SignedMessage['content']) => {
   if (content.kind === 'message') {
     return visualizeContent(content.kind, content.message)
   }
+  if (content.kind === 'authorization-7702') {
+    return JSON.stringify(
+      {
+        chainId: content.chainId.toString(),
+        nonce: content.nonce.toString(),
+        implementation: content.contractAddr.toString(),
+        resultHash: visualizeContent(content.kind, content.message)
+      },
+      null,
+      4
+    )
+  }
 
   return JSON.stringify(content, null, 4)
 }
@@ -36,9 +48,12 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
     if (signedMessage.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) {
       return 'Entry Point Authorization'
     }
+    if (signedMessage.content.kind === 'authorization-7702') {
+      return 'EIP-7702 Authorization'
+    }
 
     return signedMessage.dapp?.name || 'Unknown dApp'
-  }, [signedMessage.dapp?.name, signedMessage.fromActionId])
+  }, [signedMessage.dapp?.name, signedMessage.fromActionId, signedMessage.content.kind])
 
   return (
     <ExpandableCard
@@ -47,14 +62,15 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
       content={
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <View style={[flexbox.alignCenter, flexbox.directionRow, flexbox.flex1]}>
-            {signedMessage.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID && (
-              <ManifestImage
-                uri={signedMessage?.dapp?.icon || ''}
-                size={32}
-                fallback={() => <ManifestFallbackIcon />}
-                containerStyle={spacings.mrTy}
-              />
-            )}
+            {signedMessage.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID &&
+              signedMessage.content.kind !== 'authorization-7702' && (
+                <ManifestImage
+                  uri={signedMessage?.dapp?.icon || ''}
+                  size={32}
+                  fallback={() => <ManifestFallbackIcon />}
+                  containerStyle={spacings.mrTy}
+                />
+              )}
             <Text fontSize={16} weight="semiBold">
               {dAppName}
             </Text>
@@ -70,7 +86,9 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
           </View>
           <View style={flexbox.flex1}>
             <Text fontSize={14} appearance="secondaryText">
-              {signedMessage.content.kind === 'message' ? 'Message' : 'Typed Data'}
+              {signedMessage.content.kind === 'message' && 'Message'}
+              {signedMessage.content.kind === 'typedMessage' && 'Typed Data'}
+              {signedMessage.content.kind === 'authorization-7702' && 'EIP-7702'}
             </Text>
           </View>
         </View>
