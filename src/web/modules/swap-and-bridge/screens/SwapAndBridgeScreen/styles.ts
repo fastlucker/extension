@@ -13,6 +13,7 @@ interface Style {
   networkSelectorContainer: ViewStyle
   previewRouteContainer: ViewStyle
   selectAnotherRouteButton: ViewStyle
+  routesRefreshButtonWrapper: ViewStyle
   followUpTxnText: TextStyle
 }
 
@@ -69,6 +70,10 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mrMi,
       ...spacings.pvMi,
       ...common.borderRadiusPrimary
+    },
+    routesRefreshButtonWrapper: {
+      height: 20,
+      ...flexbox.justifyCenter
     }
   })
 
