@@ -8,6 +8,7 @@ import React, {
   useState
 } from 'react'
 import { View } from 'react-native'
+import { useSearchParams } from 'react-router-dom'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
@@ -30,7 +31,6 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-import { useSearchParams } from 'react-router-dom'
 
 const ITEMS_PER_PAGE = 10
 
@@ -109,7 +109,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
   ])
 
   useEffect(() => {
-    if (!account) return
+    if (!account?.addr) return
 
     dispatch({
       type:
@@ -128,7 +128,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
         }
       }
     })
-  }, [dispatch, account, network, page, sessionId, historyType])
+  }, [dispatch, account.addr, network, page, sessionId, historyType])
 
   useEffect(() => {
     // Initialize the port session. This is necessary to automatically terminate the session when the tab is closed.
@@ -155,7 +155,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     return () => {
       killSession()
     }
-  }, [dispatch, historyType, sessionId])
+  }, [dispatch, historyType, sessionId, setSearchParams])
 
   const handleSetAccountValue = useCallback(
     (accountOption: SelectValue) => {
