@@ -2,8 +2,6 @@ import { useMemo } from 'react'
 
 import { AccountId } from '@ambire-common/interfaces/account'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
-import useConnectivity from '@common/hooks/useConnectivity'
-import useDebounce from '@common/hooks/useDebounce'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
@@ -29,10 +27,8 @@ const OFFLINE_BANNER: BannerInterface = {
 }
 
 export default function useBanners(): BannerInterface[] {
-  const state = useMainControllerState()
-  const { isOffline } = useConnectivity()
+  const { isOffline, banners: mainCtrlBanners } = useMainControllerState()
   // Debounce offline status to prevent banner flickering
-  const debouncedIsOffline = useDebounce({ value: isOffline, delay: 1000 })
   const { account, defiPositionsBanners, portfolioBanners, deprecatedSmartAccountBanner } =
     useSelectedAccountControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
@@ -45,9 +41,9 @@ export default function useBanners(): BannerInterface[] {
   const allBanners = useMemo(() => {
     return [
       ...deprecatedSmartAccountBanner,
-      ...state.banners,
+      ...mainCtrlBanners,
       ...actionBanners,
-      ...(debouncedIsOffline
+      ...(isOffline
         ? [OFFLINE_BANNER]
         : [...swapAndBridgeBanners, ...defiPositionsBanners, ...portfolioBanners]),
       ...activityBanners,
@@ -56,17 +52,17 @@ export default function useBanners(): BannerInterface[] {
       ...extensionUpdateBanner
     ]
   }, [
-    state.banners,
+    deprecatedSmartAccountBanner,
+    mainCtrlBanners,
+    isOffline,
     actionBanners,
     swapAndBridgeBanners,
     defiPositionsBanners,
     portfolioBanners,
-    debouncedIsOffline,
-    account,
     activityBanners,
     emailVaultBanners,
+    account?.addr,
     keystoreBanners,
-    deprecatedSmartAccountBanner,
     extensionUpdateBanner
   ])
 
