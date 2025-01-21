@@ -3,7 +3,7 @@ import { baParams, saParams } from '../../config/constants'
 import { SELECTORS } from '../../common/selectors/selectors'
 import { buildFeeTokenSelector, checkMinimumBalance } from './functions'
 import {
-  POL_TOKEN_SELECTOR,
+  USDC_TOKEN_SELECTOR,
   MIN_TOTAL_BALANCE_IN_USD,
   SEND_TOKEN_SELECTOR,
   ETH_TOKEN_SELECTOR
@@ -56,7 +56,7 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
 
   const feeTokenWithGasTankSelector = buildFeeTokenSelector(
     saParams.envSelectedAccount,
-    POL_TOKEN_SELECTOR,
+    USDC_TOKEN_SELECTOR,
     true
   )
 
