@@ -121,7 +121,7 @@ const DashboardBanner = ({
       }
 
       if (action.actionName === 'activate-7702') {
-        navigate(ROUTES.smarterEOAsSettings)
+        navigate(ROUTES.basicToSmartSettingsScreen)
       }
     },
     [visibleActionsQueue, type, banner, setBottomSheetBanner, dispatch, addToast, navigate]

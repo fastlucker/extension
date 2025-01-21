@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { ScrollView, View, ViewStyle } from 'react-native'
 
-import { SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { SignedMessage } from '@ambire-common/controllers/activity/types'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import ExpandableCard from '@common/components/ExpandableCard'

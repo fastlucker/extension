@@ -27,7 +27,7 @@ import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHea
 
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
-const SmarterEOAsSettings = () => {
+const BasicToSmartSettingsScreen = () => {
   const { accounts } = useAccountsList()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { account: accountData } = useSelectedAccountControllerState()
@@ -107,6 +107,20 @@ const SmarterEOAsSettings = () => {
     })
   }
 
+  const getIsSmarterEOA = (chainId: bigint) => {
+    const selectedNet = networks.find((net) => net.chainId === chainId)
+    if (!selectedNet || !account) return 'FALSE'
+
+    const accountState = accountStates[account.addr]
+      ? accountStates[account.addr][selectedNet.id]
+      : undefined
+    if (!accountState) return 'FALSE'
+
+    return accountState.isSmarterEoa ? 'TRUE' : 'FALSE'
+  }
+
+  console.log(accountStates)
+
   return (
     <>
       <SettingsPageHeader title="Basic to Smart" />
@@ -160,7 +174,7 @@ const SmarterEOAsSettings = () => {
                 </View>
               </View>
               <View style={[flexbox.flex1]}>
-                <Text>False</Text>
+                <Text>{getIsSmarterEOA(net.chainId)}</Text>
               </View>
               <View style={[flexbox.flex1, flexbox.alignEnd]}>
                 <View style={[flexbox.directionRow]}>
@@ -190,4 +204,4 @@ const SmarterEOAsSettings = () => {
   )
 }
 
-export default React.memo(SmarterEOAsSettings)
+export default React.memo(BasicToSmartSettingsScreen)

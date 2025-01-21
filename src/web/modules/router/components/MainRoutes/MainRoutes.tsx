@@ -42,6 +42,7 @@ import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import AddressBookSettingsScreen from '@web/modules/settings/screens/AddressBookSettingsScreen'
+import BasicToSmartSettingsScreen from '@web/modules/settings/screens/BasicToSmartSettingsScreen'
 import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomTokensSettingsScreen'
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
@@ -52,7 +53,6 @@ import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettin
 import SavedSeedScreen from '@web/modules/settings/screens/SavedSeedScreen'
 import SecurityAndPrivacyScreen from '@web/modules/settings/screens/SecurityAndPrivacyScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen'
-import SmarterEOAsSettings from '@web/modules/settings/screens/SmarterEOAsSettings'
 import TermsSettingsScreen from '@web/modules/settings/screens/TermsSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
@@ -157,7 +157,10 @@ const MainRoutes = () => {
                     element={<SecurityAndPrivacyScreen />}
                   />
                   <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
-                  <Route path={WEB_ROUTES.smarterEOAsSettings} element={<SmarterEOAsSettings />} />
+                  <Route
+                    path={WEB_ROUTES.basicToSmartSettingsScreen}
+                    element={<BasicToSmartSettingsScreen />}
+                  />
                   <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
                   <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
                   <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
