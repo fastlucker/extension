@@ -2,7 +2,7 @@ import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
-import { selectPolToken } from '../common-helpers/selectPolToken'
+import { selectUSDCTokenOnBase } from '../common-helpers/selectUSDCTokenOnBase'
 import { triggerTransaction } from '../common-helpers/triggerTransaction'
 import { checkForSignMessageWindow } from '../common-helpers/checkForSignMessageWindow'
 import { selectFeeToken } from '../common-helpers/selectFeeToken'
@@ -483,7 +483,7 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
   await page.waitForSelector('[data-testid="max-available-amount"]')
 
-  await selectPolToken(page)
+  await selectUSDCTokenOnBase(page)
 
   // Wait for the max amount to load
   await new Promise((resolve) => {
@@ -518,7 +518,7 @@ export async function sendFundsToSmartContract(page, extensionURL) {
 
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
   await page.waitForSelector('[data-testid="max-available-amount"]')
-  await selectPolToken(page)
+  await selectUSDCTokenOnBase(page)
 
   // Type the amount
   await typeText(page, amountField, '0.00001')

@@ -27,12 +27,12 @@ describe('sa_transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Send POL tokens greater than the available balance ', async () => {
+  it('(-) Send USDC tokens on Base greater than the available balance ', async () => {
     await sendFundsGreaterThanBalance(page, extensionURL)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Send POL tokens to smart contract ', async () => {
+  it('(-) Send USDC tokens on Base to smart contract ', async () => {
     await sendFundsToSmartContract(page, extensionURL)
   })
 
