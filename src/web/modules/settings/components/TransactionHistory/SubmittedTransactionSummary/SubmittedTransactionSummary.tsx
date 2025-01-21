@@ -21,13 +21,12 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import TransactionSummary, {
-  sizeMultiplier
-} from '@web/modules/sign-account-op/components/TransactionSummary/TransactionSummary'
+import TransactionSummary, { sizeMultiplier } from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import getStyles from './styles'
 import SubmittedOn from './SubmittedOn'
@@ -48,6 +47,7 @@ const SubmittedTransactionSummary = ({
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { networks } = useNetworksControllerState()
+  const { maxWidthSize } = useWindowSize()
   const { t } = useTranslation()
   const textSize = 14 * sizeMultiplier[size]
   const iconSize = 26 * sizeMultiplier[size]
@@ -287,7 +287,9 @@ const SubmittedTransactionSummary = ({
                 style={spacings.mrTy}
                 weight="semiBold"
               >
-                {t('Dropped or stuck in mempool with fee too low')}
+                {maxWidthSize(1000)
+                  ? t('Dropped or stuck in mempool with fee too low')
+                  : t('Dropped or stuck in\nmempool with fee too low')}
               </Text>
             </View>
             <SubmittedOn
@@ -295,7 +297,7 @@ const SubmittedTransactionSummary = ({
               iconSize={iconSize}
               networkId={network.id}
               submittedAccountOp={submittedAccountOp}
-              numberOfLines={2}
+              numberOfLines={maxWidthSize(1150) ? 1 : 2}
             />
           </View>
         </View>
