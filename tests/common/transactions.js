@@ -42,7 +42,7 @@ const overcomeNonceError = async (page) => {
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = SELECTORS.amountField
-const ethTokenSelector = SELECTORS.usdcTokenBaseDashboard
+const usdcTokenSelector = SELECTORS.usdcTokenBaseDashboard
 const TARGET_HEIGHT = 58.7
 const MAX_TIME_WAIT = 30000
 //--------------------------------------------------------------------------------------------------------------
@@ -514,7 +514,7 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function sendFundsToSmartContract(page, extensionURL) {
-  await checkBalanceOfToken(page, ethTokenSelector, 0.0002)
+  await checkBalanceOfToken(page, usdcTokenSelector, 0.0002)
 
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
   await page.waitForSelector('[data-testid="max-available-amount"]')
