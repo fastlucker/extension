@@ -42,7 +42,7 @@ const overcomeNonceError = async (page) => {
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = SELECTORS.amountField
-const usdcTokenSelector = SELECTORS.usdcTokenBaseDashboard
+const usdcTokenSelector = SELECTORS.nativeTokenBaseDashboard
 const TARGET_HEIGHT = 58.7
 const MAX_TIME_WAIT = 30000
 //--------------------------------------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ export async function checkTokenBalanceClickOnGivenActionInDashboard(
   page,
   selectedToken,
   selectedAction,
-  minBalance = 0.01
+  minBalance = 0.0001
 ) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
@@ -205,7 +205,7 @@ export async function makeValidTransaction(
   {
     feeToken,
     recipient = SMART_ACC_VIEW_ONLY_ADDRESS,
-    tokenAmount = '0.0001',
+    tokenAmount = '0.000001',
     shouldStopBeforeSign = false,
     shouldUseAddressBookRecipient = false,
     shouldTopUpGasTank = false,

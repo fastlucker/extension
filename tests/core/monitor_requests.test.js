@@ -62,7 +62,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     const httpRequests = await monitorRequests(serviceWorker.client, async () => {
       await checkTokenBalanceClickOnGivenActionInDashboard(
         page,
-        SELECTORS.usdcTokenBaseDashboard,
+        SELECTORS.nativeTokenBaseDashboard,
         SELECTORS.tokenSend
       )
       await makeValidTransaction(page, extensionURL, browser, {

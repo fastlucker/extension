@@ -88,7 +88,7 @@ export const TEST_IDS = {
   proceedBtn: 'proceed-btn',
   privateKeyWarningCheckbox1: 'private-key-warning-checkbox-1',
   privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
-  usdcTokenBaseDashboard: 'token-0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913-base'
+  nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-base'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

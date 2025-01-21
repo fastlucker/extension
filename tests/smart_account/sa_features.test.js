@@ -37,7 +37,7 @@ describe('sa_features', () => {
   it('Top up gas tank with 0.0001 USDC on Base', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      SELECTORS.usdcTokenBaseDashboard,
+      SELECTORS.nativeTokenBaseDashboard,
       SELECTORS.topUpButton
     )
 
@@ -136,8 +136,8 @@ describe('sa_features', () => {
       '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
       0.0000001
     )
-    // Check if USDC on Base are under 0.02
-    await checkBalanceOfToken(page, SELECTORS.usdcTokenBaseDashboard, 0.02)
+    // Check if ETH on Base are under 0.02
+    await checkBalanceOfToken(page, SELECTORS.nativeTokenBaseDashboard, 0.02)
     // Check if USDC on Gas Tank are under 0.01
     await checkBalanceOfToken(
       page,
