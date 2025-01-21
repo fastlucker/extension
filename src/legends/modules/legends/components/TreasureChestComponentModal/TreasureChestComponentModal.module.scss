@@ -21,15 +21,15 @@
   .heading {
     font-size: 4rem;
     font-weight: 500;
-    line-height: 87.04px;
+    line-height: 5.44rem;
     margin-bottom: 2.5rem;
     align-self: start;
   }
 
   .content {
-    display:flex;
+    display: flex;
     gap: 1rem;
-    margin-bottom: 5.5625rem;
+    margin-bottom: 2.25rem;
 
     .day {
         border-radius: $secondaryBorderRadius;
@@ -79,6 +79,11 @@
 
   .treasureChest {
     margin-bottom: .75rem;
+  }
+
+  // Compensate for the height of the opened treasure chest
+  .treasureChestClosed {
+    margin-top: 3.3125rem;
   }
 
   .treasureChestWrapper {

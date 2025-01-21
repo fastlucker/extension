@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Svg, { Defs, Ellipse, LinearGradient, Path, RadialGradient, Stop } from 'react-native-svg'
+import Svg, { Defs, Ellipse, G, LinearGradient, Path, RadialGradient, Stop } from 'react-native-svg'
 
 import { LegendsSvgProps } from '@legends/types/svg'
 

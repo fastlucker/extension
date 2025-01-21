@@ -157,6 +157,9 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    button:hover {
+      opacity: 1;
+    }
 
     .chestAvailableLabel {
       position: absolute;
@@ -164,6 +167,9 @@
       background-color: $primaryBackground;
       padding: .5rem;
       border-radius: .5rem;
+      font-size: .875rem;
+      font-weight: 500;
+      color: $secondaryText; 
     }
   }
 

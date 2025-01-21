@@ -45,7 +45,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const isCompleted = treasureLegend?.card.status === CardStatus.completed
 
-  console.log('treasureLegend', treasureLegend, 'isCompleted', isCompleted)
   const action = treasureLegend?.action as CardActionCalls
 
   const checkTransactionStatus = useCallback(async () => {
@@ -152,7 +151,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           >
             <div
               className={`${styles.day}  ${
-                index === (treasureLegend.meta?.streak ?? -1) ||
+                (!isCompleted && index === treasureLegend.meta?.streak) ||
                 index < (treasureLegend?.meta?.streak ?? -1)
                   ? styles.current
                   : ''
@@ -162,9 +161,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
                 +{point} <CoinIcon width={20} height={20} />
               </div>
               <p className={styles.dayText}>
-                {treasureLegend?.meta?.streak === index &&
-                new Date(treasureLegend.meta.expiresOrResetsAt).toDateString() !==
-                  new Date().toDateString()
+                {(isCompleted && (treasureLegend?.meta?.streak ?? 0) - 1 === index) ||
+                (!isCompleted && treasureLegend?.meta?.streak === index)
                   ? 'Today'
                   : `Day ${index + 1}`}
               </p>
@@ -183,7 +181,11 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             <TreasureChestOpened width={238} height={178} className={styles.treasureChest} />
           </>
         ) : (
-          <TreasureChestClosed width={165} height={125} className={styles.treasureChest} />
+          <TreasureChestClosed
+            width={165}
+            height={125}
+            className={`${styles.treasureChest} ${styles.treasureChestClosed}`}
+          />
         )}
       </div>
       <button
