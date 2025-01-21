@@ -106,9 +106,10 @@ const NetworkDetails = ({
             {title === 'Network Name' && value !== '-' && (
               <View style={spacings.mrMi}>
                 <NetworkIcon
-                  size={32}
-                  uris={iconUrls.length ? iconUrls : undefined}
+                  key={name.toLowerCase() as any}
                   id={name.toLowerCase() as any}
+                  uris={iconUrls.length ? iconUrls : undefined}
+                  size={32}
                 />
               </View>
             )}
