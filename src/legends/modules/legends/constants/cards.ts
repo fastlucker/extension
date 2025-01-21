@@ -4,7 +4,8 @@ const CARD_PREDEFINED_ID = {
   linkX: 'linkX',
   wheelOfFortune: 'wheelOfFortune',
   staking: 'staking',
-  referral: 'referral'
+  referral: 'referral',
+  chest: 'chest'
 }
 
 export { CARD_PREDEFINED_ID }

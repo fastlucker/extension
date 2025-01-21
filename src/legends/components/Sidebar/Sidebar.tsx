@@ -45,12 +45,12 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { addToast } = useToast()
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const isChestOpenedForToday = false
-  const { wheelSpinOfTheDay, legends, isLoading } = useLegendsContext()
-  const [isTreasureChestModalOpen, setIsTreasureChestModalOpen] = useState(true)
+  const { wheelSpinOfTheDay, treasureChestOpenedForToday, legends, isLoading } = useLegendsContext()
+  const [isTreasureChestModalOpen, setIsTreasureChestModalOpen] = useState(false)
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
+  const isChestOpenedForToday = treasureChestOpenedForToday
 
   const handleModal = () => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
@@ -134,15 +134,11 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
         <div className={styles.treasureChestWrapper}>
           {isChestOpenedForToday ? (
-            <div className={styles.chestAvailableLabel}>Available in: 22:15:59 </div>
+            <div className={styles.chestAvailableLabel}>{timeUntilMidnight().label}</div>
           ) : (
             ''
           )}
-          <TreasureChestClosed
-            width={100}
-            height={80}
-            onClick={!isChestOpenedForToday && setIsTreasureChestModalOpen}
-          />
+          <TreasureChestClosed width={100} height={80} onClick={setIsTreasureChestModalOpen} />
         </div>
       </div>
       <div>

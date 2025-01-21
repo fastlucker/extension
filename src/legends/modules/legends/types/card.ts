@@ -77,6 +77,9 @@ export interface CardFromResponse {
     timesUsed: number
     maxHits: number
     timesCollectedSoFar: number
+    streak: number
+    points: number[]
+    expiresOrResetsAt: string
   }
   contentSteps?: string[]
   contentImage?: string
