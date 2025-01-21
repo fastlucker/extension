@@ -189,7 +189,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       <button
         type="button"
         className={styles.button}
-        disabled={isCompleted}
+        disabled={isCompleted || isInProgress}
         onClick={onButtonClick}
       >
         {!isCompleted ? 'Open chest' : `${timeUntilMidnight().label}`}

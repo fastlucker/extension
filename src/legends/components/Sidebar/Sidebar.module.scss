@@ -151,10 +151,12 @@
 
   .treasureChestWrapper {
     position: relative;
-    margin: 2.5rem auto;
+    margin: 0 auto;
+    padding-top: 1.875rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 
     .chestAvailableLabel {
       position: absolute;
@@ -163,8 +165,6 @@
       padding: .5rem;
       border-radius: .5rem;
     }
-
-
   }
 
   .leaderSection {
@@ -252,6 +252,20 @@
         height: auto;
       }
       .links {
+        padding-top: 1rem;
+      }
+      .treasureChestWrapper {
+        padding-top: 0.5rem;
+      }
+    }
+  }
+
+  @media screen and (max-height: 900px) {
+    .top {
+      .links {
+        padding-top: 1rem;
+      }
+      .treasureChestWrapper {
         padding-top: 1rem;
       }
     }

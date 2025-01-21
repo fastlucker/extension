@@ -138,7 +138,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           ) : (
             ''
           )}
-          <TreasureChestClosed width={100} height={80} onClick={setIsTreasureChestModalOpen} />
+          <button type="button" onClick={() => setIsTreasureChestModalOpen(true)}>
+            <TreasureChestClosed width={100} height={80} />
+          </button>
         </div>
       </div>
       <div>
