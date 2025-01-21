@@ -40,6 +40,12 @@ const getBadgeTypes = (theme: ThemeProps) => ({
   }
 })
 
+const SIZES = {
+  sm: 1,
+  md: 1.25,
+  lg: 1.5
+}
+
 const Badge = ({
   text,
   weight,
@@ -48,12 +54,14 @@ const Badge = ({
   type = 'default',
   style,
   nativeID,
-  children
+  children,
+  size = 'sm'
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
   const { color, iconColor } = badgeTypes[type]
   const tooltipId = uuidv4()
+  const sizeMultiplier = SIZES[size]
 
   return (
     <View
@@ -66,7 +74,7 @@ const Badge = ({
         type === 'info' && styles.infoBadge,
         type === 'error' && styles.errorBadge,
         {
-          height: 20
+          height: sizeMultiplier * 20
         },
         withRightSpacing && spacings.mrSm,
         !!tooltipText && spacings.prMi,
@@ -77,7 +85,7 @@ const Badge = ({
       {text && (
         <Text
           weight={weight || 'regular'}
-          fontSize={10}
+          fontSize={sizeMultiplier * 10}
           color={color}
           style={[!!tooltipText && spacings.mrMi]}
         >
@@ -87,7 +95,12 @@ const Badge = ({
       {children}
       {!!tooltipText && (
         <>
-          <InformationIcon data-tooltip-id={tooltipId} color={iconColor} width={14} height={14} />
+          <InformationIcon
+            data-tooltip-id={tooltipId}
+            color={iconColor}
+            width={sizeMultiplier * 14}
+            height={sizeMultiplier * 14}
+          />
           <Tooltip id={tooltipId} content={tooltipText} />
         </>
       )}
