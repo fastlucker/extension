@@ -19,11 +19,13 @@ interface Props {
   }
   children: React.ReactNode
   menuStyle?: ViewStyle
+  menuLeftHorizontalOffset?: number
 }
 
 const MenuContainer: FC<Props> = ({
   menuRef,
   menuProps: { x, y, height, width, maxDynamicHeight, position, windowHeight },
+  menuLeftHorizontalOffset = 0,
   children,
   menuStyle
 }) => {
@@ -36,10 +38,11 @@ const MenuContainer: FC<Props> = ({
         testID="select-menu"
         style={[
           styles.menuContainer,
-          { width, maxHeight: maxDynamicHeight, left: x },
+          { width: width + menuLeftHorizontalOffset, maxHeight: maxDynamicHeight, left: x },
           position === 'bottom' && { top: y + height },
           position === 'top' && { bottom: windowHeight - y },
-          menuStyle
+          menuStyle,
+          { marginLeft: -menuLeftHorizontalOffset }
         ]}
       >
         {children}

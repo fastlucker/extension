@@ -67,6 +67,7 @@ const WEB_ROUTES = {
   networks: 'networks',
   generalSettings: 'settings/general',
   settingsTerms: 'settings/terms',
+  settingsAbout: 'settings/about',
   networksSettings: 'settings/networks',
   accountsSettings: 'settings/accounts',
   basicToSmartSettingsScreen: 'settings/basic-to-smart',
