@@ -4,6 +4,7 @@ import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
+import MidnightTimer from '@legends/components/MidnightTimer'
 import { timeUntilMidnight } from '../../WheelComponentModal/helpers'
 import styles from './CardContent.module.scss'
 import Counter from './Counter'
@@ -40,8 +41,6 @@ const CardContent: FC<Props> = ({
 }) => {
   const isCompleted = card.status === CardStatus.completed
 
-  const hoursUntilMidnightLabel = useMemo(() => timeUntilMidnight().label, [])
-
   return (
     <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
       {isCompleted ? (
@@ -50,7 +49,7 @@ const CardContent: FC<Props> = ({
           <div className={styles.completedText}>
             Completed
             {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) ? (
-              <div className={styles.completedTextAvailable}>{hoursUntilMidnightLabel}</div>
+              <MidnightTimer className={styles.completedTextAvailable} />
             ) : null}
           </div>
         </div>

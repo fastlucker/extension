@@ -54,7 +54,6 @@ const ActivityContextProvider: React.FC<any> = ({ children }) => {
   }, [connectedAccount, currentPage])
 
   useEffect(() => {
-    console.log('use effect activity')
     getActivity().catch(() =>
       setError("Couldn't fetch Character's activity! Please try again later!")
     )

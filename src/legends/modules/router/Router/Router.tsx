@@ -9,6 +9,7 @@ import { LegendsContextProvider } from '@legends/contexts/legendsContext'
 import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
 import { ActivityContextProvider } from '@legends/contexts/activityContext'
 import { DataPollingContextProvider } from '@legends/contexts/dataPollingContext'
+import { MidnightTimerContextProvider } from '@legends/contexts/midnightTimerContext'
 import Character from '@legends/modules/character/screens/Character'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
 import Landing from '@legends/modules/landing/screens/Landing'
@@ -40,7 +41,9 @@ const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => {
         <LegendsContextProvider>
           <PortfolioControllerStateProvider>
             <DomainsContextProvider>
-              <DataPollingContextProvider>{children}</DataPollingContextProvider>
+              <DataPollingContextProvider>
+                <MidnightTimerContextProvider>{children}</MidnightTimerContextProvider>
+              </DataPollingContextProvider>
             </DomainsContextProvider>
           </PortfolioControllerStateProvider>
         </LegendsContextProvider>
