@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
+import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
@@ -67,8 +68,8 @@ const TransferScreen = () => {
   const actionsState = useActionsControllerState()
 
   const hasOpenedActionWindow = useMemo(
-    () => actionsState.currentAction || actionsState.actionWindow.id,
-    [actionsState.currentAction, actionsState.actionWindow.id]
+    () => actionsState.currentAction || actionsState.actionWindow.windowProps,
+    [actionsState.currentAction, actionsState.actionWindow.windowProps]
   )
 
   const transactionUserRequests = useMemo(() => {
@@ -173,9 +174,9 @@ const TransferScreen = () => {
   }, [navigate])
 
   const addTransaction = useCallback(
-    (executionType: 'queue' | 'open') => {
+    (actionExecutionType: ActionExecutionType) => {
       if (isFormValid && state.selectedToken) {
-        if (executionType === 'queue' && !transferCtrl.shouldSkipTransactionQueuedModal) {
+        if (actionExecutionType === 'queue' && !transferCtrl.shouldSkipTransactionQueuedModal) {
           openBottomSheet()
         }
 
@@ -185,7 +186,7 @@ const TransferScreen = () => {
             amount: state.amount,
             selectedToken: state.selectedToken,
             recipientAddress: isTopUp ? FEE_COLLECTOR : getAddressFromAddressState(addressState),
-            executionType
+            actionExecutionType
           }
         })
 
@@ -193,7 +194,11 @@ const TransferScreen = () => {
         return
       }
 
-      if (executionType === 'open' && transactionUserRequests.length && isFormEmpty) {
+      if (
+        actionExecutionType === 'open-action-window' &&
+        transactionUserRequests.length &&
+        isFormEmpty
+      ) {
         const firstAccountOpAction = actionsState.visibleActionsQueue
           .reverse()
           .find((a) => a.type === 'accountOp')
@@ -271,7 +276,7 @@ const TransferScreen = () => {
               testID="transfer-button-confirm"
               type="primary"
               text={submitButtonText}
-              onPress={() => addTransaction('open')}
+              onPress={() => addTransaction('open-action-window')}
               hasBottomSpacing={false}
               size="large"
               disabled={isSendButtonDisabled}

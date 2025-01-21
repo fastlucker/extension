@@ -1,13 +1,17 @@
 import { formatUnits } from 'ethers'
 
 import { Network } from '@ambire-common/interfaces/network'
-import { TokenResult } from '@ambire-common/libs/portfolio'
+import { SelectedAccountPortfolioTokenResult } from '@ambire-common/interfaces/selectedAccount'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { FormattedPendingAmounts, PendingAmounts } from '@ambire-common/libs/portfolio/interfaces'
 import { calculatePendingAmounts } from '@ambire-common/libs/portfolio/pendingAmountsHelper'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
-import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 
+/**
+ * Formats pending token amounts in a better readable format, including converting
+ * the amounts to human-readable strings and calculating their USD value.
+ */
 const formatPendingAmounts = (
   pendingAmounts: PendingAmounts | null,
   decimals: number,
@@ -47,30 +51,30 @@ const formatPendingAmounts = (
   return formattedAmounts
 }
 
-const getTokenDetails = (
+/**
+ * Calculates and formats (for display) token details including balance, price
+ * in USD, pending amounts and other details.
+ */
+const getAndFormatTokenDetails = (
   {
     flags: { rewardsType },
     networkId,
     priceIn,
+    latestAmount,
+    pendingAmount,
     amount,
     decimals,
     amountPostSimulation,
     simulationAmount
-  }: TokenResult,
+  }: SelectedAccountPortfolioTokenResult,
   networks: Network[],
-  tokenAmounts?: {
-    latestAmount: bigint
-    pendingAmount: bigint
-    address: string
-    networkId: string
-  },
   simulatedAccountOp?: AccountOp
 ) => {
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'
   const networkData = networks.find(({ id }) => networkId === id)
   const amountish = BigInt(amount)
-  const amountishLatest = BigInt(tokenAmounts?.latestAmount || 0n)
+  const amountishLatest = BigInt(latestAmount || 0n)
 
   const balance = parseFloat(formatUnits(amountish, decimals))
   const balanceLatest = parseFloat(formatUnits(amountishLatest, decimals))
@@ -82,15 +86,13 @@ const getTokenDetails = (
     : undefined
 
   const pendingAmountsFormatted = formatPendingAmounts(
-    tokenAmounts?.address
-      ? calculatePendingAmounts(
-          tokenAmounts?.latestAmount,
-          tokenAmounts?.pendingAmount,
-          amountPostSimulation,
-          simulationAmount,
-          simulatedAccountOp
-        )
-      : null,
+    calculatePendingAmounts(
+      latestAmount || 0n,
+      pendingAmount || 0n,
+      amountPostSimulation,
+      simulationAmount,
+      simulatedAccountOp
+    ),
     decimals,
     priceUSD!
   )
@@ -113,4 +115,4 @@ const getTokenDetails = (
   }
 }
 
-export default getTokenDetails
+export default getAndFormatTokenDetails
