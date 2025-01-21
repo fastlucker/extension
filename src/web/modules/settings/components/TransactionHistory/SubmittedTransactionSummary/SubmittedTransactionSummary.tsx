@@ -62,7 +62,10 @@ const SubmittedTransactionSummary = ({
 
   const calls = useMemo(
     () => humanizeAccountOp(submittedAccountOp, { network }),
-    [submittedAccountOp, network]
+    // Humanize the calls only once. Because submittedAccountOp is an object
+    // it causes rerenders on every activity update.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [submittedAccountOp.txnId, submittedAccountOp.calls.length, network]
   )
 
   useEffect((): void => {
