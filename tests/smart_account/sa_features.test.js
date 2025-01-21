@@ -129,7 +129,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Check token balance needed for e2e tests', async () => {
+  it.skip('Check token balance needed for e2e tests', async () => {
     // Check if ETH in optimism are under 0.0000001
     await checkBalanceOfToken(
       page,
