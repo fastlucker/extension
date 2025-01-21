@@ -521,7 +521,7 @@ export async function sendFundsToSmartContract(page, extensionURL) {
   await selectUSDCTokenOnBase(page)
 
   // Type the amount
-  await typeText(page, amountField, '0.00001')
+  await typeText(page, amountField, '0.0001')
 
   // Type the address of smart contract in the "Add Recipient" field
   await typeText(page, recipientField, '0x4e15361fd6b4bb609fa63c81a2be19d873717870')
