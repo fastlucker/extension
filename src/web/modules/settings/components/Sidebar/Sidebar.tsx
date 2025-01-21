@@ -104,6 +104,12 @@ export const SETTINGS_LINKS = [
 
 const OTHER_LINKS = [
   {
+    key: 'about',
+    Icon: BulbIcon,
+    label: 'About',
+    path: ROUTES.settingsAbout
+  },
+  {
     key: 'help-center',
     Icon: React.memo(HelpIcon),
     label: 'Help Center',
@@ -116,12 +122,6 @@ const OTHER_LINKS = [
     label: 'Report an Issue',
     path: 'https://help.ambire.com/hc/en-us/requests/new',
     isExternal: true
-  },
-  {
-    key: 'about',
-    Icon: BulbIcon,
-    label: 'About',
-    path: ROUTES.settingsAbout
   }
 ]
 
