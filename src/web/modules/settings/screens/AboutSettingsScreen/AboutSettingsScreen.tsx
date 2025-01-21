@@ -5,8 +5,10 @@ import { Pressable, View } from 'react-native'
 import NewsletterIcon from '@common/assets/svg/NewsletterIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import TosIcon from '@common/assets/svg/TosIcon'
+import Badge from '@common/components/Badge'
 import ControlOption from '@common/components/ControlOption'
 import Text from '@common/components/Text'
+import { APP_VERSION } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -40,7 +42,9 @@ const AboutSettingsScreen = () => {
 
   return (
     <>
-      <SettingsPageHeader title="About Ambire Wallet" />
+      <SettingsPageHeader title="About Ambire Wallet" style={flexbox.justifyStart}>
+        <Badge size="md" type="info" text={`v${APP_VERSION}`} style={spacings.ml} />
+      </SettingsPageHeader>
       <ControlOption
         style={spacings.mbTy}
         title={t('Terms of Service')}
