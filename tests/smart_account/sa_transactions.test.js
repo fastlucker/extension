@@ -43,7 +43,7 @@ describe('sa_transactions', () => {
 
   // TODO: Uniswap changes their UI frequently, which breaks this test quite often.
   // Skip these tests until we figure out a way to make them more stable.
-  describe.skip('Swap', () => {
+  describe.only('Swap', () => {
     // Swap tests fail occasionally (2 out of 10 times in CI) because Uniswap can't switch the network to Polygon.
     // We traced the RPC requests but couldn't identify any failing ones.
     // Since the swap is managed by Uniswap, it is difficult to debug exactly what is happening.
@@ -54,7 +54,7 @@ describe('sa_transactions', () => {
     it('Make valid swap ', async () => {
       await makeSwap(page, extensionURL, browser, {
         feeToken:
-          '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]',
+          '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913usdc"]',
         shouldStopBeforeSign: true,
         swapButtonText: 'Sign and swap'
       })
