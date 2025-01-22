@@ -4,7 +4,8 @@ import { View } from 'react-native'
 
 import { EIP_7702_AMBIRE_ACCOUNT } from '@ambire-common/consts/deploy'
 import { Account } from '@ambire-common/interfaces/account'
-import { canBecomeSmarter } from '@ambire-common/libs/account/account'
+import { Network } from '@ambire-common/interfaces/network'
+import { canBecomeSmarter, hasAuthorized7702 } from '@ambire-common/libs/account/account'
 import { getEip7702Authorization } from '@ambire-common/libs/signMessage/signMessage'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
@@ -13,7 +14,6 @@ import AccountOption from '@common/components/Option/AccountOption'
 import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
-import useAccountsList from '@common/hooks/useAccountsList'
 import useWindowSize from '@common/hooks/useWindowSize'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -28,10 +28,9 @@ import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHea
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const BasicToSmartSettingsScreen = () => {
-  const { accounts } = useAccountsList()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { account: accountData } = useSelectedAccountControllerState()
-  const { accountStates } = useAccountsControllerState()
+  const { accountStates, accounts, authorizations } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { keys } = useKeystoreControllerState()
   const { maxWidthSize } = useWindowSize()
@@ -119,7 +118,20 @@ const BasicToSmartSettingsScreen = () => {
     return accountState.isSmarterEoa ? 'TRUE' : 'FALSE'
   }
 
-  console.log(accountStates)
+  const isActivateDisabled = useCallback(
+    (net: Network) => {
+      if (!net.has7702) return true
+      if (!account || !authorizations[account.addr]) return true
+
+      const accountState = accountStates[account.addr]
+        ? accountStates[account.addr][net.id]
+        : undefined
+      if (!accountState) return true
+
+      return hasAuthorized7702(accountState.nonce, net, authorizations[account.addr])
+    },
+    [account, accountStates, authorizations]
+  )
 
   return (
     <>
@@ -180,6 +192,7 @@ const BasicToSmartSettingsScreen = () => {
                 <View style={[flexbox.directionRow]}>
                   <Button
                     size="small"
+                    disabled={isActivateDisabled(net)}
                     style={[spacings.mb0]}
                     onPress={() => activate(net.chainId)}
                     text="Activate"
