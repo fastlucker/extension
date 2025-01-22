@@ -2,9 +2,9 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { EIP_7702_AMBIRE_ACCOUNT } from '@ambire-common/consts/deploy'
 import { Account } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
+import { getContractImplementation, has7702 } from '@ambire-common/libs/7702/7702'
 import { canBecomeSmarter, hasAuthorized7702 } from '@ambire-common/libs/account/account'
 import { getEip7702Authorization } from '@ambire-common/libs/signMessage/signMessage'
 import Alert from '@common/components/Alert'
@@ -87,6 +87,10 @@ const BasicToSmartSettingsScreen = () => {
       : undefined
     if (!accountState) return
 
+    // the same address accross all chains except Pectra where
+    // we have a diff address for testing purposese
+    const contractAddr = getContractImplementation(chainId)
+
     dispatch({
       type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
       params: {
@@ -100,8 +104,8 @@ const BasicToSmartSettingsScreen = () => {
           kind: 'authorization-7702',
           chainId,
           nonce: accountState.nonce,
-          contractAddr: EIP_7702_AMBIRE_ACCOUNT,
-          message: getEip7702Authorization(chainId, EIP_7702_AMBIRE_ACCOUNT, accountState.nonce)
+          contractAddr,
+          message: getEip7702Authorization(chainId, contractAddr, accountState.nonce)
         }
       }
     })
@@ -121,7 +125,7 @@ const BasicToSmartSettingsScreen = () => {
 
   const isActivateDisabled = useCallback(
     (net: Network) => {
-      if (!net.has7702) return true
+      if (!has7702(net)) return true
       if (!account) return true
 
       const accountState = accountStates[account.addr]
