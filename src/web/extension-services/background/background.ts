@@ -419,6 +419,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     )
   }
 
+  /**
+   * Updates the account state for the selected account. Doesn't update the state for networks with failed RPC as this is handled by a different interval.
+   */
   async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
     if (backgroundState.accountStateLatestInterval)
       clearTimeout(backgroundState.accountStateLatestInterval)
@@ -428,7 +431,18 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         console.error('No selected account to latest state')
         return
       }
-      await mainCtrl.accounts.updateAccountState(mainCtrl.selectedAccount.account.addr, 'latest')
+      const failedNetworkIds = getNetworksWithFailedRPC({
+        providers: mainCtrl.providers.providers
+      })
+      const networksToUpdate = mainCtrl.networks.networks
+        .filter(({ id }) => !failedNetworkIds.includes(id))
+        .map(({ id }) => id)
+
+      await mainCtrl.accounts.updateAccountState(
+        mainCtrl.selectedAccount.account.addr,
+        'latest',
+        networksToUpdate
+      )
       backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
     }
 
@@ -493,6 +507,73 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     backgroundState.accountStatePendingInterval = setTimeout(
       () => updateAccountState(networksToUpdate),
       intervalLength / 2
+    )
+  }
+
+  /** Update failed network states more often. If a network's first failed
+   *  update is just now, retry in 8s. If it's a repeated failure, retry in 30s.
+   */
+  function initFrequentLatestAccountStateContinuousUpdateIfNeeded() {
+    const isExtensionActive = pm.ports.length > 0
+
+    if (backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout) {
+      clearTimeout(backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout)
+    }
+
+    // If there are no open ports the account state will be updated
+    // automatically when the extension is opened.
+    if (!isExtensionActive) return
+
+    const updateAccountState = async () => {
+      const failedNetworkIds = getNetworksWithFailedRPC({
+        providers: mainCtrl.providers.providers
+      })
+
+      if (!failedNetworkIds.length) return
+
+      const retriedFastAccountStateReFetchForNetworks =
+        backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks
+
+      // Delete the network ids that have been successfully re-fetched so the logic can be re-applied
+      // if the RPC goes down again
+      if (retriedFastAccountStateReFetchForNetworks.length) {
+        retriedFastAccountStateReFetchForNetworks.forEach((networkId, index) => {
+          if (!failedNetworkIds.includes(networkId)) {
+            delete retriedFastAccountStateReFetchForNetworks[index]
+          }
+        })
+      }
+
+      // Filter out the network ids that have already been retried
+      const recentlyFailedNetworks = failedNetworkIds.filter(
+        (id) =>
+          !backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks.find(
+            (networkId) => networkId === id
+          )
+      )
+
+      const updateTime = recentlyFailedNetworks.length ? 8000 : 30000
+
+      console.log('account state', 'fast interval, updating', failedNetworkIds)
+      await mainCtrl.accounts.updateAccountStates('latest', failedNetworkIds)
+      // Add the network ids that have been retried to the list
+      failedNetworkIds.forEach((id) => {
+        if (retriedFastAccountStateReFetchForNetworks.includes(id)) return
+
+        retriedFastAccountStateReFetchForNetworks.push(id)
+      })
+
+      if (!failedNetworkIds.length) return
+
+      backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
+        updateAccountState,
+        updateTime
+      )
+    }
+
+    backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
+      updateAccountState,
+      8000
     )
   }
 
@@ -641,53 +722,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
                 delete backgroundState.accountsOpsStatusesInterval
               }
             }
-            if (ctrlName === 'accounts') {
-              const failedNetworkIds = getNetworksWithFailedRPC({
-                providers: mainCtrl.providers.providers
-              })
-
-              const retriedFastAccountStateReFetchForNetworks =
-                backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks
-
-              // Delete the network ids that have been successfully re-fetched so the logic can be re-applied
-              // if the RPC goes down again
-              if (retriedFastAccountStateReFetchForNetworks.length) {
-                retriedFastAccountStateReFetchForNetworks.forEach((networkId, index) => {
-                  if (!failedNetworkIds.includes(networkId)) {
-                    delete retriedFastAccountStateReFetchForNetworks[index]
-                  }
-                })
-              }
-
-              if (failedNetworkIds.length) {
-                // Filter out the network ids that have already been retried (update them with the regular interval)
-                const filteredNetworkIds = failedNetworkIds.filter(
-                  (id) =>
-                    !backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks.find(
-                      (networkId) => networkId === id
-                    )
-                )
-
-                if (filteredNetworkIds.length) {
-                  if (backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout) {
-                    clearTimeout(
-                      backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout
-                    )
-                  }
-
-                  backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
-                    async () => {
-                      await mainCtrl.accounts.updateAccountStates('latest', filteredNetworkIds)
-
-                      // Add the network ids that have been retried to the list
-                      failedNetworkIds.forEach((id) => {
-                        retriedFastAccountStateReFetchForNetworks.push(id)
-                      })
-                    },
-                    8000
-                  )
-                }
-              }
+            if (ctrlName === 'providers') {
+              initFrequentLatestAccountStateContinuousUpdateIfNeeded()
             }
             if (ctrlName === 'swapAndBridge') {
               initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
