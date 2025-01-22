@@ -14,6 +14,11 @@ export type MidnightTimerType = {
   stopTimer: () => void
 }
 
+// A hook that counts down every minute until midnight.
+// The hook outputs two labels (`hoursLabel` and `minutesLabel`), depending on how you want to visualize the time left in your component.
+// Once midnight is reached, it sets the `hasMidnightOccurred` flag to `true` and stops the timer.
+// This approach is used to allow the app to update when midnight occurs.
+// Once the timer is stopped, it can be rescheduled simply by invoking `startTimer()`.
 export default function useUtcMidnightTimer(): MidnightTimerType {
   const [timeRemaining, setTimeRemaining] = useState(calculateTimeToMidnight())
   const timeoutId: any = useRef(null)
@@ -30,6 +35,10 @@ export default function useUtcMidnightTimer(): MidnightTimerType {
     }
   }, [])
 
+  // `forceUpdate` will forcefully recalculate the remaining time until midnight,
+  // update the hook's internal state, and schedule the next timer update.
+  // This is helpful when we stop the timer (e.g., inactive tab)
+  // and want to recalculate and reschedule the timer (e.g., when the tab becomes active).
   const startTimer = useCallback(
     (forceUpdate = false) => {
       const updateTimer = () => {
@@ -74,7 +83,7 @@ export default function useUtcMidnightTimer(): MidnightTimerType {
       if (document.hidden) {
         stopTimer()
       } else {
-        startTimer()
+        startTimer(true)
       }
     }
 

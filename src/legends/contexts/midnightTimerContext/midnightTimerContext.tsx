@@ -4,6 +4,7 @@ import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useUtcMidnightTimer, {
   MidnightTimerType
 } from '@legends/hooks/useUtcMidnightTimer/useUtcMidnightTimer'
+import useToast from '@legends/hooks/useToast'
 
 const MidnightTimerContext = createContext<MidnightTimerType>({
   hoursLabel: '',
@@ -15,12 +16,18 @@ const MidnightTimerContext = createContext<MidnightTimerType>({
 
 const MidnightTimerContextProvider: React.FC<any> = ({ children }) => {
   const { getLegends } = useLegendsContext()
+  const { addToast } = useToast()
   const midnightTimer = useUtcMidnightTimer()
 
   useEffect(() => {
     const updateLegendsAtMidnight = async () => {
       if (midnightTimer.hasMidnightOccurred) {
-        await getLegends()
+        await getLegends().catch(() => {
+          addToast(
+            "We couldn't retrieve your daily legends. Please reload the page or try again later.",
+            { type: 'error' }
+          )
+        })
         midnightTimer.startTimer(true)
       }
     }

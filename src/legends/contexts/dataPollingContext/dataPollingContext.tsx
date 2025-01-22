@@ -16,6 +16,10 @@ const POLLING_INTERVAL = 60000 // 1 min
 // Ensures that contexts are refreshed immediately but avoids redundant updates if the last refresh was recent.
 const VISIBLE_TAB_MIN_CACHE_TIME = 10000 // 10 sec
 
+// A common context for auto polling and updating the app state.
+// On every POLLING_INTERVAL, it updates the app state by calling the get methods of the contexts we have.
+// When the tab is hidden, we stop the timer/updates to avoid making unnecessary calls to the API.
+// Once the tab becomes active, we update the app state (if it hasn't been updated in the last VISIBLE_TAB_MIN_CACHE_TIME seconds).
 const DataPollingContextProvider: React.FC<any> = ({ children }) => {
   const { getActivity } = useActivityContext()
   const { getCharacter } = useCharacterContext()
@@ -27,8 +31,12 @@ const DataPollingContextProvider: React.FC<any> = ({ children }) => {
   const lastPollReceivedAtRef: any = useRef(null)
   const startPollingRef = useRef(() => {})
 
+  // We use the `useRef` pattern instead of `useCallback` to create the `startPollingRef.current` function for better performance.
+  // Using `useCallback` would require adding it as a dependency in the next `useEffect` (where we schedule the timer),
+  // which would cause the polling logic to reinitialize whenever a context is updated—something we want to avoid.
+  // By storing the polling function in startPollingRef.current, its dependencies remain up to date
+  // as the reference is updated whenever a dependency changes, without causing re-renders.
   useEffect(() => {
-    // Define startPolling logic and use the ref to keep it stable
     startPollingRef.current = async () => {
       try {
         await Promise.all([
