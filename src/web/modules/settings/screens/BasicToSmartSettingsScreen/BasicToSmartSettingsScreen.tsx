@@ -122,14 +122,14 @@ const BasicToSmartSettingsScreen = () => {
   const isActivateDisabled = useCallback(
     (net: Network) => {
       if (!net.has7702) return true
-      if (!account || !authorizations[account.addr]) return true
+      if (!account) return true
 
       const accountState = accountStates[account.addr]
         ? accountStates[account.addr][net.id]
         : undefined
       if (!accountState) return true
 
-      return hasAuthorized7702(accountState.nonce, net, authorizations[account.addr])
+      return hasAuthorized7702(account, accountState.nonce, net, authorizations)
     },
     [account, accountStates, authorizations]
   )
