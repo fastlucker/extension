@@ -162,6 +162,8 @@ const NetworkForm = ({
     [selectedNetwork]
   )
 
+  const allowedToForce4337 = canForce4337(selectedNetwork)
+
   const {
     watch,
     setError,
@@ -180,7 +182,7 @@ const NetworkForm = ({
       explorerUrl: '',
       coingeckoPlatformId: '',
       coingeckoNativeAssetId: '',
-      force4337: false
+      ...(allowedToForce4337 ? { force4337: false } : {})
     },
     values: {
       name: selectedNetwork?.name || '',
@@ -190,7 +192,7 @@ const NetworkForm = ({
       explorerUrl: selectedNetwork?.explorerUrl || '',
       coingeckoPlatformId: (selectedNetwork?.platformId as string) || '',
       coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || '',
-      force4337: selectedNetwork?.force4337 ?? false
+      ...(allowedToForce4337 ? { force4337: selectedNetwork?.force4337 ?? false } : {})
     }
   })
   const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
@@ -328,8 +330,7 @@ const NetworkForm = ({
     // when resetting the form.
     const subscription = watch(async (value, { name }) => {
       if (name && !value[name]) {
-        // @ts-ignore
-        if (name !== 'rpcUrl' && name !== 'force4337') {
+        if (name !== 'rpcUrl' && (!allowedToForce4337 || name !== 'force4337')) {
           setError(name, { type: 'custom-error', message: 'Field is required' })
           return
         }
@@ -405,6 +406,7 @@ const NetworkForm = ({
     selectedNetworkId,
     networks,
     touchedFields,
+    allowedToForce4337,
     validateRpcUrlAndRecalculateFeatures,
     clearErrors,
     setError,
@@ -424,8 +426,6 @@ const NetworkForm = ({
       !!onSaved && onSaved()
     }
   }, [addToast, onSaved, selectedNetwork?.name, statuses.updateNetwork])
-
-  const allowedToForce4337 = canForce4337(selectedNetwork)
 
   const handleSubmitButtonPress = () => {
     // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
@@ -478,7 +478,7 @@ const NetworkForm = ({
               rpcUrls,
               selectedRpcUrl,
               explorerUrl: networkFormValues.explorerUrl,
-              force4337: allowedToForce4337 ? networkFormValues.force4337 : undefined
+              ...(allowedToForce4337 ? { force4337: networkFormValues.force4337 } : {})
             },
             networkId: selectedNetworkId
           }
@@ -773,13 +773,13 @@ const NetworkForm = ({
               <View style={flexbox.flex1}>
                 <NetworkAvailableFeatures networkId={selectedNetwork?.id} features={features} />
 
-                {allowedToForce4337 && (
+                {!!allowedToForce4337 && (
                   <View style={spacings.mtSm}>
                     <Controller
                       control={control}
                       render={({ field: { value, onChange } }) => (
                         <Checkbox
-                          value={value}
+                          value={value!}
                           onValueChange={async (changedValue) => {
                             if (selectedNetwork) {
                               dispatch({
