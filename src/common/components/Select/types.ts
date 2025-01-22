@@ -20,18 +20,19 @@ export type CommonSelectProps = {
   containerStyle?: ViewStyle
   selectStyle?: ViewStyle
   labelStyle?: TextStyle
+  emptyListPlaceholderText?: string
   disabled?: boolean
   menuOptionHeight?: number
   menuStyle?: ViewStyle
+  menuLeftHorizontalOffset?: number
   withSearch?: boolean
   searchPlaceholder?: string
   testID?: string
   extraSearchProps?: { [key: string]: string }
+  attemptToFetchMoreOptions?: (search: string) => void
 }
 export type SelectProps = CommonSelectProps & {
   options: SelectValue[]
-  attemptToFetchMoreOptions?: (search: string) => void
-  emptyListPlaceholderText?: string
 }
 
 export type SectionedSelectProps = CommonSelectProps &

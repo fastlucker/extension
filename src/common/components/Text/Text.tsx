@@ -34,7 +34,7 @@ export interface Props extends TextProps {
   weight?: TextWeight
   appearance?: TextAppearance
   fontSize?: number
-  color?: ColorValue
+  color?: ColorValue | false
   shouldScale?: boolean
   dataSet?: { [key: string]: string }
 }

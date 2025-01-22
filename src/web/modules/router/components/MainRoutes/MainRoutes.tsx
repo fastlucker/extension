@@ -40,6 +40,7 @@ import KeystoreUnlockedRoute from '@web/modules/router/components/KeystoreUnlock
 import NavMenu from '@web/modules/router/components/NavMenu'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsRoutesContext'
+import AboutSettingsScreen from '@web/modules/settings/screens/AboutSettingsScreen'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import AddressBookSettingsScreen from '@web/modules/settings/screens/AddressBookSettingsScreen'
 import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomTokensSettingsScreen'
@@ -182,6 +183,7 @@ const MainRoutes = () => {
                   <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
                   <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
                   <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
+                  <Route path={WEB_ROUTES.settingsAbout} element={<AboutSettingsScreen />} />
                 </Route>
               </Route>
             </Route>

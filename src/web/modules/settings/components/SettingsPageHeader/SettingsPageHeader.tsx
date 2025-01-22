@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -10,9 +10,10 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Props {
   title: string
   children?: React.ReactNode
+  style?: ViewStyle
 }
 
-const SettingsPageHeader: FC<Props> = ({ title, children }) => {
+const SettingsPageHeader: FC<Props> = ({ title, children, style }) => {
   const { t } = useTranslation()
   const { maxWidthSize } = useWindowSize()
   const isWidthXl = maxWidthSize('xl')
@@ -26,7 +27,8 @@ const SettingsPageHeader: FC<Props> = ({ title, children }) => {
         isWidthXl ? spacings.mbXl : spacings.mbLg,
         {
           minHeight: 48
-        }
+        },
+        style
       ]}
     >
       <Text fontSize={20} weight="medium">

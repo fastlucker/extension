@@ -27,7 +27,7 @@ const HeaderBackButton = ({
   const { navigate } = useNavigation()
   const { t } = useTranslation()
 
-  const showBackButtonInPopup = isPopup && !hideInPopup
+  const shouldHideInPopup = isPopup && hideInPopup
   const navigationEnabled = !isActionWindow
 
   const canGoBack =
@@ -38,7 +38,7 @@ const HeaderBackButton = ({
 
   const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
 
-  if (!showBackButtonInPopup || (!canGoBack && !forceBack)) return null
+  if (shouldHideInPopup || (!canGoBack && !forceBack)) return null
 
   return (
     <Pressable

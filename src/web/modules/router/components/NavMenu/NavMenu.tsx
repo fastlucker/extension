@@ -36,7 +36,7 @@ import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
-const SOCIAL = [
+export const SOCIAL = [
   { Icon: TwitterIcon, url: TWITTER_URL, label: 'Twitter' },
   { Icon: TelegramIcon, url: TELEGRAM_URL, label: 'Telegram' },
   { Icon: DiscordIcon, url: DISCORD_URL, label: 'Discord' }

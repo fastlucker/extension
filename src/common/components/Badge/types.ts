@@ -13,6 +13,7 @@ type Props = {
   withRightSpacing?: boolean
   nativeID?: string
   children?: React.ReactNode
+  size?: 'sm' | 'md' | 'lg'
 }
 
 export type { BadgeType, Props }

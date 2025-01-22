@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -14,7 +14,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -81,7 +81,7 @@ const TokenItem = ({
     pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getTokenDetails(token, networks, simulatedAccountOp)
+  } = getAndFormatTokenDetails(token, networks, simulatedAccountOp)
 
   const isPending = !!hasPendingBadges
 

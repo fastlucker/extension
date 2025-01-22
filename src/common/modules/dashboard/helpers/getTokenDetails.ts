@@ -8,6 +8,10 @@ import { calculatePendingAmounts } from '@ambire-common/libs/portfolio/pendingAm
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
 
+/**
+ * Formats pending token amounts in a better readable format, including converting
+ * the amounts to human-readable strings and calculating their USD value.
+ */
 const formatPendingAmounts = (
   pendingAmounts: PendingAmounts | null,
   decimals: number,
@@ -47,7 +51,11 @@ const formatPendingAmounts = (
   return formattedAmounts
 }
 
-const getTokenDetails = (
+/**
+ * Calculates and formats (for display) token details including balance, price
+ * in USD, pending amounts and other details.
+ */
+const getAndFormatTokenDetails = (
   {
     flags: { rewardsType },
     networkId,
@@ -107,4 +115,4 @@ const getTokenDetails = (
   }
 }
 
-export default getTokenDetails
+export default getAndFormatTokenDetails

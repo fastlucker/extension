@@ -22,7 +22,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
@@ -288,7 +288,7 @@ const TokenDetails = ({
   } = token
 
   const { priceUSDFormatted, balanceUSDFormatted, isRewards, isVesting, networkData, balance } =
-    getTokenDetails(token, networks)
+    getAndFormatTokenDetails(token, networks)
 
   return (
     <View>

@@ -9,6 +9,7 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 interface Props {
   title: string
@@ -17,6 +18,7 @@ interface Props {
   renderIcon: React.ReactNode
   children: React.ReactNode
   style?: ViewStyle
+  onPress?: () => void
 }
 
 const ControlOption: FC<Props> = ({
@@ -25,18 +27,26 @@ const ControlOption: FC<Props> = ({
   readMoreLink,
   children,
   renderIcon,
-  style
+  style,
+  onPress
 }) => {
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const [bindAnim, animStyle] = useCustomHover({
+    property: 'backgroundColor',
+    values: { from: theme.secondaryBackground, to: theme.tertiaryBackground },
+    duration: 200
+  })
+
+  const ParentElement = onPress ? AnimatedPressable : View
 
   const openReadMoreLink = () => {
     openInTab(readMoreLink, false).catch(() => addToast(t('Failed to open link')))
   }
 
   return (
-    <View
+    <ParentElement
       style={[
         spacings.pv,
         spacings.ph,
@@ -47,8 +57,11 @@ const ControlOption: FC<Props> = ({
         {
           backgroundColor: theme.secondaryBackground
         },
+        animStyle,
         style
       ]}
+      onPress={onPress}
+      {...bindAnim}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1, spacings.pr]}>
         <View
@@ -80,7 +93,7 @@ const ControlOption: FC<Props> = ({
         </View>
       </View>
       {children}
-    </View>
+    </ParentElement>
   )
 }
 
