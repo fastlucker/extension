@@ -4,12 +4,7 @@ import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
 import useTheme from '@common/hooks/useTheme'
 import { iconColors } from '@common/styles/themeConfig'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const DiscordIcon: React.FC<Props> = ({
+const DiscordIcon: React.FC<SvgProps> = ({
   width = 32,
   height = 32,
   color = iconColors.primary,
