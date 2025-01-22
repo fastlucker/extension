@@ -44,6 +44,14 @@ type BulletContent = {
   text: string
 }
 
+type Animation = { translateX: Animated.Value; opacity: Animated.Value; scale: Animated.Value }
+
+const createAnimation = (): Animation => ({
+  translateX: new Animated.Value(-50),
+  opacity: new Animated.Value(0),
+  scale: new Animated.Value(0.8)
+})
+
 const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { isPopup } = getUiType()
   const { styles, theme } = useTheme(getStyles)
@@ -74,7 +82,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   )
 
   const [visibleCount, setVisibleCount] = useState(0)
-  const [animations, setAnimations] = useState<Animated.Value[]>([])
+  const [animations, setAnimations] = useState<Animation[]>([])
 
   const bulletsContent: BulletContent[] = useMemo(
     () => [
@@ -101,34 +109,38 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
 
   useEffect(() => {
     // Initialize animations for each bullet
-    setAnimations(bulletsContent.map(() => new Animated.Value(-200))) // Start off-screen to the left
+    setAnimations(bulletsContent.map(() => createAnimation()))
   }, [bulletsContent])
 
   const handleOpen = useCallback(() => {
     setVisibleCount(0) // Reset visible count
-    // Set 500ms of delay to make sure that modal animation is finished
+    animations.forEach((animation) => {
+      animation.translateX.setValue(-50) // Reset off-screen
+      animation.opacity.setValue(0) // Reset invisible
+      animation.scale.setValue(0.8) // Reset scale
+    })
     setTimeout(() => {
       bulletsContent.forEach((_, index) => {
-        setTimeout(() => {
-          Animated.timing(animations[index], {
+        Animated.parallel([
+          Animated.timing(animations[index].translateX, {
             toValue: 0,
             duration: 200,
             useNativeDriver: true
-          }).start()
-          setVisibleCount((prev) => prev + 1)
-        }, 300 * index)
+          }),
+          Animated.timing(animations[index].opacity, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true
+          }),
+          Animated.spring(animations[index].scale, {
+            toValue: 1,
+            useNativeDriver: true
+          })
+        ]).start()
+        setVisibleCount((prev) => prev + 1)
       })
-    }, 500)
-  }, [bulletsContent, animations])
-
-  const handleOnClose = useCallback(() => {
-    // Set 500ms of delay to make sure that modal animation is finished
-    setTimeout(() => {
-      // Reset animations
-      setAnimations(bulletsContent.map(() => new Animated.Value(-200)))
-    }, 500)
-    handleClose()
-  }, [bulletsContent, handleClose])
+    }, 500) // Wait for modal animation
+  }, [animations, bulletsContent])
 
   return (
     <BottomSheet
@@ -137,7 +149,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       sheetRef={modalRef}
       backgroundColor="secondaryBackground"
       containerInnerWrapperStyles={styles.containerInnerWrapper}
-      closeBottomSheet={handleOnClose}
+      closeBottomSheet={handleClose}
       style={{ maxWidth: 600 }}
       onOpen={handleOpen}
     >
@@ -227,7 +239,11 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                   <Animated.View
                     key={bullet.key}
                     style={{
-                      transform: [{ translateX: animations[index] }]
+                      transform: [
+                        { translateX: animations[index]?.translateX || 0 },
+                        { scale: animations[index]?.scale || 1 }
+                      ],
+                      opacity: animations[index]?.opacity || 0
                     }}
                   >
                     <LinearGradient
@@ -239,7 +255,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                       start={{ x: 0.15, y: 0 }}
                       end={{ x: 1, y: 1 }}
                     >
-                      <View style={[styles.iconWrapper]}>{bullet.icon}</View>
+                      <View style={styles.iconWrapper}>{bullet.icon}</View>
                       <Text
                         appearance="secondaryText"
                         weight="medium"
