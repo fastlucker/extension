@@ -8,6 +8,7 @@ import { Network } from '@ambire-common/interfaces/network'
 import { canBecomeSmarter, hasAuthorized7702 } from '@ambire-common/libs/account/account'
 import { getEip7702Authorization } from '@ambire-common/libs/signMessage/signMessage'
 import Alert from '@common/components/Alert'
+import Badge from '@common/components/Badge'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import AccountOption from '@common/components/Option/AccountOption'
@@ -106,16 +107,16 @@ const BasicToSmartSettingsScreen = () => {
     })
   }
 
-  const getIsSmarterEOA = (chainId: bigint) => {
+  const getIsSmarterEOA = (chainId: bigint): boolean => {
     const selectedNet = networks.find((net) => net.chainId === chainId)
-    if (!selectedNet || !account) return 'FALSE'
+    if (!selectedNet || !account) return false
 
     const accountState = accountStates[account.addr]
       ? accountStates[account.addr][selectedNet.id]
       : undefined
-    if (!accountState) return 'FALSE'
+    if (!accountState) return false
 
-    return accountState.isSmarterEoa ? 'TRUE' : 'FALSE'
+    return accountState.isSmarterEoa
   }
 
   const isActivateDisabled = useCallback(
@@ -149,20 +150,21 @@ const BasicToSmartSettingsScreen = () => {
           <View
             style={[
               {
-                borderBottomWidth: 1
+                borderBottomWidth: 2,
+                borderBottomColor: colors.lightAzureBlue
               },
               flexbox.directionRow,
               spacings.mb
             ]}
           >
             <View style={[flexbox.flex1]}>
-              <Text weight="semiBold">Network</Text>
+              <Text>Network</Text>
             </View>
-            <View style={[flexbox.flex1]}>
-              <Text weight="semiBold">Enabled</Text>
+            <View style={[flexbox.flex1, flexbox.alignCenter]}>
+              <Text>Status</Text>
             </View>
             <View style={[flexbox.flex1, flexbox.alignEnd]}>
-              <Text weight="semiBold">Action</Text>
+              <Text>Action</Text>
             </View>
           </View>
           {networks.map((net) => (
@@ -185,8 +187,14 @@ const BasicToSmartSettingsScreen = () => {
                   <Text>{net.name}</Text>
                 </View>
               </View>
-              <View style={[flexbox.flex1]}>
-                <Text>{getIsSmarterEOA(net.chainId)}</Text>
+              <View style={[flexbox.flex1, flexbox.alignCenter]}>
+                <View style={[flexbox.directionRow]}>
+                  {getIsSmarterEOA(net.chainId) ? (
+                    <Badge type="success" text={t('activated')} />
+                  ) : (
+                    <Badge type="default" text={t('deactivated')} />
+                  )}
+                </View>
               </View>
               <View style={[flexbox.flex1, flexbox.alignEnd]}>
                 <View style={[flexbox.directionRow]}>
