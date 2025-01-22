@@ -82,7 +82,15 @@ const useSelectInternal = ({
     return index === -1 ? null : index
   }, [value, filteredOptions])
 
+  const prevSelectedItemIndex = usePrevious(selectedItemIndex)
+
   const [highlightedItemIndex, setHighlightedItemIndex] = useState<number | null>(selectedItemIndex)
+
+  useEffect(() => {
+    if (prevSelectedItemIndex && !selectedItemIndex && highlightedItemIndex) {
+      setHighlightedItemIndex(0)
+    }
+  }, [prevSelectedItemIndex, highlightedItemIndex, selectedItemIndex])
 
   useEffect(() => {
     if (!prevIsMenuOpen && isMenuOpen) {
@@ -115,13 +123,18 @@ const useSelectInternal = ({
     return () => document.removeEventListener('keydown', handleKeyDown, true)
   }, [isMenuOpen, highlightedItemIndex, filteredOptions, handleOptionSelect, setIsMenuOpen])
 
-  const handleSetHovered = useCallback((index: number) => {
+  const handleSetHoverIn = useCallback((index: number) => {
     setHighlightedItemIndex(index)
+  }, [])
+
+  const handleSetHoverOut = useCallback(() => {
+    setHighlightedItemIndex(null)
   }, [])
 
   const renderItem = useCallback(
     ({ item, index }: { item: SelectValue; index: number }) => {
-      const onHovered = () => handleSetHovered(index)
+      const onHoverIn = () => handleSetHoverIn(index)
+
       return (
         <MenuOption
           item={item}
@@ -129,7 +142,8 @@ const useSelectInternal = ({
           isSelected={item.value === value.value}
           isHighlighted={highlightedItemIndex === index}
           onPress={handleOptionSelect}
-          onHovered={onHovered}
+          onHoverIn={onHoverIn}
+          onHoverOut={handleSetHoverOut}
           disabled={!!item?.disabled}
           size={size}
         />
@@ -141,7 +155,8 @@ const useSelectInternal = ({
       handleOptionSelect,
       size,
       highlightedItemIndex,
-      handleSetHovered
+      handleSetHoverIn,
+      handleSetHoverOut
     ]
   )
 

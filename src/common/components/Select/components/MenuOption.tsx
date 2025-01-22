@@ -60,7 +60,8 @@ const MenuOption = React.memo(
     isSelected,
     isHighlighted,
     onPress,
-    onHovered,
+    onHoverIn,
+    onHoverOut,
     disabled,
     size
   }: {
@@ -69,7 +70,8 @@ const MenuOption = React.memo(
     isSelected: boolean
     isHighlighted: boolean
     onPress: (item: SelectValue) => void
-    onHovered: () => void
+    onHoverIn: () => void
+    onHoverOut: () => void
     disabled?: boolean
     size: SelectProps['size']
   }) => {
@@ -89,9 +91,11 @@ const MenuOption = React.memo(
           !!height && { height },
           isSelected && { backgroundColor: theme.tertiaryBackground },
           isHighlighted && !disabled && { backgroundColor: theme.secondaryBackground },
+          // @ts-ignore
           disabled && { opacity: 0.6, cursor: 'not-allowed' }
         ]}
-        onHoverIn={onHovered}
+        onHoverIn={onHoverIn}
+        onHoverOut={onHoverOut}
         onPress={onPressWrapped}
       >
         <Option item={item} />

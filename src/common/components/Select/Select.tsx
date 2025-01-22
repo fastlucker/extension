@@ -1,5 +1,5 @@
 import React from 'react'
-import { FlatList } from 'react-native'
+import { FlatList, View } from 'react-native'
 
 import EmptyListPlaceholder from './components/EmptyListPlaceholder'
 import SelectContainer from './components/SelectContainer'
