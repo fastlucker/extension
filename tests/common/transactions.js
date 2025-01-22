@@ -2,7 +2,7 @@ import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
-import { selectPolToken } from '../common-helpers/selectPolToken'
+import { selectUSDCTokenOnBase } from '../common-helpers/selectUSDCTokenOnBase'
 import { triggerTransaction } from '../common-helpers/triggerTransaction'
 import { checkForSignMessageWindow } from '../common-helpers/checkForSignMessageWindow'
 import { selectFeeToken } from '../common-helpers/selectFeeToken'
@@ -42,7 +42,7 @@ const overcomeNonceError = async (page) => {
 // TODO: Fix this
 const recipientField = SELECTORS.addressEnsField
 const amountField = SELECTORS.amountField
-const polTokenSelector = SELECTORS.nativeTokenPolygonDyn
+const usdcTokenSelector = SELECTORS.nativeTokenBaseDashboard
 const TARGET_HEIGHT = 58.7
 const MAX_TIME_WAIT = 30000
 //--------------------------------------------------------------------------------------------------------------
@@ -61,7 +61,6 @@ export async function prepareTransaction(
   { shouldUseAddressBookRecipient = false, shouldSendButtonBeDisabled = false } = {}
 ) {
   await page.waitForSelector(amountField)
-  await selectPolToken(page)
   await typeText(page, amountField, amount)
 
   if (!shouldUseAddressBookRecipient) {
@@ -93,7 +92,6 @@ export async function prepareTransaction(
 
 async function prepareGasTankTopUp(page, recipient, amount) {
   await page.waitForSelector(amountField)
-  await selectPolToken(page)
   await typeText(page, amountField, amount)
 }
 
@@ -188,7 +186,7 @@ export async function checkTokenBalanceClickOnGivenActionInDashboard(
   page,
   selectedToken,
   selectedAction,
-  minBalance = 0.01
+  minBalance = 0.0001
 ) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
@@ -207,7 +205,7 @@ export async function makeValidTransaction(
   {
     feeToken,
     recipient = SMART_ACC_VIEW_ONLY_ADDRESS,
-    tokenAmount = '0.0001',
+    tokenAmount = '0.000001',
     shouldStopBeforeSign = false,
     shouldUseAddressBookRecipient = false,
     shouldTopUpGasTank = false,
@@ -485,7 +483,7 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
   await page.waitForSelector('[data-testid="max-available-amount"]')
 
-  await selectPolToken(page)
+  await selectUSDCTokenOnBase(page)
 
   // Wait for the max amount to load
   await new Promise((resolve) => {
@@ -516,12 +514,11 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function sendFundsToSmartContract(page, extensionURL) {
-  // Check if POL on Polygon are under 0.0015
-  await checkBalanceOfToken(page, polTokenSelector, 0.0002)
+  await checkBalanceOfToken(page, usdcTokenSelector, 0.0002)
 
   await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
   await page.waitForSelector('[data-testid="max-available-amount"]')
-  await selectPolToken(page)
+  await selectUSDCTokenOnBase(page)
 
   // Type the amount
   await typeText(page, amountField, '0.0001')

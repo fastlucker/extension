@@ -87,7 +87,8 @@ export const TEST_IDS = {
   totalPortfolioAmountInteger: 'total-portfolio-amount-integer',
   proceedBtn: 'proceed-btn',
   privateKeyWarningCheckbox1: 'private-key-warning-checkbox-1',
-  privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2'
+  privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
+  nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-base'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
