@@ -1,3 +1,6 @@
+// Keep the bottomsheet implementation
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useCallback, useMemo } from 'react'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
@@ -81,10 +84,6 @@ const DashboardBanner = ({
         navigate(ROUTES.devicePasswordRecovery)
       }
 
-      if (action.actionName === 'select-rpc-url') {
-        setBottomSheetBanner(banner)
-      }
-
       if (action.actionName === 'open-swap-and-bridge-tab') {
         navigate(ROUTES.swapAndBridge)
       }
@@ -120,7 +119,7 @@ const DashboardBanner = ({
         })
       }
     },
-    [visibleActionsQueue, type, banner, setBottomSheetBanner, dispatch, addToast, navigate]
+    [visibleActionsQueue, type, dispatch, addToast, navigate]
   )
 
   const renderButtons = useMemo(

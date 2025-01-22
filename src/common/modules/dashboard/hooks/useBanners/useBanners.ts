@@ -21,20 +21,14 @@ const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount?: 
 const OFFLINE_BANNER: BannerInterface = {
   id: 'offline-banner',
   type: 'error',
-  title: "You're offline",
-  text: 'Please check your internet connection',
+  title: 'Network Issue',
+  text: 'Your network connection is too slow or you may be offline. Please check your internet connection.',
   actions: []
 }
 
 export default function useBanners(): BannerInterface[] {
   const { isOffline, banners: mainCtrlBanners } = useMainControllerState()
-  const {
-    account,
-    defiPositionsBanners,
-    portfolio,
-    portfolioBanners,
-    deprecatedSmartAccountBanner
-  } = useSelectedAccountControllerState()
+  const { account, portfolio, deprecatedSmartAccountBanner } = useSelectedAccountControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
@@ -48,7 +42,7 @@ export default function useBanners(): BannerInterface[] {
       ...mainCtrlBanners,
       ...actionBanners,
       ...(isOffline && portfolio.isAllReady ? [OFFLINE_BANNER] : []),
-      ...(isOffline ? [] : [...swapAndBridgeBanners, ...defiPositionsBanners, ...portfolioBanners]),
+      ...(isOffline ? [] : [...swapAndBridgeBanners]),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
       ...keystoreBanners,
@@ -61,8 +55,6 @@ export default function useBanners(): BannerInterface[] {
     isOffline,
     portfolio.isAllReady,
     swapAndBridgeBanners,
-    defiPositionsBanners,
-    portfolioBanners,
     activityBanners,
     emailVaultBanners,
     account?.addr,

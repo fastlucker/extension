@@ -1,13 +1,11 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 import { Animated, View } from 'react-native'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
-import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
-import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -26,6 +24,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+import PortfolioErrors from './PortfolioErrors'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
 
@@ -56,7 +55,7 @@ const DashboardOverview: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
-  const { account, dashboardNetworkFilter, portfolio, portfolioStartedLoadingAtTimestamp } =
+  const { account, dashboardNetworkFilter, balanceAffectingErrors, portfolio } =
     useSelectedAccountControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -64,7 +63,6 @@ const DashboardOverview: FC<Props> = ({
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
-  const [isLoadingTakingTooLong, setIsLoadingTakingTooLong] = useState(false)
 
   const filterByNetworkName = useMemo(() => {
     if (!dashboardNetworkFilter) return ''
@@ -98,74 +96,16 @@ const DashboardOverview: FC<Props> = ({
     'value'
   ).split('.')
 
-  const networksWithCriticalErrors: string[] = useMemo(() => {
-    if (!account || !portfolio.latest || portfolio.latest?.isLoading) return []
+  const networksWithErrors = useMemo(() => {
+    const allNetworkIds = balanceAffectingErrors.map((banner) => banner.networkIds).flat()
 
-    const networkNames: string[] = []
+    const networkIds = [...new Set(allNetworkIds)]
 
-    Object.keys(portfolio.latest).forEach((networkId) => {
-      const networkState = portfolio.latest[networkId]
-
-      if (networkState?.criticalError) {
-        let networkName
-
-        if (networkId === 'gasTank') networkName = 'Gas Tank'
-        else if (networkId === 'rewards') networkName = 'Rewards'
-        else networkName = networks.find((n) => n.id === networkId)?.name
-
-        if (!networkName) return
-
-        networkNames.push(networkName)
-      }
+    return networkIds.map((networkId) => {
+      const network = networks.find(({ id }) => id === networkId)
+      return network?.name || networkId
     })
-
-    return networkNames
-  }, [account, portfolio, networks])
-
-  const warningMessage = useMemo(() => {
-    if (isLoadingTakingTooLong) {
-      return t('Loading all networks is taking too long.')
-    }
-
-    if (networksWithCriticalErrors.length) {
-      return t('Total balance may be inaccurate due to network issues on {{networks}}', {
-        networks: networksWithCriticalErrors.join(', ')
-      })
-    }
-
-    return undefined
-  }, [isLoadingTakingTooLong, networksWithCriticalErrors, t])
-
-  // Compare the current timestamp with the timestamp when the loading started
-  // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
-  useEffect(() => {
-    if (!portfolioStartedLoadingAtTimestamp) {
-      setIsLoadingTakingTooLong(false)
-      return
-    }
-
-    const checkIsLoadingTakingTooLong = () => {
-      const takesMoreThan5Seconds = Date.now() - portfolioStartedLoadingAtTimestamp > 5000
-
-      setIsLoadingTakingTooLong(takesMoreThan5Seconds)
-    }
-
-    checkIsLoadingTakingTooLong()
-
-    const interval = setInterval(() => {
-      if (portfolio?.isAllReady) {
-        clearInterval(interval)
-        setIsLoadingTakingTooLong(false)
-        return
-      }
-
-      checkIsLoadingTakingTooLong()
-    }, 500)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [portfolio?.isAllReady, portfolioStartedLoadingAtTimestamp])
+  }, [balanceAffectingErrors, networks])
 
   const reloadAccount = useCallback(() => {
     dispatch({ type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT' })
@@ -230,9 +170,15 @@ const DashboardOverview: FC<Props> = ({
                         <Text
                           fontSize={32}
                           shouldScale={false}
-                          style={{ lineHeight: BALANCE_HEIGHT }}
+                          style={{
+                            lineHeight: BALANCE_HEIGHT
+                          }}
                           weight="number_bold"
-                          color={theme.primaryBackground}
+                          color={
+                            networksWithErrors.length
+                              ? theme.warningDecorative
+                              : theme.primaryBackground
+                          }
                           selectable
                           testID="total-portfolio-amount-integer"
                         >
@@ -242,7 +188,11 @@ const DashboardOverview: FC<Props> = ({
                           fontSize={20}
                           shouldScale={false}
                           weight="number_bold"
-                          color={theme.primaryBackground}
+                          color={
+                            networksWithErrors.length
+                              ? theme.warningDecorative
+                              : theme.primaryBackground
+                          }
                           selectable
                         >
                           {t('.')}
@@ -293,19 +243,10 @@ const DashboardOverview: FC<Props> = ({
                       height={6.5}
                     />
                   </AnimatedPressable>
-                  {!!warningMessage && (
-                    <>
-                      <WarningIcon
-                        color={theme.warningDecorative}
-                        style={spacings.mlTy}
-                        data-tooltip-id="portfolio-warning"
-                        data-tooltip-content={warningMessage}
-                        width={21}
-                        height={21}
-                      />
-                      <Tooltip id="portfolio-warning" />
-                    </>
-                  )}
+                  <PortfolioErrors
+                    reloadAccount={reloadAccount}
+                    networksWithErrors={networksWithErrors}
+                  />
                 </View>
               </View>
               <Routes openReceiveModal={openReceiveModal} />
