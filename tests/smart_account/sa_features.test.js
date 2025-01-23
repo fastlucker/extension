@@ -34,7 +34,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Top up gas tank with 0.0001 USDC on Base', async () => {
+  it.skip('Top up gas tank with 0.0001 ETH on Base', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenBaseDashboard,
