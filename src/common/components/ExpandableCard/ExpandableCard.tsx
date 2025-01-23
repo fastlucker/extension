@@ -19,6 +19,8 @@ type Props = {
   arrowPosition?: 'left' | 'right'
   children?: ReactElement | ReactElement[]
   contentStyle?: ViewStyle
+  onExpandedToggle?: Function
+  isExpandedByDefault?: boolean
 }
 
 const ExpandableCard = ({
@@ -29,16 +31,25 @@ const ExpandableCard = ({
   content,
   expandedContent,
   children,
-  contentStyle
+  contentStyle,
+  onExpandedToggle,
+  isExpandedByDefault = false
 }: Props) => {
   const { styles } = useTheme(getStyles)
-  const [isExpanded, setIsExpanded] = useState(!enableExpand)
+  const [isExpanded, setIsExpanded] = useState(!enableExpand || isExpandedByDefault)
 
   const Element = enableExpand ? Pressable : View
 
   return (
     <View style={[styles.container, style]}>
-      <Element onPress={() => !!enableExpand && setIsExpanded((prevState) => !prevState)}>
+      <Element
+        onPress={() => {
+          if (enableExpand) {
+            setIsExpanded((prevState) => !prevState)
+            if (onExpandedToggle) onExpandedToggle()
+          }
+        }}
+      >
         <View
           style={[
             flexbox.directionRow,
