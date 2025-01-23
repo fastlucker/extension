@@ -1,0 +1,116 @@
+@import '@legends/styles/base.scss';
+
+@keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+}
+  
+.wrapper {
+  width: 46.875rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .heading {
+    font-size: 4rem;
+    font-weight: 500;
+    line-height: 5.44rem;
+    margin-bottom: 2.5rem;
+    align-self: start;
+  }
+
+  .content {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2.25rem;
+
+    .day {
+        border-radius: $secondaryBorderRadius;
+        background-color: $primaryBackground;
+        border: 1px solid $primaryBorder;
+
+        padding: .75rem;
+        border-radius: .375rem;
+        min-width: 5rem;
+
+        .icon {
+            display: flex;
+            justify-content: center;
+            gap: 0.25rem;
+            font-size: 1.25rem;
+            color: $blackText;
+            margin-bottom: .75rem;
+            font-weight: 500;
+        }
+
+        .dayText {
+            color: $secondaryText;
+            font-size: .75rem;
+            font-weight: 400;
+            text-align: center;
+        }
+    }
+
+    .last {
+        animation: gradientAnimation 4s ease infinite;
+        background: $primaryGradient;
+        background-size: 200% 200%;
+        border-radius: $primaryBorderRadius;
+        padding: 0.15rem;
+        $innerBorderRadius: calc(#{$secondaryBorderRadius} - 0.25rem);
+
+        .day {
+            border: none;
+        }
+    }
+
+  
+    .current {
+      border: 1px solid $tertiaryBorder;
+    }
+  }
+
+  .treasureChest {
+    margin-bottom: .75rem;
+  }
+
+  // Compensate for the height of the opened treasure chest
+  .treasureChestClosed {
+    margin-top: 3.3125rem;
+  }
+
+  .treasureChestWrapper {
+    position: relative;
+    
+    .prize {
+      position: absolute;
+      left: 25%;
+      top: 25%;
+      font-size: 1.75rem;
+      font-weight: 500;
+      color: $blackText;
+      display: flex;
+      align-items: center;
+      padding: .25rem .5rem;
+      
+      gap: .25rem;
+      background-color: $primaryBackground;
+      border: 1px solid $primaryBorder;
+      border-radius: .375rem;
+    }
+  }
+
+  .button {
+    @include primary-button;
+    font-size: 1rem;
+    color: $secondaryAccent;
+    max-width: 18.75rem;
+  }
+}
