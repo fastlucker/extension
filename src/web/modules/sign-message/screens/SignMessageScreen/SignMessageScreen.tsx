@@ -54,7 +54,6 @@ const SignMessageScreen = () => {
   const actionState = useActionsControllerState()
   const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
-  const [isMessageExpanded, setIsMessageExpanded] = useState(false)
 
   const signMessageAction = useMemo(() => {
     if (actionState.currentAction?.type !== 'signMessage') return undefined
@@ -98,7 +97,7 @@ const SignMessageScreen = () => {
     () =>
       humanizedMessage?.fullVisualization &&
       network &&
-      !!signMessageState.messageToSign?.content.kind,
+      signMessageState.messageToSign?.content.kind,
     [network, humanizedMessage, signMessageState.messageToSign?.content?.kind]
   )
 
@@ -289,21 +288,10 @@ const SignMessageScreen = () => {
                 )
               }
             />
-            <ExpandableCard
-              content={
-                <Text style={[spacings.phTy, { textDecorationLine: 'underline' }]}>
-                  {isMessageExpanded ? 'Hide message' : 'View message'}
-                </Text>
-              }
-              expandedContent={
-                <FallbackVisualization
-                  setHasReachedBottom={setHasReachedBottom}
-                  hasReachedBottom={!!hasReachedBottom}
-                  messageToSign={signMessageState.messageToSign}
-                />
-              }
-              onExpandedToggle={() => setIsMessageExpanded(!isMessageExpanded)}
-              isExpandedByDefault={!visualizeHumanized}
+            <FallbackVisualization
+              setHasReachedBottom={setHasReachedBottom}
+              hasReachedBottom={!!hasReachedBottom}
+              messageToSign={signMessageState.messageToSign}
             />
           </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
