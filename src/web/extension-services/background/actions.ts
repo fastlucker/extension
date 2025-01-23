@@ -1,7 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue
+  Action as ActionFromActionsQueue,
+  ActionExecutionType
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -161,7 +162,7 @@ type MainControllerBuildTransferUserRequest = {
     amount: string
     selectedToken: TokenResult
     recipientAddress: string
-    executionType: 'queue' | 'open'
+    actionExecutionType: ActionExecutionType
   }
 }
 type MainControllerBuildClaimWalletUserRequest = {
@@ -313,6 +314,10 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
+type MainControllerOnLoadAction = {
+  type: 'MAIN_CONTROLLER_ON_LOAD'
+}
+
 type MainControllerLockAction = {
   type: 'MAIN_CONTROLLER_LOCK'
 }
@@ -448,15 +453,14 @@ type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
   params: { activeRouteId: number }
 }
+type SwapAndBridgeControllerUpdateQuoteAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE'
+}
 type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: number }
 }
 
-type ActionsControllerAddToActionsQueue = {
-  type: 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE'
-  params: ActionFromActionsQueue
-}
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
   params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
@@ -588,6 +592,7 @@ export type Action =
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction
+  | MainControllerOnLoadAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
   | MainControllerBuildMintVestingUserRequest
@@ -643,8 +648,8 @@ export type Action =
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerSubmitFormAction
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
+  | SwapAndBridgeControllerUpdateQuoteAction
   | SwapAndBridgeControllerRemoveActiveRouteAction
-  | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
   | ActionsControllerCloseActionWindow

@@ -3,7 +3,10 @@ import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, Image, View } from 'react-native'
 
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import {
+  isAmbireV1LinkedAccount as getIsAmbireV1LinkedAccount,
+  isSmartAccount
+} from '@ambire-common/libs/account/account'
 import LegendsLogo from '@common/assets/images/legends-logo-small.png'
 import FireIcon from '@common/assets/svg/FireIcon'
 import Text from '@common/components/Text'
@@ -64,7 +67,6 @@ const LegendsHotTip = ({ chainId }: Props) => {
         >
           {t('Hot tip')}
         </Text>
-
         <Image source={LegendsLogo as any} style={{ width: 38, height: 32 }} />
       </View>
       {!!isHovered && (
@@ -76,7 +78,7 @@ const LegendsHotTip = ({ chainId }: Props) => {
           }}
         >
           <Text fontSize={14} appearance="infoText">
-            {isSmartAccount(account)
+            {isSmartAccount(account) && !getIsAmbireV1LinkedAccount(account?.creation?.factoryAddr)
               ? t('Swap & Bridge earns you XP on this network for future rewards in ')
               : t('Making this transaction with a Smart Account would earn you XP for ')}
             <Text

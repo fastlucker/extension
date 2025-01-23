@@ -1,11 +1,11 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC } from 'react'
 
+import GoldenLockIcon from '@legends/common/assets/svg/GoldenLockIcon'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
 import MidnightTimer from '@legends/components/MidnightTimer'
-import { timeUntilMidnight } from '../../WheelComponentModal/helpers'
 import styles from './CardContent.module.scss'
 import Counter from './Counter'
 import Flask from './Flask'
@@ -44,16 +44,22 @@ const CardContent: FC<Props> = ({
   return (
     <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
       {isCompleted ? (
-        <div className={styles.completed}>
+        <div className={styles.overlay}>
           <Flask />
-          <div className={styles.completedText}>
+          <div className={styles.overlayTitle}>
             Completed
             {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) ? (
-              <MidnightTimer className={styles.completedTextAvailable} />
+              <MidnightTimer className={styles.overlayText} />
             ) : null}
           </div>
         </div>
       ) : null}
+      {disabled && (
+        <div className={styles.overlay}>
+          <GoldenLockIcon className={styles.lockIcon} width={80} height={80} />
+          <div className={styles.overlayTitle}>Coming soon</div>
+        </div>
+      )}
       <div className={styles.imageAndCounter}>
         <button
           disabled={disabled}

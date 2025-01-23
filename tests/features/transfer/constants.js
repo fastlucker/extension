@@ -1,7 +1,7 @@
 import { SELECTORS } from '../../common/selectors/selectors'
 import { buildSelector } from '../../common-helpers/buildSelector'
 
-export const POL_TOKEN_SELECTOR = SELECTORS.nativeTokenPolygonDyn
+export const SEND_TOKEN_SELECTOR = SELECTORS.nativeTokenBaseDashboard
 export const DASHBOARD_SEND_BTN_SELECTOR = SELECTORS.tokenSend
 export const DASHBOARD_TOP_UP_BTN_SELECTOR = SELECTORS.topUpButton
 export const FEE_TOKEN_POL_SELECTOR = buildSelector(

@@ -14,7 +14,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -63,16 +63,6 @@ const TokenItem = ({
   const tokenId = getTokenId(token)
 
   const simulatedAccountOp = portfolio.networkSimulatedAccountOp[token.networkId]
-  const tokenAmounts = useMemo(
-    () =>
-      portfolio.tokenAmounts.find(
-        (tokenAmount) =>
-          tokenAmount.address === token.address &&
-          tokenAmount.networkId === token.networkId &&
-          !token.flags.onGasTank
-      ),
-    [portfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
-  )
 
   const {
     balanceFormatted,
@@ -91,7 +81,7 @@ const TokenItem = ({
     pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getTokenDetails(token, networks, tokenAmounts, simulatedAccountOp)
+  } = getAndFormatTokenDetails(token, networks, simulatedAccountOp)
 
   const isPending = !!hasPendingBadges
 
@@ -110,6 +100,13 @@ const TokenItem = ({
       params: { token }
     })
   }, [token, dispatch])
+
+  const textColor = useMemo(() => {
+    if (!isPending) return theme.primaryText
+
+    // pendingToBeSigned is prioritized as both badges can be shown at the same time
+    return pendingToBeSigned ? theme.warningText : colors.azureBlue
+  }, [isPending, pendingToBeSigned, theme.primaryText, theme.warningText])
 
   return (
     <AnimatedPressable
@@ -156,7 +153,7 @@ const TokenItem = ({
                   <Text
                     selectable
                     style={spacings.mrTy}
-                    color={isPending ? theme.warningText : theme.primaryText}
+                    color={textColor}
                     fontSize={16}
                     weight="number_bold"
                     numberOfLines={1}
@@ -215,7 +212,7 @@ const TokenItem = ({
             selectable
             fontSize={16}
             weight="number_bold"
-            color={isPending ? theme.warningText : theme.primaryText}
+            color={textColor}
             style={{ flex: 0.4, textAlign: 'right' }}
           >
             {isPending ? pendingBalanceUSDFormatted : balanceUSDFormatted}

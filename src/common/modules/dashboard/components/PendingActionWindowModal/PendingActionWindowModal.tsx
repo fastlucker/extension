@@ -76,7 +76,7 @@ const PendingActionWindowModal = () => {
 
   if (
     isPopup &&
-    actionWindow?.id &&
+    actionWindow.windowProps &&
     currentAction &&
     !['benzin', 'unlock'].includes(currentAction.type) &&
     title &&

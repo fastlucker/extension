@@ -34,28 +34,30 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
+  const {
+    portfolio: { tokens, collections, pending }
+  } = useSelectedAccountControllerState()
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
   const { networks } = useNetworksControllerState()
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
-      const pendingData = portfolio.pending[network.id]
+      const pendingData = pending[network.id]
 
       if (!pendingData || !pendingData.isReady || !pendingData.result) {
         return []
       }
 
-      return pendingData.result.tokens.filter((token) => token.simulationAmount !== undefined)
+      return tokens.filter((token) => token.simulationAmount !== undefined)
     }
     return []
-  }, [network, portfolio.pending, signAccountOpState?.accountOp])
+  }, [network, pending, signAccountOpState?.accountOp, tokens])
 
   const portfolioStatePending = useMemo(() => {
     if (!signAccountOpState?.accountOp || !network?.id) return null
 
-    return portfolio.pending[network.id]
-  }, [network, portfolio.pending, signAccountOpState?.accountOp])
+    return pending[network.id]
+  }, [network?.id, pending, signAccountOpState?.accountOp])
 
   const pendingSendTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! < 0),
@@ -64,22 +66,22 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   const pendingSendCollection = useMemo(() => {
     if (signAccountOpState?.accountOp?.accountAddr && network?.id)
       return (
-        portfolio.pending[network.id]?.result?.collections?.filter(
+        collections?.filter(
           (i) => i.postSimulation?.sending && i.postSimulation.sending.length > 0
         ) || []
       )
     return []
-  }, [network, signAccountOpState?.accountOp.accountAddr, portfolio.pending])
+  }, [collections, network?.id, signAccountOpState?.accountOp?.accountAddr])
 
   const pendingReceiveCollection = useMemo(() => {
     if (signAccountOpState?.accountOp?.accountAddr && network?.id)
       return (
-        portfolio.pending[network.id]?.result?.collections?.filter(
+        collections?.filter(
           (i) => i.postSimulation?.receiving && i.postSimulation.receiving.length > 0
         ) || []
       )
     return []
-  }, [network, signAccountOpState?.accountOp.accountAddr, portfolio.pending])
+  }, [signAccountOpState?.accountOp?.accountAddr, network?.id, collections])
 
   const pendingReceiveTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! > 0),
