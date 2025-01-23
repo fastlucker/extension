@@ -146,11 +146,17 @@ const SignMessageScreen = () => {
     (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
       // Has more than one key, should first choose the key to sign with
       const hasChosenSigningKey = chosenSigningKeyAddr && chosenSigningKeyType
-      if (selectedAccountKeyStoreKeys.length > 1 && !hasChosenSigningKey) {
+      const hasMultipleKeys = selectedAccountKeyStoreKeys.length > 1
+      if (hasMultipleKeys && !hasChosenSigningKey) {
         return setIsChooseSignerShown(true)
       }
 
-      if (chosenSigningKeyType === 'ledger' && !isLedgerConnected) {
+      const isLedgerKeyChosen = hasMultipleKeys
+        ? // Accounts with multiple keys have an additional step to choose the key first
+          chosenSigningKeyType === 'ledger'
+        : // Take the key type from the account key itself, no additional step to choose key
+          selectedAccountKeyStoreKeys[0].type === 'ledger'
+      if (isLedgerKeyChosen && !isLedgerConnected) {
         setShouldDisplayLedgerConnectModal(true)
         return
       }
