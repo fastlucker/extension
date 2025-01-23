@@ -1,5 +1,5 @@
 import React from 'react'
-import { FlatList, View } from 'react-native'
+import { FlatList } from 'react-native'
 
 import EmptyListPlaceholder from './components/EmptyListPlaceholder'
 import SelectContainer from './components/SelectContainer'
@@ -19,17 +19,18 @@ const Select = ({
   const selectData = useSelectInternal({
     value,
     setValue,
-    options,
+    data: options,
+    isSectionList: false,
     menuOptionHeight,
     attemptToFetchMoreOptions
   })
-  const { filteredOptions, renderItem, keyExtractor, getItemLayout } = selectData
+  const { filteredData, renderItem, keyExtractor, getItemLayout } = selectData
 
   return (
     <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
       <FlatList
-        data={filteredOptions}
-        renderItem={renderItem}
+        data={filteredData as SelectProps['options']}
+        renderItem={renderItem as any}
         keyExtractor={keyExtractor}
         initialNumToRender={15}
         windowSize={10}
