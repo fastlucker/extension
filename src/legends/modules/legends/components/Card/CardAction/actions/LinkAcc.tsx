@@ -7,7 +7,6 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import useStandaloneAddressInput from '@common/hooks/useStandaloneAddressInput'
 import AddressInput from '@legends/components/AddressInput'
 import Alert from '@legends/components/Alert'
-import Stepper from '@legends/components/Stepper'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -17,30 +16,37 @@ import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
-import styles from './Action.module.scss'
 import CardActionWrapper from './CardActionWrapper'
 
 enum STEPS {
+  UNUSED,
   SIGN_MESSAGE,
   SIGN_TRANSACTION
 }
 
-const BUTTON_TEXT = {
+const BUTTON_TEXT: {
+  [key: number]: string
+} = {
+  // The first step is a guide for the user to add their account, so we can't set an active
+  // step until the user proceeds to the next step
+  [STEPS.UNUSED]: 'Only used for guidance',
   [STEPS.SIGN_MESSAGE]: 'Sign message',
   [STEPS.SIGN_TRANSACTION]: 'Sign transaction'
 }
-
-const STEPPER_STEPS = [
-  'Sign a message with the Basic or v1 account you want to link',
-  'Sign a transaction with your v2 account'
-]
 
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
 const LinkAcc = () => {
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
-  const { onComplete, handleClose } = useCardActionContext()
+  const {
+    onComplete,
+    handleClose,
+    activeStep: nullableActiveStep,
+    setActiveStep
+  } = useCardActionContext()
+  // Active step can be null because there are legends that don't activate the stepper
+  const activeStep = nullableActiveStep || STEPS.SIGN_MESSAGE
   const switchNetwork = useSwitchNetwork()
   const { connectedAccount, allAccounts, setAllowNonV2Connection } = useAccountContext()
 
@@ -84,12 +90,6 @@ const LinkAcc = () => {
     overwriteError: overwriteErrorMessage
   })
 
-  const activeStep = useMemo(() => {
-    if (v1OrBasicSignature) return STEPS.SIGN_TRANSACTION
-
-    return STEPS.SIGN_MESSAGE
-  }, [v1OrBasicSignature])
-
   const isActionEnabled = useMemo(() => {
     if (activeStep === STEPS.SIGN_MESSAGE) {
       return !validation?.isError && !addressState.isDomainResolving
@@ -103,6 +103,10 @@ const LinkAcc = () => {
     validation?.isError,
     addressState.isDomainResolving
   ])
+
+  useEffect(() => {
+    if (v1OrBasicSignature) return setActiveStep(2)
+  }, [setActiveStep, v1OrBasicSignature])
 
   // We don't allow non-v2 accounts to connect to Legends,
   // except when the user needs to link an EOA/v1 account to their main v2 account.
@@ -211,7 +215,6 @@ const LinkAcc = () => {
       buttonText={BUTTON_TEXT[activeStep]}
       onButtonClick={onButtonClick}
     >
-      <Stepper activeStep={activeStep} steps={STEPPER_STEPS} className={styles.stepper} />
       {activeStep === STEPS.SIGN_TRANSACTION && !isActionEnabled && (
         <Alert
           type="warning"

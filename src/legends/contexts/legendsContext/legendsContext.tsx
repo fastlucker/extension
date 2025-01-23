@@ -4,7 +4,7 @@ import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
-import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
 import useToast from '@legends/hooks/useToast'
 import { isWheelSpinTodayDone } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
@@ -28,7 +28,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
   const { getCharacter } = useCharacterContext()
-  const { getActivity } = useRecentActivityContext()
+  const { getActivity } = useActivityContext()
   const { updateLeaderboard } = useLeaderboardContext()
 
   const [isLoading, setIsLoading] = useState(true)

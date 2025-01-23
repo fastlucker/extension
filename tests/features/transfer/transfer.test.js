@@ -2,7 +2,7 @@ import { saParams } from '../../config/constants'
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../../constants/constants'
 import {
-  POL_TOKEN_SELECTOR,
+  SEND_TOKEN_SELECTOR,
   DASHBOARD_SEND_BTN_SELECTOR,
   DASHBOARD_TOP_UP_BTN_SELECTOR,
   FEE_TOKEN_POL_SELECTOR,
@@ -33,7 +33,7 @@ describe('transfer', () => {
   it('should build a transfer request to an address from the address book', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      POL_TOKEN_SELECTOR,
+      SEND_TOKEN_SELECTOR,
       DASHBOARD_SEND_BTN_SELECTOR
     )
 
@@ -46,7 +46,7 @@ describe('transfer', () => {
   it('should build a transfer request to an unknown address', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      POL_TOKEN_SELECTOR,
+      SEND_TOKEN_SELECTOR,
       DASHBOARD_SEND_BTN_SELECTOR
     )
     await makeValidTransaction(page, extensionURL, browser, {
@@ -57,7 +57,7 @@ describe('transfer', () => {
   it('should not allow to build a transfer request with an amount exceeding the available token balance', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      POL_TOKEN_SELECTOR,
+      SEND_TOKEN_SELECTOR,
       DASHBOARD_SEND_BTN_SELECTOR
     )
     await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, BIG_AMOUNT, {
@@ -68,7 +68,7 @@ describe('transfer', () => {
   it('should build a top-up gas tank request', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      POL_TOKEN_SELECTOR,
+      SEND_TOKEN_SELECTOR,
       DASHBOARD_TOP_UP_BTN_SELECTOR
     )
 

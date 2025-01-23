@@ -15,9 +15,9 @@ import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
 import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
+import MidnightTimer from '@legends/components/MidnightTimer'
 import wheelBackgroundImage from './assets/wheel-background.png'
 import Link from './components/Link'
 import Socials from './components/Socials'
@@ -70,12 +70,11 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   }
 
   const wheelText = useMemo(() => {
-    if (isLoading) return 'Loading...'
+    if (isLoading) return <span className={styles.wheelText}>Loading...</span>
+    if (wheelSpinOfTheDay) return <MidnightTimer className={styles.wheelText} />
 
-    if (wheelSpinOfTheDay) return timeUntilMidnight().label
-
-    return 'Spin the Wheel'
-  }, [wheelSpinOfTheDay, isLoading])
+    return <span className={styles.wheelText}>Spin the Wheel</span>
+  }, [isLoading, wheelSpinOfTheDay])
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -96,7 +95,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           >
             <div className={styles.wheelContent}>
               <span className={styles.wheelTitle}>Daily Legend</span>
-              <span className={styles.wheelText}>{wheelText}</span>
+              {wheelText}
               <button
                 onClick={handleModal}
                 disabled={wheelSpinOfTheDay}

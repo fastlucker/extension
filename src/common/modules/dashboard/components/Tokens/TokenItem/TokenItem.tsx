@@ -101,6 +101,13 @@ const TokenItem = ({
     })
   }, [token, dispatch])
 
+  const textColor = useMemo(() => {
+    if (!isPending) return theme.primaryText
+
+    // pendingToBeSigned is prioritized as both badges can be shown at the same time
+    return pendingToBeSigned ? theme.warningText : colors.azureBlue
+  }, [isPending, pendingToBeSigned, theme.primaryText, theme.warningText])
+
   return (
     <AnimatedPressable
       onPress={() => openBottomSheet()}
@@ -146,7 +153,7 @@ const TokenItem = ({
                   <Text
                     selectable
                     style={spacings.mrTy}
-                    color={isPending ? theme.warningText : theme.primaryText}
+                    color={textColor}
                     fontSize={16}
                     weight="number_bold"
                     numberOfLines={1}
@@ -205,7 +212,7 @@ const TokenItem = ({
             selectable
             fontSize={16}
             weight="number_bold"
-            color={isPending ? theme.warningText : theme.primaryText}
+            color={textColor}
             style={{ flex: 0.4, textAlign: 'right' }}
           >
             {isPending ? pendingBalanceUSDFormatted : balanceUSDFormatted}
