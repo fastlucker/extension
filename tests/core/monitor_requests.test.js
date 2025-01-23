@@ -62,7 +62,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
     const httpRequests = await monitorRequests(serviceWorker.client, async () => {
       await checkTokenBalanceClickOnGivenActionInDashboard(
         page,
-        SELECTORS.nativeTokenPolygonDyn,
+        SELECTORS.nativeTokenBaseDashboard,
         SELECTORS.tokenSend
       )
       await makeValidTransaction(page, extensionURL, browser, {
@@ -77,14 +77,14 @@ describe('Monitor network requests and make sure only necessary requests are mad
       uncategorizedRequests
     } = getBackgroundRequestsByType(httpRequests)
 
-    const nonPolygonAndEthereumRpcRequests = rpcRequests.filter(
-      (request) => !request.includes('polygon') && !request.includes('ethereum')
+    const nonBaseAndEthereumRpcRequests = rpcRequests.filter(
+      (request) => !request.includes('base') && !request.includes('ethereum')
     )
 
     // Expect more rpc requests because of ENS/UD resolution
     // @TODO: check if we can reduce the number of requests
     expect(rpcRequests.length).toBeLessThanOrEqual(10)
-    expect(nonPolygonAndEthereumRpcRequests.length).toBe(0)
+    expect(nonBaseAndEthereumRpcRequests.length).toBe(0)
     expect(nativeTokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(batchedErc20TokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(uncategorizedRequests.length).toBe(0)
