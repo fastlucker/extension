@@ -1,13 +1,11 @@
 import { BrowserProvider } from 'ethers'
 import React, { useCallback, useMemo, useState } from 'react'
 
-import { RELAYER_URL } from '@env'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
 import TreasureChestClosed from '@legends/common/assets/svg/TreasureChestClosed'
 import TreasureChestOpened from '@legends/common/assets/svg/TreasureChestOpened'
 import Modal from '@legends/components/Modal'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
-import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
@@ -15,7 +13,8 @@ import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
-import { CardActionCalls, CardStatus } from '@legends/modules/legends/types'
+import { checkTransactionStatus } from '@legends/modules/legends/helpers'
+import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
@@ -38,50 +37,34 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const switchNetwork = useSwitchNetwork()
 
   const { legends, getLegends } = useLegendsContext()
-  const treasureLegend = useMemo(
-    () => legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest)),
-    [legends, isInProgress]
+
+  const treasureLegend: ChestCard | undefined = useMemo(
+    () =>
+      legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest)) as
+        | ChestCard
+        | undefined,
+    [legends]
   )
 
-  const isCompleted = treasureLegend?.card.status === CardStatus.completed
+  if (!treasureLegend) {
+    return null
+  }
 
-  const action = treasureLegend?.action as CardActionCalls
+  const isCompleted = treasureLegend.card.status === CardStatus.completed
 
-  const checkTransactionStatus = useCallback(async () => {
-    try {
-      const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
-
-      if (!response.ok) throw new Error('Failed to fetch transaction status')
-
-      const data = await response.json()
-      const today = new Date().toISOString().split('T')[0]
-      const transaction: ActivityTransaction | undefined = data.transactions.find(
-        (txn: ActivityTransaction) =>
-          txn.submittedAt.startsWith(today) &&
-          txn.legends.activities &&
-          txn.legends.activities.some((activity: LegendActivity) =>
-            activity.action.startsWith('dailyReward')
-          )
-      )
-
-      if (!transaction) return false
-      const dailyRewardActivity = transaction.legends.activities.find((activity: any) => {
-        return activity.action.includes('dailyReward')
-      })
-
-      if (!dailyRewardActivity) return false
-
-      await getLegends()
-      setIsInProgress(false)
-      addToast(`You received ${dailyRewardActivity.xp}xp!`, {
-        type: 'success'
-      })
-      return true
-    } catch (error) {
-      console.error('Error fetching transaction status:', error)
-      return false
+  const getButtonLabel = () => {
+    if (isInProgress) {
+      return 'Opening...'
     }
-  }, [connectedAccount, addToast, getLegends])
+
+    if (isCompleted) {
+      return `${timeUntilMidnight().label}`
+    }
+
+    return 'Open chest'
+  }
+
+  const action = treasureLegend.action as CardActionCalls
 
   const onButtonClick = useCallback(async () => {
     setIsInProgress(true)
@@ -102,9 +85,18 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         formattedCalls,
         false
       )
+
+      addToast('The chest will be opened shortly. ETA 10s')
+
       await getCallsStatus(sendCallsIdentifier)
 
-      const transactionFound = await checkTransactionStatus()
+      const transactionFound = await checkTransactionStatus(
+        connectedAccount,
+        'dailyReward',
+        getLegends,
+        setIsInProgress,
+        addToast
+      )
       if (!transactionFound) {
         const checkStatusWithTimeout = async (attempts: number) => {
           if (attempts >= 10) {
@@ -115,7 +107,13 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             )
             return
           }
-          const found = await checkTransactionStatus()
+          const found = await checkTransactionStatus(
+            connectedAccount,
+            'dailyReward',
+            getLegends,
+            setIsInProgress,
+            addToast
+          )
 
           if (!found) {
             setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
@@ -126,33 +124,35 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       }
     } catch (e: any) {
       const message = humanizeLegendsBroadcastError(e)
+      setIsInProgress(false)
 
       console.error(e)
       addToast(message || ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
     }
   }, [
     switchNetwork,
+    connectedAccount,
+    getLegends,
     action?.calls,
     sendCalls,
     chainId,
     getCallsStatus,
-    addToast,
-    checkTransactionStatus
+    addToast
   ])
 
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} className={styles.wrapper}>
       <Modal.Heading className={styles.heading}>Daily Loot</Modal.Heading>
       <div className={styles.content}>
-        {treasureLegend?.meta?.points.map((point, index) => (
+        {treasureLegend.meta.points.map((point, index) => (
           <div
             key={point}
-            className={index === (treasureLegend?.meta?.points?.length ?? 0) - 1 ? styles.last : ''}
+            className={index === (treasureLegend.meta.points.length ?? 0) - 1 ? styles.last : ''}
           >
             <div
               className={`${styles.day}  ${
-                (!isCompleted && index === treasureLegend.meta?.streak) ||
-                index < (treasureLegend?.meta?.streak ?? -1)
+                (!isCompleted && index === treasureLegend.meta.streak) ||
+                index < (treasureLegend.meta.streak ?? -1)
                   ? styles.current
                   : ''
               }`}
@@ -161,8 +161,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
                 +{point} <CoinIcon width={20} height={20} />
               </div>
               <p className={styles.dayText}>
-                {(isCompleted && (treasureLegend?.meta?.streak ?? 0) - 1 === index) ||
-                (!isCompleted && treasureLegend?.meta?.streak === index)
+                {(isCompleted && (treasureLegend.meta.streak ?? 0) - 1 === index) ||
+                (!isCompleted && treasureLegend.meta.streak === index)
                   ? 'Today'
                   : `Day ${index + 1}`}
               </p>
@@ -175,7 +175,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         {isCompleted ? (
           <>
             <div className={styles.prize}>
-              +{treasureLegend?.meta?.points[treasureLegend.meta.streak - 1] || 0}
+              +{treasureLegend.meta.points[treasureLegend.meta.streak - 1] || 0}
               <CoinIcon width={28} height={28} />{' '}
             </div>
             <TreasureChestOpened width={238} height={178} className={styles.treasureChest} />
@@ -194,7 +194,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         disabled={isCompleted || isInProgress}
         onClick={onButtonClick}
       >
-        {!isCompleted ? 'Open chest' : `${timeUntilMidnight().label}`}
+        {getButtonLabel()}
       </button>
     </Modal>
   )

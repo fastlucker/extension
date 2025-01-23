@@ -132,15 +132,24 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           ))}
         </div>
 
-        <div className={styles.treasureChestWrapper}>
+        <div
+          className={styles.treasureChestWrapper}
+          onClick={() => setIsTreasureChestModalOpen(true)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setIsTreasureChestModalOpen(true)
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Open Treasure Chest"
+        >
           {isChestOpenedForToday ? (
             <div className={styles.chestAvailableLabel}>{timeUntilMidnight().label}</div>
           ) : (
             ''
           )}
-          <button type="button" onClick={() => setIsTreasureChestModalOpen(true)}>
-            <TreasureChestClosed width={100} height={80} />
-          </button>
+          <TreasureChestClosed width={100} height={80} />
         </div>
       </div>
       <div>

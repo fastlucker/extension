@@ -61,6 +61,7 @@ export interface CardXp {
 }
 
 export interface CardFromResponse {
+  id: string
   title: string
   description: string
   flavor: string
@@ -73,15 +74,24 @@ export interface CardFromResponse {
   image: string
   timesCollectedToday: number
   meta?: {
-    invitationKey: string
-    timesUsed: number
-    maxHits: number
-    timesCollectedSoFar: number
-    streak: number
-    points: number[]
-    expiresOrResetsAt: string
+    invitationKey?: string
+    timesUsed?: number
+    maxHits?: number
+    timesCollectedSoFar?: number
+    streak?: number
+    points?: number[]
+    expiresOrResetsAt?: string
   }
   contentSteps?: string[]
   contentImage?: string
   contentVideo?: string
+}
+
+export interface ChestCard extends Omit<CardFromResponse, 'id' | 'meta'> {
+  id: 'chest'
+  meta: {
+    streak: number
+    points: number[]
+    expiresOrResetsAt: string
+  }
 }

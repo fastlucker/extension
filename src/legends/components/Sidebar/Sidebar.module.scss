@@ -152,11 +152,13 @@
   .treasureChestWrapper {
     position: relative;
     margin: 0 auto;
+    padding: none;
     padding-top: 1.875rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    
     button:hover {
       opacity: 1;
     }
