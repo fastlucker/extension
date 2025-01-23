@@ -10,6 +10,7 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
 import TreasureChestClosed from '@legends/common/assets/svg/TreasureChestClosed'
+import MidnightTimer from '@legends/components/MidnightTimer'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
@@ -17,7 +18,6 @@ import TreasureChestComponentModal from '@legends/modules/legends/components/Tre
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
-import MidnightTimer from '@legends/components/MidnightTimer'
 import wheelBackgroundImage from './assets/wheel-background.png'
 import Link from './components/Link'
 import Socials from './components/Socials'
@@ -144,7 +144,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           aria-label="Open Treasure Chest"
         >
           {isChestOpenedForToday ? (
-            <div className={styles.chestAvailableLabel}>{timeUntilMidnight().label}</div>
+            <div className={styles.chestAvailableLabel}>
+              <MidnightTimer type="minutes" />
+            </div>
           ) : (
             ''
           )}

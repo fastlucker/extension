@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
 import TreasureChestClosed from '@legends/common/assets/svg/TreasureChestClosed'
 import TreasureChestOpened from '@legends/common/assets/svg/TreasureChestOpened'
+import MidnightTimer from '@legends/components/MidnightTimer'
 import Modal from '@legends/components/Modal'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -11,7 +12,6 @@ import useErc5792 from '@legends/hooks/useErc5792'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
-import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
@@ -58,7 +58,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     }
 
     if (isCompleted) {
-      return `${timeUntilMidnight().label}`
+      return <MidnightTimer type="minutes" />
     }
 
     return 'Open chest'
