@@ -1,24 +1,22 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Animated, Easing, Pressable, ScrollView, View } from 'react-native'
+import { Animated, Easing, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { SelectedAccountBalanceError } from '@ambire-common/libs/selectedAccount/errors'
-import CloseIcon from '@common/assets/svg/CloseIcon'
+import { Action, SelectedAccountBalanceError } from '@ambire-common/libs/selectedAccount/errors'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
-import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
+import Header from './Header'
 import PortfolioErrorActions from './PortfolioErrorActions'
 
 type Props = {
@@ -108,9 +106,23 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
     )
   }, [theme.warningDecorative, warningMessage])
 
-  const openHelpCenter = useCallback(
-    () => openInTab('https://help.ambire.com/hc/en-us/requests/new', false),
-    []
+  const renderItem = useCallback(
+    ({ item: { id, title, text, type, actions } }: any) => (
+      <Alert key={id} style={spacings.mbSm} title={title} text={text} type={type}>
+        {actions &&
+          actions.map(({ actionName, ...rest }: Action) => {
+            return (
+              <PortfolioErrorActions
+                key={actionName}
+                actionName={actionName}
+                closeBottomSheet={closeBottomSheetWrapped}
+                {...rest}
+              />
+            )
+          })}
+      </Alert>
+    ),
+    [closeBottomSheetWrapped]
   )
 
   const flashingOpacity = useMemo(() => new Animated.Value(1), [])
@@ -187,75 +199,36 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
         backgroundColor="primaryBackground"
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheetWrapped}
-      >
-        <View
-          style={[
-            flexbox.directionRow,
-            flexbox.alignCenter,
-            flexbox.justifySpaceBetween,
-            spacings.mbMd
-          ]}
-        >
-          <Text fontSize={20} weight="medium" color={theme.primaryText}>
-            {t('Portfolio errors')}
-          </Text>
-          {areErrorsOutdatedAndPortfolioIsReady ? (
-            <Pressable
-              onPress={closeBottomSheetWrapped}
-              style={[flexbox.alignCenter, flexbox.directionRow]}
+        flatListProps={{
+          ListHeaderComponent: (
+            <Header
+              areErrorsOutdatedAndPortfolioIsReady={areErrorsOutdatedAndPortfolioIsReady}
+              closeBottomSheetWrapped={closeBottomSheetWrapped}
+            />
+          ),
+          stickyHeaderIndices: [0],
+          ListFooterComponent: (
+            <View
+              style={[
+                spacings.ptLg,
+                flexbox.directionRow,
+                flexbox.alignCenter,
+                flexbox.justifySpaceBetween
+              ]}
             >
-              <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mrTy}>
-                {t('Errors are outdated. Close')}
-              </Text>
-              <CloseIcon color={theme.warningText} width={16} height={16} />
-            </Pressable>
-          ) : (
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <Text fontSize={14} weight="medium" appearance="secondaryText" style={spacings.mrSm}>
-                {t('Experiencing frequent issues?')}
-              </Text>
-              <Pressable onPress={openHelpCenter}>
-                <Text
-                  fontSize={14}
-                  weight="medium"
-                  color={theme.primary}
-                  style={{
-                    textDecorationColor: theme.primary,
-                    textDecorationLine: 'underline'
-                  }}
-                >
-                  {t('Submit a ticket')}
-                </Text>
-              </Pressable>
+              <Button
+                style={{ width: '100%' }}
+                hasBottomSpacing={false}
+                text={t('Reload account')}
+                onPress={onReloadPress}
+              />
             </View>
-          )}
-        </View>
-        <ScrollView style={[flexbox.flex1, spacings.mbXl]}>
-          {balanceAffectingErrorsSnapshot?.map(({ id, title, text, type, actions }) => (
-            <Alert key={id} style={spacings.mbSm} title={title} text={text} type={type}>
-              {actions &&
-                actions.map(({ actionName, ...rest }) => {
-                  return (
-                    <PortfolioErrorActions
-                      key={actionName}
-                      actionName={actionName}
-                      closeBottomSheet={closeBottomSheetWrapped}
-                      {...rest}
-                    />
-                  )
-                })}
-            </Alert>
-          ))}
-        </ScrollView>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
-          <Button
-            style={{ width: '100%' }}
-            hasBottomSpacing={false}
-            text={t('Reload account')}
-            onPress={onReloadPress}
-          />
-        </View>
-      </BottomSheet>
+          ),
+          data: balanceAffectingErrorsSnapshot,
+          keyExtractor: ({ id }) => id,
+          renderItem
+        }}
+      />
     </>
   )
 }
