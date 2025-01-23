@@ -49,8 +49,8 @@ const SignMessageScreen = () => {
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { isLedgerConnected } = useLedger()
-  const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const actionState = useActionsControllerState()
   const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
@@ -150,8 +150,10 @@ const SignMessageScreen = () => {
         return setIsChooseSignerShown(true)
       }
 
-      setDidTriggerSigning(true)
-      if (signMessageState.signingKeyType === 'ledger' && !isLedgerConnected) return
+      if (chosenSigningKeyType === 'ledger' && !isLedgerConnected) {
+        setShouldDisplayLedgerConnectModal(true)
+        return
+      }
 
       const keyAddr = chosenSigningKeyAddr || selectedAccountKeyStoreKeys[0].addr
       const keyType = chosenSigningKeyType || selectedAccountKeyStoreKeys[0].type
@@ -161,7 +163,7 @@ const SignMessageScreen = () => {
         params: { keyAddr, keyType }
       })
     },
-    [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys, signMessageState.signingKeyType]
+    [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys]
   )
 
   const resolveButtonText = useMemo(() => {
@@ -173,7 +175,7 @@ const SignMessageScreen = () => {
   }, [isScrollToBottomForced, signStatus, t])
 
   const handleDismissLedgerConnectModal = useCallback(() => {
-    setDidTriggerSigning(false)
+    setShouldDisplayLedgerConnectModal(false)
   }, [])
 
   // In the split second when the action window opens, but the state is not yet
@@ -300,7 +302,7 @@ const SignMessageScreen = () => {
               isVisible={signStatus === 'LOADING'}
             />
           )}
-          {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
+          {shouldDisplayLedgerConnectModal && (
             <LedgerConnectModal
               isVisible={!isLedgerConnected}
               handleOnConnect={handleDismissLedgerConnectModal}
