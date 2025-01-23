@@ -1,13 +1,15 @@
-import React, { FC, useEffect } from 'react'
+import React, { CSSProperties, FC, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 import CloseIcon from '@legends/components/CloseIcon'
 import useEscModal from '@legends/hooks/useEscModal'
+
 import styles from './Modal.module.scss'
 
 type ComponentProps = {
   children: React.ReactNode
   className?: string
+  style?: CSSProperties
 }
 
 type ModalProps = ComponentProps & {
@@ -17,11 +19,19 @@ type ModalProps = ComponentProps & {
   showCloseButton?: boolean
 }
 
-const Heading: FC<ComponentProps> = ({ children, className }) => {
-  return <h2 className={`${styles.heading} ${className}`}>{children}</h2>
+const Heading: FC<ComponentProps> = ({ style, children, className }) => {
+  return (
+    <h2 className={`${styles.heading} ${className}`} style={style}>
+      {children}
+    </h2>
+  )
 }
-const Text: FC<ComponentProps> = ({ children, className }) => {
-  return <p className={`${styles.text} ${className}`}>{children}</p>
+const Text: FC<ComponentProps> = ({ style, children, className }) => {
+  return (
+    <p className={`${styles.text} ${className}`} style={style}>
+      {children}
+    </p>
+  )
 }
 
 const Modal = ({
