@@ -129,7 +129,7 @@ const useSelectInternal = ({
       index = filteredData.findIndex((opt) => opt.value === value.value)
     }
 
-    return index === -1 ? null : index
+    return index === -1 ? null : (index as [number, number] | number | null)
   }, [value, filteredData, isSectionList])
 
   const prevSelectedItemIndex = usePrevious(selectedItemIndex)
@@ -150,9 +150,19 @@ const useSelectInternal = ({
 
   useEffect(() => {
     if (!prevIsMenuOpen && isMenuOpen) {
-      setHighlightedItemIndex(selectedItemIndex)
+      if (isSectionList) {
+        setHighlightedItemIndex(
+          // @ts-ignore
+          selectedItemIndex[0] === 0 && selectedItemIndex[1] === 0 ? selectedItemIndex : null
+        )
+      } else {
+        setHighlightedItemIndex(
+          // @ts-ignore
+          selectedItemIndex === 0 ? 0 : null
+        )
+      }
     }
-  }, [prevIsMenuOpen, isMenuOpen, selectedItemIndex])
+  }, [prevIsMenuOpen, isMenuOpen, selectedItemIndex, isSectionList])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
