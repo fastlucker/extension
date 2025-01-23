@@ -5,7 +5,7 @@ import { View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
 import { getContractImplementation, has7702 } from '@ambire-common/libs/7702/7702'
-import { canBecomeSmarter, hasAuthorized7702 } from '@ambire-common/libs/account/account'
+import { canBecomeSmarter } from '@ambire-common/libs/account/account'
 import { getEip7702Authorization } from '@ambire-common/libs/signMessage/signMessage'
 import Alert from '@common/components/Alert'
 import Badge from '@common/components/Badge'
@@ -31,7 +31,7 @@ import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 const BasicToSmartSettingsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { account: accountData } = useSelectedAccountControllerState()
-  const { accountStates, accounts, authorizations } = useAccountsControllerState()
+  const { accountStates, accounts } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { keys } = useKeystoreControllerState()
   const { maxWidthSize } = useWindowSize()
@@ -133,9 +133,9 @@ const BasicToSmartSettingsScreen = () => {
         : undefined
       if (!accountState) return true
 
-      return hasAuthorized7702(account, accountState.nonce, net, authorizations)
+      return accountState.isSmarterEoa
     },
-    [account, accountStates, authorizations]
+    [account, accountStates]
   )
 
   return (
