@@ -44,12 +44,14 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
   const { networks } = useNetworksControllerState()
 
   useEffect(() => {
+    if (!account?.addr) return
+
     dispatch({
       type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
       params: {
         sessionId,
         filters: {
-          account: account!.addr,
+          account: account.addr,
           ...(dashboardNetworkFilter && { network: dashboardNetworkFilter })
         },
         pagination: {
@@ -58,7 +60,7 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
         }
       }
     })
-  }, [openTab, account, dispatch, dashboardNetworkFilter, sessionId])
+  }, [openTab, account?.addr, dispatch, dashboardNetworkFilter, sessionId])
 
   const renderItem = useCallback(
     ({ item }: any) => {
@@ -133,14 +135,10 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
       return (
         <SubmittedTransactionSummary
           key={item.txnId}
+          defaultType="summary"
           submittedAccountOp={item}
-          showFee={false}
-          enableExpand={false}
-          showHeading={false}
           style={spacings.mbSm}
           size="md"
-          blockExplorerAlignedRight
-          showNetworkBadge
         />
       )
     },

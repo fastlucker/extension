@@ -4,6 +4,7 @@ import React, { FC, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
+import { getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
@@ -54,11 +55,12 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
     if (!network) return
 
     try {
-      let targetUrl = `${network.explorerUrl}/address/${address}`
+      const targetUrl =
+        address === ZeroAddress
+          ? // Exception for native tokens, they don't have a block explorer URLs
+            getCoinGeckoTokenUrl(network.nativeAssetId)
+          : `${network.explorerUrl}/address/${address}`
 
-      if (address === ZeroAddress) {
-        targetUrl = `https://www.coingecko.com/en/coins/${network.nativeAssetId}`
-      }
       // openInTab doesn't work in Standalone Benzin
       if (!isExtension) {
         await Linking.openURL(targetUrl)

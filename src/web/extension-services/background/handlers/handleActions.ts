@@ -82,6 +82,10 @@ export const handleActions = async (
       }
       break
     }
+    case 'MAIN_CONTROLLER_ON_LOAD':
+      return mainCtrl.onLoad()
+    case 'MAIN_CONTROLLER_LOCK':
+      return mainCtrl.lock()
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
       return await mainCtrl.handleAccountAdderInitLedger(LedgerKeyIterator)
     }
@@ -276,7 +280,7 @@ export const handleActions = async (
         params.amount,
         params.recipientAddress,
         params.selectedToken,
-        params.executionType
+        params.actionExecutionType
       )
 
     case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
@@ -360,15 +364,23 @@ export const handleActions = async (
       return await mainCtrl.buildSwapAndBridgeUserRequest()
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
+      await mainCtrl.swapAndBridge.updateQuote({
+        skipPreviousQuoteRemoval: true,
+        skipQuoteUpdateOnSameValues: false,
+        skipStatusUpdate: false
+      })
+      break
+    }
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
-    case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
-      return mainCtrl.actions.addOrUpdateAction(params)
     case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
       return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
       return mainCtrl.actions.focusActionWindow()
+    case 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW':
+      return mainCtrl.actions.closeActionWindow()
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
       return mainCtrl.actions.setCurrentActionById(params.actionId)
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
@@ -475,8 +487,6 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
       return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
-    case 'KEYSTORE_CONTROLLER_LOCK':
-      return mainCtrl.keystore.lock()
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
       return mainCtrl.keystore.resetErrorState()
     case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':

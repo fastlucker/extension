@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable } from 'react-native'
 
-import { geckoIdMapper } from '@ambire-common/consts/coingecko'
-import Network from '@ambire-common/interfaces/network'
+import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
+import { Network } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import CoingeckoIcon from '@common/assets/svg/CoingeckoIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -26,47 +27,44 @@ const CoingeckoConfirmedBadge = ({ text, address, network, containerStyle }: Pro
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const [hasTokenInfo, setHasTokenInfo] = useState(false)
+  const [coinGeckoTokenSlug, setCoinGeckoTokenSlug] = useState('')
+  const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
 
-  const onCoingeckoBadgePress = async () => {
-    if (!hasTokenInfo) return
-
-    const coingeckoId = geckoIdMapper(address, network)
-
+  const onCoingeckoBadgePress = useCallback(async () => {
     try {
-      await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || address}`)
+      await createTab(getCoinGeckoTokenUrl(coinGeckoTokenSlug))
     } catch {
       addToast(t('Could not open token info'), { type: 'error' })
     }
-  }
+  }, [addToast, coinGeckoTokenSlug, t])
 
   useEffect(() => {
+    if (coinGeckoTokenSlug) return // already fetched
     if (!address || !network) return
 
-    const coingeckoId = geckoIdMapper(address, network)
+    const tokenAddr = address
+    const geckoChainId = network.platformId
+    const geckoNativeCoinId = network.nativeAssetId
+    const tokenInfoUrl = getCoinGeckoTokenApiUrl({ tokenAddr, geckoChainId, geckoNativeCoinId })
 
-    const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || address}`
+    const abortController = new AbortController()
+    const signal = abortController.signal
+    setIsTokenInfoLoading(true)
+    fetch(tokenInfoUrl, { signal })
+      .then((response) => response.json())
+      .then((result) => !signal.aborted && setCoinGeckoTokenSlug(result.web_slug))
+      .finally(() => !signal.aborted && setIsTokenInfoLoading(false))
 
-    fetch(tokenInfoUrl, {
-      method: 'HEAD'
-    })
-      .then((result) => {
-        if (result.ok) {
-          setHasTokenInfo(true)
-          return
-        }
+    return () => abortController.abort()
+  }, [addToast, t, address, network, coinGeckoTokenSlug])
 
-        setHasTokenInfo(false)
-      })
-      .catch(() => {})
-  }, [addToast, t, address, network])
+  if (isTokenInfoLoading) return <Spinner style={{ width: 16, height: 16 }} />
+
+  // Ideally, there could be an error state or something. But not displaying the badge is also fine.
+  if (!coinGeckoTokenSlug) return null
 
   return (
-    <Pressable
-      style={[styles.container, containerStyle]}
-      onPress={onCoingeckoBadgePress}
-      disabled={!hasTokenInfo}
-    >
+    <Pressable style={[styles.container, containerStyle]} onPress={onCoingeckoBadgePress}>
       <Text weight="medium" fontSize={10} color="#8DC63F" style={spacings.mrMi}>
         {text}
       </Text>

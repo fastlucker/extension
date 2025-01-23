@@ -443,9 +443,9 @@ export async function selectHdPathAndAddAccount(
   { shouldSaveSeed = false } = {}
 ) {
   // Select the HD Path dropdown
-  await clickOnElement(page, SELECTORS.selectChangeHdPath)
+  await clickOnElement(page, SELECTORS.selectChangeHdPath, true, 500)
   // Select different HD path
-  await clickOnElement(page, hdPathSelector)
+  await clickOnElement(page, hdPathSelector, true, 500)
 
   // TODO: Investigate and replace with a proper condition instead of using a fixed wait time.
   // Note: The "waitForSelector" is not enough to be sure that the addresses data are fully loaded.

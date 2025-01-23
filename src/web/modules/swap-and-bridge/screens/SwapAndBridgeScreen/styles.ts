@@ -13,6 +13,7 @@ interface Style {
   networkSelectorContainer: ViewStyle
   previewRouteContainer: ViewStyle
   selectAnotherRouteButton: ViewStyle
+  routesRefreshButtonWrapper: ViewStyle
   followUpTxnText: TextStyle
 }
 
@@ -25,15 +26,13 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter
     },
     container: {
-      width: SWAP_AND_BRIDGE_FORM_WIDTH,
-      ...flexbox.flex1
+      width: SWAP_AND_BRIDGE_FORM_WIDTH
     },
     secondaryContainer: {
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.phSm,
-      ...spacings.pt,
-      ...spacings.pbSm
+      ...spacings.pvSm
     },
     secondaryContainerWarning: {
       borderWidth: 1,
@@ -42,11 +41,13 @@ const getStyles = (theme: ThemeProps) =>
     },
     networkSelectorContainer: {
       ...flexbox.directionRow,
+      ...flexbox.justifyEnd,
+      ...flexbox.alignCenter,
       borderBottomWidth: 1,
-      borderBottomColor: theme.secondaryBorder,
-      ...spacings.pbTy,
-      ...spacings.mbSm,
-      ...spacings.phSm
+      borderBottomColor: theme.tertiaryBackground,
+      ...spacings.mbTy,
+      ...spacings.phSm,
+      ...spacings.pbTy
     },
     previewRouteContainer: {
       backgroundColor: '#F5F6FA',
@@ -69,6 +70,10 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mrMi,
       ...spacings.pvMi,
       ...common.borderRadiusPrimary
+    },
+    routesRefreshButtonWrapper: {
+      height: 20,
+      ...flexbox.justifyCenter
     }
   })
 

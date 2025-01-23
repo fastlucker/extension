@@ -6,6 +6,7 @@ import { SvgProps } from 'react-native-svg'
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
 import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
 import BugIcon from '@common/assets/svg/BugIcon'
+import BulbIcon from '@common/assets/svg/BulbIcon'
 import CustomTokensIcon from '@common/assets/svg/CustomTokensIcon'
 import EmailVaultIcon from '@common/assets/svg/EmailVaultIcon'
 import HelpIcon from '@common/assets/svg/HelpIcon'
@@ -70,7 +71,7 @@ export const SETTINGS_LINKS = [
   {
     key: 'security',
     Icon: SidebarSecurityIcon,
-    label: 'Security & Privacy',
+    label: 'Saved Seed Phrase',
     path: ROUTES.securityAndPrivacy
   },
   {
@@ -103,6 +104,12 @@ export const SETTINGS_LINKS = [
 
 const OTHER_LINKS = [
   {
+    key: 'about',
+    Icon: BulbIcon,
+    label: 'About',
+    path: ROUTES.settingsAbout
+  },
+  {
     key: 'help-center',
     Icon: React.memo(HelpIcon),
     label: 'Help Center',
@@ -115,11 +122,6 @@ const OTHER_LINKS = [
     label: 'Report an Issue',
     path: 'https://help.ambire.com/hc/en-us/requests/new',
     isExternal: true
-  },
-  {
-    key: 'terms-of-service',
-    label: 'Terms of Service',
-    path: ROUTES.settingsTerms
   }
 ]
 

@@ -20,6 +20,28 @@
         align-items: center;
         gap: 1.5rem;
 
+        &.complete {
+          .stepNumber {
+            background: $successBackground;
+            color: $successText;
+            border-color: $success;
+          }
+          .stepTitle {
+            color: $primaryText;
+          }
+        }
+
+        &.active {
+          .stepNumber {
+            background-color: $tertiaryBackground;
+            color: $primaryText;
+            border-color: $success;
+          }
+          .stepTitle {
+            color: $primaryText;
+          }
+        }
+
         .stepNumber {
           display: flex;
           flex: none;
@@ -30,8 +52,8 @@
           width: 3rem;
           height: 3rem;
           color: $primaryText;
-          background: $primaryBackground;
-          border: 1px solid $tertiaryBorder;
+          background: $secondaryBackground;
+          border: 1px solid $secondaryBorder;
           border-radius: 50%;
         }
 

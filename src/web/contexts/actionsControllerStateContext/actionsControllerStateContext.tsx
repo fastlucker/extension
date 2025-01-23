@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
-import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -15,8 +15,8 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'actions'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
-  const prevState: ActionsController = usePrevious(state) || ({} as ActionsController)
   const { navigate } = useNavigation()
+
   useEffect(() => {
     dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller } })
     if (getUiType().isActionWindow) {
@@ -24,34 +24,18 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch])
 
-  useEffect(() => {
-    if (getUiType().isActionWindow) {
-      const id = state.currentAction?.id
-      const prevId = prevState?.currentAction?.id
-      if (prevId !== id) {
-        setTimeout(() => navigate('/'))
-      }
-    }
-  }, [prevState.currentAction?.id, state.currentAction?.id, navigate])
+  const memoizedState = useDeepMemo(state, controller)
 
-  // If the popup is opened but there are pending actions,
-  // first show the actions before allowing the user to proceed to the dashboard screen
-  useEffect(() => {
-    const isPopup = getUiType().isPopup
+  const prevCurrentActionId = usePrevious(memoizedState.currentAction?.id)
 
-    if (
-      isPopup &&
-      state.actionWindow?.id &&
-      state.currentAction &&
-      state.currentAction?.type !== 'benzin'
-    ) {
-      dispatch({ type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW' })
-      closeCurrentWindow()
+  useEffect(() => {
+    if (getUiType().isActionWindow && prevCurrentActionId !== memoizedState.currentAction?.id) {
+      setTimeout(() => navigate('/'))
     }
-  }, [dispatch, state.currentAction?.type, state.actionWindow?.id, state.currentAction])
+  }, [prevCurrentActionId, memoizedState.currentAction?.id, navigate])
 
   return (
-    <ActionsControllerStateContext.Provider value={useMemo(() => state, [state])}>
+    <ActionsControllerStateContext.Provider value={memoizedState}>
       {children}
     </ActionsControllerStateContext.Provider>
   )

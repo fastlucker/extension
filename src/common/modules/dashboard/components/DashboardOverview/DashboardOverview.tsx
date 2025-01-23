@@ -234,6 +234,7 @@ const DashboardOverview: FC<Props> = ({
                           weight="number_bold"
                           color={theme.primaryBackground}
                           selectable
+                          testID="total-portfolio-amount-integer"
                         >
                           {totalPortfolioAmountInteger}
                         </Text>

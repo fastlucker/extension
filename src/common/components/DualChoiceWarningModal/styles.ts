@@ -20,7 +20,8 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.warningBackground
     },
     titleAndIcon: {
-      ...flexbox.alignCenter
+      ...flexbox.alignCenter,
+      ...spacings.mbXl
     },
     buttons: {
       ...spacings.pvLg,

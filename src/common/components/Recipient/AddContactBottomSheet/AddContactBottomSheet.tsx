@@ -78,6 +78,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
             }
           ]}
           {...bindCloseBtnAnim}
+          onPress={closeBottomSheet}
         >
           <CloseIcon />
         </AnimatedPressable>

@@ -11,7 +11,7 @@ export type AccountPortfolio = {
 
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio?: AccountPortfolio
-  updateAccountPortfolio: (address: string) => void
+  updateAccountPortfolio: () => void
 }>({
   updateAccountPortfolio: () => {}
 })
@@ -21,25 +21,14 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount, nonV2Account, isLoading } = useAccountContext()
   const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>()
 
-  const updateAccountPortfolio = useCallback(async (): Promise<AccountPortfolio> => {
-    if (!window.ambire) return { error: 'The Ambire extension is not installed!' }
+  const updateAccountPortfolio = useCallback(async () => {
+    if (!window.ambire)
+      return setAccountPortfolio({
+        error: 'The Ambire extension is not installed!',
+        isReady: false
+      })
 
-    // Reset the portfolio to prevent displaying an outdated portfolio state for the previously connected account
-    // while fetching the portfolio for the new account (address).
-    setAccountPortfolio({ isReady: false })
-
-    const portfolioRes = (await window.ambire.request({
-      method: 'get_portfolioBalance',
-      // TODO: impl a dynamic way of getting the chainIds
-      params: [{ chainIds: ['0x1', '0x2105', '0xa', '0xa4b1', '0x82750'] }]
-    })) as AccountPortfolio
-
-    setAccountPortfolio(portfolioRes)
-    return portfolioRes
-  }, [])
-
-  useEffect(() => {
-    // While account is loading, we don't know yet what is the value of actual value of `nonV2Account`,
+    // While account is loading, we don't know yet what is the value of actual value of `nonV2Account`
     if (isLoading) return
 
     if (!connectedAccount) return
@@ -64,29 +53,40 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       })
     }
 
-    const runPortfolioContinuousUpdate = async () => {
-      const portfolioRes = await updateAccountPortfolio()
+    // Polling mechanism for fetching the extension's portfolio.
+    // A polling mechanism is needed because we fetch the portfolio from multiple networks,
+    // and when calling `get_portfolioBalance`, the portfolio might not be fully fetched,
+    // resulting in a partial amount being returned (`isReady=false`).
+    // To handle this, we retry fetching the portfolio until `isReady=true`,
+    // with a 3-second delay between calls.
+    const getPortfolioTillReady = async () => {
+      // Reset the portfolio to prevent displaying an outdated portfolio state for the previously connected account
+      // while fetching the portfolio for the new account (address).
+      setAccountPortfolio({ isReady: false })
 
-      getPortfolioIntervalRef.current = setTimeout(
-        runPortfolioContinuousUpdate,
-        // Polling mechanism for fetching the extension's portfolio.
-        // A polling mechanism is needed because we fetch the portfolio from multiple networks,
-        // and when calling `get_portfolioBalance`, the portfolio might not be fully fetched,
-        // resulting in a partial amount being returned (`isReady=false`).
-        // To handle this, we retry fetching the portfolio until `isReady=true`,
-        // with a 3-second delay between calls.
-        // Whenever the portfolio `isReady=true` we keep it up to date by refetching it every 30 seconds
-        portfolioRes.isReady ? 30000 : 3000
-      )
+      const portfolioRes = (await window.ambire.request({
+        method: 'get_portfolioBalance',
+        // TODO: impl a dynamic way of getting the chainIds
+        params: [{ chainIds: ['0x1', '0x2105', '0xa', '0xa4b1', '0x82750'] }]
+      })) as AccountPortfolio
+
+      if (portfolioRes.isReady) {
+        return setAccountPortfolio(portfolioRes)
+      }
+
+      getPortfolioIntervalRef.current = setTimeout(getPortfolioTillReady, 3000)
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    runPortfolioContinuousUpdate()
+    await getPortfolioTillReady()
+  }, [isLoading, connectedAccount, nonV2Account, setAccountPortfolio])
 
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    updateAccountPortfolio()
     return () => {
       clearTimeout(getPortfolioIntervalRef.current)
     }
-  }, [isLoading, connectedAccount, nonV2Account, updateAccountPortfolio, setAccountPortfolio])
+  }, [updateAccountPortfolio])
 
   return (
     <PortfolioControllerStateContext.Provider

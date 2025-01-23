@@ -7,7 +7,10 @@ import { useSearchParams } from 'react-router-dom'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import {
+  getIsNetworkSupported,
+  getIsTokenEligibleForSwapAndBridge
+} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
@@ -66,7 +69,9 @@ const useSwapAndBridgeForm = () => {
     ) {
       const tokenToSelectOnInit = portfolio.tokens.find(
         (t) =>
-          t.address === searchParams.get('address') && t.networkId === searchParams.get('networkId')
+          t.address === searchParams.get('address') &&
+          t.networkId === searchParams.get('networkId') &&
+          getIsTokenEligibleForSwapAndBridge(t)
       )
 
       if (tokenToSelectOnInit) {
