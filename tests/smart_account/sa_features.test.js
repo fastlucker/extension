@@ -32,7 +32,7 @@ describe('sa_features', () => {
     await recorder.stop()
     await browser.close()
   })
-
+  // TODO: remove this test
   //--------------------------------------------------------------------------------------------------------------
   it('Top up gas tank with 0.0001 USDC on Base', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
