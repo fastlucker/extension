@@ -22,7 +22,15 @@ export const calculateGasTankBalance = (
 ) => {
   const gasTankResult = portfolio?.latest?.gasTank?.result
 
-  if (!account?.addr || !gasTankResult || gasTankResult.tokens.length === 0 || !isSA) return 0
+  if (
+    !account?.addr ||
+    !gasTankResult ||
+    !Array.isArray(gasTankResult.tokens) ||
+    gasTankResult.tokens.length === 0 ||
+    !isSA
+  ) {
+    return 0
+  }
 
   const token = gasTankResult.tokens[0]
 
