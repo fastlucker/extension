@@ -1,4 +1,4 @@
-import React, { createContext, FC, useContext, useMemo } from 'react'
+import React, { createContext, FC, useContext, useMemo, useState } from 'react'
 
 import Modal from '@legends/components/Modal'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
@@ -16,6 +16,8 @@ import Referral from './Referral/Referral'
 type CardActionContextType = {
   onComplete: (txnId: string) => Promise<void>
   handleClose: () => void
+  activeStep: null | number
+  setActiveStep: React.Dispatch<React.SetStateAction<null | number>>
 }
 
 const cardActionContext = createContext<CardActionContextType>({} as CardActionContextType)
@@ -58,9 +60,16 @@ const ActionModal: FC<ActionModalProps> = ({
   action,
   predefinedId
 }) => {
+  const [activeStep, setActiveStep] = useState<null | number>(null)
+
   const cardActionContextValue = useMemo(
-    () => ({ onComplete: onLegendCompleteWrapped, handleClose: closeActionModal }),
-    [closeActionModal, onLegendCompleteWrapped]
+    () => ({
+      onComplete: onLegendCompleteWrapped,
+      handleClose: closeActionModal,
+      activeStep,
+      setActiveStep
+    }),
+    [activeStep, closeActionModal, onLegendCompleteWrapped]
   )
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
@@ -75,7 +84,13 @@ const ActionModal: FC<ActionModalProps> = ({
       </Modal.Heading>
       <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
       {contentSteps && (
-        <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} video={contentVideo}>
+        <HowTo
+          steps={contentSteps}
+          activeStep={activeStep}
+          image={contentImage}
+          imageAlt={flavor}
+          video={contentVideo}
+        >
           {predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />}
         </HowTo>
       )}
