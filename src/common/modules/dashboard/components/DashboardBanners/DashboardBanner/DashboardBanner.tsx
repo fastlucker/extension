@@ -13,6 +13,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge']
 
@@ -29,6 +30,7 @@ const DashboardBanner = ({
   const { navigate } = useNavigation()
   const { visibleActionsQueue } = useActionsControllerState()
   const { statuses } = useMainControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
@@ -39,6 +41,7 @@ const DashboardBanner = ({
 
   const handleActionPress = useCallback(
     (action: Action) => {
+      // TODO: Replace with switch or at least else if chaining
       if (action.actionName === 'open-pending-dapp-requests') {
         if (!visibleActionsQueue) return
         const dappActions = visibleActionsQueue.filter((a) => a.type !== 'accountOp')
@@ -118,6 +121,12 @@ const DashboardBanner = ({
           type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
         })
       }
+
+      if (action.actionName === 'reload-selected-account') {
+        dispatch({
+          type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+        })
+      }
     },
     [visibleActionsQueue, type, dispatch, addToast, navigate]
   )
@@ -136,6 +145,9 @@ const DashboardBanner = ({
             actionText = 'Preparing...'
             isDisabled = true
           }
+        } else if (action.actionName === 'reload-selected-account' && !portfolio.isAllReady) {
+          isDisabled = true
+          actionText = 'Retrying...'
         }
 
         return (
@@ -148,7 +160,7 @@ const DashboardBanner = ({
           />
         )
       }),
-    [actions, handleActionPress, statuses.buildSwapAndBridgeUserRequest]
+    [actions, handleActionPress, portfolio.isAllReady, statuses.buildSwapAndBridgeUserRequest]
   )
 
   return (

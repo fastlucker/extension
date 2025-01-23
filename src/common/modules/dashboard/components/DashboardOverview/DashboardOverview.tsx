@@ -20,6 +20,7 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -55,6 +56,7 @@ const DashboardOverview: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
+  const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, balanceAffectingErrors, portfolio } =
     useSelectedAccountControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
@@ -157,7 +159,7 @@ const DashboardOverview: FC<Props> = ({
             >
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-                  {!portfolio?.isAllReady ? (
+                  {!portfolio.isAllReady ? (
                     <SkeletonLoader
                       lowOpacity
                       width={200}
@@ -175,7 +177,7 @@ const DashboardOverview: FC<Props> = ({
                           }}
                           weight="number_bold"
                           color={
-                            networksWithErrors.length
+                            networksWithErrors.length || isOffline
                               ? theme.warningDecorative
                               : theme.primaryBackground
                           }
@@ -189,7 +191,7 @@ const DashboardOverview: FC<Props> = ({
                           shouldScale={false}
                           weight="number_bold"
                           color={
-                            networksWithErrors.length
+                            networksWithErrors.length || isOffline
                               ? theme.warningDecorative
                               : theme.primaryBackground
                           }
@@ -205,11 +207,11 @@ const DashboardOverview: FC<Props> = ({
                     style={[spacings.mlTy, refreshButtonAnimStyle]}
                     onPress={reloadAccount}
                     {...bindRefreshButtonAnim}
-                    disabled={!portfolio?.isAllReady}
+                    disabled={!portfolio.isAllReady}
                     testID="refresh-button"
                   >
                     <RefreshIcon
-                      spin={!portfolio?.isAllReady}
+                      spin={!portfolio.isAllReady}
                       color={theme.primaryBackground}
                       width={16}
                       height={16}

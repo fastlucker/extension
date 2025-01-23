@@ -511,7 +511,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   /** Update failed network states more often. If a network's first failed
-   *  update is just now, retry in 8s. If it's a repeated failure, retry in 30s.
+   *  update is just now, retry in 8s. If it's a repeated failure, retry in 20s.
    */
   function initFrequentLatestAccountStateContinuousUpdateIfNeeded() {
     const isExtensionActive = pm.ports.length > 0
@@ -540,6 +540,13 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         retriedFastAccountStateReFetchForNetworks.forEach((networkId, index) => {
           if (!failedNetworkIds.includes(networkId)) {
             delete retriedFastAccountStateReFetchForNetworks[index]
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            mainCtrl.updateSelectedAccountPortfolio(
+              false,
+              mainCtrl.networks.networks.find((n) => n.id === networkId)
+            )
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            mainCtrl.defiPositions.updatePositions(networkId)
           }
         })
       }
@@ -552,9 +559,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
           )
       )
 
-      const updateTime = recentlyFailedNetworks.length ? 8000 : 30000
+      const updateTime = recentlyFailedNetworks.length ? 8000 : 20000
 
-      console.log('account state', 'fast interval, updating', failedNetworkIds)
       await mainCtrl.accounts.updateAccountStates('latest', failedNetworkIds)
       // Add the network ids that have been retried to the list
       failedNetworkIds.forEach((id) => {

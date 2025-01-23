@@ -23,7 +23,12 @@ const OFFLINE_BANNER: BannerInterface = {
   type: 'error',
   title: 'Network Issue',
   text: 'Your network connection is too slow or you may be offline. Please check your internet connection.',
-  actions: []
+  actions: [
+    {
+      actionName: 'reload-selected-account',
+      label: 'Retry'
+    }
+  ]
 }
 
 export default function useBanners(): BannerInterface[] {
