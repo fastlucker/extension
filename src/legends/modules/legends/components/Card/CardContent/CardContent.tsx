@@ -1,11 +1,11 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC } from 'react'
 
 import GoldenLockIcon from '@legends/common/assets/svg/GoldenLockIcon'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
-import { timeUntilMidnight } from '../../WheelComponentModal/helpers'
+import MidnightTimer from '@legends/components/MidnightTimer'
 import styles from './CardContent.module.scss'
 import Counter from './Counter'
 import Flask from './Flask'
@@ -41,8 +41,6 @@ const CardContent: FC<Props> = ({
 }) => {
   const isCompleted = card.status === CardStatus.completed
 
-  const hoursUntilMidnightLabel = useMemo(() => timeUntilMidnight().label, [])
-
   return (
     <div className={`${styles.wrapper} ${disabled && styles.disabled}`}>
       {isCompleted ? (
@@ -51,7 +49,7 @@ const CardContent: FC<Props> = ({
           <div className={styles.overlayTitle}>
             Completed
             {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) ? (
-              <div className={styles.overlayText}>{hoursUntilMidnightLabel}</div>
+              <MidnightTimer className={styles.overlayText} />
             ) : null}
           </div>
         </div>
