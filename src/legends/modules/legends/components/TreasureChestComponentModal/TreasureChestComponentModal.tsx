@@ -46,11 +46,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     [legends]
   )
 
-  if (!treasureLegend) {
-    return null
-  }
-
-  const isCompleted = treasureLegend.card.status === CardStatus.completed
+  const isCompleted = treasureLegend?.card.status === CardStatus.completed
 
   const getButtonLabel = () => {
     if (isInProgress) {
@@ -64,7 +60,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     return 'Open chest'
   }
 
-  const action = treasureLegend.action as CardActionCalls
+  const action = treasureLegend?.action as CardActionCalls
 
   const onButtonClick = useCallback(async () => {
     setIsInProgress(true)
@@ -140,6 +136,9 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     addToast
   ])
 
+  if (!treasureLegend) {
+    return null
+  }
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} className={styles.wrapper}>
       <Modal.Heading className={styles.heading}>Daily Loot</Modal.Heading>
