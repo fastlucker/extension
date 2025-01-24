@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import usePrevious from '@common/hooks/usePrevious'
 import useSelect from '@common/hooks/useSelect'
@@ -16,11 +16,13 @@ type Props = Pick<
         value: SelectProps['value']
         data: SelectProps['options']
         isSectionList: false
+        headerHeight: undefined
       }
     | {
         value: SelectProps['value']
         data: SectionedSelectProps['sections']
         isSectionList: true
+        headerHeight: number
       }
   )
 
@@ -31,11 +33,17 @@ const useSelectInternal = ({
   size = DEFAULT_SELECT_SIZE,
   data,
   isSectionList,
+  headerHeight = 0,
   attemptToFetchMoreOptions
 }: Props) => {
   const useSelectReturnValue = useSelect()
   const { search, isMenuOpen, setIsMenuOpen, setSearch } = useSelectReturnValue
   const optionHeight = menuOptionHeight || SELECT_SIZE_TO_HEIGHT[size]
+  const listRef: any = useRef(null)
+
+  const [listHeight, setListHeight] = useState(0)
+  const [scrollOffset, setScrollOffset] = useState(0)
+  const [highlightedItemOnMouseMoveEnabled, setHighlightedItemOnMouseMoveEnabled] = useState(true)
 
   const handleOptionSelect = useCallback(
     (item: SelectValue) => {
@@ -149,7 +157,12 @@ const useSelectInternal = ({
   }, [prevSelectedItemIndex, highlightedItemIndex, selectedItemIndex, isSectionList])
 
   useEffect(() => {
+    if (selectedItemIndex === null) return
     if (!prevIsMenuOpen && isMenuOpen) {
+      if (!highlightedItemOnMouseMoveEnabled) {
+        setHighlightedItemOnMouseMoveEnabled(true)
+      }
+
       if (isSectionList) {
         setHighlightedItemIndex(
           // @ts-ignore
@@ -162,7 +175,13 @@ const useSelectInternal = ({
         )
       }
     }
-  }, [prevIsMenuOpen, isMenuOpen, selectedItemIndex, isSectionList])
+  }, [
+    prevIsMenuOpen,
+    isMenuOpen,
+    selectedItemIndex,
+    isSectionList,
+    highlightedItemOnMouseMoveEnabled
+  ])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -170,11 +189,13 @@ const useSelectInternal = ({
 
       try {
         if (e.key === 'ArrowDown') {
+          if (highlightedItemOnMouseMoveEnabled) setHighlightedItemOnMouseMoveEnabled(false)
+
           if (isSectionList) {
             const [sectionIndex = 0, optionIndex = -1] = (highlightedItemIndex as [
               number,
               number
-            ]) || [null, null]
+            ]) || [0, 0]
             const sectionsLength = filteredData.length
             const optionsLength = filteredData[sectionIndex]?.data.length || 0
 
@@ -186,10 +207,32 @@ const useSelectInternal = ({
 
               const nextOption = options.slice(startIndex).find((opt) => !opt.disabled)
               if (nextOption) {
-                setHighlightedItemIndex([
+                const nextIndex = [
                   i,
                   startIndex + options.slice(startIndex).indexOf(nextOption)
-                ])
+                ] as [number, number]
+                setHighlightedItemIndex(nextIndex)
+
+                let offset: number = 0
+                data.forEach((section, sectionIdx) => {
+                  if (sectionIdx < nextIndex[0]) {
+                    offset += headerHeight
+                    offset += section.data.length * optionHeight
+                  }
+
+                  if (sectionIdx === nextIndex[0]) {
+                    offset += headerHeight
+                    offset += (nextIndex[1] + 1) * optionHeight
+                  }
+                })
+
+                if (scrollOffset + listHeight <= offset) {
+                  listRef.current?.getScrollResponder()?.scrollTo({ x: 0, y: offset - listHeight })
+                }
+                if (offset <= optionHeight) {
+                  listRef.current?.getScrollResponder()?.scrollTo({ x: 0, y: 0 })
+                }
+
                 return
               }
             }
@@ -198,14 +241,22 @@ const useSelectInternal = ({
             const options = filteredData as SelectProps['options']
             const nextOption = options.slice(optionIndex + 1).find((opt) => !opt.disabled)
             if (nextOption) {
-              setHighlightedItemIndex(
-                optionIndex + 1 + options.slice(optionIndex + 1).indexOf(nextOption)
-              )
+              const nextIndex = optionIndex + 1 + options.slice(optionIndex + 1).indexOf(nextOption)
+              setHighlightedItemIndex(nextIndex)
+
+              const nextItemOffset = (nextIndex + 1) * optionHeight
+              if (scrollOffset + listHeight <= nextItemOffset) {
+                listRef.current?.scrollToOffset({ offset: nextItemOffset - listHeight })
+              }
+              if (nextItemOffset <= optionHeight) {
+                listRef.current?.scrollToOffset({ offset: 0 })
+              }
             }
           }
         }
 
         if (e.key === 'ArrowUp') {
+          if (highlightedItemOnMouseMoveEnabled) setHighlightedItemOnMouseMoveEnabled(false)
           if (isSectionList) {
             const [sectionIndex, optionIndex] = (highlightedItemIndex || [0, 0]) as [number, number]
 
@@ -217,7 +268,30 @@ const useSelectInternal = ({
 
               for (let j = startIndex; j >= 0; j--) {
                 if (!options[j].disabled) {
-                  setHighlightedItemIndex([i, j])
+                  const nextIndex = [i, j] as [number, number]
+                  setHighlightedItemIndex(nextIndex)
+
+                  let offset: number = 0
+                  data.forEach((section, sectionIdx) => {
+                    if (sectionIdx < nextIndex[0]) {
+                      offset += headerHeight
+                      offset += section.data.length * optionHeight
+                    }
+
+                    if (sectionIdx === nextIndex[0]) {
+                      offset += headerHeight
+                      offset += (nextIndex[1] + 1) * optionHeight
+                    }
+                  })
+
+                  if (scrollOffset >= offset - optionHeight) {
+                    listRef.current
+                      ?.getScrollResponder()
+                      ?.scrollTo({ x: 0, y: offset - optionHeight })
+                  }
+                  if (offset - optionHeight <= headerHeight) {
+                    listRef.current?.getScrollResponder()?.scrollTo({ x: 0, y: 0 })
+                  }
                   return
                 }
               }
@@ -230,7 +304,13 @@ const useSelectInternal = ({
               .slice(filteredData.length - optionIndex)
               .find((opt) => !opt.disabled)
             if (prevOption) {
-              setHighlightedItemIndex((filteredData as SelectProps['options']).indexOf(prevOption))
+              const nextIndex = (filteredData as SelectProps['options']).indexOf(prevOption)
+              setHighlightedItemIndex(nextIndex)
+
+              const nextItemOffset = nextIndex * optionHeight
+              if (scrollOffset >= nextItemOffset) {
+                listRef.current?.scrollToOffset({ offset: nextItemOffset })
+              }
             }
           }
         }
@@ -259,21 +339,44 @@ const useSelectInternal = ({
     document.addEventListener('keydown', handleKeyDown, true)
     return () => document.removeEventListener('keydown', handleKeyDown, true)
   }, [
+    highlightedItemOnMouseMoveEnabled,
     isMenuOpen,
     highlightedItemIndex,
     filteredData,
     isSectionList,
     handleOptionSelect,
-    setIsMenuOpen
+    setIsMenuOpen,
+    data,
+    optionHeight,
+    listHeight,
+    headerHeight,
+    scrollOffset
   ])
 
-  const handleSetHoverIn = useCallback((index: [number, number] | number) => {
-    setHighlightedItemIndex(index)
-  }, [])
+  useEffect(() => {
+    const handleMouseMove = () => {
+      if (!highlightedItemOnMouseMoveEnabled) setHighlightedItemOnMouseMoveEnabled(true)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [highlightedItemOnMouseMoveEnabled])
+
+  const handleSetHoverIn = useCallback(
+    (index: [number, number] | number) => {
+      if (!highlightedItemOnMouseMoveEnabled) return
+      setHighlightedItemIndex(index)
+    },
+    [highlightedItemOnMouseMoveEnabled]
+  )
 
   const handleSetHoverOut = useCallback(() => {
+    if (!highlightedItemOnMouseMoveEnabled) return
     setHighlightedItemIndex(null)
-  }, [])
+  }, [highlightedItemOnMouseMoveEnabled])
 
   const renderItem = useCallback(
     ({ item, index, section }: { item: SelectValue; index: number; section: Props['data'] }) => {
@@ -286,6 +389,7 @@ const useSelectInternal = ({
           onHoverIn = () => handleSetHoverIn([sectionIndex, index])
 
           if (
+            highlightedItemIndex &&
             sectionIndex === (highlightedItemIndex as [number, number])[0] &&
             (highlightedItemIndex as [number, number])[1] === index
           ) {
@@ -324,23 +428,38 @@ const useSelectInternal = ({
     ]
   )
 
-  const keyExtractor = useCallback((item: SelectValue) => item.value.toString(), [])
+  const keyExtractor = useCallback((item: SelectValue) => item.key || item.value, [])
 
   const getItemLayout = useCallback(
-    (d: SelectValue[] | null | undefined, index: number) => ({
-      length: optionHeight,
-      offset: optionHeight * index,
-      index
-    }),
+    (d: SelectValue[] | null | undefined, index: number) => {
+      return {
+        length: optionHeight,
+        offset: optionHeight * index,
+        index
+      }
+    },
     [optionHeight]
   )
+
+  const handleScroll = (event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y
+    setScrollOffset(offsetY)
+  }
+
+  const handleLayout = (event: any) => {
+    const { height } = event.nativeEvent.layout
+    setListHeight(height)
+  }
 
   return {
     ...useSelectReturnValue,
     filteredData,
+    listRef,
     renderItem,
     keyExtractor,
-    getItemLayout
+    getItemLayout,
+    handleScroll,
+    handleLayout
   }
 }
 

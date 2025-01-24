@@ -99,7 +99,8 @@ const ToTokenSelect: React.FC<Props> = ({
           flexbox.alignCenter,
           spacings.ph,
           spacings.pt,
-          section?.key === 'swap-and-bridge-to-account-tokens' ? spacings.pbSm : spacings.pbSm
+          section?.key === 'swap-and-bridge-to-account-tokens' ? spacings.pbSm : spacings.pbSm,
+          { height: 50 }
         ]}
       >
         {section.title.icon}
@@ -116,6 +117,7 @@ const ToTokenSelect: React.FC<Props> = ({
       sections={selectSections}
       renderSectionHeader={renderFeeOptionSectionHeader}
       value={toTokenValue}
+      headerHeight={50}
       disabled={toTokenAmountSelectDisabled}
       testID="to-token-select"
       searchPlaceholder={t('Token name or address...')}

@@ -12,6 +12,7 @@ const SectionedSelect = ({
   value,
   sections,
   menuOptionHeight,
+  headerHeight,
   renderSectionHeader,
   SectionSeparatorComponent,
   stickySectionHeadersEnabled,
@@ -25,15 +26,26 @@ const SectionedSelect = ({
     setValue,
     value,
     isSectionList: true,
+    headerHeight,
     data: sections
   })
-  const { filteredData, renderItem, keyExtractor } = selectData
+  const {
+    listRef,
+    filteredData,
+    renderItem,
+    keyExtractor,
+    getItemLayout,
+    handleScroll,
+    handleLayout
+  } = selectData
 
   return (
     <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
       <SectionList
+        ref={listRef}
         sections={filteredData as SectionedSelectProps['sections']}
         renderItem={renderItem as any}
+        onLayout={handleLayout}
         renderSectionHeader={renderSectionHeader}
         keyExtractor={keyExtractor}
         initialNumToRender={15}
@@ -41,8 +53,11 @@ const SectionedSelect = ({
         maxToRenderPerBatch={20}
         SectionSeparatorComponent={SectionSeparatorComponent}
         removeClippedSubviews
+        getItemLayout={getItemLayout}
         ListEmptyComponent={<EmptyListPlaceholder placeholderText={emptyListPlaceholderText} />}
         stickySectionHeadersEnabled={stickySectionHeadersEnabled}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       />
     </SelectContainer>
   )

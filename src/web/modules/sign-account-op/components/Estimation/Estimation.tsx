@@ -263,7 +263,8 @@ const Estimation = ({
             spacings.phTy,
             spacings.pvTy,
             {
-              backgroundColor: theme.primaryBackground
+              backgroundColor: theme.primaryBackground,
+              height: 34
             },
             section?.key === 'eoa-tokens' && {
               borderTopWidth: 1,
@@ -348,6 +349,7 @@ const Estimation = ({
           setValue={setFeeOption}
           testID="fee-option-select"
           label={t('Pay fee with')}
+          headerHeight={34}
           sections={feeOptionSelectSections}
           renderSectionHeader={renderFeeOptionSectionHeader}
           containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}

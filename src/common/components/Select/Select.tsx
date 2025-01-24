@@ -24,20 +24,32 @@ const Select = ({
     menuOptionHeight,
     attemptToFetchMoreOptions
   })
-  const { filteredData, renderItem, keyExtractor, getItemLayout } = selectData
+  const {
+    listRef,
+    filteredData,
+    renderItem,
+    keyExtractor,
+    getItemLayout,
+    handleLayout,
+    handleScroll
+  } = selectData
 
   return (
     <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
       <FlatList
+        ref={listRef}
         data={filteredData as SelectProps['options']}
         renderItem={renderItem as any}
         keyExtractor={keyExtractor}
+        onLayout={handleLayout}
         initialNumToRender={15}
         windowSize={10}
         maxToRenderPerBatch={20}
         removeClippedSubviews
         getItemLayout={getItemLayout}
         ListEmptyComponent={<EmptyListPlaceholder placeholderText={emptyListPlaceholderText} />}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       />
     </SelectContainer>
   )
