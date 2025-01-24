@@ -127,6 +127,12 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
 
   const flashingOpacity = useMemo(() => new Animated.Value(1), [])
 
+  // This must be memoized!! Otherwise the bottom sheet will close when the user
+  // opens a popup??
+  const shouldDisplayWarningIcon = useMemo(() => {
+    return warningMessage || balanceAffectingErrorsSnapshot.length
+  }, [balanceAffectingErrorsSnapshot.length, warningMessage])
+
   // Compare the current timestamp with the timestamp when the loading started
   // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
   useEffect(() => {
@@ -181,7 +187,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
     }
   }, [isLoadingTakingTooLong, flashingOpacity])
 
-  if (!warningMessage && !balanceAffectingErrorsSnapshot.length) return null
+  if (!shouldDisplayWarningIcon) return null
 
   return (
     <>
