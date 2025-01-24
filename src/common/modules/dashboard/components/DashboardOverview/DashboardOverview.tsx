@@ -104,8 +104,12 @@ const DashboardOverview: FC<Props> = ({
     const networkIds = [...new Set(allNetworkIds)]
 
     return networkIds.map((networkId) => {
-      const network = networks.find(({ id }) => id === networkId)
-      return network?.name || networkId
+      const { name } = networks.find(({ id }) => id === networkId) || {}
+
+      if (!name && networkId === 'rewards') return 'Rewards'
+      if (!name && networkId === 'gasTank') return 'Gas Tank'
+
+      return name || networkId
     })
   }, [balanceAffectingErrors, networks])
 
