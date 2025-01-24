@@ -108,7 +108,14 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
 
   const renderItem = useCallback(
     ({ item: { id, title, text, type, actions } }: any) => (
-      <Alert key={id} style={spacings.mbSm} title={title} text={text} type={type}>
+      <Alert
+        key={id}
+        style={spacings.mbSm}
+        title={title}
+        text={text}
+        type={type}
+        testID="portfolio-error-alert"
+      >
         {actions &&
           actions.map(({ actionName, ...rest }: Action) => {
             return (
@@ -194,7 +201,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
       {isLoadingTakingTooLong ? (
         <Animated.View style={{ opacity: flashingOpacity }}>{renderWarningIcon()}</Animated.View>
       ) : (
-        <Pressable onPress={onIconPress} disabled={isLoadingTakingTooLong}>
+        <Pressable onPress={onIconPress} testID="portfolio-warning-icon">
           {renderWarningIcon()}
         </Pressable>
       )}
