@@ -27,12 +27,12 @@ describe('sa_transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Send POL tokens greater than the available balance ', async () => {
+  it('(-) Send USDC tokens on Base greater than the available balance ', async () => {
     await sendFundsGreaterThanBalance(page, extensionURL)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Send POL tokens to smart contract ', async () => {
+  it('(-) Send USDC tokens on Base to smart contract ', async () => {
     await sendFundsToSmartContract(page, extensionURL)
   })
 
@@ -54,7 +54,7 @@ describe('sa_transactions', () => {
     it('Make valid swap ', async () => {
       await makeSwap(page, extensionURL, browser, {
         feeToken:
-          '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]',
+          '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913usdc"]',
         shouldStopBeforeSign: true,
         swapButtonText: 'Sign and swap'
       })

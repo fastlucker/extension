@@ -149,6 +149,32 @@
     }
   }
 
+  .treasureChestWrapper {
+    position: relative;
+    margin: 0 auto;
+    padding: none;
+    padding-top: 1.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    
+    button:hover {
+      opacity: 1;
+    }
+
+    .chestAvailableLabel {
+      position: absolute;
+      border: 1px solid $primaryBorder;
+      background-color: $primaryBackground;
+      padding: .5rem;
+      border-radius: .5rem;
+      font-size: .875rem;
+      font-weight: 500;
+      color: $secondaryText; 
+    }
+  }
+
   .leaderSection {
     padding-top: 1.875rem;
     padding-bottom: 1.875rem;
@@ -234,6 +260,20 @@
         height: auto;
       }
       .links {
+        padding-top: 1rem;
+      }
+      .treasureChestWrapper {
+        padding-top: 0.5rem;
+      }
+    }
+  }
+
+  @media screen and (max-height: 900px) {
+    .top {
+      .links {
+        padding-top: 1rem;
+      }
+      .treasureChestWrapper {
         padding-top: 1rem;
       }
     }
