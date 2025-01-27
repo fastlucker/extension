@@ -18,6 +18,7 @@ import TreasureChestComponentModal from '@legends/modules/legends/components/Tre
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
+import chestBackgroundImage from './assets/chest-background.png'
 import wheelBackgroundImage from './assets/wheel-background.png'
 import Link from './components/Link'
 import Socials from './components/Socials'
@@ -50,10 +51,13 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
-  const isChestOpenedForToday = treasureChestOpenedForToday
 
   const handleModal = () => {
     setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
+  }
+
+  const handleChestModal = () => {
+    setIsTreasureChestModalOpen(!isTreasureChestModalOpen)
   }
 
   const handleLeaderModal = () => {
@@ -71,10 +75,18 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
   const wheelText = useMemo(() => {
     if (isLoading) return <span className={styles.wheelText}>Loading...</span>
-    if (wheelSpinOfTheDay) return <MidnightTimer className={styles.wheelText} />
+    if (wheelSpinOfTheDay) return <MidnightTimer type="minutes" className={styles.wheelText} />
 
-    return <span className={styles.wheelText}>Spin the Wheel</span>
+    return <span className={styles.wheelText}>Available Now</span>
   }, [isLoading, wheelSpinOfTheDay])
+
+  const chestText = useMemo(() => {
+    if (isLoading) return <span className={styles.wheelText}>Loading...</span>
+    if (treasureChestOpenedForToday)
+      return <MidnightTimer type="minutes" className={styles.wheelText} />
+
+    return <span className={styles.wheelText}>Available Now</span>
+  }, [isLoading, treasureChestOpenedForToday])
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -108,6 +120,28 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           </div>
         </div>
 
+        <div
+          className={`${styles.wheelOfFortuneWrapper} ${
+            treasureChestOpenedForToday ? styles.disabled : ''
+          }`}
+        >
+          <div
+            className={styles.wheelOfFortune}
+            data-tooltip-id="chest-tooltip"
+            style={{
+              backgroundImage: `url(${chestBackgroundImage})`
+            }}
+          >
+            <div className={styles.wheelContent}>
+              <span className={styles.wheelTitle}>Daily Chest</span>
+              {chestText}
+              <button onClick={handleChestModal} type="button" className={styles.wheelButton}>
+                Open Now
+              </button>
+            </div>
+          </div>
+        </div>
+
         <LeaderModal
           setIsLeaderModalOpen={setIsLeaderModalOpen}
           isLeaderModalOpen={isLeaderModalOpen}
@@ -129,28 +163,6 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
               newTab={link.newTab}
             />
           ))}
-        </div>
-
-        <div
-          className={styles.treasureChestWrapper}
-          onClick={() => setIsTreasureChestModalOpen(true)}
-          onKeyPress={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              setIsTreasureChestModalOpen(true)
-            }
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Open Treasure Chest"
-        >
-          {isChestOpenedForToday ? (
-            <div className={styles.chestAvailableLabel}>
-              <MidnightTimer type="minutes" />
-            </div>
-          ) : (
-            ''
-          )}
-          <TreasureChestClosed width={100} height={80} />
         </div>
       </div>
       <div>
