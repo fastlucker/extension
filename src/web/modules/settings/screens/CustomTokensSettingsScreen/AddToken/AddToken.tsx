@@ -26,7 +26,6 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import {
   getTokenEligibility,
   getTokenFromPortfolio,
-  getTokenFromPreferences,
   getTokenFromTemporaryTokens,
   handleTokenIsInPortfolio
 } from '@web/modules/action-requests/screens/WatchTokenRequestScreen/utils'
@@ -42,7 +41,7 @@ const AddToken = () => {
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const { addToast } = useToast()
-  const { validTokens, tokenPreferences, temporaryTokens } = usePortfolioControllerState()
+  const { validTokens, customTokens, temporaryTokens } = usePortfolioControllerState()
   const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
 
   const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
@@ -87,9 +86,13 @@ const AddToken = () => {
     [validTokens, address, network]
   )
 
-  const tokenInPreferences = useMemo(
-    () => getTokenFromPreferences({ address }, network, tokenPreferences),
-    [tokenPreferences, address, network]
+  const isCustomToken = useMemo(
+    () =>
+      !!customTokens.find(
+        ({ address: addr, networkId }) =>
+          addr.toLowerCase() === address.toLowerCase() && networkId === network.id
+      ),
+    [customTokens, address, network]
   )
   const temporaryToken = useMemo(
     () => getTokenFromTemporaryTokens(temporaryTokens, { address }, network),
@@ -97,8 +100,8 @@ const AddToken = () => {
   )
 
   const portfolioToken = useMemo(
-    () => getTokenFromPortfolio({ address }, network, selectedAccountPortfolio, tokenInPreferences),
-    [selectedAccountPortfolio, tokenInPreferences, network, address]
+    () => getTokenFromPortfolio({ address }, network, selectedAccountPortfolio),
+    [selectedAccountPortfolio, network, address]
   )
 
   const handleAddToken = useCallback(async () => {
@@ -115,15 +118,11 @@ const AddToken = () => {
     }
 
     dispatch({
-      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+      type: 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN',
       params: {
-        token: {
-          address: temporaryToken.address,
-          symbol: temporaryToken.symbol,
-          decimals: temporaryToken.decimals,
-          networkId: network.id,
-          standard: 'ERC20'
-        }
+        address: temporaryToken.address,
+        networkId: network.id,
+        standard: 'ERC20'
       }
     })
     reset({ address: '' })
@@ -146,7 +145,7 @@ const AddToken = () => {
       }
       // Check if token is already in portfolio
       const isTokenInHints = await handleTokenIsInPortfolio(
-        tokenInPreferences,
+        isCustomToken,
         selectedAccountPortfolio,
         network,
         { address }
@@ -258,7 +257,7 @@ const AddToken = () => {
             type="error"
             isTypeLabelHidden
             title={t('This token type is not supported.')}
-            style={[spacings.phSm, spacings.pvSm]}
+            style={{ ...spacings.phSm, ...spacings.pvSm }}
           />
         ) : null}
 
@@ -267,7 +266,7 @@ const AddToken = () => {
             type="warning"
             isTypeLabelHidden
             title={t('This token is already handled in your wallet')}
-            style={[spacings.phSm, spacings.pvSm]}
+            style={{ ...spacings.phSm, ...spacings.pvSm }}
           />
         ) : null}
 

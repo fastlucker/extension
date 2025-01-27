@@ -18,7 +18,7 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
@@ -254,17 +254,19 @@ type PortfolioControllerGetTemporaryToken = {
   }
 }
 
-type PortfolioControllerUpdateTokenPreferences = {
-  type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
-  params: {
-    token: CustomToken
-  }
+type PortfolioControllerAddCustomToken = {
+  type: 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN'
+  params: CustomToken
 }
-type PortfolioControllerRemoveTokenPreferences = {
-  type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES'
-  params: {
-    token: CustomToken | TokenResult
-  }
+
+type PortfolioControllerRemoveCustomToken = {
+  type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN'
+  params: Omit<CustomToken, 'standard'>
+}
+
+type PortfolioControllerToggleHideToken = {
+  type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN'
+  params: Omit<TokenPreference, 'isHidden'>
 }
 
 type PortfolioControllerCheckToken = {
@@ -617,9 +619,10 @@ export type Action =
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
   | SelectedAccountSetDashboardNetworkFilter
-  | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken
-  | PortfolioControllerRemoveTokenPreferences
+  | PortfolioControllerToggleHideToken
+  | PortfolioControllerRemoveCustomToken
   | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction

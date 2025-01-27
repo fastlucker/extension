@@ -14,7 +14,7 @@ const CustomTokensSettingsScreen = () => {
   const { styles } = useTheme(getStyles)
 
   useEffect(() => {
-    setCurrentSettingsPage('custom-tokens')
+    setCurrentSettingsPage('manage-tokens')
   }, [setCurrentSettingsPage])
 
   return (

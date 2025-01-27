@@ -1,7 +1,7 @@
 import React, { FC, useCallback } from 'react'
 import { Pressable, View } from 'react-native'
 
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
 import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
@@ -15,69 +15,37 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 
 import getStyles from './styles'
 
-interface Props {
-  token: CustomToken
-  isLoading: { [token: string]: boolean }
-  setIsLoading: React.Dispatch<React.SetStateAction<{ [token: string]: boolean }>>
-  seTokenPreferencesCopy: React.Dispatch<React.SetStateAction<CustomToken[]>>
-}
+type Props = TokenResult
 
-const HideTokenTokenItem: FC<Props> = ({
-  token,
-  isLoading,
-  setIsLoading,
-  seTokenPreferencesCopy
-}) => {
+const HideTokenTokenItem: FC<Props> = ({ address, symbol, networkId }) => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const { tokenPreferences } = usePortfolioControllerState()
+  const { tokenPreferences, customTokens } = usePortfolioControllerState()
+  const { isHidden } = tokenPreferences?.find(
+    ({ address: addr, networkId: nId }) =>
+      addr.toLowerCase() === address.toLowerCase() && nId === networkId
+  ) || { isHidden: false }
+  const isCustomToken = !!customTokens?.find(
+    ({ address: addr, networkId: nId }) =>
+      addr.toLowerCase() === address.toLowerCase() && nId === networkId
+  )
 
-  const hideToken = useCallback(async () => {
-    let tokenIsInPreferences = tokenPreferences?.find(
-      (tokenPreference) =>
-        tokenPreference.address?.toLowerCase() === token.address.toLowerCase() &&
-        tokenPreference.networkId === token.networkId
-    )
-
-    // Flip isHidden flag
-    if (!tokenIsInPreferences) {
-      tokenIsInPreferences = { ...token, isHidden: true }
-    } else {
-      tokenIsInPreferences = { ...tokenIsInPreferences, isHidden: !tokenIsInPreferences.isHidden }
-    }
-
-    let newTokenPreferences = []
-
-    if (!tokenIsInPreferences) {
-      newTokenPreferences.push(token)
-    } else {
-      const updatedTokenPreferences = tokenPreferences.map((_t: any) => {
-        if (
-          _t.address.toLowerCase() === token.address.toLowerCase() &&
-          _t.networkId === token.networkId
-        ) {
-          return tokenIsInPreferences
-        }
-        return _t
-      })
-      newTokenPreferences = updatedTokenPreferences
-    }
-
-    seTokenPreferencesCopy(newTokenPreferences)
-    setIsLoading({ [`${token.address}-${token.networkId}`]: true })
-
+  const toggleHideToken = useCallback(async () => {
     dispatch({
-      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
-      params: { token: tokenIsInPreferences }
+      type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
+      params: {
+        address,
+        networkId
+      }
     })
-  }, [seTokenPreferencesCopy, setIsLoading, tokenPreferences, token, dispatch])
+  }, [dispatch, address, networkId])
 
-  const removeToken = useCallback(() => {
+  const removeCustomToken = useCallback(() => {
     dispatch({
-      type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES',
-      params: { token }
+      type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN',
+      params: { address, networkId }
     })
-  }, [dispatch, token])
+  }, [address, dispatch, networkId])
 
   return (
     <View
@@ -97,42 +65,26 @@ const HideTokenTokenItem: FC<Props> = ({
           width={22}
           height={22}
           withContainer
-          networkId={token.networkId}
-          address={token.address}
+          networkId={networkId}
+          address={address}
         />
         <Text fontSize={16} style={spacings.mlTy} weight="semiBold">
-          {token.symbol}
+          {symbol}
         </Text>
       </View>
       <View style={flexbox.directionRow}>
-        {tokenPreferences?.find(
-          ({ address, networkId, standard }) =>
-            token.address.toLowerCase() === address.toLowerCase() &&
-            token.networkId === networkId &&
-            standard === 'ERC20'
-        ) && (
-          <Pressable onPress={removeToken}>
+        {isCustomToken && (
+          <Pressable onPress={removeCustomToken}>
             <DeleteIcon color={theme.secondaryText} style={styles.icon} />
           </Pressable>
         )}
-        {tokenPreferences?.find(
-          ({ address, networkId }) =>
-            token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
-        )?.isHidden ? (
-          <Pressable
-            disabled={isLoading[`${token.address}-${token.networkId}`]}
-            onPress={hideToken}
-          >
-            <InvisibilityIcon color={theme.errorDecorative} style={styles.icon} />
-          </Pressable>
-        ) : (
-          <Pressable
-            disabled={isLoading[`${token.address}-${token.networkId}`]}
-            onPress={hideToken}
-          >
+        <Pressable onPress={toggleHideToken}>
+          {isHidden ? (
             <VisibilityIcon color={theme.successDecorative} style={styles.icon} />
-          </Pressable>
-        )}
+          ) : (
+            <InvisibilityIcon color={theme.errorDecorative} style={styles.icon} />
+          )}
+        </Pressable>
       </View>
     </View>
   )

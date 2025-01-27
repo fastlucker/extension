@@ -6,7 +6,6 @@ import { Pressable, View } from 'react-native'
 import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 // import DepositIcon from '@common/assets/svg/DepositIcon'
@@ -41,12 +40,10 @@ import getStyles from './styles'
 
 const TokenDetails = ({
   token,
-  handleClose,
-  tokenPreferences
+  handleClose
 }: {
   token: TokenResult | null
   handleClose: () => void
-  tokenPreferences: CustomToken[]
 }) => {
   const { styles, theme } = useTheme(getStyles)
   const { navigate } = useNavigation()
@@ -58,7 +55,7 @@ const TokenDetails = ({
   const { networks } = useNetworksControllerState()
   const [coinGeckoTokenSlug, setCoinGeckoTokenSlug] = useState('')
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
-  const [isHidden, setIsHidden] = useState(!!token?.isHidden)
+  const [isHidden, setIsHidden] = useState(!!token?.flags.isHidden)
   const network = useMemo(
     () => networks.find((n) => n.id === token?.networkId),
     [networks, token?.networkId]
@@ -250,27 +247,12 @@ const TokenDetails = ({
   const handleHideToken = () => {
     if (!token) return
     setIsHidden((prev) => !prev)
-    const tokenInPreferences = tokenPreferences?.length
-      ? tokenPreferences.find(
-          (_token) =>
-            token.address.toLowerCase() === _token.address.toLowerCase() &&
-            token.networkId === _token.networkId
-        )
-      : null
-
-    const newToken = {
-      symbol: token.symbol,
-      decimals: token.decimals,
-      address: token.address,
-      networkId: token.networkId,
-      isHidden: !token.isHidden,
-      standard: tokenInPreferences?.standard || 'ERC20'
-    }
 
     dispatch({
-      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+      type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
       params: {
-        token: newToken
+        address: token.address,
+        networkId: token.networkId
       }
     })
 

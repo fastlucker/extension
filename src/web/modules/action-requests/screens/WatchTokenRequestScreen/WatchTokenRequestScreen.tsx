@@ -5,7 +5,6 @@ import { View } from 'react-native'
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import Alert from '@common/components/Alert/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Spinner from '@common/components/Spinner'
@@ -29,7 +28,6 @@ import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import {
   getTokenEligibility,
   getTokenFromPortfolio,
-  getTokenFromPreferences,
   getTokenFromTemporaryTokens,
   handleTokenIsInPortfolio,
   selectNetwork
@@ -51,7 +49,7 @@ const WatchTokenRequestScreen = () => {
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
-  const { temporaryTokens, validTokens, tokenPreferences } = usePortfolioControllerState()
+  const { temporaryTokens, validTokens, customTokens } = usePortfolioControllerState()
   const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { providers } = useProvidersControllerState()
@@ -104,9 +102,8 @@ const WatchTokenRequestScreen = () => {
   }, [dappAction, t, dispatch])
 
   // Handle the case its already in token preferences
-  const tokenInPreferences = useMemo(
-    () => getTokenFromPreferences(tokenData, tokenNetwork, tokenPreferences),
-    [tokenPreferences, tokenData, tokenNetwork]
+  const isTokenCustom = !!customTokens.find(
+    (token) => token.address === tokenData?.address && token.networkId === tokenNetwork?.id
   )
 
   const temporaryToken = useMemo(
@@ -115,9 +112,8 @@ const WatchTokenRequestScreen = () => {
   )
 
   const portfolioToken = useMemo(
-    () =>
-      getTokenFromPortfolio(tokenData, tokenNetwork, selectedAccountPortfolio, tokenInPreferences),
-    [selectedAccountPortfolio, tokenInPreferences, tokenNetwork, tokenData]
+    () => getTokenFromPortfolio(tokenData, tokenNetwork, selectedAccountPortfolio),
+    [selectedAccountPortfolio, tokenNetwork, tokenData]
   )
 
   const handleTokenType = (networkId: NetworkId) => {
@@ -159,7 +155,7 @@ const WatchTokenRequestScreen = () => {
       if (tokenNetwork) {
         // Check if token is already in portfolio
         const isTokenInHints = await handleTokenIsInPortfolio(
-          tokenInPreferences,
+          isTokenCustom,
           selectedAccountPortfolio,
           tokenNetwork,
           tokenData
@@ -202,7 +198,7 @@ const WatchTokenRequestScreen = () => {
     networks,
     tokenTypeEligibility,
     temporaryToken,
-    tokenInPreferences,
+    isTokenCustom,
     selectedAccountPortfolio,
     validTokens
   ])
@@ -211,17 +207,13 @@ const WatchTokenRequestScreen = () => {
     if (!dappAction) return
     if (!tokenNetwork?.id) return
 
-    const token: CustomToken = {
-      address: getAddress(tokenData.address),
-      symbol: tokenData?.symbol,
-      decimals: Number(tokenData?.decimals),
-      standard: 'ERC20',
-      networkId: tokenNetwork?.id
-    }
-
     dispatch({
-      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
-      params: { token }
+      type: 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN',
+      params: {
+        address: getAddress(tokenData.address),
+        standard: 'ERC20',
+        networkId: tokenNetwork?.id
+      }
     })
 
     dispatch({
@@ -267,8 +259,8 @@ const WatchTokenRequestScreen = () => {
           <>
             {showAlreadyInPortfolioMessage ? (
               <Text weight="medium" fontSize={20} style={spacings.mbLg}>
-                {tokenInPreferences
-                  ? t('This token is already in your preferences.')
+                {isTokenCustom
+                  ? t('This token is already added as a custom token.')
                   : t('This token is already in your portfolio.')}
               </Text>
             ) : (
@@ -298,10 +290,7 @@ const WatchTokenRequestScreen = () => {
                 ...spacings.mb
               }}
             />
-            <TokenHeader
-              showAlreadyInPortfolioMessage={showAlreadyInPortfolioMessage}
-              temporaryToken={portfolioToken || temporaryToken}
-            />
+            <TokenHeader priceIn={temporaryToken?.priceIn || portfolioToken?.priceIn} />
             <Token
               tokenData={tokenData}
               tokenNetwork={tokenNetwork}

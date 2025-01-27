@@ -3,7 +3,6 @@ import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
@@ -31,15 +30,7 @@ import getStyles from './styles'
 
 const { isPopup } = getUiType()
 
-const TokenItem = ({
-  token,
-  tokenPreferences,
-  testID
-}: {
-  token: TokenResult
-  tokenPreferences: CustomToken[]
-  testID?: string
-}) => {
+const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const {
     symbol,
@@ -120,11 +111,7 @@ const TokenItem = ({
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
       >
-        <TokenDetails
-          tokenPreferences={tokenPreferences}
-          token={token}
-          handleClose={closeBottomSheet}
-        />
+        <TokenDetails token={token} handleClose={closeBottomSheet} />
       </BottomSheet>
       <View style={flexboxStyles.flex1}>
         <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
