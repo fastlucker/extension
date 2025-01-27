@@ -27,6 +27,7 @@ const SectionedSelect = ({
     value,
     isSectionList: true,
     headerHeight,
+    stickySectionHeadersEnabled,
     data: sections
   })
   const {
@@ -53,7 +54,7 @@ const SectionedSelect = ({
         maxToRenderPerBatch={20}
         SectionSeparatorComponent={SectionSeparatorComponent}
         removeClippedSubviews
-        getItemLayout={getItemLayout}
+        getItemLayout={getItemLayout as any}
         ListEmptyComponent={<EmptyListPlaceholder placeholderText={emptyListPlaceholderText} />}
         stickySectionHeadersEnabled={stickySectionHeadersEnabled}
         onScroll={handleScroll}

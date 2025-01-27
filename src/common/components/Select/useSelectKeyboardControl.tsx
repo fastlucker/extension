@@ -27,9 +27,8 @@ const useSelectKeyboardControl = ({
   handleOptionSelect
 }: Props) => {
   const listRef: any = useRef(null)
-
-  const [scrollOffset, setScrollOffset] = useState(0)
-  const [highlightedItemOnMouseMoveEnabled, setHighlightedItemOnMouseMoveEnabled] = useState(true)
+  const highlightedItemOnMouseMoveEnabled = useRef(true)
+  const scrollOffset = useRef(0)
 
   const prevIsMenuOpen = usePrevious(isMenuOpen)
 
@@ -50,13 +49,10 @@ const useSelectKeyboardControl = ({
   useEffect(() => {
     if (selectedItemIndex === null) return
     if (!prevIsMenuOpen && isMenuOpen) {
-      if (!highlightedItemOnMouseMoveEnabled) {
-        setHighlightedItemOnMouseMoveEnabled(true)
-      }
-
+      scrollOffset.current = 0
       setHighlightedItemIndex(selectedItemIndex === 0 ? 0 : null)
     }
-  }, [prevIsMenuOpen, isMenuOpen, selectedItemIndex, highlightedItemOnMouseMoveEnabled])
+  }, [prevIsMenuOpen, isMenuOpen, selectedItemIndex])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,7 +60,7 @@ const useSelectKeyboardControl = ({
 
       try {
         if (e.key === 'ArrowDown') {
-          if (highlightedItemOnMouseMoveEnabled) setHighlightedItemOnMouseMoveEnabled(false)
+          highlightedItemOnMouseMoveEnabled.current = false
 
           const optionIndex = highlightedItemIndex ?? -1
           const nextOption = options.slice(optionIndex + 1).find((opt) => !opt.disabled)
@@ -73,15 +69,20 @@ const useSelectKeyboardControl = ({
             setHighlightedItemIndex(nextIndex)
 
             const nextItemOffset = (nextIndex + 1) * optionHeight
-            if (scrollOffset + listHeight <= nextItemOffset) {
-              listRef.current?.scrollToOffset({ offset: nextItemOffset - listHeight })
+
+            if (scrollOffset.current + listHeight <= nextItemOffset) {
+              listRef.current?.scrollToOffset({
+                offset: nextItemOffset - listHeight,
+                animated: false
+              })
             }
-            if (nextItemOffset <= optionHeight) listRef.current?.scrollToOffset({ offset: 0 })
+            if (nextItemOffset <= optionHeight)
+              listRef.current?.scrollToOffset({ offset: 0, animated: false })
           }
         }
 
         if (e.key === 'ArrowUp') {
-          if (highlightedItemOnMouseMoveEnabled) setHighlightedItemOnMouseMoveEnabled(false)
+          highlightedItemOnMouseMoveEnabled.current = false
 
           const optionIndex = highlightedItemIndex || 0
 
@@ -94,9 +95,13 @@ const useSelectKeyboardControl = ({
             setHighlightedItemIndex(nextIndex)
 
             const nextItemOffset = nextIndex * optionHeight
-            if (scrollOffset >= nextItemOffset) {
-              listRef.current?.scrollToOffset({ offset: nextItemOffset })
+
+            if (scrollOffset.current >= nextItemOffset) {
+              listRef.current?.scrollToOffset({ offset: nextItemOffset, animated: false })
             }
+          } else {
+            setHighlightedItemIndex(0)
+            listRef.current?.scrollToOffset({ offset: 0, animated: false })
           }
         }
 
@@ -115,20 +120,19 @@ const useSelectKeyboardControl = ({
     document.addEventListener('keydown', handleKeyDown, true)
     return () => document.removeEventListener('keydown', handleKeyDown, true)
   }, [
-    highlightedItemOnMouseMoveEnabled,
     isMenuOpen,
     highlightedItemIndex,
     options,
     optionHeight,
     listHeight,
-    scrollOffset,
     handleOptionSelect,
     setIsMenuOpen
   ])
 
   useEffect(() => {
     const handleMouseMove = () => {
-      if (!highlightedItemOnMouseMoveEnabled) setHighlightedItemOnMouseMoveEnabled(true)
+      if (!highlightedItemOnMouseMoveEnabled.current)
+        highlightedItemOnMouseMoveEnabled.current = true
     }
 
     document.addEventListener('mousemove', handleMouseMove)
@@ -136,53 +140,35 @@ const useSelectKeyboardControl = ({
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
     }
-  }, [highlightedItemOnMouseMoveEnabled])
+  }, [])
 
-  const handleSetHoverIn = useCallback(
-    (index: number) => {
-      if (!highlightedItemOnMouseMoveEnabled) return
-      setHighlightedItemIndex(index)
-    },
-    [highlightedItemOnMouseMoveEnabled]
-  )
+  const handleSetHoverIn = useCallback((index: number) => {
+    if (!highlightedItemOnMouseMoveEnabled.current) return
+    setHighlightedItemIndex(index)
+  }, [])
 
   const handleSetHoverOut = useCallback(() => {
-    if (!highlightedItemOnMouseMoveEnabled) return
+    if (!highlightedItemOnMouseMoveEnabled.current) return
     setHighlightedItemIndex(null)
-  }, [highlightedItemOnMouseMoveEnabled])
+  }, [])
 
-  const renderItem = useCallback(
-    ({ item, index }: { item: SelectValue; index: number }) => {
-      const onHoverIn = () => handleSetHoverIn(index)
-
-      return (
-        <MenuOption
-          item={item}
-          height={optionHeight}
-          isSelected={item.value === value.value}
-          isHighlighted={highlightedItemIndex === index}
-          onPress={handleOptionSelect}
-          onHoverIn={onHoverIn}
-          onHoverOut={handleSetHoverOut}
-          disabled={!!item?.disabled}
-          size={size}
-        />
-      )
-    },
-    [
-      value,
-      handleOptionSelect,
-      size,
-      highlightedItemIndex,
-      handleSetHoverIn,
-      handleSetHoverOut,
-      optionHeight
-    ]
+  const renderItem = ({ item, index }: { item: SelectValue; index: number }) => (
+    <MenuOption
+      item={item}
+      index={index}
+      height={optionHeight}
+      isSelected={item.value === value.value}
+      isHighlighted={highlightedItemIndex === index}
+      onPress={handleOptionSelect}
+      onHoverIn={handleSetHoverIn}
+      onHoverOut={handleSetHoverOut}
+      disabled={!!item?.disabled}
+      size={size}
+    />
   )
 
   const handleScroll = (event: any) => {
-    const offsetY = event.nativeEvent.contentOffset.y
-    setScrollOffset(offsetY)
+    scrollOffset.current = event.nativeEvent.contentOffset.y
   }
 
   return { listRef, renderItem, handleScroll }

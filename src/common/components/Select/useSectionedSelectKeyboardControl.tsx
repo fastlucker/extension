@@ -13,6 +13,7 @@ type Props = {
   value: SelectProps['value']
   size: SelectProps['size']
   isMenuOpen: boolean
+  stickySectionHeadersEnabled?: boolean
   setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
   handleOptionSelect: (item: SelectValue) => void
 }
@@ -25,13 +26,13 @@ const useSectionedSelectKeyboardControl = ({
   value,
   size,
   isMenuOpen,
+  stickySectionHeadersEnabled,
   setIsMenuOpen,
   handleOptionSelect
 }: Props) => {
   const listRef: any = useRef(null)
-
-  const [scrollOffset, setScrollOffset] = useState(0)
-  const [highlightedItemOnMouseMoveEnabled, setHighlightedItemOnMouseMoveEnabled] = useState(true)
+  const highlightedItemOnMouseMoveEnabled = useRef(true)
+  const scrollOffset = useRef(0)
 
   const prevIsMenuOpen = usePrevious(isMenuOpen)
 
@@ -62,15 +63,12 @@ const useSectionedSelectKeyboardControl = ({
   useEffect(() => {
     if (selectedItemIndex === null) return
     if (!prevIsMenuOpen && isMenuOpen) {
-      if (!highlightedItemOnMouseMoveEnabled) {
-        setHighlightedItemOnMouseMoveEnabled(true)
-      }
-
+      scrollOffset.current = 0
       setHighlightedItemIndex(
         selectedItemIndex[0] === 0 && selectedItemIndex[1] === 0 ? selectedItemIndex : null
       )
     }
-  }, [prevIsMenuOpen, isMenuOpen, selectedItemIndex, highlightedItemOnMouseMoveEnabled])
+  }, [prevIsMenuOpen, isMenuOpen, selectedItemIndex])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -78,9 +76,9 @@ const useSectionedSelectKeyboardControl = ({
 
       try {
         if (e.key === 'ArrowDown') {
-          if (highlightedItemOnMouseMoveEnabled) setHighlightedItemOnMouseMoveEnabled(false)
+          highlightedItemOnMouseMoveEnabled.current = false
 
-          const [sectionIndex = 0, optionIndex = -1] = highlightedItemIndex || [0, 0]
+          const [sectionIndex = 0, optionIndex = -1] = highlightedItemIndex || [0, -1]
           const optionsLength = sections[sectionIndex]?.data.length || 0
 
           if (sectionIndex === sections.length - 1 && optionIndex === optionsLength - 1) return
@@ -110,11 +108,20 @@ const useSectionedSelectKeyboardControl = ({
                 }
               })
 
-              if (scrollOffset + listHeight <= offset) {
-                listRef.current?.getScrollResponder()?.scrollTo({ x: 0, y: offset - listHeight })
+              if (scrollOffset.current + listHeight <= offset) {
+                listRef.current
+                  ?.getScrollResponder()
+                  ?.scrollTo({ x: 0, y: offset - listHeight, animated: false })
+              }
+              if (offset < scrollOffset.current) {
+                listRef.current?.getScrollResponder()?.scrollTo({
+                  x: 0,
+                  y: offset - optionHeight - (stickySectionHeadersEnabled ? headerHeight : 0),
+                  animated: false
+                })
               }
               if (offset <= optionHeight) {
-                listRef.current?.getScrollResponder()?.scrollTo({ x: 0, y: 0 })
+                listRef.current?.getScrollResponder()?.scrollTo({ x: 0, y: 0, animated: false })
               }
 
               return
@@ -123,11 +130,14 @@ const useSectionedSelectKeyboardControl = ({
         }
 
         if (e.key === 'ArrowUp') {
-          if (highlightedItemOnMouseMoveEnabled) setHighlightedItemOnMouseMoveEnabled(false)
+          highlightedItemOnMouseMoveEnabled.current = false
 
           const [sectionIndex, optionIndex] = highlightedItemIndex || [0, 0]
 
-          if (sectionIndex === 0 && optionIndex === 0) return
+          if (sectionIndex === 0 && optionIndex === 0) {
+            setHighlightedItemIndex([0, 0])
+            listRef.current?.getScrollResponder()?.scrollTo({ x: 0, y: 0, animated: false })
+          }
 
           for (let i = sectionIndex; i >= 0; i--) {
             const options = sections[i].data
@@ -151,13 +161,15 @@ const useSectionedSelectKeyboardControl = ({
                   }
                 })
 
-                if (scrollOffset >= offset - optionHeight) {
-                  listRef.current
-                    ?.getScrollResponder()
-                    ?.scrollTo({ x: 0, y: offset - optionHeight })
+                if (scrollOffset.current >= offset - optionHeight) {
+                  listRef.current?.getScrollResponder()?.scrollTo({
+                    x: 0,
+                    y: offset - optionHeight - (stickySectionHeadersEnabled ? headerHeight : 0),
+                    animated: false
+                  })
                 }
                 if (offset - optionHeight <= headerHeight) {
-                  listRef.current?.getScrollResponder()?.scrollTo({ x: 0, y: 0 })
+                  listRef.current?.getScrollResponder()?.scrollTo({ x: 0, y: 0, animated: false })
                 }
                 return
               }
@@ -181,7 +193,6 @@ const useSectionedSelectKeyboardControl = ({
     document.addEventListener('keydown', handleKeyDown, true)
     return () => document.removeEventListener('keydown', handleKeyDown, true)
   }, [
-    highlightedItemOnMouseMoveEnabled,
     isMenuOpen,
     highlightedItemIndex,
     sections,
@@ -190,12 +201,13 @@ const useSectionedSelectKeyboardControl = ({
     optionHeight,
     listHeight,
     headerHeight,
-    scrollOffset
+    stickySectionHeadersEnabled
   ])
 
   useEffect(() => {
     const handleMouseMove = () => {
-      if (!highlightedItemOnMouseMoveEnabled) setHighlightedItemOnMouseMoveEnabled(true)
+      if (!highlightedItemOnMouseMoveEnabled.current)
+        highlightedItemOnMouseMoveEnabled.current = true
     }
 
     document.addEventListener('mousemove', handleMouseMove)
@@ -203,20 +215,17 @@ const useSectionedSelectKeyboardControl = ({
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
     }
-  }, [highlightedItemOnMouseMoveEnabled])
+  }, [])
 
-  const handleSetHoverIn = useCallback(
-    (index: [number, number]) => {
-      if (!highlightedItemOnMouseMoveEnabled) return
-      setHighlightedItemIndex(index)
-    },
-    [highlightedItemOnMouseMoveEnabled]
-  )
+  const handleSetHoverIn = useCallback((index: [number, number]) => {
+    if (!highlightedItemOnMouseMoveEnabled.current) return
+    setHighlightedItemIndex(index)
+  }, [])
 
   const handleSetHoverOut = useCallback(() => {
-    if (!highlightedItemOnMouseMoveEnabled) return
+    if (!highlightedItemOnMouseMoveEnabled.current) return
     setHighlightedItemIndex(null)
-  }, [highlightedItemOnMouseMoveEnabled])
+  }, [])
 
   const renderItem = useCallback(
     ({ item, index, section }: { item: SelectValue; index: number; section: any }) => {
@@ -239,6 +248,7 @@ const useSectionedSelectKeyboardControl = ({
       }
       return (
         <MenuOption
+          index={index}
           item={item}
           height={optionHeight}
           isSelected={item.value === value.value}
@@ -264,8 +274,7 @@ const useSectionedSelectKeyboardControl = ({
   )
 
   const handleScroll = (event: any) => {
-    const offsetY = event.nativeEvent.contentOffset.y
-    setScrollOffset(offsetY)
+    scrollOffset.current = event.nativeEvent.contentOffset.y
   }
 
   return { listRef, renderItem, handleScroll }

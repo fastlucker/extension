@@ -17,12 +17,14 @@ type Props = Pick<
         value: SelectProps['value']
         data: SelectProps['options']
         isSectionList: false
-        headerHeight?: undefined
+        headerHeight?: never
+        stickySectionHeadersEnabled?: never
       }
     | {
         value: SelectProps['value']
         data: SectionedSelectProps['sections']
         isSectionList: true
+        stickySectionHeadersEnabled?: boolean
         headerHeight: number
       }
   )
@@ -34,6 +36,7 @@ const useSelectInternal = ({
   size = DEFAULT_SELECT_SIZE,
   data,
   isSectionList,
+  stickySectionHeadersEnabled,
   headerHeight = 0,
   attemptToFetchMoreOptions
 }: Props) => {
@@ -149,6 +152,7 @@ const useSelectInternal = ({
         value,
         size,
         isMenuOpen,
+        stickySectionHeadersEnabled,
         setIsMenuOpen,
         handleOptionSelect
       })
