@@ -17,7 +17,7 @@ const AmbireLogoHorizontalWithOG: React.FC<SvgProps> = ({ ...rest }) => {
 
   return (
     <>
-      <ToggleOG />
+      <ToggleOG {...rest} />
       {hasJustBecomeOG && (
         <View style={styles.confettiContainer}>
           <ConfettiAnimation width={CONFETTI_WIDTH} height={CONFETTI_HEIGHT} autoPlay={false} />
