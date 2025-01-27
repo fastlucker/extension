@@ -103,7 +103,9 @@ const WatchTokenRequestScreen = () => {
 
   // Handle the case its already in token preferences
   const isTokenCustom = !!customTokens.find(
-    (token) => token.address === tokenData?.address && token.networkId === tokenNetwork?.id
+    (token) =>
+      token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
+      token.networkId === tokenNetwork?.id
   )
 
   const temporaryToken = useMemo(
