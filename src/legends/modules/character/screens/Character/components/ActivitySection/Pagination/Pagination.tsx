@@ -3,14 +3,14 @@ import React, { FC } from 'react'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import usePagination, { DOTS } from '@common/hooks/usePagination'
-import { ActivityResponse } from '@legends/contexts/recentActivityContext/types'
+import { ActivityResponse } from '@legends/contexts/activityContext/types'
 
 import styles from './Pagination.module.scss'
 
 type Props = {
   activity: ActivityResponse
   page: number
-  setPage: React.Dispatch<React.SetStateAction<number>>
+  setPage: (page: number) => void
 }
 
 const getVisibleTransactionsText = (

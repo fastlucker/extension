@@ -22,7 +22,7 @@ type Props = Partial<DappProviderRequest['session']> & {
 
 const DAppConnectHeader: FC<Props> = ({
   origin,
-  name = 'Unknown dApp',
+  name = 'Unknown App',
   icon,
   responsiveSizeMultiplier
 }) => {

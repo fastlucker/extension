@@ -7,7 +7,9 @@ import PrivateRoute from '@legends/components/PrivateRoute'
 import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
 import { LegendsContextProvider } from '@legends/contexts/legendsContext'
 import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
-import { RecentActivityContextProvider } from '@legends/contexts/recentActivityContext'
+import { ActivityContextProvider } from '@legends/contexts/activityContext'
+import { DataPollingContextProvider } from '@legends/contexts/dataPollingContext'
+import { MidnightTimerContextProvider } from '@legends/contexts/midnightTimerContext'
 import Character from '@legends/modules/character/screens/Character'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
 import Landing from '@legends/modules/landing/screens/Landing'
@@ -35,13 +37,17 @@ const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <LeaderboardContextProvider>
-      <RecentActivityContextProvider>
+      <ActivityContextProvider>
         <LegendsContextProvider>
           <PortfolioControllerStateProvider>
-            <DomainsContextProvider>{children}</DomainsContextProvider>
+            <DomainsContextProvider>
+              <DataPollingContextProvider>
+                <MidnightTimerContextProvider>{children}</MidnightTimerContextProvider>
+              </DataPollingContextProvider>
+            </DomainsContextProvider>
           </PortfolioControllerStateProvider>
         </LegendsContextProvider>
-      </RecentActivityContextProvider>
+      </ActivityContextProvider>
     </LeaderboardContextProvider>
   )
 }

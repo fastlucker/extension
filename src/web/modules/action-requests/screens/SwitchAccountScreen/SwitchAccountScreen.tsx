@@ -62,7 +62,7 @@ const SwitchAccountScreen = () => {
   const dAppData = useMemo(
     () =>
       userRequest?.session || {
-        name: 'Unknown dApp',
+        name: 'Unknown App',
         origin: '',
         icon: ''
       },
@@ -84,7 +84,7 @@ const SwitchAccountScreen = () => {
     if (!nextAccount) {
       addToast(
         t(
-          'We are unable to switch to that account. Please reinitate the dApp request or contact support if the issue persists.'
+          'We are unable to switch to that account. Please reinitate the app request or contact support if the issue persists.'
         ),
         {
           type: 'error'

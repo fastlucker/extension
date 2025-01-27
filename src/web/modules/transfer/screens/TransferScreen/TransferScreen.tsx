@@ -21,7 +21,6 @@ import Panel from '@common/components/Panel'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useAddressInput from '@common/hooks/useAddressInput'
-import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -47,7 +46,6 @@ import getStyles from './styles'
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
-  const { isOffline } = useConnectivity()
   const { state, transferCtrl } = useTransferControllerState()
   const {
     isTopUp,
@@ -64,7 +62,7 @@ const TransferScreen = () => {
   const { account } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const { userRequests } = useMainControllerState()
+  const { userRequests, isOffline } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
   const hasOpenedActionWindow = useMemo(
@@ -239,7 +237,7 @@ const TransferScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="xl"
-      header={<HeaderAccountAndNetworkInfo />}
+      header={<HeaderAccountAndNetworkInfo withOG />}
       footer={
         <>
           <BackButton onPress={onBack} />

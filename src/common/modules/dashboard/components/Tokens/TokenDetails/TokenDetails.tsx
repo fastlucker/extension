@@ -19,7 +19,6 @@ import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -53,7 +52,6 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { isOffline } = useConnectivity()
   const { account } = useSelectedAccountControllerState()
   const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
@@ -229,7 +227,7 @@ const TokenDetails = ({
     ]
   )
   useEffect(() => {
-    if (!token?.address || !token?.networkId || !networks.length || isOffline) return
+    if (!token?.address || !token?.networkId || !networks.length) return
 
     setIsTokenInfoLoading(true)
 
@@ -247,7 +245,7 @@ const TokenDetails = ({
       .then((response) => response.json())
       .then((result) => setCoinGeckoTokenSlug(result.web_slug))
       .finally(() => setIsTokenInfoLoading(false))
-  }, [t, token?.address, token?.networkId, networks, addToast, isOffline, network])
+  }, [t, token?.address, token?.networkId, networks, addToast, network])
 
   const handleHideToken = () => {
     if (!token) return
