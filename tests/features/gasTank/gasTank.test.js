@@ -52,14 +52,7 @@ describe('Gas Tank tests', () => {
     })
   })
 
-  // TODO: change the title of the test
-  it('First cashback', async () => {
-    // const httpRequests = await monitorRequests(serviceWorker.client, async () => {
-    //   await clickOnElement(page, '[data-testid="refresh-button"]')
-    // })
-
-    // const { uncategorizedRequests } = getBackgroundRequestsByType(httpRequests)
-
+  it('Test Confetti modal on first cashback', async () => {
     const client = await serviceWorker.client
 
     await client.send('Fetch.enable', {
@@ -69,7 +62,6 @@ describe('Gas Tank tests', () => {
     let isMocked = false
 
     client.on('Fetch.requestPaused', async (event) => {
-      //   if (!isMocked && event.request.url.includes(uncategorizedRequests[0])) {
       if (!isMocked && event.request.url.includes('portfolio-additional')) {
         console.log('Intercepted Request:', event.request.url)
 
