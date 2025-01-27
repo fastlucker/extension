@@ -24,6 +24,8 @@ interface Props {
   handleAddToTokenByAddress: (searchTerm: string) => void
 }
 
+const SECTION_MENU_HEADER_HEIGHT = 50
+
 const ToTokenSelect: React.FC<Props> = ({
   toTokenOptions,
   toTokenValue,
@@ -91,27 +93,30 @@ const ToTokenSelect: React.FC<Props> = ({
     ]
   }, [toTokenOptions, t, portfolio.tokens])
 
-  const renderFeeOptionSectionHeader = useCallback(({ section }: any) => {
-    if (section.data.length === 0 || !section.title) return null
+  const renderFeeOptionSectionHeader = useCallback(
+    ({ section }: any) => {
+      if (section.data.length === 0 || !section.title) return null
 
-    return (
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.alignCenter,
-          spacings.ph,
-          spacings.pt,
-          section?.key === 'swap-and-bridge-to-account-tokens' ? spacings.pbSm : spacings.pbSm,
-          { height: 50, backgroundColor: theme.primaryBackground }
-        ]}
-      >
-        {section.title.icon}
-        <Text style={spacings.mlMi} fontSize={14} weight="medium" appearance="secondaryText">
-          {section.title.text}
-        </Text>
-      </View>
-    )
-  }, [])
+      return (
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            spacings.ph,
+            spacings.pt,
+            section?.key === 'swap-and-bridge-to-account-tokens' ? spacings.pbSm : spacings.pbSm,
+            { height: SECTION_MENU_HEADER_HEIGHT, backgroundColor: theme.primaryBackground }
+          ]}
+        >
+          {section.title.icon}
+          <Text style={spacings.mlMi} fontSize={14} weight="medium" appearance="secondaryText">
+            {section.title.text}
+          </Text>
+        </View>
+      )
+    },
+    [theme]
+  )
 
   return (
     <SectionedSelect
@@ -119,7 +124,7 @@ const ToTokenSelect: React.FC<Props> = ({
       sections={selectSections}
       renderSectionHeader={renderFeeOptionSectionHeader}
       value={toTokenValue}
-      headerHeight={50}
+      headerHeight={SECTION_MENU_HEADER_HEIGHT}
       disabled={toTokenAmountSelectDisabled}
       testID="to-token-select"
       searchPlaceholder={t('Token name or address...')}
