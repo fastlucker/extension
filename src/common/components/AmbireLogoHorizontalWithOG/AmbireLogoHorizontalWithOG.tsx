@@ -1,43 +1,29 @@
-import React, { useCallback, useState } from 'react'
-import { Pressable } from 'react-native'
+import React from 'react'
+import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
-import useBackgroundService from '@web/hooks/useBackgroundService'
+import usePrevious from '@common/hooks/usePrevious'
+import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 
-import AmbireLogoHorizontal from '../AmbireLogoHorizontal/AmbireLogoHorizontal'
-import AmbireLogoHorizontalOG from './AmbireLogoHorizontalOG'
-import styles from './styles'
-
-const PRESS_THRESHOLD = 7
+import styles, { CONFETTI_HEIGHT, CONFETTI_WIDTH } from './styles'
+import ToggleOG from './ToggleOG'
 
 const AmbireLogoHorizontalWithOG: React.FC<SvgProps> = ({ ...rest }) => {
-  const { dispatch } = useBackgroundService()
   const { isOG } = useInviteControllerState()
-  const [, setPressCount] = useState(0)
+  const prevIsOG = usePrevious(isOG)
 
-  const toggleOG = useCallback(() => {
-    dispatch({
-      type: isOG ? 'INVITE_CONTROLLER_REVOKE_OG' : 'INVITE_CONTROLLER_BECOME_OG'
-    })
-  }, [dispatch, isOG])
-
-  const handlePress = useCallback(() => {
-    setPressCount((prevCount) => {
-      const nextCount = prevCount + 1
-      if (nextCount === PRESS_THRESHOLD) {
-        toggleOG()
-        return 0 // reset count
-      }
-
-      return nextCount
-    })
-  }, [toggleOG])
+  const hasJustBecomeOG = prevIsOG !== undefined && isOG && !prevIsOG
 
   return (
-    <Pressable style={styles.pressable} onPress={handlePress}>
-      {!isOG ? <AmbireLogoHorizontalOG {...rest} /> : <AmbireLogoHorizontal {...rest} />}
-    </Pressable>
+    <>
+      <ToggleOG />
+      {hasJustBecomeOG && (
+        <View style={styles.confettiContainer}>
+          <ConfettiAnimation width={CONFETTI_WIDTH} height={CONFETTI_HEIGHT} autoPlay={false} />
+        </View>
+      )}
+    </>
   )
 }
 
