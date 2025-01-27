@@ -32,7 +32,7 @@ const HideToken = () => {
   useEffect(() => {
     // Filter and sort using the initial lists to avoid re-ordering
     // the list changes
-    if (!initialTokenPreferences || tokenPreferences.length > initialTokenPreferences.length) {
+    if (!initialTokenPreferences) {
       setInitialTokenPreferences(tokenPreferences)
     }
   }, [customTokens, initialTokenPreferences, tokenPreferences])
