@@ -146,7 +146,7 @@ const SwapAndBridgeScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={<HeaderAccountAndNetworkInfo />}
+      header={<HeaderAccountAndNetworkInfo withOG />}
       footer={<BackButton onPress={handleBackButtonPress} />}
     >
       <TabLayoutWrapperMainContent

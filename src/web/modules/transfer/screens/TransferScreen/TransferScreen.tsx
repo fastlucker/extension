@@ -237,7 +237,7 @@ const TransferScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="xl"
-      header={<HeaderAccountAndNetworkInfo />}
+      header={<HeaderAccountAndNetworkInfo withOG />}
       footer={
         <>
           <BackButton onPress={onBack} />
