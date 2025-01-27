@@ -61,7 +61,7 @@ const DappControl = ({
     <View>
       <View style={styles.titleWrapper}>
         <Text weight="medium" fontSize={12} appearance="secondaryText">
-          {t(`Manage ${isCurrentDapp ? 'current ' : ''}App`)}
+          {t(`Manage ${isCurrentDapp ? 'current ' : ''}app`)}
         </Text>
       </View>
 
