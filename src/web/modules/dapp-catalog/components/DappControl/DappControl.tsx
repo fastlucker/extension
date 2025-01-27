@@ -61,7 +61,7 @@ const DappControl = ({
     <View>
       <View style={styles.titleWrapper}>
         <Text weight="medium" fontSize={12} appearance="secondaryText">
-          {t(`Manage ${isCurrentDapp ? 'current ' : ''}dApp`)}
+          {t(`Manage ${isCurrentDapp ? 'current ' : ''}App`)}
         </Text>
       </View>
 
@@ -105,7 +105,7 @@ const DappControl = ({
           <View style={styles.currentDApp}>
             <DAppsIcon width={24} height={24} color={theme.secondaryText} />
             <Text fontSize={14} appearance="secondaryText" weight="regular" style={spacings.mlTy}>
-              {t('No dApp found')}
+              {t('No app found')}
             </Text>
           </View>
         )}
