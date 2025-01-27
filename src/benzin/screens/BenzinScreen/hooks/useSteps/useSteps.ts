@@ -135,7 +135,7 @@ const useSteps = ({
   })
   const [refetchTxnIdCounter, setRefetchTxnIdCounter] = useState<number>(0)
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
-  const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
+  const [, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
   const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
@@ -235,7 +235,7 @@ const useSteps = ({
 
           // start a refetch
           timeout = setTimeout(() => {
-            setRefetchTxnCounter(refetchTxnCounter + 1)
+            setRefetchTxnCounter((prev) => prev + 1)
           }, REFETCH_TIME)
           return
         }
@@ -247,11 +247,11 @@ const useSteps = ({
     return () => {
       if (timeout) clearTimeout(timeout)
     }
-  }, [foundTxnId, txn, refetchTxnCounter, setActiveStep, provider, identifiedBy])
+  }, [foundTxnId, txn, setActiveStep, provider, identifiedBy, refetchTxnCounter])
 
   useEffect(() => {
     let timeout: any
-    if (receiptAlreadyFetched || !foundTxnId || !provider) return
+    if (!foundTxnId || !provider) return
 
     provider
       .getTransactionReceipt(foundTxnId)
@@ -259,12 +259,12 @@ const useSteps = ({
         if (!receipt) {
           // if there is a txn but no receipt, it means it is pending
           if (txn) {
-            timeout = setTimeout(
-              () => setRefetchReceiptCounter(refetchReceiptCounter + 1),
-              REFETCH_TIME
-            )
-            setFinalizedStatus({ status: 'fetching' })
-            setActiveStep('in-progress')
+            timeout = setTimeout(() => setRefetchReceiptCounter((prev) => prev + 1), REFETCH_TIME)
+            // Prevent unnecessary rerenders
+            if (finalizedStatus?.status !== 'fetching') {
+              setFinalizedStatus({ status: 'fetching' })
+              setActiveStep('in-progress')
+            }
             return
           }
 
@@ -315,17 +315,7 @@ const useSteps = ({
     return () => {
       if (timeout) clearTimeout(timeout)
     }
-  }, [
-    foundTxnId,
-    receiptAlreadyFetched,
-    txn,
-    refetchReceiptCounter,
-    setActiveStep,
-    userOpHash,
-    provider,
-    txnId,
-    userOp
-  ])
+  }, [finalizedStatus?.status, foundTxnId, provider, setActiveStep, txn, userOpHash])
 
   // check for error reason
   useEffect(() => {
@@ -609,7 +599,18 @@ const useSteps = ({
       setCalls(parseHumanizer(humanizedCalls))
       setFrom(account ?? 'Loading...')
     }
-  }, [network, txnReceipt, txn, userOpHash, userOp, txnId, calls.length, extensionAccOp, from])
+  }, [
+    network,
+    txnReceipt,
+    txn,
+    userOpHash,
+    userOp,
+    txnId,
+    calls.length,
+    extensionAccOp,
+    from,
+    calls
+  ])
 
   return {
     nativePrice,

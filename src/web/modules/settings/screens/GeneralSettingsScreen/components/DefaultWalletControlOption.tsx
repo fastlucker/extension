@@ -29,7 +29,7 @@ const DefaultWalletControlOption = () => {
       style={spacings.mbTy}
       title={t('Default wallet')}
       description={t(
-        'Ambire Wallet is set as your default browser wallet for connecting with dApps.'
+        'Ambire Wallet is set as your default browser wallet for connecting with apps.'
       )}
       renderIcon={<DefaultWalletIcon color={theme.primaryText} />}
     >
