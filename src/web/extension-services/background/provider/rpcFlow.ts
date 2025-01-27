@@ -95,7 +95,7 @@ const flowContext = flow
             name,
             url: origin,
             icon,
-            description: 'Custom dApp automatically added when connected for the first time.',
+            description: 'Custom app automatically added when connected for the first time.',
             favorite: false,
             chainId: 1,
             isConnected: true

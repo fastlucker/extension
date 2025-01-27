@@ -194,21 +194,21 @@ const routesConfig: {
     route: ROUTES.dappConnectRequest,
     title: Platform.select({
       web: i18n.t('Webpage Wants to Connect'),
-      default: i18n.t('dApp Wants to Connect')
+      default: i18n.t('App Wants to Connect')
     })
   },
-  [ROUTES.dappCatalog]: {
-    route: ROUTES.dappCatalog,
+  [ROUTES.appCatalog]: {
+    route: ROUTES.appCatalog,
     title: Platform.select({
-      web: i18n.t('dApp Catalog'),
-      default: i18n.t('dApp Catalog')
+      web: i18n.t('App Catalog'),
+      default: i18n.t('App Catalog')
     })
   },
   [ROUTES.watchAsset]: {
     route: ROUTES.watchAsset,
     title: Platform.select({
       web: i18n.t('Webpage Wants to Add Token'),
-      default: i18n.t('dApp Wants to Add Token')
+      default: i18n.t('App Wants to Add Token')
     })
   },
   [ROUTES.menu]: {
@@ -239,7 +239,7 @@ const routesConfig: {
   [ROUTES.connect]: {
     route: ROUTES.connect,
     title: Platform.select({
-      default: i18n.t('Connect a dApp')
+      default: i18n.t('Connect an app')
     })
   },
   [ROUTES.swap]: {
@@ -256,9 +256,9 @@ const routesConfig: {
     route: ROUTES.web3Browser,
     title: ''
   },
-  [ROUTES.dappsCatalog]: {
-    route: ROUTES.dappsCatalog,
-    title: i18n.t('dApps')
+  [ROUTES.appCatalog]: {
+    route: ROUTES.appCatalog,
+    title: i18n.t('App Catalog')
   },
   [ROUTES.enableOtp2FA]: {
     route: ROUTES.enableOtp2FA,

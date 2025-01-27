@@ -52,7 +52,7 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
       return 'EIP-7702 Authorization'
     }
 
-    return signedMessage.dapp?.name || 'Unknown dApp'
+    return signedMessage.dapp?.name || 'Unknown App'
   }, [signedMessage.dapp?.name, signedMessage.fromActionId, signedMessage.content.kind])
 
   return (

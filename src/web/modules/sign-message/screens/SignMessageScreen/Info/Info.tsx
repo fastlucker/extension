@@ -58,7 +58,7 @@ const Info: FC<Props> = () => {
               appearance="secondaryText"
               weight="semiBold"
             >
-              {dapp?.name || t('The dApp')}
+              {dapp?.name || t('The App')}
             </Text>
             <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
               {t('is requesting your signature ')}
