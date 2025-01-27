@@ -10,6 +10,7 @@ import StarFilledIcon from '@common/assets/svg/StarFilledIcon'
 import { SectionedSelect } from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -32,6 +33,7 @@ const ToTokenSelect: React.FC<Props> = ({
   handleAddToTokenByAddress
 }) => {
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const { portfolio } = useSelectedAccountControllerState()
   const [didAttemptSearchingTokenByAddress, setDidAttemptSearchingTokenByAddress] =
     React.useState(false)
@@ -100,7 +102,7 @@ const ToTokenSelect: React.FC<Props> = ({
           spacings.ph,
           spacings.pt,
           section?.key === 'swap-and-bridge-to-account-tokens' ? spacings.pbSm : spacings.pbSm,
-          { height: 50 }
+          { height: 50, backgroundColor: theme.primaryBackground }
         ]}
       >
         {section.title.icon}
@@ -128,6 +130,7 @@ const ToTokenSelect: React.FC<Props> = ({
       attemptToFetchMoreOptions={handleAttemptToFetchMoreOptions}
       containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
       selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+      stickySectionHeadersEnabled
     />
   )
 }
