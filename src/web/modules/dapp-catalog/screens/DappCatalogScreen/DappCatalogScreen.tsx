@@ -163,7 +163,7 @@ const DappCatalogScreen = () => {
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <View style={[flexbox.flex1, spacings.mr]}>
               <Search
-                placeholder={t('Search for dApp')}
+                placeholder={t('Search for an app')}
                 control={control}
                 setValue={setValue}
                 autoFocus
@@ -202,7 +202,7 @@ const DappCatalogScreen = () => {
           keyExtractor={(item: Dapp) => item.url.toString()}
           ListEmptyComponent={
             <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
-              <Text style={text.center}>{t('No dApp found')}</Text>
+              <Text style={text.center}>{t('No app found')}</Text>
             </View>
           }
         />
