@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 
 import CloseIcon from '@legends/components/CloseIcon'
 import useEscModal from '@legends/hooks/useEscModal'
+
 import styles from './Modal.module.scss'
 
 type ComponentProps = {

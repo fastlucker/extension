@@ -9,14 +9,16 @@ import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
+import TreasureChestClosed from '@legends/common/assets/svg/TreasureChestClosed'
+import MidnightTimer from '@legends/components/MidnightTimer'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
+import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 
-import MidnightTimer from '@legends/components/MidnightTimer'
 import wheelBackgroundImage from './assets/wheel-background.png'
 import Link from './components/Link'
 import Socials from './components/Socials'
@@ -44,10 +46,12 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { addToast } = useToast()
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const { wheelSpinOfTheDay, legends, isLoading } = useLegendsContext()
+  const { wheelSpinOfTheDay, treasureChestOpenedForToday, legends, isLoading } = useLegendsContext()
+  const [isTreasureChestModalOpen, setIsTreasureChestModalOpen] = useState(false)
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
+  const isChestOpenedForToday = treasureChestOpenedForToday
   const { startPolling, stopPolling } = useDataPollingContext()
 
   const handleWheelOpen = () => {
@@ -115,8 +119,14 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             </div>
           </div>
         </div>
+
         <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />
         <WheelComponent isOpen={isFortuneWheelModalOpen} handleClose={handleWheelClose} />
+
+        <TreasureChestComponentModal
+          isOpen={isTreasureChestModalOpen}
+          setIsOpen={setIsTreasureChestModalOpen}
+        />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
             <Link
@@ -128,6 +138,28 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
               newTab={link.newTab}
             />
           ))}
+        </div>
+
+        <div
+          className={styles.treasureChestWrapper}
+          onClick={() => setIsTreasureChestModalOpen(true)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setIsTreasureChestModalOpen(true)
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Open Treasure Chest"
+        >
+          {isChestOpenedForToday ? (
+            <div className={styles.chestAvailableLabel}>
+              <MidnightTimer type="minutes" />
+            </div>
+          ) : (
+            ''
+          )}
+          <TreasureChestClosed width={100} height={80} />
         </div>
       </div>
       <div>

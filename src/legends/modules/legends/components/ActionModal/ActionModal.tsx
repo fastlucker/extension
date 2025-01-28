@@ -6,6 +6,7 @@ import { CardActionComponentProps } from '@legends/modules/legends/components/Ca
 import Rewards from '@legends/modules/legends/components/Card/CardContent/Rewards'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
+import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
 
@@ -72,6 +73,10 @@ const ActionModal: FC<ActionModalProps> = ({
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
     return <WheelComponentModal isOpen={isOpen} handleClose={closeActionModal} />
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.chest) {
+    return <TreasureChestComponentModal isOpen={isOpen} setIsOpen={setIsOpen} />
   }
 
   return (

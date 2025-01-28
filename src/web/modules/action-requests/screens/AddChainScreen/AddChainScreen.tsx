@@ -180,7 +180,7 @@ const AddChainScreen = () => {
           </View>
           <View style={styles.dappInfoContent}>
             <View style={[flexbox.flex1, spacings.phLg]}>
-              <Trans values={{ name: requestSession?.name || 'The dApp' }}>
+              <Trans values={{ name: requestSession?.name || 'The App' }}>
                 <Text style={text.center}>
                   <Text fontSize={20} appearance="secondaryText">
                     {t('Allow ')}
@@ -215,7 +215,8 @@ const AddChainScreen = () => {
                 <Text fontSize={16} weight="semiBold" appearance="secondaryText">
                   {t('Ambire Wallet does not verify custom networks.')}
                 </Text>
-                <Text>
+                {/* TODO: Temporarily hidden since v4.50.0, because the URL is not public yet (article is WIP) */}
+                {/* <Text>
                   <Text fontSize={14} appearance="secondaryText">
                     {t('Learn about ')}
                   </Text>
@@ -232,7 +233,7 @@ const AddChainScreen = () => {
                   <Text fontSize={14} appearance="secondaryText">
                     {t('.')}
                   </Text>
-                </Text>
+                </Text> */}
               </View>
               {!!networkDetails && (
                 <NetworkAvailableFeatures
@@ -251,7 +252,7 @@ const AddChainScreen = () => {
               title={t('Invalid Request Params')}
               text={t(
                 `${
-                  userRequest?.session?.name || 'The dApp'
+                  userRequest?.session?.name || 'The App'
                 } provided invalid params for adding a new network.`
               )}
               type="error"

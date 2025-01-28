@@ -61,7 +61,7 @@ const GetEncryptionPublicKeyRequestScreen = () => {
             <Trans>
               <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
                 <Text fontSize={14} weight="regular">
-                  {'The dApp '}
+                  {'The App '}
                 </Text>
                 <Text fontSize={14} weight="regular" color={colors.heliotrope}>
                   {userRequest?.session?.name || ''}

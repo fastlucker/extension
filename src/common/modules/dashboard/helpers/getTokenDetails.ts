@@ -86,13 +86,15 @@ const getAndFormatTokenDetails = (
     : undefined
 
   const pendingAmountsFormatted = formatPendingAmounts(
-    calculatePendingAmounts(
-      latestAmount || 0n,
-      pendingAmount || 0n,
-      amountPostSimulation,
-      simulationAmount,
-      simulatedAccountOp
-    ),
+    pendingAmount
+      ? calculatePendingAmounts(
+          latestAmount || 0n,
+          pendingAmount || 0n,
+          amountPostSimulation,
+          simulationAmount,
+          simulatedAccountOp
+        )
+      : null,
     decimals,
     priceUSD!
   )
