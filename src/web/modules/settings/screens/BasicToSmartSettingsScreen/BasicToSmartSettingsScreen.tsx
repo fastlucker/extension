@@ -16,14 +16,17 @@ import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import useWindowSize from '@common/hooks/useWindowSize'
+import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
@@ -34,9 +37,11 @@ const BasicToSmartSettingsScreen = () => {
   const { accountStates, accounts } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { keys } = useKeystoreControllerState()
-  const { maxWidthSize } = useWindowSize()
+  const { maxWidthSize, height } = useWindowSize()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
+  const signMessageState = useSignMessageControllerState()
+  const [showConfetti, setShowConfetti] = useState<boolean>(false)
 
   useEffect(() => {
     setCurrentSettingsPage('basic-to-smart')
@@ -48,6 +53,10 @@ const BasicToSmartSettingsScreen = () => {
     },
     [keys]
   )
+
+  useEffect(() => {
+    if (signMessageState.statuses.sign === 'SUCCESS') setShowConfetti(true)
+  }, [signMessageState.statuses.sign])
 
   const canSelectedAccountBeTransformedToSmart = useMemo(() => {
     if (!accountData) return false
@@ -211,6 +220,9 @@ const BasicToSmartSettingsScreen = () => {
                   />
                 </View>
               </View>
+              {showConfetti && (
+                <ConfettiAnimation width={TAB_CONTENT_WIDTH} height={height} autoPlay={false} />
+              )}
             </View>
           ))}
         </>
