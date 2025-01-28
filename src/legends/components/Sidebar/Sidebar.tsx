@@ -72,6 +72,15 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
     setIsLeaderModalOpen(false)
   }
 
+  const handleTreasureOpen = () => {
+    stopPolling()
+    setIsTreasureChestModalOpen(true)
+  }
+  const handleTreasureClose = () => {
+    startPolling()
+    setIsTreasureChestModalOpen(false)
+  }
+
   const copyInvitationKey = () => {
     if (!legendLeader?.meta?.invitationKey) {
       addToast('No invitation key to copy', { type: 'error' })
@@ -125,7 +134,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
         <TreasureChestComponentModal
           isOpen={isTreasureChestModalOpen}
-          setIsOpen={setIsTreasureChestModalOpen}
+          handleClose={handleTreasureClose}
         />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
@@ -142,10 +151,10 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
         <div
           className={styles.treasureChestWrapper}
-          onClick={() => setIsTreasureChestModalOpen(true)}
+          onClick={() => handleTreasureOpen()}
           onKeyPress={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
-              setIsTreasureChestModalOpen(true)
+              handleTreasureOpen()
             }
           }}
           role="button"
