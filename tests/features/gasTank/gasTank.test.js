@@ -11,6 +11,7 @@ import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { MOCK_RESPONSE, GAS_TANK_TOP_UP_AMOUNT, CONFETTI_MODAL_WAIT_TIME } from './constants'
 import { wait } from '../auth/functions'
 import { mockPortfolioResponse } from './functions'
+import { checkBalanceOfToken } from '../../common-helpers/checkBalanceOfToken'
 
 describe('Gas Tank tests with Smart Account', () => {
   let browser
@@ -37,7 +38,7 @@ describe('Gas Tank tests with Smart Account', () => {
     await browser.close()
   })
 
-  it('Top up gas tank with 0.0001 ETH on Base and pay with Gas Tank', async () => {
+  it('Top up Gas Tank with 0.0001 ETH on Base and pay with Gas Tank', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenBaseDashboard,
@@ -68,7 +69,6 @@ describe('Gas Tank tests with Smart Account', () => {
 describe('Gas Tank tests with Basic Account', () => {
   let browser
   let page
-  // let extensionURL
   let recorder
 
   beforeEach(async () => {
@@ -89,5 +89,21 @@ describe('Gas Tank tests with Basic Account', () => {
     )
 
     expect(gasTankButtonText).toBe('Discover Gas Tank')
+  })
+
+  it('The topping up Gas Tank functionality should be disabled', async () => {
+    await page.waitForFunction(() => window.location.href.includes('/dashboard'))
+
+    // Check ths balance of the selected token if it's lower than 'minBalance' and throws an error if it is
+    await checkBalanceOfToken(page, SELECTORS.nativeTokenBaseDashboard, 0.0001)
+
+    // Click on the token, which opens the modal with actions
+    await clickOnElement(page, SELECTORS.nativeTokenBaseDashboard)
+
+    const ariaDisabledValue = await page.$eval(SELECTORS.topUpButton, (el) =>
+      el.getAttribute('data-tooltip-id')
+    )
+
+    expect(ariaDisabledValue).toBe('tooltip-top-up')
   })
 })
