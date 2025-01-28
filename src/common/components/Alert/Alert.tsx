@@ -26,6 +26,7 @@ interface Props {
   isTypeLabelHidden?: boolean
   buttonProps?: ButtonProps
   customIcon?: React.FC<SvgProps>
+  testID?: string
 }
 
 const ICON_MAP = {
@@ -68,7 +69,8 @@ const Alert = ({
   size = 'md',
   isTypeLabelHidden = true,
   buttonProps,
-  customIcon: CustomIcon
+  customIcon: CustomIcon,
+  testID
 }: Props) => {
   const Icon = ICON_MAP[type]
   const { theme } = useTheme()
@@ -89,6 +91,7 @@ const Alert = ({
         },
         style
       ]}
+      testID={testID}
     >
       <View style={[!isSmall && spacings.mr, !!isSmall && spacings.mrTy]}>
         {CustomIcon ? (
