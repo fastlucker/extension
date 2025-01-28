@@ -27,7 +27,7 @@ const COMMON_ROUTES = {
   noConnection: 'no-connection',
   backup: 'backup',
   accounts: 'accounts',
-  dappCatalog: 'dapp-catalog'
+  appCatalog: 'app-catalog'
 }
 
 const MOBILE_ROUTES = {

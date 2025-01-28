@@ -5,6 +5,7 @@ import { isSmartAccount } from '@ambire-common/libs/account/account'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import AmbireLogoHorizontalWithOG from '@common/components/AmbireLogoHorizontalWithOG/AmbireLogoHorizontalWithOG'
 import Avatar from '@common/components/Avatar'
 import DomainBadge from '@common/components/Avatar/DomainBadge'
 import Text from '@common/components/Text'
@@ -23,11 +24,12 @@ import getStyles from './styles'
 
 interface Props {
   withAmbireLogo?: boolean
+  withOG?: boolean
 }
 
 // @TODO: Not renamed because this component will no longer exist in the near future
 // @TODO: refactor the header component @petromir.
-const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true }) => {
+const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true, withOG = false }) => {
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
@@ -66,7 +68,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true }) => {
         </View>
         {!!withAmbireLogo && maxWidthSize(700) && (
           <View style={spacings.pl}>
-            <AmbireLogoHorizontal />
+            {withOG ? <AmbireLogoHorizontalWithOG /> : <AmbireLogoHorizontal />}
           </View>
         )}
       </View>

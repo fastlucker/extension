@@ -37,7 +37,7 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
       return 'Entry Point Authorization'
     }
 
-    return signedMessage.dapp?.name || 'Unknown dApp'
+    return signedMessage.dapp?.name || 'Unknown App'
   }, [signedMessage.dapp?.name, signedMessage.fromActionId])
 
   return (

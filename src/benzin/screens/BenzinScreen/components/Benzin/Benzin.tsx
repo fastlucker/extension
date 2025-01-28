@@ -27,8 +27,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
   const { maxWidthSize } = useWindowSize()
 
   const summary = useMemo(() => {
-    if (!state || !state.stepsState) return []
-    const calls = state.stepsState.calls
+    const calls = state?.stepsState?.calls
     if (!calls) return []
 
     // if there's an userOpHash & txnId but no callData decoded,
@@ -58,7 +57,14 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
         size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
       />
     ))
-  }, [state])
+  }, [
+    state?.handleOpenExplorer,
+    state?.network,
+    state?.stepsState?.calls,
+    state?.stepsState?.userOp,
+    state?.txnId,
+    state?.userOpHash
+  ])
 
   if (state && !state?.isInitialized)
     return (
