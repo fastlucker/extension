@@ -258,9 +258,6 @@ const TokenDetails = ({
         token: {
           address: token.address,
           networkId: token.networkId
-        },
-        options: {
-          skipPortfolioUpdate: true
         }
       }
     })

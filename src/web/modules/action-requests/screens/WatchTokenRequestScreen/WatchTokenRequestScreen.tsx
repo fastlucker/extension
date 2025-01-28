@@ -212,9 +212,12 @@ const WatchTokenRequestScreen = () => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN',
       params: {
-        address: getAddress(tokenData.address),
-        standard: 'ERC20',
-        networkId: tokenNetwork?.id
+        token: {
+          address: getAddress(tokenData.address),
+          standard: 'ERC20',
+          networkId: tokenNetwork?.id
+        },
+        shouldUpdatePortfolio: true
       }
     })
 

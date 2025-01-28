@@ -15,9 +15,16 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 
 import getStyles from './styles'
 
-type Props = TokenResult
+type Props = TokenResult & {
+  onTokenPreferenceOrCustomTokenChange: () => void
+}
 
-const HideTokenTokenItem: FC<Props> = ({ address, symbol, networkId }) => {
+const HideTokenTokenItem: FC<Props> = ({
+  address,
+  symbol,
+  networkId,
+  onTokenPreferenceOrCustomTokenChange
+}) => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { tokenPreferences, customTokens } = usePortfolioControllerState()
@@ -34,18 +41,24 @@ const HideTokenTokenItem: FC<Props> = ({ address, symbol, networkId }) => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
       params: {
-        address,
-        networkId
+        token: {
+          address,
+          networkId
+        }
       }
     })
-  }, [dispatch, address, networkId])
+    onTokenPreferenceOrCustomTokenChange()
+  }, [dispatch, address, networkId, onTokenPreferenceOrCustomTokenChange])
 
   const removeCustomToken = useCallback(() => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN',
-      params: { address, networkId }
+      params: {
+        token: { address, networkId }
+      }
     })
-  }, [address, dispatch, networkId])
+    onTokenPreferenceOrCustomTokenChange()
+  }, [address, dispatch, networkId, onTokenPreferenceOrCustomTokenChange])
 
   return (
     <View

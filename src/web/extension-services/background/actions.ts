@@ -245,7 +245,7 @@ type MainControllerUpdateSelectedAccountPortfolio = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
   params?: {
     forceUpdate?: boolean
-    network: Network
+    network?: Network
   }
 }
 
@@ -264,21 +264,25 @@ type PortfolioControllerGetTemporaryToken = {
 
 type PortfolioControllerAddCustomToken = {
   type: 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN'
-  params: CustomToken
+  params: {
+    token: CustomToken
+    shouldUpdatePortfolio?: boolean
+  }
 }
 
 type PortfolioControllerRemoveCustomToken = {
   type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN'
-  params: Omit<CustomToken, 'standard'>
+  params: {
+    token: Omit<CustomToken, 'standard'>
+    shouldUpdatePortfolio?: boolean
+  }
 }
 
 type PortfolioControllerToggleHideToken = {
   type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN'
   params: {
     token: Omit<TokenPreference, 'isHidden'>
-    options?: {
-      skipPortfolioUpdate?: boolean
-    }
+    shouldUpdatePortfolio?: boolean
   }
 }
 

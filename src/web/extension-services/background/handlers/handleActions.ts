@@ -404,19 +404,24 @@ export const handleActions = async (
       )
     }
     case 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN': {
-      return await mainCtrl.portfolio.addCustomToken(params, mainCtrl.selectedAccount.account?.addr)
+      return await mainCtrl.portfolio.addCustomToken(
+        params.token,
+        mainCtrl.selectedAccount.account?.addr,
+        params.shouldUpdatePortfolio
+      )
     }
     case 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN': {
       return await mainCtrl.portfolio.removeCustomToken(
-        params,
-        mainCtrl.selectedAccount.account?.addr
+        params.token,
+        mainCtrl.selectedAccount.account?.addr,
+        params.shouldUpdatePortfolio
       )
     }
     case 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN': {
       return await mainCtrl.portfolio.toggleHideToken(
         params.token,
         mainCtrl.selectedAccount.account?.addr,
-        params.options
+        params.shouldUpdatePortfolio
       )
     }
     case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {

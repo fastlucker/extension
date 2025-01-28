@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FlatList, View } from 'react-native'
 
@@ -8,6 +8,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
@@ -15,10 +16,12 @@ import HideTokenTokenItem from './TokenItem'
 
 const HideToken = () => {
   const { t } = useTranslation()
+  const { dispatch } = useBackgroundService()
   const { tokenPreferences, customTokens } = usePortfolioControllerState()
   const [initialTokenPreferences, setInitialTokenPreferences] = useState<TokenPreference[] | null>(
     null
   )
+  const debouncedPortfolioUpdateInterval = useRef<NodeJS.Timeout | null>(null)
   const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',
@@ -95,7 +98,33 @@ const HideToken = () => {
     [selectedAccountPortfolio?.tokens, customTokens, initialTokenPreferences, searchValue]
   )
 
-  const renderItem = useCallback(({ item }: any) => <HideTokenTokenItem {...item} />, [])
+  const onTokenPreferenceOrCustomTokenChange = useCallback(() => {
+    if (debouncedPortfolioUpdateInterval.current) {
+      clearTimeout(debouncedPortfolioUpdateInterval.current)
+    }
+
+    debouncedPortfolioUpdateInterval.current = setTimeout(() => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
+        params: {
+          // Update the portfolio for all networks as the user may hide multiple tokens
+          // from different networks
+          forceUpdate: true
+        }
+      })
+      debouncedPortfolioUpdateInterval.current = null
+    }, 1000)
+  }, [dispatch])
+
+  const renderItem = useCallback(
+    ({ item }: any) => (
+      <HideTokenTokenItem
+        onTokenPreferenceOrCustomTokenChange={onTokenPreferenceOrCustomTokenChange}
+        {...item}
+      />
+    ),
+    [onTokenPreferenceOrCustomTokenChange]
+  )
 
   const keyExtractor = useCallback(
     (item: any) => `${item.address}-${item.networkId}-${item.flags?.isHidden}`,

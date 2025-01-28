@@ -120,9 +120,12 @@ const AddToken = () => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN',
       params: {
-        address: temporaryToken.address,
-        networkId: network.id,
-        standard: 'ERC20'
+        token: {
+          address: temporaryToken.address,
+          networkId: network.id,
+          standard: 'ERC20'
+        },
+        shouldUpdatePortfolio: true
       }
     })
     reset({ address: '' })
