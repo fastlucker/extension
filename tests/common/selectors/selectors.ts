@@ -91,7 +91,8 @@ export const TEST_IDS = {
   nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-base',
   bannerButtonOpen: 'banner-button-open',
   confettiModalActionButton: 'confetti-modal-action-button',
-  refreshButton: 'refresh-button'
+  refreshButton: 'refresh-button',
+  dashboardGasTankButton: 'dashboard-gas-tank-button'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

@@ -1,19 +1,18 @@
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
-import { saParams } from '../../config/constants'
+import { saParams, baParams } from '../../config/constants'
 import { SELECTORS } from '../../common/selectors/selectors'
 import { buildFeeTokenSelector } from '../signAccountOp/functions'
 import { USDC_TOKEN_SELECTOR } from '../signAccountOp/constants'
 import {
   makeValidTransaction,
   checkTokenBalanceClickOnGivenActionInDashboard
-} from '../../common/transactions.js'
-
+} from '../../common/transactions'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
-import { MOCK_RESPONSE } from './constants'
+import { MOCK_RESPONSE, GAS_TANK_TOP_UP_AMOUNT, CONFETTI_MODAL_WAIT_TIME } from './constants'
 import { wait } from '../auth/functions'
+import { mockPortfolioResponse } from './functions'
 
-// TODO: Fix the describe title
-describe('Gas Tank tests', () => {
+describe('Gas Tank tests with Smart Account', () => {
   let browser
   let page
   let extensionURL
@@ -28,7 +27,7 @@ describe('Gas Tank tests', () => {
 
   beforeEach(async () => {
     ;({ browser, page, recorder, extensionURL, serviceWorker } = await bootstrapWithStorage(
-      'gas_tank',
+      'gas_tank_sa',
       saParams
     ))
   })
@@ -38,7 +37,7 @@ describe('Gas Tank tests', () => {
     await browser.close()
   })
 
-  it.skip('Top up gas tank with 0.0001 ETH on Base and pay with Gas Tank', async () => {
+  it('Top up gas tank with 0.0001 ETH on Base and pay with Gas Tank', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenBaseDashboard,
@@ -46,7 +45,7 @@ describe('Gas Tank tests', () => {
     )
 
     await makeValidTransaction(page, extensionURL, browser, {
-      tokenAmount: '0.0001',
+      tokenAmount: GAS_TANK_TOP_UP_AMOUNT,
       feeToken: feeTokenWithGasTankSelector,
       shouldTopUpGasTank: true
     })
@@ -55,40 +54,40 @@ describe('Gas Tank tests', () => {
   it('Test Confetti modal on first cashback', async () => {
     const client = await serviceWorker.client
 
-    await client.send('Fetch.enable', {
-      patterns: [{ urlPattern: '*', requestStage: 'Response' }]
-    })
-
-    let isMocked = false
-
-    client.on('Fetch.requestPaused', async (event) => {
-      if (!isMocked && event.request.url.includes('portfolio-additional')) {
-        await client.send('Fetch.fulfillRequest', {
-          requestId: event.requestId,
-          responseCode: 200,
-          responseHeaders: [{ name: 'Content-Type', value: 'application/json' }],
-          body: Buffer.from(JSON.stringify(MOCK_RESPONSE)).toString('base64')
-        })
-
-        isMocked = true
-
-        // Disable interception after the first request is mocked
-        await client.send('Fetch.disable')
-      } else {
-        // Continue if it's not the request we want to mock or already mocked once
-        await client.send('Fetch.continueRequest', { requestId: event.requestId })
-      }
-    })
+    await mockPortfolioResponse(client, MOCK_RESPONSE)
 
     await clickOnElement(page, SELECTORS.refreshButton)
-
-    // Wait until 'You just got receive your first cashback' modal pops up
-    await wait(5000)
+    await wait(CONFETTI_MODAL_WAIT_TIME)
 
     await clickOnElement(page, SELECTORS.refreshButton)
-    // Click on 'You've got cashback!' 'Open' button
     await clickOnElement(page, SELECTORS.bannerButtonOpen)
-    // Click on 'Got it' button in 'You just got receive your first cashback' modal
     await clickOnElement(page, SELECTORS.confettiModalActionButton, true, 500)
+  })
+})
+
+describe('Gas Tank tests with Basic Account', () => {
+  let browser
+  let page
+  // let extensionURL
+  let recorder
+
+  beforeEach(async () => {
+    ;({ browser, page, recorder } = await bootstrapWithStorage('gas_tank_ba', baParams))
+  })
+
+  afterEach(async () => {
+    await recorder.stop()
+    await browser.close()
+  })
+
+  it('Check if Gas Tank is disabled for Basic Account', async () => {
+    await page.waitForSelector(SELECTORS.dashboardGasTankButton)
+
+    const gasTankButtonText = await page.$eval(
+      SELECTORS.dashboardGasTankButton,
+      (el) => el.innerText
+    )
+
+    expect(gasTankButtonText).toBe('Discover Gas Tank')
   })
 })

@@ -79,6 +79,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           ...(gasTankTotalBalanceInUsd === 0 && { borderWidth: 1, borderColor: theme.primaryLight })
         }}
         {...bindGasTankBtnAim}
+        testID="dashboard-gas-tank-button"
       >
         <GasTankIcon width={20} color="white" />
         {isSA ? (
