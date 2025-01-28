@@ -37,10 +37,10 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       isExternal: false
     },
     {
-      testID: 'dashboard-button-dapps',
+      testID: 'dashboard-button-apps',
       icon: DAppsIcon,
-      label: t('dApps'),
-      route: WEB_ROUTES.dappCatalog,
+      label: t('Apps'),
+      route: WEB_ROUTES.appCatalog,
       isExternal: false
     }
   ]
