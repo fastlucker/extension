@@ -8,6 +8,7 @@ import WarningIcon from '@common/assets/svg/WarningIcon'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
@@ -88,10 +89,13 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
     closeBottomSheet()
   }, [closeBottomSheet])
 
-  const onReloadPress = useCallback(() => {
-    reloadAccount()
+  const onButtonPress = useCallback(() => {
+    if (!areErrorsOutdatedAndPortfolioIsReady) {
+      reloadAccount()
+    }
+
     closeBottomSheetWrapped()
-  }, [closeBottomSheetWrapped, reloadAccount])
+  }, [areErrorsOutdatedAndPortfolioIsReady, closeBottomSheetWrapped, reloadAccount])
 
   const renderWarningIcon = useCallback(() => {
     return (
@@ -107,10 +111,10 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
   }, [theme.warningDecorative, warningMessage])
 
   const renderItem = useCallback(
-    ({ item: { id, title, text, type, actions } }: any) => (
+    ({ item: { id, title, text, type, actions }, index }: any) => (
       <Alert
         key={id}
-        style={spacings.mbSm}
+        style={index !== balanceAffectingErrorsSnapshot.length - 1 ? spacings.mbSm : spacings.mb0}
         title={title}
         text={text}
         type={type}
@@ -129,7 +133,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
           })}
       </Alert>
     ),
-    [closeBottomSheetWrapped]
+    [balanceAffectingErrorsSnapshot.length, closeBottomSheetWrapped]
   )
 
   const flashingOpacity = useMemo(() => new Animated.Value(1), [])
@@ -213,31 +217,31 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheetWrapped}
         flatListProps={{
-          ListHeaderComponent: (
-            <Header
-              areErrorsOutdatedAndPortfolioIsReady={areErrorsOutdatedAndPortfolioIsReady}
-              closeBottomSheetWrapped={closeBottomSheetWrapped}
-            />
-          ),
+          ListHeaderComponent: <Header />,
           stickyHeaderIndices: [0],
           ListFooterComponent: (
             <View
               style={[
-                spacings.ptLg,
-                flexbox.directionRow,
+                !areErrorsOutdatedAndPortfolioIsReady ? spacings.ptLg : spacings.ptMd,
                 flexbox.alignCenter,
                 flexbox.justifySpaceBetween
               ]}
             >
+              {areErrorsOutdatedAndPortfolioIsReady ? (
+                <Text fontSize={16} style={spacings.mbMd}>
+                  {t('All errors have been resolved. Feel free to close this modal.')}
+                </Text>
+              ) : null}
               <Button
                 style={{ width: '100%' }}
                 hasBottomSpacing={false}
-                text={t('Reload account')}
-                onPress={onReloadPress}
+                text={!areErrorsOutdatedAndPortfolioIsReady ? t('Reload account') : t('Close')}
+                onPress={onButtonPress}
               />
             </View>
           ),
           data: balanceAffectingErrorsSnapshot,
+          extraData: areErrorsOutdatedAndPortfolioIsReady,
           keyExtractor: ({ id }) => id,
           renderItem
         }}
