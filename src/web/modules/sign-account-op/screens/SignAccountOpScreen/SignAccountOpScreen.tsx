@@ -5,7 +5,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { isBasicAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
@@ -20,6 +20,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -41,6 +42,7 @@ const SignAccountOpScreen = () => {
   const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
+  const { accountStates } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
@@ -393,7 +395,12 @@ const SignAccountOpScreen = () => {
             onReject={handleRejectAccountOp}
             onAddToCart={handleAddToCart}
             isAddToCartDisplayed={
-              !!signAccountOpState && isSmartAccount(signAccountOpState.account)
+              !!signAccountOpState &&
+              !!network &&
+              !isBasicAccount(
+                signAccountOpState.account,
+                accountStates[signAccountOpState.account.addr][network.id]
+              )
             }
             isSignLoading={isSignLoading}
             isSignDisabled={
