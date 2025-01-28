@@ -36,6 +36,16 @@ const handleSignMessage = (requestRes: RequestRes) => {
   throw new Error('Internal error: request result not found', requestRes)
 }
 
+const networkChainIdToHex = (chainId: number | bigint) => {
+  try {
+    // Remove leading zero in hex representation
+    // to match the format expected by dApps (e.g., "0xa" instead of "0x0a")
+    return toBeHex(chainId).replace(/^0x0/, '0x')
+  } catch (error) {
+    return `0x${chainId.toString(16)}`
+  }
+}
+
 export class ProviderController {
   mainCtrl: MainController
 
@@ -170,9 +180,9 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   ethChainId = async ({ session: { origin } }: DappProviderRequest) => {
     if (this.mainCtrl.dapps.hasPermission(origin)) {
-      return toBeHex(this.mainCtrl.dapps.getDapp(origin)?.chainId || 1)
+      return networkChainIdToHex(this.mainCtrl.dapps.getDapp(origin)?.chainId || 1)
     }
-    return toBeHex(1)
+    return networkChainIdToHex(1)
   }
 
   @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
@@ -288,7 +298,7 @@ export class ProviderController {
 
     const capabilities: any = {}
     this.mainCtrl.networks.networks.forEach((network) => {
-      capabilities[toBeHex(network.chainId)] = {
+      capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {
           supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
         },
@@ -380,7 +390,7 @@ export class ProviderController {
         {
           logs: receipt.logs,
           status,
-          chainId: toBeHex(network.chainId),
+          chainId: networkChainIdToHex(network.chainId),
           blockHash: isUserOp ? receipt.receipt.blockHash : receipt.blockHash,
           blockNumber: isUserOp
             ? receipt.receipt.blockNumber
