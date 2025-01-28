@@ -105,6 +105,7 @@ const CongratsFirstCashbackModal = ({ onPress, position, portfolio, account }: P
           </View>
           <View style={[flexbox.directionRow, flexbox.justifyEnd]}>
             <Button
+              testID="confetti-modal-action-button"
               type="secondary"
               size="small"
               text={t('Got it')}

@@ -151,6 +151,7 @@ const DashboardBanner = ({
 
         return (
           <BannerButton
+            testID={`banner-button-${actionText.toLowerCase()}`}
             key={action.actionName}
             isReject={isReject}
             text={actionText}

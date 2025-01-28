@@ -8,9 +8,9 @@ import {
   checkTokenBalanceClickOnGivenActionInDashboard
 } from '../../common/transactions.js'
 
-import { getBackgroundRequestsByType, monitorRequests } from '../../common/requests'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { MOCK_RESPONSE } from './constants'
+import { wait } from '../auth/functions'
 
 // TODO: Fix the describe title
 describe('Gas Tank tests', () => {
@@ -35,7 +35,7 @@ describe('Gas Tank tests', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
   it.skip('Top up gas tank with 0.0001 ETH on Base and pay with Gas Tank', async () => {
@@ -63,8 +63,6 @@ describe('Gas Tank tests', () => {
 
     client.on('Fetch.requestPaused', async (event) => {
       if (!isMocked && event.request.url.includes('portfolio-additional')) {
-        console.log('Intercepted Request:', event.request.url)
-
         await client.send('Fetch.fulfillRequest', {
           requestId: event.requestId,
           responseCode: 200,
@@ -82,8 +80,15 @@ describe('Gas Tank tests', () => {
       }
     })
 
-    // await clickOnElement(page, '[data-testid="refresh-button"]')
+    await clickOnElement(page, SELECTORS.refreshButton)
 
-    console.log('Mocking complete.')
+    // Wait until 'You just got receive your first cashback' modal pops up
+    await wait(5000)
+
+    await clickOnElement(page, SELECTORS.refreshButton)
+    // Click on 'You've got cashback!' 'Open' button
+    await clickOnElement(page, SELECTORS.bannerButtonOpen)
+    // Click on 'Got it' button in 'You just got receive your first cashback' modal
+    await clickOnElement(page, SELECTORS.confettiModalActionButton, true, 500)
   })
 })
