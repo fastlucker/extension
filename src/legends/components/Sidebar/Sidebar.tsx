@@ -14,6 +14,7 @@ import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
+import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 
 import MidnightTimer from '@legends/components/MidnightTimer'
 import wheelBackgroundImage from './assets/wheel-background.png'
@@ -47,13 +48,24 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
+  const { startPolling, stopPolling } = useDataPollingContext()
 
-  const handleModal = () => {
-    setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
+  const handleWheelOpen = () => {
+    stopPolling()
+    setIsFortuneWheelModalOpen(true)
+  }
+  const handleWheelClose = () => {
+    startPolling()
+    setIsFortuneWheelModalOpen(false)
   }
 
-  const handleLeaderModal = () => {
-    setIsLeaderModalOpen(!isLeaderModalOpen)
+  const handleLeaderOpen = () => {
+    stopPolling()
+    setIsLeaderModalOpen(true)
+  }
+  const handleLeaderClose = () => {
+    startPolling()
+    setIsLeaderModalOpen(false)
   }
 
   const copyInvitationKey = () => {
@@ -93,7 +105,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
               <span className={styles.wheelTitle}>Daily Legend</span>
               {wheelText}
               <button
-                onClick={handleModal}
+                onClick={handleWheelOpen}
                 disabled={wheelSpinOfTheDay}
                 type="button"
                 className={styles.wheelButton}
@@ -103,11 +115,8 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
             </div>
           </div>
         </div>
-        <LeaderModal
-          setIsLeaderModalOpen={setIsLeaderModalOpen}
-          isLeaderModalOpen={isLeaderModalOpen}
-        />
-        <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
+        <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />
+        <WheelComponent isOpen={isFortuneWheelModalOpen} handleClose={handleWheelClose} />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
             <Link
@@ -125,7 +134,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         {legendLeader && legendLeader?.meta && (
           <div className={styles.leaderSection}>
             <div className={styles.leaderHeader}>
-              <button type="button" className={styles.inviteTitle} onClick={handleLeaderModal}>
+              <button type="button" className={styles.inviteTitle} onClick={handleLeaderOpen}>
                 Invite a friend
               </button>
               <div>

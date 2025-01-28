@@ -32,7 +32,6 @@ export const useCardActionContext = () => {
 
 type ActionModalProps = {
   isOpen: boolean
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
   onLegendCompleteWrapped: (txnId: string) => Promise<void>
   closeActionModal: () => void
   predefinedId?: string
@@ -46,7 +45,6 @@ type ActionModalProps = {
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
-  setIsOpen,
   title,
   flavor,
   xp,
@@ -73,11 +71,11 @@ const ActionModal: FC<ActionModalProps> = ({
   )
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
-    return <WheelComponentModal isOpen={isOpen} setIsOpen={setIsOpen} />
+    return <WheelComponentModal isOpen={isOpen} handleClose={closeActionModal} />
   }
 
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} className={styles.modal}>
+    <Modal isOpen={isOpen} handleClose={closeActionModal} className={styles.modal}>
       <Modal.Heading className={styles.modalHeading}>
         <div className={styles.modalHeadingTitle}>{title}</div>
         {xp && <Rewards xp={xp} size="lg" />}
