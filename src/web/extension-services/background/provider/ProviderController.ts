@@ -181,13 +181,19 @@ export class ProviderController {
       if (!tokensInPortfolio) return
 
       tokens.forEach((requestedTokenAddress) => {
-        const token = (tokensInPortfolio || []).find(({ address, networkId }) => {
-          return address === requestedTokenAddress && networkId === network.id
-        })
+        const token = (tokensInPortfolio || []).find(
+          ({ address, networkId, amount, amountPostSimulation }) => {
+            return (
+              address === requestedTokenAddress &&
+              networkId === network.id &&
+              (typeof amount === 'bigint' || typeof amountPostSimulation === 'bigint')
+            )
+          }
+        )
         if (!token) return
         res[chainId].push({
           address: token.address,
-          balance: `0x${(token.pendingAmount || token.latestAmount || 0).toString(16)}`,
+          balance: `0x${(token.amountPostSimulation || token.amount || 0).toString(16)}`,
           type: 'ERC20',
           metadata: {
             symbol: token.symbol,
