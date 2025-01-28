@@ -92,7 +92,8 @@ export const TEST_IDS = {
   bannerButtonOpen: 'banner-button-open',
   confettiModalActionButton: 'confetti-modal-action-button',
   refreshButton: 'refresh-button',
-  dashboardGasTankButton: 'dashboard-gas-tank-button'
+  dashboardGasTankButton: 'dashboard-gas-tank-button',
+  createSmartAccountGasTankModalButton: 'create-smart-account-gas-tank-modal-button'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

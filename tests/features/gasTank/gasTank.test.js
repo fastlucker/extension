@@ -106,4 +106,17 @@ describe('Gas Tank tests with Basic Account', () => {
 
     expect(ariaDisabledValue).toBe('tooltip-top-up')
   })
+
+  it("Should click on 'Discover Gas Tank' then click on 'Create smart account' button", async () => {
+    await page.waitForSelector(SELECTORS.dashboardGasTankButton)
+
+    // Click on 'Discover Gas Tank' button
+    await clickOnElement(page, SELECTORS.dashboardGasTankButton)
+
+    // Click on 'Ok, create Smart Account' button in Gas Tank modal
+    await clickOnElement(page, SELECTORS.createSmartAccountGasTankModalButton, true, 500)
+
+    // Check if account adder bottom sheet is visible
+    await page.waitForSelector(SELECTORS.importExistingWallet, { visible: true, timeout: 1000 })
+  })
 })

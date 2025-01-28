@@ -278,6 +278,9 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       <View style={styles.buttonWrapper}>
         <BackButton onPress={handleClose} />
         <Button
+          testID={
+            isSA ? 'top-up-gas-tank-modal-button' : 'create-smart-account-gas-tank-modal-button'
+          }
           type="primary"
           text={isSA ? t('Top Up Gas Tank') : t('Ok, create a Smart Account')}
           size="large"
