@@ -20,6 +20,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
@@ -41,7 +42,10 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-
+  const { tokenPreferences } = usePortfolioControllerState()
+  const { isHidden } = tokenPreferences.find(
+    ({ address: addr, networkId: nId }) => addr === address && nId === networkId
+  ) || { isHidden: false }
   const { styles, theme } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [bindAnim, animStyle] = useCustomHover({
@@ -92,6 +96,22 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
     })
   }, [token, dispatch])
 
+  const closeBottomSheetWrapped = useCallback(() => {
+    if (isHidden) {
+      const network = networks.find(({ id }) => id === token.networkId)
+      if (!network) return
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
+        params: {
+          network,
+          forceUpdate: true
+        }
+      })
+    }
+    closeBottomSheet()
+  }, [closeBottomSheet, dispatch, isHidden, networks, token.networkId])
+
   const textColor = useMemo(() => {
     if (!isPending) return theme.primaryText
 
@@ -109,9 +129,9 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
       <BottomSheet
         id={`token-details-${address}`}
         sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
+        closeBottomSheet={closeBottomSheetWrapped}
       >
-        <TokenDetails token={token} handleClose={closeBottomSheet} />
+        <TokenDetails token={token} handleClose={closeBottomSheetWrapped} />
       </BottomSheet>
       <View style={flexboxStyles.flex1}>
         <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>

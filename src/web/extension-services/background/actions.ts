@@ -241,6 +241,14 @@ type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
 }
 
+type MainControllerUpdateSelectedAccountPortfolio = {
+  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
+  params?: {
+    forceUpdate?: boolean
+    network: Network
+  }
+}
+
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
   params: { dashboardNetworkFilter: NetworkId | null }
@@ -266,7 +274,12 @@ type PortfolioControllerRemoveCustomToken = {
 
 type PortfolioControllerToggleHideToken = {
   type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN'
-  params: Omit<TokenPreference, 'isHidden'>
+  params: {
+    token: Omit<TokenPreference, 'isHidden'>
+    options?: {
+      skipPortfolioUpdate?: boolean
+    }
+  }
 }
 
 type PortfolioControllerCheckToken = {
@@ -618,6 +631,7 @@ export type Action =
   | MainControllerSignAccountOpUpdateAction
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
+  | MainControllerUpdateSelectedAccountPortfolio
   | SelectedAccountSetDashboardNetworkFilter
   | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken

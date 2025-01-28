@@ -390,6 +390,9 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount()
     }
+    case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
+      return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)
+    }
 
     case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
       if (!mainCtrl.selectedAccount.account) return
@@ -411,8 +414,9 @@ export const handleActions = async (
     }
     case 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN': {
       return await mainCtrl.portfolio.toggleHideToken(
-        params,
-        mainCtrl.selectedAccount.account?.addr
+        params.token,
+        mainCtrl.selectedAccount.account?.addr,
+        params.options
       )
     }
     case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
