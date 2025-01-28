@@ -187,6 +187,13 @@ type MainControllerRejectUserRequestAction = {
   type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
   params: { err: string; id: UserRequest['id'] }
 }
+type MainControllerRejectAccountOpCall = {
+  type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP_CALL'
+  params: {
+    indexOfCall: number
+    numberOfCalls: number
+  }
+}
 type MainControllerResolveAccountOpAction = {
   type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
   params: { data: any; actionId: AccountOpAction['id'] }
@@ -599,6 +606,7 @@ export type Action =
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
+  | MainControllerRejectAccountOpCall
   | MainControllerResolveAccountOpAction
   | MainControllerRejectAccountOpAction
   | MainControllerResolveSwitchAccountRequest

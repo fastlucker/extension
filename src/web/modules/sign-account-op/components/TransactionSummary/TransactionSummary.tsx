@@ -21,7 +21,7 @@ import getStyles from './styles'
 
 interface Props {
   style: ViewStyle
-  call: IrCall
+  call: IrCall & { indexOfCall?: number; numberOfCalls?: number }
   networkId: NetworkId
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
@@ -69,11 +69,17 @@ const TransactionSummary = ({
   })
 
   const handleRemoveCall = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: 'User rejected the request.', id: call.fromUserRequestId as number }
-    })
-  }, [call.fromUserRequestId, dispatch])
+    typeof call.indexOfCall === 'number' &&
+      call.numberOfCalls &&
+      call.fromUserRequestId &&
+      dispatch({
+        type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP_CALL',
+        params: {
+          indexOfCall: call.indexOfCall,
+          numberOfCalls: call.numberOfCalls
+        }
+      })
+  }, [call.fromUserRequestId, dispatch, call.indexOfCall, call.numberOfCalls])
 
   return (
     <ExpandableCard
