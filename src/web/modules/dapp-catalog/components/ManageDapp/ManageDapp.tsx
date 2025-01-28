@@ -115,13 +115,13 @@ const ManageDapp = ({
       <Dialog
         dialogRef={dialogRef}
         id="remove-dapp"
-        title={t('Remove dApp')}
+        title={t('Remove App')}
         text={
           dapp?.isConnected
             ? t(
-                `Are you sure you want to remove ${dapp?.name} from your dApp Catalog. This action will also disconnect the dApp from Ambire Wallet.`
+                `Are you sure you want to remove ${dapp?.name} from your App Catalog. This action will also disconnect the app from Ambire Wallet.`
               )
-            : t(`Are you sure you want to remove ${dapp?.name} from your dApp Catalog.`)
+            : t(`Are you sure you want to remove ${dapp?.name} from your App Catalog.`)
         }
         closeDialog={closeDialog}
       >
@@ -151,7 +151,7 @@ const ManageDapp = ({
         ]}
       >
         <Text fontSize={14} style={flexbox.flex1}>
-          {t('Select dApp Network')}
+          {t('Select App Network')}
         </Text>
         <Select
           setValue={handleSetNetworkValue}
@@ -169,7 +169,7 @@ const ManageDapp = ({
             type="ghost"
             textUnderline
             textStyle={{ color: theme.errorDecorative }}
-            text={t('Remove from dApp Catalog')}
+            text={t('Remove from App Catalog')}
             hasBottomSpacing={false}
             onPress={promptRemoveDApp}
           >

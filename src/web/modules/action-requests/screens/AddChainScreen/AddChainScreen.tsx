@@ -180,7 +180,7 @@ const AddChainScreen = () => {
           </View>
           <View style={styles.dappInfoContent}>
             <View style={[flexbox.flex1, spacings.phLg]}>
-              <Trans values={{ name: requestSession?.name || 'The dApp' }}>
+              <Trans values={{ name: requestSession?.name || 'The App' }}>
                 <Text style={text.center}>
                   <Text fontSize={20} appearance="secondaryText">
                     {t('Allow ')}
@@ -252,7 +252,7 @@ const AddChainScreen = () => {
               title={t('Invalid Request Params')}
               text={t(
                 `${
-                  userRequest?.session?.name || 'The dApp'
+                  userRequest?.session?.name || 'The App'
                 } provided invalid params for adding a new network.`
               )}
               type="error"

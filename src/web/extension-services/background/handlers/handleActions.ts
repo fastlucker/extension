@@ -533,6 +533,12 @@ export const handleActions = async (
     case 'INVITE_CONTROLLER_VERIFY': {
       return await mainCtrl.invite.verify(params.code)
     }
+    case 'INVITE_CONTROLLER_BECOME_OG': {
+      return await mainCtrl.invite.becomeOG()
+    }
+    case 'INVITE_CONTROLLER_REVOKE_OG': {
+      return await mainCtrl.invite.revokeOG()
+    }
 
     case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
       mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)

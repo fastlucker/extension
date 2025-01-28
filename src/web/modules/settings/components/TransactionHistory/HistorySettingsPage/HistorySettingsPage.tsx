@@ -225,7 +225,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
             !!activityState?.signedMessages?.[sessionId]?.result.items?.length && (
               <View style={[flexbox.directionRow, spacings.phSm, spacings.mbTy]}>
                 <View style={flexbox.flex1}>
-                  <Text fontSize={14}>{t('Dapps')}</Text>
+                  <Text fontSize={14}>{t('Apps')}</Text>
                 </View>
                 <View style={flexbox.flex1}>
                   <Text fontSize={14}>{t('Submitted on')}</Text>

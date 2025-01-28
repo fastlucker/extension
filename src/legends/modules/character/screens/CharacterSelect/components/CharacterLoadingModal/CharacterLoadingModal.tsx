@@ -34,7 +34,7 @@ const CharacterLoadingModal: React.FC<CharacterLoadingModalProps> = ({
           <p className={styles.title}>⚔️ Welcome to the Adventure! ⚔️</p>
           <p className={styles.description}>
             Remember, every transaction made with this Smart Account on Ethereum, Base, Optimism,
-            Arbitrum, and Scroll earns you XP, regardless of the dApp you’re using. <br />
+            Arbitrum, and Scroll earns you XP, regardless of the app you’re using. <br />
             Embark on your journey to becoming a Legend! 🌟
           </p>
           <div className={styles.stackedWrapper}>
