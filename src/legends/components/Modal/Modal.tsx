@@ -12,7 +12,7 @@ type ComponentProps = {
 
 type ModalProps = ComponentProps & {
   isOpen: boolean
-  setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
+  handleClose?: () => void
   isClosable?: boolean
   showCloseButton?: boolean
 }
@@ -28,14 +28,14 @@ const Modal = ({
   children,
   className,
   isOpen,
-  setIsOpen,
+  handleClose,
   isClosable = true,
   showCloseButton = true
 }: ModalProps) => {
   const modalRef = React.useRef<HTMLDivElement>(null)
 
   const closeModal = () => {
-    if (isClosable && setIsOpen) setIsOpen(false)
+    if (isClosable && handleClose) handleClose()
   }
 
   // Close Modal on ESC
@@ -44,7 +44,7 @@ const Modal = ({
   // Close the modal when clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node) && isOpen) {
         closeModal()
       }
     }
