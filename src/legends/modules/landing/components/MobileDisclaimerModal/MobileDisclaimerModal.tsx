@@ -24,7 +24,7 @@ const MobileDisclaimerModal = () => {
         <RhombusDeco2 className={styles.leftDeco} />
         <RhombusDeco2 className={styles.rightDeco} />
         <p className={styles.text}>
-          The Ambire Legends dApp is <strong>desktop-only</strong>. To play, install the Ambire
+          The Ambire Legends app is <strong>desktop-only</strong>. To play, install the Ambire
           Wallet extension on a Chromium-based desktop browser like Chrome, Edge, Brave, Opera, or
           Arc.
         </p>
