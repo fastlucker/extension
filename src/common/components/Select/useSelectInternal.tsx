@@ -5,29 +5,17 @@ import useSelect from '@common/hooks/useSelect'
 
 import { DEFAULT_SELECT_SIZE, SELECT_SIZE_TO_HEIGHT } from './styles'
 import { SectionedSelectProps, SelectProps, SelectValue } from './types'
-import useSectionedSelectKeyboardControl from './useSectionedSelectKeyboardControl'
 import useSelectKeyboardControl from './useSelectKeyboardControl'
 
 type Props = Pick<
   SelectProps,
   'menuOptionHeight' | 'setValue' | 'size' | 'attemptToFetchMoreOptions'
-> &
-  (
-    | {
-        value: SelectProps['value']
-        data: SelectProps['options']
-        isSectionList: false
-        headerHeight?: never
-        stickySectionHeadersEnabled?: never
-      }
-    | {
-        value: SelectProps['value']
-        data: SectionedSelectProps['sections']
-        isSectionList: true
-        stickySectionHeadersEnabled?: boolean
-        headerHeight: number
-      }
-  )
+> & {
+  value: SelectProps['value']
+  data: SectionedSelectProps['sections']
+  stickySectionHeadersEnabled?: boolean
+  headerHeight?: number
+}
 
 const useSelectInternal = ({
   menuOptionHeight,
@@ -35,7 +23,6 @@ const useSelectInternal = ({
   value,
   size = DEFAULT_SELECT_SIZE,
   data,
-  isSectionList,
   stickySectionHeadersEnabled,
   headerHeight = 0,
   attemptToFetchMoreOptions
@@ -95,35 +82,22 @@ const useSelectInternal = ({
       return { exactMatches, partialMatches }
     }
 
-    if (isSectionList) {
-      const sectionsWithFilteredData = data.map((section) => {
-        const { exactMatches, partialMatches } = filterOptions(
-          section.data as SelectProps['options']
-        )
+    const sectionsWithFilteredData = data.map((section) => {
+      const { exactMatches, partialMatches } = filterOptions(section.data as SelectProps['options'])
 
-        return {
-          ...section,
-          data: [...exactMatches, ...partialMatches]
-        }
-      })
-      const noMatchesFound = sectionsWithFilteredData.every((section) => section.data.length === 0)
-      const isAnotherSearchTerm = search !== prevSearch
-      const shouldAttemptToFetchMoreOptions =
-        noMatchesFound && isAnotherSearchTerm && !!attemptToFetchMoreOptions
-      if (shouldAttemptToFetchMoreOptions) attemptToFetchMoreOptions(search)
-
-      return noMatchesFound ? [] : sectionsWithFilteredData
-    }
-    const { exactMatches, partialMatches } = filterOptions(data)
-
-    const result = [...exactMatches, ...partialMatches]
+      return {
+        ...section,
+        data: [...exactMatches, ...partialMatches]
+      }
+    })
+    const noMatchesFound = sectionsWithFilteredData.every((section) => section.data.length === 0)
     const isAnotherSearchTerm = search !== prevSearch
     const shouldAttemptToFetchMoreOptions =
-      !result.length && isAnotherSearchTerm && attemptToFetchMoreOptions
+      noMatchesFound && isAnotherSearchTerm && !!attemptToFetchMoreOptions
     if (shouldAttemptToFetchMoreOptions) attemptToFetchMoreOptions(search)
 
-    return result
-  }, [data, isSectionList, search, attemptToFetchMoreOptions, prevSearch])
+    return noMatchesFound ? [] : sectionsWithFilteredData
+  }, [data, search, attemptToFetchMoreOptions, prevSearch])
 
   const keyExtractor = useCallback((item: SelectValue) => item.key || item.value, [])
 
@@ -143,29 +117,18 @@ const useSelectInternal = ({
     setListHeight(height)
   }
 
-  const { listRef, renderItem, handleScroll } = isSectionList
-    ? useSectionedSelectKeyboardControl({
-        listHeight,
-        optionHeight,
-        headerHeight,
-        sections: filteredData as SectionedSelectProps['sections'],
-        value,
-        size,
-        isMenuOpen,
-        stickySectionHeadersEnabled,
-        setIsMenuOpen,
-        handleOptionSelect
-      })
-    : useSelectKeyboardControl({
-        listHeight,
-        optionHeight,
-        options: filteredData as SelectProps['options'],
-        value,
-        size,
-        isMenuOpen,
-        setIsMenuOpen,
-        handleOptionSelect
-      })
+  const { listRef, renderItem, handleScroll } = useSelectKeyboardControl({
+    listHeight,
+    optionHeight,
+    headerHeight,
+    sections: filteredData,
+    value,
+    size,
+    isMenuOpen,
+    stickySectionHeadersEnabled,
+    setIsMenuOpen,
+    handleOptionSelect
+  })
 
   return {
     ...useSelectReturnValue,

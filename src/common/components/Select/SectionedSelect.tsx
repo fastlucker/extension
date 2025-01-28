@@ -25,7 +25,6 @@ const SectionedSelect = ({
     menuOptionHeight,
     setValue,
     value,
-    isSectionList: true,
     headerHeight,
     stickySectionHeadersEnabled,
     data: sections

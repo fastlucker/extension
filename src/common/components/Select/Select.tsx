@@ -3,7 +3,7 @@ import { FlatList } from 'react-native'
 
 import EmptyListPlaceholder from './components/EmptyListPlaceholder'
 import SelectContainer from './components/SelectContainer'
-import { SelectProps } from './types'
+import { SectionedSelectProps, SelectProps } from './types'
 import useSelectInternal from './useSelectInternal'
 
 const Select = ({
@@ -19,8 +19,7 @@ const Select = ({
   const selectData = useSelectInternal({
     value,
     setValue,
-    data: options,
-    isSectionList: false,
+    data: [{ data: options, title: '', key: 'default' }] as SectionedSelectProps['sections'],
     menuOptionHeight,
     attemptToFetchMoreOptions
   })
@@ -38,7 +37,7 @@ const Select = ({
     <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
       <FlatList
         ref={listRef}
-        data={filteredData as SelectProps['options']}
+        data={filteredData[0].data}
         renderItem={renderItem as any}
         keyExtractor={keyExtractor}
         onLayout={handleLayout}
