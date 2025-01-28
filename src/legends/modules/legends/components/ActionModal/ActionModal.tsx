@@ -73,9 +73,7 @@ const ActionModal: FC<ActionModalProps> = ({
         <div className={styles.modalHeadingTitle}>{title}</div>
         {xp && <Rewards xp={xp} size="lg" />}
       </Modal.Heading>
-      <Modal.Text className={styles.modalText} style={{ whiteSpace: 'pre-wrap' }}>
-        {flavor}
-      </Modal.Text>
+      <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
       {contentSteps && (
         <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} video={contentVideo}>
           {predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />}
