@@ -22,12 +22,12 @@ import styles from './TreasureChestComponentModal.module.scss'
 
 interface TreasureChestComponentModalProps {
   isOpen: boolean
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  handleClose: () => void
 }
 
 const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = ({
   isOpen,
-  setIsOpen
+  handleClose
 }) => {
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
@@ -140,7 +140,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     return null
   }
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} className={styles.wrapper}>
+    <Modal isOpen={isOpen} handleClose={handleClose} className={styles.wrapper}>
       <Modal.Heading className={styles.heading}>Daily Loot</Modal.Heading>
       <div className={styles.content}>
         {treasureLegend.meta.points.map((point, index) => (
