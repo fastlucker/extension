@@ -105,6 +105,7 @@ const useSelectKeyboardControl = ({
             const options = sections[i].data
             const startIndex = i === sectionIndex ? optionIndex + 1 : 0
 
+            // find the closest non-disabled option
             const nextOption = options.slice(startIndex).find((opt) => !opt.disabled)
             if (nextOption) {
               const nextIndex = {
@@ -170,6 +171,7 @@ const useSelectKeyboardControl = ({
             const startIndex = i === sectionIndex ? optionIndex - 1 : options.length - 1
 
             for (let j = startIndex; j >= 0; j--) {
+              // find the closest non-disabled option
               if (!options[j].disabled) {
                 const nextIndex = { sectionIndex: i, optionIndex: j }
                 setHighlightedItemIndex(nextIndex)
