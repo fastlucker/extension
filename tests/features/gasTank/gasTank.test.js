@@ -65,13 +65,13 @@ describe('Gas Tank tests with Smart Account', () => {
     await clickOnElement(page, SELECTORS.confettiModalActionButton, true, 500)
   })
 
-  it.only('Should check if all the data in the Gas Tank modal exists', async () => {
+  it('Should check if all the data in the Gas Tank modal exists', async () => {
     await page.waitForSelector(SELECTORS.dashboardGasTankButton)
 
     // Click on 'Discover Gas Tank' button
     await clickOnElement(page, SELECTORS.dashboardGasTankButton)
 
-    // Get all the divs in the modal, then returns only the number values of them 
+    // Get all the divs in the modal, then returns only the number values of them
     const numberValues = await page.evaluate(() => {
       const numbers = Array.from(document.querySelectorAll('div[data-testid="bottom-sheet"] div'))
         .flatMap((el) => el.textContent.match(/-?\d+(\.\d+)?/g) || [])
