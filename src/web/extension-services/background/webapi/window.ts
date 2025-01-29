@@ -125,7 +125,8 @@ const createFullScreenWindow = async (url: string): Promise<WindowProps> => {
                         height: desiredHeight,
                         left:
                           leftPosition <= SPACING ? Math.round(SPACING) : Math.round(leftPosition),
-                        top: topPosition <= SPACING ? Math.round(SPACING) : Math.round(topPosition)
+                        top: topPosition <= SPACING ? Math.round(SPACING) : Math.round(topPosition),
+                        focused: true
                       }
                     : null
                 )
