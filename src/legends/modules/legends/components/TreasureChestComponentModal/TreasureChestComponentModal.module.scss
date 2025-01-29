@@ -12,11 +12,30 @@
     }
 }
   
+
+.backdrop {
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: $backdrop;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // Don't touch this, it works too well
+  font-size: min(1.8vh, 1.2vw);
+}
+
 .wrapper {
-  width: 46.875rem;
+  width: 47.5rem;
+  background-color: $secondaryBackground;
+  border: 1px solid $primaryBorder;
+  border-radius: 1.25rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
 
   .heading {
     font-size: 4rem;
@@ -24,6 +43,24 @@
     line-height: 5.44rem;
     margin-bottom: 2.5rem;
     align-self: start;
+  }
+
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+
+    .closeButton {
+      svg {
+        rect {
+          stroke: $secondaryText;
+        }
+        
+        path {
+          fill: $secondaryText;
+        }
+      }
+    }
   }
 
   .content {
@@ -41,20 +78,20 @@
         min-width: 5rem;
 
         .icon {
-            display: flex;
-            justify-content: center;
-            gap: 0.25rem;
-            font-size: 1.25rem;
-            color: $blackText;
-            margin-bottom: .75rem;
-            font-weight: 500;
+          display: flex;
+          justify-content: center;
+          gap: 0.25rem;
+          font-size: 1.25rem;
+          color: $blackText;
+          margin-bottom: .75rem;
+          font-weight: 500;
         }
 
         .dayText {
-            color: $secondaryText;
-            font-size: .75rem;
-            font-weight: 400;
-            text-align: center;
+          color: $secondaryText;
+          font-size: .75rem;
+          font-weight: 400;
+          text-align: center;
         }
     }
 
@@ -70,40 +107,34 @@
             border: none;
         }
     }
-
-  
     .current {
       border: 1px solid $tertiaryBorder;
     }
   }
 
-  .treasureChest {
-    margin-bottom: .75rem;
-  }
-
-  // Compensate for the height of the opened treasure chest
-  .treasureChestClosed {
-    margin-top: 3.3125rem;
-  }
-
-  .treasureChestWrapper {
+  .chestWrapper {
+    display: flex;
     position: relative;
-    
-    .prize {
+    margin-bottom: 2rem;
+
+    .chest {
+      height: 24.72rem;
+    }
+
+    .chain {
       position: absolute;
-      left: 25%;
-      top: 25%;
-      font-size: 1.75rem;
-      font-weight: 500;
-      color: $blackText;
-      display: flex;
-      align-items: center;
-      padding: .25rem .5rem;
+      width: 19.375rem;
+      height: 7.86rem;
+      top: 10.8125rem;
+      left: 12.8125rem;
       
-      gap: .25rem;
-      background-color: $primaryBackground;
-      border: 1px solid $primaryBorder;
-      border-radius: .375rem;
+      transition: transform 10s ease-out;
+      animation: tease 5s infinite;
+      animation-delay: 2s;
+      
+      &.unlocked {
+        animation: unlock 1s forwards;
+      }
     }
   }
 
@@ -111,6 +142,124 @@
     @include primary-button;
     font-size: 1rem;
     color: $secondaryAccent;
+    align-self: center;
     max-width: 18.75rem;
   }
 }
+
+
+.modal {
+  width: 47.5rem;
+}
+.congratsModal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .title {
+    font-family: Sentient;
+    font-size: 4rem;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: .25rem;
+  }
+  .text {
+    font-family: Sentient;
+    font-size: 2rem;
+    font-weight: 400;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .openedChestWrapper {
+    margin-bottom: 2rem;
+    position: relative;
+
+    .chestOpenedImage {
+      width: 43.75rem;
+      height: 24.72rem;
+    }
+    
+    .prize { 
+      font-size: 2.25rem;
+      font-weight: 500;
+      color: $primaryText;
+      position: absolute;
+      left: 19rem;
+      top: 10.25rem;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .star {
+      position: absolute;
+      left: 13.375rem;
+      top: 4.375rem;
+      animation: pulse 2.1s linear forwards;
+    }
+    
+  }
+  .button {
+    @include primary-button;
+    font-size: 1rem;
+    color: $secondaryAccent;
+    align-self: center;
+    max-width: 18.75rem;
+  }
+}
+
+
+@keyframes tease {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-3deg);
+  }
+  20% {
+    transform: rotate(3deg);
+  }
+  30% {
+    transform: rotate(-3deg);
+  }
+  40%,
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes unlock {
+  0% {
+    transform: rotate(0deg) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(20deg) translateY(4em);
+    opacity: 0;
+  }
+}
+
+
+@keyframes pulse {
+  0% {
+     -webkit-transform: scale(2.5);
+      -moz-transform: scale(2.5);
+      -o-transform: scale(2.5);
+      -ms-transform: scale(2.5);
+      transform: scale(2.5);
+  }
+  50% {
+     -webkit-transform: scale(0.8);
+      -moz-transform: scale(0.8);
+      -o-transform: scale(0.8);
+      -ms-transform: scale(0.8);
+      transform: scale(0.8);
+  }
+  100% {
+     -webkit-transform: scale(1);
+      -moz-transform: scale(1);
+      -o-transform: scale(1);
+      -ms-transform: scale(1);
+      transform: scale(1);
+  }
+ 
+ }
