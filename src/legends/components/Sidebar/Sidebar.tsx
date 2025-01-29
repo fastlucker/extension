@@ -9,7 +9,6 @@ import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
-import TreasureChestClosed from '@legends/common/assets/svg/TreasureChestClosed'
 import MidnightTimer from '@legends/components/MidnightTimer'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
@@ -20,6 +19,7 @@ import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import chestBackgroundImage from './assets/chest-background.png'
 import wheelBackgroundImage from './assets/wheel-background.png'
+import DailyQuestBanner from './components/DailyQuestBanner'
 import Link from './components/Link'
 import Socials from './components/Socials'
 import styles from './Sidebar.module.scss'
@@ -75,17 +75,17 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
   const wheelText = useMemo(() => {
     if (isLoading) return <span className={styles.wheelText}>Loading...</span>
-    if (wheelSpinOfTheDay) return <MidnightTimer type="minutes" className={styles.wheelText} />
+    if (wheelSpinOfTheDay) return <MidnightTimer type="minutes" className={styles.bannerText} />
 
-    return <span className={styles.wheelText}>Available Now</span>
+    return <span className={styles.bannerText}>Available Now</span>
   }, [isLoading, wheelSpinOfTheDay])
 
   const chestText = useMemo(() => {
-    if (isLoading) return <span className={styles.wheelText}>Loading...</span>
+    if (isLoading) return <span className={styles.bannerText}>Loading...</span>
     if (treasureChestOpenedForToday)
-      return <MidnightTimer type="minutes" className={styles.wheelText} />
+      return <MidnightTimer type="minutes" className={styles.bannerText} />
 
-    return <span className={styles.wheelText}>Available Now</span>
+    return <span className={styles.bannerText}>Available Now</span>
   }, [isLoading, treasureChestOpenedForToday])
 
   return (
@@ -95,52 +95,26 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           <FontAwesomeIcon icon={faChevronLeft} />
         </button>
         <img className={styles.logo} src="/images/logo.png" alt="Ambire Legends" />
-        <div
-          className={`${styles.wheelOfFortuneWrapper} ${wheelSpinOfTheDay ? styles.disabled : ''}`}
-        >
-          <div
-            className={styles.wheelOfFortune}
-            data-tooltip-id="wheel-tooltip"
-            style={{
-              backgroundImage: `url(${wheelBackgroundImage})`
-            }}
-          >
-            <div className={styles.wheelContent}>
-              <span className={styles.wheelTitle}>Daily Legend</span>
-              {wheelText}
-              <button
-                onClick={handleModal}
-                disabled={wheelSpinOfTheDay}
-                type="button"
-                className={styles.wheelButton}
-              >
-                Spin the Wheel
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <div
-          className={`${styles.wheelOfFortuneWrapper} ${
-            treasureChestOpenedForToday ? styles.disabled : ''
-          }`}
-        >
-          <div
-            className={styles.wheelOfFortune}
-            data-tooltip-id="chest-tooltip"
-            style={{
-              backgroundImage: `url(${chestBackgroundImage})`
-            }}
-          >
-            <div className={styles.wheelContent}>
-              <span className={styles.wheelTitle}>Daily Chest</span>
-              {chestText}
-              <button onClick={handleChestModal} type="button" className={styles.wheelButton}>
-                Open Now
-              </button>
-            </div>
-          </div>
-        </div>
+        <DailyQuestBanner
+          isDisabled={wheelSpinOfTheDay}
+          tooltipId="wheel-tooltip"
+          backgroundImage={wheelBackgroundImage}
+          title="Daily Legend"
+          text={wheelText}
+          handleClick={handleModal}
+          buttonText="Spin the Wheel"
+          wrapperStyles={styles.wheelBanner}
+        />
+        <DailyQuestBanner
+          isDisabled={treasureChestOpenedForToday}
+          tooltipId="daily-quest-tooltip"
+          backgroundImage={chestBackgroundImage}
+          title="Daily Chest"
+          text={chestText}
+          handleClick={handleChestModal}
+          buttonText="Open Now"
+        />
 
         <LeaderModal
           setIsLeaderModalOpen={setIsLeaderModalOpen}

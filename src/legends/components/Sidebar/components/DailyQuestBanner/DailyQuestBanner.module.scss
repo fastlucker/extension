@@ -1,0 +1,73 @@
+@import '@legends/styles/base.scss';
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.wrapper {
+    background: $primaryGradient;
+    background-size: 200% 200%;
+    animation: gradientAnimation 4s ease infinite;
+
+    border-radius: $secondaryBorderRadius;
+    padding: 0.25rem;
+    $innerBorderRadius: calc(#{$secondaryBorderRadius} - 0.25rem);
+
+    .banner {
+      position: relative;
+      display: flex;
+      background-color: $tertiaryBackground;
+      border-radius: $innerBorderRadius;
+
+      .image {
+        height: 7.5rem;
+        width: auto;
+        border-radius: $innerBorderRadius 0 0 $innerBorderRadius;
+      }
+
+      .content {
+        padding: 1rem;
+        padding-left: 6rem;
+        flex: 1;
+
+        .title,
+        .text {
+          display: block;
+          color: $primaryBackground;
+        }
+        .title {
+          font-size: 1.125rem;
+          font-weight: 500;
+          line-height: 1.5rem;
+          text-transform: uppercase;
+        }
+        .text {
+          font-size: 0.875rem;
+          margin-bottom: 0.75rem;
+        }
+        .button {
+          background: $secondaryGradient;
+          border: 2px solid $primaryBackground;
+          box-shadow: 0 0.125rem 0 $primaryBackground;
+          border-radius: $primaryBorderRadius;
+          height: 2.25rem;
+          font-weight: 500;
+          font-size: 0.875rem;
+          width: 100%;
+          text-transform: none;
+
+          &:hover {
+            opacity: 1;
+          }
+        }
+      }
+    }
+}
