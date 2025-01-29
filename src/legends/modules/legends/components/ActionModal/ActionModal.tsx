@@ -76,7 +76,7 @@ const ActionModal: FC<ActionModalProps> = ({
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.chest) {
-    return <TreasureChestComponentModal isOpen={isOpen} setIsOpen={setIsOpen} />
+    return <TreasureChestComponentModal isOpen={isOpen} handleClose={closeActionModal} />
   }
 
   return (
