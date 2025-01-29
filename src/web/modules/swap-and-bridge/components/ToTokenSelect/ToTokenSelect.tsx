@@ -10,6 +10,7 @@ import StarFilledIcon from '@common/assets/svg/StarFilledIcon'
 import { SectionedSelect } from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -23,6 +24,8 @@ interface Props {
   handleAddToTokenByAddress: (searchTerm: string) => void
 }
 
+const SECTION_MENU_HEADER_HEIGHT = 50
+
 const ToTokenSelect: React.FC<Props> = ({
   toTokenOptions,
   toTokenValue,
@@ -32,6 +35,7 @@ const ToTokenSelect: React.FC<Props> = ({
   handleAddToTokenByAddress
 }) => {
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const { portfolio } = useSelectedAccountControllerState()
   const [didAttemptSearchingTokenByAddress, setDidAttemptSearchingTokenByAddress] =
     React.useState(false)
@@ -89,26 +93,30 @@ const ToTokenSelect: React.FC<Props> = ({
     ]
   }, [toTokenOptions, t, portfolio.tokens])
 
-  const renderFeeOptionSectionHeader = useCallback(({ section }: any) => {
-    if (section.data.length === 0 || !section.title) return null
+  const renderFeeOptionSectionHeader = useCallback(
+    ({ section }: any) => {
+      if (section.data.length === 0 || !section.title) return null
 
-    return (
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.alignCenter,
-          spacings.ph,
-          spacings.pt,
-          section?.key === 'swap-and-bridge-to-account-tokens' ? spacings.pbSm : spacings.pbSm
-        ]}
-      >
-        {section.title.icon}
-        <Text style={spacings.mlMi} fontSize={14} weight="medium" appearance="secondaryText">
-          {section.title.text}
-        </Text>
-      </View>
-    )
-  }, [])
+      return (
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            spacings.ph,
+            spacings.pt,
+            section?.key === 'swap-and-bridge-to-account-tokens' ? spacings.pbSm : spacings.pbSm,
+            { height: SECTION_MENU_HEADER_HEIGHT, backgroundColor: theme.primaryBackground }
+          ]}
+        >
+          {section.title.icon}
+          <Text style={spacings.mlMi} fontSize={14} weight="medium" appearance="secondaryText">
+            {section.title.text}
+          </Text>
+        </View>
+      )
+    },
+    [theme]
+  )
 
   return (
     <SectionedSelect
@@ -116,6 +124,7 @@ const ToTokenSelect: React.FC<Props> = ({
       sections={selectSections}
       renderSectionHeader={renderFeeOptionSectionHeader}
       value={toTokenValue}
+      headerHeight={SECTION_MENU_HEADER_HEIGHT}
       disabled={toTokenAmountSelectDisabled}
       testID="to-token-select"
       searchPlaceholder={t('Token name or address...')}
@@ -126,6 +135,7 @@ const ToTokenSelect: React.FC<Props> = ({
       attemptToFetchMoreOptions={handleAttemptToFetchMoreOptions}
       containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
       selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+      stickySectionHeadersEnabled
     />
   )
 }
