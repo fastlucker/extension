@@ -1,4 +1,4 @@
-export const GAS_TANK_TOP_UP_AMOUNT = '0.0001'
+export const GAS_TANK_TOP_UP_AMOUNT = '0.000001'
 export const CONFETTI_MODAL_WAIT_TIME = 5000
 
 export const MOCK_RESPONSE = {
