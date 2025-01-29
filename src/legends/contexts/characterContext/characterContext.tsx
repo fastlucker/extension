@@ -176,7 +176,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   // However, when switching to another v2 account without a character, there may be a brief delay as the new character is fetched.
   // During this delay, child contexts could try to operate with the new `connectedAccount` but the previous `character`, which is incorrect.
   // This validation ensures `connectedAccount` and `character` are always in sync.
-  // console.log('Character debugging', character && character.address !== connectedAccount, { character, connectedAccount })
   if (character && character.address !== connectedAccount) return <Spinner isCentered />
 
   return (
