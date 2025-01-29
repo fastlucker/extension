@@ -1,24 +1,22 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { MenuOption } from '@common/components/Select/components/MenuOption'
 import usePrevious from '@common/hooks/usePrevious'
 
-import { MenuOption } from './components/MenuOption'
 import { SectionedSelectProps, SelectProps, SelectValue } from './types'
 
-type Props = {
-  listHeight: number
-  optionHeight: number
-  headerHeight: number
-  sections: SectionedSelectProps['sections']
-  value: SelectProps['value']
-  size: SelectProps['size']
-  isMenuOpen: boolean
-  stickySectionHeadersEnabled?: boolean
-  setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
-  handleOptionSelect: (item: SelectValue) => void
-}
+type Props = Pick<SelectProps, 'size' | 'value'> &
+  Pick<SectionedSelectProps, 'sections'> & {
+    listHeight: number
+    optionHeight: number
+    headerHeight: number
+    isMenuOpen: boolean
+    stickySectionHeadersEnabled?: boolean
+    setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
+    handleOptionSelect: (item: SelectValue) => void
+  }
 
-const useSectionedSelectKeyboardControl = ({
+const useSelectKeyboardControl = ({
   listHeight = 0,
   optionHeight,
   headerHeight = 0,
@@ -297,11 +295,11 @@ const useSectionedSelectKeyboardControl = ({
     ]
   )
 
-  const handleScroll = (event: any) => {
+  const handleScroll = useCallback((event: any) => {
     scrollOffset.current = event.nativeEvent.contentOffset.y
-  }
+  }, [])
 
   return { listRef, renderItem, handleScroll }
 }
 
-export default useSectionedSelectKeyboardControl
+export default useSelectKeyboardControl

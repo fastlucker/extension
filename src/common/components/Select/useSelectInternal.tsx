@@ -112,10 +112,10 @@ const useSelectInternal = ({
     [optionHeight]
   )
 
-  const handleLayout = (event: any) => {
+  const handleLayout = useCallback((event: any) => {
     const { height } = event.nativeEvent.layout
     setListHeight(height)
-  }
+  }, [])
 
   const { listRef, renderItem, handleScroll } = useSelectKeyboardControl({
     listHeight,

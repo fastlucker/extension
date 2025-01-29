@@ -19,6 +19,8 @@ const Select = ({
   const selectData = useSelectInternal({
     value,
     setValue,
+    // To address the structural differences between SectionList and FlatList,
+    // we wrap non-sectioned list data in a default single section
     data: [{ data: options, title: '', key: 'default' }] as SectionedSelectProps['sections'],
     menuOptionHeight,
     attemptToFetchMoreOptions
@@ -37,6 +39,7 @@ const Select = ({
     <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
       <FlatList
         ref={listRef}
+        // get the data (the options) from the default section
         data={filteredData[0].data}
         renderItem={renderItem as any}
         keyExtractor={keyExtractor}
