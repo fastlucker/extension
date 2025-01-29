@@ -129,7 +129,7 @@ describe("The extension works properly when crucial APIs aren't working from lau
           0
         )
 
-        await page.waitForTimeout(2000)
+        await page.waitForTimeout(1000)
 
         const dashboardErrorTriangle = await page.evaluate(() => {
           return document.querySelector('[data-testid="portfolio-warning-icon"]')
