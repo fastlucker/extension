@@ -6,7 +6,7 @@ import { Account } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
 import { getContractImplementation, has7702 } from '@ambire-common/libs/7702/7702'
 import { canBecomeSmarter } from '@ambire-common/libs/account/account'
-import { getEip7702Authorization } from '@ambire-common/libs/signMessage/signMessage'
+import { getAuthorizationHash } from '@ambire-common/libs/signMessage/signMessage'
 import Alert from '@common/components/Alert'
 import Badge from '@common/components/Badge'
 import Button from '@common/components/Button'
@@ -114,7 +114,7 @@ const BasicToSmartSettingsScreen = () => {
           chainId,
           nonce: accountState.nonce,
           contractAddr,
-          message: getEip7702Authorization(chainId, contractAddr, accountState.nonce)
+          message: getAuthorizationHash(chainId, contractAddr, accountState.nonce)
         }
       }
     })
