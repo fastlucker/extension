@@ -262,12 +262,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
   const extensionUpdateCtrl = new ExtensionUpdateController()
 
-  function hasBroadcastedButNotConfirmed() {
-    return !!Object.values(mainCtrl.selectedAccount.portfolio.networkSimulatedAccountOp).find(
-      (accOp) => accOp.status === AccountOpStatus.BroadcastedButNotConfirmed
-    )
-  }
-
   async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
       clearTimeout(backgroundState.updatePortfolioInterval)
@@ -290,7 +284,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       //    Once the acc op is confirmed or failed, the portfolio interval will resume as normal.
       // 6. Gotcha: If the user forcefully updates the portfolio, we will also lose the simulation.
       //    However, this is not a frequent case, and we can make a compromise here.
-      if (hasBroadcastedButNotConfirmed()) {
+      if (mainCtrl.activity.broadcastedButNotConfirmed.length) {
         backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
         return
       }
@@ -815,7 +809,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
       // Reset the selected account portfolio when the extension is opened
       // in a popup as the portfolio isn't updated in other cases
-      if (port.name === 'popup' && !hasBroadcastedButNotConfirmed())
+      if (port.name === 'popup' && !mainCtrl.activity.broadcastedButNotConfirmed.length)
         mainCtrl.selectedAccount.resetSelectedAccountPortfolio()
 
       initPortfolioContinuousUpdate()
