@@ -85,8 +85,13 @@ const useSelectKeyboardControl = ({
       if (!isMenuOpen) return
 
       try {
-        if (e.key === 'ArrowDown') {
+        if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
           highlightedItemOnMouseMoveEnabled.current = false
+
+          if (e.key === 'Tab') {
+            e.preventDefault()
+            e.stopPropagation()
+          }
 
           const { sectionIndex, optionIndex } = highlightedItemIndex || {
             sectionIndex: 0,
@@ -142,8 +147,13 @@ const useSelectKeyboardControl = ({
           }
         }
 
-        if (e.key === 'ArrowUp') {
+        if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
           highlightedItemOnMouseMoveEnabled.current = false
+
+          if (e.key === 'Tab' || e.shiftKey) {
+            e.preventDefault()
+            e.stopPropagation()
+          }
 
           const { sectionIndex, optionIndex } = highlightedItemIndex || {
             sectionIndex: 0,
