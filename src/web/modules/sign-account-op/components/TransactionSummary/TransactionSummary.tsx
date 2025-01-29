@@ -69,12 +69,10 @@ const TransactionSummary = ({
   })
 
   const handleRemoveCall = useCallback(() => {
-    call.id &&
+    !!call.id &&
       dispatch({
-        type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP_CALL',
-        params: {
-          callId: call.id
-        }
+        type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL',
+        params: { callId: call.id }
       })
   }, [dispatch, call.id])
 
