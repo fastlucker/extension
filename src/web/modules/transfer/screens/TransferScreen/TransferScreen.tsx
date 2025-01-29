@@ -121,15 +121,15 @@ const TransferScreen = () => {
     if (hasFocusedActionWindow || !isSmartAccount) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
-    if (isFormValid && !addressInputState.validation.isError) {
-      numOfRequests++
+    if (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) {
+      numOfRequests++ // the queued txns + the one from the form
     }
 
     if (numOfRequests) {
       if (isFormEmpty) return t('Sign All Pending ({{count}})', { count: numOfRequests })
       return isTopUp
-        ? t('Top Up ({{count}})', { count: numOfRequests + 1 }) // the queued txns + the one from the form
-        : t('Send ({{count}})', { count: numOfRequests + 1 }) // the queued txns + the one from the form
+        ? t('Top Up ({{count}})', { count: numOfRequests })
+        : t('Send ({{count}})', { count: numOfRequests })
     }
 
     return isTopUp ? t('Top Up') : t('Send')
