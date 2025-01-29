@@ -38,7 +38,7 @@ describe('Gas Tank tests with Smart Account', () => {
     await browser.close()
   })
 
-  it('Top up Gas Tank with 0.0001 ETH on Base and pay with Gas Tank', async () => {
+  it('Should top up Gas Tank with 0.0001 ETH on Base and pay with Gas Tank', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenBaseDashboard,
@@ -52,7 +52,7 @@ describe('Gas Tank tests with Smart Account', () => {
     })
   })
 
-  it('Test Confetti modal on first cashback', async () => {
+  it('Should test Confetti modal on first cashback', async () => {
     const client = await serviceWorker.client
 
     await mockPortfolioResponse(client, MOCK_RESPONSE)
@@ -63,6 +63,30 @@ describe('Gas Tank tests with Smart Account', () => {
     await clickOnElement(page, SELECTORS.refreshButton)
     await clickOnElement(page, SELECTORS.bannerButtonOpen)
     await clickOnElement(page, SELECTORS.confettiModalActionButton, true, 500)
+  })
+
+  it.only('Should check if all the data in the Gas Tank modal exists', async () => {
+    await page.waitForSelector(SELECTORS.dashboardGasTankButton)
+
+    // Click on 'Discover Gas Tank' button
+    await clickOnElement(page, SELECTORS.dashboardGasTankButton)
+
+    // Get all the divs in the modal, then returns only the number values of them 
+    const numberValues = await page.evaluate(() => {
+      const numbers = Array.from(document.querySelectorAll('div[data-testid="bottom-sheet"] div'))
+        .flatMap((el) => el.textContent.match(/-?\d+(\.\d+)?/g) || [])
+        .map((num) => parseFloat(num))
+
+      return Array.from(new Set(numbers))
+    })
+
+    // Check if the numbers are exact 3 (Balance, saved and cashback)
+    expect(numberValues.length).toEqual(3)
+
+    // Check if the numbers are equal or greater than 0
+    numberValues.forEach((value) => {
+      expect(value).toBeGreaterThanOrEqual(0)
+    })
   })
 })
 
@@ -80,7 +104,7 @@ describe('Gas Tank tests with Basic Account', () => {
     await browser.close()
   })
 
-  it('Check if Gas Tank is disabled for Basic Account', async () => {
+  it('Should check if Gas Tank is disabled for Basic Account', async () => {
     await page.waitForSelector(SELECTORS.dashboardGasTankButton)
 
     const gasTankButtonText = await page.$eval(
@@ -91,7 +115,7 @@ describe('Gas Tank tests with Basic Account', () => {
     expect(gasTankButtonText).toBe('Discover Gas Tank')
   })
 
-  it('The topping up Gas Tank functionality should be disabled', async () => {
+  it('Should check if top up Gas Tank functionality is disabled', async () => {
     await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
     // Check ths balance of the selected token if it's lower than 'minBalance' and throws an error if it is
