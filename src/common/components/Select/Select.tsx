@@ -1,11 +1,9 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { FlatList } from 'react-native'
-
-import usePrevious from '@common/hooks/usePrevious'
 
 import EmptyListPlaceholder from './components/EmptyListPlaceholder'
 import SelectContainer from './components/SelectContainer'
-import { SelectProps, SelectValue } from './types'
+import { SectionedSelectProps, SelectProps } from './types'
 import useSelectInternal from './useSelectInternal'
 
 const Select = ({
@@ -18,62 +16,42 @@ const Select = ({
   emptyListPlaceholderText,
   ...props
 }: SelectProps) => {
-  const selectData = useSelectInternal({ menuOptionHeight, setValue, value })
-  const { renderItem, keyExtractor, getItemLayout, search } = selectData
-  const prevSearch = usePrevious(search)
-
-  const filteredOptions = useMemo(() => {
-    if (!search) return options
-
-    const normalizedSearchTerm = search.toLowerCase()
-    const { exactMatches, partialMatches } = options.reduce(
-      (result, o) => {
-        const { value: optionValue, label, extraSearchProps } = o
-
-        const fieldsToBeSearchedInto = [
-          optionValue.toString().toLowerCase(),
-          // In case the label is string, include it (could be any ReactNode)
-          typeof label === 'string' ? label.toLowerCase() : '',
-          ...(extraSearchProps
-            ? Object.values(extraSearchProps).map((field: unknown) => String(field).toLowerCase())
-            : [])
-        ]
-
-        // Prioritize exact matches, partial matches come after
-        const isExactMatch = fieldsToBeSearchedInto.some((f) => f === normalizedSearchTerm)
-        const isPartialMatch = fieldsToBeSearchedInto.some((f) => f.includes(normalizedSearchTerm))
-        if (isExactMatch) {
-          result.exactMatches.push(o)
-        } else if (isPartialMatch) {
-          result.partialMatches.push(o)
-        }
-
-        return result
-      },
-      { exactMatches: [] as SelectValue[], partialMatches: [] as SelectValue[] }
-    )
-
-    const result = [...exactMatches, ...partialMatches]
-    const isAnotherSearchTerm = search !== prevSearch
-    const shouldAttemptToFetchMoreOptions =
-      !result.length && isAnotherSearchTerm && attemptToFetchMoreOptions
-    if (shouldAttemptToFetchMoreOptions) attemptToFetchMoreOptions(search)
-
-    return result
-  }, [options, search, attemptToFetchMoreOptions, prevSearch])
+  const selectData = useSelectInternal({
+    value,
+    setValue,
+    // To address the structural differences between SectionList and FlatList,
+    // we wrap non-sectioned list data in a default single section
+    data: [{ data: options, title: '', key: 'default' }] as SectionedSelectProps['sections'],
+    menuOptionHeight,
+    attemptToFetchMoreOptions
+  })
+  const {
+    listRef,
+    filteredData,
+    renderItem,
+    keyExtractor,
+    getItemLayout,
+    handleLayout,
+    handleScroll
+  } = selectData
 
   return (
     <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
       <FlatList
-        data={filteredOptions}
-        renderItem={renderItem}
+        ref={listRef}
+        // get the data (the options) from the default section
+        data={filteredData[0].data}
+        renderItem={renderItem as any}
         keyExtractor={keyExtractor}
+        onLayout={handleLayout}
         initialNumToRender={15}
         windowSize={10}
         maxToRenderPerBatch={20}
         removeClippedSubviews
         getItemLayout={getItemLayout}
         ListEmptyComponent={<EmptyListPlaceholder placeholderText={emptyListPlaceholderText} />}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       />
     </SelectContainer>
   )
