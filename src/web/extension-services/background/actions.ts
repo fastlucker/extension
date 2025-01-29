@@ -190,8 +190,7 @@ type MainControllerRejectUserRequestAction = {
 type MainControllerRejectAccountOpCall = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP_CALL'
   params: {
-    indexOfCall: number
-    numberOfCalls: number
+    callId: string
   }
 }
 type MainControllerResolveAccountOpAction = {
