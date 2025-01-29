@@ -151,7 +151,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
         <div
           className={styles.treasureChestWrapper}
-          onClick={() => handleTreasureOpen()}
+          onClick={handleTreasureOpen}
           onKeyPress={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               handleTreasureOpen()
