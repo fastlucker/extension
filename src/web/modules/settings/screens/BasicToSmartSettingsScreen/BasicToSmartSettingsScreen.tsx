@@ -1,3 +1,5 @@
+/* eslint-disable no-continue */
+
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -7,6 +9,7 @@ import { Network } from '@ambire-common/interfaces/network'
 import { getContractImplementation, has7702 } from '@ambire-common/libs/7702/7702'
 import { canBecomeSmarter } from '@ambire-common/libs/account/account'
 import { getAuthorizationHash } from '@ambire-common/libs/signMessage/signMessage'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Alert from '@common/components/Alert'
 import Badge from '@common/components/Badge'
 import Button from '@common/components/Button'
@@ -15,6 +18,7 @@ import AccountOption from '@common/components/Option/AccountOption'
 import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useWindowSize from '@common/hooks/useWindowSize'
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import colors from '@common/styles/colors'
@@ -147,6 +151,61 @@ const BasicToSmartSettingsScreen = () => {
     [account, accountStates]
   )
 
+  const nonceZeroNetworks: string[] = useMemo(() => {
+    if (!account) return []
+
+    const accountStateAddr = accountStates[account.addr]
+    // precaution, shouldn't happen
+    if (!accountStateAddr) return []
+
+    return networks
+      .filter((net) => {
+        if (!has7702(net)) return false
+
+        const state = accountStateAddr[net.id]
+        // precaution, shouldn't happen
+        if (!state) return false
+
+        return !state.isSmarterEoa && state.nonce === 0n
+      })
+      .map((net) => net.name)
+  }, [account, accountStates, networks])
+
+  // disable activate all when there are no networks with nonce 0
+  const isActivateAllDisabled = useCallback(() => {
+    return nonceZeroNetworks.length === 0
+  }, [nonceZeroNetworks])
+
+  const activateAll = () => {
+    if (!account) return
+
+    // todo<7702>
+    // once testing has completed, maybe we should remove
+    // getContractImplementation as a whole
+    const ethereum = networks.find((net) => net.chainId === 1n)!
+    const contractAddr = getContractImplementation(ethereum.chainId)
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+      params: {
+        id: new Date().getTime(),
+        meta: {
+          isSignAction: true,
+          networkId: ethereum.id,
+          accountAddr: account.addr
+        },
+        action: {
+          kind: 'authorization-7702',
+          chainId: 0n,
+          nonce: 0n,
+          contractAddr,
+          message: getAuthorizationHash(0n, contractAddr, 0n),
+          affectedNetworks: nonceZeroNetworks
+        }
+      }
+    })
+  }
+
   return (
     <>
       <SettingsPageHeader title="Basic to Smart" />
@@ -159,6 +218,40 @@ const BasicToSmartSettingsScreen = () => {
               options={accountsOptions}
               value={accountsOptions.filter((opt) => opt.value === account.addr)[0]}
             />
+          </View>
+          <View style={[flexbox.directionRow, spacings.mbLg]}>
+            <View style={[flexbox.flex1]}>
+              <Text>
+                {t('Activate smart account functionalities for zero transaction networks')}
+
+                <InfoIcon
+                  width={16}
+                  height={16}
+                  data-tooltip-id="activate-all-tooltip"
+                  style={spacings.mlTy}
+                />
+                <Tooltip id="activate-all-tooltip">
+                  <View>
+                    <Text fontSize={14} appearance="secondaryText" style={spacings.mbMi}>
+                      {t(
+                        `Use this option to enable smart account functionalities for your Basic Account on ${nonceZeroNetworks.join(
+                          ', '
+                        )} and all future networks. These are all networks you haven't performed a transaction on and therefore can be enabled at the same time`
+                      )}
+                    </Text>
+                  </View>
+                </Tooltip>
+              </Text>
+            </View>
+            <View style={[flexbox.flex1]}>
+              <Button
+                size="small"
+                disabled={isActivateAllDisabled()}
+                style={[spacings.mb0]}
+                onPress={() => activateAll()}
+                text="Activate All"
+              />
+            </View>
           </View>
           <View
             style={[
