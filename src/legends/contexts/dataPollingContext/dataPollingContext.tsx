@@ -22,6 +22,18 @@ const POLLING_INTERVAL = 60000 // 1 min
 // Ensures that contexts are refreshed immediately but avoids redundant updates if the last refresh was recent.
 const VISIBLE_TAB_MIN_CACHE_TIME = 10000 // 10 sec
 
+// If you want to debug a polling-related issue
+// or simply monitor when and how polling is activated, set `IS_DEBUGGING` to `true`.
+// This will enable extensive logs in the dev console.
+const IS_DEBUGGING = false
+
+const log = (...args: any[]) => {
+  if (IS_DEBUGGING) {
+    // eslint-disable-next-line no-console
+    console.info('ℹ️ DataPollingContext:', ...args)
+  }
+}
+
 // A common context for auto polling and updating the app state.
 // On every POLLING_INTERVAL, it updates the app state by calling the get methods of the contexts we have.
 // When the tab is hidden, we stop the timer/updates to avoid making unnecessary calls to the API.
@@ -83,25 +95,24 @@ const DataPollingContextProvider: React.FC<any> = ({ children }) => {
   // Activates polling.
   // If `forceStart` is set, it fetches the data immediately and schedules the next polling cycle.
   // If omitted, it only schedules the initial data polling.
-  // The `console.log` is left commented out in case a problem arises, making it easy to debug.
   const startPolling = useCallback((forceStart = false) => {
     const poll = async () => {
       const context = latestStateRef.current
 
       if (!context.character?.address) {
-        // console.log('Polling: skipping this iteration, as character is not loaded yet!')
+        log('Skipping this iteration, as character is not loaded yet!')
         startPolling()
         return
       }
 
       if (isPollingRef.current) {
-        // console.log('Polling: skipping this iteration, as polling is already active!')
+        log('Skipping this iteration, as polling is already active!')
         return
       }
 
       isPollingRef.current = true
 
-      // console.log('Polling:', { character: context.character?.address }, Date.now())
+      log('Fetching data', { character: context.character?.address }, Date.now())
       try {
         await Promise.all([
           context.getCharacter(),
@@ -115,6 +126,7 @@ const DataPollingContextProvider: React.FC<any> = ({ children }) => {
       } catch (error) {
         // For now, in case of a context update failure during polling, we simply reschedule the next polling,
         // as each context has its own error handling.
+        // eslint-disable-next-line no-console
         console.error('An error occurred while polling the latest character data:', error)
       }
 
@@ -138,20 +150,18 @@ const DataPollingContextProvider: React.FC<any> = ({ children }) => {
       }
     }
 
-    // console.log('Polling: Scheduling next interval', Date.now())
+    log('Scheduling next interval!', Date.now())
 
     // Clear active timeout, if there
     clearTimeout(pollingIntervalRef.current)
     pollingIntervalRef.current = setTimeout(poll, forceStart ? 0 : POLLING_INTERVAL)
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Intentionally empty dependency array
 
   const stopPolling = useCallback(() => {
     clearTimeout(pollingIntervalRef.current)
     pollingIntervalRef.current = null
     isPollingRef.current = false
-    // console.log('Polling: stopped!')
+    log('Polling stopped!', Date.now())
   }, [])
 
   useEffect(() => {
@@ -159,6 +169,10 @@ const DataPollingContextProvider: React.FC<any> = ({ children }) => {
     startPolling()
 
     const handleVisibilityChange = () => {
+      // Gotcha: `document.visibilityState === 'visible'` is also triggered when switching to the Legends tab from another tab,
+      // but only if the context was unmounted and then remounted (remount happens in the case you switch the character).
+      // This isn't an issue for us since we prevent multiple intervals from being scheduled simultaneously,
+      // but it's something to keep in mind.
       if (document.visibilityState === 'visible') {
         // Refresh data immediately when the tab becomes active if `VISIBLE_TAB_MIN_CACHE_TIME` has passed.
         // Otherwise, schedule the next update using `POLLING_INTERVAL`.
