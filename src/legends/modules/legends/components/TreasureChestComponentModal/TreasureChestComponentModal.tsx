@@ -2,6 +2,7 @@ import { BrowserProvider } from 'ethers'
 import React, { useCallback, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 
+import CheckIcon from '@legends/common/assets/svg/CheckIcon'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
 import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
@@ -29,8 +30,6 @@ interface TreasureChestComponentModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const POST_UNLOCK_STATES = ['unlocked', 'opening', 'opened', 'error']
-
 const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = ({
   isOpen,
   setIsOpen
@@ -38,10 +37,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
-  const [chestState, setChestState] = useState<
-    'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
-  >('locked')
-  const [isInProgress, setIsInProgress] = useState(false)
+
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const chainRef = React.useRef<HTMLImageElement>(null)
 
@@ -57,11 +53,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     setIsOpen(false)
   }
 
-  const setChestToUnlocked = useCallback(() => {
-    unlockChainAnimation()
-    setChestState('unlocked')
-  }, [unlockChainAnimation])
-
   const treasureLegend: ChestCard | undefined = useMemo(
     () =>
       legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest)) as
@@ -71,6 +62,15 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   )
 
   const isCompleted = treasureLegend?.card.status === CardStatus.completed
+
+  const [chestState, setChestState] = useState<
+    'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
+  >(isCompleted ? 'opened' : 'locked')
+
+  const setChestToUnlocked = useCallback(() => {
+    unlockChainAnimation()
+    setChestState('unlocked')
+  }, [unlockChainAnimation])
 
   const getButtonLabel = () => {
     switch (chestState) {
@@ -92,10 +92,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const action = treasureLegend?.action as CardActionCalls
 
   const unlockChest = useCallback(async () => {
-    setIsInProgress(true)
-    unlockChainAnimation()
-    setChestState('unlocked')
-    openChest()
+    setChestState('unlocking')
     await switchNetwork()
 
     const provider = new BrowserProvider(window.ethereum)
@@ -113,7 +110,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         false
       )
 
-      addToast('The chest will be opened shortly. ETA 10s')
+      addToast('The chest will be unlocked shortly. ETA 10s')
 
       await getCallsStatus(sendCallsIdentifier)
 
@@ -121,7 +118,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         connectedAccount,
         'dailyReward',
         getLegends,
-        setIsInProgress,
         setChestToUnlocked,
         addToast
       )
@@ -140,7 +136,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             connectedAccount,
             'dailyReward',
             getLegends,
-            setIsInProgress,
             setChestToUnlocked,
             addToast
           )
@@ -154,7 +149,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       }
     } catch (e: any) {
       const message = humanizeLegendsBroadcastError(e)
-      setIsInProgress(false)
       setChestState('locked')
 
       console.error(e)
@@ -169,21 +163,12 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     chainId,
     getCallsStatus,
     addToast,
-    setIsInProgress,
     setChestToUnlocked
   ])
 
   const openChest = async () => {
-    setChestState('opening')
-
-    // Simulate the chest opening process
-    setTimeout(() => {
-      setChestState('opened')
-      // Open another modal here
-      // Example: setAnotherModalOpen(true)
-
-      setCongratsModalOpen(true)
-    }, 2000)
+    setChestState('opened')
+    setCongratsModalOpen(true)
   }
 
   const onButtonClick = async () => {
@@ -218,28 +203,33 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             {treasureLegend.meta.points.map((point, index) => (
               <div
                 key={point}
-                className={
-                  index === (treasureLegend.meta.points.length ?? 0) - 1 ? styles.last : ''
-                }
+                className={`${styles.day}  ${
+                  !isCompleted && chestState === 'opened' && index === treasureLegend.meta.streak
+                    ? styles.current
+                    : ''
+                } ${
+                  index < (treasureLegend.meta.streak ?? -1) && chestState === 'opened'
+                    ? styles.passed
+                    : ''
+                }`}
               >
-                <div
-                  className={`${styles.day}  ${
-                    (!isCompleted && index === treasureLegend.meta.streak) ||
-                    index < (treasureLegend.meta.streak ?? -1)
-                      ? styles.current
-                      : ''
-                  }`}
-                >
-                  <div className={styles.icon}>
-                    +{point} <CoinIcon width={20} height={20} />
-                  </div>
-                  <p className={styles.dayText}>
-                    {(isCompleted && (treasureLegend.meta.streak ?? 0) - 1 === index) ||
-                    (!isCompleted && treasureLegend.meta.streak === index)
-                      ? 'Today'
-                      : `Day ${index + 1}`}
-                  </p>
+                <div className={styles.icon}>
+                  {index < (treasureLegend.meta.streak ?? -1) && chestState === 'opened' ? (
+                    <CheckIcon width={20} height={20} />
+                  ) : (
+                    <>
+                      +{point} <CoinIcon width={20} height={20} />
+                    </>
+                  )}
                 </div>
+                <p className={styles.dayText}>
+                  {(isCompleted &&
+                    chestState === 'opened' &&
+                    (treasureLegend.meta.streak ?? 0) - 1 === index) ||
+                  (!isCompleted && chestState === 'opened' && treasureLegend.meta.streak === index)
+                    ? 'Today'
+                    : `Day ${index + 1}`}
+                </p>
               </div>
             ))}
           </div>
@@ -252,7 +242,9 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           <button
             type="button"
             className={styles.button}
-            disabled={isCompleted || isInProgress}
+            disabled={
+              chestState === 'opening' || chestState === 'opened' || chestState === 'unlocking'
+            }
             onClick={onButtonClick}
           >
             {getButtonLabel()}
@@ -264,7 +256,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         <div className={styles.congratsModal}>
           <Modal.Heading className={styles.title}>Congrats!</Modal.Heading>
           <Modal.Text className={styles.text}>
-            You Collected {treasureLegend.meta.points[treasureLegend.meta.streak - 1] || 0} points
+            You Collected +{treasureLegend.meta.points[treasureLegend.meta.streak - 1] || 0} XP
             today!
           </Modal.Text>
           <div className={styles.openedChestWrapper}>
