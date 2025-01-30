@@ -55,11 +55,9 @@ const PendingTransactions: FC<Props> = ({ network }) => {
       <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
         {network && callsToVisualize.length ? (
           callsToVisualize.map((call, i) => {
-            const key = call.fromUserRequestId ?? `fallback-key-${i}`
-
             return (
               <TransactionSummary
-                key={key}
+                key={call.id}
                 style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                 call={call}
                 networkId={network.id}
