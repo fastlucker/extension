@@ -42,9 +42,20 @@ $landingBoxShadow: #372f23;
 $landingAccent: #374d26;
 
 $success: #4e9200;
+$successText: #3e7400;
+$successBackground: rgba(78, 146, 0, 0.2);
+
 $warning: #ba8315;
+$warningText: #946810;
+$warningBackground: rgba(186, 131, 21, 0.2);
+
 $error: #e33535;
+$errorText: #b02a2a;
+$errorBackground: rgba(227, 53, 53, 0.2);
+
 $info: #1a66df;
+$infoText: #1552b2;
+$infoBackground: rgba(26, 102, 223, 0.2);
 
 $primaryGradient: linear-gradient(
   90deg,

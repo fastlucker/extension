@@ -69,11 +69,12 @@ const TransactionSummary = ({
   })
 
   const handleRemoveCall = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: 'User rejected the request.', id: call.fromUserRequestId as number }
-    })
-  }, [call.fromUserRequestId, dispatch])
+    !!call.id &&
+      dispatch({
+        type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL',
+        params: { callId: call.id }
+      })
+  }, [dispatch, call.id])
 
   return (
     <ExpandableCard

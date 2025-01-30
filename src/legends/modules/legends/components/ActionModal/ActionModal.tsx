@@ -1,4 +1,4 @@
-import React, { createContext, FC, useContext, useMemo } from 'react'
+import React, { createContext, FC, useContext, useMemo, useState } from 'react'
 
 import Modal from '@legends/components/Modal'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
@@ -6,6 +6,7 @@ import { CardActionComponentProps } from '@legends/modules/legends/components/Ca
 import Rewards from '@legends/modules/legends/components/Card/CardContent/Rewards'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
+import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
 
@@ -16,6 +17,8 @@ import Referral from './Referral/Referral'
 type CardActionContextType = {
   onComplete: (txnId: string) => Promise<void>
   handleClose: () => void
+  activeStep: null | number
+  setActiveStep: React.Dispatch<React.SetStateAction<null | number>>
 }
 
 const cardActionContext = createContext<CardActionContextType>({} as CardActionContextType)
@@ -30,7 +33,6 @@ export const useCardActionContext = () => {
 
 type ActionModalProps = {
   isOpen: boolean
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
   onLegendCompleteWrapped: (txnId: string) => Promise<void>
   closeActionModal: () => void
   predefinedId?: string
@@ -44,7 +46,6 @@ type ActionModalProps = {
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
-  setIsOpen,
   title,
   flavor,
   xp,
@@ -58,24 +59,41 @@ const ActionModal: FC<ActionModalProps> = ({
   action,
   predefinedId
 }) => {
+  const [activeStep, setActiveStep] = useState<null | number>(null)
+
   const cardActionContextValue = useMemo(
-    () => ({ onComplete: onLegendCompleteWrapped, handleClose: closeActionModal }),
-    [closeActionModal, onLegendCompleteWrapped]
+    () => ({
+      onComplete: onLegendCompleteWrapped,
+      handleClose: closeActionModal,
+      activeStep,
+      setActiveStep
+    }),
+    [activeStep, closeActionModal, onLegendCompleteWrapped]
   )
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
-    return <WheelComponentModal isOpen={isOpen} setIsOpen={setIsOpen} />
+    return <WheelComponentModal isOpen={isOpen} handleClose={closeActionModal} />
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.chest) {
+    return <TreasureChestComponentModal isOpen={isOpen} handleClose={closeActionModal} />
   }
 
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} className={styles.modal}>
+    <Modal isOpen={isOpen} handleClose={closeActionModal} className={styles.modal}>
       <Modal.Heading className={styles.modalHeading}>
         <div className={styles.modalHeadingTitle}>{title}</div>
         {xp && <Rewards xp={xp} size="lg" />}
       </Modal.Heading>
       <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
       {contentSteps && (
-        <HowTo steps={contentSteps} image={contentImage} imageAlt={flavor} video={contentVideo}>
+        <HowTo
+          steps={contentSteps}
+          activeStep={activeStep}
+          image={contentImage}
+          imageAlt={flavor}
+          video={contentVideo}
+        >
           {predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />}
         </HowTo>
       )}

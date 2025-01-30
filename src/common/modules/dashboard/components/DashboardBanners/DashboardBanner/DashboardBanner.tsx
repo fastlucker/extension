@@ -1,3 +1,6 @@
+// Keep the bottomsheet implementation
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useCallback, useMemo } from 'react'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
@@ -27,7 +30,7 @@ const DashboardBanner = ({
   const { navigate } = useNavigation()
   const { visibleActionsQueue } = useActionsControllerState()
   const { statuses } = useMainControllerState()
-  const { account } = useSelectedAccountControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
@@ -38,6 +41,7 @@ const DashboardBanner = ({
 
   const handleActionPress = useCallback(
     (action: Action) => {
+      // TODO: Replace with switch or at least else if chaining
       if (action.actionName === 'open-pending-dapp-requests') {
         if (!visibleActionsQueue) return
         const dappActions = visibleActionsQueue.filter((a) => a.type !== 'accountOp')
@@ -83,10 +87,6 @@ const DashboardBanner = ({
         navigate(ROUTES.devicePasswordRecovery)
       }
 
-      if (action.actionName === 'select-rpc-url') {
-        setBottomSheetBanner(banner)
-      }
-
       if (action.actionName === 'open-swap-and-bridge-tab') {
         navigate(ROUTES.swapAndBridge)
       }
@@ -129,8 +129,14 @@ const DashboardBanner = ({
           type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
         })
       }
+
+      if (action.actionName === 'reload-selected-account') {
+        dispatch({
+          type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+        })
+      }
     },
-    [visibleActionsQueue, type, banner, setBottomSheetBanner, dispatch, addToast, navigate, account]
+    [visibleActionsQueue, type, dispatch, addToast, navigate, account]
   )
 
   const renderButtons = useMemo(
@@ -147,6 +153,9 @@ const DashboardBanner = ({
             actionText = 'Preparing...'
             isDisabled = true
           }
+        } else if (action.actionName === 'reload-selected-account' && !portfolio.isAllReady) {
+          isDisabled = true
+          actionText = 'Retrying...'
         }
 
         return (
@@ -160,7 +169,7 @@ const DashboardBanner = ({
           />
         )
       }),
-    [actions, handleActionPress, statuses.buildSwapAndBridgeUserRequest]
+    [actions, handleActionPress, portfolio.isAllReady, statuses.buildSwapAndBridgeUserRequest]
   )
 
   return (

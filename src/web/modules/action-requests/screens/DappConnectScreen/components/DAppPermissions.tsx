@@ -95,7 +95,7 @@ const DAppPermissions: FC<{ responsiveSizeMultiplier: number }> = ({
           />
         </DAppPermissionIcon>
         <DAppPermissionText style={spacings.ptMi}>
-          Allow the dApp to{' '}
+          Allow the app to{' '}
           <DAppPermissionText weight="medium">{t('see your addresses')}</DAppPermissionText>
         </DAppPermissionText>
       </DAppPermissionWrapper>
@@ -108,7 +108,7 @@ const DAppPermissions: FC<{ responsiveSizeMultiplier: number }> = ({
           />
         </DAppPermissionIcon>
         <DAppPermissionText style={spacings.ptMi}>
-          Allow the dApp to{' '}
+          Allow the app to{' '}
           <DAppPermissionText weight="medium">{t('propose transactions')}</DAppPermissionText>
         </DAppPermissionText>
       </DAppPermissionWrapper>
@@ -121,7 +121,7 @@ const DAppPermissions: FC<{ responsiveSizeMultiplier: number }> = ({
           />
         </DAppPermissionIcon>
         <DAppPermissionText style={spacings.ptMi}>
-          The dApp <DAppPermissionText weight="medium">{t('cannot move funds')}</DAppPermissionText>{' '}
+          The app <DAppPermissionText weight="medium">{t('cannot move funds')}</DAppPermissionText>{' '}
           without your permission
         </DAppPermissionText>
       </DAppPermissionWrapper>
