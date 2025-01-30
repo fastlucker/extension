@@ -46,11 +46,13 @@ const useSwapAndBridgeForm = () => {
     toChainId,
     updateToTokenListStatus,
     supportedChainIds,
+    updateQuoteStatus,
     sessionIds
   } = useSwapAndBridgeControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
+  const [highPriceImpactConfirmed, setHighPriceImpactConfirmed] = useState<boolean>(false)
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -147,10 +149,22 @@ const useSwapAndBridgeForm = () => {
   )
 
   useEffect(() => {
-    if (followUpTransactionConfirmed && formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+    if (
+      followUpTransactionConfirmed &&
+      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || updateQuoteStatus === 'LOADING')
+    ) {
       setFollowUpTransactionConfirmed(false)
     }
-  }, [followUpTransactionConfirmed, formStatus])
+  }, [followUpTransactionConfirmed, formStatus, updateQuoteStatus])
+
+  useEffect(() => {
+    if (
+      highPriceImpactConfirmed &&
+      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || updateQuoteStatus === 'LOADING')
+    ) {
+      setHighPriceImpactConfirmed(false)
+    }
+  }, [highPriceImpactConfirmed, formStatus, updateQuoteStatus])
 
   const {
     options: fromTokenOptions,
@@ -312,6 +326,24 @@ const useSwapAndBridgeForm = () => {
     )
   }, [quote, formStatus])
 
+  const highPriceImpactInPercentage = useMemo(() => {
+    if (updateQuoteStatus === 'LOADING') return null
+
+    if (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) return null
+
+    if (!quote || !quote.selectedRoute) return null
+
+    const difference = Math.abs(
+      quote.selectedRoute.inputValueInUsd - quote.selectedRoute.outputValueInUsd
+    )
+    const average = (quote.selectedRoute.inputValueInUsd + quote.selectedRoute.outputValueInUsd) / 2
+    const res = (difference / average) * 100
+
+    if (res < 5) return null
+
+    return res
+  }, [quote, formStatus, updateQuoteStatus])
+
   const handleSubmitForm = useCallback(() => {
     dispatch({
       type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
@@ -353,6 +385,9 @@ const useSwapAndBridgeForm = () => {
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
+    highPriceImpactInPercentage,
+    highPriceImpactConfirmed,
+    setHighPriceImpactConfirmed,
     settingModalVisible,
     handleToggleSettingsMenu,
     handleSwitchFromAndToTokens,

@@ -71,6 +71,9 @@ const SwapAndBridgeScreen = () => {
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
+    highPriceImpactInPercentage,
+    highPriceImpactConfirmed,
+    setHighPriceImpactConfirmed,
     handleSwitchFromAndToTokens,
     pendingRoutes,
     routesModalRef,
@@ -135,9 +138,13 @@ const SwapAndBridgeScreen = () => {
     )
   }, [fromAmountFieldMode, fromAmountInFiat])
 
-  const handleCheckboxPress = useCallback(() => {
+  const handleFollowUpTransactionConfirmedCheckboxPress = useCallback(() => {
     setFollowUpTransactionConfirmed((p) => !p)
   }, [setFollowUpTransactionConfirmed])
+
+  const handleHighPriceImpactCheckboxPress = useCallback(() => {
+    setHighPriceImpactConfirmed((p) => !p)
+  }, [setHighPriceImpactConfirmed])
 
   const handleOpenReadMore = useCallback(() => Linking.openURL(SWAP_AND_BRIDGE_HC_URL), [])
 
@@ -476,13 +483,13 @@ const SwapAndBridgeScreen = () => {
                       <Checkbox
                         value={followUpTransactionConfirmed}
                         style={{ ...spacings.mb0, ...flexbox.alignCenter }}
-                        onValueChange={handleCheckboxPress}
+                        onValueChange={handleFollowUpTransactionConfirmedCheckboxPress}
                       >
                         <Text fontSize={12}>
                           <Text
                             fontSize={12}
                             weight="medium"
-                            onPress={handleCheckboxPress}
+                            onPress={handleFollowUpTransactionConfirmedCheckboxPress}
                             testID="confirm-follow-up-txns-checkbox"
                             color={
                               followUpTransactionConfirmed
@@ -513,19 +520,55 @@ const SwapAndBridgeScreen = () => {
                 </>
               )}
             </Panel>
+            {!!highPriceImpactInPercentage && (
+              <View style={spacings.ptTy}>
+                <Alert type="error" withIcon={false}>
+                  <Checkbox
+                    value={highPriceImpactConfirmed}
+                    style={{ ...spacings.mb0 }}
+                    onValueChange={handleHighPriceImpactCheckboxPress}
+                    uncheckedBorderColor={theme.errorDecorative}
+                    checkedColor={theme.errorDecorative}
+                  >
+                    <Text
+                      fontSize={16}
+                      appearance="errorText"
+                      weight="medium"
+                      onPress={handleHighPriceImpactCheckboxPress}
+                    >
+                      {t('Warning: ')}
+                      <Text
+                        fontSize={16}
+                        appearance="errorText"
+                        onPress={handleHighPriceImpactCheckboxPress}
+                      >
+                        {t(
+                          'The price impact is too high {{highPriceImpactInPercentage}}%. If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
+                          { highPriceImpactInPercentage: highPriceImpactInPercentage.toFixed(1) }
+                        )}
+                      </Text>
+                    </Text>
+                  </Checkbox>
+                </Alert>
+              </View>
+            )}
             <View style={spacings.ptTy}>
               <Button
                 text={
                   mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
                     ? t('Building Transaction...')
+                    : highPriceImpactInPercentage
+                    ? t('Continue anyway')
                     : t('Proceed')
                 }
                 disabled={
                   formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
                   shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
+                  (!!highPriceImpactInPercentage && !highPriceImpactConfirmed) ||
                   mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
                   updateQuoteStatus === 'LOADING'
                 }
+                type={highPriceImpactInPercentage ? 'error' : 'primary'}
                 onPress={handleSubmitForm}
               />
             </View>
