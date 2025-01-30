@@ -7,11 +7,11 @@ import { CardActionType } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils/cards'
 
 interface LeaderModalProps {
-  setIsLeaderModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  handleClose: () => void
   isLeaderModalOpen: boolean
 }
 
-const LeaderModal: React.FC<LeaderModalProps> = ({ setIsLeaderModalOpen, isLeaderModalOpen }) => {
+const LeaderModal: React.FC<LeaderModalProps> = ({ handleClose, isLeaderModalOpen }) => {
   const { legends = [], onLegendComplete } = useLegendsContext()
 
   const card = legends.find((legend) =>
@@ -23,19 +23,16 @@ const LeaderModal: React.FC<LeaderModalProps> = ({ setIsLeaderModalOpen, isLeade
     action && action?.type === CardActionType.predefined ? action.predefinedId : ''
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[predefinedId] || 'Proceed'
 
-  const closeActionModal = () => setIsLeaderModalOpen(false)
-
   if (!card) return null
 
   return (
     <ActionModal
       {...card}
       isOpen={isLeaderModalOpen}
-      setIsOpen={setIsLeaderModalOpen}
       buttonText={buttonText}
       steps={contentSteps || []}
       onLegendCompleteWrapped={onLegendComplete}
-      closeActionModal={closeActionModal}
+      closeActionModal={handleClose}
       predefinedId={predefinedId}
     />
   )

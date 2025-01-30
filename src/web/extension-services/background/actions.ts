@@ -187,6 +187,10 @@ type MainControllerRejectUserRequestAction = {
   type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
   params: { err: string; id: UserRequest['id'] }
 }
+type MainControllerRejectSignAccountOpCall = {
+  type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
+  params: { callId: string }
+}
 type MainControllerResolveAccountOpAction = {
   type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
   params: { data: any; actionId: AccountOpAction['id'] }
@@ -549,6 +553,8 @@ type InviteControllerVerifyAction = {
   type: 'INVITE_CONTROLLER_VERIFY'
   params: { code: string }
 }
+type InviteControllerBecomeOGAction = { type: 'INVITE_CONTROLLER_BECOME_OG' }
+type InviteControllerRevokeOGAction = { type: 'INVITE_CONTROLLER_REVOKE_OG' }
 
 type MainControllerTraceCallAction = {
   type: 'MAIN_CONTROLLER_TRACE_CALL'
@@ -599,6 +605,7 @@ export type Action =
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
+  | MainControllerRejectSignAccountOpCall
   | MainControllerResolveAccountOpAction
   | MainControllerRejectAccountOpAction
   | MainControllerResolveSwitchAccountRequest
@@ -668,6 +675,8 @@ export type Action =
   | AutoLockControllerSetLastActiveTimeAction
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction
+  | InviteControllerBecomeOGAction
+  | InviteControllerRevokeOGAction
   | MainControllerTraceCallAction
   | ImportSmartAccountJson
   | KeystoreControllerSendSeedOverChannel

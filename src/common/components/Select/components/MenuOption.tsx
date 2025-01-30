@@ -56,16 +56,24 @@ const Option = React.memo(({ item }: { item: SelectValue }) => {
 const MenuOption = React.memo(
   ({
     item,
+    index,
     height,
     isSelected,
+    isHighlighted,
     onPress,
+    onHoverIn,
+    onHoverOut,
     disabled,
     size
   }: {
+    index: number
     item: SelectValue
     height?: number
     isSelected: boolean
+    isHighlighted: boolean
     onPress: (item: SelectValue) => void
+    onHoverIn: (index: number) => void
+    onHoverOut: () => void
     disabled?: boolean
     size: SelectProps['size']
   }) => {
@@ -77,16 +85,23 @@ const MenuOption = React.memo(
       onPress(item)
     }, [onPress, item, disabled])
 
+    const handleHoverIn = useCallback(() => {
+      !!onHoverIn && onHoverIn(index)
+    }, [index, onHoverIn])
+
     return (
       <Pressable
-        style={({ hovered }: any) => [
+        style={[
           styles.menuOption,
           size && styles[`${size}MenuOption`],
           !!height && { height },
           isSelected && { backgroundColor: theme.tertiaryBackground },
-          hovered && !disabled && { backgroundColor: theme.secondaryBackground },
+          isHighlighted && !disabled && { backgroundColor: theme.secondaryBackground },
+          // @ts-ignore
           disabled && { opacity: 0.6, cursor: 'not-allowed' }
         ]}
+        onHoverIn={handleHoverIn}
+        onHoverOut={onHoverOut}
         onPress={onPressWrapped}
       >
         <Option item={item} />

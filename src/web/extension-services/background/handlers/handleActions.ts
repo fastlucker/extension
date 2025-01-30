@@ -295,6 +295,9 @@ export const handleActions = async (
       return mainCtrl.resolveUserRequest(params.data, params.id)
     case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
       return mainCtrl.rejectUserRequest(params.err, params.id)
+    case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
+      return mainCtrl.rejectSignAccountOpCall(params.callId)
+    }
     case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
       return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
     case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
@@ -579,6 +582,12 @@ export const handleActions = async (
 
     case 'INVITE_CONTROLLER_VERIFY': {
       return await mainCtrl.invite.verify(params.code)
+    }
+    case 'INVITE_CONTROLLER_BECOME_OG': {
+      return await mainCtrl.invite.becomeOG()
+    }
+    case 'INVITE_CONTROLLER_REVOKE_OG': {
+      return await mainCtrl.invite.revokeOG()
     }
 
     case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
