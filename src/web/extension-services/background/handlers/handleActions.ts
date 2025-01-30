@@ -294,6 +294,9 @@ export const handleActions = async (
       return mainCtrl.resolveUserRequest(params.data, params.id)
     case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
       return mainCtrl.rejectUserRequest(params.err, params.id)
+    case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
+      return mainCtrl.rejectSignAccountOpCall(params.callId)
+    }
     case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
       return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
     case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
