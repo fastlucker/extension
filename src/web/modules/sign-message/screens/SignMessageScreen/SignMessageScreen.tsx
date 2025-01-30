@@ -7,7 +7,6 @@ import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
-import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
@@ -297,14 +296,11 @@ const SignMessageScreen = () => {
                 )
               }
             />
-            {signMessageState.messageToSign?.fromActionId !==
-              ENTRY_POINT_AUTHORIZATION_REQUEST_ID && (
-              <FallbackVisualization
-                setHasReachedBottom={setHasReachedBottom}
-                hasReachedBottom={!!hasReachedBottom}
-                messageToSign={signMessageState.messageToSign}
-              />
-            )}
+            <FallbackVisualization
+              setHasReachedBottom={setHasReachedBottom}
+              hasReachedBottom={!!hasReachedBottom}
+              messageToSign={signMessageState.messageToSign}
+            />
           </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
