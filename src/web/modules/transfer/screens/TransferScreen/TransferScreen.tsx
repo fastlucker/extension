@@ -121,7 +121,6 @@ const TransferScreen = () => {
     if (hasFocusedActionWindow || !isSmartAccount) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
-    console.log('numOfRequests', numOfRequests)
 
     if (numOfRequests) {
       if (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) {
