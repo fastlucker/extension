@@ -121,11 +121,13 @@ const TransferScreen = () => {
     if (hasFocusedActionWindow || !isSmartAccount) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
-    if (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) {
-      numOfRequests++ // the queued txns + the one from the form
-    }
+    console.log('numOfRequests', numOfRequests)
 
     if (numOfRequests) {
+      if (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) {
+        numOfRequests++ // the queued txns + the one from the form
+      }
+
       if (isFormEmpty) return t('Sign All Pending ({{count}})', { count: numOfRequests })
       return isTopUp
         ? t('Top Up ({{count}})', { count: numOfRequests })
@@ -145,12 +147,13 @@ const TransferScreen = () => {
     t
   ])
 
+  const isTransferFormValid = useMemo(
+    () => (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError),
+    [addressInputState.validation.isError, isFormValid, isTopUp]
+  )
+
   const isSendButtonDisabled = useMemo(() => {
     if (isOffline) return true
-
-    const isTransferFormValid = isTopUp
-      ? isFormValid
-      : isFormValid && !addressInputState.validation.isError
 
     if (!isSmartAccount) return !isTransferFormValid
 
@@ -159,11 +162,9 @@ const TransferScreen = () => {
     }
     return !isTransferFormValid
   }, [
-    addressInputState.validation.isError,
     isFormEmpty,
-    isFormValid,
+    isTransferFormValid,
     isOffline,
-    isTopUp,
     isSmartAccount,
     transactionUserRequests.length,
     hasFocusedActionWindow
