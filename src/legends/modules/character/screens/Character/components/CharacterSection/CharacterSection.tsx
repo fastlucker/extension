@@ -39,9 +39,13 @@ const CharacterSection = () => {
     setIsModalOpen(true)
   }
 
+  const closeDescriptionModal = () => {
+    setIsModalOpen(false)
+  }
+
   return (
     <section className={styles.wrapper}>
-      <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen} className={styles.modal}>
+      <Modal isOpen={isModalOpen} handleClose={closeDescriptionModal} className={styles.modal}>
         <Modal.Heading className={styles.modalTitle}>Description</Modal.Heading>
         <Modal.Text className={styles.modalText}>{character?.description}</Modal.Text>
       </Modal>
