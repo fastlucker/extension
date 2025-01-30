@@ -25,14 +25,15 @@ export const calculateGasTankBalance = (
   if (
     !account?.addr ||
     !gasTankResult ||
-    !Array.isArray(gasTankResult.tokens) ||
-    gasTankResult.tokens.length === 0 ||
+    !('gasTankTokens' in gasTankResult) ||
+    !Array.isArray(gasTankResult.gasTankTokens) ||
+    gasTankResult.gasTankTokens.length === 0 ||
     !isSA
   ) {
     return 0
   }
 
-  const token = gasTankResult.tokens[0]
+  const token = gasTankResult.gasTankTokens[0]
 
   return key === 'usd' ? Number(gasTankResult.total?.[key]) || 0 : calculateTokenBalance(token, key)
 }

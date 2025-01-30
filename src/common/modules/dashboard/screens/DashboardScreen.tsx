@@ -47,9 +47,16 @@ const DashboardScreen = () => {
   const shouldPopsUpConfetti = useMemo(() => {
     if (!account) return false
 
-    const tokens = portfolio?.latest?.gasTank?.result?.tokens
+    const gasTankResult = portfolio?.latest?.gasTank?.result
 
-    return tokens?.[0]?.shouldPopsUpConfetti ?? false
+    if (
+      !gasTankResult ||
+      !('gasTankTokens' in gasTankResult) ||
+      !Array.isArray(gasTankResult.gasTankTokens)
+    )
+      return false
+
+    return gasTankResult?.gasTankTokens?.[0]?.shouldPopsUpConfetti ?? false
   }, [account, portfolio])
 
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{

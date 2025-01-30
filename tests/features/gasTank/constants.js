@@ -33,8 +33,6 @@ export const MOCK_RESPONSE = {
           symbol: 'USDC',
           amount: '3523949',
           availableAmount: '3523949',
-          // "cashback": "2057",
-          // "saved": "29046",
           cashback: '0',
           saved: '0',
           decimals: 6,
