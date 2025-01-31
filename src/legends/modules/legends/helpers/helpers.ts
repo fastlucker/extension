@@ -6,7 +6,7 @@ const checkTransactionStatus = async (
   connectedAccount: string | null,
   txAction: string,
   getLegends: () => Promise<void>,
-  setState: any,
+  setState: () => void,
   addToast: (message: string, options?: ToastOptions) => void
 ) => {
   try {
