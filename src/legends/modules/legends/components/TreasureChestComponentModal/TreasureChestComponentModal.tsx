@@ -1,7 +1,8 @@
 import { BrowserProvider } from 'ethers'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 
+import { preloadImages } from '@common/utils/images'
 import CheckIcon from '@legends/common/assets/svg/CheckIcon'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
 import CloseIcon from '@legends/components/CloseIcon'
@@ -41,8 +42,18 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const chainRef = React.useRef<HTMLImageElement>(null)
 
+  // Load the modal in the dom but don't show it immediately
+  // This is done to preload all images
+  useEffect(() => {
+    preloadImages([chestImage, chainImage, chestImageOpened, starImage])
+  }, [])
+
   const unlockChainAnimation = useCallback(() => {
     if (chainRef.current) chainRef.current.classList.add(styles.unlocked)
+  }, [])
+
+  const stopChainAnimation = useCallback(() => {
+    if (chainRef.current) chainRef.current.classList.add(styles.unlocking)
   }, [])
 
   const switchNetwork = useSwitchNetwork()
@@ -89,7 +100,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     }
   }
 
-  const action = treasureLegend?.action as CardActionCalls
+  const action = useMemo(() => treasureLegend?.action as CardActionCalls, [treasureLegend])
 
   const unlockChest = useCallback(async () => {
     setChestState('unlocking')
@@ -103,6 +114,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     })
 
     try {
+      stopChainAnimation()
+
       const sendCallsIdentifier = await sendCalls(
         chainId,
         await signer.getAddress(),
@@ -200,7 +213,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             </button>
           </div>
           <div className={styles.content}>
-            {treasureLegend.meta.points.map((point, index) => (
+            {/* {treasureLegend.meta.points.map((point, index) => (
               <div
                 key={point}
                 className={`${styles.day}  ${
@@ -231,7 +244,52 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
                     : `Day ${index + 1}`}
                 </p>
               </div>
-            ))}
+            ))} */}
+
+            {treasureLegend.meta.points.map((point, index) => {
+              const streak = treasureLegend.meta.streak ?? 0
+              const isOpened = isCompleted && chestState === 'opened'
+
+              const isCurrentDay = isOpened
+                ? streak - 1 === index
+                : isCompleted
+                ? streak - 1 === index
+                : streak === index
+
+              const isPassedDay = isOpened
+                ? index < streak
+                : isCompleted
+                ? index < streak - 1 // Prevent marking next day as passed too soon
+                : index < streak
+
+              console.log(
+                'isOpened',
+                isOpened,
+                'isCurrentDay',
+                isCurrentDay,
+                'isPassedDay',
+                isPassedDay
+              )
+              return (
+                <div
+                  key={point}
+                  className={`${styles.day} 
+                    ${isCurrentDay ? styles.current : ''} 
+                    ${isPassedDay ? styles.passed : ''}`}
+                >
+                  <div className={styles.icon}>
+                    {isPassedDay ? (
+                      <CheckIcon width={20} height={20} />
+                    ) : (
+                      <>
+                        +{point} <CoinIcon width={20} height={20} />
+                      </>
+                    )}
+                  </div>
+                  <p className={styles.dayText}>{isCurrentDay ? 'Today' : `Day ${index + 1}`}</p>
+                </div>
+              )
+            })}
           </div>
 
           <div className={styles.chestWrapper}>
