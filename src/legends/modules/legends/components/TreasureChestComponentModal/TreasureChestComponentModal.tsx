@@ -19,7 +19,7 @@ import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
-import chainImage from './assets/chain.png'
+import chainImage from './assets/chain-treasure-chest.png'
 import chestImageOpened from './assets/chest-opened.png'
 import chestImage from './assets/chest.png'
 import starImage from './assets/star.png'
