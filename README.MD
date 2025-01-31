@@ -115,6 +115,20 @@ Make sure your code editor has plugins that support the following configuration 
   - For the macOS target: General - App Category: "Utilities"
   - For the extension target: General - Identity - Bundle Identifier: `com.ambire.app.wallet.extension`
 
+### Store-prepared Builds
+
+Automates the steps before every extension extension store release that could be otherwise done manually:
+
+- Make PROD extension builds (webkit and gecko)
+- Export source maps to "clean" the builds (and to upload those source maps in the GitHub release)
+- Zip the "clean" builds (stores accept zips only).
+
+```bash
+yarn build:extensions
+```
+
+And find the resulting zips in the "build" folder as "ambire-extension-<VERSION>-<TYPE>"
+
 ## Mobile Apps
 
 The Ambire v2 compatible mobile apps are yet to be developed. Coming sometime in the near future 🤞
