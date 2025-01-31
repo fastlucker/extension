@@ -44,7 +44,7 @@ const DashboardScreen = () => {
 
   const { account, portfolio } = useSelectedAccountControllerState()
 
-  const shouldPopsUpConfetti = useMemo(() => {
+  const isFirstCashbackConfettiVisible = useMemo(() => {
     if (!account) return false
 
     const gasTankResult = portfolio?.latest?.gasTank?.result
@@ -56,7 +56,7 @@ const DashboardScreen = () => {
     )
       return false
 
-    return gasTankResult?.gasTankTokens?.[0]?.shouldPopsUpConfetti ?? false
+    return gasTankResult?.gasTankTokens?.[0]?.isFirstCashbackConfettiVisible ?? false
   }, [account, portfolio])
 
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
@@ -146,7 +146,7 @@ const DashboardScreen = () => {
       </View>
       <PinExtension />
       <DefaultWalletControl />
-      {shouldPopsUpConfetti && (
+      {isFirstCashbackConfettiVisible && (
         <CongratsFirstCashbackModal
           onPress={handleCongratsModalBtnPressed}
           position={gasTankButtonPosition}
