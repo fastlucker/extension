@@ -99,6 +99,11 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
     [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
   )
 
+  const shouldDisplaySkeleton = useMemo(
+    () => !tokens.length || portfolio.isLoading,
+    [portfolio.isLoading, tokens.length]
+  )
+
   const userHasNoBalance = useMemo(
     // Exclude gas tank tokens from the check
     // as new users get some Gas Tank balance by default
@@ -127,7 +132,7 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
             hasTokenAmount ||
             isInPreferences ||
             // Don't display pinned tokens until we are sure the user has no balance
-            (isPinned && userHasNoBalance && portfolio?.isAllReady)
+            (isPinned && userHasNoBalance && !portfolio?.isLoading)
           )
         })
         .sort((a, b) => {
@@ -174,7 +179,7 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
 
           return 0
         }),
-    [tokens, networks, tokenPreferences, userHasNoBalance, portfolio?.isAllReady]
+    [tokens, networks, tokenPreferences, userHasNoBalance, portfolio?.isLoading]
   )
 
   const navigateToAddCustomToken = useCallback(() => {
@@ -235,7 +240,7 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
         )
 
       if (item === 'footer') {
-        return portfolio?.isAllReady &&
+        return !portfolio?.isLoading &&
           // A trick to render the button once all tokens have been rendered. Otherwise
           // there will be layout shifts
           index === sortedTokens.length + 3 ? (
@@ -271,7 +276,7 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
       t,
       searchValue,
       dashboardNetworkFilter,
-      portfolio?.isAllReady,
+      portfolio?.isLoading,
       navigateToAddCustomToken,
       sessionId
     ]
@@ -296,9 +301,14 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
-        !portfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
+        !portfolio?.isAllReady && shouldDisplaySkeleton
+          ? 'skeleton'
+          : 'keep-this-to-avoid-key-warning',
         ...(initTab?.tokens ? sortedTokens : []),
-        !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',
+        portfolio.isAllReady && shouldDisplaySkeleton
+          ? 'skeleton'
+          : 'keep-this-to-avoid-key-warning',
+        !sortedTokens.length && !portfolio?.isLoading ? 'empty' : '',
         'footer'
       ]}
       renderItem={renderItem}

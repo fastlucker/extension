@@ -117,6 +117,10 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#CA7E04'
   },
+  warningDecorative2: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#FBBA27'
+  },
   warningBackground: {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#FBF5EB'

@@ -809,7 +809,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
       // Reset the selected account portfolio when the extension is opened
       // in a popup as the portfolio isn't updated in other cases
-      if (port.name === 'popup' && !mainCtrl.activity.broadcastedButNotConfirmed.length)
+      if (port.name === 'popup' && mainCtrl.shouldUpdatePortfolioOnOpen)
         mainCtrl.selectedAccount.resetSelectedAccountPortfolio()
 
       initPortfolioContinuousUpdate()

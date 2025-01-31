@@ -100,7 +100,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
   const renderWarningIcon = useCallback(() => {
     return (
       <WarningIcon
-        color={theme.warningDecorative}
+        color={theme.warningDecorative2}
         style={spacings.mlTy}
         data-tooltip-id="portfolio-warning"
         data-tooltip-content={warningMessage}
@@ -108,7 +108,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
         height={21}
       />
     )
-  }, [theme.warningDecorative, warningMessage])
+  }, [theme.warningDecorative2, warningMessage])
 
   const renderItem = useCallback(
     ({ item: { id, title, text, type, actions }, index }: any) => (

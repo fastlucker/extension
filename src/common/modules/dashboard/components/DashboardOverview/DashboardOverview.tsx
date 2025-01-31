@@ -163,7 +163,7 @@ const DashboardOverview: FC<Props> = ({
             >
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-                  {!portfolio.isAllReady ? (
+                  {portfolio?.isLoading ? (
                     <SkeletonLoader
                       lowOpacity
                       width={200}
@@ -182,7 +182,7 @@ const DashboardOverview: FC<Props> = ({
                           weight="number_bold"
                           color={
                             networksWithErrors.length || isOffline
-                              ? theme.warningDecorative
+                              ? theme.warningDecorative2
                               : theme.primaryBackground
                           }
                           selectable
@@ -196,7 +196,7 @@ const DashboardOverview: FC<Props> = ({
                           weight="number_bold"
                           color={
                             networksWithErrors.length || isOffline
-                              ? theme.warningDecorative
+                              ? theme.warningDecorative2
                               : theme.primaryBackground
                           }
                           selectable
@@ -211,11 +211,11 @@ const DashboardOverview: FC<Props> = ({
                     style={[spacings.mlTy, refreshButtonAnimStyle]}
                     onPress={reloadAccount}
                     {...bindRefreshButtonAnim}
-                    disabled={!portfolio.isAllReady}
+                    disabled={portfolio?.isLoading}
                     testID="refresh-button"
                   >
                     <RefreshIcon
-                      spin={!portfolio.isAllReady}
+                      spin={portfolio?.isLoading}
                       color={theme.primaryBackground}
                       width={16}
                       height={16}
