@@ -180,7 +180,7 @@ const MainRoutes = () => {
                     path={WEB_ROUTES.devicePasswordRecovery}
                     element={<DevicePasswordRecoverySettingsScreen />}
                   />
-                  <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
+                  <Route path={WEB_ROUTES.manageTokens} element={<CustomTokensSettingsScreen />} />
                   <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
                   <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
                   <Route path={WEB_ROUTES.settingsAbout} element={<AboutSettingsScreen />} />
@@ -215,7 +215,7 @@ const MainRoutes = () => {
 
             <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
             <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
-            <Route path={WEB_ROUTES.dappCatalog} element={<DappCatalogScreen />} />
+            <Route path={WEB_ROUTES.appCatalog} element={<DappCatalogScreen />} />
             <Route path={WEB_ROUTES.networks} element={<NetworksScreen />} />
           </Route>
         </Route>

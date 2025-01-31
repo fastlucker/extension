@@ -14,7 +14,8 @@ type Props = {
   content: ReactElement
   expandedContent?: ReactElement
   style?: ViewStyle
-  enableExpand?: boolean
+  enableToggleExpand?: boolean
+  isInitiallyExpanded?: boolean
   hasArrow?: boolean
   arrowPosition?: 'left' | 'right'
   children?: ReactElement | ReactElement[]
@@ -23,7 +24,8 @@ type Props = {
 
 const ExpandableCard = ({
   style,
-  enableExpand = true,
+  enableToggleExpand = true,
+  isInitiallyExpanded = false,
   hasArrow = true,
   arrowPosition = 'left',
   content,
@@ -32,13 +34,13 @@ const ExpandableCard = ({
   contentStyle
 }: Props) => {
   const { styles } = useTheme(getStyles)
-  const [isExpanded, setIsExpanded] = useState(!enableExpand)
+  const [isExpanded, setIsExpanded] = useState(!!isInitiallyExpanded)
 
-  const Element = enableExpand ? Pressable : View
+  const Element = enableToggleExpand ? Pressable : View
 
   return (
     <View style={[styles.container, style]}>
-      <Element onPress={() => !!enableExpand && setIsExpanded((prevState) => !prevState)}>
+      <Element onPress={() => !!enableToggleExpand && setIsExpanded((prevState) => !prevState)}>
         <View
           style={[
             flexbox.directionRow,
@@ -49,7 +51,7 @@ const ExpandableCard = ({
           ]}
         >
           {!!hasArrow && arrowPosition === 'left' && (
-            <View style={{ opacity: enableExpand ? 1 : 0.5 }}>
+            <View style={{ opacity: enableToggleExpand ? 1 : 0.5 }}>
               {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
             </View>
           )}
@@ -57,14 +59,14 @@ const ExpandableCard = ({
             {!!content && content}
           </View>
           {!!hasArrow && arrowPosition === 'right' && (
-            <View style={{ opacity: enableExpand ? 1 : 0.5 }}>
+            <View style={{ opacity: enableToggleExpand ? 1 : 0.5 }}>
               {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
             </View>
           )}
         </View>
         {children}
       </Element>
-      {!!enableExpand && !!isExpanded && !!expandedContent && expandedContent}
+      {!!isExpanded && !!expandedContent && expandedContent}
     </View>
   )
 }

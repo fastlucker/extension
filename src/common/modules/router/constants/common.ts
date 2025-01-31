@@ -27,7 +27,7 @@ const COMMON_ROUTES = {
   noConnection: 'no-connection',
   backup: 'backup',
   accounts: 'accounts',
-  dappCatalog: 'dapp-catalog'
+  appCatalog: 'app-catalog'
 }
 
 const MOBILE_ROUTES = {
@@ -75,7 +75,7 @@ const WEB_ROUTES = {
   devicePasswordChange: 'settings/device-password-change',
   devicePasswordRecovery: 'settings/device-password-recovery',
   addressBook: 'settings/address-book',
-  customTokens: 'settings/custom-tokens',
+  manageTokens: 'settings/manage-tokens',
   importHotWallet: 'import-hot-wallet',
   importPrivateKey: 'import-private-key',
   importSmartAccountJson: 'import-smart-account-json',

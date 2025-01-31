@@ -6,7 +6,6 @@ import {
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { Network } from '@ambire-common/interfaces/network'
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
@@ -295,6 +294,9 @@ export const handleActions = async (
       return mainCtrl.resolveUserRequest(params.data, params.id)
     case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
       return mainCtrl.rejectUserRequest(params.err, params.id)
+    case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
+      return mainCtrl.rejectSignAccountOpCall(params.callId)
+    }
     case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
       return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
     case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
@@ -391,6 +393,9 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount()
     }
+    case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
+      return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)
+    }
 
     case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
       if (!mainCtrl.selectedAccount.account) return
@@ -401,74 +406,25 @@ export const handleActions = async (
         params.additionalHint
       )
     }
-    case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
-      const token = params.token
-      let tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
-      const tokenIsNotInPreferences =
-        (tokenPreferences?.length &&
-          tokenPreferences.find(
-            (_token) =>
-              _token.address.toLowerCase() === token.address.toLowerCase() &&
-              params.token.networkId === _token?.networkId
-          )) ||
-        false
-
-      if (!tokenIsNotInPreferences) {
-        tokenPreferences.push(token)
-      } else {
-        const updatedTokenPreferences = tokenPreferences.map((t: any) => {
-          if (
-            t.address.toLowerCase() === token.address.toLowerCase() &&
-            t.networkId === token.networkId
-          ) {
-            return params.token
-          }
-          return t
-        })
-        tokenPreferences = updatedTokenPreferences.filter((t) => t.isHidden || t.standard)
-      }
-      const tokenNetwork: Network | undefined = mainCtrl.networks.networks.find(
-        (n) => n.id === token.networkId
-      )
-
-      await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
-      return await mainCtrl.portfolio.updateSelectedAccount(
-        mainCtrl.selectedAccount.account?.addr || '',
-        tokenNetwork,
-        undefined,
-        {
-          forceUpdate: true
-        }
+    case 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN': {
+      return await mainCtrl.portfolio.addCustomToken(
+        params.token,
+        mainCtrl.selectedAccount.account?.addr,
+        params.shouldUpdatePortfolio
       )
     }
-    case 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES': {
-      const tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
-
-      const tokenIsNotInPreferences =
-        tokenPreferences.find(
-          (_token) =>
-            _token.address.toLowerCase() === params.token.address.toLowerCase() &&
-            _token.networkId === params.token.networkId
-        ) || false
-      if (!tokenIsNotInPreferences) return
-      const newTokenPreferences = tokenPreferences.filter(
-        (_token) =>
-          _token.address.toLowerCase() !== params.token.address.toLowerCase() ||
-          _token.networkId !== params.token.networkId
+    case 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN': {
+      return await mainCtrl.portfolio.removeCustomToken(
+        params.token,
+        mainCtrl.selectedAccount.account?.addr,
+        params.shouldUpdatePortfolio
       )
-
-      const tokenNetwork: Network | undefined = mainCtrl.networks.networks.find(
-        (n) => n.id === params.token.networkId
-      )
-
-      await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
-      return await mainCtrl.portfolio.updateSelectedAccount(
-        mainCtrl.selectedAccount.account?.addr || '',
-        tokenNetwork,
-        undefined,
-        {
-          forceUpdate: true
-        }
+    }
+    case 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN': {
+      return await mainCtrl.portfolio.toggleHideToken(
+        params.token,
+        mainCtrl.selectedAccount.account?.addr,
+        params.shouldUpdatePortfolio
       )
     }
     case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
@@ -579,6 +535,12 @@ export const handleActions = async (
 
     case 'INVITE_CONTROLLER_VERIFY': {
       return await mainCtrl.invite.verify(params.code)
+    }
+    case 'INVITE_CONTROLLER_BECOME_OG': {
+      return await mainCtrl.invite.becomeOG()
+    }
+    case 'INVITE_CONTROLLER_REVOKE_OG': {
+      return await mainCtrl.invite.revokeOG()
     }
 
     case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
