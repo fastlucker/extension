@@ -1,11 +1,12 @@
 import { BrowserProvider } from 'ethers'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 
+import { preloadImages } from '@common/utils/images'
+import CheckIcon from '@legends/common/assets/svg/CheckIcon'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
-import TreasureChestClosed from '@legends/common/assets/svg/TreasureChestClosed'
-import TreasureChestOpened from '@legends/common/assets/svg/TreasureChestOpened'
+import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
-import Modal from '@legends/components/Modal'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
@@ -18,6 +19,11 @@ import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
+import chainImage from './assets/chain.png'
+import chestImageOpened from './assets/chest-opened.png'
+import chestImage from './assets/chest.png'
+import starImage from './assets/star.png'
+import CongratsModal from './components/CongratsModal'
 import styles from './TreasureChestComponentModal.module.scss'
 
 interface TreasureChestComponentModalProps {
@@ -31,12 +37,32 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 }) => {
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
-  const [isInProgress, setIsInProgress] = useState(false)
+  const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
+
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
+  const chainRef = React.useRef<HTMLImageElement>(null)
+
+  // Load the modal in the dom but don't show it immediately
+  // This is done to preload all images
+  useEffect(() => {
+    preloadImages([chestImage, chainImage, chestImageOpened, starImage])
+  }, [])
+
+  const unlockChainAnimation = useCallback(() => {
+    if (chainRef.current) chainRef.current.classList.add(styles.unlocked)
+  }, [])
+
+  const stopChainAnimation = useCallback(() => {
+    if (chainRef.current) chainRef.current.classList.add(styles.unlocking)
+  }, [])
 
   const switchNetwork = useSwitchNetwork()
 
   const { legends, getLegends } = useLegendsContext()
+
+  const closeModal = async () => {
+    handleClose()
+  }
 
   const treasureLegend: ChestCard | undefined = useMemo(
     () =>
@@ -48,23 +74,36 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const isCompleted = treasureLegend?.card.status === CardStatus.completed
 
+  const [chestState, setChestState] = useState<
+    'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
+  >(isCompleted ? 'opened' : 'locked')
+
+  const setChestToUnlocked = useCallback(() => {
+    unlockChainAnimation()
+    setChestState('unlocked')
+  }, [unlockChainAnimation])
+
   const getButtonLabel = () => {
-    if (isInProgress) {
-      return 'Opening...'
+    switch (chestState) {
+      case 'unlocking':
+        return 'Unlocking...'
+      case 'unlocked':
+        return 'Open chest'
+      case 'error':
+        return 'Close'
+      case 'opening':
+        return 'Opening...'
+      case 'opened':
+        return <MidnightTimer type="minutes" />
+      default:
+        return 'Unlock chest'
     }
-
-    if (isCompleted) {
-      return <MidnightTimer type="minutes" />
-    }
-
-    return 'Open chest'
   }
 
-  const action = treasureLegend?.action as CardActionCalls
+  const action = useMemo(() => treasureLegend?.action as CardActionCalls, [treasureLegend])
 
-  const onButtonClick = useCallback(async () => {
-    setIsInProgress(true)
-
+  const unlockChest = useCallback(async () => {
+    setChestState('unlocking')
     await switchNetwork()
 
     const provider = new BrowserProvider(window.ethereum)
@@ -75,6 +114,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     })
 
     try {
+      stopChainAnimation()
+
       const sendCallsIdentifier = await sendCalls(
         chainId,
         await signer.getAddress(),
@@ -82,7 +123,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         false
       )
 
-      addToast('The chest will be opened shortly. ETA 10s')
+      addToast('The chest will be unlocked shortly. ETA 10s')
 
       await getCallsStatus(sendCallsIdentifier)
 
@@ -90,7 +131,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         connectedAccount,
         'dailyReward',
         getLegends,
-        setIsInProgress,
+        setChestToUnlocked,
         addToast
       )
       if (!transactionFound) {
@@ -101,13 +142,14 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
               "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
               { type: 'error' }
             )
+            setChestState('error')
             return
           }
           const found = await checkTransactionStatus(
             connectedAccount,
             'dailyReward',
             getLegends,
-            setIsInProgress,
+            setChestToUnlocked,
             addToast
           )
 
@@ -120,82 +162,122 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       }
     } catch (e: any) {
       const message = humanizeLegendsBroadcastError(e)
-      setIsInProgress(false)
+      setChestState('locked')
 
       console.error(e)
       addToast(message || ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
     }
   }, [
     switchNetwork,
+    stopChainAnimation,
     connectedAccount,
     getLegends,
     action?.calls,
     sendCalls,
     chainId,
     getCallsStatus,
-    addToast
+    addToast,
+    setChestToUnlocked
   ])
 
-  if (!treasureLegend) {
+  const openChest = async () => {
+    setChestState('opened')
+    setCongratsModalOpen(true)
+  }
+
+  const onButtonClick = async () => {
+    if (chestState === 'locked') {
+      await unlockChest()
+    } else if (chestState === 'unlocked') {
+      await openChest()
+    } else if (chestState === 'opened' || chestState === 'error') {
+      await closeModal()
+    }
+  }
+
+  const onCongratsModalButtonClick = async () => {
+    setCongratsModalOpen(false)
+  }
+
+  if (!treasureLegend || !isOpen) {
     return null
   }
-  return (
-    <Modal isOpen={isOpen} handleClose={handleClose} className={styles.wrapper}>
-      <Modal.Heading className={styles.heading}>Daily Loot</Modal.Heading>
-      <div className={styles.content}>
-        {treasureLegend.meta.points.map((point, index) => (
-          <div
-            key={point}
-            className={index === (treasureLegend.meta.points.length ?? 0) - 1 ? styles.last : ''}
-          >
-            <div
-              className={`${styles.day}  ${
-                (!isCompleted && index === treasureLegend.meta.streak) ||
-                index < (treasureLegend.meta.streak ?? -1)
-                  ? styles.current
-                  : ''
-              }`}
-            >
-              <div className={styles.icon}>
-                +{point} <CoinIcon width={20} height={20} />
-              </div>
-              <p className={styles.dayText}>
-                {(isCompleted && (treasureLegend.meta.streak ?? 0) - 1 === index) ||
-                (!isCompleted && treasureLegend.meta.streak === index)
-                  ? 'Today'
-                  : `Day ${index + 1}`}
-              </p>
-            </div>
+
+  return createPortal(
+    <div>
+      <div className={styles.backdrop}>
+        <div className={styles.wrapper}>
+          <div className={styles.header}>
+            <h2 className={styles.heading}>Daily Loot</h2>
+            <button type="button" onClick={closeModal} className={styles.closeButton}>
+              <CloseIcon />
+            </button>
           </div>
-        ))}
+          <div className={styles.content}>
+            {treasureLegend.meta.points.map((point, index) => {
+              const streak = treasureLegend.meta.streak ?? 0
+              const isOpened = isCompleted && chestState === 'opened'
+
+              const isCurrentDay = isOpened
+                ? streak - 1 === index
+                : isCompleted
+                ? streak - 1 === index
+                : streak === index
+
+              const isPassedDay = isOpened
+                ? index < streak
+                : isCompleted
+                ? index < streak - 1 // Prevent marking next day as passed too soon
+                : index < streak
+
+              return (
+                <div
+                  key={point}
+                  className={`${styles.day} 
+                    ${isCurrentDay ? styles.current : ''} 
+                    ${isPassedDay ? styles.passed : ''}`}
+                >
+                  <div className={styles.icon}>
+                    {isPassedDay ? (
+                      <CheckIcon width={20} height={20} />
+                    ) : (
+                      <>
+                        +{point} <CoinIcon width={20} height={20} />
+                      </>
+                    )}
+                  </div>
+                  <p className={styles.dayText}>{isCurrentDay ? 'Today' : `Day ${index + 1}`}</p>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className={styles.chestWrapper}>
+            <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />
+            <img src={chestImage} alt="spinner" className={styles.chest} />
+          </div>
+
+          <button
+            type="button"
+            className={styles.button}
+            disabled={
+              chestState === 'opening' || chestState === 'opened' || chestState === 'unlocking'
+            }
+            onClick={onButtonClick}
+          >
+            {getButtonLabel()}
+          </button>
+        </div>
       </div>
 
-      <div className={styles.treasureChestWrapper}>
-        {isCompleted ? (
-          <>
-            <div className={styles.prize}>
-              +{treasureLegend.meta.points[treasureLegend.meta.streak - 1] || 0}
-              <CoinIcon width={28} height={28} />{' '}
-            </div>
-            <TreasureChestOpened width={238} height={178} className={styles.treasureChest} />
-          </>
-        ) : (
-          <TreasureChestClosed
-            width={165}
-            height={125}
-            className={`${styles.treasureChest} ${styles.treasureChestClosed}`}
-          />
-        )}
-      </div>
-      <button
-        type="button"
-        className={styles.button}
-        disabled={isCompleted || isInProgress}
-        onClick={onButtonClick}
-      >
-        {getButtonLabel()}
-      </button>
-    </Modal>
+      <CongratsModal
+        isOpen={isCongratsModalOpen}
+        setIsOpen={setCongratsModalOpen}
+        treasureLegend={treasureLegend}
+        onButtonClick={onCongratsModalButtonClick}
+      />
+    </div>,
+    document.getElementById('modal-root') as HTMLElement
   )
 }
 

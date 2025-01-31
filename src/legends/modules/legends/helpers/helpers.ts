@@ -6,7 +6,7 @@ const checkTransactionStatus = async (
   connectedAccount: string | null,
   txAction: string,
   getLegends: () => Promise<void>,
-  setIsInProgress: (isInProgress: boolean) => void,
+  setState: () => void,
   addToast: (message: string, options?: ToastOptions) => void
 ) => {
   try {
@@ -36,7 +36,7 @@ const checkTransactionStatus = async (
     if (!dailyRewardActivity) return false
 
     await getLegends()
-    setIsInProgress(false)
+    setState && setState()
     addToast(`You received ${dailyRewardActivity.xp}xp!`, {
       type: 'success'
     })
