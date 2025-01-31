@@ -61,7 +61,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const { legends, getLegends } = useLegendsContext()
 
   const closeModal = async () => {
-    setIsOpen(false)
+    handleClose()
   }
 
   const treasureLegend: ChestCard | undefined = useMemo(
