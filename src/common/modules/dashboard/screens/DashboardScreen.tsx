@@ -12,7 +12,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import GasTankModal from '@web/components/GasTankModal'
 import ReceiveModal from '@web/components/ReceiveModal'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -30,7 +29,6 @@ export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 const DashboardScreen = () => {
   const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const { tokenPreferences } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const { ref: gasTankModalRef, open: openGasTankModal, close: closeGasTankModal } = useModalize()
   const lastOffsetY = useRef(0)
@@ -140,7 +138,7 @@ const DashboardScreen = () => {
             setDashboardOverviewSize={setDashboardOverviewSize}
             onGasTankButtonPosition={handleGasTankButtonPosition}
           />
-          <DashboardPages tokenPreferences={tokenPreferences} onScroll={onScroll} />
+          <DashboardPages onScroll={onScroll} />
         </View>
         {!!isPopup && <DAppFooter />}
       </View>
