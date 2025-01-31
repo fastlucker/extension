@@ -21,6 +21,18 @@
     padding: 0.25rem;
     $innerBorderRadius: calc(#{$secondaryBorderRadius} - 0.25rem);
 
+    &.disabled {
+      opacity: .5;
+      animation: none;
+      cursor: not-allowed;
+      user-select: none;
+
+      .banner {
+        .button {
+          cursor: not-allowed;
+        }
+      }
+    }
     .banner {
       position: relative;
       display: flex;
@@ -65,7 +77,7 @@
           text-transform: none;
 
             &:not(:disabled):hover {
-            opacity: 1;
+              opacity: 1;
             }
         }
       }
