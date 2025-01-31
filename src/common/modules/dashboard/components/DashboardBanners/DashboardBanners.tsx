@@ -1,10 +1,11 @@
+// Keep the bottomsheet implementation
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useCallback, useState } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Banner } from '@ambire-common/interfaces/banner'
 import DashboardBanner from '@common/modules/dashboard/components/DashboardBanners/DashboardBanner/DashboardBanner'
-import RPCSelectBottomSheet from '@common/modules/dashboard/components/DashboardBanners/RPCSelectBottomSheet'
 import useBanners from '@common/modules/dashboard/hooks/useBanners'
 
 const DashboardBanners = () => {
@@ -29,15 +30,6 @@ const DashboardBanners = () => {
           setBottomSheetBanner={handleSetBottomSheetBanner}
         />
       ))}
-
-      {!!bottomSheetBanner?.actions?.some((a) => a.actionName === 'select-rpc-url') && (
-        <RPCSelectBottomSheet
-          banner={bottomSheetBanner}
-          sheetRef={sheetRef}
-          closeBottomSheet={closeBottomSheet}
-          onClosed={handleOnBottomSheetClosed}
-        />
-      )}
     </View>
   )
 }

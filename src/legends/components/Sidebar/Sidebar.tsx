@@ -10,6 +10,7 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
 import MidnightTimer from '@legends/components/MidnightTimer'
+import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
@@ -51,17 +52,34 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
+  const isChestOpenedForToday = treasureChestOpenedForToday
+  const { startPolling, stopPolling } = useDataPollingContext()
 
-  const handleModal = () => {
-    setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
+  const handleWheelOpen = () => {
+    stopPolling()
+    setIsFortuneWheelModalOpen(true)
+  }
+  const handleWheelClose = () => {
+    startPolling()
+    setIsFortuneWheelModalOpen(false)
   }
 
-  const handleChestModal = () => {
-    setIsTreasureChestModalOpen(!isTreasureChestModalOpen)
+  const handleLeaderOpen = () => {
+    stopPolling()
+    setIsLeaderModalOpen(true)
+  }
+  const handleLeaderClose = () => {
+    startPolling()
+    setIsLeaderModalOpen(false)
   }
 
-  const handleLeaderModal = () => {
-    setIsLeaderModalOpen(!isLeaderModalOpen)
+  const handleTreasureOpen = () => {
+    stopPolling()
+    setIsTreasureChestModalOpen(true)
+  }
+  const handleTreasureClose = () => {
+    startPolling()
+    setIsTreasureChestModalOpen(false)
   }
 
   const copyInvitationKey = () => {
@@ -102,7 +120,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           backgroundImage={wheelBackgroundImage}
           title="Daily Legend"
           text={wheelText}
-          handleClick={handleModal}
+          handleClick={handleWheelOpen}
           buttonText="Spin the Wheel"
           wrapperStyles={styles.wheelBanner}
         />
@@ -112,19 +130,16 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           backgroundImage={chestBackgroundImage}
           title="Daily Chest"
           text={chestText}
-          handleClick={handleChestModal}
+          handleClick={handleTreasureOpen}
           buttonText="Open Now"
         />
 
-        <LeaderModal
-          setIsLeaderModalOpen={setIsLeaderModalOpen}
-          isLeaderModalOpen={isLeaderModalOpen}
-        />
-        <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
+        <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />
+        <WheelComponent isOpen={isFortuneWheelModalOpen} handleClose={handleWheelClose} />
 
         <TreasureChestComponentModal
           isOpen={isTreasureChestModalOpen}
-          setIsOpen={setIsTreasureChestModalOpen}
+          handleClose={handleTreasureClose}
         />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
@@ -143,7 +158,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         {legendLeader && legendLeader?.meta && (
           <div className={styles.leaderSection}>
             <div className={styles.leaderHeader}>
-              <button type="button" className={styles.inviteTitle} onClick={handleLeaderModal}>
+              <button type="button" className={styles.inviteTitle} onClick={handleLeaderOpen}>
                 Invite a friend
               </button>
               <div>

@@ -9,6 +9,7 @@ import { CardActionType, CardFromResponse, CardStatus } from '@legends/modules/l
 import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 import CardContent from './CardContent'
 import OnCompleteModal from './OnCompleteModal'
 
@@ -26,13 +27,20 @@ const Card: FC<Props> = ({ cardData }) => {
   const { onLegendComplete } = useLegendsContext()
   const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
+  const { startPolling, stopPolling } = useDataPollingContext()
 
   const openActionModal = () => {
+    stopPolling()
     setIsActionModalOpen(true)
   }
 
   const closeActionModal = () => {
+    startPolling()
     setIsActionModalOpen(false)
+  }
+
+  const closeCompleteModal = () => {
+    setIsOnCompleteModalVisible(false)
   }
 
   const pollActivityUntilComplete = async (txnId: string, attempt: number) => {
@@ -96,13 +104,12 @@ const Card: FC<Props> = ({ cardData }) => {
       {/* Modals */}
       <OnCompleteModal
         isVisible={isOnCompleteModalVisible}
-        setIsVisible={setIsOnCompleteModalVisible}
+        handleClose={closeCompleteModal}
         predefinedId={predefinedId}
       />
       <ActionModal
         {...cardData}
         isOpen={isActionModalOpen}
-        setIsOpen={setIsActionModalOpen}
         buttonText={buttonText}
         onLegendCompleteWrapped={onLegendCompleteWrapped}
         closeActionModal={closeActionModal}
