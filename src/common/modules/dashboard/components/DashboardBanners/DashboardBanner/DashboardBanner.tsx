@@ -116,7 +116,7 @@ const DashboardBanner = ({
         navigate(ROUTES.saveImportedSeed)
       }
 
-      if (action.actionName === 'open-confetti-modal') {
+      if (action.actionName === 'open-first-cashback-confetti-modal') {
         if (!account) return
         dispatch({
           type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
