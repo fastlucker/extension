@@ -44,11 +44,11 @@ const HideToken = () => {
     setValue('search', '')
   }, [setValue])
 
-  // TODO: Docs
   const tokens = useMemo(
     () =>
       selectedAccountPortfolio?.tokens
         .filter((token) => {
+          if (token.flags.onGasTank || !!token.flags.rewardsType) return false
           const isInitiallyInTokenPreferences = initialTokenPreferences?.find(
             ({ address, networkId }) => address === token.address && networkId === token.networkId
           )
@@ -56,7 +56,7 @@ const HideToken = () => {
             ({ address, networkId }) => address === token.address && networkId === token.networkId
           )
 
-          return (isInitiallyInTokenPreferences && !!token.amount) || isCustomToken
+          return isInitiallyInTokenPreferences || isCustomToken
         })
         .filter((token) => {
           if (!searchValue) return true
