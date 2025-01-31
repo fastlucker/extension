@@ -143,15 +143,15 @@ For more details, including how to trace /deminify a production reported error, 
 
 Automates the steps before every extension extension store release that could be otherwise done manually:
 
-- Make PROD extension builds (webkit and gecko)
-- Export source maps to "clean" the builds (and to upload those source maps in the GitHub release)
-- Zip the "clean" builds (stores accept zips only).
+- Makes webkit and gecko extension production builds
+- Exports source maps to "clean" the builds (and to prepare for upload those source maps in the GitHub release)
+- Zips the "clean" builds (stores accept zips only) and the source maps
 
 ```bash
 yarn build:extensions
 ```
 
-And find the resulting zips in the "build" folder as "ambire-extension-<VERSION>-<TYPE>"
+And find the resulting zips in the "build" folder as `ambire-extension-<VERSION>-<TYPE>.zip`
 
 ## Mobile Apps
 
