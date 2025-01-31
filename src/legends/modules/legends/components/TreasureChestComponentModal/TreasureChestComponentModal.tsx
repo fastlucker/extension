@@ -7,7 +7,6 @@ import CheckIcon from '@legends/common/assets/svg/CheckIcon'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
 import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
-import Modal from '@legends/components/Modal'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
@@ -24,6 +23,7 @@ import chainImage from './assets/chain.png'
 import chestImageOpened from './assets/chest-opened.png'
 import chestImage from './assets/chest.png'
 import starImage from './assets/star.png'
+import CongratsModal from './components/CongratsModal'
 import styles from './TreasureChestComponentModal.module.scss'
 
 interface TreasureChestComponentModalProps {
@@ -169,6 +169,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     }
   }, [
     switchNetwork,
+    stopChainAnimation,
     connectedAccount,
     getLegends,
     action?.calls,
@@ -213,39 +214,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             </button>
           </div>
           <div className={styles.content}>
-            {/* {treasureLegend.meta.points.map((point, index) => (
-              <div
-                key={point}
-                className={`${styles.day}  ${
-                  !isCompleted && chestState === 'opened' && index === treasureLegend.meta.streak
-                    ? styles.current
-                    : ''
-                } ${
-                  index < (treasureLegend.meta.streak ?? -1) && chestState === 'opened'
-                    ? styles.passed
-                    : ''
-                }`}
-              >
-                <div className={styles.icon}>
-                  {index < (treasureLegend.meta.streak ?? -1) && chestState === 'opened' ? (
-                    <CheckIcon width={20} height={20} />
-                  ) : (
-                    <>
-                      +{point} <CoinIcon width={20} height={20} />
-                    </>
-                  )}
-                </div>
-                <p className={styles.dayText}>
-                  {(isCompleted &&
-                    chestState === 'opened' &&
-                    (treasureLegend.meta.streak ?? 0) - 1 === index) ||
-                  (!isCompleted && chestState === 'opened' && treasureLegend.meta.streak === index)
-                    ? 'Today'
-                    : `Day ${index + 1}`}
-                </p>
-              </div>
-            ))} */}
-
             {treasureLegend.meta.points.map((point, index) => {
               const streak = treasureLegend.meta.streak ?? 0
               const isOpened = isCompleted && chestState === 'opened'
@@ -262,14 +230,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
                 ? index < streak - 1 // Prevent marking next day as passed too soon
                 : index < streak
 
-              console.log(
-                'isOpened',
-                isOpened,
-                'isCurrentDay',
-                isCurrentDay,
-                'isPassedDay',
-                isPassedDay
-              )
               return (
                 <div
                   key={point}
@@ -310,28 +270,12 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         </div>
       </div>
 
-      <Modal isOpen={isCongratsModalOpen} setIsOpen={setCongratsModalOpen} className={styles.modal}>
-        <div className={styles.congratsModal}>
-          <Modal.Heading className={styles.title}>Congrats!</Modal.Heading>
-          <Modal.Text className={styles.text}>
-            You Collected +{treasureLegend.meta.points[treasureLegend.meta.streak - 1] || 0} XP
-            today!
-          </Modal.Text>
-          <div className={styles.openedChestWrapper}>
-            <div className={styles.prize}>
-              +{treasureLegend.meta.points[treasureLegend.meta.streak - 1] || 0}
-              <CoinIcon width={32} height={32} />{' '}
-            </div>
-            <img src={starImage} alt="star" className={styles.star} />
-
-            <img src={chestImageOpened} alt="chest-opened" className={styles.chestOpenedImage} />
-          </div>
-
-          <button type="button" className={styles.button} onClick={onCongratsModalButtonClick}>
-            Thanks, go back
-          </button>
-        </div>
-      </Modal>
+      <CongratsModal
+        isOpen={isCongratsModalOpen}
+        setIsOpen={setCongratsModalOpen}
+        treasureLegend={treasureLegend}
+        onButtonClick={onCongratsModalButtonClick}
+      />
     </div>,
     document.getElementById('modal-root') as HTMLElement
   )
