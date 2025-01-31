@@ -28,12 +28,12 @@ import styles from './TreasureChestComponentModal.module.scss'
 
 interface TreasureChestComponentModalProps {
   isOpen: boolean
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  handleClose: () => void
 }
 
 const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = ({
   isOpen,
-  setIsOpen
+  handleClose
 }) => {
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()

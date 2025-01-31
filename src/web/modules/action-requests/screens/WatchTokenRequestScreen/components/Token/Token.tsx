@@ -3,7 +3,6 @@ import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import Alert from '@common/components/Alert'
 import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
 import Spinner from '@common/components/Spinner'
@@ -25,8 +24,8 @@ const Token = ({
   isLoading,
   showAlreadyInPortfolioMessage
 }: {
-  temporaryToken: TokenResult
-  tokenData: TokenData | CustomToken | undefined
+  temporaryToken?: TokenResult
+  tokenData: TokenData
   tokenNetwork: Network | undefined
   isLoading: boolean
   showAlreadyInPortfolioMessage: boolean
