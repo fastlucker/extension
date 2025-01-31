@@ -160,6 +160,64 @@ export class ProviderController {
     }
   }
 
+  // ERC-7811 https://github.com/ethereum/ERCs/pull/709/
+  // Adding 'custom' in then name as the ERC is still not completed and might update some
+  // specifications.
+  walletCustomGetAssets = async ({
+    params: { account, assetFilter: _assetFilter },
+    session: { origin }
+  }: DappProviderRequest) => {
+    const assetFilter = _assetFilter as { [a: string]: string[] }
+
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    if (!this.mainCtrl.selectedAccount.account) {
+      throw new Error('wallet account not selected')
+    }
+
+    if (typeof assetFilter !== 'object') throw new Error('Wrong request data format')
+
+    const res: { [chainId: string]: any[] } = {}
+
+    Object.entries(assetFilter).forEach(([chainId, tokens]: [string, string[]]) => {
+      if (!res[chainId]) res[chainId] = []
+      const network = this.mainCtrl.networks.networks.find(
+        (n) => Number(n.chainId) === Number(chainId)
+      )
+      if (!network) return
+      const tokensInPortfolio = this.mainCtrl.selectedAccount.portfolio.tokens
+      if (!tokensInPortfolio) return
+
+      tokens.forEach((requestedTokenAddress) => {
+        const token = (tokensInPortfolio || []).find(
+          ({ address, networkId, amount, amountPostSimulation }) => {
+            return (
+              address === requestedTokenAddress &&
+              networkId === network.id &&
+              (typeof amount === 'bigint' || typeof amountPostSimulation === 'bigint')
+            )
+          }
+        )
+        if (!token) return
+        res[chainId].push({
+          address: token.address,
+          balance: `0x${(token.amountPostSimulation || token.amount || 0).toString(16)}`,
+          type: 'ERC20',
+          metadata: {
+            symbol: token.symbol,
+            decimals: token.decimals,
+            // @NOTE: by the ERC7811 standard this should be name, not symbol, but we do not store token names
+            name: token.symbol
+          }
+        })
+      })
+    })
+
+    return res
+  }
+
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }: DappProviderRequest) => {
     if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
