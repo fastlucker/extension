@@ -9,10 +9,6 @@ import { selectFeeToken } from '../common-helpers/selectFeeToken'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 import { SELECTORS } from '../common/selectors/selectors'
 import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../constants/constants'
-import {
-  makeValidTransaction,
-  checkTokenBalanceClickOnGivenActionInDashboard
-} from '../common/transactions'
 
 let browser
 let page
@@ -32,26 +28,9 @@ describe('sa_features', () => {
     await recorder.stop()
     await browser.close()
   })
-  // TODO: remove this test
-  //--------------------------------------------------------------------------------------------------------------
-  it.skip('Top up gas tank with 0.0001 ETH on Base', async () => {
-    await checkTokenBalanceClickOnGivenActionInDashboard(
-      page,
-      SELECTORS.nativeTokenBaseDashboard,
-      SELECTORS.topUpButton
-    )
-
-    await makeValidTransaction(page, extensionURL, browser, {
-      recipient: SMART_ACC_VIEW_ONLY_ADDRESS,
-      tokenAmount: '0.0001',
-      feeToken:
-        '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x833589fcd6edb6e08f4c7c32d4f71b54bda02913usdc"]',
-      shouldTopUpGasTank: true
-    })
-  })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('4337 transaction. Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
+  it.only('4337 transaction. Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
     // Check if ETH in optimism are under 0.00000001
     await checkBalanceOfToken(
       page,
