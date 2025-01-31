@@ -482,7 +482,12 @@ export const handleActions = async (
       )
     }
     case 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN': {
-      return await mainCtrl.portfolio.setShouldShowConfetti(params.accountAddr)
+      return await mainCtrl.portfolio.updateFirstCashbackConfettiStatus({
+        accountId: params.accountAddr,
+        shouldShow: false,
+        toggleModal: true,
+        shouldGetAdditionalPortfolio: true
+      })
     }
     case 'KEYSTORE_CONTROLLER_ADD_SECRET':
       return await mainCtrl.keystore.addSecret(
