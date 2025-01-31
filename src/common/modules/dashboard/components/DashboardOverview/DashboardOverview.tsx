@@ -163,7 +163,7 @@ const DashboardOverview: FC<Props> = ({
             >
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-                  {portfolio?.isLoading ? (
+                  {!portfolio?.isAllReady ? (
                     <SkeletonLoader
                       lowOpacity
                       width={200}
@@ -211,11 +211,11 @@ const DashboardOverview: FC<Props> = ({
                     style={[spacings.mlTy, refreshButtonAnimStyle]}
                     onPress={reloadAccount}
                     {...bindRefreshButtonAnim}
-                    disabled={portfolio?.isLoading}
+                    disabled={!portfolio?.isAllReady}
                     testID="refresh-button"
                   >
                     <RefreshIcon
-                      spin={portfolio?.isLoading}
+                      spin={!portfolio?.isAllReady}
                       color={theme.primaryBackground}
                       width={16}
                       height={16}

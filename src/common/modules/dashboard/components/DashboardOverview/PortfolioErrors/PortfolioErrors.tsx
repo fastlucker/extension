@@ -44,17 +44,22 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
   const areErrorsOutdatedAndPortfolioIsReady = useMemo(() => {
     return (
       balanceAffectingErrorsSnapshot.length > 0 &&
-      portfolio.isAllReady &&
+      portfolio.isReadyToVisualize &&
       !balanceAffectingErrors.length
     )
-  }, [balanceAffectingErrors.length, balanceAffectingErrorsSnapshot.length, portfolio.isAllReady])
+  }, [
+    balanceAffectingErrors.length,
+    balanceAffectingErrorsSnapshot.length,
+    portfolio.isReadyToVisualize
+  ])
 
   const warningMessage = useMemo(() => {
     if (isLoadingTakingTooLong) {
       return t('Loading all networks is taking too long.')
     }
 
-    if (isOffline && portfolio.isAllReady) return t('Please check your internet connection.')
+    if (isOffline && portfolio.isReadyToVisualize)
+      return t('Please check your internet connection.')
 
     if (balanceAffectingErrors.length) {
       return t(
@@ -71,7 +76,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
     isLoadingTakingTooLong,
     isOffline,
     networksWithErrors,
-    portfolio.isAllReady,
+    portfolio.isReadyToVisualize,
     t
   ])
 
@@ -161,7 +166,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
     checkIsLoadingTakingTooLong()
 
     const interval = setInterval(() => {
-      if (portfolio?.isAllReady) {
+      if (portfolio?.isReadyToVisualize) {
         clearInterval(interval)
         setIsLoadingTakingTooLong(false)
         return
@@ -173,7 +178,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
     return () => {
       clearInterval(interval)
     }
-  }, [portfolio?.isAllReady, portfolioStartedLoadingAtTimestamp])
+  }, [portfolio?.isReadyToVisualize, portfolioStartedLoadingAtTimestamp])
 
   useEffect(() => {
     if (isLoadingTakingTooLong) {

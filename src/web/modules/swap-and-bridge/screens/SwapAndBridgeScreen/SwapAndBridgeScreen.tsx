@@ -289,7 +289,7 @@ const SwapAndBridgeScreen = () => {
                     </View>
                     {!fromTokenAmountSelectDisabled && (
                       <MaxAmount
-                        isLoading={!portfolio?.isAllReady}
+                        isLoading={!portfolio?.isReadyToVisualize}
                         maxAmount={Number(maxFromAmount)}
                         maxAmountInFiat={Number(maxFromAmountInFiat)}
                         selectedTokenSymbol={fromSelectedToken?.symbol || ''}

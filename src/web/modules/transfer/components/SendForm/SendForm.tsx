@@ -288,7 +288,8 @@ const SendForm = ({
         provider,
         [selectedToken],
         '0x0000000000000000000000000000000000000001',
-        'latest'
+        'latest',
+        () => {}
       )
     ])
       .then(([feeData, newEstimation]) => {
@@ -332,10 +333,10 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
-      {(!state.selectedToken && tokens.length) || !portfolio?.isAllReady ? (
+      {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
-            {!portfolio?.isAllReady
+            {!portfolio?.isReadyToVisualize
               ? t('Loading tokens...')
               : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           </Text>
@@ -364,7 +365,7 @@ const SendForm = ({
         maxAmountInFiat={maxAmountInFiat}
         switchAmountFieldMode={switchAmountFieldMode}
         disabled={disableForm || amountSelectDisabled}
-        isLoading={!portfolio?.isAllReady || !isMaxAmountEnabled}
+        isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
         isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
       />
       <View>

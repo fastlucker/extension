@@ -64,7 +64,7 @@ const useSwapAndBridgeForm = () => {
     if (
       searchParams.get('address') &&
       searchParams.get('networkId') &&
-      !!portfolio?.isAllReady &&
+      !!portfolio?.isReadyToVisualize &&
       (sessionIds || []).includes(sessionId)
     ) {
       const tokenToSelectOnInit = portfolio.tokens.find(
@@ -87,7 +87,14 @@ const useSwapAndBridgeForm = () => {
         })
       }
     }
-  }, [dispatch, setSearchParams, portfolio?.isAllReady, portfolio.tokens, searchParams, sessionIds])
+  }, [
+    dispatch,
+    setSearchParams,
+    portfolio?.isReadyToVisualize,
+    portfolio.tokens,
+    searchParams,
+    sessionIds
+  ])
 
   // init session
   useEffect(() => {

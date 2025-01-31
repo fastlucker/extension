@@ -100,8 +100,8 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
   )
 
   const shouldDisplaySkeleton = useMemo(
-    () => !tokens.length || portfolio.isLoading,
-    [portfolio.isLoading, tokens.length]
+    () => !tokens.length || !portfolio.isAllReady,
+    [portfolio.isAllReady, tokens.length]
   )
 
   const userHasNoBalance = useMemo(
@@ -132,7 +132,7 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
             hasTokenAmount ||
             isInPreferences ||
             // Don't display pinned tokens until we are sure the user has no balance
-            (isPinned && userHasNoBalance && !portfolio?.isLoading)
+            (isPinned && userHasNoBalance && portfolio?.isAllReady)
           )
         })
         .sort((a, b) => {
@@ -179,7 +179,7 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
 
           return 0
         }),
-    [tokens, networks, tokenPreferences, userHasNoBalance, portfolio?.isLoading]
+    [tokens, networks, tokenPreferences, userHasNoBalance, portfolio?.isAllReady]
   )
 
   const navigateToAddCustomToken = useCallback(() => {
@@ -240,7 +240,7 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
         )
 
       if (item === 'footer') {
-        return !portfolio?.isLoading &&
+        return portfolio?.isAllReady &&
           // A trick to render the button once all tokens have been rendered. Otherwise
           // there will be layout shifts
           index === sortedTokens.length + 3 ? (
@@ -266,19 +266,19 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
       )
     },
     [
-      sortedTokens.length,
       initTab?.tokens,
       tokenPreferences,
       theme.primaryBackground,
       openTab,
       setOpenTab,
       control,
+      sessionId,
       t,
       searchValue,
       dashboardNetworkFilter,
-      portfolio?.isLoading,
-      navigateToAddCustomToken,
-      sessionId
+      portfolio?.isAllReady,
+      sortedTokens.length,
+      navigateToAddCustomToken
     ]
   )
 
@@ -301,14 +301,14 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
-        !portfolio?.isAllReady && shouldDisplaySkeleton
+        !portfolio?.isReadyToVisualize && shouldDisplaySkeleton
           ? 'skeleton'
           : 'keep-this-to-avoid-key-warning',
         ...(initTab?.tokens ? sortedTokens : []),
-        portfolio.isAllReady && shouldDisplaySkeleton
+        portfolio.isReadyToVisualize && shouldDisplaySkeleton
           ? 'skeleton'
           : 'keep-this-to-avoid-key-warning',
-        !sortedTokens.length && !portfolio?.isLoading ? 'empty' : '',
+        !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',
         'footer'
       ]}
       renderItem={renderItem}

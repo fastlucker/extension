@@ -145,7 +145,10 @@ const DashboardBanner = ({
             actionText = 'Preparing...'
             isDisabled = true
           }
-        } else if (action.actionName === 'reload-selected-account' && !portfolio.isAllReady) {
+        } else if (
+          action.actionName === 'reload-selected-account' &&
+          !portfolio.isReadyToVisualize
+        ) {
           isDisabled = true
           actionText = 'Retrying...'
         }
@@ -160,7 +163,12 @@ const DashboardBanner = ({
           />
         )
       }),
-    [actions, handleActionPress, portfolio.isAllReady, statuses.buildSwapAndBridgeUserRequest]
+    [
+      actions,
+      handleActionPress,
+      portfolio.isReadyToVisualize,
+      statuses.buildSwapAndBridgeUserRequest
+    ]
   )
 
   return (
