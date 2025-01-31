@@ -3,7 +3,8 @@
 .modal {
     width: 47.5rem;
     height: 45rem;
-    transform: scale(0.8);
+    // Don't judge me, I don't know how to make this work otherwise!
+    transform: scale(0.85) !important;
 }
 
 .congratsModal {

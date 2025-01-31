@@ -17,14 +17,14 @@ interface CongratsModalProps {
       streak: number
     }
   }
-  onCongratsModalButtonClick: () => Promise<void>
+  onButtonClick: () => Promise<void>
 }
 
 const CongratsModal: React.FC<CongratsModalProps> = ({
   isOpen,
   setIsOpen,
   treasureLegend,
-  onCongratsModalButtonClick
+  onButtonClick
 }) => {
   // Load the modal in the dom but don't show it immediately
   // This is done to preload all images
@@ -47,7 +47,7 @@ const CongratsModal: React.FC<CongratsModalProps> = ({
           <img src={starImage} alt="star" className={styles.star} />
           <img src={chestImageOpened} alt="chest-opened" className={styles.chestOpenedImage} />
         </div>
-        <button type="button" className={styles.button} onClick={onCongratsModalButtonClick}>
+        <button type="button" className={styles.button} onClick={onButtonClick}>
           Thanks, go back
         </button>
       </div>
