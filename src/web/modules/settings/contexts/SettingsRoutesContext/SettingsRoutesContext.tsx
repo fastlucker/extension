@@ -41,7 +41,7 @@ const SettingsRoutesProvider = () => {
       pathname?.includes(ROUTES.addressBook) ||
       pathname?.includes(ROUTES.accountsSettings) ||
       pathname?.includes(ROUTES.networksSettings) ||
-      pathname?.includes(ROUTES.customTokens)
+      pathname?.includes(ROUTES.manageTokens)
     )
   }, [pathname])
 

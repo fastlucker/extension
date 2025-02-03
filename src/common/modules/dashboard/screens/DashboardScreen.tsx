@@ -10,7 +10,6 @@ import PendingActionWindowModal from '@common/modules/dashboard/components/Pendi
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import DAppFooter from '../components/DAppFooter'
@@ -25,7 +24,6 @@ export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 
 const DashboardScreen = () => {
   const { styles } = useTheme(getStyles)
-  const { tokenPreferences } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const lastOffsetY = useRef(0)
   const scrollUpStartedAt = useRef(0)
@@ -85,7 +83,7 @@ const DashboardScreen = () => {
             dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}
           />
-          <DashboardPages tokenPreferences={tokenPreferences} onScroll={onScroll} />
+          <DashboardPages onScroll={onScroll} />
         </View>
         {!!isPopup && <DAppFooter />}
       </View>
