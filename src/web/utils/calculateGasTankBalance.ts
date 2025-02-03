@@ -2,9 +2,9 @@ import { formatUnits } from 'ethers'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
-import { TokenResult } from '@ambire-common/libs/portfolio'
+import { GasTankTokenResult } from '@ambire-common/libs/portfolio'
 
-const calculateTokenBalance = (token: TokenResult, type: keyof TokenResult) => {
+const calculateTokenBalance = (token: GasTankTokenResult, type: keyof GasTankTokenResult) => {
   const amount = token[type]
   const { decimals, priceIn } = token
   const balance = parseFloat(formatUnits(amount, decimals))
