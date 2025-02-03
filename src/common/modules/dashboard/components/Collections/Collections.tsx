@@ -181,7 +181,7 @@ const Collections: FC<Props> = ({
         data={[
           'header',
           ...(initTab?.collectibles ? filteredPortfolioCollections : []),
-          !filteredPortfolioCollections.length && portfolio?.isReadyToVisualize ? 'empty' : '',
+          !filteredPortfolioCollections.length && portfolio?.isAllReady ? 'empty' : '',
           !isReadyToVisualizeCollections ? 'skeleton' : 'keep-this-to-avoid-key-warning'
         ]}
         renderItem={renderItem}
