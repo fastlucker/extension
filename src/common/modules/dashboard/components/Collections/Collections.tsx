@@ -84,6 +84,10 @@ const Collections: FC<Props> = ({
     [portfolio?.collections, dashboardNetworkFilter, searchValue, networks]
   )
 
+  const isReadyToVisualizeCollections = useMemo(() => {
+    return portfolio?.isReadyToVisualize && filteredPortfolioCollections.length
+  }, [filteredPortfolioCollections.length, portfolio?.isReadyToVisualize])
+
   const renderItem = useCallback(
     ({ item }: any) => {
       if (item === 'header') {
@@ -176,7 +180,7 @@ const Collections: FC<Props> = ({
           'header',
           ...(initTab?.collectibles ? filteredPortfolioCollections : []),
           !filteredPortfolioCollections.length && portfolio?.isReadyToVisualize ? 'empty' : '',
-          !portfolio?.isReadyToVisualize ? 'skeleton' : 'keep-this-to-avoid-key-warning'
+          !isReadyToVisualizeCollections ? 'skeleton' : 'keep-this-to-avoid-key-warning'
         ]}
         renderItem={renderItem}
         keyExtractor={keyExtractor}

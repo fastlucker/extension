@@ -44,22 +44,20 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
   const areErrorsOutdatedAndPortfolioIsReady = useMemo(() => {
     return (
       balanceAffectingErrorsSnapshot.length > 0 &&
-      portfolio.isReadyToVisualize &&
+      portfolio.isAllReady &&
       !balanceAffectingErrors.length
     )
-  }, [
-    balanceAffectingErrors.length,
-    balanceAffectingErrorsSnapshot.length,
-    portfolio.isReadyToVisualize
-  ])
+  }, [balanceAffectingErrors.length, balanceAffectingErrorsSnapshot.length, portfolio.isAllReady])
 
   const warningMessage = useMemo(() => {
     if (isLoadingTakingTooLong) {
+      // const networksLoadingTooLong = balanceAffectingErrors.find(
+      //   ({ id }) => id === 'loading-too-long'
+      // )?.networkIds.map((id) => networks)
       return t('Loading all networks is taking too long.')
     }
 
-    if (isOffline && portfolio.isReadyToVisualize)
-      return t('Please check your internet connection.')
+    if (isOffline && portfolio.isAllReady) return t('Please check your internet connection.')
 
     if (balanceAffectingErrors.length) {
       return t(
@@ -72,11 +70,11 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
 
     return undefined
   }, [
-    balanceAffectingErrors,
+    balanceAffectingErrors.length,
     isLoadingTakingTooLong,
     isOffline,
     networksWithErrors,
-    portfolio.isReadyToVisualize,
+    portfolio.isAllReady,
     t
   ])
 
@@ -166,7 +164,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
     checkIsLoadingTakingTooLong()
 
     const interval = setInterval(() => {
-      if (portfolio?.isReadyToVisualize) {
+      if (portfolio?.isAllReady) {
         clearInterval(interval)
         setIsLoadingTakingTooLong(false)
         return
@@ -178,7 +176,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
     return () => {
       clearInterval(interval)
     }
-  }, [portfolio?.isReadyToVisualize, portfolioStartedLoadingAtTimestamp])
+  }, [portfolio?.isAllReady, portfolioStartedLoadingAtTimestamp])
 
   useEffect(() => {
     if (isLoadingTakingTooLong) {

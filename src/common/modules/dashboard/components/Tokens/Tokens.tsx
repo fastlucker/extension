@@ -253,7 +253,13 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
         ) : null
       }
 
-      if (!initTab?.tokens || !item || item === 'keep-this-to-avoid-key-warning') return null
+      if (
+        !initTab?.tokens ||
+        !item ||
+        item === 'keep-this-to-avoid-key-warning' ||
+        item === 'keep-this-to-avoid-key-warning-2'
+      )
+        return null
 
       return (
         <TokenItem
@@ -305,7 +311,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
         ...(initTab?.tokens ? sortedTokens : []),
         portfolio.isReadyToVisualize && shouldDisplaySkeleton
           ? 'skeleton'
-          : 'keep-this-to-avoid-key-warning',
+          : 'keep-this-to-avoid-key-warning-2',
         !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',
         'footer'
       ]}
