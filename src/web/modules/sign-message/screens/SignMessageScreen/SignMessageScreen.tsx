@@ -23,6 +23,7 @@ import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
+import Authorization7702 from './Contents/authorization7702'
 import Main from './Contents/main'
 import getStyles from './styles'
 
@@ -38,6 +39,8 @@ const SignMessageScreen = () => {
   const { isLedgerConnected } = useLedger()
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
+  const [isAuthorization, setIsAuthorization] = useState(false)
+  const [makeItSmartConfirmed, setMakeItSmartConfirmed] = useState(false)
   const actionState = useActionsControllerState()
   const { styles } = useTheme(getStyles)
 
@@ -57,6 +60,13 @@ const SignMessageScreen = () => {
       return undefined
 
     return signMessageAction.userRequest
+  }, [signMessageAction])
+
+  useEffect(() => {
+    if (!signMessageAction) return undefined
+    if (signMessageAction.userRequest.action.kind !== 'authorization-7702') return
+
+    setIsAuthorization(true)
   }, [signMessageAction])
 
   const selectedAccountKeyStoreKeys = useMemo(
@@ -134,6 +144,11 @@ const SignMessageScreen = () => {
 
   const handleSign = useCallback(
     (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
+      if (isAuthorization && !makeItSmartConfirmed) {
+        setMakeItSmartConfirmed(true)
+        return
+      }
+
       // Has more than one key, should first choose the key to sign with
       const hasChosenSigningKey = chosenSigningKeyAddr && chosenSigningKeyType
       const hasMultipleKeys = selectedAccountKeyStoreKeys.length > 1
@@ -159,7 +174,13 @@ const SignMessageScreen = () => {
         params: { keyAddr, keyType }
       })
     },
-    [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys]
+    [
+      dispatch,
+      isLedgerConnected,
+      selectedAccountKeyStoreKeys,
+      makeItSmartConfirmed,
+      isAuthorization
+    ]
   )
 
   const resolveButtonText = useMemo(() => {
@@ -167,8 +188,15 @@ const SignMessageScreen = () => {
 
     if (signStatus === 'LOADING') return t('Signing...')
 
+    if (isAuthorization && !makeItSmartConfirmed) return 'Make it Smart'
+
     return t('Sign')
-  }, [isScrollToBottomForced, signStatus, t])
+  }, [isScrollToBottomForced, signStatus, t, isAuthorization, makeItSmartConfirmed])
+
+  const rejectButtonText = useMemo(() => {
+    if (isAuthorization) return 'Stay Basic'
+    return 'Reject'
+  }, [isAuthorization])
 
   const handleDismissLedgerConnectModal = useCallback(() => {
     setShouldDisplayLedgerConnectModal(false)
@@ -177,7 +205,7 @@ const SignMessageScreen = () => {
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
   // loading spinner instead (would better be a skeleton, but whatever).
-  if (!signMessageState.isInitialized || !account) {
+  if (!signMessageState.isInitialized || !account || !signMessageAction) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />
@@ -196,6 +224,7 @@ const SignMessageScreen = () => {
           resolveButtonText={resolveButtonText}
           resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
           resolveButtonTestID="button-sign"
+          rejectButtonText={rejectButtonText}
         />
       }
     >
@@ -217,13 +246,17 @@ const SignMessageScreen = () => {
           />
         </View>
       )}
-      <Main
-        shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
-        isLedgerConnected={isLedgerConnected}
-        handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
-        hasReachedBottom={hasReachedBottom}
-        setHasReachedBottom={setHasReachedBottom}
-      />
+      {isAuthorization && !makeItSmartConfirmed ? (
+        <Authorization7702 />
+      ) : (
+        <Main
+          shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
+          isLedgerConnected={isLedgerConnected}
+          handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
+          hasReachedBottom={hasReachedBottom}
+          setHasReachedBottom={setHasReachedBottom}
+        />
+      )}
     </TabLayoutContainer>
   )
 }
