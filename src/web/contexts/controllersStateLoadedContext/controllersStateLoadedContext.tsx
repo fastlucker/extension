@@ -186,8 +186,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasInviteState,
     hasSwapAndBridgeState,
     hasExtensionUpdateState,
-    dispatch,
-    mainState.shouldUpdatePortfolioOnOpen
+    dispatch
   ])
 
   return (
