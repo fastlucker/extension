@@ -12,8 +12,8 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
-import { calculateGasTankBalance } from '@web/utils/calculateGasTankBalance'
 
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
