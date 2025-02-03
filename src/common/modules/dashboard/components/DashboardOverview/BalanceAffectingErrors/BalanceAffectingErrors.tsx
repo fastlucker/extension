@@ -16,15 +16,15 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
+import BalanceAffectingErrorActions from './BalanceAffectingErrorActions'
 import Header from './Header'
-import PortfolioErrorActions from './PortfolioErrorActions'
 
 type Props = {
   networksWithErrors: string[]
   reloadAccount: () => void
 } & Omit<ReturnType<typeof useBalanceAffectingErrors>, 'networksWithErrors'>
 
-const PortfolioErrors: FC<Props> = ({
+const BalanceAffectingErrors: FC<Props> = ({
   reloadAccount,
   sheetRef,
   balanceAffectingErrorsSnapshot,
@@ -58,7 +58,7 @@ const PortfolioErrors: FC<Props> = ({
       <WarningIcon
         color={theme.warningDecorative2}
         style={spacings.mlTy}
-        data-tooltip-id="portfolio-warning"
+        data-tooltip-id="balance-affecting-error"
         data-tooltip-content={warningMessage}
         width={21}
         height={21}
@@ -79,7 +79,7 @@ const PortfolioErrors: FC<Props> = ({
         {actions &&
           actions.map(({ actionName, ...rest }: Action) => {
             return (
-              <PortfolioErrorActions
+              <BalanceAffectingErrorActions
                 key={actionName}
                 actionName={actionName}
                 closeBottomSheet={closeBottomSheetWrapped}
@@ -130,11 +130,11 @@ const PortfolioErrors: FC<Props> = ({
       {isLoadingTakingTooLong ? (
         <Animated.View style={{ opacity: flashingOpacity }}>{renderWarningIcon()}</Animated.View>
       ) : (
-        <Pressable onPress={onIconPress} testID="portfolio-warning-icon">
+        <Pressable onPress={onIconPress} testID="balance-affecting-error-icon">
           {renderWarningIcon()}
         </Pressable>
       )}
-      <Tooltip id="portfolio-warning" />
+      <Tooltip id="balance-affecting-error" />
       <BottomSheet
         style={{ maxWidth: 720, ...spacings.pvLg, ...spacings.phXl, width: '100%' }}
         id="portfolio-errors"
@@ -175,4 +175,4 @@ const PortfolioErrors: FC<Props> = ({
   )
 }
 
-export default PortfolioErrors
+export default BalanceAffectingErrors
