@@ -333,16 +333,24 @@ const useSwapAndBridgeForm = () => {
 
     if (!quote || !quote.selectedRoute) return null
 
-    const difference = Math.abs(
-      quote.selectedRoute.inputValueInUsd - quote.selectedRoute.outputValueInUsd
-    )
-    const average = (quote.selectedRoute.inputValueInUsd + quote.selectedRoute.outputValueInUsd) / 2
-    const res = (difference / average) * 100
+    let inputValueInUsd = 0
 
-    if (res < 5) return null
+    try {
+      inputValueInUsd = Number(fromAmountInFiat)
+    } catch (error) {
+      // silent fail
+    }
+    if (!inputValueInUsd) return null
 
-    return res
-  }, [quote, formStatus, updateQuoteStatus])
+    if (inputValueInUsd <= quote.selectedRoute.outputValueInUsd) return null
+
+    const difference = Math.abs(inputValueInUsd - quote.selectedRoute.outputValueInUsd)
+    const average = (inputValueInUsd + quote.selectedRoute.outputValueInUsd) / 2
+    const percentageDiff = (difference / average) * 100
+
+    // show the warning banner only if the percentage diff is higher than 5%
+    return percentageDiff < 5 ? null : percentageDiff
+  }, [quote, formStatus, fromAmountInFiat, updateQuoteStatus])
 
   const handleSubmitForm = useCallback(() => {
     dispatch({
