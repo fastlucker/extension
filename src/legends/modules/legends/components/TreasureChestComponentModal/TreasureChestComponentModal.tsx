@@ -78,12 +78,13 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
   >(isCompleted ? 'opened' : 'locked')
 
-  const setChestToUnlocked = useCallback(() => {
+  const setChestToUnlocked = useCallback(async () => {
+    await getLegends()
     unlockChainAnimation()
     setChestState('unlocked')
-  }, [unlockChainAnimation])
+  }, [unlockChainAnimation, getLegends])
 
-  const getButtonLabel = () => {
+  const buttonLabel = useMemo(() => {
     switch (chestState) {
       case 'unlocking':
         return 'Unlocking...'
@@ -98,7 +99,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       default:
         return 'Unlock chest'
     }
-  }
+  }, [chestState])
 
   const action = useMemo(() => treasureLegend?.action as CardActionCalls, [treasureLegend])
 
@@ -130,7 +131,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       const transactionFound = await checkTransactionStatus(
         connectedAccount,
         'dailyReward',
-        getLegends,
         setChestToUnlocked,
         addToast
       )
@@ -148,7 +148,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           const found = await checkTransactionStatus(
             connectedAccount,
             'dailyReward',
-            getLegends,
             setChestToUnlocked,
             addToast
           )
@@ -171,7 +170,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     switchNetwork,
     stopChainAnimation,
     connectedAccount,
-    getLegends,
     action?.calls,
     sendCalls,
     chainId,
@@ -265,7 +263,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             }
             onClick={onButtonClick}
           >
-            {getButtonLabel()}
+            {buttonLabel}
           </button>
         </div>
       </div>
