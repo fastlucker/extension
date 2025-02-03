@@ -51,10 +51,17 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
 
   const warningMessage = useMemo(() => {
     if (isLoadingTakingTooLong) {
-      // const networksLoadingTooLong = balanceAffectingErrors.find(
-      //   ({ id }) => id === 'loading-too-long'
-      // )?.networkIds.map((id) => networks)
-      return t('Loading all networks is taking too long.')
+      const allNetworkNames = balanceAffectingErrors.find(
+        ({ id }) => id === 'loading-too-long'
+      )?.networkNames
+
+      if (!allNetworkNames) return t('Loading is taking too long.')
+
+      const uniqueNetworkNames = [...new Set(allNetworkNames)]
+
+      return t('Loading is taking too long on {{networks}}.', {
+        networks: uniqueNetworkNames.join(', ')
+      })
     }
 
     if (isOffline && portfolio.isAllReady) return t('Please check your internet connection.')
@@ -70,7 +77,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
 
     return undefined
   }, [
-    balanceAffectingErrors.length,
+    balanceAffectingErrors,
     isLoadingTakingTooLong,
     isOffline,
     networksWithErrors,

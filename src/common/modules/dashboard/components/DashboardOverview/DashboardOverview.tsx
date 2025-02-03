@@ -99,19 +99,12 @@ const DashboardOverview: FC<Props> = ({
   ).split('.')
 
   const networksWithErrors = useMemo(() => {
-    const allNetworkIds = balanceAffectingErrors.map((banner) => banner.networkIds).flat()
+    const allNetworkNames = balanceAffectingErrors.flatMap((banner) => banner.networkNames)
 
-    const networkIds = [...new Set(allNetworkIds)]
+    const uniqueNetworkNames = [...new Set(allNetworkNames)]
 
-    return networkIds.map((networkId) => {
-      const { name } = networks.find(({ id }) => id === networkId) || {}
-
-      if (!name && networkId === 'rewards') return 'Rewards'
-      if (!name && networkId === 'gasTank') return 'Gas Tank'
-
-      return name || networkId
-    })
-  }, [balanceAffectingErrors, networks])
+    return uniqueNetworkNames
+  }, [balanceAffectingErrors])
 
   const reloadAccount = useCallback(() => {
     dispatch({ type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT' })
