@@ -7,22 +7,12 @@ import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
-import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
-import ExpandableCard from '@common/components/ExpandableCard'
-import HumanizedVisualization from '@common/components/HumanizedVisualization'
-import NetworkBadge from '@common/components/NetworkBadge'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
-import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
-import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
-import {
-  TabLayoutContainer,
-  TabLayoutWrapperMainContent
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -30,13 +20,10 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
-import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
-import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
-import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
-import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
 
+import Main from './Contents/main'
 import getStyles from './styles'
 
 const SignMessageScreen = () => {
@@ -52,8 +39,7 @@ const SignMessageScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const actionState = useActionsControllerState()
-  const { styles, theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
+  const { styles } = useTheme(getStyles)
 
   const signMessageAction = useMemo(() => {
     if (actionState.currentAction?.type !== 'signMessage') return undefined
@@ -231,99 +217,13 @@ const SignMessageScreen = () => {
           />
         </View>
       )}
-      <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
-        <View
-          style={[
-            flexbox.directionRow,
-            flexbox.alignCenter,
-            flexbox.justifySpaceBetween,
-            spacings.mbLg
-          ]}
-        >
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <Text weight="medium" fontSize={24} style={[spacings.mrSm]}>
-              {t('Sign message')}
-            </Text>
-            <NetworkBadge
-              style={{ borderRadius: 25, ...spacings.pv0 }}
-              networkId={signMessageState.messageToSign?.networkId}
-              withOnPrefix
-            />
-          </View>
-          {/* @TODO: Replace with Badge; add size prop to badge; add tooltip  */}
-          <View style={styles.kindOfMessage}>
-            <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
-              {signMessageState.messageToSign?.content.kind === 'typedMessage' && t('EIP-712')}
-              {signMessageState.messageToSign?.content.kind === 'message' && t('Standard')}
-              {signMessageState.messageToSign?.content.kind === 'authorization-7702' &&
-                t('EIP-7702')}{' '}
-              {t('Type')}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.container}>
-          <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
-            <Info />
-          </View>
-          <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
-          <View style={flexbox.flex1}>
-            <ExpandableCard
-              enableToggleExpand={!!visualizeHumanized}
-              isInitiallyExpanded={!visualizeHumanized}
-              hasArrow={!!visualizeHumanized}
-              style={{ ...spacings.mbTy, maxHeight: '100%' }}
-              content={
-                visualizeHumanized &&
-                // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
-                humanizedMessage?.fullVisualization &&
-                signMessageState.messageToSign?.content.kind ? (
-                  <HumanizedVisualization
-                    data={humanizedMessage.fullVisualization}
-                    networkId={network?.id || 'ethereum'}
-                  />
-                ) : (
-                  <>
-                    <View style={spacings.mrTy}>
-                      <ErrorOutlineIcon width={24} height={24} />
-                    </View>
-                    <Text fontSize={maxWidthSize('xl') ? 16 : 12} appearance="warningText">
-                      <Text
-                        fontSize={maxWidthSize('xl') ? 16 : 12}
-                        appearance="warningText"
-                        weight="semiBold"
-                      >
-                        {t('Warning: ')}
-                      </Text>
-                      {t('Please read the whole message as we are unable to translate it!')}
-                    </Text>
-                  </>
-                )
-              }
-              expandedContent={
-                <FallbackVisualization
-                  setHasReachedBottom={setHasReachedBottom}
-                  hasReachedBottom={!!hasReachedBottom}
-                  messageToSign={signMessageState.messageToSign}
-                />
-              }
-            />
-          </View>
-          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
-            <HardwareWalletSigningModal
-              keyType={signMessageState.signingKeyType}
-              isVisible={signStatus === 'LOADING'}
-            />
-          )}
-          {shouldDisplayLedgerConnectModal && (
-            <LedgerConnectModal
-              isVisible={!isLedgerConnected}
-              handleOnConnect={handleDismissLedgerConnectModal}
-              handleClose={handleDismissLedgerConnectModal}
-              displayOptionToAuthorize={false}
-            />
-          )}
-        </View>
-      </TabLayoutWrapperMainContent>
+      <Main
+        shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
+        isLedgerConnected={isLedgerConnected}
+        handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
+        hasReachedBottom={hasReachedBottom}
+        setHasReachedBottom={setHasReachedBottom}
+      />
     </TabLayoutContainer>
   )
 }
