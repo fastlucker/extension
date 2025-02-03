@@ -543,7 +543,7 @@ const SwapAndBridgeScreen = () => {
                         onPress={handleHighPriceImpactCheckboxPress}
                       >
                         {t(
-                          'The price impact is too high {{highPriceImpactInPercentage}}%. If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
+                          'The price impact is too high ({{highPriceImpactInPercentage}}%). If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
                           { highPriceImpactInPercentage: highPriceImpactInPercentage.toFixed(1) }
                         )}
                       </Text>

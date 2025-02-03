@@ -1,4 +1,4 @@
-import { formatUnits, getAddress, isAddress } from 'ethers'
+import { formatUnits, getAddress, isAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
@@ -11,6 +11,7 @@ import {
   getIsNetworkSupported,
   getIsTokenEligibleForSwapAndBridge
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
@@ -344,13 +345,25 @@ const useSwapAndBridgeForm = () => {
 
     if (inputValueInUsd <= quote.selectedRoute.outputValueInUsd) return null
 
-    const difference = Math.abs(inputValueInUsd - quote.selectedRoute.outputValueInUsd)
-    const average = (inputValueInUsd + quote.selectedRoute.outputValueInUsd) / 2
-    const percentageDiff = (difference / average) * 100
+    if (!fromSelectedToken) return null
 
-    // show the warning banner only if the percentage diff is higher than 5%
-    return percentageDiff < 5 ? null : percentageDiff
-  }, [quote, formStatus, fromAmountInFiat, updateQuoteStatus])
+    try {
+      const sanitizedFromAmount = getSanitizedAmount(fromAmount, fromSelectedToken!.decimals)
+
+      const bigintFromAmount = parseUnits(sanitizedFromAmount, fromSelectedToken!.decimals)
+
+      if (bigintFromAmount !== BigInt(quote.selectedRoute.fromAmount)) return null
+
+      const difference = Math.abs(inputValueInUsd - quote.selectedRoute.outputValueInUsd)
+      const average = (inputValueInUsd + quote.selectedRoute.outputValueInUsd) / 2
+      const percentageDiff = (difference / average) * 100
+
+      // show the warning banner only if the percentage diff is higher than 5%
+      return percentageDiff < 5 ? null : percentageDiff
+    } catch (error) {
+      return null
+    }
+  }, [quote, formStatus, fromAmount, fromAmountInFiat, fromSelectedToken, updateQuoteStatus])
 
   const handleSubmitForm = useCallback(() => {
     dispatch({
