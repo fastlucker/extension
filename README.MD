@@ -115,6 +115,44 @@ Make sure your code editor has plugins that support the following configuration 
   - For the macOS target: General - App Category: "Utilities"
   - For the extension target: General - Identity - Bundle Identifier: `com.ambire.app.wallet.extension`
 
+### Extract Source Maps
+
+The production-optimized builds come with source maps files included. When preparing a production build for a browser store release, run the following commands to extract the source maps in separate directories:
+
+- For the webkit build:
+
+  ```bash
+  yarn export:web:webkit:sourcemaps
+  ```
+
+  As a result, build/webkit-prod will no longer include the source map files (as before). Instead, a new folder, build/webkit-prod-source-maps, will be created to hold only the source maps. This folder should also be included in the GitHub release tag we create.
+
+- For the gecko build:
+
+  ```bash
+  yarn export:web:gecko:sourcemaps
+  ```
+
+  Same as for the webkit build, but for the gecko build.
+
+- For the Safari build: not implemented yet.
+
+For more details, including how to trace /deminify a production reported error, see [#3191](https://github.com/AmbireTech/ambire-app/pull/3191).
+
+### Store-prepared Builds
+
+Automates the steps before every extension extension store release that could be otherwise done manually:
+
+- Makes webkit and gecko extension production builds
+- Exports source maps to "clean" the builds (and to prepare for upload those source maps in the GitHub release)
+- Zips the "clean" builds (stores accept zips only) and the source maps
+
+```bash
+yarn build:extensions
+```
+
+And find the resulting zips in the "build" folder as `ambire-extension-<VERSION>-<TYPE>.zip`
+
 ## Mobile Apps
 
 The Ambire v2 compatible mobile apps are yet to be developed. Coming sometime in the near future 🤞
