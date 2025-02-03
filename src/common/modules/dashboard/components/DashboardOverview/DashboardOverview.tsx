@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useMemo } from 'react'
-import { Animated, View } from 'react-native'
+import { Animated, Pressable, View } from 'react-native'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -25,6 +25,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+import useBalanceAffectingErrors from '../../hooks/useBalanceAffectingErrors'
 import PortfolioErrors from './PortfolioErrors'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
@@ -57,14 +58,22 @@ const DashboardOverview: FC<Props> = ({
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { isOffline } = useMainControllerState()
-  const { account, dashboardNetworkFilter, balanceAffectingErrors, portfolio } =
-    useSelectedAccountControllerState()
+  const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
+  const {
+    sheetRef,
+    balanceAffectingErrorsSnapshot,
+    warningMessage,
+    onIconPress,
+    closeBottomSheetWrapped,
+    isLoadingTakingTooLong,
+    networksWithErrors
+  } = useBalanceAffectingErrors()
 
   const filterByNetworkName = useMemo(() => {
     if (!dashboardNetworkFilter) return ''
@@ -97,14 +106,6 @@ const DashboardOverview: FC<Props> = ({
     totalPortfolioAmount,
     'value'
   ).split('.')
-
-  const networksWithErrors = useMemo(() => {
-    const allNetworkNames = balanceAffectingErrors.flatMap((banner) => banner.networkNames)
-
-    const uniqueNetworkNames = [...new Set(allNetworkNames)]
-
-    return uniqueNetworkNames
-  }, [balanceAffectingErrors])
 
   const reloadAccount = useCallback(() => {
     dispatch({ type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT' })
@@ -164,7 +165,12 @@ const DashboardOverview: FC<Props> = ({
                       borderRadius={8}
                     />
                   ) : (
-                    <View testID="full-balance" style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Pressable
+                      onPress={onIconPress}
+                      disabled={!warningMessage || isLoadingTakingTooLong || isOffline}
+                      testID="full-balance"
+                      style={[flexbox.directionRow, flexbox.alignCenter]}
+                    >
                       <Text selectable>
                         <Text
                           fontSize={32}
@@ -198,7 +204,7 @@ const DashboardOverview: FC<Props> = ({
                           {totalPortfolioAmountDecimal}
                         </Text>
                       </Text>
-                    </View>
+                    </Pressable>
                   )}
                   <AnimatedPressable
                     style={[spacings.mlTy, refreshButtonAnimStyle]}
@@ -245,6 +251,12 @@ const DashboardOverview: FC<Props> = ({
                   <PortfolioErrors
                     reloadAccount={reloadAccount}
                     networksWithErrors={networksWithErrors}
+                    sheetRef={sheetRef}
+                    balanceAffectingErrorsSnapshot={balanceAffectingErrorsSnapshot}
+                    warningMessage={warningMessage}
+                    onIconPress={onIconPress}
+                    closeBottomSheetWrapped={closeBottomSheetWrapped}
+                    isLoadingTakingTooLong={isLoadingTakingTooLong}
                   />
                 </View>
               </View>
