@@ -25,6 +25,8 @@ interface Props {
     disabled?: boolean
     onPress?: () => void
     testID?: string
+    scale: number
+    scaleOnHover: number
   }
   index: number
   routeItemsLength: number
@@ -46,8 +48,8 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
       },
       {
         property: 'scaleX',
-        from: 1,
-        to: 1.2
+        from: routeItem.scale,
+        to: routeItem.scaleOnHover
       }
     ]
   })

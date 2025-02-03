@@ -5,12 +5,12 @@ import { createPortal } from 'react-dom'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
-import { RELAYER_URL } from '@env'
 // @ts-ignore
 import CloseIcon from '@legends/components/CloseIcon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { BASE_CHAIN_ID } from '@legends/constants/networks'
+import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
 import { ActivityTransaction, LegendActivity } from '@legends/contexts/activityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
@@ -25,18 +25,17 @@ import pointerImage from './assets/pointer.png'
 import spinnerImage from './assets/spinner.png'
 import styles from './WheelComponentModal.module.scss'
 import WHEEL_PRIZE_DATA from './wheelData'
-import getRecentActivity from "@legends/contexts/activityContext/helpers/recentActivity";
 
 export const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
 interface WheelComponentProps {
   isOpen: boolean
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  handleClose: () => void
 }
 
 const POST_UNLOCK_STATES = ['unlocked', 'spinning', 'spun', 'error']
 
-const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
+const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClose }) => {
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
   const [wheelState, setWheelState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
@@ -174,7 +173,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   }, [prizeNumber, wheelState])
 
   const closeModal = async () => {
-    setIsOpen(false)
+    handleClose()
     if (wheelState === 'spun') {
       await onLegendComplete()
     }

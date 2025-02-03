@@ -6,12 +6,12 @@ import { Pressable, View } from 'react-native'
 import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 // import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
+import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import SwapAndBridgeIcon from '@common/assets/svg/SwapAndBridgeIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
@@ -31,6 +31,7 @@ import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getTokenId } from '@web/utils/token'
@@ -41,24 +42,25 @@ import getStyles from './styles'
 
 const TokenDetails = ({
   token,
-  handleClose,
-  tokenPreferences
+  handleClose
 }: {
   token: TokenResult | null
   handleClose: () => void
-  tokenPreferences: CustomToken[]
 }) => {
   const { styles, theme } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { tokenPreferences } = usePortfolioControllerState()
   const { account } = useSelectedAccountControllerState()
   const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const [coinGeckoTokenSlug, setCoinGeckoTokenSlug] = useState('')
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
-  const [isHidden, setIsHidden] = useState(!!token?.isHidden)
+  const { isHidden } = tokenPreferences.find(
+    ({ address, networkId }) => address === token?.address && networkId === token?.networkId
+  ) || { isHidden: false }
   const network = useMemo(
     () => networks.find((n) => n.id === token?.networkId),
     [networks, token?.networkId]
@@ -249,34 +251,16 @@ const TokenDetails = ({
 
   const handleHideToken = () => {
     if (!token) return
-    setIsHidden((prev) => !prev)
-    const tokenInPreferences = tokenPreferences?.length
-      ? tokenPreferences.find(
-          (_token) =>
-            token.address.toLowerCase() === _token.address.toLowerCase() &&
-            token.networkId === _token.networkId
-        )
-      : null
-
-    const newToken = {
-      symbol: token.symbol,
-      decimals: token.decimals,
-      address: token.address,
-      networkId: token.networkId,
-      isHidden: !token.isHidden,
-      standard: tokenInPreferences?.standard || 'ERC20'
-    }
 
     dispatch({
-      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+      type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
       params: {
-        token: newToken
+        token: {
+          address: token.address,
+          networkId: token.networkId
+        }
       }
     })
-
-    // The modal closes anyway so it's better to close it right
-    // after hiding the token
-    handleClose()
   }
   if (!token) return null
 
@@ -326,12 +310,15 @@ const TokenDetails = ({
                 <Pressable
                   style={[flexbox.directionRow, flexbox.alignCenter]}
                   onPress={handleHideToken}
-                  disabled={isHidden}
                 >
                   <Text weight="medium" fontSize={12}>
-                    {t('Hide')}
+                    {t(isHidden ? 'Show' : 'Hide')}
                   </Text>
-                  <VisibilityIcon color={theme.successDecorative} style={styles.visibilityIcon} />
+                  {isHidden ? (
+                    <InvisibilityIcon color={theme.errorDecorative} style={styles.visibilityIcon} />
+                  ) : (
+                    <VisibilityIcon color={theme.successDecorative} style={styles.visibilityIcon} />
+                  )}
                 </Pressable>
               </View>
             )}

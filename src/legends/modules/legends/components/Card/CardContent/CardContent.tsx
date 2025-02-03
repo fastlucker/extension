@@ -1,11 +1,11 @@
 import React, { FC } from 'react'
 
 import GoldenLockIcon from '@legends/common/assets/svg/GoldenLockIcon'
+import MidnightTimer from '@legends/components/MidnightTimer'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
-import MidnightTimer from '@legends/components/MidnightTimer'
 import styles from './CardContent.module.scss'
 import Counter from './Counter'
 import Flask from './Flask'
@@ -48,7 +48,8 @@ const CardContent: FC<Props> = ({
           <Flask />
           <div className={styles.overlayTitle}>
             Completed
-            {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) ? (
+            {isMatchingPredefinedId(action, CARD_PREDEFINED_ID.wheelOfFortune) ||
+            isMatchingPredefinedId(action, CARD_PREDEFINED_ID.chest) ? (
               <MidnightTimer className={styles.overlayText} />
             ) : null}
           </div>

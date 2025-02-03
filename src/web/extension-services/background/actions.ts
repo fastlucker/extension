@@ -18,7 +18,7 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
@@ -187,6 +187,10 @@ type MainControllerRejectUserRequestAction = {
   type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
   params: { err: string; id: UserRequest['id'] }
 }
+type MainControllerRejectSignAccountOpCall = {
+  type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
+  params: { callId: string }
+}
 type MainControllerResolveAccountOpAction = {
   type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
   params: { data: any; actionId: AccountOpAction['id'] }
@@ -241,6 +245,14 @@ type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
 }
 
+type MainControllerUpdateSelectedAccountPortfolio = {
+  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
+  params?: {
+    forceUpdate?: boolean
+    network?: Network
+  }
+}
+
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
   params: { dashboardNetworkFilter: NetworkId | null }
@@ -254,16 +266,27 @@ type PortfolioControllerGetTemporaryToken = {
   }
 }
 
-type PortfolioControllerUpdateTokenPreferences = {
-  type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
+type PortfolioControllerAddCustomToken = {
+  type: 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN'
   params: {
     token: CustomToken
+    shouldUpdatePortfolio?: boolean
   }
 }
-type PortfolioControllerRemoveTokenPreferences = {
-  type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES'
+
+type PortfolioControllerRemoveCustomToken = {
+  type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN'
   params: {
-    token: CustomToken | TokenResult
+    token: Omit<CustomToken, 'standard'>
+    shouldUpdatePortfolio?: boolean
+  }
+}
+
+type PortfolioControllerToggleHideToken = {
+  type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN'
+  params: {
+    token: Omit<TokenPreference, 'isHidden'>
+    shouldUpdatePortfolio?: boolean
   }
 }
 
@@ -601,6 +624,7 @@ export type Action =
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
+  | MainControllerRejectSignAccountOpCall
   | MainControllerResolveAccountOpAction
   | MainControllerRejectAccountOpAction
   | MainControllerResolveSwitchAccountRequest
@@ -618,10 +642,12 @@ export type Action =
   | MainControllerSignAccountOpUpdateAction
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
+  | MainControllerUpdateSelectedAccountPortfolio
   | SelectedAccountSetDashboardNetworkFilter
-  | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken
-  | PortfolioControllerRemoveTokenPreferences
+  | PortfolioControllerToggleHideToken
+  | PortfolioControllerRemoveCustomToken
   | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
