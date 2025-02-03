@@ -1,13 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FlatList, View } from 'react-native'
 
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
@@ -15,14 +16,13 @@ import HideTokenTokenItem from './TokenItem'
 
 const HideToken = () => {
   const { t } = useTranslation()
-
-  const { tokenPreferences } = usePortfolioControllerState()
+  const { dispatch } = useBackgroundService()
+  const { tokenPreferences, customTokens } = usePortfolioControllerState()
+  const [initialTokenPreferences, setInitialTokenPreferences] = useState<TokenPreference[] | null>(
+    null
+  )
+  const debouncedPortfolioUpdateInterval = useRef<NodeJS.Timeout | null>(null)
   const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
-  const [isLoading, setIsLoading] = useState<{
-    [token: string]: boolean
-  }>({})
-  const [tokenPreferencesCopy, seTokenPreferencesCopy] = useState<CustomToken[]>([])
-
   const { control, watch, setValue } = useForm({
     mode: 'all',
     defaultValues: {
@@ -33,48 +33,31 @@ const HideToken = () => {
   const searchValue = watch('search')
 
   useEffect(() => {
-    setValue('search', '')
-  }, [setValue])
+    // Filter and sort using the initial lists to avoid re-ordering
+    // the list changes
+    if (!initialTokenPreferences) {
+      setInitialTokenPreferences(tokenPreferences)
+    }
+  }, [customTokens, initialTokenPreferences, tokenPreferences])
 
   useEffect(() => {
-    // Check for differences between the tokenPreferencesCopy and the tokenPreferences
-    // If there are differences, update the tokenPreferencesCopy
-    // Set the loading state of the token which is updated to false
-    const differences = tokenPreferences?.filter(
-      (tokenPreference) =>
-        !tokenPreferencesCopy.some(
-          (copy) =>
-            copy.address === tokenPreference.address &&
-            copy.networkId === tokenPreference.networkId &&
-            copy.isHidden === tokenPreference.isHidden
-        )
-    )
-
-    if (differences.length > 0) {
-      seTokenPreferencesCopy(tokenPreferences)
-      setIsLoading((prevState) => {
-        const updatedLoadingState = { ...prevState }
-        differences.forEach((tokenPreference) => {
-          updatedLoadingState[`${tokenPreference.address}-${tokenPreference.networkId}`] = false
-        })
-        return updatedLoadingState
-      })
-    }
-  }, [tokenPreferences, tokenPreferencesCopy])
+    setValue('search', '')
+  }, [setValue])
 
   const tokens = useMemo(
     () =>
       selectedAccountPortfolio?.tokens
-        .filter(
-          (token) =>
-            (token.amount > 0n ||
-              tokenPreferences?.find(
-                ({ address, networkId }) =>
-                  token.address === address && token.networkId === networkId
-              )) &&
-            !token.flags.onGasTank &&
-            !token.flags.rewardsType
-        )
+        .filter((token) => {
+          if (token.flags.onGasTank || !!token.flags.rewardsType) return false
+          const isInitiallyInTokenPreferences = initialTokenPreferences?.find(
+            ({ address, networkId }) => address === token.address && networkId === token.networkId
+          )
+          const isCustomToken = customTokens?.find(
+            ({ address, networkId }) => address === token.address && networkId === token.networkId
+          )
+
+          return isInitiallyInTokenPreferences || isCustomToken
+        })
         .filter((token) => {
           if (!searchValue) return true
 
@@ -84,48 +67,74 @@ const HideToken = () => {
           return doesAddressMatch || doesSymbolMatch
         })
         .sort((a, b) => {
-          const aFromPreferences = tokenPreferences?.some(
-            ({ address, networkId, standard }) =>
-              a.address.toLowerCase() === address.toLowerCase() &&
-              a.networkId === networkId &&
-              standard === 'ERC20'
-          )
-          const bFromPreferences = tokenPreferences?.some(
-            ({ address, networkId, standard }) =>
-              b.address.toLowerCase() === address.toLowerCase() &&
-              b.networkId === networkId &&
-              standard === 'ERC20'
-          )
-          if (aFromPreferences && !bFromPreferences) {
-            return -1
+          const aIsHidden =
+            initialTokenPreferences?.find(
+              ({ address, networkId }) => a.address === address && a.networkId === networkId
+            )?.isHidden || false
+          const bIsHidden =
+            initialTokenPreferences?.find(
+              ({ address, networkId }) => b.address === address && b.networkId === networkId
+            )?.isHidden || false
+
+          if (aIsHidden === bIsHidden) {
+            const aIsCustom = customTokens?.find(
+              ({ address, networkId }) => a.address === address && a.networkId === networkId
+            )
+            const bIsCustom = customTokens?.find(
+              ({ address, networkId }) => b.address === address && b.networkId === networkId
+            )
+
+            if (aIsCustom && !bIsCustom) return -1
+            if (!aIsCustom && bIsCustom) return 1
+
+            return 0
           }
-          if (!aFromPreferences && bFromPreferences) {
-            return 1
-          }
+
+          if (aIsHidden && !bIsHidden) return 1
+          if (!aIsHidden && bIsHidden) return -1
 
           return 0
         }),
-    [selectedAccountPortfolio, tokenPreferences, searchValue]
+    [selectedAccountPortfolio?.tokens, customTokens, initialTokenPreferences, searchValue]
   )
+
+  const onTokenPreferenceOrCustomTokenChange = useCallback(() => {
+    if (debouncedPortfolioUpdateInterval.current) {
+      clearTimeout(debouncedPortfolioUpdateInterval.current)
+    }
+
+    debouncedPortfolioUpdateInterval.current = setTimeout(() => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
+        params: {
+          // Update the portfolio for all networks as the user may hide multiple tokens
+          // from different networks
+          forceUpdate: true
+        }
+      })
+      debouncedPortfolioUpdateInterval.current = null
+    }, 1000)
+  }, [dispatch])
 
   const renderItem = useCallback(
     ({ item }: any) => (
       <HideTokenTokenItem
-        token={item}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        seTokenPreferencesCopy={seTokenPreferencesCopy}
+        onTokenPreferenceOrCustomTokenChange={onTokenPreferenceOrCustomTokenChange}
+        {...item}
       />
     ),
-    [isLoading]
+    [onTokenPreferenceOrCustomTokenChange]
   )
 
-  const keyExtractor = useCallback((item: any) => `${item.address}-${item.networkId}`, [])
+  const keyExtractor = useCallback(
+    (item: any) => `${item.address}-${item.networkId}-${item.flags?.isHidden}`,
+    []
+  )
 
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">
-        {t('Hide Token')}
+        {t('Manage Tokens')}
       </Text>
       <Controller
         name="search"

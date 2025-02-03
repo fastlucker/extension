@@ -2,9 +2,9 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
-import useActivityContext from '@legends/hooks/useActivityContext'
 import useToast from '@legends/hooks/useToast'
 import { isWheelSpinTodayDone } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'

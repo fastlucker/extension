@@ -4,7 +4,6 @@ import { FlatListProps, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { Network } from '@ambire-common/interfaces/network'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount, getTokenBalanceInUSD } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Button from '@common/components/Button'
@@ -17,6 +16,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getDoesNetworkMatch } from '@common/utils/search'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
@@ -32,7 +32,6 @@ interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   sessionId: string
-  tokenPreferences: CustomToken[]
   initTab?: {
     [key: string]: boolean
   }
@@ -52,11 +51,12 @@ const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: Network[]) 
 
 const { isPopup } = getUiType()
 
-const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onScroll }: Props) => {
+const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
+  const { customTokens } = usePortfolioControllerState()
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',
@@ -116,10 +116,10 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
       tokens
         .filter((token) => {
           if (isGasTankTokenOnCustomNetwork(token, networks)) return false
-          if (token?.isHidden) return false
+          if (token?.flags.isHidden) return false
 
           const hasTokenAmount = hasAmount(token)
-          const isInPreferences = tokenPreferences.find(
+          const isCustom = customTokens.find(
             ({ address, networkId }) =>
               token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
           )
@@ -130,7 +130,7 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
 
           return (
             hasTokenAmount ||
-            isInPreferences ||
+            isCustom ||
             // Don't display pinned tokens until we are sure the user has no balance
             (isPinned && userHasNoBalance && portfolio?.isAllReady)
           )
@@ -179,11 +179,11 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
 
           return 0
         }),
-    [tokens, networks, tokenPreferences, userHasNoBalance, portfolio?.isAllReady]
+    [tokens, networks, customTokens, userHasNoBalance, portfolio?.isAllReady]
   )
 
   const navigateToAddCustomToken = useCallback(() => {
-    navigate(WEB_ROUTES.customTokens)
+    navigate(WEB_ROUTES.manageTokens)
   }, [navigate])
 
   const renderItem = useCallback(
@@ -258,7 +258,6 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
       return (
         <TokenItem
           token={item}
-          tokenPreferences={tokenPreferences}
           testID={`token-${item.address}-${item.networkId}${
             item.flags.onGasTank ? '-gastank' : ''
           }`}
@@ -267,7 +266,6 @@ const Tokens = ({ tokenPreferences, openTab, setOpenTab, initTab, sessionId, onS
     },
     [
       initTab?.tokens,
-      tokenPreferences,
       theme.primaryBackground,
       openTab,
       setOpenTab,

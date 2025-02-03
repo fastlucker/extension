@@ -37,66 +37,18 @@
     pointer-events: auto;
   }
 
+  .wheelBanner {
+    margin-bottom: .375rem;
+  }
+
   .top {
     position: relative;
-    .wheelOfFortuneWrapper {
-      background: $primaryGradient;
-      background-size: 200% 200%;
-      animation: gradientAnimation 4s ease infinite;
+    .bannerText {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      color: $primaryBackground;
 
-      border-radius: $secondaryBorderRadius;
-      padding: 0.25rem;
-      $innerBorderRadius: calc(#{$secondaryBorderRadius} - 0.25rem);
-
-      .wheelOfFortune {
-        position: relative;
-        display: flex;
-        background-color: $tertiaryBackground;
-        border-radius: $innerBorderRadius;
-
-        .wheelImage {
-          height: 7.5rem;
-          width: auto;
-          border-radius: $innerBorderRadius 0 0 $innerBorderRadius;
-        }
-
-        .wheelContent {
-          padding: 1rem;
-          padding-left: 6rem;
-          flex: 1;
-
-          .wheelTitle,
-          .wheelText {
-            display: block;
-            color: $primaryBackground;
-          }
-          .wheelTitle {
-            font-size: 1.125rem;
-            font-weight: 500;
-            line-height: 1.5rem;
-            text-transform: uppercase;
-          }
-          .wheelText {
-            font-size: 0.875rem;
-            margin-bottom: 0.75rem;
-          }
-          .wheelButton {
-            background: $secondaryGradient;
-            border: 2px solid $primaryBackground;
-            box-shadow: 0 0.125rem 0 $primaryBackground;
-            border-radius: $primaryBorderRadius;
-            height: 2.25rem;
-            font-weight: 500;
-            font-size: 0.875rem;
-            width: 100%;
-            text-transform: none;
-
-            &:hover {
-              opacity: 1;
-            }
-          }
-        }
-      }
+      
     }
     .disabled {
       opacity: 0.5;
@@ -176,8 +128,8 @@
   }
 
   .leaderSection {
-    padding-top: 1.875rem;
-    padding-bottom: 1.875rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     .leaderHeader {
       display: flex;
       justify-content: space-between;
@@ -208,7 +160,7 @@
       border-radius: $primaryBorderRadius;
       border: 1px solid $primaryBorder;
 
-      font-size: 1.5rem;
+      font-size: 1.1875rem;
       font-weight: 500;
       line-height: 2.0625rem;
 
@@ -276,6 +228,11 @@
       .treasureChestWrapper {
         padding-top: 1rem;
       }
+    }
+
+    .leaderSection {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
     }
   }
 }

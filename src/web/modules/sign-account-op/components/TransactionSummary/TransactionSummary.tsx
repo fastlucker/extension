@@ -78,7 +78,7 @@ const TransactionSummary = ({
 
   return (
     <ExpandableCard
-      enableExpand={enableExpand}
+      enableToggleExpand={enableExpand}
       hasArrow={enableExpand}
       style={{
         ...(call.warnings?.length ? { ...styles.warningContainer, ...style } : { ...style })

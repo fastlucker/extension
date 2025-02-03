@@ -59,26 +59,14 @@ const getTokenEligibility = (
     tokenNetwork?.id &&
     validTokens?.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
 
-const getTokenFromPreferences = (
-  tokenData: { address: string } | CustomToken,
-  tokenNetwork: Network | undefined,
-  tokenPreferences: CustomToken[]
-) =>
-  tokenData &&
-  tokenPreferences?.find(
-    (token: CustomToken) =>
-      token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
-      token.networkId === tokenNetwork?.id
-  )
-
 const handleTokenIsInPortfolio = async (
-  tokenInPreferences: CustomToken | undefined,
+  isTokenCustom: boolean,
   accountPortfolio: SelectedAccountPortfolio | null,
   tokenNetwork: Network,
   tokenData: { address: string } | CustomToken
 ) => {
   const isTokenInHints =
-    tokenInPreferences ||
+    isTokenCustom ||
     accountPortfolio?.tokens.find(
       (_t) =>
         _t.address.toLowerCase() === tokenData?.address.toLowerCase() &&
@@ -88,22 +76,22 @@ const handleTokenIsInPortfolio = async (
 
   const isNative = tokenData?.address === ZeroAddress
 
-  return isTokenInHints || tokenInPreferences || isNative
+  return isTokenInHints || isTokenCustom || isNative
 }
 
 const getTokenFromPortfolio = (
-  tokenData: { address: string } | CustomToken,
+  tokenData: { address: string },
   tokenNetwork: Network | undefined,
-  accountPortfolio: SelectedAccountPortfolio | null,
-  tokenInPreferences: CustomToken | undefined
-) =>
-  (tokenData &&
-    accountPortfolio?.tokens?.find(
-      (token) =>
-        token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
-        token.networkId === tokenNetwork?.id
-    )) ||
-  tokenInPreferences
+  accountPortfolio: SelectedAccountPortfolio | null
+) => {
+  if (!tokenData) return null
+
+  return accountPortfolio?.tokens?.find(
+    (token) =>
+      token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
+      token.networkId === tokenNetwork?.id
+  )
+}
 
 const getTokenFromTemporaryTokens = (
   temporaryTokens: TemporaryTokens,
@@ -122,7 +110,6 @@ export {
   selectNetwork,
   handleTokenIsInPortfolio,
   getTokenEligibility,
-  getTokenFromPreferences,
   getTokenFromTemporaryTokens,
   getTokenFromPortfolio
 }

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { useSearchParams } from 'react-router-dom'
 
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
@@ -19,13 +18,12 @@ import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import Tokens from '../Tokens'
 
 interface Props {
-  tokenPreferences: CustomToken[]
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 const { isTab } = getUiType()
 
-const DashboardPages = ({ tokenPreferences, onScroll }: Props) => {
+const DashboardPages = ({ onScroll }: Props) => {
   const route = useRoute()
   const [sessionId] = useState(nanoid())
   const [, setSearchParams] = useSearchParams()
@@ -71,7 +69,6 @@ const DashboardPages = ({ tokenPreferences, onScroll }: Props) => {
   return (
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
-        tokenPreferences={tokenPreferences}
         openTab={openTab}
         sessionId={sessionId}
         setOpenTab={setOpenTab}
