@@ -85,8 +85,10 @@ const Collections: FC<Props> = ({
   )
 
   const isReadyToVisualizeCollections = useMemo(() => {
+    if (portfolio.isAllReady) return true
+
     return portfolio?.isReadyToVisualize && filteredPortfolioCollections.length
-  }, [filteredPortfolioCollections.length, portfolio?.isReadyToVisualize])
+  }, [filteredPortfolioCollections.length, portfolio.isAllReady, portfolio?.isReadyToVisualize])
 
   const renderItem = useCallback(
     ({ item }: any) => {
