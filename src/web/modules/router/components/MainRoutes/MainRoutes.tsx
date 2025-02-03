@@ -185,7 +185,7 @@ const MainRoutes = () => {
                     path={WEB_ROUTES.devicePasswordRecovery}
                     element={<DevicePasswordRecoverySettingsScreen />}
                   />
-                  <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
+                  <Route path={WEB_ROUTES.manageTokens} element={<CustomTokensSettingsScreen />} />
                   <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
                   <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
                   <Route path={WEB_ROUTES.settingsAbout} element={<AboutSettingsScreen />} />

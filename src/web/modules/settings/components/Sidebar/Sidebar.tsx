@@ -101,10 +101,10 @@ export const SETTINGS_LINKS = [
     path: '/settings/email-vault'
   },
   {
-    key: 'custom-tokens',
+    key: 'manage-tokens',
     Icon: React.memo(CustomTokensIcon),
-    label: 'Custom Tokens',
-    path: ROUTES.customTokens
+    label: 'Manage Tokens',
+    path: ROUTES.manageTokens
   }
 ]
 

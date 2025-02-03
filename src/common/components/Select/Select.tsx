@@ -40,7 +40,7 @@ const Select = ({
       <FlatList
         ref={listRef}
         // get the data (the options) from the default section
-        data={filteredData[0].data}
+        data={filteredData?.[0]?.data || []}
         renderItem={renderItem as any}
         keyExtractor={keyExtractor}
         onLayout={handleLayout}

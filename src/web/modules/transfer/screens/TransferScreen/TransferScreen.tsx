@@ -65,9 +65,9 @@ const TransferScreen = () => {
   const { userRequests, isOffline } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
-  const hasOpenedActionWindow = useMemo(
-    () => actionsState.currentAction || actionsState.actionWindow.windowProps,
-    [actionsState.currentAction, actionsState.actionWindow.windowProps]
+  const hasFocusedActionWindow = useMemo(
+    () => actionsState.actionWindow.windowProps?.focused,
+    [actionsState.actionWindow.windowProps]
   )
 
   const transactionUserRequests = useMemo(() => {
@@ -117,21 +117,23 @@ const TransferScreen = () => {
 
   const submitButtonText = useMemo(() => {
     if (isOffline) return t("You're offline")
-    if (isTopUp) return t('Top Up')
 
-    if (hasOpenedActionWindow || !isSmartAccount) return t('Send')
+    if (hasFocusedActionWindow || !isSmartAccount) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
-    if (isFormValid && !addressInputState.validation.isError) {
-      numOfRequests++
-    }
 
     if (numOfRequests) {
+      if (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) {
+        numOfRequests++ // the queued txns + the one from the form
+      }
+
       if (isFormEmpty) return t('Sign All Pending ({{count}})', { count: numOfRequests })
-      return t('Send ({{count}})', { count: numOfRequests })
+      return isTopUp
+        ? t('Top Up ({{count}})', { count: numOfRequests })
+        : t('Send ({{count}})', { count: numOfRequests })
     }
 
-    return t('Send')
+    return isTopUp ? t('Top Up') : t('Send')
   }, [
     isOffline,
     isTopUp,
@@ -140,31 +142,31 @@ const TransferScreen = () => {
     isFormValid,
     isFormEmpty,
     isSmartAccount,
-    hasOpenedActionWindow,
+    hasFocusedActionWindow,
     t
   ])
 
+  const isTransferFormValid = useMemo(
+    () => (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError),
+    [addressInputState.validation.isError, isFormValid, isTopUp]
+  )
+
   const isSendButtonDisabled = useMemo(() => {
     if (isOffline) return true
-    if (isTopUp) return !isFormValid
-
-    const isTransferFormValid = isFormValid && !addressInputState.validation.isError
 
     if (!isSmartAccount) return !isTransferFormValid
 
-    if (transactionUserRequests.length && !hasOpenedActionWindow) {
+    if (transactionUserRequests.length && !hasFocusedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
     return !isTransferFormValid
   }, [
-    addressInputState.validation.isError,
     isFormEmpty,
-    isFormValid,
+    isTransferFormValid,
     isOffline,
-    isTopUp,
     isSmartAccount,
     transactionUserRequests.length,
-    hasOpenedActionWindow
+    hasFocusedActionWindow
   ])
 
   const onBack = useCallback(() => {
@@ -260,7 +262,7 @@ const TransferScreen = () => {
               >
                 <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
                   <CartIcon color={theme.primary} />
-                  {!!transactionUserRequests.length && !hasOpenedActionWindow && (
+                  {!!transactionUserRequests.length && !hasFocusedActionWindow && (
                     <Text
                       fontSize={16}
                       weight="medium"

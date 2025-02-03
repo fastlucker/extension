@@ -1,117 +1,208 @@
-# Ambire Mobile Wallet
+# Ambire Wallet
 
-Hybrid (React Native) Mobile App. This project is built with Expo's bare workflow, allowing developers to extend the default Vanilla React Native with additional expo modules in the form of installable expo libraries. Bare template projects come with expo installed and configured, so you're ready to install and use any package from the Expo SDK. A complete list of all expo packages can be found here: https://docs.expo.dev/versions/latest/
+Ambire is a Web3 wallet that makes self-custody easy and secure. It's the first hybrid Account abstraction wallet to support Basic (EOA) and Smart Accounts, improving security and user experience. [Read more.](https://www.ambire.com/)
 
-## React Native Environment Setup
+## Environment Setup
 
-Read about the environment setup and prerequisites [here](https://reactnative.dev/docs/environment-setup).
+Built in a hybrid approach (with React Native and React Native Web) so that in a single codebase we can support building cross-browser extensions, mobile apps and web apps.
+
+This project is built with Expo's bare workflow, allowing us to extend the default Vanilla React Native with additional expo modules in the form of installable expo libraries.
+
+More about the environment setup and prerequisites [here](https://reactnative.dev/docs/environment-setup).
 
 ## Install
 
-First run:
+Install all dependencies:
 
 ```bash
 yarn install
+```
+
+Install the [ambire-common](https://github.com/AmbireTech/ambire-common) submodule, a common ground for the Ambire apps, run:
+
+```bash
 git submodule init
 git submodule update
 ```
-
-- iOS: Then run:
-
-  ```
-  cd ios && pod install
-  ```
-
-  from the root folder of the project. This command links the native iOS packages using CocoaPods.
-
-- Android:
-
-  No additional steps required.
 
 ## Environment Variables
 
 Create ".env" file in the root directory and fill in all variables, see ".env-sample" for a reference.
 
-To provide the EAS build jobs with access to the environment variables, use [EAS secrets](https://docs.expo.dev/build-reference/variables/#using-secrets-in-environment-variables).
-
-### Upload all local .env file variables to EAS (as secrets)
-
-```bash
-yarn eas:secret:push
-```
-
-### List all current .env variables (secrets) on EAS
-
-```bash
-yarn eas:secret:list
-```
-
 ## Editor Config
 
 Make sure your code editor has plugins that support the following configuration files: `.editorconfig`, `.prettierrc`, `tsconfig.json`, `eslintrc.js`, [`import-sorter.json`](https://github.com/SoominHan/import-sorter).
 
-## Start
+## Browser Extensions
 
-iOS:
+### Development-optimized Builds
+
+- Start the browser extension for webkit browsers (tested mostly on Chrome and Brave):
+
+  ```bash
+  yarn web:webkit
+  ```
+
+  Then follow the instructions to load an unpacked extension [here](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked).
+
+- Start the browser extension for gecko browsers (tested mostly on Firefox):
+
+  ```bash
+  yarn web:gecko
+  ```
+
+  Then follow the instructions to temporarily install an extension in Firefox [here](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
+
+- Start the browser extension for the Safari browser:
+
+  ```bash
+  yarn web:safari
+  ```
+
+  Two new folders will be created:
+
+  - build/safari-dev (dev build folder)
+  - safari-extension/wallet-dev (Xcode project)
+
+  then in the Safari browser:
+
+  - Developer -> Developer settings...
+  - Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
+  - Then the extension should be automatically added and pinned in the browser.
+
+  NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
+
+  NOTE: The development script for Safari relies on the fswatch tool to automatically reload the Safari build when the development server is reloaded. If fswatch is not already installed on your system, you can install it using Homebrew with the following command:
+
+  ```bash
+  brew install fswatch
+  ```
+
+### Production-optimized Builds
+
+- For webkit browsers:
+
+  ```bash
+  yarn build:web:webkit
+  ```
+
+  And find the resulting build in the "build/webkit-prod" folder.
+
+- For gecko browsers:
+
+  ```bash
+  yarn build:web:gecko
+  ```
+
+  And find the resulting build in the "build/gecko-prod" folder.
+
+- For the Safari browser:
+
+  ```bash
+  yarn build:web:safari
+  ```
+
+  Two new folders will be created:
+
+  - "build/safari-prod" (production build folder)
+  - "safari-extension/wallet" (the Xcode project)
+
+  Then, in xCode manually do (TODO: automate these steps, it turned out to be a huge challenge):
+
+  - Delete "walletTests" and "walletUITests" targets.
+  - For both targets (macOS and extension): Signing & Capabilities: Team: "Ambire Tech Ltd", Signing Certificate: Development
+  - For both targets (macOS and extension): General - Identity - Version: X.X (should match the version in the app.json file, example: `4.36`) and Build: X (integer, bump up on every next build submitted to the App Store Connect, example: `3`)
+  - For the macOS target: General - App Category: "Utilities"
+  - For the extension target: General - Identity - Bundle Identifier: `com.ambire.app.wallet.extension`
+
+## Mobile Apps
+
+The Ambire v2 compatible mobile apps are yet to be developed. Coming sometime in the near future 🤞
+
+## Benzin
+
+Ambire's transaction explorer, that makes human readable ERC-4337 transactions and contract interactions.
+
+Comes not only as integrated module in the Ambire extension(s), but as a standalone web app also.
+
+### Development-optimized Build
 
 ```bash
-yarn ios
+yarn web:benzin
 ```
 
-Note: This command runs `expo run:ios`.
+And find the resulting build in the "build/benzin-dev" folder.
 
-Android:
+### Production-optimized Build
 
 ```bash
-yarn android
+yarn build:web:benzin
 ```
 
-Note: This command runs `expo run:android`.
+And find the resulting build in the "build/benzin-prod" folder.
 
-Development server (Metro bundler):
+## Ambire Legends
+
+Ambire Legends is a gamified testing web3 app for the Ambire browser extensions. It is designed to users you discover the power of Smart Accounts via an epic onchain adventure. [Read more](https://legends.ambire.com/).
+
+### Development-optimized Build
 
 ```bash
-yarn start
+yarn web:legends
 ```
 
-Note: This command runs `react-native start`.
-
-Browser extension (web app) for webkit browsers (tested on Chrome only)::
+And find the resulting build in the "build/legends-dev" folder.
 
 ```bash
-yarn web:webkit
+yarn build:web:legends
 ```
 
-Browser extension (web app) for gecko browsers (tested on Firefox only)::
+And find the resulting build in the "build/legends-prod" folder.
+
+## Others
+
+### Browser Extensions E2E Tests
+
+#### Configuration
+
+The best approach here is to follow `.github/workflows/tests.yml`. It contains all the necessary instructions for CI, which are also applicable locally. Make sure to:
+
+- Set all necessary .env variables (marked as end-to-end tests configuration).
+- See [#1409](https://github.com/AmbireTech/ambire-app/pull/1409) for more details.
+
+#### Running against production
+
+To build the webkit production version of the extension and run the E2E tests against the /webkit-prod folder, run:
 
 ```bash
-yarn web:gecko
+yarn run test:e2e:web
 ```
 
-Browser extension (web app) for the Safari browser (tested on Safari only)::
+#### Running against development
+
+For debugging, to use the hot-reloaded webpack dev webkit build and to allow running individual tests easily run:
 
 ```bash
-yarn web:safari
+yarn test:e2e:web:dev
 ```
 
-Two new folders will be created:
+When debugging or writing a new test, it is easier to use this command, as the project is hot-reloaded with every change you make to the codebase (e.g., adding a new selector or debugging a state), eliminating the need for a complete production build (as before). Additionally, you can run tests for a single or multiple test files.
 
-1. build/safari-dev (dev build folder)
-1. safari-extension/wallet-dev (Xcode project)
-   then in the Safari browser:
-1. Developer -> Developer settings...
-1. Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
-1. Then the extension should be automatically added and pinned in the browser.
+Here's how to run the tests for a single test file:
 
-NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
-
-NOTE: The development script for Safari relies on the fswatch tool to automatically reload the Safari build when the development server is reloaded. If fswatch is not already installed on your system, you can install it using Homebrew with the following command:
-
-```bash
-brew install fswatch
+```json
+{
+  "test:e2e:web:dev": "WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests/basic_account/ba_transactions.test.js"
+}
 ```
 
-## Translations (Beta)
+If you are fixing a failing CI test and want to mimic CI at 100%, you should configure the display server:
+
+First, run `Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &`, then set the `DISPLAY` variable with `export DISPLAY=:99.0`. By doing this, when Jest & Puppeteer are running, they will use the newly created virtual display instead of your local display. If you want to switch back to your local display, you should run export `DISPLAY=:0`.
+
+See [#2438](https://github.com/AmbireTech/ambire-app/pull/2438) for more details.
+
+### Translations (Beta)
 
 To scan the project for translation labels and to update translations JSON files, run:
 
@@ -120,103 +211,3 @@ yarn translations:scan
 ```
 
 PS: Secondary languages not implemented / translated / fully tested yet.
-
-## Publishing over the air updates
-
-When doing over the air updates, be careful. Adding new packages requires a new build if they require native "linking".
-
-```bash
-yarn publish:production
-```
-
-## Building the app on EAS
-
-Create `credentials.json` file in the root directory. See `credentials-sample.json` as an example. Fill-in the required credentials. Then:
-
-- iOS: Create `ios/certs` directory and place there the 1) Provisioning Profile (`profile.mobileprovision` file) 2) Distribution Certificate (`dist.p12` file) and (optionally) 3) Push Notifications Service Key (`AuthKey_XXX.p8` file). Then run:
-
-  ```bash
-  yarn build:ios:production
-  ```
-
-- Android: Create `android/keystores` directory and place there the `release.keystore` file. Then run:
-
-  ```bash
-  yarn build:android:production
-  ```
-
-## Building the iOS app locally on a real device
-
-Add the Apple Distribution Certificate (`dist.p12` file) and the Apple Development Certificate (`test.dist.p12` file) to your macOS Keychain.
-
-Open the app in xCode. Go to "Signing & Capabilities". Then:
-
-- For the "Signing (Debug)" import the Apple Development Provisioning Profile (`test.profile.mobileprovision` file).
-- For the "Signing (Release)" import the Apple Distribution Provisioning Profile (`profile.mobileprovision` file).
-
-FIXME: building the iOS app locally with the Release build configuration fails. It works only with the Debug build configuration. The issue is caused by a conflict between the `OpenSSL-Universal` pod versions of Flipper and the react-native-quick-crypto packages.
-
-For the CI builds, running in Release build configuration, the Flipper is not included (skipped by env variable in ios/Podfile). The workaround for the local builds with Release build configuration is commenting out `use_flipper!(...` in the Podfile and running "pod install" in the ios directory.
-
-## Building the browser extension (web app) locally
-
-For webkit browsers (tested on Chrome only):
-
-```bash
-yarn build:web:webkit
-```
-
-For gecko browsers (tested on Firefox only):
-
-```bash
-yarn build:web:gecko
-```
-
-For the Safari browser (tested on Safari only):
-
-```bash
-yarn build:web:safari
-```
-
-Two new folders will be created:
-
-1. build/safari-prod (prod build folder)
-1. safari-extension/wallet (Xcode project)
-
-Then, in xCode manually do:
-
-1. Delete "walletTests" and "walletUITests" targets.
-1. For both targets (macOS and extension): Signing & Capabilities: Team: "Ambire Tech Ltd", Signing Certificate: Development
-1. For both targets (macOS and extension): General - Identity - Version: X.X (should match the version in the app.json file, example: `4.36`) and Build: X (integer, bump up on every next build submitted to the App Store Connect, example: `3`)
-1. For the macOS target: General - App Category: "Utilities"
-1. For the extension target: General - Identity - Bundle Identifier: `com.ambire.app.wallet.extension`
-
-TODO: Automate the above steps.
-
-## Versioning
-
-When releasing a new version, here are the steps:
-
-1. Our internal app version: X.X.X (example: `1.4.2`). Follows semantic versioning.
-
-   Change in app.json -> `version`
-
-1. Native version: X.X (example: `1.4`). This one is mostly for labeling within the App Store and Google Play. Keep synced with our internal app version when creating a new build. But it could also be behind, if the next internal version we're about to ship doesn't require creating a new build.
-
-   iOS: Change `CFBundleShortVersionString` in the `ios/ambire/Info.plist` file
-
-   Android: Change `versionName` string in the `android/app/build.gradle` file
-
-1. Native build version. Integer. Bump up If the next internal version we're about to ship requires creating a new build (example: `4`):
-
-   iOS: `CFBundleVersion` in the `ios/ambire/Info.plist` file
-
-   Android: `versionCode` in the `android/app/build.gradle` file
-
-1. Runtime version. Integer. Bump up If the next internal version we're about to ship requires creating a new build and shipping it over the air will break the previous (existing) builds: (example: `1`)
-
-   For both platforms: change `runtimeVersion` key in `app.json`. Then run: `yarn build:configure`.
-
-   iOS: Change the key `EXUpdatesRuntimeVersion` in the `Expo.plist` file
-
-   Android: Change the `expo_runtime_version` string in the strings.xml file

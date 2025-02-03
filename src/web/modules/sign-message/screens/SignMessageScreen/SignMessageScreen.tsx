@@ -268,9 +268,10 @@ const SignMessageScreen = () => {
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
             <ExpandableCard
-              enableExpand={false}
-              style={spacings.mbTy}
-              hasArrow={false}
+              enableToggleExpand={!!visualizeHumanized}
+              isInitiallyExpanded={!visualizeHumanized}
+              hasArrow={!!visualizeHumanized}
+              style={{ ...spacings.mbTy, maxHeight: '100%' }}
               content={
                 visualizeHumanized &&
                 // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
@@ -298,11 +299,13 @@ const SignMessageScreen = () => {
                   </>
                 )
               }
-            />
-            <FallbackVisualization
-              setHasReachedBottom={setHasReachedBottom}
-              hasReachedBottom={!!hasReachedBottom}
-              messageToSign={signMessageState.messageToSign}
+              expandedContent={
+                <FallbackVisualization
+                  setHasReachedBottom={setHasReachedBottom}
+                  hasReachedBottom={!!hasReachedBottom}
+                  messageToSign={signMessageState.messageToSign}
+                />
+              }
             />
           </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
