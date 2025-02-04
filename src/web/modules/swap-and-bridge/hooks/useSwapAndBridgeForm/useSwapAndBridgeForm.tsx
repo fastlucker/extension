@@ -1,6 +1,6 @@
 import { formatUnits, getAddress, isAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 import { useSearchParams } from 'react-router-dom'
 
@@ -62,7 +62,7 @@ const useSwapAndBridgeForm = () => {
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [sessionIdsRequestedToBeInit, setSessionIdsRequestedToBeInit] = useState<SessionId[]>([])
+  const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => nanoid(), []) // purposely, so it is unique per hook lifetime
 
   useEffect(() => {
@@ -105,10 +105,10 @@ const useSwapAndBridgeForm = () => {
   // init session
   useEffect(() => {
     // Init each session only once
-    if (sessionIdsRequestedToBeInit.includes(sessionId)) return
+    if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
 
     dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
-    setSessionIdsRequestedToBeInit((prev) => [...prev, sessionId])
+    sessionIdsRequestedToBeInit.current.push(sessionId)
     setSearchParams((prev) => {
       prev.set('sessionId', sessionId)
       return prev
