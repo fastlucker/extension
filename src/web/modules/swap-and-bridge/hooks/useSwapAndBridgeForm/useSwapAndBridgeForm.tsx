@@ -28,6 +28,7 @@ import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTok
 import { getTokenId } from '@web/utils/token'
 
 const sessionId = nanoid()
+type SessionId = ReturnType<typeof nanoid>
 
 const useSwapAndBridgeForm = () => {
   const {
@@ -62,6 +63,20 @@ const useSwapAndBridgeForm = () => {
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [sessionIdsRequestedToBeInit, setSessionIdsRequestedToBeInit] = useState<SessionId[]>([])
+
+  // init session
+  useEffect(() => {
+    // Init each session only once
+    if (sessionIdsRequestedToBeInit.includes(sessionId)) return
+
+    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    setSessionIdsRequestedToBeInit((prev) => [...prev, sessionId])
+    setSearchParams((prev) => {
+      prev.set('sessionId', sessionId)
+      return prev
+    })
+  }, [dispatch, sessionIdsRequestedToBeInit, setSearchParams])
 
   useEffect(() => {
     if (
@@ -91,17 +106,6 @@ const useSwapAndBridgeForm = () => {
       }
     }
   }, [dispatch, setSearchParams, portfolio?.isAllReady, portfolio.tokens, searchParams, sessionIds])
-
-  // init session
-  useEffect(() => {
-    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
-    setSearchParams((prev) => {
-      prev.set('sessionId', sessionId)
-      return prev
-    })
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // remove session - this will be triggered only
   // when navigation to another screen internally in the extension
