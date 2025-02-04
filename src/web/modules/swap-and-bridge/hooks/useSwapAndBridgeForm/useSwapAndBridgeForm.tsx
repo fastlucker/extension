@@ -27,7 +27,6 @@ import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/
 import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTokenSelectProps'
 import { getTokenId } from '@web/utils/token'
 
-const sessionId = nanoid()
 type SessionId = ReturnType<typeof nanoid>
 
 const useSwapAndBridgeForm = () => {
@@ -64,19 +63,7 @@ const useSwapAndBridgeForm = () => {
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
   const [searchParams, setSearchParams] = useSearchParams()
   const [sessionIdsRequestedToBeInit, setSessionIdsRequestedToBeInit] = useState<SessionId[]>([])
-
-  // init session
-  useEffect(() => {
-    // Init each session only once
-    if (sessionIdsRequestedToBeInit.includes(sessionId)) return
-
-    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
-    setSessionIdsRequestedToBeInit((prev) => [...prev, sessionId])
-    setSearchParams((prev) => {
-      prev.set('sessionId', sessionId)
-      return prev
-    })
-  }, [dispatch, sessionIdsRequestedToBeInit, setSearchParams])
+  const sessionId = useMemo(() => nanoid(), []) // purposely, so it is unique per hook lifetime
 
   useEffect(() => {
     if (
@@ -105,7 +92,28 @@ const useSwapAndBridgeForm = () => {
         })
       }
     }
-  }, [dispatch, setSearchParams, portfolio?.isAllReady, portfolio.tokens, searchParams, sessionIds])
+  }, [
+    dispatch,
+    setSearchParams,
+    portfolio?.isAllReady,
+    portfolio.tokens,
+    searchParams,
+    sessionIds,
+    sessionId
+  ])
+
+  // init session
+  useEffect(() => {
+    // Init each session only once
+    if (sessionIdsRequestedToBeInit.includes(sessionId)) return
+
+    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    setSessionIdsRequestedToBeInit((prev) => [...prev, sessionId])
+    setSearchParams((prev) => {
+      prev.set('sessionId', sessionId)
+      return prev
+    })
+  }, [dispatch, sessionId, sessionIdsRequestedToBeInit, setSearchParams])
 
   // remove session - this will be triggered only
   // when navigation to another screen internally in the extension
@@ -115,7 +123,7 @@ const useSwapAndBridgeForm = () => {
     return () => {
       dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
     }
-  }, [dispatch])
+  }, [dispatch, sessionId])
 
   useEffect(() => {
     if (
