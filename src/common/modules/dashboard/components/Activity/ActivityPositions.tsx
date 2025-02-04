@@ -142,17 +142,17 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
       )
     },
     [
-      dashboardNetworkFilter,
       initTab?.activity,
+      theme.primaryBackground,
       openTab,
       setOpenTab,
-      t,
-      theme,
-      dispatch,
-      account,
-      accountsOps,
       sessionId,
-      networks
+      t,
+      account,
+      dashboardNetworkFilter,
+      network,
+      accountsOps,
+      dispatch
     ]
   )
 
