@@ -367,8 +367,8 @@ const useSwapAndBridgeForm = () => {
       if (bigintFromAmount !== BigInt(quote.selectedRoute.fromAmount)) return null
 
       const difference = Math.abs(inputValueInUsd - quote.selectedRoute.outputValueInUsd)
-      const average = (inputValueInUsd + quote.selectedRoute.outputValueInUsd) / 2
-      const percentageDiff = (difference / average) * 100
+
+      const percentageDiff = (difference / inputValueInUsd) * 100
 
       // show the warning banner only if the percentage diff is higher than 5%
       return percentageDiff < 5 ? null : percentageDiff
