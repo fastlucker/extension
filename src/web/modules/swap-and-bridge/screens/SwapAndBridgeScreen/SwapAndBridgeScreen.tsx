@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, Pressable, ScrollView, View } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -19,7 +19,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
@@ -160,19 +160,13 @@ const SwapAndBridgeScreen = () => {
         contentContainerStyle={{
           ...spacings.pt0,
           ...spacings.pb0,
-          ...flexbox.directionRow,
-          ...flexbox.flex1
+          flexGrow: 1
         }}
         wrapperRef={scrollViewRef}
-        withScroll={false}
       >
-        <View style={flexbox.flex1} />
-        <View style={styles.container}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[spacings.ptXl]}
-          >
+        <View style={[flexbox.directionRow, spacings.pb]}>
+          <View style={flexbox.flex1} />
+          <View style={[styles.container, spacings.ptXl]}>
             {isHealthy === false && (
               <Alert
                 type="error"
@@ -311,7 +305,7 @@ const SwapAndBridgeScreen = () => {
               onPress={handleSwitchFromAndToTokens}
               disabled={!isSwitchFromAndToTokensEnabled}
             />
-            <Panel forceContainerSmallSpacings style={spacings.mbLg}>
+            <Panel forceContainerSmallSpacings>
               <View style={spacings.mb}>
                 <Text
                   appearance="secondaryText"
@@ -580,11 +574,11 @@ const SwapAndBridgeScreen = () => {
                 />
               </View>
             </Panel>
-          </ScrollView>
-        </View>
-        <View style={[flexbox.flex1, spacings.ptXl]}>
-          <View style={spacings.plTy}>
-            <LegendsHotTip chainId={fromChainId} />
+          </View>
+          <View style={[flexbox.flex1, spacings.ptXl]}>
+            <View style={[spacings.plTy, { position: 'sticky', top: SPACING_XL } as any]}>
+              <LegendsHotTip chainId={fromChainId} />
+            </View>
           </View>
         </View>
       </TabLayoutWrapperMainContent>
