@@ -437,8 +437,7 @@ export const handleActions = async (
     case 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN': {
       return await mainCtrl.portfolio.updateFirstCashbackConfettiStatus({
         accountId: params.accountAddr,
-        shouldShow: false,
-        toggleModal: true,
+        shouldShowBanner: false,
         shouldGetAdditionalPortfolio: true
       })
     }
