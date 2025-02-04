@@ -27,8 +27,6 @@ import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/
 import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTokenSelectProps'
 import { getTokenId } from '@web/utils/token'
 
-const sessionId = nanoid()
-
 const useSwapAndBridgeForm = () => {
   const {
     fromAmount,
@@ -50,6 +48,7 @@ const useSwapAndBridgeForm = () => {
     updateQuoteStatus,
     sessionIds
   } = useSwapAndBridgeControllerState()
+  const sessionId = useMemo(() => nanoid(), [])
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)

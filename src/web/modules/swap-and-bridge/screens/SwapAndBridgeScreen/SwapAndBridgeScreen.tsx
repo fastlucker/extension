@@ -311,7 +311,7 @@ const SwapAndBridgeScreen = () => {
               onPress={handleSwitchFromAndToTokens}
               disabled={!isSwitchFromAndToTokensEnabled}
             />
-            <Panel forceContainerSmallSpacings>
+            <Panel forceContainerSmallSpacings style={spacings.mbLg}>
               <View style={spacings.mb}>
                 <Text
                   appearance="secondaryText"
@@ -431,7 +431,7 @@ const SwapAndBridgeScreen = () => {
               )}
 
               {formStatus === SwapAndBridgeFormStatus.FetchingRoutes && (
-                <View style={styles.secondaryContainer}>
+                <View style={[styles.secondaryContainer, spacings.mb]}>
                   <RouteStepsPlaceholder
                     fromSelectedToken={fromSelectedToken!}
                     toSelectedToken={toSelectedToken!}
@@ -440,7 +440,7 @@ const SwapAndBridgeScreen = () => {
                 </View>
               )}
               {formStatus === SwapAndBridgeFormStatus.NoRoutesFound && (
-                <View style={styles.secondaryContainer}>
+                <View style={[styles.secondaryContainer, spacings.mb]}>
                   <RouteStepsPlaceholder
                     fromSelectedToken={fromSelectedToken!}
                     toSelectedToken={toSelectedToken!}
@@ -451,35 +451,37 @@ const SwapAndBridgeScreen = () => {
               {(formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
                 formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) && (
                 <>
-                  <View
-                    style={[
-                      styles.secondaryContainer,
-                      !!quote!.selectedRoute.errorMessage && {
-                        borderWidth: 1,
-                        borderColor: theme.errorDecorative
-                      }
-                    ]}
-                  >
-                    <RouteStepsPreview
-                      steps={quote!.selectedRouteSteps}
-                      totalGasFeesInUsd={quote!.selectedRoute.totalGasFeesInUsd}
-                      estimationInSeconds={quote!.selectedRoute.serviceTime}
-                    />
-                  </View>
-                  {!!quote!.selectedRoute.errorMessage && (
-                    <View style={spacings.ptTy}>
-                      <Text
-                        fontSize={12}
-                        weight="medium"
-                        style={spacings.mrTy}
-                        appearance="errorText"
-                      >
-                        {quote!.selectedRoute.errorMessage}
-                      </Text>
+                  <View style={spacings.mb}>
+                    <View
+                      style={[
+                        styles.secondaryContainer,
+                        !!quote!.selectedRoute.errorMessage && {
+                          borderWidth: 1,
+                          borderColor: theme.errorDecorative
+                        }
+                      ]}
+                    >
+                      <RouteStepsPreview
+                        steps={quote!.selectedRouteSteps}
+                        totalGasFeesInUsd={quote!.selectedRoute.totalGasFeesInUsd}
+                        estimationInSeconds={quote!.selectedRoute.serviceTime}
+                      />
                     </View>
-                  )}
+                    {!!quote!.selectedRoute.errorMessage && (
+                      <View style={spacings.ptTy}>
+                        <Text
+                          fontSize={12}
+                          weight="medium"
+                          style={spacings.mrTy}
+                          appearance="errorText"
+                        >
+                          {quote!.selectedRoute.errorMessage}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
                   {!!shouldConfirmFollowUpTransactions && (
-                    <View style={spacings.pt}>
+                    <View style={spacings.mb}>
                       <Checkbox
                         value={followUpTransactionConfirmed}
                         style={{ ...spacings.mb0, ...flexbox.alignCenter }}
@@ -519,59 +521,65 @@ const SwapAndBridgeScreen = () => {
                   )}
                 </>
               )}
-            </Panel>
-            {!!highPriceImpactInPercentage && (
-              <View style={spacings.ptTy}>
-                <Alert type="error" withIcon={false}>
-                  <Checkbox
-                    value={highPriceImpactConfirmed}
-                    style={{ ...spacings.mb0 }}
-                    onValueChange={handleHighPriceImpactCheckboxPress}
-                    uncheckedBorderColor={theme.errorDecorative}
-                    checkedColor={theme.errorDecorative}
-                  >
-                    <Text
-                      fontSize={16}
-                      appearance="errorText"
-                      weight="medium"
-                      onPress={handleHighPriceImpactCheckboxPress}
-                    >
-                      {t('Warning: ')}
-                      <Text
-                        fontSize={16}
-                        appearance="errorText"
-                        onPress={handleHighPriceImpactCheckboxPress}
+              <View
+                style={[spacings.pt, { borderTopWidth: 1, borderTopColor: theme.secondaryBorder }]}
+              >
+                {!!highPriceImpactInPercentage && (
+                  <View style={spacings.mbTy}>
+                    <Alert type="error" withIcon={false}>
+                      <Checkbox
+                        value={highPriceImpactConfirmed}
+                        style={{ ...spacings.mb0 }}
+                        onValueChange={handleHighPriceImpactCheckboxPress}
+                        uncheckedBorderColor={theme.errorDecorative}
+                        checkedColor={theme.errorDecorative}
                       >
-                        {t(
-                          'The price impact is too high ({{highPriceImpactInPercentage}}%). If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
-                          { highPriceImpactInPercentage: highPriceImpactInPercentage.toFixed(1) }
-                        )}
-                      </Text>
-                    </Text>
-                  </Checkbox>
-                </Alert>
+                        <Text
+                          fontSize={16}
+                          appearance="errorText"
+                          weight="medium"
+                          onPress={handleHighPriceImpactCheckboxPress}
+                        >
+                          {t('Warning: ')}
+                          <Text
+                            fontSize={16}
+                            appearance="errorText"
+                            onPress={handleHighPriceImpactCheckboxPress}
+                          >
+                            {t(
+                              'The price impact is too high ({{highPriceImpactInPercentage}}%). If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
+                              {
+                                highPriceImpactInPercentage: highPriceImpactInPercentage.toFixed(1)
+                              }
+                            )}
+                          </Text>
+                        </Text>
+                      </Checkbox>
+                    </Alert>
+                  </View>
+                )}
+
+                <Button
+                  text={
+                    mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                      ? t('Building Transaction...')
+                      : highPriceImpactInPercentage
+                      ? t('Continue anyway')
+                      : t('Proceed')
+                  }
+                  disabled={
+                    formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
+                    shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
+                    (!!highPriceImpactInPercentage && !highPriceImpactConfirmed) ||
+                    mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
+                    updateQuoteStatus === 'LOADING'
+                  }
+                  hasBottomSpacing={false}
+                  type={highPriceImpactInPercentage ? 'error' : 'primary'}
+                  onPress={handleSubmitForm}
+                />
               </View>
-            )}
-            <View style={spacings.ptTy}>
-              <Button
-                text={
-                  mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-                    ? t('Building Transaction...')
-                    : highPriceImpactInPercentage
-                    ? t('Continue anyway')
-                    : t('Proceed')
-                }
-                disabled={
-                  formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
-                  shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
-                  (!!highPriceImpactInPercentage && !highPriceImpactConfirmed) ||
-                  mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
-                  updateQuoteStatus === 'LOADING'
-                }
-                type={highPriceImpactInPercentage ? 'error' : 'primary'}
-                onPress={handleSubmitForm}
-              />
-            </View>
+            </Panel>
           </ScrollView>
         </View>
         <View style={[flexbox.flex1, spacings.ptXl]}>
