@@ -3,7 +3,6 @@
 import { BrowserProvider, Interface } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { Linking } from 'react-native'
-import { ConnectableObservable } from 'rxjs'
 
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
