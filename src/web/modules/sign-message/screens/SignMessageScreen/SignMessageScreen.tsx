@@ -43,6 +43,7 @@ const SignMessageScreen = () => {
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const [isAuthorization, setIsAuthorization] = useState(false)
   const [makeItSmartConfirmed, setMakeItSmartConfirmed] = useState(false)
+  const [doNotAskMeAgain, setDoNotAskMeAgain] = useState(false)
   const actionState = useActionsControllerState()
   const { styles } = useTheme(getStyles)
 
@@ -212,6 +213,10 @@ const SignMessageScreen = () => {
     return EIP_1271_NOT_SUPPORTED_BY.some((origin) => dappOrigin.includes(origin))
   }, [account, userRequest?.session?.origin])
 
+  const onDoNotAskMeAgainChange = useCallback(() => {
+    setDoNotAskMeAgain(!doNotAskMeAgain)
+  }, [doNotAskMeAgain])
+
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
   // loading spinner instead (would better be a skeleton, but whatever).
@@ -257,7 +262,10 @@ const SignMessageScreen = () => {
         </View>
       )}
       {isAuthorization && !makeItSmartConfirmed ? (
-        <Authorization7702 />
+        <Authorization7702
+          onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
+          doNotAskMeAgain={doNotAskMeAgain}
+        />
       ) : (
         <Main
           shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
