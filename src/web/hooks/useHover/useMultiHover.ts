@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, ColorValue, GestureResponderEvent, MouseEvent, ViewStyle } from 'react-native'
+
+import useDeepMemo from '@common/hooks/useDeepMemo'
 
 import DURATIONS from './durations'
 
@@ -26,47 +28,50 @@ interface Props {
 const INTERPOLATE_PROPERTIES = ['backgroundColor', 'color', 'borderColor']
 
 const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
+  const memoizedValues = useDeepMemo(values)
   const [isHovered, setIsHovered] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
-  const animatedValuesRef = useRef<AnimationValuesExtended[] | null>(null)
-  const animatedValues = animatedValuesRef.current
+  const [animatedValues, setAnimatedValues] = useState<AnimationValuesExtended[] | null>(null)
 
   useEffect(() => {
-    const opacity = values.find(({ property }) => property === 'opacity')
+    setAnimatedValues(null)
+    const opacity = memoizedValues.find(({ property }) => property === 'opacity')
 
-    animatedValuesRef.current = values.map(({ property, from, to, duration: valueDuration }) => {
-      const shouldInterpolate = INTERPOLATE_PROPERTIES.includes(property)
-      let value = null
+    const newAnimatedValues = memoizedValues.map(
+      ({ property, from, to, duration: valueDuration }) => {
+        const shouldInterpolate = INTERPOLATE_PROPERTIES.includes(property)
+        let value = null
 
-      if (forceHoveredStyle) {
-        value = new Animated.Value(shouldInterpolate ? 1 : (to as number))
-        setIsHovered(true)
-      } else {
-        value = new Animated.Value(shouldInterpolate ? 0 : (from as number))
-        setIsHovered(false)
+        if (forceHoveredStyle) {
+          value = new Animated.Value(shouldInterpolate ? 1 : (to as number))
+          setIsHovered(true)
+        } else {
+          value = new Animated.Value(shouldInterpolate ? 0 : (from as number))
+          setIsHovered(false)
+        }
+
+        return {
+          value,
+          property,
+          from,
+          to,
+          duration: valueDuration || DURATIONS.FAST
+        }
       }
-
-      return {
-        value,
-        property,
-        from,
-        to,
-        duration: valueDuration || DURATIONS.FAST
-      }
-    })
+    )
 
     if (opacity) return
 
     // Opacity is always needed for onPressIn and onPressOut
-    animatedValuesRef.current.push({
+    newAnimatedValues.push({
       value: new Animated.Value(1),
       property: 'opacity',
       from: 1,
       to: 1,
       duration: DURATIONS.FAST
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values?.length, forceHoveredStyle])
+    setAnimatedValues(newAnimatedValues)
+  }, [memoizedValues, forceHoveredStyle])
 
   useEffect(() => {
     if (!animatedValues) return
@@ -83,9 +88,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
         }).start()
       }
     )
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHovered, forceHoveredStyle])
+  }, [animatedValues, isHovered, forceHoveredStyle])
 
   useEffect(() => {
     if (!animatedValues) return
@@ -99,9 +102,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
       duration: 0,
       useNativeDriver: true
     }).start()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPressed])
+  }, [isPressed, animatedValues])
 
   const bind = useMemo(
     () => ({
@@ -138,14 +139,8 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
       }, {})
 
     // Prevents the hook from returning an empty style object on the first render
-    return values.reduce(
-      (acc, { property, from }) => ({
-        ...acc,
-        [property]: from
-      }),
-      {}
-    )
-  }, [animatedValues, values])
+    return memoizedValues.reduce((acc, { property, from }) => ({ ...acc, [property]: from }), {})
+  }, [animatedValues, memoizedValues])
 
   const triggerHover = useCallback(() => {
     setIsHovered(true)

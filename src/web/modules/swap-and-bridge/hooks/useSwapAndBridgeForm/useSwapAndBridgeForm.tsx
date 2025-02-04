@@ -1,4 +1,4 @@
-import { formatUnits, getAddress, isAddress } from 'ethers'
+import { formatUnits, getAddress, isAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
@@ -11,6 +11,7 @@ import {
   getIsNetworkSupported,
   getIsTokenEligibleForSwapAndBridge
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
@@ -46,11 +47,13 @@ const useSwapAndBridgeForm = () => {
     toChainId,
     updateToTokenListStatus,
     supportedChainIds,
+    updateQuoteStatus,
     sessionIds
   } = useSwapAndBridgeControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
+  const [highPriceImpactConfirmed, setHighPriceImpactConfirmed] = useState<boolean>(false)
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -147,10 +150,22 @@ const useSwapAndBridgeForm = () => {
   )
 
   useEffect(() => {
-    if (followUpTransactionConfirmed && formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
+    if (
+      followUpTransactionConfirmed &&
+      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || updateQuoteStatus === 'LOADING')
+    ) {
       setFollowUpTransactionConfirmed(false)
     }
-  }, [followUpTransactionConfirmed, formStatus])
+  }, [followUpTransactionConfirmed, formStatus, updateQuoteStatus])
+
+  useEffect(() => {
+    if (
+      highPriceImpactConfirmed &&
+      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || updateQuoteStatus === 'LOADING')
+    ) {
+      setHighPriceImpactConfirmed(false)
+    }
+  }, [highPriceImpactConfirmed, formStatus, updateQuoteStatus])
 
   const {
     options: fromTokenOptions,
@@ -312,6 +327,44 @@ const useSwapAndBridgeForm = () => {
     )
   }, [quote, formStatus])
 
+  const highPriceImpactInPercentage = useMemo(() => {
+    if (updateQuoteStatus === 'LOADING') return null
+
+    if (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) return null
+
+    if (!quote || !quote.selectedRoute) return null
+
+    let inputValueInUsd = 0
+
+    try {
+      inputValueInUsd = Number(fromAmountInFiat)
+    } catch (error) {
+      // silent fail
+    }
+    if (!inputValueInUsd) return null
+
+    if (inputValueInUsd <= quote.selectedRoute.outputValueInUsd) return null
+
+    if (!fromSelectedToken) return null
+
+    try {
+      const sanitizedFromAmount = getSanitizedAmount(fromAmount, fromSelectedToken!.decimals)
+
+      const bigintFromAmount = parseUnits(sanitizedFromAmount, fromSelectedToken!.decimals)
+
+      if (bigintFromAmount !== BigInt(quote.selectedRoute.fromAmount)) return null
+
+      const difference = Math.abs(inputValueInUsd - quote.selectedRoute.outputValueInUsd)
+      const average = (inputValueInUsd + quote.selectedRoute.outputValueInUsd) / 2
+      const percentageDiff = (difference / average) * 100
+
+      // show the warning banner only if the percentage diff is higher than 5%
+      return percentageDiff < 5 ? null : percentageDiff
+    } catch (error) {
+      return null
+    }
+  }, [quote, formStatus, fromAmount, fromAmountInFiat, fromSelectedToken, updateQuoteStatus])
+
   const handleSubmitForm = useCallback(() => {
     dispatch({
       type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
@@ -353,6 +406,9 @@ const useSwapAndBridgeForm = () => {
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
+    highPriceImpactInPercentage,
+    highPriceImpactConfirmed,
+    setHighPriceImpactConfirmed,
     settingModalVisible,
     handleToggleSettingsMenu,
     handleSwitchFromAndToTokens,
