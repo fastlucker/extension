@@ -3,6 +3,7 @@
 import { BrowserProvider, Interface } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { Linking } from 'react-native'
+import { ConnectableObservable } from 'rxjs'
 
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
@@ -56,7 +57,8 @@ const Feedback = () => {
         [
           {
             to: LEGENDS_CONTRACT_ADDRESS,
-            data: iface.encodeFunctionData('claimXpFromFeedback', [setSurveyCode])
+            data: iface.encodeFunctionData('claimXpFromFeedback', [surveyCode]),
+            value: '0'
           }
         ],
         useSponsorship
