@@ -99,7 +99,7 @@ const Feedback = () => {
         </div>
         <Input.Field
           value={surveyCode || ''}
-          label="Enter survey code"
+          placeholder="Enter survey code"
           onChange={(e) => setSurveyCode(e.target.value)}
           className={styles.input}
         />
