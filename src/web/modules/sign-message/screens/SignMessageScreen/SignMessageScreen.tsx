@@ -6,7 +6,9 @@ import { StyleSheet, View } from 'react-native'
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
+import { EIP_1271_NOT_SUPPORTED_BY } from '@ambire-common/libs/signMessage/signMessage'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
@@ -202,6 +204,14 @@ const SignMessageScreen = () => {
     setShouldDisplayLedgerConnectModal(false)
   }, [])
 
+  const shouldDisplayEIP1271Warning = useMemo(() => {
+    const dappOrigin = userRequest?.session?.origin
+
+    if (!dappOrigin || !isSmartAccount(account)) return false
+
+    return EIP_1271_NOT_SUPPORTED_BY.some((origin) => dappOrigin.includes(origin))
+  }, [account, userRequest?.session?.origin])
+
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
   // loading spinner instead (would better be a skeleton, but whatever).
@@ -255,6 +265,7 @@ const SignMessageScreen = () => {
           handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
           hasReachedBottom={hasReachedBottom}
           setHasReachedBottom={setHasReachedBottom}
+          shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
         />
       )}
     </TabLayoutContainer>

@@ -1,5 +1,6 @@
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
+import Alert from '@common/components/Alert'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
 import NetworkBadge from '@common/components/NetworkBadge'
@@ -26,6 +27,7 @@ interface Props {
   handleDismissLedgerConnectModal: () => void
   hasReachedBottom: boolean | null
   setHasReachedBottom: Dispatch<SetStateAction<boolean | null>>
+  shouldDisplayEIP1271Warning: boolean
 }
 
 const Main = ({
@@ -33,7 +35,8 @@ const Main = ({
   isLedgerConnected,
   handleDismissLedgerConnectModal,
   hasReachedBottom,
-  setHasReachedBottom
+  setHasReachedBottom,
+  shouldDisplayEIP1271Warning
 }: Props) => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
@@ -97,6 +100,13 @@ const Main = ({
       <View style={styles.container}>
         <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
           <Info />
+          {shouldDisplayEIP1271Warning && (
+            <Alert
+              type="error"
+              title="This app has been flagged to not support Smart Account signatures."
+              text="If you encounter issues, please use a Basic Account and contact the app to resolve this."
+            />
+          )}
         </View>
         <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
         <View style={flexbox.flex1}>
