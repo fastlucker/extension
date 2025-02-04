@@ -6,8 +6,11 @@ import { StyleSheet, View } from 'react-native'
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
+import { EIP_1271_NOT_SUPPORTED_BY } from '@ambire-common/libs/signMessage/signMessage'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
+import Alert from '@common/components/Alert'
 import ExpandableCard from '@common/components/ExpandableCard'
 import HumanizedVisualization from '@common/components/HumanizedVisualization'
 import NetworkBadge from '@common/components/NetworkBadge'
@@ -105,6 +108,14 @@ const SignMessageScreen = () => {
     () => typeof hasReachedBottom === 'boolean' && !hasReachedBottom && !visualizeHumanized,
     [hasReachedBottom, visualizeHumanized]
   )
+
+  const shouldDisplayEIP1271Warning = useMemo(() => {
+    const dappOrigin = userRequest?.session?.origin
+
+    if (!dappOrigin || !isSmartAccount(account)) return false
+
+    return EIP_1271_NOT_SUPPORTED_BY.some((origin) => dappOrigin.includes(origin))
+  }, [account, userRequest?.session?.origin])
 
   useEffect(() => {
     if (!userRequest || !signMessageAction) return
@@ -261,6 +272,13 @@ const SignMessageScreen = () => {
         <View style={styles.container}>
           <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
             <Info />
+            {shouldDisplayEIP1271Warning && (
+              <Alert
+                type="error"
+                title="This app has been flagged to not support Smart Account signatures."
+                text="If you encounter issues, please use a Basic Account and contact the app to resolve this."
+              />
+            )}
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
