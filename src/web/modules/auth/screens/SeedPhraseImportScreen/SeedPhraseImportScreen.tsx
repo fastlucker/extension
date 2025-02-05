@@ -9,6 +9,7 @@ import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import InputPassword from '@common/components/InputPassword'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
@@ -22,7 +23,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -240,7 +241,9 @@ const SeedPhraseImportScreen = () => {
       }
 
       const correspondingLengthOption = SEED_LENGTH_SELECT_OPTIONS.find(
-        (option) => getPropsFromValue(option.value).length === words.length
+        (option) =>
+          getPropsFromValue(option.value).length === words.length &&
+          getPropsFromValue(option.value).withPassphrase === enablePassphrase
       )
 
       if (correspondingLengthOption) {
@@ -273,7 +276,7 @@ const SeedPhraseImportScreen = () => {
         type: 'error'
       })
     },
-    [fields, setValue, addToast, updateFieldsLength, t]
+    [fields, enablePassphrase, setValue, addToast, updateFieldsLength, t]
   )
 
   const validateSeedPhraseWord = useCallback(
@@ -356,7 +359,7 @@ const SeedPhraseImportScreen = () => {
               'Type in the words individually or paste the entire seed phrase (if separated by spaces) into any field.'
             )}
           />
-          <View style={[flexbox.directionRow, flexbox.wrap]}>
+          <View style={[flexbox.directionRow, flexbox.wrap, { marginBottom: -SPACING_MI }]}>
             {fields.map((field, index) => (
               <View
                 key={field.id}
@@ -446,19 +449,19 @@ const SeedPhraseImportScreen = () => {
           </View>
 
           {enablePassphrase && (
-            <View>
+            <View style={styles.passphraseContainer}>
               <Controller
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
+                  <InputPassword
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
-                    placeholder="Passphrase"
+                    placeholder="Seed Passphrase"
                     inputWrapperStyle={{ height: 40 }}
                     inputStyle={{ height: 40 }}
-                    containerStyle={{ ...spacings.mlMi, flex: 1 }}
+                    containerStyle={{ ...spacings.mlMi, flex: 0.5 }}
                   />
                 )}
                 name="passphrase"
