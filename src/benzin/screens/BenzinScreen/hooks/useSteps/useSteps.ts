@@ -605,7 +605,7 @@ const useSteps = ({
       const humanizedCalls = humanizeAccountOp(accountOp, { network })
 
       setCalls(parseHumanizer(humanizedCalls))
-      setFrom(account ?? 'Loading...')
+      setFrom(accountOp.accountAddr)
     }
   }, [network, txnReceipt, txn, userOpHash, userOp, txnId, extensionAccOp])
 
