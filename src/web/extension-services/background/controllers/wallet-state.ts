@@ -72,6 +72,8 @@ export class WalletStateController extends EventEmitter implements Settings {
 
   setShouldDisable7702Popup(shouldDisable: boolean) {
     this.#disable7702Popup = shouldDisable
+
+    storage.set('disable7702Popup', this.#disable7702Popup)
   }
 
   get isPinned() {
@@ -107,7 +109,12 @@ export class WalletStateController extends EventEmitter implements Settings {
 
   async #init(): Promise<void> {
     // @ts-ignore
-    const isDefault = await storage.get('isDefaultWallet')
+    const [isDefault, disable7702Popup] = await Promise.all([
+      storage.get('isDefaultWallet', undefined),
+      storage.get('disable7702Popup', false)
+    ])
+    this.#disable7702Popup = disable7702Popup
+
     // Initialize isDefaultWallet in storage if needed
     if (isDefault === undefined) {
       await storage.set('isDefaultWallet', true)
