@@ -106,7 +106,7 @@ export const handleActions = async (
       if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
       const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
-      const keyIterator = new KeyIterator(params.privKeyOrSeed)
+      const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
 
       // if it enters here, it's from the default seed. We can init the account adder like so
       if (keyIterator.subType === 'seed' && params.shouldPersist) {

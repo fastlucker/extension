@@ -46,7 +46,12 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: { privKeyOrSeed: string; shouldPersist?: boolean; shouldAddToTemp?: boolean }
+  params: {
+    privKeyOrSeed: string
+    shouldPersist?: boolean
+    shouldAddToTemp?: boolean
+    seedPassphrase?: string | null
+  }
 }
 type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE'
