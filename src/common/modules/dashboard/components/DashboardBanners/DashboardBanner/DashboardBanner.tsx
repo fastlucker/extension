@@ -137,7 +137,9 @@ const DashboardBanner = ({
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
           })
-          addToast('Success! If you change your mind, you can always enable it in the settings.')
+          addToast('If you change your mind, you can always enable it in the settings.', {
+            type: 'info'
+          })
           break
 
         default:
