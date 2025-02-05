@@ -3,13 +3,14 @@ import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
+import { Settings } from '@ambire-common/interfaces/settings'
 import {
   handleRegisterScripts,
   handleUnregisterAmbireInpageScript,
   handleUnregisterEthereumInpageScript
 } from '../handlers/handleScripting'
 
-export class WalletStateController extends EventEmitter {
+export class WalletStateController extends EventEmitter implements Settings {
   isReady: boolean = false
 
   #_isDefaultWallet: boolean = true
@@ -21,6 +22,11 @@ export class WalletStateController extends EventEmitter {
   #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
 
   #isSetupComplete: boolean = true
+
+  // when the user tries to sign a txn with an EOA, we ask him does he want
+  // to transition to smart. If he doesn't and explicitly checks a checkbox,
+  // we do not ask him again. This is the setting for that
+  #disable7702Popup: boolean = false
 
   get isDefaultWallet() {
     return this.#_isDefaultWallet
@@ -58,6 +64,14 @@ export class WalletStateController extends EventEmitter {
     this.#_onboardingState = newValue
     storage.set('onboardingState', newValue)
     this.emitUpdate()
+  }
+
+  shouldDisable7702Popup(): boolean {
+    return this.#disable7702Popup
+  }
+
+  setShouldDisable7702Popup(shouldDisable: boolean) {
+    this.#disable7702Popup = shouldDisable
   }
 
   get isPinned() {

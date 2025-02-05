@@ -24,7 +24,7 @@ import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridg
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
-import { AccountOp, AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -227,6 +227,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
   await handleCleanDappSessions()
 
+  const walletStateCtrl = new WalletStateController()
   mainCtrl = new MainController({
     storage,
     fetch: fetchWithAnalytics,
@@ -254,9 +255,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         pm.send('> ui', { method: 'receiveOneTimeData', params })
       }
     },
-    notificationManager
+    notificationManager,
+    settings: walletStateCtrl
   })
-  const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
