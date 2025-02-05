@@ -74,15 +74,11 @@ const SelectNetwork = () => {
       >
         {dashboardNetworkFilter ? (
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <FilterIcon color={theme.secondaryText} width={12} height={12} />
-            <Text fontSize={12} color={theme.secondaryText}>
-              {filterByNetworkName}
-            </Text>
+            <FilterIcon width={12} height={12} />
+            <Text fontSize={12}>{filterByNetworkName}</Text>
           </View>
         ) : (
-          <Text fontSize={14} color={theme.secondaryText}>
-            {t('All Networks')}
-          </Text>
+          <Text fontSize={14}>{t('All Networks')}</Text>
         )}
         <DownArrowIcon color={theme.primaryText} width={12} height={6.5} />
       </AnimatedPressable>
