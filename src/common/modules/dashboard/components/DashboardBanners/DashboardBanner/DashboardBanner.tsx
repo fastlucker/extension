@@ -137,9 +137,12 @@ const DashboardBanner = ({
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
           })
-          addToast('If you change your mind, you can always enable it in the settings.', {
-            type: 'info'
-          })
+          addToast(
+            'Dismissed! Password recovery can be enabled anytime in Settings. We’ll remind you in a week.',
+            {
+              type: 'info'
+            }
+          )
           break
 
         default:
