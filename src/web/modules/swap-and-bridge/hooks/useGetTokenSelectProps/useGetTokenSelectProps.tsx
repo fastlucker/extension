@@ -67,7 +67,7 @@ const useGetTokenSelectProps = ({
   isLoading,
   isToToken: _isToToken = false
 }: {
-  tokens: SwapAndBridgeToToken[] | TokenResult[]
+  tokens: (SwapAndBridgeToToken | TokenResult)[]
   token: string
   networks: Network[]
   supportedChainIds: Network['chainId'][]
@@ -300,7 +300,7 @@ const useGetTokenSelectProps = ({
 
   return {
     options,
-    value: token ? renderItem(selectedToken, true) : NO_VALUE_SELECTED[0],
+    value: selectedToken ? renderItem(selectedToken, true) : NO_VALUE_SELECTED[0],
     amountSelectDisabled: false
   }
 }
