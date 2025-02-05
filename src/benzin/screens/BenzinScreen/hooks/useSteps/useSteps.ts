@@ -133,9 +133,9 @@ const useSteps = ({
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
   })
-  const [, setRefetchTxnIdCounter] = useState<number>(0)
+  const [refetchTxnIdCounter, setRefetchTxnIdCounter] = useState<number>(0)
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
-  const [, setRefetchReceiptCounter] = useState<number>(0)
+  const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
   const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
@@ -211,7 +211,8 @@ const useSteps = ({
     userOpHash,
     txn,
     receiptAlreadyFetched,
-    bundler
+    bundler,
+    refetchTxnIdCounter
   ])
 
   // find the transaction
@@ -321,7 +322,8 @@ const useSteps = ({
     setActiveStep,
     txn,
     receiptAlreadyFetched,
-    userOpHash
+    userOpHash,
+    refetchReceiptCounter
   ])
 
   // check for error reason
