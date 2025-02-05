@@ -243,6 +243,9 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+  params?: {
+    networkId?: Network['id']
+  }
 }
 
 type MainControllerUpdateSelectedAccountPortfolio = {
@@ -337,8 +340,8 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
-type MainControllerOnLoadAction = {
-  type: 'MAIN_CONTROLLER_ON_LOAD'
+type MainControllerOnPopupOpenAction = {
+  type: 'MAIN_CONTROLLER_ON_POPUP_OPEN'
 }
 
 type MainControllerLockAction = {
@@ -617,7 +620,7 @@ export type Action =
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction
-  | MainControllerOnLoadAction
+  | MainControllerOnPopupOpenAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
   | MainControllerBuildMintVestingUserRequest

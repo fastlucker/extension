@@ -1,9 +1,8 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, Easing, Pressable, View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
-import { Action, SelectedAccountBalanceError } from '@ambire-common/libs/selectedAccount/errors'
+import { Action } from '@ambire-common/libs/selectedAccount/errors'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
@@ -12,34 +11,31 @@ import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
+import useBalanceAffectingErrors from '@common/modules/dashboard/hooks/useBalanceAffectingErrors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
+import BalanceAffectingErrorActions from './BalanceAffectingErrorActions'
 import Header from './Header'
-import PortfolioErrorActions from './PortfolioErrorActions'
 
 type Props = {
   networksWithErrors: string[]
   reloadAccount: () => void
-}
+} & Omit<ReturnType<typeof useBalanceAffectingErrors>, 'networksWithErrors'>
 
-const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
+const BalanceAffectingErrors: FC<Props> = ({
+  reloadAccount,
+  sheetRef,
+  balanceAffectingErrorsSnapshot,
+  warningMessage,
+  onIconPress,
+  closeBottomSheetWrapped,
+  isLoadingTakingTooLong
+}) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
-  const { balanceAffectingErrors, portfolio, portfolioStartedLoadingAtTimestamp } =
-    useSelectedAccountControllerState()
-  const { isOffline } = useMainControllerState()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const [isLoadingTakingTooLong, setIsLoadingTakingTooLong] = useState(false)
-  /** Because errors change frequently due to background updates we have to store a snapshot
-   * of the errors when the user clicks on the warning icon to display the errors in the bottom sheet.
-   * Otherwise the user may want to screenshot the errors and the errors may change.
-   */
-  const [balanceAffectingErrorsSnapshot, setBalanceAffectingErrorsSnapshot] = useState<
-    SelectedAccountBalanceError[]
-  >([])
+  const { balanceAffectingErrors, portfolio } = useSelectedAccountControllerState()
 
   const areErrorsOutdatedAndPortfolioIsReady = useMemo(() => {
     return (
@@ -48,46 +44,6 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
       !balanceAffectingErrors.length
     )
   }, [balanceAffectingErrors.length, balanceAffectingErrorsSnapshot.length, portfolio.isAllReady])
-
-  const warningMessage = useMemo(() => {
-    if (isLoadingTakingTooLong) {
-      return t('Loading all networks is taking too long.')
-    }
-
-    if (isOffline && portfolio.isAllReady) return t('Please check your internet connection.')
-
-    if (balanceAffectingErrors.length) {
-      return t(
-        'Total balance may be inaccurate due to issues on {{networks}}. Click for more info.',
-        {
-          networks: networksWithErrors.join(', ')
-        }
-      )
-    }
-
-    return undefined
-  }, [
-    balanceAffectingErrors,
-    isLoadingTakingTooLong,
-    isOffline,
-    networksWithErrors,
-    portfolio.isAllReady,
-    t
-  ])
-
-  const onIconPress = useCallback(() => {
-    if (isLoadingTakingTooLong || isOffline) {
-      return
-    }
-
-    setBalanceAffectingErrorsSnapshot(balanceAffectingErrors)
-    openBottomSheet()
-  }, [balanceAffectingErrors, isLoadingTakingTooLong, isOffline, openBottomSheet])
-
-  const closeBottomSheetWrapped = useCallback(() => {
-    setBalanceAffectingErrorsSnapshot([])
-    closeBottomSheet()
-  }, [closeBottomSheet])
 
   const onButtonPress = useCallback(() => {
     if (!areErrorsOutdatedAndPortfolioIsReady) {
@@ -100,15 +56,15 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
   const renderWarningIcon = useCallback(() => {
     return (
       <WarningIcon
-        color={theme.warningDecorative}
+        color={theme.warningDecorative2}
         style={spacings.mlTy}
-        data-tooltip-id="portfolio-warning"
+        data-tooltip-id="balance-affecting-error"
         data-tooltip-content={warningMessage}
         width={21}
         height={21}
       />
     )
-  }, [theme.warningDecorative, warningMessage])
+  }, [theme.warningDecorative2, warningMessage])
 
   const renderItem = useCallback(
     ({ item: { id, title, text, type, actions }, index }: any) => (
@@ -123,7 +79,7 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
         {actions &&
           actions.map(({ actionName, ...rest }: Action) => {
             return (
-              <PortfolioErrorActions
+              <BalanceAffectingErrorActions
                 key={actionName}
                 actionName={actionName}
                 closeBottomSheet={closeBottomSheetWrapped}
@@ -143,37 +99,6 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
   const shouldDisplayWarningIcon = useMemo(() => {
     return warningMessage || balanceAffectingErrorsSnapshot.length
   }, [balanceAffectingErrorsSnapshot.length, warningMessage])
-
-  // Compare the current timestamp with the timestamp when the loading started
-  // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
-  useEffect(() => {
-    if (!portfolioStartedLoadingAtTimestamp) {
-      setIsLoadingTakingTooLong(false)
-      return
-    }
-
-    const checkIsLoadingTakingTooLong = () => {
-      const takesMoreThan5Seconds = Date.now() - portfolioStartedLoadingAtTimestamp > 5000
-
-      setIsLoadingTakingTooLong(takesMoreThan5Seconds)
-    }
-
-    checkIsLoadingTakingTooLong()
-
-    const interval = setInterval(() => {
-      if (portfolio?.isAllReady) {
-        clearInterval(interval)
-        setIsLoadingTakingTooLong(false)
-        return
-      }
-
-      checkIsLoadingTakingTooLong()
-    }, 500)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [portfolio?.isAllReady, portfolioStartedLoadingAtTimestamp])
 
   useEffect(() => {
     if (isLoadingTakingTooLong) {
@@ -205,11 +130,11 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
       {isLoadingTakingTooLong ? (
         <Animated.View style={{ opacity: flashingOpacity }}>{renderWarningIcon()}</Animated.View>
       ) : (
-        <Pressable onPress={onIconPress} testID="portfolio-warning-icon">
+        <Pressable onPress={onIconPress} testID="balance-affecting-error-icon">
           {renderWarningIcon()}
         </Pressable>
       )}
-      <Tooltip id="portfolio-warning" />
+      <Tooltip id="balance-affecting-error" />
       <BottomSheet
         style={{ maxWidth: 720, ...spacings.pvLg, ...spacings.phXl, width: '100%' }}
         id="portfolio-errors"
@@ -250,4 +175,4 @@ const PortfolioErrors: FC<Props> = ({ reloadAccount, networksWithErrors }) => {
   )
 }
 
-export default PortfolioErrors
+export default BalanceAffectingErrors

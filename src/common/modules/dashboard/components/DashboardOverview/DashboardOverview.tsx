@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useMemo } from 'react'
-import { Animated, View } from 'react-native'
+import { Animated, Pressable, View } from 'react-native'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -12,6 +12,7 @@ import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
 import Routes from '@common/modules/dashboard/components/Routes'
+import useBalanceAffectingErrors from '@common/modules/dashboard/hooks/useBalanceAffectingErrors'
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -25,7 +26,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import PortfolioErrors from './PortfolioErrors'
+import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
 
@@ -57,14 +58,22 @@ const DashboardOverview: FC<Props> = ({
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { isOffline } = useMainControllerState()
-  const { account, dashboardNetworkFilter, balanceAffectingErrors, portfolio } =
-    useSelectedAccountControllerState()
+  const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
+  const {
+    sheetRef,
+    balanceAffectingErrorsSnapshot,
+    warningMessage,
+    onIconPress,
+    closeBottomSheetWrapped,
+    isLoadingTakingTooLong,
+    networksWithErrors
+  } = useBalanceAffectingErrors()
 
   const filterByNetworkName = useMemo(() => {
     if (!dashboardNetworkFilter) return ''
@@ -98,24 +107,14 @@ const DashboardOverview: FC<Props> = ({
     'value'
   ).split('.')
 
-  const networksWithErrors = useMemo(() => {
-    const allNetworkIds = balanceAffectingErrors.map((banner) => banner.networkIds).flat()
-
-    const networkIds = [...new Set(allNetworkIds)]
-
-    return networkIds.map((networkId) => {
-      const { name } = networks.find(({ id }) => id === networkId) || {}
-
-      if (!name && networkId === 'rewards') return 'Rewards'
-      if (!name && networkId === 'gasTank') return 'Gas Tank'
-
-      return name || networkId
-    })
-  }, [balanceAffectingErrors, networks])
-
   const reloadAccount = useCallback(() => {
-    dispatch({ type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT' })
-  }, [dispatch])
+    dispatch({
+      type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT',
+      params: {
+        networkId: dashboardNetworkFilter ?? undefined
+      }
+    })
+  }, [dashboardNetworkFilter, dispatch])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -163,7 +162,7 @@ const DashboardOverview: FC<Props> = ({
             >
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-                  {!portfolio.isAllReady ? (
+                  {!portfolio?.isAllReady ? (
                     <SkeletonLoader
                       lowOpacity
                       width={200}
@@ -171,7 +170,12 @@ const DashboardOverview: FC<Props> = ({
                       borderRadius={8}
                     />
                   ) : (
-                    <View testID="full-balance" style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Pressable
+                      onPress={onIconPress}
+                      disabled={!warningMessage || isLoadingTakingTooLong || isOffline}
+                      testID="full-balance"
+                      style={[flexbox.directionRow, flexbox.alignCenter]}
+                    >
                       <Text selectable>
                         <Text
                           fontSize={32}
@@ -182,7 +186,7 @@ const DashboardOverview: FC<Props> = ({
                           weight="number_bold"
                           color={
                             networksWithErrors.length || isOffline
-                              ? theme.warningDecorative
+                              ? theme.warningDecorative2
                               : theme.primaryBackground
                           }
                           selectable
@@ -196,7 +200,7 @@ const DashboardOverview: FC<Props> = ({
                           weight="number_bold"
                           color={
                             networksWithErrors.length || isOffline
-                              ? theme.warningDecorative
+                              ? theme.warningDecorative2
                               : theme.primaryBackground
                           }
                           selectable
@@ -205,17 +209,17 @@ const DashboardOverview: FC<Props> = ({
                           {totalPortfolioAmountDecimal}
                         </Text>
                       </Text>
-                    </View>
+                    </Pressable>
                   )}
                   <AnimatedPressable
                     style={[spacings.mlTy, refreshButtonAnimStyle]}
                     onPress={reloadAccount}
                     {...bindRefreshButtonAnim}
-                    disabled={!portfolio.isAllReady}
+                    disabled={!portfolio?.isAllReady}
                     testID="refresh-button"
                   >
                     <RefreshIcon
-                      spin={!portfolio.isAllReady}
+                      spin={!portfolio?.isAllReady}
                       color={theme.primaryBackground}
                       width={16}
                       height={16}
@@ -249,9 +253,15 @@ const DashboardOverview: FC<Props> = ({
                       height={6.5}
                     />
                   </AnimatedPressable>
-                  <PortfolioErrors
+                  <BalanceAffectingErrors
                     reloadAccount={reloadAccount}
                     networksWithErrors={networksWithErrors}
+                    sheetRef={sheetRef}
+                    balanceAffectingErrorsSnapshot={balanceAffectingErrorsSnapshot}
+                    warningMessage={warningMessage}
+                    onIconPress={onIconPress}
+                    closeBottomSheetWrapped={closeBottomSheetWrapped}
+                    isLoadingTakingTooLong={isLoadingTakingTooLong}
                   />
                 </View>
               </View>
