@@ -133,7 +133,7 @@ const useSteps = ({
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
   })
-  const [refetchTxnIdCounter, setRefetchTxnIdCounter] = useState<number>(0)
+  const [, setRefetchTxnIdCounter] = useState<number>(0)
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
@@ -175,7 +175,7 @@ const useSteps = ({
 
         if (result.status === 'not_found') {
           timeout = setTimeout(() => {
-            setRefetchTxnIdCounter(refetchTxnIdCounter + 1)
+            setRefetchTxnIdCounter((prev) => prev + 1)
           }, REFETCH_TIME)
           return
         }
@@ -190,7 +190,7 @@ const useSteps = ({
         // if there's no txn and receipt, keep searching
         if (!txn && !receiptAlreadyFetched) {
           timeout = setTimeout(() => {
-            setRefetchTxnIdCounter(refetchTxnIdCounter + 1)
+            setRefetchTxnIdCounter((prev) => prev + 1)
           }, REFETCH_TIME)
         }
       })
@@ -206,7 +206,6 @@ const useSteps = ({
     standardOptions.callRelayer,
     txnId,
     setActiveStep,
-    refetchTxnIdCounter,
     foundTxnId,
     relayerId,
     userOpHash,
@@ -251,7 +250,7 @@ const useSteps = ({
 
   useEffect(() => {
     let timeout: any
-    if (!foundTxnId || !provider) return
+    if (!foundTxnId || !provider || receiptAlreadyFetched) return
 
     provider
       .getTransactionReceipt(foundTxnId)
@@ -315,7 +314,15 @@ const useSteps = ({
     return () => {
       if (timeout) clearTimeout(timeout)
     }
-  }, [finalizedStatus?.status, foundTxnId, provider, setActiveStep, txn, userOpHash])
+  }, [
+    finalizedStatus?.status,
+    foundTxnId,
+    provider,
+    setActiveStep,
+    txn,
+    receiptAlreadyFetched,
+    userOpHash
+  ])
 
   // check for error reason
   useEffect(() => {
@@ -557,7 +564,7 @@ const useSteps = ({
   }, [txnReceipt.actualGasCost, cost])
 
   useEffect(() => {
-    if (!network || (calls.length && from)) return
+    if (!network) return
 
     // if we have the extension account op passed, we do not need to
     // wait to show the calls
@@ -596,22 +603,13 @@ const useSteps = ({
         accountOpToExecuteBefore: null
       }
       const humanizedCalls = humanizeAccountOp(accountOp, { network })
+
       setCalls(parseHumanizer(humanizedCalls))
       setFrom(account ?? 'Loading...')
     }
-  }, [
-    network,
-    txnReceipt,
-    txn,
-    userOpHash,
-    userOp,
-    txnId,
-    calls.length,
-    extensionAccOp,
-    from,
-    calls
-  ])
+  }, [network, txnReceipt, txn, userOpHash, userOp, txnId, extensionAccOp])
 
+  console.log('rerender')
   return {
     nativePrice,
     blockData,
