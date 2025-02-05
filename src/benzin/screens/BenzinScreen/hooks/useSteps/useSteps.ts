@@ -609,7 +609,6 @@ const useSteps = ({
     }
   }, [network, txnReceipt, txn, userOpHash, userOp, txnId, extensionAccOp])
 
-  console.log('rerender')
   return {
     nativePrice,
     blockData,
