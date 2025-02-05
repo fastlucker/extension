@@ -15,7 +15,7 @@ type Props = Action & {
   closeBottomSheet: () => void
 }
 
-const PortfolioErrorActions: FC<Props> = ({ actionName, meta, closeBottomSheet }) => {
+const BalanceAffectingErrorActions: FC<Props> = ({ actionName, meta, closeBottomSheet }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { networks, statuses } = useNetworksControllerState()
@@ -82,4 +82,4 @@ const PortfolioErrorActions: FC<Props> = ({ actionName, meta, closeBottomSheet }
   return null
 }
 
-export default PortfolioErrorActions
+export default BalanceAffectingErrorActions

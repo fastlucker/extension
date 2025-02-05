@@ -243,6 +243,9 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+  params?: {
+    networkId?: Network['id']
+  }
 }
 
 type MainControllerUpdateSelectedAccountPortfolio = {
@@ -345,8 +348,8 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
-type MainControllerOnLoadAction = {
-  type: 'MAIN_CONTROLLER_ON_LOAD'
+type MainControllerOnPopupOpenAction = {
+  type: 'MAIN_CONTROLLER_ON_POPUP_OPEN'
 }
 
 type MainControllerLockAction = {
@@ -412,6 +415,10 @@ type EmailVaultControllerCleanMagicAndSessionKeysAction = {
 type EmailVaultControllerRequestKeysSyncAction = {
   type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC'
   params: { email: string; keys: string[] }
+}
+
+type EmailVaultControllerDismissBannerAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
 }
 
 type DomainsControllerReverseLookupAction = {
@@ -625,7 +632,7 @@ export type Action =
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction
-  | MainControllerOnLoadAction
+  | MainControllerOnPopupOpenAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
   | MainControllerBuildMintVestingUserRequest
@@ -671,6 +678,7 @@ export type Action =
   | EmailVaultControllerRecoverKeystoreAction
   | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
+  | EmailVaultControllerDismissBannerAction
   | DomainsControllerReverseLookupAction
   | DomainsControllerSaveResolvedReverseLookupAction
   | DappsControllerRemoveConnectedSiteAction

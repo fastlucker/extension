@@ -81,8 +81,8 @@ export const handleActions = async (
       }
       break
     }
-    case 'MAIN_CONTROLLER_ON_LOAD':
-      return mainCtrl.onLoad()
+    case 'MAIN_CONTROLLER_ON_POPUP_OPEN':
+      return mainCtrl.onPopupOpen()
     case 'MAIN_CONTROLLER_LOCK':
       return mainCtrl.lock()
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
@@ -391,7 +391,9 @@ export const handleActions = async (
       return mainCtrl.actions.setWindowLoaded()
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
-      return await mainCtrl.reloadSelectedAccount()
+      return await mainCtrl.reloadSelectedAccount({
+        networkId: params?.networkId
+      })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
       return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)
@@ -485,6 +487,8 @@ export const handleActions = async (
       return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
     case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
       return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
+    case 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER':
+      return mainCtrl.emailVault.dismissBanner()
     case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
       return await mainCtrl.addressBook.addContact(params.name, params.address)
     }

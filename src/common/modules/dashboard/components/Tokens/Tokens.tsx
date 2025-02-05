@@ -100,6 +100,11 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
     [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
   )
 
+  const shouldDisplaySkeleton = useMemo(
+    () => !tokens.length || !portfolio.isAllReady,
+    [portfolio.isAllReady, tokens.length]
+  )
+
   const userHasNoBalance = useMemo(
     // Exclude gas tank tokens from the check
     // as new users get some Gas Tank balance by default
@@ -251,7 +256,13 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
         ) : null
       }
 
-      if (!initTab?.tokens || !item || item === 'keep-this-to-avoid-key-warning') return null
+      if (
+        !initTab?.tokens ||
+        !item ||
+        item === 'keep-this-to-avoid-key-warning' ||
+        item === 'keep-this-to-avoid-key-warning-2'
+      )
+        return null
 
       return (
         <TokenItem
@@ -263,18 +274,18 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
       )
     },
     [
-      sortedTokens.length,
       initTab?.tokens,
       theme.primaryBackground,
       openTab,
       setOpenTab,
       control,
+      sessionId,
       t,
       searchValue,
       dashboardNetworkFilter,
       portfolio?.isAllReady,
-      navigateToAddCustomToken,
-      sessionId
+      sortedTokens.length,
+      navigateToAddCustomToken
     ]
   )
 
@@ -297,8 +308,13 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
-        !portfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
+        !portfolio?.isReadyToVisualize && shouldDisplaySkeleton
+          ? 'skeleton'
+          : 'keep-this-to-avoid-key-warning',
         ...(initTab?.tokens ? sortedTokens : []),
+        portfolio.isReadyToVisualize && shouldDisplaySkeleton
+          ? 'skeleton'
+          : 'keep-this-to-avoid-key-warning-2',
         !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',
         'footer'
       ]}
