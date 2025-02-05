@@ -3,7 +3,7 @@ import { Animated, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { canBecomeSmarter, isSmartAccount } from '@ambire-common/libs/account/account'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import AccountKeyIcons from '@common/components/AccountKeyIcons'
@@ -29,8 +29,11 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+import useNavigation from '@common/hooks/useNavigation'
+import { ROUTES } from '@common/modules/router/constants/common'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import getStyles from './styles'
-import SUBMENU_OPTIONS from './submenuOptions'
+import SUBMENU_OPTIONS, { SUBMENU_OPTION_7702 } from './submenuOptions'
 
 const { isTab } = getUiType()
 
@@ -61,6 +64,8 @@ const Account = ({
   const { dispatch } = useBackgroundService()
   const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
   const { ens, ud, isLoading } = useReverseLookup({ address: addr })
+  const { keys } = useKeystoreControllerState()
+  const { navigate } = useNavigation()
   const [bindAnim, animStyle, isHovered] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -137,7 +142,26 @@ const Account = ({
     if (item.value === 'keys') {
       openKeysBottomSheet()
     }
+
+    if (item.value === 'toSmarter') {
+      navigate(`${ROUTES.basicToSmartSettingsScreen}?accountAddr=${account.addr}`)
+    }
   }
+
+  const getAccKeys = useCallback(
+    (acc: any) => {
+      return keys.filter((key) => acc?.associatedKeys.includes(key.addr))
+    },
+    [keys]
+  )
+
+  const add7702option = useMemo(() => {
+    return canBecomeSmarter(account, getAccKeys(account))
+  }, [account, getAccKeys])
+
+  const submenu = useMemo(() => {
+    return add7702option ? [SUBMENU_OPTION_7702, ...SUBMENU_OPTIONS] : SUBMENU_OPTIONS
+  }, [add7702option])
 
   return (
     <Pressable
@@ -201,7 +225,7 @@ const Account = ({
               showExportImport={showExportImport}
             />
           )}
-          {showExportImport && <Dropdown data={SUBMENU_OPTIONS} onSelect={onDropdownSelect} />}
+          {showExportImport && <Dropdown data={submenu} onSelect={onDropdownSelect} />}
         </View>
       </Animated.View>
       <Dialog

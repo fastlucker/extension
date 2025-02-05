@@ -123,7 +123,7 @@ const DashboardBanner = ({
       }
 
       if (action.actionName === 'activate-7702') {
-        navigate(ROUTES.basicToSmartSettingsScreen)
+        navigate(`${ROUTES.basicToSmartSettingsScreen}?accountAddr=${action.meta.accountAddr}`)
       }
 
       if (action.actionName === 'reload-selected-account') {
