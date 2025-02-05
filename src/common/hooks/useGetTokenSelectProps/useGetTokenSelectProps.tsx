@@ -70,7 +70,7 @@ const useGetTokenSelectProps = ({
   tokens: (SwapAndBridgeToToken | TokenResult)[]
   token: string
   networks: Network[]
-  supportedChainIds: Network['chainId'][]
+  supportedChainIds?: Network['chainId'][]
   isLoading?: boolean
   isToToken?: boolean
 }) => {
@@ -120,7 +120,9 @@ const useGetTokenSelectProps = ({
     )
     const tooltipIdNotSupported = `token-${currentToken.address}-on-network-${network?.chainId}-not-supported-tooltip`
     const tooltipIdPendingBalance = `token-${currentToken.address}-on-network-${network?.chainId}-pending-balance`
-    const isTokenNetworkSupported = getIsNetworkSupported(supportedChainIds, network)
+    const isTokenNetworkSupported = supportedChainIds
+      ? getIsNetworkSupported(supportedChainIds, network)
+      : true
     const networkId = network?.id || ''
     const simulatedAccountOp = portfolio.networkSimulatedAccountOp[networkId]
     const tokenInPortfolio = getIsToTokenTypeGuard(currentToken)
@@ -295,7 +297,7 @@ const useGetTokenSelectProps = ({
     }
   }
 
-  const options = tokens.map((t) => renderItem(t, false))
+  const options = tokens.map((tk) => renderItem(tk, false))
   const selectedToken = tokens.find((tk) => getTokenId(tk) === token)
 
   return {
