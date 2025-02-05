@@ -461,7 +461,7 @@ const SeedPhraseImportScreen = () => {
                     placeholder="Seed Passphrase"
                     inputWrapperStyle={{ height: 40 }}
                     inputStyle={{ height: 40 }}
-                    containerStyle={{ ...spacings.mlMi, flex: 0.5 }}
+                    containerStyle={{ flex: 0.5 }}
                   />
                 )}
                 name="passphrase"
