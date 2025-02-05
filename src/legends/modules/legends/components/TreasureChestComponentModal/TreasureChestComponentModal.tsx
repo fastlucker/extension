@@ -208,10 +208,14 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     <div>
       <div className={styles.backdrop}>
         <div className={styles.wrapper}>
-          <div className={styles.streak} style={{ backgroundImage: `url(${streakImage})` }}>
-            <p className={styles.streakNumber}>{treasureLegend.meta.streak}</p>
-            <p className={styles.streakLabel}>Days Streak</p>
-          </div>
+          {!!treasureLegend.meta.streak && (
+            <div className={styles.streak} style={{ backgroundImage: `url(${streakImage})` }}>
+              <p className={styles.streakNumber}>{treasureLegend.meta.streak}</p>
+              <p className={styles.streakLabel}>
+                {treasureLegend.meta.streak === 1 ? 'Day' : 'Days'} Streak
+              </p>
+            </div>
+          )}
 
           <div className={styles.header}>
             <h2 className={styles.heading}>Daily Loot</h2>

@@ -19,6 +19,7 @@ type LegendsContextType = {
   getLegends: () => Promise<void>
   wheelSpinOfTheDay: boolean
   treasureChestOpenedForToday: boolean
+  treasureChestStreak: number | undefined
   onLegendComplete: () => Promise<void>
 }
 

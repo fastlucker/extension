@@ -30,10 +30,10 @@ const DailyQuestBanner: React.FC<DailyQuestBannerProps> = ({
   streakNumber
 }) => (
   <div className={`${styles.wrapper} ${wrapperStyles} ${isDisabled ? styles.disabled : ''}`}>
-    {streakBanner && (
+    {streakBanner && !!streakNumber && (
       <div className={styles.streakBanner} style={{ backgroundImage: `url(${streakBanner})` }}>
         <p className={styles.streakNumber}>{streakNumber}</p>
-        <p className={styles.streakLabel}>Days Streak</p>
+        <p className={styles.streakLabel}>{streakNumber === 1 ? 'Day' : 'Days'} Streak</p>
       </div>
     )}
     <div
