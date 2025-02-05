@@ -49,6 +49,13 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     [legends]
   )
 
+  const treasureChestStreak = useMemo(
+    () =>
+      legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
+        ?.meta?.streak,
+    [legends]
+  )
+
   const getLegends = useCallback(async () => {
     setError(null)
     try {
@@ -125,7 +132,8 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
       getLegends,
       onLegendComplete,
       wheelSpinOfTheDay,
-      treasureChestOpenedForToday
+      treasureChestOpenedForToday,
+      treasureChestStreak
     }),
     [
       legends,
@@ -135,7 +143,8 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
       getLegends,
       onLegendComplete,
       wheelSpinOfTheDay,
-      treasureChestOpenedForToday
+      treasureChestOpenedForToday,
+      treasureChestStreak
     ]
   )
 

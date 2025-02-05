@@ -16,21 +16,63 @@
     background: $primaryGradient;
     background-size: 200% 200%;
     animation: gradientAnimation 4s ease infinite;
+    position: relative;
 
     border-radius: $secondaryBorderRadius;
     padding: 0.25rem;
     $innerBorderRadius: calc(#{$secondaryBorderRadius} - 0.25rem);
 
     &.disabled {
-      opacity: .5;
       animation: none;
       cursor: not-allowed;
       user-select: none;
-
+      
       .banner {
+        opacity: .5;
         .button {
           cursor: not-allowed;
         }
+      }
+    }
+
+    .streakBanner {
+      background-size: cover;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      top: -0.6875rem;
+      right: -0.5rem;
+      z-index: 10;
+      width: 2.75rem;
+      height: 3.75rem;
+
+      .streakNumber {
+        text-align: center;
+        position: absolute;
+        left: 33%;
+        top: 15px;
+        width: 1.5625rem;
+        top: 1.2rem;
+        left: 0.6625rem;
+        z-index: 11;
+        font-size: .8125rem;
+        font-weight: 500;
+        color: $yellowText;
+        text-shadow: -0.0625rem -0.0625rem 
+        $tertiaryBadgeBackground;
+      }
+
+      .streakLabel {
+        position: absolute;
+        bottom: 0;
+        z-index: 11;
+        font-size: .625rem;
+        font-weight: 500;
+        line-height: .5625rem;
+        text-align: center;
+        color: $primaryText;
+        text-shadow: -0.0625rem -0.0625rem 
+        $secondaryBackground;
       }
     }
     .banner {
@@ -38,6 +80,7 @@
       display: flex;
       background-color: $tertiaryBackground;
       border-radius: $innerBorderRadius;
+      background-size: cover;
 
       .image {
         height: 7.5rem;
@@ -49,6 +92,7 @@
         padding: 1rem;
         padding-left: 6rem;
         flex: 1;
+
 
         .title,
         .text {
@@ -80,6 +124,11 @@
               opacity: 1;
             }
         }
+      }
+
+      .reversed {
+        padding-left: 1rem;
+        padding-right: 6rem;
       }
     }
 }
