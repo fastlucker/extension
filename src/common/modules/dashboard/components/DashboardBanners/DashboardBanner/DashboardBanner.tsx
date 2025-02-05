@@ -15,7 +15,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
-const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge']
+const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge', 'dismiss-email-vault']
 
 const DashboardBanner = ({
   banner,
@@ -41,95 +41,116 @@ const DashboardBanner = ({
 
   const handleActionPress = useCallback(
     (action: Action) => {
-      // TODO: Replace with switch or at least else if chaining
-      if (action.actionName === 'open-pending-dapp-requests') {
-        if (!visibleActionsQueue) return
-        const dappActions = visibleActionsQueue.filter((a) => a.type !== 'accountOp')
-        dispatch({
-          type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
-          params: { actionId: dappActions[0].id }
-        })
-      }
-      if (action.actionName === 'open-accountOp') {
-        dispatch({
-          type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
-          params: action.meta
-        })
-      }
+      switch (action.actionName) {
+        case 'open-pending-dapp-requests': {
+          if (!visibleActionsQueue) break
+          const dappActions = visibleActionsQueue.filter((a) => a.type !== 'accountOp')
+          dispatch({
+            type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
+            params: { actionId: dappActions[0].id }
+          })
+          break
+        }
 
-      if (action.actionName === 'reject-accountOp') {
-        dispatch({
-          type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
-          params: action.meta
-        })
-      }
+        case 'open-accountOp':
+          dispatch({
+            type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
+            params: action.meta
+          })
+          break
 
-      if (action.actionName === 'open-external-url' && type === 'success') {
-        window.open(action.meta.url, '_blank')
-      }
+        case 'reject-accountOp':
+          dispatch({
+            type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
+            params: action.meta
+          })
+          break
 
-      if (action.actionName === 'switch-default-wallet') {
-        dispatch({
-          type: 'SET_IS_DEFAULT_WALLET',
-          params: { isDefaultWallet: true }
-        })
-        addToast('Ambire is your default wallet.', { timeout: 2000 })
-      }
+        case 'open-external-url':
+          if (type !== 'success') break
 
-      if (action.actionName === 'sync-keys' && type === 'info') {
-        dispatch({
-          type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
-          params: { email: action.meta.email, keys: action.meta.keys }
-        })
-      }
+          window.open(action.meta.url, '_blank')
+          break
 
-      if (action.actionName === 'backup-keystore-secret') {
-        navigate(ROUTES.devicePasswordRecovery)
-      }
+        case 'switch-default-wallet':
+          dispatch({
+            type: 'SET_IS_DEFAULT_WALLET',
+            params: { isDefaultWallet: true }
+          })
+          addToast('Ambire is your default wallet.', { timeout: 2000 })
+          break
 
-      if (action.actionName === 'open-swap-and-bridge-tab') {
-        navigate(ROUTES.swapAndBridge)
-      }
+        case 'sync-keys':
+          if (type !== 'info') break
+          dispatch({
+            type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
+            params: { email: action.meta.email, keys: action.meta.keys }
+          })
+          break
 
-      if (action.actionName === 'reject-bridge' || action.actionName === 'close-bridge') {
-        dispatch({
-          type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
-          params: { activeRouteId: action.meta.activeRouteId }
-        })
-      }
+        case 'backup-keystore-secret':
+          navigate(ROUTES.devicePasswordRecovery)
+          break
 
-      if (action.actionName === 'proceed-bridge') {
-        dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
-          params: { activeRouteId: action.meta.activeRouteId }
-        })
-      }
+        case 'open-swap-and-bridge-tab':
+          navigate(ROUTES.swapAndBridge)
+          break
 
-      if (action.actionName === 'hide-activity-banner') {
-        dispatch({
-          type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
-          params: action.meta
-        })
-      }
+        case 'reject-bridge':
+        case 'close-bridge':
+          dispatch({
+            type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+            params: { activeRouteId: action.meta.activeRouteId }
+          })
+          break
 
-      if (action.actionName === 'confirm-temp-seed') {
-        navigate(ROUTES.saveImportedSeed)
-      }
+        case 'proceed-bridge':
+          dispatch({
+            type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
+            params: { activeRouteId: action.meta.activeRouteId }
+          })
+          break
 
-      if (action.actionName === 'update-extension-version') {
-        dispatch({
-          type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
-        })
-      }
+        case 'hide-activity-banner':
+          dispatch({
+            type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
+            params: action.meta
+          })
+          break
 
-      if (action.actionName === 'activate-7702') {
-        navigate(`${ROUTES.basicToSmartSettingsScreen}?accountAddr=${action.meta.accountAddr}`)
-      }
+        case 'activate-7702':
+          navigate(`${ROUTES.basicToSmartSettingsScreen}?accountAddr=${action.meta.accountAddr}`)
+          break
 
-      if (action.actionName === 'reload-selected-account') {
-        dispatch({
-          type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
-        })
+        case 'confirm-temp-seed':
+          navigate(ROUTES.saveImportedSeed)
+          break
+
+        case 'update-extension-version':
+          dispatch({
+            type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
+          })
+          break
+
+        case 'reload-selected-account':
+          dispatch({
+            type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+          })
+          break
+        case 'dismiss-email-vault':
+          dispatch({
+            type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
+          })
+          addToast(
+            'Dismissed! Password recovery can be enabled anytime in Settings. We’ll remind you in a week.',
+            {
+              type: 'info'
+            }
+          )
+          break
+
+        default:
+          break
       }
     },
     [visibleActionsQueue, type, dispatch, addToast, navigate]
