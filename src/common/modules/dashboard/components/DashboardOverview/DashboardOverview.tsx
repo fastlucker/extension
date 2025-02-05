@@ -108,8 +108,13 @@ const DashboardOverview: FC<Props> = ({
   ).split('.')
 
   const reloadAccount = useCallback(() => {
-    dispatch({ type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT' })
-  }, [dispatch])
+    dispatch({
+      type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT',
+      params: {
+        networkId: dashboardNetworkFilter ?? undefined
+      }
+    })
+  }, [dashboardNetworkFilter, dispatch])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>

@@ -391,7 +391,9 @@ export const handleActions = async (
       return mainCtrl.actions.setWindowLoaded()
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
-      return await mainCtrl.reloadSelectedAccount()
+      return await mainCtrl.reloadSelectedAccount({
+        networkId: params?.networkId
+      })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
       return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)

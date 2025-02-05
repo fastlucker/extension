@@ -243,6 +243,9 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+  params?: {
+    networkId?: Network['id']
+  }
 }
 
 type MainControllerUpdateSelectedAccountPortfolio = {
