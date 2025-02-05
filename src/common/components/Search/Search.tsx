@@ -1,6 +1,6 @@
 import React from 'react'
 import { Control, Controller, UseFormSetValue } from 'react-hook-form'
-import { TextInput, ViewStyle } from 'react-native'
+import { ViewStyle } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import SearchIcon from '@common/assets/svg/SearchIcon'
@@ -17,7 +17,6 @@ interface Props extends InputProps {
   setValue?: UseFormSetValue<{ search: string }>
   height?: number
   hasLeftIcon?: boolean
-  inputRef?: React.RefObject<TextInput>
 }
 
 const Search = ({
@@ -29,7 +28,6 @@ const Search = ({
   inputWrapperStyle = {},
   height = 40,
   hasLeftIcon = true,
-  inputRef,
   ...rest
 }: Props) => {
   const { theme } = useTheme()
@@ -40,7 +38,6 @@ const Search = ({
       name="search"
       render={({ field: { onChange, onBlur, value } }) => (
         <Input
-          ref={inputRef}
           containerStyle={[spacings.mb0, containerStyle]}
           {...(hasLeftIcon ? { leftIcon: () => <SearchIcon color={theme.secondaryText} /> } : {})}
           placeholder={placeholder}

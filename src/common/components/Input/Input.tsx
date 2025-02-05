@@ -1,5 +1,4 @@
-/* eslint-disable react/prop-types */
-import React, { forwardRef, ReactNode, useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import {
   NativeSyntheticEvent,
   TextInput,
@@ -53,186 +52,180 @@ export interface InputProps extends TextInputProps {
   borderless?: boolean
 }
 
-const Input = forwardRef<TextInput, InputProps>(
-  (
+const Input = ({
+  label,
+  button,
+  buttonProps,
+  buttonStyle,
+  info,
+  error,
+  errorType,
+  isValid,
+  validLabel,
+  onBlur = () => {},
+  onFocus = () => {},
+  onButtonPress = () => {},
+  disabled,
+  containerStyle,
+  inputStyle,
+  nativeInputStyle,
+  borderWrapperStyle,
+  inputWrapperStyle,
+  bottomLabelStyle,
+  leftIcon,
+  leftIconStyle,
+  childrenBeforeButtons,
+  childrenBelowInput,
+  tooltip,
+  borderless,
+  inputBorderWrapperRef,
+  ...rest
+}: InputProps) => {
+  const [isFocused, setIsFocused] = useState<boolean>(false)
+  const { theme, styles } = useTheme(getStyles)
+  const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
+
+  const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    if (disabled) return
+    setIsFocused(true)
+    return onFocus(e)
+  }
+  const handleOnBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    if (disabled) return
+    setIsFocused(false)
+    return onBlur(e)
+  }
+
+  const hasButton = !!button
+
+  const borderWrapperStyles = [
+    styles.borderWrapper,
+    isFocused && { borderColor: theme.infoBackground },
+    isValid && { borderColor: theme.successBackground },
+    !!error && { borderColor: theme.errorBackground },
+    borderless && { borderColor: 'transparent', borderWidth: 0 },
+    borderWrapperStyle
+  ]
+
+  const inputWrapperStyles = [
+    styles.inputWrapper,
     {
-      label,
-      button,
-      buttonProps,
-      buttonStyle,
-      info,
-      error,
-      errorType,
-      isValid,
-      validLabel,
-      onBlur = () => {},
-      onFocus = () => {},
-      onButtonPress = () => {},
-      disabled,
-      containerStyle,
-      inputStyle,
-      nativeInputStyle,
-      borderWrapperStyle,
-      inputWrapperStyle,
-      bottomLabelStyle,
-      leftIcon,
-      leftIconStyle,
-      childrenBeforeButtons,
-      childrenBelowInput,
-      tooltip,
-      borderless,
-      inputBorderWrapperRef,
-      ...rest
-    }: InputProps,
-    ref
-  ) => {
-    const [isFocused, setIsFocused] = useState<boolean>(false)
-    const { theme, styles } = useTheme(getStyles)
-    const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
+      backgroundColor: theme.secondaryBackground,
+      borderColor: theme.secondaryBorder
+    },
+    isFocused && { borderColor: theme.primary },
+    isValid && { borderColor: theme.successDecorative },
+    !!error && { borderColor: theme.errorDecorative },
+    disabled && styles.disabled,
+    borderless && { borderColor: 'transparent', borderWidth: 0 },
+    inputWrapperStyle
+  ]
 
-    const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-      if (disabled) return
-      setIsFocused(true)
-      return onFocus(e)
-    }
-    const handleOnBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-      if (disabled) return
-      setIsFocused(false)
-      return onBlur(e)
-    }
+  const inputStyles = [styles.input, !!hasButton && spacings.pr0, inputStyle]
 
-    const hasButton = !!button
-
-    const borderWrapperStyles = [
-      styles.borderWrapper,
-      isFocused && { borderColor: theme.infoBackground },
-      isValid && { borderColor: theme.successBackground },
-      !!error && { borderColor: theme.errorBackground },
-      borderless && { borderColor: 'transparent', borderWidth: 0 },
-      borderWrapperStyle
-    ]
-
-    const inputWrapperStyles = [
-      styles.inputWrapper,
-      {
-        backgroundColor: theme.secondaryBackground,
-        borderColor: theme.secondaryBorder
-      },
-      isFocused && { borderColor: theme.primary },
-      isValid && { borderColor: theme.successDecorative },
-      !!error && { borderColor: theme.errorDecorative },
-      disabled && styles.disabled,
-      borderless && { borderColor: 'transparent', borderWidth: 0 },
-      inputWrapperStyle
-    ]
-
-    const inputStyles = [styles.input, !!hasButton && spacings.pr0, inputStyle]
-
-    return (
-      <View style={[styles.inputContainer, containerStyle]}>
-        {!!label && (
-          <Text appearance="secondaryText" fontSize={14} weight="regular" style={styles.label}>
-            {label}
-            {!!tooltip && (
-              <View style={{ width: 1 }}>
-                <View style={{ position: 'absolute', top: -11.5, left: 8 }}>
-                  <InformationIcon
-                    width={14}
-                    height={14}
-                    dataSet={{
-                      tooltipId: tooltip.id,
-                      tooltipContent: tooltip.content
-                    }}
-                  />
-                </View>
-              </View>
-            )}
-          </Text>
-        )}
-        <View style={{ zIndex: 10 }}>
-          <View style={borderWrapperStyles} ref={inputBorderWrapperRef}>
-            <View style={inputWrapperStyles}>
-              {!!leftIcon && <View style={[styles.leftIcon, leftIconStyle]}>{leftIcon()}</View>}
-              {/* TextInput doesn't support border styles so we wrap it in a View */}
-              <View style={[inputStyles, hasButton ? { width: '100%' } : {}]}>
-                <TextInput
-                  ref={ref}
-                  placeholderTextColor={theme.secondaryText}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  editable={!disabled}
-                  onBlur={handleOnBlur}
-                  onFocus={handleOnFocus}
-                  {...rest}
-                  style={[styles.nativeInput, nativeInputStyle]}
+  return (
+    <View style={[styles.inputContainer, containerStyle]}>
+      {!!label && (
+        <Text appearance="secondaryText" fontSize={14} weight="regular" style={styles.label}>
+          {label}
+          {!!tooltip && (
+            <View style={{ width: 1 }}>
+              <View style={{ position: 'absolute', top: -11.5, left: 8 }}>
+                <InformationIcon
+                  width={14}
+                  height={14}
+                  dataSet={{
+                    tooltipId: tooltip.id,
+                    tooltipContent: tooltip.content
+                  }}
                 />
               </View>
-              {childrenBeforeButtons || null}
-              {!!hasButton && (
-                <AnimatedPressable
-                  // The `focusable` prop determines whether a component is user-focusable
-                  // and appears in the keyboard tab flow. It's missing in the
-                  // TouchableOpacity props, because it's react-native-web specific, see:
-                  // {@link https://necolas.github.io/react-native-web/docs/accessibility/#keyboard-focus}
-                  // @ts-ignore-next-line
-                  focusable={false}
-                  onPress={onButtonPress}
-                  disabled={disabled}
-                  style={[
-                    styles.button,
-                    buttonProps?.withBackground ? styles.buttonWithBackground : {},
-                    buttonStyle,
-                    animStyle
-                  ]}
-                  {...buttonProps}
-                  {...bindAnim}
-                >
-                  {typeof button === 'string' || button instanceof String ? (
-                    <Text weight="medium">{button}</Text>
-                  ) : (
-                    button
-                  )}
-                </AnimatedPressable>
-              )}
             </View>
+          )}
+        </Text>
+      )}
+      <View style={{ zIndex: 10 }}>
+        <View style={borderWrapperStyles} ref={inputBorderWrapperRef}>
+          <View style={inputWrapperStyles}>
+            {!!leftIcon && <View style={[styles.leftIcon, leftIconStyle]}>{leftIcon()}</View>}
+            {/* TextInput doesn't support border styles so we wrap it in a View */}
+            <View style={[inputStyles, hasButton ? { width: '100%' } : {}]}>
+              <TextInput
+                placeholderTextColor={theme.secondaryText}
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!disabled}
+                onBlur={handleOnBlur}
+                onFocus={handleOnFocus}
+                {...rest}
+                style={[styles.nativeInput, nativeInputStyle]}
+              />
+            </View>
+            {childrenBeforeButtons || null}
+            {!!hasButton && (
+              <AnimatedPressable
+                // The `focusable` prop determines whether a component is user-focusable
+                // and appears in the keyboard tab flow. It's missing in the
+                // TouchableOpacity props, because it's react-native-web specific, see:
+                // {@link https://necolas.github.io/react-native-web/docs/accessibility/#keyboard-focus}
+                // @ts-ignore-next-line
+                focusable={false}
+                onPress={onButtonPress}
+                disabled={disabled}
+                style={[
+                  styles.button,
+                  buttonProps?.withBackground ? styles.buttonWithBackground : {},
+                  buttonStyle,
+                  animStyle
+                ]}
+                {...buttonProps}
+                {...bindAnim}
+              >
+                {typeof button === 'string' || button instanceof String ? (
+                  <Text weight="medium">{button}</Text>
+                ) : (
+                  button
+                )}
+              </AnimatedPressable>
+            )}
           </View>
-          {childrenBelowInput}
         </View>
-        {!!error && (
-          <Text
-            style={[styles.bottomLabel, bottomLabelStyle]}
-            weight={isWeb ? 'regular' : undefined}
-            fontSize={10}
-            appearance={errorType === 'warning' ? 'warningText' : 'errorText'}
-          >
-            {error}
-          </Text>
-        )}
-
-        {!!isValid && !!validLabel && !error && (
-          <Text
-            style={[styles.bottomLabel, bottomLabelStyle]}
-            weight="regular"
-            fontSize={12}
-            color={theme.successText}
-          >
-            {validLabel}
-          </Text>
-        )}
-
-        {!!info && (
-          <Text
-            weight="regular"
-            appearance="secondaryText"
-            style={[styles.bottomLabel, bottomLabelStyle]}
-            fontSize={10}
-          >
-            {info}
-          </Text>
-        )}
+        {childrenBelowInput}
       </View>
-    )
-  }
-)
+      {!!error && (
+        <Text
+          style={[styles.bottomLabel, bottomLabelStyle]}
+          weight={isWeb ? 'regular' : undefined}
+          fontSize={10}
+          appearance={errorType === 'warning' ? 'warningText' : 'errorText'}
+        >
+          {error}
+        </Text>
+      )}
+
+      {!!isValid && !!validLabel && !error && (
+        <Text
+          style={[styles.bottomLabel, bottomLabelStyle]}
+          weight="regular"
+          fontSize={12}
+          color={theme.successText}
+        >
+          {validLabel}
+        </Text>
+      )}
+
+      {!!info && (
+        <Text
+          weight="regular"
+          appearance="secondaryText"
+          style={[styles.bottomLabel, bottomLabelStyle]}
+          fontSize={10}
+        >
+          {info}
+        </Text>
+      )}
+    </View>
+  )
+}
 
 export default React.memo(Input)

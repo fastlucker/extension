@@ -1,7 +1,8 @@
 import { TFunction } from 'i18next'
-import React, { FC, useEffect, useRef, useState } from 'react'
+import React, { FC, useState } from 'react'
+import { UseFormSetValue } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { TextInput, View } from 'react-native'
+import { View } from 'react-native'
 
 import SearchIcon from '@common/assets/svg/SearchIcon'
 import Search from '@common/components/Search'
@@ -37,6 +38,9 @@ interface Props {
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   searchControl?: any
   sessionId: string
+  setValue: UseFormSetValue<{
+    search: string
+  }>
 }
 
 // We want to change the query param without refreshing the page.
@@ -55,7 +59,7 @@ const handleChangeQuery = (tab: string, sessionId: string) => {
 
 const TABS = ['tokens', 'collectibles', 'defi']
 
-const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId }) => {
+const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId, setValue }) => {
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const allBanners = useBanners()
@@ -76,14 +80,6 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
       }
     ]
   })
-
-  const searchInputRef = useRef<TextInput>(null)
-
-  useEffect(() => {
-    if (isSearchVisible && searchInputRef.current) {
-      searchInputRef.current.focus()
-    }
-  }, [isSearchVisible])
 
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
@@ -115,13 +111,14 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
           {isSearchVisible && (
             <View style={[styles.searchContainer]}>
               <Search
+                autoFocus
                 borderWrapperStyle={styles.borderWrapper}
                 inputWrapperStyle={styles.searchInputWrapper}
                 control={searchControl}
                 height={32}
                 placeholder={getSearchPlaceholder(openTab, t)}
                 hasLeftIcon={false}
-                inputRef={searchInputRef}
+                setValue={setValue}
               />
             </View>
           )}

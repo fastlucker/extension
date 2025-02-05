@@ -192,6 +192,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
               setOpenTab={setOpenTab}
               searchControl={control}
               sessionId={sessionId}
+              setValue={setValue}
             />
             {/* TODO: fix zIndex: -1 */}
             <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy, { zIndex: -1 }]}>
