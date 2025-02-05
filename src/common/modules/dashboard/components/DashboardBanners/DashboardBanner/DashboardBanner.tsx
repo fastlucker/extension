@@ -119,7 +119,7 @@ const DashboardBanner = ({
       if (action.actionName === 'open-first-cashback-modal') {
         if (!account) return
         dispatch({
-          type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
+          type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
           params: { accountAddr: account.addr }
         })
       }

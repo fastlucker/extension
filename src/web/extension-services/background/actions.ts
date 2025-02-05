@@ -298,7 +298,7 @@ type PortfolioControllerCheckToken = {
 }
 
 type PortfolioControllerUpdateConfettiToShown = {
-  type: 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN',
+  type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT'
   params: {
     accountAddr: Account['addr']
   }

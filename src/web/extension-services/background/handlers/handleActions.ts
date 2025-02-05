@@ -434,7 +434,7 @@ export const handleActions = async (
         mainCtrl.selectedAccount.account.addr
       )
     }
-    case 'PORTFOLIO_CONTROLLER_UPDATE_CONFETTI_TO_SHOWN': {
+    case 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT': {
       return await mainCtrl.portfolio.updateCashbackStatusByAccount({
         accountId: params.accountAddr,
         shouldShowBanner: false,
