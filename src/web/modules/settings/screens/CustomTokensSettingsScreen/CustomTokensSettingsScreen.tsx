@@ -9,7 +9,7 @@ import AddToken from './AddToken'
 import HideToken from './HideToken'
 import getStyles from './styles'
 
-const CustomTokensSettingsScreen = () => {
+const ManageTokensSettingsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { styles } = useTheme(getStyles)
 
@@ -26,4 +26,4 @@ const CustomTokensSettingsScreen = () => {
   )
 }
 
-export default CustomTokensSettingsScreen
+export default ManageTokensSettingsScreen

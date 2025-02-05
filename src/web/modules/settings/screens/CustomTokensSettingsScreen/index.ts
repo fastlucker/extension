@@ -1,3 +1,3 @@
-import CustomTokensSettingsScreen from './CustomTokensSettingsScreen'
+import ManageTokensSettingsScreen from './ManageTokensSettingsScreen'
 
-export default CustomTokensSettingsScreen
+export default ManageTokensSettingsScreen
