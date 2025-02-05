@@ -480,6 +480,8 @@ export const handleActions = async (
       return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
     case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
       return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
+    case 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER':
+      return mainCtrl.emailVault.dismissBanner()
     case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
       return await mainCtrl.addressBook.addContact(params.name, params.address)
     }
