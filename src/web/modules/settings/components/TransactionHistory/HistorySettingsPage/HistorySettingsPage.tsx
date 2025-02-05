@@ -168,7 +168,10 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     return () => {
       killSession()
     }
-  }, [dispatch, historyType, sessionId, setSearchParams])
+    // setSearchParams must not be in the dependency array
+    // as it changes on call and kills the session prematurely
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historyType, sessionId, dispatch])
 
   const handleSetAccountValue = useCallback(
     (accountOption: SelectValue) => {
