@@ -1,7 +1,7 @@
 import { TFunction } from 'i18next'
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { TextInput, View } from 'react-native'
 
 import SearchIcon from '@common/assets/svg/SearchIcon'
 import Search from '@common/components/Search'
@@ -77,6 +77,14 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
     ]
   })
 
+  const searchInputRef = useRef<TextInput>(null)
+
+  useEffect(() => {
+    if (isSearchVisible && searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }, [isSearchVisible])
+
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
       <Tabs
@@ -113,6 +121,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
                 height={32}
                 placeholder={getSearchPlaceholder(openTab, t)}
                 hasLeftIcon={false}
+                inputRef={searchInputRef}
               />
             </View>
           )}
