@@ -131,7 +131,6 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE': {
       if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
       const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
-      console.log('keystoreSavedSeed', keystoreSavedSeed)
       if (!keystoreSavedSeed) return
       const keyIterator = new KeyIterator(keystoreSavedSeed.seed, keystoreSavedSeed.seedPassphrase)
       await mainCtrl.accountAdder.init({
