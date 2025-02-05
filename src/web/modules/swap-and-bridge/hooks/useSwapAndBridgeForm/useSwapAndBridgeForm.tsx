@@ -16,6 +16,7 @@ import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
+import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
@@ -24,7 +25,6 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
-import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTokenSelectProps'
 import { getTokenId } from '@web/utils/token'
 
 type SessionId = ReturnType<typeof nanoid>
@@ -69,7 +69,7 @@ const useSwapAndBridgeForm = () => {
     if (
       searchParams.get('address') &&
       searchParams.get('networkId') &&
-      !!portfolio?.isAllReady &&
+      !!portfolio?.isReadyToVisualize &&
       (sessionIds || []).includes(sessionId)
     ) {
       const tokenToSelectOnInit = portfolio.tokens.find(
@@ -95,7 +95,7 @@ const useSwapAndBridgeForm = () => {
   }, [
     dispatch,
     setSearchParams,
-    portfolio?.isAllReady,
+    portfolio?.isReadyToVisualize,
     portfolio.tokens,
     searchParams,
     sessionIds,

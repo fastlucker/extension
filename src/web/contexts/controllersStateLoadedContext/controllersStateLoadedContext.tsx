@@ -160,7 +160,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasExtensionUpdateState
     ) {
       clearTimeout(timeout)
-      if (isPopup) dispatch({ type: 'MAIN_CONTROLLER_ON_LOAD' })
+      if (isPopup) dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
       setAreControllerStatesLoaded(true)
     }
 
