@@ -406,6 +406,10 @@ type EmailVaultControllerRequestKeysSyncAction = {
   params: { email: string; keys: string[] }
 }
 
+type EmailVaultControllerDismissBannerAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
+}
+
 type DomainsControllerReverseLookupAction = {
   type: 'DOMAINS_CONTROLLER_REVERSE_LOOKUP'
   params: { address: string }
@@ -662,6 +666,7 @@ export type Action =
   | EmailVaultControllerRecoverKeystoreAction
   | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
+  | EmailVaultControllerDismissBannerAction
   | DomainsControllerReverseLookupAction
   | DomainsControllerSaveResolvedReverseLookupAction
   | DappsControllerRemoveConnectedSiteAction
