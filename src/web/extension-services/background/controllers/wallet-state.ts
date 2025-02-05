@@ -26,7 +26,7 @@ export class WalletStateController extends EventEmitter implements Settings {
   // when the user tries to sign a txn with an EOA, we ask him does he want
   // to transition to smart. If he doesn't and explicitly checks a checkbox,
   // we do not ask him again. This is the setting for that
-  #disable7702Popup: boolean = false
+  #disable7702Popup: { [accAddr: string]: boolean } = {}
 
   get isDefaultWallet() {
     return this.#_isDefaultWallet
@@ -66,12 +66,12 @@ export class WalletStateController extends EventEmitter implements Settings {
     this.emitUpdate()
   }
 
-  shouldDisable7702Popup(): boolean {
-    return this.#disable7702Popup
+  shouldDisable7702Popup(accAddr: string): boolean {
+    return !!this.#disable7702Popup[accAddr]
   }
 
-  setShouldDisable7702Popup(shouldDisable: boolean) {
-    this.#disable7702Popup = shouldDisable
+  setShouldDisable7702Popup(accAddr: string, shouldDisable: boolean): void {
+    this.#disable7702Popup[accAddr] = shouldDisable
 
     storage.set('disable7702Popup', this.#disable7702Popup)
   }
