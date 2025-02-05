@@ -71,22 +71,16 @@ const CongratsFirstCashbackModal = ({ onPress, position, portfolio, account }: P
                 {t('Wo-hoo')}
               </Text>
               <Text fontSize={14} weight="medium" style={spacings.mbSm}>
-                {t('You just got your first cashback.')}
+                {t(`Your first cashback of ${formatDecimals(cashbackInUsd, 'price')} has landed!`)}
               </Text>
             </View>
             <Trans>
               <Text fontSize={12} appearance="secondaryText" style={spacings.mbSm}>
-                {`You've received ${formatDecimals(
-                  cashbackInUsd,
-                  'price'
-                )} cashback, now on your Gas Tank, from your first smart account transaction!`}
-              </Text>
-              <Text fontSize={12} appearance="secondaryText">
-                When using a Smart Account, cashback gets credited to your Gas Tank. Cashback comes
-                from transaction savings and fee optimizations processed through the Ambire Relayer.
+                Every transaction with your smart account brings cashback straight into your Gas
+                Tank, thanks to savings and optimizations by the Ambire Relayer.
               </Text>
             </Trans>
-            {/* TODO: Check it the URL is the right one */}
+
             <Pressable
               onPress={async () => {
                 try {

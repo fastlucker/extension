@@ -16,7 +16,7 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       position: 'absolute',
       width: 324,
-      height: 444,
+      height: 370,
       backgroundColor: theme.primaryBackground,
       ...flexbox.alignCenter,
       ...common.borderRadiusPrimary,
@@ -46,8 +46,8 @@ const getStyles = (theme: ThemeProps) =>
       borderBottomWidth: 8,
       borderBottomColor: 'transparent',
       borderRightWidth: 8,
-      borderRightColor: theme.primaryBackground, 
-    },
+      borderRightColor: theme.primaryBackground
+    }
   })
 
 export default getStyles
