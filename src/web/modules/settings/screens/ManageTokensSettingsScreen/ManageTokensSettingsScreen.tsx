@@ -1,12 +1,13 @@
-import React, { useContext, useEffect, useMemo } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import AddIcon from '@common/assets/svg/AddIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import Badge from '@common/components/Badge'
 import Button from '@common/components/Button'
+import Checkbox from '@common/components/Checkbox'
 import Dropdown from '@common/components/Dropdown'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Search from '@common/components/Search'
@@ -19,6 +20,8 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { tokenSearch } from '@common/utils/search'
+import { networkSort } from '@common/utils/sorting'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
@@ -40,12 +43,15 @@ const ManageTokensSettingsScreen = () => {
   // TODO: Componentize
   const { t } = useTranslation()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
-  const { control } = useForm({ mode: 'all', defaultValues: { search: '' } })
+  const { control, watch } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme(getStyles)
   const {
     portfolio: { isAllReady, tokens }
   } = useSelectedAccountControllerState()
+  const [displayAllTokens, setDisplayAllTokens] = useState(false)
+  const [networkFilter, setNetworkFilter] = useState('all')
+  const search = watch('search')
 
   useEffect(() => {
     setCurrentSettingsPage('manage-tokens')
@@ -53,25 +59,35 @@ const ManageTokensSettingsScreen = () => {
 
   const customOrHiddenTokens = useMemo(() => {
     return tokens
-      .filter(({ flags }) => {
+      .filter(({ flags, networkId }) => {
+        if (networkFilter !== 'all' && networkId !== networkFilter) return false
+        if (displayAllTokens) return true
+
         return flags.isCustom || flags.isHidden
       })
+      .filter((token) => tokenSearch({ search, token, networks }))
       .sort((a, b) => {
-        const isACustom = a.flags.isCustom
-        const isBCustom = b.flags.isCustom
-
-        if (isACustom && !isBCustom) return -1
-        if (!isACustom && isBCustom) return 1
-
+        // Sort by hidden, then custom, then network
         const aIsHidden = a.flags.isHidden
         const bIsHidden = b.flags.isHidden
 
         if (!aIsHidden && bIsHidden) return -1
         if (aIsHidden && !bIsHidden) return 1
 
-        return a.symbol.localeCompare(b.symbol)
+        const isACustom = a.flags.isCustom
+        const isBCustom = b.flags.isCustom
+
+        if (isACustom && !isBCustom) return -1
+        if (!isACustom && isBCustom) return 1
+
+        const aNetwork = networks.find(({ id }) => id === a.networkId)
+        const bNetwork = networks.find(({ id }) => id === b.networkId)
+
+        if (!aNetwork || !bNetwork) return 0
+
+        return networkSort(aNetwork, bNetwork, networks)
       })
-  }, [tokens])
+  }, [displayAllTokens, networkFilter, networks, search, tokens])
 
   const networksOptions: SelectValue[] = useMemo(
     () => [
@@ -85,8 +101,14 @@ const ManageTokensSettingsScreen = () => {
     [networks]
   )
 
+  const setNetworkFilterValue = useCallback(({ value }: SelectValue) => {
+    if (typeof value !== 'string') return
+
+    setNetworkFilter(value)
+  }, [])
+
   return (
-    <View>
+    <View style={flexbox.flex1}>
       <View
         style={[
           flexbox.directionRow,
@@ -96,7 +118,7 @@ const ManageTokensSettingsScreen = () => {
         ]}
       >
         <View style={{ maxWidth: 512 }}>
-          <Text appearance="primaryText" fontSize={20} style={spacings.mbTy} weight="medium">
+          <Text appearance="primaryText" fontSize={20} style={spacings.mbMi} weight="medium">
             {t('Manage Tokens')}
           </Text>
           <Text appearance="secondaryText">
@@ -114,21 +136,47 @@ const ManageTokensSettingsScreen = () => {
           <AddIcon color={theme.primaryBackground} />
         </Button>
       </View>
-      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
-        <Search
-          containerStyle={{
-            minWidth: 360,
-            ...spacings.mrTy
-          }}
-          placeholder={t('Search tokens')}
-          control={control}
-          height={50}
-        />
-        <Select
-          options={networksOptions}
-          value={networksOptions[0]}
-          setValue={() => {}}
-          containerStyle={{ width: 260, marginBottom: 0 }}
+      <View
+        style={[flexbox.directionRow, flexbox.alignEnd, flexbox.justifySpaceBetween, spacings.mbMd]}
+      >
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <Search
+            containerStyle={{
+              minWidth: 280,
+              ...spacings.mrTy
+            }}
+            placeholder={t('Search tokens')}
+            control={control}
+            height={50}
+          />
+          <Select
+            options={networksOptions}
+            value={
+              networkFilter
+                ? networksOptions.filter((opt) => opt.value === networkFilter)[0]
+                : ALL_NETWORKS_OPTION
+            }
+            setValue={setNetworkFilterValue}
+            containerStyle={{ width: 260, marginBottom: 0, ...spacings.mrTy }}
+          />
+        </View>
+        <Checkbox
+          label={t('Display selected account tokens')}
+          value={displayAllTokens}
+          onValueChange={setDisplayAllTokens}
+          labelProps={{ style: { color: theme.secondaryText } }}
+          style={[
+            flexbox.alignSelfEnd,
+            spacings.phTy,
+            spacings.pvTy,
+            spacings.mb0,
+            common.borderRadiusPrimary,
+            {
+              width: 'fit-content',
+              backgroundColor: theme.secondaryBackground,
+              marginBottom: 2
+            }
+          ]}
         />
       </View>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pvMi]}>
@@ -148,64 +196,75 @@ const ManageTokensSettingsScreen = () => {
           </Text>
         </View>
       </View>
-      {isAllReady ? (
-        customOrHiddenTokens.map((token) => (
-          <View
-            key={getTokenId(token)}
-            style={[
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              common.borderRadiusPrimary,
-              flexbox.flex1,
-              spacings.mbTy,
-              spacings.pvTy,
-              {
-                backgroundColor: theme.secondaryBackground
-              }
-            ]}
-          >
+      <ScrollView style={flexbox.flex1}>
+        {isAllReady && !tokens.length && displayAllTokens && (
+          <Text>{t("You don't have any tokens")}</Text>
+        )}
+        {isAllReady && !tokens.length && !displayAllTokens && (
+          <View>
+            <Text>{t("You don't have any custom or hidden tokens")}</Text>
+          </View>
+        )}
+        {isAllReady &&
+          tokens.length &&
+          customOrHiddenTokens.map((token) => (
             <View
-              style={[{ flex: 1.25 }, flexbox.directionRow, flexbox.alignCenter, spacings.plSm]}
-            >
-              <TokenIcon
-                withContainer
-                address={token.address}
-                networkId={token.networkId}
-                onGasTank={token.flags.onGasTank}
-                containerHeight={40}
-                containerWidth={40}
-                width={28}
-                height={28}
-              />
-              <Text weight="medium" selectable style={spacings.mrTy}>
-                {token.symbol}
-              </Text>
-              {token.flags.isCustom && <Badge text="Custom" />}
-            </View>
-            <View style={[flexbox.directionRow, flexbox.alignCenter, { flex: 1.75 }]}>
-              <NetworkIcon id={token.networkId} style={spacings.mrTy} />
-              <Text>
-                {networks.find(({ id }) => id === token.networkId)?.name || 'Unknown Network'}
-              </Text>
-            </View>
-            <View
+              key={getTokenId(token)}
               style={[
                 flexbox.directionRow,
                 flexbox.alignCenter,
-                flexbox.justifySpaceBetween,
-                spacings.prSm,
-                { flex: 0.4 }
+                common.borderRadiusPrimary,
+                flexbox.flex1,
+                spacings.mbTy,
+                spacings.pvTy,
+                {
+                  backgroundColor: theme.secondaryBackground
+                }
               ]}
             >
-              <Toggle isOn={!token.flags.isHidden} onToggle={() => {}} />
-              <Dropdown data={[]} onSelect={() => {}} />
+              <View
+                style={[{ flex: 1.25 }, flexbox.directionRow, flexbox.alignCenter, spacings.plSm]}
+              >
+                <TokenIcon
+                  withContainer
+                  address={token.address}
+                  networkId={token.networkId}
+                  onGasTank={token.flags.onGasTank}
+                  containerHeight={40}
+                  containerWidth={40}
+                  width={28}
+                  height={28}
+                />
+                <Text weight="medium" selectable style={spacings.mrTy}>
+                  {token.symbol}
+                </Text>
+                {token.flags.isCustom && <Badge text="Custom" />}
+              </View>
+              <View style={[flexbox.directionRow, flexbox.alignCenter, { flex: 1.75 }]}>
+                <NetworkIcon id={token.networkId} style={spacings.mrTy} />
+                <Text>
+                  {networks.find(({ id }) => id === token.networkId)?.name || 'Unknown Network'}
+                </Text>
+              </View>
+              <View
+                style={[
+                  flexbox.directionRow,
+                  flexbox.alignCenter,
+                  flexbox.justifySpaceBetween,
+                  spacings.prSm,
+                  { flex: 0.4 }
+                ]}
+              >
+                <Toggle isOn={!token.flags.isHidden} onToggle={() => {}} />
+                <Dropdown data={[]} onSelect={() => {}} />
+              </View>
             </View>
-          </View>
-        ))
-      ) : (
-        // TODO: Skeleton
-        <Text>Loading...</Text>
-      )}
+          ))}
+        {!isAllReady && (
+          // TODO: Skeleton
+          <Text>Loading...</Text>
+        )}
+      </ScrollView>
     </View>
   )
 }

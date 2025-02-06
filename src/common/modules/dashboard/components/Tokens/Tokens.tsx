@@ -14,7 +14,7 @@ import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { getDoesNetworkMatch } from '@common/utils/search'
+import { tokenSearch } from '@common/utils/search'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -77,25 +77,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
 
           return token.networkId === dashboardNetworkFilter && !token.flags.onGasTank
         })
-        .filter((token) => {
-          if (!searchValue) return true
-
-          const lowercaseSearch = searchValue.toLowerCase()
-
-          const doesAddressMatch = token.address.toLowerCase().includes(lowercaseSearch)
-          const doesSymbolMatch = token.symbol.toLowerCase().includes(lowercaseSearch)
-
-          return (
-            doesAddressMatch ||
-            doesSymbolMatch ||
-            getDoesNetworkMatch({
-              networks,
-              tokenFlags: token.flags,
-              itemNetworkId: token.networkId,
-              lowercaseSearch
-            })
-          )
-        }),
+        .filter((token) => tokenSearch({ search: searchValue, token, networks })),
     [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
   )
 
