@@ -596,6 +596,11 @@ type ExtensionUpdateControllerApplyUpdate = {
   type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
 }
 
+type AccountDisable7702Banner = {
+  type: 'ACCOUNT_DISABLE_7702_BANNER'
+  params: { accountAddr: string }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -713,3 +718,4 @@ export type Action =
   | KeystoreControllerDeleteSavedSeed
   | KeystoreControllerMoveSeedFromTemp
   | ExtensionUpdateControllerApplyUpdate
+  | AccountDisable7702Banner

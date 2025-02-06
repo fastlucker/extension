@@ -5,6 +5,6 @@ const SUBMENU_OPTIONS = [
   { label: 'Remove Account', value: 'remove', style: { color: iconColors.danger } }
 ]
 
-export const SUBMENU_OPTION_7702 = { label: 'Make me smart', value: 'toSmarter' }
+export const SUBMENU_OPTION_7702 = { label: 'Smart Settings', value: 'toSmarter' }
 
 export default SUBMENU_OPTIONS

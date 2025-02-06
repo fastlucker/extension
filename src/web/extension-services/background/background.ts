@@ -227,7 +227,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
   await handleCleanDappSessions()
 
-  const walletStateCtrl = new WalletStateController()
   mainCtrl = new MainController({
     storage,
     fetch: fetchWithAnalytics,
@@ -255,9 +254,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         pm.send('> ui', { method: 'receiveOneTimeData', params })
       }
     },
-    notificationManager,
-    settings: walletStateCtrl
+    notificationManager
   })
+  const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())

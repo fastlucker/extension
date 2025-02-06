@@ -15,7 +15,12 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
-const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge', 'dismiss-email-vault']
+const ERROR_ACTIONS = [
+  'reject-accountOp',
+  'reject-bridge',
+  'dismiss-email-vault',
+  'dismiss-7702-banner'
+]
 
 const DashboardBanner = ({
   banner,
@@ -147,6 +152,15 @@ const DashboardBanner = ({
               type: 'info'
             }
           )
+          break
+        case 'dismiss-7702-banner':
+          dispatch({
+            type: 'ACCOUNT_DISABLE_7702_BANNER',
+            params: action.meta
+          })
+          addToast('Dismissed! You can make your account smart anytime from Settings.', {
+            type: 'info'
+          })
           break
 
         default:

@@ -3,14 +3,13 @@ import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
-import { Settings } from '@ambire-common/interfaces/settings'
 import {
   handleRegisterScripts,
   handleUnregisterAmbireInpageScript,
   handleUnregisterEthereumInpageScript
 } from '../handlers/handleScripting'
 
-export class WalletStateController extends EventEmitter implements Settings {
+export class WalletStateController extends EventEmitter {
   isReady: boolean = false
 
   #_isDefaultWallet: boolean = true
@@ -22,11 +21,6 @@ export class WalletStateController extends EventEmitter implements Settings {
   #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
 
   #isSetupComplete: boolean = true
-
-  // when the user tries to sign a txn with an EOA, we ask him does he want
-  // to transition to smart. If he doesn't and explicitly checks a checkbox,
-  // we do not ask him again. This is the setting for that
-  #disable7702Popup: { [accAddr: string]: boolean } = {}
 
   get isDefaultWallet() {
     return this.#_isDefaultWallet
@@ -66,16 +60,6 @@ export class WalletStateController extends EventEmitter implements Settings {
     this.emitUpdate()
   }
 
-  shouldDisable7702Popup(accAddr: string): boolean {
-    return !!this.#disable7702Popup[accAddr]
-  }
-
-  setShouldDisable7702Popup(accAddr: string, shouldDisable: boolean): void {
-    this.#disable7702Popup[accAddr] = shouldDisable
-
-    storage.set('disable7702Popup', this.#disable7702Popup)
-  }
-
   get isPinned() {
     return this.#isPinned
   }
@@ -109,11 +93,7 @@ export class WalletStateController extends EventEmitter implements Settings {
 
   async #init(): Promise<void> {
     // @ts-ignore
-    const [isDefault, disable7702Popup] = await Promise.all([
-      storage.get('isDefaultWallet', undefined),
-      storage.get('disable7702Popup', false)
-    ])
-    this.#disable7702Popup = disable7702Popup
+    const isDefault = await storage.get('isDefaultWallet', undefined)
 
     // Initialize isDefaultWallet in storage if needed
     if (isDefault === undefined) {

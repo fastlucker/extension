@@ -578,6 +578,11 @@ export const handleActions = async (
       extensionUpdateCtrl.applyUpdate()
       break
     }
+    case 'ACCOUNT_DISABLE_7702_BANNER': {
+      return mainCtrl.updateDisable7702Reminders(params.accountAddr, {
+        disable7702Banner: true
+      })
+    }
 
     default:
       // eslint-disable-next-line no-console
