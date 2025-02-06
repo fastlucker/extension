@@ -111,13 +111,14 @@ const DashboardBanner = ({
           })
           break
 
-        case 'open-first-cashback-modal':
+        case 'open-first-cashback-modal': {
           if (!account) break
           dispatch({
             type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
             params: { accountAddr: account.addr }
           })
           break
+        }
 
         case 'hide-activity-banner':
           dispatch({
