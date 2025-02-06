@@ -13,7 +13,7 @@ import Rewards from './Rewards'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'description' | 'flavor' | 'xp' | 'image' | 'card' | 'action' | 'timesCollectedToday'
+  'description' | 'flavor' | 'xp' | 'image' | 'card' | 'action' | 'timesCollectedToday'
 > & {
   openActionModal: () => void
   disabled: boolean
@@ -28,7 +28,6 @@ const CARD_FREQUENCY: { [key in CardType]: string } = {
 }
 
 const CardContent: FC<Props> = ({
-  title,
   description,
   xp,
   image,
@@ -68,13 +67,13 @@ const CardContent: FC<Props> = ({
           onClick={openActionModal}
           className={styles.imageButtonWrapper}
         >
-          <img src={image} alt={title} className={styles.image} />
+          <img src={image} alt={description} className={styles.image} />
         </button>
         <Counter width={48} height={48} count={timesCollectedToday} className={styles.counter} />
       </div>
       <div className={styles.contentAndAction}>
         <div className={styles.content}>
-          <h2 className={styles.heading}>{title}</h2>
+          <h2 className={styles.heading}>{description}</h2>
           <p className={styles.description}>{description}</p>
           <span className={styles.rewardFrequency}>{CARD_FREQUENCY[card.type]}</span>
           <div className={styles.rewards}>

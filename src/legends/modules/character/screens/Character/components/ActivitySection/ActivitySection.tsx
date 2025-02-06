@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import { Tooltip } from 'react-tooltip'
+import React from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
 import LinkIcon from '@common/assets/svg/LinkIcon'
@@ -112,15 +111,8 @@ const ActivitySection = () => {
                           data-tooltip-id={`tooltip-${act.txId}-${i}`}
                         >
                           <SwordIcon width={24} height={24} className={styles.sword} />
-                          {legendActivity.cardTitle} (+{legendActivity.xp} XP)
+                          {legendActivity.labelText} (+{legendActivity.xp} XP)
                         </div>
-                        <Tooltip
-                          id={`tooltip-${act.txId}-${i}`}
-                          place="top"
-                          className={styles.tooltip}
-                        >
-                          {legendActivity.labelText}
-                        </Tooltip>
                       </React.Fragment>
                     ))}
                   </td>
@@ -131,9 +123,7 @@ const ActivitySection = () => {
         </table>
       ) : null}
       {!transactions?.length && !isLoading && !error && <p>No activity found for this account</p>}
-      {activity ? (
-        <Pagination activity={activity} page={currentPage} setPage={setPage} />
-      ) : null}
+      {activity ? <Pagination activity={activity} page={currentPage} setPage={setPage} /> : null}
     </div>
   )
 }
