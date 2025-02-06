@@ -66,27 +66,30 @@ const DashboardBanner = ({
           })
           break
 
-        case 'open-external-url':
+        case 'open-external-url': {
           if (type !== 'success') break
 
           window.open(action.meta.url, '_blank')
           break
+        }
 
-        case 'switch-default-wallet':
+        case 'switch-default-wallet': {
           dispatch({
             type: 'SET_IS_DEFAULT_WALLET',
             params: { isDefaultWallet: true }
           })
           addToast('Ambire is your default wallet.', { timeout: 2000 })
           break
+        }
 
-        case 'sync-keys':
+        case 'sync-keys': {
           if (type !== 'info') break
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
             params: { email: action.meta.email, keys: action.meta.keys }
           })
           break
+        }
 
         case 'backup-keystore-secret':
           navigate(ROUTES.devicePasswordRecovery)
@@ -142,7 +145,8 @@ const DashboardBanner = ({
             type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
           })
           break
-        case 'dismiss-email-vault':
+
+        case 'dismiss-email-vault': {
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
           })
@@ -153,7 +157,7 @@ const DashboardBanner = ({
             }
           )
           break
-
+        }
         default:
           break
       }
