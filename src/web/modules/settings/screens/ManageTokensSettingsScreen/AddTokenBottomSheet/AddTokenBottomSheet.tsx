@@ -110,6 +110,14 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
     [selectedAccountPortfolio, network, address]
   )
 
+  const handleCloseAndReset = useCallback(() => {
+    handleClose()
+    reset({ address: '' })
+    setAdditionalHintRequested(false)
+    setIsLoading(false)
+    setShowAlreadyInPortfolioMessage(false)
+  }, [handleClose, reset])
+
   const handleAddToken = useCallback(async () => {
     if (!isValidAddress(address) || !network) return
 
@@ -134,10 +142,19 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
         shouldUpdatePortfolio: true
       }
     })
-    reset({ address: '' })
-    setAdditionalHintRequested(false)
     addToast(t(`Added token ${address} on ${network.name} to your portfolio`))
-  }, [address, network, addToast, temporaryToken, reset, t, dispatch])
+    handleCloseAndReset()
+  }, [
+    address,
+    network,
+    temporaryToken?.address,
+    temporaryToken?.symbol,
+    temporaryToken?.decimals,
+    dispatch,
+    addToast,
+    t,
+    handleCloseAndReset
+  ])
 
   const handleTokenType = useCallback(() => {
     dispatch({
@@ -145,14 +162,6 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
       params: { token: { address, networkId: network.id } }
     })
   }, [address, dispatch, network.id])
-
-  const handleCloseAndReset = useCallback(() => {
-    handleClose()
-    reset({ address: '' })
-    setAdditionalHintRequested(false)
-    setIsLoading(false)
-    setShowAlreadyInPortfolioMessage(false)
-  }, [handleClose, reset])
 
   useEffect(() => {
     const handleEffect = async () => {
