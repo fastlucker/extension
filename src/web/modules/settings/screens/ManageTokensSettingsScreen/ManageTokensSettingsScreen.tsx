@@ -23,6 +23,7 @@ import { getTokenId } from '@web/utils/token'
 import AddTokenBottomSheet from './AddTokenBottomSheet'
 import Filters from './Filters'
 import Header from './Header'
+import Skeletons from './Skeletons'
 import Token from './Token'
 import TokenListHeader from './TokenListHeader'
 
@@ -227,10 +228,7 @@ const ManageTokensSettingsScreen = () => {
               {...token}
             />
           ))}
-        {!isAllReady && (
-          // TODO: Skeleton
-          <Text>Loading...</Text>
-        )}
+        {!isAllReady && <Skeletons />}
       </ScrollView>
     </View>
   )
