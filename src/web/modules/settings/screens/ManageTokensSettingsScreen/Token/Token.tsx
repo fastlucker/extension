@@ -68,10 +68,6 @@ const Token: FC<Props> = ({
   const dropdownOptions = useMemo(() => {
     const defaultOptions = [
       {
-        label: 'View on Coingecko',
-        value: 'coingecko'
-      },
-      {
         label: 'View on block explorer',
         value: 'explorer'
       }
@@ -95,12 +91,6 @@ const Token: FC<Props> = ({
         removeCustomToken()
         return
       }
-
-      if (value === 'coingecko') {
-        await openInTab(`https://www.coingecko.com/en/coins/${address}`, false)
-        return
-      }
-
       if (value === 'explorer') {
         const network = networks.find(({ id }) => id === networkId)
         if (!network) return
