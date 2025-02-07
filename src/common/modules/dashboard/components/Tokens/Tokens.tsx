@@ -199,8 +199,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
               sessionId={sessionId}
               setValue={setValue}
             />
-            {/* TODO: fix zIndex: -1 */}
-            <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy, { zIndex: -1 }]}>
+            <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
                 {t('ASSET/AMOUNT')}
               </Text>

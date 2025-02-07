@@ -21,7 +21,8 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
       ...flexbox.alignCenter,
-      ...spacings.mb
+      ...spacings.mb,
+      zIndex: 1
     },
     searchIconWrapper: {
       ...flexbox.center,
