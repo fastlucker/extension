@@ -47,7 +47,6 @@ const ManageTokensSettingsScreen = () => {
   const [networkFilter, setNetworkFilter] = useState('all')
   const search = watch('search')
   // Instead of waiting for the portfolio to update remove the token immediately
-  // @TODO: Reset on add custom token
   const [optimisticRemovedTokens, setOptimisticRemovedTokens] = useState<
     Pick<TokenResult, 'address' | 'networkId'>[]
   >([])
