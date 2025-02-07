@@ -19,6 +19,7 @@ type LegendsContextType = {
   getLegends: () => Promise<void>
   wheelSpinOfTheDay: boolean
   treasureChestOpenedForToday: boolean
+  treasureChestStreak: number | undefined
   onLegendComplete: () => Promise<void>
 }
 
@@ -46,6 +47,13 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     () =>
       legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
         ?.card.status === CardStatus.completed,
+    [legends]
+  )
+
+  const treasureChestStreak = useMemo(
+    () =>
+      legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
+        ?.meta?.streak,
     [legends]
   )
 
@@ -125,7 +133,8 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
       getLegends,
       onLegendComplete,
       wheelSpinOfTheDay,
-      treasureChestOpenedForToday
+      treasureChestOpenedForToday,
+      treasureChestStreak
     }),
     [
       legends,
@@ -135,7 +144,8 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
       getLegends,
       onLegendComplete,
       wheelSpinOfTheDay,
-      treasureChestOpenedForToday
+      treasureChestOpenedForToday,
+      treasureChestStreak
     ]
   )
 
