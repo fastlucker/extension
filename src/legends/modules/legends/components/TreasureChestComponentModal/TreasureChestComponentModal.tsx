@@ -23,6 +23,7 @@ import chainImage from './assets/chain-treasure-chest.png'
 import chestImageOpened from './assets/chest-opened.png'
 import chestImage from './assets/chest.png'
 import starImage from './assets/star.png'
+import streakImage from './assets/streak-modal.png'
 import CongratsModal from './components/CongratsModal'
 import styles from './TreasureChestComponentModal.module.scss'
 
@@ -38,6 +39,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
+  const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
 
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const chainRef = React.useRef<HTMLImageElement>(null)
@@ -103,6 +105,11 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const action = useMemo(() => treasureLegend?.action as CardActionCalls, [treasureLegend])
 
+  const setStateOnTxnConfirmed = useCallback((receivedXp?: number) => {
+    receivedXp && setPrizeNumber(receivedXp)    
+    setChestToUnlocked()
+  }, [unlockChainAnimation])
+
   const unlockChest = useCallback(async () => {
     setChestState('unlocking')
     await switchNetwork()
@@ -131,8 +138,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       const transactionFound = await checkTransactionStatus(
         connectedAccount,
         'dailyReward',
-        setChestToUnlocked,
-        addToast
+        setStateOnTxnConfirmed
       )
       if (!transactionFound) {
         const checkStatusWithTimeout = async (attempts: number) => {
@@ -148,8 +154,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           const found = await checkTransactionStatus(
             connectedAccount,
             'dailyReward',
-            setChestToUnlocked,
-            addToast
+            setStateOnTxnConfirmed
           )
 
           if (!found) {
@@ -187,6 +192,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     if (chestState === 'locked') {
       await unlockChest()
     } else if (chestState === 'unlocked') {
+      await getLegends()
       await openChest()
     } else if (chestState === 'opened' || chestState === 'error') {
       await closeModal()
@@ -205,6 +211,15 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     <div>
       <div className={styles.backdrop}>
         <div className={styles.wrapper}>
+          {!!treasureLegend.meta.streak && (
+            <div className={styles.streak} style={{ backgroundImage: `url(${streakImage})` }}>
+              <p className={styles.streakNumber}>{treasureLegend.meta.streak}</p>
+              <p className={styles.streakLabel}>
+                {treasureLegend.meta.streak === 1 ? 'Day' : 'Days'} Streak
+              </p>
+            </div>
+          )}
+
           <div className={styles.header}>
             <h2 className={styles.heading}>Daily Loot</h2>
             <button type="button" onClick={closeModal} className={styles.closeButton}>
@@ -213,7 +228,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           </div>
           <div className={styles.content}>
             {treasureLegend.meta.points.map((point, index) => {
-              const streak = treasureLegend.meta.streak ?? 0
+              const streak = treasureLegend.meta.streak % 7
               const isOpened = isCompleted && chestState === 'opened'
 
               const isCurrentDay = isOpened
@@ -249,12 +264,10 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
               )
             })}
           </div>
-
           <div className={styles.chestWrapper}>
             <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />
             <img src={chestImage} alt="spinner" className={styles.chest} />
           </div>
-
           <button
             type="button"
             className={styles.button}
@@ -271,7 +284,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       <CongratsModal
         isOpen={isCongratsModalOpen}
         setIsOpen={setCongratsModalOpen}
-        treasureLegend={treasureLegend}
+        prizeNumber={prizeNumber}
         onButtonClick={onCongratsModalButtonClick}
       />
     </div>,

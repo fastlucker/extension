@@ -1,13 +1,10 @@
-import { ToastOptions } from '@common/contexts/toastContext'
 import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
-import { ActivityTransaction, LegendActivity } from '@legends/contexts/activityContext/types'
+import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 
 const checkTransactionStatus = async (
   connectedAccount: string | null,
   txAction: string,
-  setState: (receivedXp?: number | null) => void,
-  addToast: (message: string, options?: ToastOptions) => void,
-  showToast: boolean = true
+  setState: (receivedXp?: number) => void,
 ) => {
   try {
     const response = await getRecentActivity(connectedAccount!)
@@ -31,12 +28,7 @@ const checkTransactionStatus = async (
     })
 
     if (!dailyRewardActivity) return false
-
     setState && setState(dailyRewardActivity.xp)
-    showToast &&
-      addToast(`You received ${dailyRewardActivity.xp}xp!`, {
-        type: 'success'
-      })
     return true
   } catch (error) {
     console.error('Error fetching transaction status:', error)

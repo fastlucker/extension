@@ -16,6 +16,7 @@ interface Props {
   children?: any
   style?: ViewProps['style']
   uncheckedBorderColor?: ColorValue
+  checkedColor?: ColorValue
   isDisabled?: boolean
   testID?: string
 }
@@ -28,6 +29,7 @@ const Checkbox = ({
   value,
   style,
   uncheckedBorderColor,
+  checkedColor,
   isDisabled,
   testID = 'checkbox'
 }: Props) => {
@@ -44,17 +46,17 @@ const Checkbox = ({
             styles.webCheckbox,
             {
               borderColor: value
-                ? theme.successDecorative
+                ? checkedColor || theme.successDecorative
                 : uncheckedBorderColor || theme.primaryBorder
             },
-            !!value && { backgroundColor: theme.successDecorative }
+            !!value && { backgroundColor: checkedColor || theme.successDecorative }
           ]}
           testID={testID}
           onPress={onChange}
           activeOpacity={0.6}
           disabled={isDisabled}
         >
-          {!!value && <CheckIcon color={theme.successDecorative} />}
+          {!!value && <CheckIcon color={checkedColor || theme.successDecorative} />}
         </TouchableOpacity>
       </View>
       <View style={flexboxStyles.flex1}>

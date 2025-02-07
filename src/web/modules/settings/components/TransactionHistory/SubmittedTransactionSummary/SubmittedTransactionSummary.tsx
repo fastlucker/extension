@@ -26,7 +26,9 @@ import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import TransactionSummary, { sizeMultiplier } from '@web/modules/sign-account-op/components/TransactionSummary'
+import TransactionSummary, {
+  sizeMultiplier
+} from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import getStyles from './styles'
 import SubmittedOn from './SubmittedOn'
@@ -61,7 +63,14 @@ const SubmittedTransactionSummary = ({
   )
 
   const calls = useMemo(
-    () => humanizeAccountOp(submittedAccountOp, { network }),
+    () =>
+      humanizeAccountOp(submittedAccountOp, { network }).map((call, index) => ({
+        ...call,
+        // It's okay to use index as:
+        // 1. The calls aren't reordered
+        // 2. We are building the calls only once
+        id: call.id || String(index)
+      })),
     // Humanize the calls only once. Because submittedAccountOp is an object
     // it causes rerenders on every activity update.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,7 +151,7 @@ const SubmittedTransactionSummary = ({
     >
       {calls.map((call: IrCall) => (
         <TransactionSummary
-          key={call.fromUserRequestId}
+          key={call.id}
           style={{ ...styles.summaryItem, marginBottom: SPACING_SM * sizeMultiplier[size] }}
           call={call}
           networkId={submittedAccountOp.networkId}
