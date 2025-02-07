@@ -9,6 +9,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -41,9 +42,9 @@ const SelectNetwork = () => {
 
     let networkName = network?.name || t('Unknown Network')
 
-    networkName = `${networkName} ${t('Portfolio')}`
+    networkName = `${networkName} ${!isPopup ? t('Portfolio') : ''}`
 
-    if (networkName.length > 20 && isPopup) {
+    if (networkName.length > 20) {
       networkName = `${networkName.slice(0, 20)}...`
     }
 
@@ -51,7 +52,22 @@ const SelectNetwork = () => {
   }, [dashboardNetworkFilter, networks, t])
 
   return (
-    <View style={[styles.container, flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
+    <View
+      style={[
+        styles.container,
+        flexbox.directionRow,
+        flexbox.alignCenter,
+        spacings.mrTy,
+        {
+          ...(dashboardNetworkFilter && {
+            color: theme.primaryText,
+            borderColor: theme.primary,
+            backgroundColor: theme.infoBackground
+          }),
+          width: isPopup ? 160 : 190
+        }
+      ]}
+    >
       <AnimatedPressable
         style={[
           flexbox.directionRow,
@@ -74,13 +90,13 @@ const SelectNetwork = () => {
       >
         {dashboardNetworkFilter ? (
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <FilterIcon width={12} height={12} />
-            <Text fontSize={12}>{filterByNetworkName}</Text>
+            <FilterIcon color={iconColors.dark} style={spacings.prTy} width={14} height={14} />
+            <Text fontSize={14}>{filterByNetworkName}</Text>
           </View>
         ) : (
           <Text fontSize={14}>{t('All Networks')}</Text>
         )}
-        <DownArrowIcon color={theme.primaryText} width={12} height={6.5} />
+        <DownArrowIcon style={spacings.plTy} color={theme.primaryText} width={14} height={6.5} />
       </AnimatedPressable>
     </View>
   )
