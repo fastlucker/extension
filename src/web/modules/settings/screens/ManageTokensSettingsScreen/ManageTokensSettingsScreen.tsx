@@ -1,57 +1,61 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, View } from 'react-native'
 
-import AddIcon from '@common/assets/svg/AddIcon'
-import NetworksIcon from '@common/assets/svg/NetworksIcon'
-import Badge from '@common/components/Badge'
-import Button from '@common/components/Button'
-import Checkbox from '@common/components/Checkbox'
-import Dropdown from '@common/components/Dropdown'
-import NetworkIcon from '@common/components/NetworkIcon'
-import Search from '@common/components/Search'
-import Select from '@common/components/Select'
+import { TokenResult } from '@ambire-common/libs/portfolio'
+import { TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
-import TokenIcon from '@common/components/TokenIcon'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import { tokenSearch } from '@common/utils/search'
 import { networkSort } from '@common/utils/sorting'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import { getTokenId } from '@web/utils/token'
 
-import getStyles from './styles'
-
-const ALL_NETWORKS_OPTION = {
-  value: 'all',
-  label: <Text weight="medium">All Networks</Text>,
-  icon: (
-    <View style={spacings.phMi}>
-      <NetworksIcon width={24} height={24} />
-    </View>
-  )
-}
+import Filters from './Filters'
+import Header from './Header'
+import Token from './Token'
+import TokenListHeader from './TokenListHeader'
 
 const ManageTokensSettingsScreen = () => {
-  // TODO: Componentize
+  const debouncedPortfolioUpdateInterval = useRef<NodeJS.Timeout | null>(null)
   const { t } = useTranslation()
+  const { dispatch } = useBackgroundService()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { control, watch } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const { networks } = useNetworksControllerState()
-  const { theme } = useTheme(getStyles)
+  const { tokenPreferences } = usePortfolioControllerState()
   const {
     portfolio: { isAllReady, tokens }
   } = useSelectedAccountControllerState()
   const [displayAllTokens, setDisplayAllTokens] = useState(false)
   const [networkFilter, setNetworkFilter] = useState('all')
   const search = watch('search')
+  // Instead of waiting for the portfolio to update remove the token immediately
+  // @TODO: Reset on add custom token
+  const [optimisticRemovedTokens, setOptimisticRemovedTokens] = useState<
+    Pick<TokenResult, 'address' | 'networkId'>[]
+  >([])
+  // Prevent list reordering and tokens being removed while the user
+  // is changing the visibility of tokens
+  const [initialTokenPreferences, setInitialTokenPreferences] = useState<TokenPreference[] | null>(
+    null
+  )
+
+  useEffect(() => {
+    // Filter and sort using the initial lists to avoid re-ordering
+    // the list changes
+    if (!initialTokenPreferences) {
+      setInitialTokenPreferences(tokenPreferences)
+    }
+  }, [initialTokenPreferences, tokenPreferences])
 
   useEffect(() => {
     setCurrentSettingsPage('manage-tokens')
@@ -59,20 +63,34 @@ const ManageTokensSettingsScreen = () => {
 
   const customOrHiddenTokens = useMemo(() => {
     return tokens
-      .filter(({ flags, networkId }) => {
+      .filter(({ flags, networkId, address }) => {
+        if (flags.onGasTank || !!flags.rewardsType) return false
         if (networkFilter !== 'all' && networkId !== networkFilter) return false
         if (displayAllTokens) return true
 
-        return flags.isCustom || flags.isHidden
+        const isRemoved = optimisticRemovedTokens.some(
+          ({ address: addr, networkId: nId }) => addr === address && nId === networkId
+        )
+        if (isRemoved) return false
+
+        const initialIsHidden = initialTokenPreferences?.find(
+          ({ address: addr, networkId: nId }) => addr === address && nId === networkId
+        )?.isHidden
+
+        return flags.isCustom || !!initialIsHidden
       })
       .filter((token) => tokenSearch({ search, token, networks }))
       .sort((a, b) => {
         // Sort by hidden, then custom, then network
-        const aIsHidden = a.flags.isHidden
-        const bIsHidden = b.flags.isHidden
+        const aInitialIsHidden = initialTokenPreferences?.find(
+          ({ address: addr, networkId: nId }) => addr === a.address && nId === a.networkId
+        )?.isHidden
+        const bInitialIsHidden = initialTokenPreferences?.find(
+          ({ address: addr, networkId: nId }) => addr === b.address && nId === b.networkId
+        )?.isHidden
 
-        if (!aIsHidden && bIsHidden) return -1
-        if (aIsHidden && !bIsHidden) return 1
+        if (!aInitialIsHidden && bInitialIsHidden) return -1
+        if (aInitialIsHidden && !bInitialIsHidden) return 1
 
         const isACustom = a.flags.isCustom
         const isBCustom = b.flags.isCustom
@@ -87,19 +105,15 @@ const ManageTokensSettingsScreen = () => {
 
         return networkSort(aNetwork, bNetwork, networks)
       })
-  }, [displayAllTokens, networkFilter, networks, search, tokens])
-
-  const networksOptions: SelectValue[] = useMemo(
-    () => [
-      ALL_NETWORKS_OPTION,
-      ...networks.map((n) => ({
-        value: n.id,
-        label: <Text weight="medium">{n.name}</Text>,
-        icon: <NetworkIcon key={n.id} id={n.id} />
-      }))
-    ],
-    [networks]
-  )
+  }, [
+    displayAllTokens,
+    initialTokenPreferences,
+    networkFilter,
+    networks,
+    optimisticRemovedTokens,
+    search,
+    tokens
+  ])
 
   const setNetworkFilterValue = useCallback(({ value }: SelectValue) => {
     if (typeof value !== 'string') return
@@ -107,158 +121,84 @@ const ManageTokensSettingsScreen = () => {
     setNetworkFilter(value)
   }, [])
 
+  const onTokenPreferenceOrCustomTokenChange = useCallback(() => {
+    if (debouncedPortfolioUpdateInterval.current) {
+      clearTimeout(debouncedPortfolioUpdateInterval.current)
+    }
+
+    debouncedPortfolioUpdateInterval.current = setTimeout(() => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
+        params: {
+          // Update the portfolio for all networks as the user may hide multiple tokens
+          // from different networks
+          forceUpdate: true
+        }
+      })
+      debouncedPortfolioUpdateInterval.current = null
+    }, 1000)
+  }, [dispatch])
+
+  const onTokenRemove = useCallback(
+    ({ address, networkId }: Pick<TokenResult, 'address' | 'networkId'>) => {
+      setOptimisticRemovedTokens((prev) => [...prev, { address, networkId }])
+    },
+    []
+  )
+
+  const emptyText = useMemo(() => {
+    const prefix = displayAllTokens ? '' : 'custom or hidden '
+
+    if (search && networkFilter) {
+      return t(`No ${prefix}tokens found for these filters`)
+    }
+
+    if (!search && !networkFilter) {
+      return t(`You don't have any ${prefix}tokens`)
+    }
+
+    if (search && !networkFilter) {
+      return t(`No ${prefix}tokens found`)
+    }
+
+    if (!search && networkFilter) {
+      return t(`No ${prefix}tokens found on this network`)
+    }
+
+    return t(`No ${prefix}tokens found`)
+  }, [displayAllTokens, networkFilter, search, t])
+
   return (
     <View style={flexbox.flex1}>
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.justifySpaceBetween,
-          flexbox.alignCenter,
-          spacings.mbXl
-        ]}
-      >
-        <View style={{ maxWidth: 512 }}>
-          <Text appearance="primaryText" fontSize={20} style={spacings.mbMi} weight="medium">
-            {t('Manage Tokens')}
-          </Text>
-          <Text appearance="secondaryText">
-            {t(
-              'Manage your custom and hidden tokens. These settings will be applied across all accounts.'
-            )}
-          </Text>
-        </View>
-        <Button
-          childrenPosition="left"
-          style={{ width: 220 }}
-          text={t('Add Custom Token')}
-          onPress={() => {}}
-        >
-          <AddIcon color={theme.primaryBackground} />
-        </Button>
-      </View>
-      <View
-        style={[flexbox.directionRow, flexbox.alignEnd, flexbox.justifySpaceBetween, spacings.mbMd]}
-      >
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Search
-            containerStyle={{
-              minWidth: 280,
-              ...spacings.mrTy
-            }}
-            placeholder={t('Search tokens')}
-            control={control}
-            height={50}
-          />
-          <Select
-            options={networksOptions}
-            value={
-              networkFilter
-                ? networksOptions.filter((opt) => opt.value === networkFilter)[0]
-                : ALL_NETWORKS_OPTION
-            }
-            setValue={setNetworkFilterValue}
-            containerStyle={{ width: 260, marginBottom: 0, ...spacings.mrTy }}
-          />
-        </View>
-        <Checkbox
-          label={t('Display selected account tokens')}
-          value={displayAllTokens}
-          onValueChange={setDisplayAllTokens}
-          labelProps={{ style: { color: theme.secondaryText } }}
-          style={[
-            flexbox.alignSelfEnd,
-            spacings.phTy,
-            spacings.pvTy,
-            spacings.mb0,
-            common.borderRadiusPrimary,
-            {
-              width: 'fit-content',
-              backgroundColor: theme.secondaryBackground,
-              marginBottom: 2
-            }
-          ]}
-        />
-      </View>
-      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pvMi]}>
-        <View style={{ flex: 1.25, ...spacings.plSm }}>
-          <Text appearance="secondaryText" fontSize={14}>
-            Token
-          </Text>
-        </View>
-        <View style={{ flex: 1.75 }}>
-          <Text appearance="secondaryText" fontSize={14}>
-            Network
-          </Text>
-        </View>
-        <View style={{ flex: 0.4, ...spacings.prSm }}>
-          <Text appearance="secondaryText" fontSize={14}>
-            Visibility
-          </Text>
-        </View>
-      </View>
+      <Header />
+      <Filters
+        control={control}
+        networkFilter={networkFilter}
+        setNetworkFilterValue={setNetworkFilterValue}
+        displayAllTokens={displayAllTokens}
+        setDisplayAllTokens={setDisplayAllTokens}
+      />
+      <TokenListHeader />
       <ScrollView style={flexbox.flex1}>
-        {isAllReady && !tokens.length && displayAllTokens && (
-          <Text>{t("You don't have any tokens")}</Text>
-        )}
-        {isAllReady && !tokens.length && !displayAllTokens && (
-          <View>
-            <Text>{t("You don't have any custom or hidden tokens")}</Text>
-          </View>
+        {isAllReady && !customOrHiddenTokens.length && (
+          <Text
+            appearance="secondaryText"
+            fontSize={16}
+            style={[spacings.mt2Xl, text.center]}
+            weight="medium"
+          >
+            {emptyText}
+          </Text>
         )}
         {isAllReady &&
-          tokens.length &&
+          !!customOrHiddenTokens.length &&
           customOrHiddenTokens.map((token) => (
-            <View
+            <Token
               key={getTokenId(token)}
-              style={[
-                flexbox.directionRow,
-                flexbox.alignCenter,
-                common.borderRadiusPrimary,
-                flexbox.flex1,
-                spacings.mbTy,
-                spacings.pvTy,
-                {
-                  backgroundColor: theme.secondaryBackground
-                }
-              ]}
-            >
-              <View
-                style={[{ flex: 1.25 }, flexbox.directionRow, flexbox.alignCenter, spacings.plSm]}
-              >
-                <TokenIcon
-                  withContainer
-                  address={token.address}
-                  networkId={token.networkId}
-                  onGasTank={token.flags.onGasTank}
-                  containerHeight={40}
-                  containerWidth={40}
-                  width={28}
-                  height={28}
-                />
-                <Text weight="medium" selectable style={spacings.mrTy}>
-                  {token.symbol}
-                </Text>
-                {token.flags.isCustom && <Badge text="Custom" />}
-              </View>
-              <View style={[flexbox.directionRow, flexbox.alignCenter, { flex: 1.75 }]}>
-                <NetworkIcon id={token.networkId} style={spacings.mrTy} />
-                <Text>
-                  {networks.find(({ id }) => id === token.networkId)?.name || 'Unknown Network'}
-                </Text>
-              </View>
-              <View
-                style={[
-                  flexbox.directionRow,
-                  flexbox.alignCenter,
-                  flexbox.justifySpaceBetween,
-                  spacings.prSm,
-                  { flex: 0.4 }
-                ]}
-              >
-                <Toggle isOn={!token.flags.isHidden} onToggle={() => {}} />
-                <Dropdown data={[]} onSelect={() => {}} />
-              </View>
-            </View>
+              onTokenPreferenceOrCustomTokenChange={onTokenPreferenceOrCustomTokenChange}
+              onTokenRemove={onTokenRemove}
+              {...token}
+            />
           ))}
         {!isAllReady && (
           // TODO: Skeleton
