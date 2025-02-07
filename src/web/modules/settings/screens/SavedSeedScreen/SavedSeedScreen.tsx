@@ -1,7 +1,7 @@
 import { setStringAsync } from 'expo-clipboard'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -16,7 +16,8 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { delayPromise } from '@common/utils/promises'
 import eventBus from '@web/extension-services/event/eventBus'
@@ -34,6 +35,7 @@ const SavedSeedScreen = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const keystoreState = useKeystoreControllerState()
   const [seed, setSeed] = useState<string | null>(null)
+  const [seedPassphrase, setSeedPassphrase] = useState<string | null>(null)
   const [blurred, setBlurred] = useState<boolean>(true)
   const { ref: sheetRef, open, close } = useModalize()
   const { navigate } = useNavigation()
@@ -54,6 +56,7 @@ const SavedSeedScreen = () => {
       if (!data.seed) return
 
       setSeed(data.seed)
+      setSeedPassphrase(data.seedPassphrase || null)
     }
 
     eventBus.addEventListener('receiveOneTimeData', onReceiveOneTimeData)
@@ -65,15 +68,25 @@ const SavedSeedScreen = () => {
     setBlurred((prev) => !prev)
   }, [])
 
-  const handleCopyText = useCallback(async () => {
+  const handleCopySeed = useCallback(async () => {
     if (!seed) return
     try {
       await setStringAsync(seed)
     } catch {
-      addToast('Error copying to clipboard', { type: 'error' })
+      addToast(t('Error copying to clipboard'), { type: 'error' })
     }
-    addToast('Copied to clipboard!')
-  }, [addToast, seed])
+    addToast(t('Seed copied to clipboard!'))
+  }, [addToast, seed, t])
+
+  const handleCopySeedPassphrase = useCallback(async () => {
+    if (!seedPassphrase) return
+    try {
+      await setStringAsync(seedPassphrase)
+    } catch {
+      addToast(t('Error copying to clipboard'), { type: 'error' })
+    }
+    addToast(t('Passphrase copied to clipboard!'))
+  }, [addToast, seedPassphrase, t])
 
   useEffect(() => {
     if (keystoreState.statuses.deleteSavedSeed === 'SUCCESS') {
@@ -109,7 +122,7 @@ const SavedSeedScreen = () => {
       {!passwordConfirmed && (
         <PasswordConfirmation
           onPasswordConfirmed={onPasswordConfirmed}
-          text="Please enter your device password to view your seed"
+          text={t('Please enter your device password to view your seed')}
         />
       )}
       {passwordConfirmed && (
@@ -121,7 +134,7 @@ const SavedSeedScreen = () => {
               spacings.mbLg
             ]}
           >
-            <SettingsPageHeader title="Saved seed phrase" />
+            <SettingsPageHeader title={t('Saved seed phrase')} />
             <View
               style={[
                 blurred ? styles.blurred : styles.notBlurred,
@@ -133,32 +146,62 @@ const SavedSeedScreen = () => {
               <Text fontSize={14} color={theme.secondaryText}>
                 {seed}
               </Text>
+              {!!seedPassphrase && (
+                <View style={spacings.ptSm}>
+                  <Text fontSize={14} color={theme.secondaryText}>
+                    {t('Passphrase: ')}
+                    <Text fontSize={14} color={theme.secondaryText} weight="medium">
+                      {seedPassphrase}
+                    </Text>
+                  </Text>
+                </View>
+              )}
             </View>
-            <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter, spacings.mtSm]}>
-              <Pressable
-                onPress={handleCopyText}
-                style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}
+            <View
+              style={[
+                flexbox.flex1,
+                flexbox.directionRow,
+                flexbox.justifySpaceBetween,
+                spacings.mtTy,
+                { marginHorizontal: -SPACING_SM }
+              ]}
+            >
+              <Button
+                onPress={handleCopySeed}
+                hasBottomSpacing={false}
+                type="ghost"
+                size="small"
+                text={t('Copy seed')}
               >
-                <Text fontSize={14} color={theme.secondaryText}>
-                  {t('Copy your seed')}
-                </Text>
-                <CopyIcon color={theme.secondaryText} style={spacings.mlTy} />
-              </Pressable>
-              <Pressable
+                <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
+              </Button>
+              {!!seedPassphrase && (
+                <Button
+                  onPress={handleCopySeedPassphrase}
+                  hasBottomSpacing={false}
+                  type="ghost"
+                  size="small"
+                  text={t('Copy passphrase')}
+                >
+                  <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
+                </Button>
+              )}
+              <Button
                 onPress={toggleKeyVisibility}
-                style={[flexbox.flex1, flexbox.directionRowReverse, flexbox.alignCenter]}
+                hasBottomSpacing={false}
+                type="ghost"
+                size="small"
+                style={{ minWidth: 137 }}
+                text={blurred ? t('Reveal seed') : t('Hide seed')}
               >
                 {blurred ? (
-                  <VisibilityIcon color={theme.secondaryText} style={spacings.mlTy} />
+                  <VisibilityIcon color={iconColors.primary} style={spacings.mlTy} width={18} />
                 ) : (
-                  <InvisibilityIcon color={theme.secondaryText} style={spacings.mlTy} />
+                  <InvisibilityIcon color={iconColors.primary} style={spacings.mlTy} width={18} />
                 )}
-                <Text fontSize={14} color={theme.secondaryText}>
-                  {blurred ? t('Reveal seed') : t('Hide seed')}
-                </Text>
-              </Pressable>
+              </Button>
             </View>
-            <View style={spacings.mtXl}>
+            <View style={spacings.mtLg}>
               <Alert
                 size="sm"
                 type="warning"
@@ -209,7 +252,7 @@ const SavedSeedScreen = () => {
             <Button
               type="danger"
               style={spacings.mtTy}
-              text={isDeleting ? 'Deleting...' : 'Delete'}
+              text={isDeleting ? t('Deleting...') : t('Delete')}
               disabled={!deleteSeedIsConfirmed || isDeleting}
               onPress={deleteSavedSeed}
             />
