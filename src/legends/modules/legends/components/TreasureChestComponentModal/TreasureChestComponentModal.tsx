@@ -137,8 +137,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       const transactionFound = await checkTransactionStatus(
         connectedAccount,
         'dailyReward',
-        setStateOnTxnConfirmed,
-        addToast
+        setStateOnTxnConfirmed
       )
       if (!transactionFound) {
         const checkStatusWithTimeout = async (attempts: number) => {
@@ -154,8 +153,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           const found = await checkTransactionStatus(
             connectedAccount,
             'dailyReward',
-            setChestToUnlocked,
-            addToast
+            setStateOnTxnConfirmed
           )
 
           if (!found) {

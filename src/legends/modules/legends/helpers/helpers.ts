@@ -1,4 +1,3 @@
-import { ToastOptions } from '@common/contexts/toastContext'
 import { RELAYER_URL } from '@env'
 import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
 
@@ -6,7 +5,6 @@ const checkTransactionStatus = async (
   connectedAccount: string | null,
   txAction: string,
   setState: (receivedXp?: number) => void,
-  addToast: (message: string, options?: ToastOptions) => void
 ) => {
   try {
     const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
@@ -33,7 +31,7 @@ const checkTransactionStatus = async (
     })
 
     if (!dailyRewardActivity) return false
-
+    console.log('dailyRewardActivity', dailyRewardActivity)
     setState && setState(dailyRewardActivity.xp)
     return true
   } catch (error) {
