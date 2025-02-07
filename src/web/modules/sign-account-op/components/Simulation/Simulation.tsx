@@ -44,11 +44,9 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     if (signAccountOpState?.accountOp && network) {
       const pendingData = pending[network.id]
 
-      if (!pendingData || !pendingData.isReady || !pendingData.result) {
-        return []
-      }
+      if (!pendingData || !pendingData.isReady || !pendingData.result) return []
 
-      return tokens.filter((token) => token.simulationAmount !== undefined)
+      return tokens.filter((token) => token.networkId === network.id && !!token.simulationAmount)
     }
     return []
   }, [network, pending, signAccountOpState?.accountOp, tokens])
