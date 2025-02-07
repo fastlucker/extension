@@ -19,8 +19,8 @@ type Props = {
   control: any
   networkFilter: string
   setNetworkFilterValue: (value: SelectValue) => void
-  displayAllTokens: boolean
-  handleUpdateDisplayAllTokens: (value: boolean) => void
+  displaySelectedAccountTokens: boolean
+  handleUpdateDisplaySelectedAccountTokens: (value: boolean) => void
 }
 
 const ALL_NETWORKS_OPTION = {
@@ -37,8 +37,8 @@ const Filters: FC<Props> = ({
   control,
   networkFilter,
   setNetworkFilterValue,
-  displayAllTokens,
-  handleUpdateDisplayAllTokens
+  displaySelectedAccountTokens,
+  handleUpdateDisplaySelectedAccountTokens
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -83,8 +83,8 @@ const Filters: FC<Props> = ({
       </View>
       <Checkbox
         label={t('Display selected account tokens')}
-        value={displayAllTokens}
-        onValueChange={handleUpdateDisplayAllTokens}
+        value={displaySelectedAccountTokens}
+        onValueChange={handleUpdateDisplaySelectedAccountTokens}
         labelProps={{ style: { color: theme.secondaryText } }}
         style={[
           flexbox.alignSelfEnd,

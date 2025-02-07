@@ -43,7 +43,7 @@ const ManageTokensSettingsScreen = () => {
   const {
     portfolio: { isAllReady, tokens }
   } = useSelectedAccountControllerState()
-  const [displayAllTokens, setDisplayAllTokens] = useState(false)
+  const [displaySelectedAccountTokens, setDisplaySelectedAccountTokens] = useState(false)
   const [networkFilter, setNetworkFilter] = useState('all')
   const search = watch('search')
   // Instead of waiting for the portfolio to update remove the token immediately
@@ -69,51 +69,53 @@ const ManageTokensSettingsScreen = () => {
   }, [setCurrentSettingsPage])
 
   const customOrHiddenTokens = useMemo(() => {
-    return tokens
-      .filter(({ flags, networkId, address }) => {
-        if (flags.onGasTank || !!flags.rewardsType) return false
-        if (networkFilter !== 'all' && networkId !== networkFilter) return false
-        if (displayAllTokens) return true
+    return (
+      tokens
+        .filter(({ flags, networkId, address, amount }) => {
+          if (flags.onGasTank || !!flags.rewardsType) return false
+          if (networkFilter !== 'all' && networkId !== networkFilter) return false
 
-        const isRemoved = optimisticRemovedTokens.some(
-          ({ address: addr, networkId: nId }) => addr === address && nId === networkId
-        )
-        if (isRemoved) return false
+          const isRemoved = optimisticRemovedTokens.some(
+            ({ address: addr, networkId: nId }) => addr === address && nId === networkId
+          )
+          if (isRemoved) return false
 
-        const initialIsHidden = initialTokenPreferences?.find(
-          ({ address: addr, networkId: nId }) => addr === address && nId === networkId
-        )?.isHidden
+          const initialIsHidden = initialTokenPreferences?.find(
+            ({ address: addr, networkId: nId }) => addr === address && nId === networkId
+          )?.isHidden
 
-        return flags.isCustom || !!initialIsHidden
-      })
-      .filter((token) => tokenSearch({ search, token, networks }))
-      .sort((a, b) => {
+          return flags.isCustom || !!initialIsHidden || (displaySelectedAccountTokens && amount)
+        })
+        // Filter by search
+        .filter((token) => tokenSearch({ search, token, networks }))
         // Sort by hidden, then custom, then network
-        const aInitialIsHidden = initialTokenPreferences?.find(
-          ({ address: addr, networkId: nId }) => addr === a.address && nId === a.networkId
-        )?.isHidden
-        const bInitialIsHidden = initialTokenPreferences?.find(
-          ({ address: addr, networkId: nId }) => addr === b.address && nId === b.networkId
-        )?.isHidden
+        .sort((a, b) => {
+          const aInitialIsHidden = initialTokenPreferences?.find(
+            ({ address: addr, networkId: nId }) => addr === a.address && nId === a.networkId
+          )?.isHidden
+          const bInitialIsHidden = initialTokenPreferences?.find(
+            ({ address: addr, networkId: nId }) => addr === b.address && nId === b.networkId
+          )?.isHidden
 
-        if (!aInitialIsHidden && bInitialIsHidden) return -1
-        if (aInitialIsHidden && !bInitialIsHidden) return 1
+          if (!aInitialIsHidden && bInitialIsHidden) return -1
+          if (aInitialIsHidden && !bInitialIsHidden) return 1
 
-        const isACustom = a.flags.isCustom
-        const isBCustom = b.flags.isCustom
+          const isACustom = a.flags.isCustom
+          const isBCustom = b.flags.isCustom
 
-        if (isACustom && !isBCustom) return -1
-        if (!isACustom && isBCustom) return 1
+          if (isACustom && !isBCustom) return -1
+          if (!isACustom && isBCustom) return 1
 
-        const aNetwork = networks.find(({ id }) => id === a.networkId)
-        const bNetwork = networks.find(({ id }) => id === b.networkId)
+          const aNetwork = networks.find(({ id }) => id === a.networkId)
+          const bNetwork = networks.find(({ id }) => id === b.networkId)
 
-        if (!aNetwork || !bNetwork) return 0
+          if (!aNetwork || !bNetwork) return 0
 
-        return networkSort(aNetwork, bNetwork, networks)
-      })
+          return networkSort(aNetwork, bNetwork, networks)
+        })
+    )
   }, [
-    displayAllTokens,
+    displaySelectedAccountTokens,
     initialTokenPreferences,
     networkFilter,
     networks,
@@ -159,7 +161,7 @@ const ManageTokensSettingsScreen = () => {
   )
 
   const emptyText = useMemo(() => {
-    const prefix = displayAllTokens ? '' : 'custom or hidden '
+    const prefix = displaySelectedAccountTokens ? '' : 'custom or hidden '
     const hasNetworkFilter = networkFilter !== 'all'
 
     if (search && hasNetworkFilter) {
@@ -179,16 +181,16 @@ const ManageTokensSettingsScreen = () => {
     }
 
     return t(`No ${prefix}tokens found`)
-  }, [displayAllTokens, networkFilter, search, t])
+  }, [displaySelectedAccountTokens, networkFilter, search, t])
 
   const handleCloseAddTokenBottomSheet = useCallback(() => {
     setOptimisticRemovedTokens([])
     closeAddTokenBottomSheet()
   }, [closeAddTokenBottomSheet])
 
-  const handleUpdateDisplayAllTokens = useCallback(
+  const handleUpdateDisplaySelectedAccountTokens = useCallback(
     (value: boolean) => {
-      setDisplayAllTokens(value)
+      setDisplaySelectedAccountTokens(value)
       // The user may have hidden tokens and then decided to display
       // only custom and hidden tokens. In this case, we need to update
       // the initial token preferences
@@ -208,8 +210,8 @@ const ManageTokensSettingsScreen = () => {
         control={control}
         networkFilter={networkFilter}
         setNetworkFilterValue={setNetworkFilterValue}
-        displayAllTokens={displayAllTokens}
-        handleUpdateDisplayAllTokens={handleUpdateDisplayAllTokens}
+        displaySelectedAccountTokens={displaySelectedAccountTokens}
+        handleUpdateDisplaySelectedAccountTokens={handleUpdateDisplaySelectedAccountTokens}
       />
       <TokenListHeader />
       <ScrollView style={flexbox.flex1}>
