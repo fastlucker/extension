@@ -80,12 +80,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
   >(isCompleted ? 'opened' : 'locked')
 
-  const setChestToUnlocked = useCallback(() => {
-    unlockChainAnimation()
-    setChestState('unlocked')
-  }, [unlockChainAnimation])
-
-  const getButtonLabel = () => {
+  const buttonLabel = useMemo(() => {
     switch (chestState) {
       case 'unlocking':
         return 'Unlocking...'
@@ -100,14 +95,18 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       default:
         return 'Unlock chest'
     }
-  }
+  }, [chestState])
 
   const action = useMemo(() => treasureLegend?.action as CardActionCalls, [treasureLegend])
 
-  const setStateOnTxnConfirmed = useCallback((receivedXp?: number) => {
-    receivedXp && setPrizeNumber(receivedXp)    
-    setChestToUnlocked()
-  }, [unlockChainAnimation])
+  const setStateOnTxnConfirmed = useCallback(
+    async (receivedXp?: number) => {
+      receivedXp && setPrizeNumber(receivedXp)
+      unlockChainAnimation()
+      setChestState('unlocked')
+    },
+    [unlockChainAnimation]
+  )
 
   const unlockChest = useCallback(async () => {
     setChestState('unlocking')
@@ -174,13 +173,12 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     switchNetwork,
     stopChainAnimation,
     connectedAccount,
-    getLegends,
     action?.calls,
     sendCalls,
     chainId,
     getCallsStatus,
     addToast,
-    setChestToUnlocked
+    setStateOnTxnConfirmed
   ])
 
   const openChest = async () => {
@@ -276,7 +274,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             }
             onClick={onButtonClick}
           >
-            {getButtonLabel()}
+            {buttonLabel}
           </button>
         </div>
       </div>

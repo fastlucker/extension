@@ -1,19 +1,16 @@
-import { RELAYER_URL } from '@env'
-import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
+import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
+import { ActivityTransaction, LegendActivity } from '@legends/contexts/activityContext/types'
 
 const checkTransactionStatus = async (
   connectedAccount: string | null,
   txAction: string,
-  setState: (receivedXp?: number) => void,
+  setState: (receivedXp?: number) => void
 ) => {
   try {
-    const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
+    const response = await getRecentActivity(connectedAccount!)
 
-    if (!response.ok) throw new Error('Failed to fetch transaction status')
-
-    const data = await response.json()
     const today = new Date().toISOString().split('T')[0]
-    const transaction: ActivityTransaction | undefined = data.transactions.find(
+    const transaction: ActivityTransaction | undefined = response?.transactions.find(
       (txn: ActivityTransaction) =>
         txn.submittedAt.startsWith(today) &&
         txn.legends.activities &&
@@ -31,7 +28,6 @@ const checkTransactionStatus = async (
     })
 
     if (!dailyRewardActivity) return false
-    console.log('dailyRewardActivity', dailyRewardActivity)
     setState && setState(dailyRewardActivity.xp)
     return true
   } catch (error) {
