@@ -287,7 +287,9 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
           hasBottomSpacing={false}
           textStyle={{ ...spacings.prSm }}
           onPress={() =>
-            isSA ? navigate('top-up-gas-tank') : navigate('account-select?addAccount=true')
+            isSA
+              ? navigate('top-up-gas-tank')
+              : navigate('account-select?triggerAddAccountBottomSheet=true')
           }
         >
           {isSA && <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />}
