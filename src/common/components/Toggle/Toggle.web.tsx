@@ -7,7 +7,6 @@ import Text, { Props as TextProps } from '@common/components/Text'
 import { ToggleProps } from './types'
 
 interface Props extends ToggleProps {
-  style?: React.CSSProperties
   labelProps?: TextProps
   toggleStyle?: React.CSSProperties
 }
