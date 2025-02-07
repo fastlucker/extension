@@ -1,6 +1,6 @@
 import { formatUnits, getAddress, isAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 import { useSearchParams } from 'react-router-dom'
 
@@ -16,6 +16,7 @@ import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
+import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
@@ -24,10 +25,9 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
-import useGetTokenSelectProps from '@web/modules/swap-and-bridge/hooks/useGetTokenSelectProps'
 import { getTokenId } from '@web/utils/token'
 
-const sessionId = nanoid()
+type SessionId = ReturnType<typeof nanoid>
 
 const useSwapAndBridgeForm = () => {
   const {
@@ -62,12 +62,14 @@ const useSwapAndBridgeForm = () => {
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
   const [searchParams, setSearchParams] = useSearchParams()
+  const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
+  const sessionId = useMemo(() => nanoid(), []) // purposely, so it is unique per hook lifetime
 
   useEffect(() => {
     if (
       searchParams.get('address') &&
       searchParams.get('networkId') &&
-      !!portfolio?.isAllReady &&
+      !!portfolio?.isReadyToVisualize &&
       (sessionIds || []).includes(sessionId)
     ) {
       const tokenToSelectOnInit = portfolio.tokens.find(
@@ -90,18 +92,28 @@ const useSwapAndBridgeForm = () => {
         })
       }
     }
-  }, [dispatch, setSearchParams, portfolio?.isAllReady, portfolio.tokens, searchParams, sessionIds])
+  }, [
+    dispatch,
+    setSearchParams,
+    portfolio?.isReadyToVisualize,
+    portfolio.tokens,
+    searchParams,
+    sessionIds,
+    sessionId
+  ])
 
   // init session
   useEffect(() => {
+    // Init each session only once
+    if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
+
     dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    sessionIdsRequestedToBeInit.current.push(sessionId)
     setSearchParams((prev) => {
       prev.set('sessionId', sessionId)
       return prev
     })
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [dispatch, sessionId, sessionIdsRequestedToBeInit, setSearchParams])
 
   // remove session - this will be triggered only
   // when navigation to another screen internally in the extension
@@ -111,7 +123,7 @@ const useSwapAndBridgeForm = () => {
     return () => {
       dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
     }
-  }, [dispatch])
+  }, [dispatch, sessionId])
 
   useEffect(() => {
     if (
@@ -355,8 +367,8 @@ const useSwapAndBridgeForm = () => {
       if (bigintFromAmount !== BigInt(quote.selectedRoute.fromAmount)) return null
 
       const difference = Math.abs(inputValueInUsd - quote.selectedRoute.outputValueInUsd)
-      const average = (inputValueInUsd + quote.selectedRoute.outputValueInUsd) / 2
-      const percentageDiff = (difference / average) * 100
+
+      const percentageDiff = (difference / inputValueInUsd) * 100
 
       // show the warning banner only if the percentage diff is higher than 5%
       return percentageDiff < 5 ? null : percentageDiff
