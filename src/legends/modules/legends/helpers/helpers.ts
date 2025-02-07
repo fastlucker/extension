@@ -5,8 +5,7 @@ import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentAct
 const checkTransactionStatus = async (
   connectedAccount: string | null,
   txAction: string,
-  getLegends: () => Promise<void>,
-  setState: () => void,
+  setState: (receivedXp?: number) => void,
   addToast: (message: string, options?: ToastOptions) => void
 ) => {
   try {
@@ -35,11 +34,7 @@ const checkTransactionStatus = async (
 
     if (!dailyRewardActivity) return false
 
-    await getLegends()
-    setState && setState()
-    addToast(`You received ${dailyRewardActivity.xp}xp!`, {
-      type: 'success'
-    })
+    setState && setState(dailyRewardActivity.xp)
     return true
   } catch (error) {
     console.error('Error fetching transaction status:', error)

@@ -39,6 +39,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
+  const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
 
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const chainRef = React.useRef<HTMLImageElement>(null)
@@ -103,6 +104,11 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const action = useMemo(() => treasureLegend?.action as CardActionCalls, [treasureLegend])
 
+  const setStateOnTxnConfirmed = useCallback((receivedXp?: number) => {
+    receivedXp && setPrizeNumber(receivedXp)    
+    setChestToUnlocked()
+  }, [unlockChainAnimation])
+
   const unlockChest = useCallback(async () => {
     setChestState('unlocking')
     await switchNetwork()
@@ -131,8 +137,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       const transactionFound = await checkTransactionStatus(
         connectedAccount,
         'dailyReward',
-        getLegends,
-        setChestToUnlocked,
+        setStateOnTxnConfirmed,
         addToast
       )
       if (!transactionFound) {
@@ -149,7 +154,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           const found = await checkTransactionStatus(
             connectedAccount,
             'dailyReward',
-            getLegends,
             setChestToUnlocked,
             addToast
           )
@@ -190,6 +194,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     if (chestState === 'locked') {
       await unlockChest()
     } else if (chestState === 'unlocked') {
+      await getLegends()
       await openChest()
     } else if (chestState === 'opened' || chestState === 'error') {
       await closeModal()
@@ -281,7 +286,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       <CongratsModal
         isOpen={isCongratsModalOpen}
         setIsOpen={setCongratsModalOpen}
-        treasureLegend={treasureLegend}
+        prizeNumber={prizeNumber}
         onButtonClick={onCongratsModalButtonClick}
       />
     </div>,
