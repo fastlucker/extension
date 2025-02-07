@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { TokenPreference } from '@ambire-common/libs/portfolio/customToken'
@@ -19,6 +20,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import { getTokenId } from '@web/utils/token'
 
+import AddTokenBottomSheet from './AddTokenBottomSheet'
 import Filters from './Filters'
 import Header from './Header'
 import Token from './Token'
@@ -26,6 +28,11 @@ import TokenListHeader from './TokenListHeader'
 
 const ManageTokensSettingsScreen = () => {
   const debouncedPortfolioUpdateInterval = useRef<NodeJS.Timeout | null>(null)
+  const {
+    ref: addTokenBottomSheetRef,
+    open: openAddTokenBottomSheet,
+    close: closeAddTokenBottomSheet
+  } = useModalize()
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
@@ -168,15 +175,35 @@ const ManageTokensSettingsScreen = () => {
     return t(`No ${prefix}tokens found`)
   }, [displayAllTokens, networkFilter, search, t])
 
+  const handleCloseAddTokenBottomSheet = useCallback(() => {
+    setOptimisticRemovedTokens([])
+    closeAddTokenBottomSheet()
+  }, [closeAddTokenBottomSheet])
+
+  const handleUpdateDisplayAllTokens = useCallback(
+    (value: boolean) => {
+      setDisplayAllTokens(value)
+      // The user may have hidden tokens and then decided to display
+      // only custom and hidden tokens. In this case, we need to update
+      // the initial token preferences
+      if (!value) setInitialTokenPreferences(tokenPreferences)
+    },
+    [tokenPreferences]
+  )
+
   return (
     <View style={flexbox.flex1}>
-      <Header />
+      <AddTokenBottomSheet
+        sheetRef={addTokenBottomSheetRef}
+        handleClose={handleCloseAddTokenBottomSheet}
+      />
+      <Header openAddTokenBottomSheet={openAddTokenBottomSheet} />
       <Filters
         control={control}
         networkFilter={networkFilter}
         setNetworkFilterValue={setNetworkFilterValue}
         displayAllTokens={displayAllTokens}
-        setDisplayAllTokens={setDisplayAllTokens}
+        handleUpdateDisplayAllTokens={handleUpdateDisplayAllTokens}
       />
       <TokenListHeader />
       <ScrollView style={flexbox.flex1}>

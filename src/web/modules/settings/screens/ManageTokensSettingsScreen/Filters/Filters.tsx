@@ -20,7 +20,7 @@ type Props = {
   networkFilter: string
   setNetworkFilterValue: (value: SelectValue) => void
   displayAllTokens: boolean
-  setDisplayAllTokens: React.Dispatch<React.SetStateAction<boolean>>
+  handleUpdateDisplayAllTokens: (value: boolean) => void
 }
 
 const ALL_NETWORKS_OPTION = {
@@ -38,7 +38,7 @@ const Filters: FC<Props> = ({
   networkFilter,
   setNetworkFilterValue,
   displayAllTokens,
-  setDisplayAllTokens
+  handleUpdateDisplayAllTokens
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -84,7 +84,7 @@ const Filters: FC<Props> = ({
       <Checkbox
         label={t('Display selected account tokens')}
         value={displayAllTokens}
-        onValueChange={setDisplayAllTokens}
+        onValueChange={handleUpdateDisplayAllTokens}
         labelProps={{ style: { color: theme.secondaryText } }}
         style={[
           flexbox.alignSelfEnd,

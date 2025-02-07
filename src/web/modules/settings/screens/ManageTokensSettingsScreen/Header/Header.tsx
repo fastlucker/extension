@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -9,7 +9,11 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-const Header = () => {
+type Props = {
+  openAddTokenBottomSheet: () => void
+}
+
+const Header: FC<Props> = ({ openAddTokenBottomSheet }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
@@ -36,7 +40,7 @@ const Header = () => {
         childrenPosition="left"
         style={{ width: 220 }}
         text={t('Add Custom Token')}
-        onPress={() => {}}
+        onPress={openAddTokenBottomSheet}
       >
         <AddIcon color={theme.primaryBackground} />
       </Button>
