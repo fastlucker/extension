@@ -329,7 +329,6 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
         }
         text={t('Add Token')}
         hasBottomSpacing={false}
-        // style={{  }}
         onPress={handleAddToken}
       />
     </BottomSheet>
