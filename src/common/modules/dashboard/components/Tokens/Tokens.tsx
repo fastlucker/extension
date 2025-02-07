@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import { FlatListProps, View } from 'react-native'
+import { FlatListProps, Pressable, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { Network } from '@ambire-common/interfaces/network'
 import { getTokenAmount, getTokenBalanceInUSD } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -56,7 +57,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
   const { navigate } = useNavigation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
-  const { customTokens } = usePortfolioControllerState()
+  const { customTokens, tokenPreferences } = usePortfolioControllerState()
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',
@@ -164,6 +165,11 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
     [tokens, networks, customTokens, userHasNoBalance, portfolio?.isAllReady]
   )
 
+  const hiddenTokensCount = useMemo(
+    () => tokenPreferences.filter((token) => token.isHidden).length,
+    [tokenPreferences]
+  )
+
   const navigateToAddCustomToken = useCallback(() => {
     navigate(WEB_ROUTES.manageTokens)
   }, [navigate])
@@ -226,12 +232,41 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
           // A trick to render the button once all tokens have been rendered. Otherwise
           // there will be layout shifts
           index === sortedTokens.length + 4 ? (
-          <Button
-            type="secondary"
-            text={t('+ Add Custom Token')}
-            onPress={navigateToAddCustomToken}
-            style={spacings.mtSm}
-          />
+          <View style={hiddenTokensCount ? spacings.ptTy : spacings.ptSm}>
+            {!!hiddenTokensCount && (
+              <Pressable
+                style={[
+                  flexbox.directionRow,
+                  flexbox.alignCenter,
+                  flexbox.justifySpaceBetween,
+                  spacings.pvMi,
+                  spacings.phTy,
+                  spacings.mhTy,
+                  spacings.mbLg,
+                  {
+                    borderRadius: 4,
+                    backgroundColor: theme.secondaryBackground
+                  }
+                ]}
+                onPress={() => {
+                  navigate(WEB_ROUTES.manageTokens)
+                }}
+              >
+                <Text appearance="secondaryText" fontSize={12}>
+                  {t('You have {{count}} hidden {{tokensLabel}}', {
+                    count: hiddenTokensCount,
+                    tokensLabel: hiddenTokensCount > 1 ? t('tokens') : t('token')
+                  })}
+                </Text>
+                <RightArrowIcon height={12} color={theme.secondaryText} />
+              </Pressable>
+            )}
+            <Button
+              type="secondary"
+              text={t('+ Add Custom Token')}
+              onPress={navigateToAddCustomToken}
+            />
+          </View>
         ) : null
       }
 
