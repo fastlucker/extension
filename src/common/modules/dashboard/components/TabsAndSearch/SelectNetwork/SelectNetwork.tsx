@@ -34,21 +34,21 @@ const SelectNetwork = () => {
   const filterByNetworkName = useMemo(() => {
     if (!dashboardNetworkFilter) return ''
 
-    if (dashboardNetworkFilter === 'rewards') return 'Ambire Rewards Portfolio'
-    if (dashboardNetworkFilter === 'gasTank') return 'Gas Tank Portfolio'
+    if (dashboardNetworkFilter === 'rewards') return t('Ambire Rewards Portfolio')
+    if (dashboardNetworkFilter === 'gasTank') return t('Gas Tank Portfolio')
 
     const network = networks.find((n) => n.id === dashboardNetworkFilter)
 
-    let networkName = network?.name || 'Unknown Network'
+    let networkName = network?.name || t('Unknown Network')
 
-    networkName = `${networkName} Portfolio`
+    networkName = `${networkName} ${t('Portfolio')}`
 
     if (networkName.length > 20 && isPopup) {
       networkName = `${networkName.slice(0, 20)}...`
     }
 
     return networkName
-  }, [dashboardNetworkFilter, networks])
+  }, [dashboardNetworkFilter, networks, t])
 
   return (
     <View style={[styles.container, flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
