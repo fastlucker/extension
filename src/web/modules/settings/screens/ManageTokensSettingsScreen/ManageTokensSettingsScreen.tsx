@@ -192,7 +192,7 @@ const ManageTokensSettingsScreen = () => {
       // The user may have hidden tokens and then decided to display
       // only custom and hidden tokens. In this case, we need to update
       // the initial token preferences
-      if (!value) setInitialTokenPreferences(tokenPreferences)
+      setInitialTokenPreferences(tokenPreferences)
     },
     [tokenPreferences]
   )
