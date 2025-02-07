@@ -225,7 +225,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
         return portfolio?.isAllReady &&
           // A trick to render the button once all tokens have been rendered. Otherwise
           // there will be layout shifts
-          index === sortedTokens.length + 3 ? (
+          index === sortedTokens.length + 4 ? (
           <Button
             type="secondary"
             text={t('+ Add Custom Token')}

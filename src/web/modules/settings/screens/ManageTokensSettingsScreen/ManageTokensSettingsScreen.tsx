@@ -156,20 +156,21 @@ const ManageTokensSettingsScreen = () => {
 
   const emptyText = useMemo(() => {
     const prefix = displayAllTokens ? '' : 'custom or hidden '
+    const hasNetworkFilter = networkFilter !== 'all'
 
-    if (search && networkFilter) {
+    if (search && hasNetworkFilter) {
       return t(`No ${prefix}tokens found for these filters`)
     }
 
-    if (!search && !networkFilter) {
+    if (!search && !hasNetworkFilter) {
       return t(`You don't have any ${prefix}tokens`)
     }
 
-    if (search && !networkFilter) {
+    if (search && !hasNetworkFilter) {
       return t(`No ${prefix}tokens found`)
     }
 
-    if (!search && networkFilter) {
+    if (!search && hasNetworkFilter) {
       return t(`No ${prefix}tokens found on this network`)
     }
 
