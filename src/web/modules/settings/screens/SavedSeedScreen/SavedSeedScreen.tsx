@@ -146,14 +146,16 @@ const SavedSeedScreen = () => {
               <Text fontSize={14} color={theme.secondaryText}>
                 {seed}
               </Text>
-              <View style={spacings.ptSm}>
-                <Text fontSize={14} color={theme.secondaryText}>
-                  {t('Passphrase: ')}
-                  <Text fontSize={14} color={theme.secondaryText} weight="medium">
-                    {seedPassphrase}
+              {!!seedPassphrase && (
+                <View style={spacings.ptSm}>
+                  <Text fontSize={14} color={theme.secondaryText}>
+                    {t('Passphrase: ')}
+                    <Text fontSize={14} color={theme.secondaryText} weight="medium">
+                      {seedPassphrase}
+                    </Text>
                   </Text>
-                </Text>
-              </View>
+                </View>
+              )}
             </View>
             <View
               style={[
@@ -173,15 +175,17 @@ const SavedSeedScreen = () => {
               >
                 <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
               </Button>
-              <Button
-                onPress={handleCopySeedPassphrase}
-                hasBottomSpacing={false}
-                type="ghost"
-                size="small"
-                text={t('Copy passphrase')}
-              >
-                <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
-              </Button>
+              {!!seedPassphrase && (
+                <Button
+                  onPress={handleCopySeedPassphrase}
+                  hasBottomSpacing={false}
+                  type="ghost"
+                  size="small"
+                  text={t('Copy passphrase')}
+                >
+                  <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
+                </Button>
+              )}
               <Button
                 onPress={toggleKeyVisibility}
                 hasBottomSpacing={false}
