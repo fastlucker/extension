@@ -123,6 +123,11 @@ const ManageTokensSettingsScreen = () => {
     tokens
   ])
 
+  const isLoading = useMemo(
+    () => !isAllReady || !initialTokenPreferences,
+    [initialTokenPreferences, isAllReady]
+  )
+
   const setNetworkFilterValue = useCallback(({ value }: SelectValue) => {
     if (typeof value !== 'string') return
 
@@ -209,7 +214,7 @@ const ManageTokensSettingsScreen = () => {
       />
       <TokenListHeader />
       <ScrollView style={flexbox.flex1}>
-        {isAllReady && !customOrHiddenTokens.length && (
+        {!isLoading && initialTokenPreferences && !customOrHiddenTokens.length && (
           <Text
             appearance="secondaryText"
             fontSize={16}
@@ -219,7 +224,8 @@ const ManageTokensSettingsScreen = () => {
             {emptyText}
           </Text>
         )}
-        {isAllReady &&
+        {!isLoading &&
+          initialTokenPreferences &&
           !!customOrHiddenTokens.length &&
           customOrHiddenTokens.map((token) => (
             <Token
@@ -229,7 +235,7 @@ const ManageTokensSettingsScreen = () => {
               {...token}
             />
           ))}
-        {!isAllReady && <Skeletons />}
+        {isLoading && <Skeletons />}
       </ScrollView>
     </View>
   )
