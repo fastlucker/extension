@@ -1,10 +1,10 @@
 import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
-import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
+import { ActivityTransaction, LegendActivity } from '@legends/contexts/activityContext/types'
 
 const checkTransactionStatus = async (
   connectedAccount: string | null,
   txAction: string,
-  setState: (receivedXp?: number) => void,
+  setState: (receivedXp?: number) => void
 ) => {
   try {
     const response = await getRecentActivity(connectedAccount!)

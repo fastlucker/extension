@@ -57,39 +57,6 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
     if (chainRef.current) chainRef.current.classList.add(styles.unlocked)
   }, [])
 
-  // const checkTransactionStatus = useCallback(async () => {
-  //   try {
-  //     const response = await getRecentActivity(connectedAccount!)
-  //     const today = new Date().toISOString().split('T')[0]
-
-  //     const transaction: ActivityTransaction | undefined = response?.transactions.find(
-  //       (txn: ActivityTransaction) =>
-  //         txn.submittedAt.startsWith(today) &&
-  //         txn.legends.activities &&
-  //         txn.legends.activities.some((activity: LegendActivity) =>
-  //           activity.action.startsWith('WheelOfFortune')
-  //         )
-  //     )
-
-  //     if (!transaction) return false
-  //     const spinWheelActivity = transaction.legends.activities.find((activity: any) => {
-  //       return activity.action.includes('WheelOfFortune')
-  //     })
-
-  //     if (!spinWheelActivity) return false
-
-  //     unlockChainAnimation()
-  //     setPrizeNumber(spinWheelActivity.xp)
-  //     setWheelState('unlocked')
-  //     // Don't await this, we don't want to block the UI
-  //     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  //     return true
-  //   } catch (error) {
-  //     console.error('Error fetching transaction status:', error)
-  //     return false
-  //   }
-  // }, [connectedAccount, unlockChainAnimation])
-
   const setWheelToUnlocked = useCallback(
     (receivedXp?: number | null) => {
       unlockChainAnimation()
@@ -130,9 +97,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
       const transactionFound = await checkTransactionStatus(
         connectedAccount,
         'WheelOfFortune',
-        setWheelToUnlocked,
-        addToast,
-        false
+        setWheelToUnlocked
       )
       if (!transactionFound) {
         const checkStatusWithTimeout = async (attempts: number) => {
@@ -148,9 +113,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
           const found = await checkTransactionStatus(
             connectedAccount,
             'WheelOfFortune',
-            setWheelToUnlocked,
-            addToast,
-            false
+            setWheelToUnlocked
           )
 
           if (!found) {
