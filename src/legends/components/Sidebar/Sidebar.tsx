@@ -19,6 +19,7 @@ import WheelComponent from '@legends/modules/legends/components/WheelComponentMo
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import chestBackgroundImage from './assets/chest-background.png'
+import streakBanner from './assets/streak-banner.png'
 import wheelBackgroundImage from './assets/wheel-background.png'
 import DailyQuestBanner from './components/DailyQuestBanner'
 import Link from './components/Link'
@@ -47,7 +48,13 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { addToast } = useToast()
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const { wheelSpinOfTheDay, treasureChestOpenedForToday, legends, isLoading } = useLegendsContext()
+  const {
+    wheelSpinOfTheDay,
+    treasureChestStreak,
+    treasureChestOpenedForToday,
+    legends,
+    isLoading
+  } = useLegendsContext()
   const [isTreasureChestModalOpen, setIsTreasureChestModalOpen] = useState(false)
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.id === 'referral')
@@ -131,6 +138,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           text={chestText}
           handleClick={handleTreasureOpen}
           buttonText="Open Now"
+          reversed
+          streakBanner={streakBanner}
+          streakNumber={treasureChestStreak}
         />
 
         <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />
