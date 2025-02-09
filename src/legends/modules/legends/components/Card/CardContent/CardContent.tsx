@@ -74,7 +74,6 @@ const CardContent: FC<Props> = ({
       <div className={styles.contentAndAction}>
         <div className={styles.content}>
           <h2 className={styles.heading}>{description}</h2>
-          <p className={styles.description}>{description}</p>
           <span className={styles.rewardFrequency}>{CARD_FREQUENCY[card.type]}</span>
           <div className={styles.rewards}>
             <Rewards xp={xp} size="sm" reverse />
