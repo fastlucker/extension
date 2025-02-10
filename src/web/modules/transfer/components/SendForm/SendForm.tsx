@@ -1,6 +1,6 @@
 import { formatUnits, JsonRpcProvider, ZeroAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { estimateEOA } from '@ambire-common/libs/estimate/estimateEOA'
@@ -8,6 +8,7 @@ import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPric
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -18,6 +19,7 @@ import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -78,7 +80,8 @@ const SendForm = ({
   amountErrorMessage,
   isRecipientAddressUnknown,
   isSWWarningVisible,
-  isRecipientHumanizerKnownTokenOrSmartContract
+  isRecipientHumanizerKnownTokenOrSmartContract,
+  handleGasTankInfoPressed
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
@@ -86,6 +89,7 @@ const SendForm = ({
   isRecipientAddressUnknown: boolean
   isSWWarningVisible: boolean
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  handleGasTankInfoPressed: () => void
 }) => {
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
@@ -329,6 +333,20 @@ const SendForm = ({
     }
   }, [accountStates, estimation, isSmartAccount, networks, account, selectedToken])
 
+  const gasTankLabelWithInfo = (
+    <View style={flexbox.directionRow}>
+      <Text appearance="secondaryText" fontSize={14}>
+        Select Gas Tank
+      </Text>
+      <Pressable style={[spacings.phMi, flexbox.center]} onPress={handleGasTankInfoPressed}>
+        <InfoIcon width={14} height={14} />
+      </Pressable>
+      <Text appearance="secondaryText" fontSize={14}>
+        Token
+      </Text>
+    </View>
+  )
+
   return (
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
@@ -345,7 +363,7 @@ const SendForm = ({
       ) : (
         <Select
           setValue={({ value }) => handleChangeToken(value as string)}
-          label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
+          label={isTopUp ? gasTankLabelWithInfo : t('Select Token')}
           options={options}
           value={tokenSelectValue}
           disabled={disableForm}

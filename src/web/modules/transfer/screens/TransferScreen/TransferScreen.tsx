@@ -62,6 +62,11 @@ const TransferScreen = () => {
   const { account } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const {
+    ref: gasTankSheetRef,
+    open: openGasTankInfoBottomSheet,
+    close: closeGasTankInfoBottomSheet
+  } = useModalize()
   const { userRequests, isOffline } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
@@ -235,6 +240,11 @@ const TransferScreen = () => {
     ]
   )
 
+  const handleGasTankInfoPressed = useCallback(
+    () => openGasTankInfoBottomSheet(),
+    [openGasTankInfoBottomSheet]
+  )
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -316,6 +326,7 @@ const TransferScreen = () => {
                 isRecipientHumanizerKnownTokenOrSmartContract
               }
               isSWWarningVisible={isSWWarningVisible}
+              handleGasTankInfoPressed={handleGasTankInfoPressed}
             />
             {isTopUp && !isSmartAccount && (
               <View style={spacings.ptLg}>
@@ -408,6 +419,32 @@ const TransferScreen = () => {
           onPrimaryButtonPress={closeBottomSheet}
           primaryButtonText={t('Got it')}
           primaryButtonTestID="queue-modal-got-it-button"
+        />
+      </BottomSheet>
+      <BottomSheet
+        id="gas-tank-info"
+        sheetRef={gasTankSheetRef}
+        closeBottomSheet={closeGasTankInfoBottomSheet}
+        backgroundColor="secondaryBackground"
+        // TODO: check styles
+        style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
+        type="modal"
+      >
+        <DualChoiceModal
+          title={t('Gas Tank')}
+          description={
+            <View>
+              <Text style={spacings.mbTy} appearance="secondaryText">
+                {t(
+                  'You can top-up and use your Gas Tank balance to pay for future transactions on any Ambire-supported network, benefiting from lower fees and the convenience of unified fee management.'
+                )}
+              </Text>
+            </View>
+          }
+          // TODO: Open top up Gas Tank
+          onPrimaryButtonPress={closeGasTankInfoBottomSheet}
+          primaryButtonText={t('Top up Gas Tank')}
+          primaryButtonTestID="top-up-gas-tank-info-modal"
         />
       </BottomSheet>
     </TabLayoutContainer>
