@@ -141,14 +141,6 @@ const Info: FC<Props> = () => {
               meaning you will be able to use Smart Account functionalities.
             </Text>
           </Trans>
-          {messageToSign.content.affectedNetworks && (
-            <View style={spacings.mbMd}>
-              <BoldText>Affected networks: </BoldText>
-              <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
-                {messageToSign.content.affectedNetworks.join(', ')}
-              </Text>
-            </View>
-          )}
           <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
             {t('If you are unsure or worried for any reason, please ')}
             <Text

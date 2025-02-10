@@ -68,6 +68,7 @@ const SignMessageScreen = () => {
   useEffect(() => {
     if (!signMessageAction) return undefined
     if (signMessageAction.userRequest.action.kind !== 'authorization-7702') return
+    if (!signMessageAction.userRequest.meta.show7702Info) return
 
     setIsAuthorization(true)
   }, [signMessageAction])
@@ -155,6 +156,7 @@ const SignMessageScreen = () => {
     (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
       if (isAuthorization && !makeItSmartConfirmed) {
         setMakeItSmartConfirmed(true)
+        setDoNotAskMeAgain(false)
         return
       }
 
@@ -197,15 +199,16 @@ const SignMessageScreen = () => {
 
     if (signStatus === 'LOADING') return t('Signing...')
 
-    if (isAuthorization && !makeItSmartConfirmed) return 'Make it Smart'
+    if (isAuthorization && !makeItSmartConfirmed) return 'Add smart features'
 
     return t('Sign')
   }, [isScrollToBottomForced, signStatus, t, isAuthorization, makeItSmartConfirmed])
 
   const rejectButtonText = useMemo(() => {
-    if (isAuthorization) return 'Stay Basic'
+    if (isAuthorization && doNotAskMeAgain) return 'Skip'
+    if (isAuthorization) return 'Skip for now'
     return 'Reject'
-  }, [isAuthorization])
+  }, [isAuthorization, doNotAskMeAgain])
 
   const handleDismissLedgerConnectModal = useCallback(() => {
     setShouldDisplayLedgerConnectModal(false)
