@@ -48,7 +48,8 @@ const HideToken = () => {
     () =>
       selectedAccountPortfolio?.tokens
         .filter((token) => {
-          if (token.flags.onGasTank || !!token.flags.rewardsType) return false
+          if (token.flags.onGasTank || !!token.flags.rewardsType || token.flags.isDefiToken)
+            return false
           const isInitiallyInTokenPreferences = initialTokenPreferences?.find(
             ({ address, networkId }) => address === token.address && networkId === token.networkId
           )
