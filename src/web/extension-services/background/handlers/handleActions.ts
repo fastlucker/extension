@@ -106,14 +106,18 @@ export const handleActions = async (
       if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
       const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
-      const keyIterator = new KeyIterator(params.privKeyOrSeed)
+      const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
 
       // if it enters here, it's from the default seed. We can init the account adder like so
       if (keyIterator.subType === 'seed' && params.shouldPersist) {
         await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
       }
       if (keyIterator.subType === 'seed' && params.shouldAddToTemp) {
-        await mainCtrl.keystore.addSeedToTemp({ seed: params.privKeyOrSeed, hdPathTemplate })
+        await mainCtrl.keystore.addSeedToTemp({
+          seed: params.privKeyOrSeed,
+          seedPassphrase: params.seedPassphrase,
+          hdPathTemplate
+        })
       }
 
       await mainCtrl.accountAdder.init({
@@ -127,9 +131,8 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE': {
       if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
       const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
-
       if (!keystoreSavedSeed) return
-      const keyIterator = new KeyIterator(keystoreSavedSeed.seed)
+      const keyIterator = new KeyIterator(keystoreSavedSeed.seed, keystoreSavedSeed.seedPassphrase)
       await mainCtrl.accountAdder.init({
         keyIterator,
         pageSize: 5,

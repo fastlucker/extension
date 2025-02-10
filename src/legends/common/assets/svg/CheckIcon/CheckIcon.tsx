@@ -22,4 +22,4 @@ const CheckIcon: React.FC<SvgProps> = ({ width = 25, height = 24, ...props }) =>
   </Svg>
 )
 
-export default CheckIcon
+export default React.memo(CheckIcon)

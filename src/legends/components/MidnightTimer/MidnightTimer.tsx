@@ -1,9 +1,10 @@
 import React, { FC } from 'react'
+
 import useMidnightTimerContext from '@legends/hooks/useMidnightTimerContext'
 
 type Props = {
   type?: 'hours' | 'minutes'
-  className: string
+  className?: string
 }
 
 const MidnightTimer: FC<Props> = ({ type = 'hours', className }) => {
