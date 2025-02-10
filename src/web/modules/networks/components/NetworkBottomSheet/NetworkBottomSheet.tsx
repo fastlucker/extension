@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -39,6 +39,13 @@ const NetworkBottomSheet = ({
   const { networks } = useNetworksControllerState()
   const networkData = networks.find((network) => network.id === networkId)
 
+  const handleOpenBlockExplorer = useCallback(
+    () => openBlockExplorer(networkData?.explorerUrl),
+    [networkData, openBlockExplorer]
+  )
+
+  const isMissingBlockExplorer = networkData?.explorerUrl
+
   return (
     <BottomSheet
       id="dashboard-networks-network"
@@ -65,9 +72,9 @@ const NetworkBottomSheet = ({
       <Option
         renderIcon={<OpenIcon width={20} height={20} color={theme.secondaryText} />}
         title={t('Open current account in block explorer')}
-        onPress={() => {
-          openBlockExplorer(networkData?.explorerUrl)
-        }}
+        disabled={isMissingBlockExplorer}
+        tooltip={isMissingBlockExplorer ? t('No block explorer available for this network') : ''}
+        onPress={handleOpenBlockExplorer}
       />
     </BottomSheet>
   )
