@@ -9,6 +9,7 @@ import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import i18n from '@common/config/localization/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -18,6 +19,10 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import Option from '../Option'
 import getStyles from './styles'
+
+export const NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP = i18n.t(
+  'No block explorer available for this network.'
+)
 
 interface Props {
   sheetRef: ReturnType<typeof useModalize>['ref']
@@ -73,7 +78,7 @@ const NetworkBottomSheet = ({
         renderIcon={<OpenIcon width={20} height={20} color={theme.secondaryText} />}
         title={t('Open current account in block explorer')}
         disabled={isMissingBlockExplorer}
-        tooltip={isMissingBlockExplorer ? t('No block explorer available for this network') : ''}
+        tooltip={isMissingBlockExplorer ? NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP : ''}
         onPress={handleOpenBlockExplorer}
       />
     </BottomSheet>

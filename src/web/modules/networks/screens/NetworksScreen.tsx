@@ -24,7 +24,7 @@ import Networks from '@web/modules/networks/components/Networks'
 
 import AddNetworkBottomSheet from '../components/AddNetworkBottomSheet'
 import AllNetworksOption from '../components/AllNetworksOption/AllNetworksOption'
-import NetworkBottomSheet from '../components/NetworkBottomSheet'
+import NetworkBottomSheet, { NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP } from '../components/NetworkBottomSheet'
 
 const NetworksScreen = () => {
   const { t } = useTranslation()
@@ -64,7 +64,7 @@ const NetworksScreen = () => {
   const openBlockExplorer = useCallback(
     async (url?: string) => {
       if (!url) {
-        addToast(t('No block explorer available for this network'), {
+        addToast(NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP, {
           type: 'info'
         })
         return

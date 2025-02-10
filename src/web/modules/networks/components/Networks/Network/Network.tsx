@@ -18,6 +18,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, DURATIONS, useCustomHover, useMultiHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import { NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP } from '@web/modules/networks/components/NetworkBottomSheet'
 import getStyles from '@web/modules/networks/screens/styles'
 
 interface Props {
@@ -102,7 +103,7 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
           // @ts-ignore missing type, but the prop is valid
           dataSet={{
             tooltipId: tooltipBlockExplorerMissingId,
-            tooltipContent: t('No block explorer available for this network')
+            tooltipContent: NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP
           }}
           style={[spacings.mlSm, explorerIconAnimStyle]}
           onHoverIn={triggerHover}
