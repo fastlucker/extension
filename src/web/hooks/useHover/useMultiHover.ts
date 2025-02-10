@@ -60,7 +60,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
       }
     )
 
-    if (opacity) return
+    if (opacity && !forceHoveredStyle) return
 
     // Opacity is always needed for onPressIn and onPressOut
     newAnimatedValues.push({
