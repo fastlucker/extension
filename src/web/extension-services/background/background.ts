@@ -540,7 +540,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               mainCtrl.networks.networks.find((n) => n.id === networkId)
             )
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.defiPositions.updatePositions(networkId)
+            mainCtrl.defiPositions.updatePositions({ networkId })
           }
         })
       }
