@@ -22,6 +22,10 @@ const useKeyStoreSetup = () => {
   })
   const [isKeystoreReady, setKeystoreReady] = useState(false)
   const password = watch('password', '')
+  const [mousePosition, setMousePosition] = useState<{
+    x: number
+    y: number
+  } | null>(null)
 
   useEffect(() => {
     if (!getValues('confirmPassword')) return
@@ -37,14 +41,31 @@ const useKeyStoreSetup = () => {
     }
   }, [state.statuses.addSecret])
 
-  const handleKeystoreSetup = () => {
-    handleSubmit(({ password: passwordFieldValue }) => {
+  useEffect(() => {
+    const handleMouseMove = (e: any) => {
+      setMousePosition({ x: e.clientX, y: e.clientY })
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [])
+
+  const handleKeystoreSetup = async () => {
+    await handleSubmit(({ password: passwordFieldValue }) => {
+      const extraEntropy = mousePosition
+        ? // eslint-disable-next-line no-bitwise
+          new Uint8Array([mousePosition.x, mousePosition.y])
+        : null
+
       dispatch({
         type: 'KEYSTORE_CONTROLLER_ADD_SECRET',
         params: {
           secretId: 'password',
           secret: passwordFieldValue,
-          extraEntropy: '',
+          extraEntropy,
           leaveUnlocked: true
         }
       })

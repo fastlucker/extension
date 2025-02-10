@@ -355,7 +355,12 @@ type MainControllerLockAction = {
 
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
-  params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
+  params: {
+    secretId: string
+    secret: string
+    extraEntropy: Uint8Array | null
+    leaveUnlocked: boolean
+  }
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
