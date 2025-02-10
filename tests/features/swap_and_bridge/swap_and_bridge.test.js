@@ -1,6 +1,7 @@
 import { baParams, saParams } from '../../config/constants'
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
-import { swapTransactionBA } from './functions'
+
+import { prepareSwapAndBridge, proceedSwapAndBridge, enterNumber } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
   let browser
@@ -20,9 +21,33 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // ToDo: revoke the approvals upon tests completion
   })
 
-  it('should Swap ERC20 tokens with a Basic Account', async () => {
-    await swapTransactionBA(page, 0.015, 'usdc', 'base', 'wallet')
-    await swapTransactionBA(page, 1, 'wallet', 'base', 'usdc')
+  it('should Swap ERC20 tokens USDC to WALLET on Base network with a Basic Account', async () => {
+    await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    await proceedSwapAndBridge(page)
+  })
+
+  it('should Swap ERC20 tokens WALLET to USDC on Base network with a Basic Account', async () => {
+    await prepareSwapAndBridge(page, 1, 'wallet', 'base', 'usdc')
+    await proceedSwapAndBridge(page)
+  })
+
+  it('should be able to return back to Dashboard from Swap & Bridge page with a Basic Account', async () => {
+    // ToDo: Implement the test
+  })
+
+  it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Basic Account', async () => {
+    await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    await enterNumber(page, '00.01', true)
+  })
+
+  it('should accept amount starting with point like ".01" during Swap & Bridge with a Basic Account', async () => {
+    await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    await enterNumber(page, '.01', true)
+  })
+
+  it('should not accept chars as amount during Swap & Bridge with a Basic Account', async () => {
+    await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    await enterNumber(page, 'abc', true)
   })
 
   it.skip('should Bridge tokens with a Basic Account', async () => {
@@ -34,11 +59,11 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // ToDo: Implement the test
   })
 
-  it.skip('should select a different route when Swap & Bridge with a Basic Accoun', async () => {
+  it.skip('should select a different route when Swap & Bridge with a Basic Account', async () => {
     // ToDo: Implement the test
   })
 
-  it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Basic Accoun', async () => {
+  it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Basic Account', async () => {
     // ToDo: Implement the test
   })
 
@@ -89,6 +114,25 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     // ToDo: Implement the test
   })
 
+  it('should be able to return back to Dashboard from Swap & Bridge page with a Smart Account', async () => {
+    // ToDo: Implement the test
+  })
+
+  it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async () => {
+    await prepareSwapAndBridge(page, 0.1, 'dai', 'optimism', 'usdc.e')
+    await enterNumber(page, '00.01', true)
+  })
+
+  it('should accept amount starting with point like ".01" during Swap & Bridge with a Smart Account', async () => {
+    await prepareSwapAndBridge(page, 0.1, 'dai', 'optimism', 'usdc.e')
+    await enterNumber(page, '.01', true)
+  })
+
+  it('should not accept chars as amount during Swap & Bridge with a Smart Account', async () => {
+    await prepareSwapAndBridge(page, 0.1, 'dai', 'optimism', 'usdc.e')
+    await enterNumber(page, 'abc', true)
+  })
+
   it.skip('should Bridge tokens with a Smart Account', async () => {
     // ToDo: Implement the test
     // Consider testing the Dashboard banners (when bridging in progress) and the Route in Progress component
@@ -98,11 +142,11 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     // ToDo: Implement the test
   })
 
-  it.skip('should select a different route when Swap & Bridge with a Smart Accoun', async () => {
+  it.skip('should select a different route when Swap & Bridge with a Smart Account', async () => {
     // ToDo: Implement the test
   })
 
-  it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Smart Accoun', async () => {
+  it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Smart Account', async () => {
     // ToDo: Implement the test
   })
 

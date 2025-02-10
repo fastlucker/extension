@@ -4,60 +4,94 @@ import { typeText } from '../../common-helpers/typeText'
 // ToDo: Import and reuse '../../common/transactions'
 // ToDo: Create and use './constants' file
 
-export async function swapTransactionBA(page, amount, send_token, send_network, receive_token) {
-  console.log('[INFO] Building swap transaction...')
-
-  // Select Swap and Bridge
-  await clickOnElement(page, '[data-testid="dashboard-button-swap-and-bridge"]')
-  console.log('[INFO] Navigated to Swap & Bridge.')
-
-  // Select Send Token on Network
-  await clickOnElement(page, '[data-testid="from-token-select"]')
-  await clickOnElement(page, `[data-testid*="${send_network}.${send_token}"]`)
-
+export async function enterNumber(page, new_amount, is_valid = true) {
+  const message = 'Something went wrong! Please contact support'
   // Enter the amount
-  await typeText(page, 'input[placeholder="0"]', amount.toString())
-  console.log(`[INFO] Selected ${send_token} token on ${send_network} network to send.`)
+  await typeText(page, 'input[placeholder="0"]', new_amount.toString())
+  console.log(`[INFO] Enetered ${new_amount} as the amount to send.`)
+  // Assert if the message should be displayed
+  if (is_valid) {
+    await expect(page).not.toMatchElement('span', { text: `${message}` })
+  } else {
+    await expect(page).toMatchElement('span', { text: `${message}` })
+  }
+}
 
-  // Select Receive Token on the same Network, which is automatically selected
-  await clickOnElement(page, '[data-testid="to-token-select"]')
-  await clickOnElement(page, `[data-testid*="${receive_token}"]`)
-  console.log(`[INFO] Selected ${receive_token} token to receive.`)
+export async function prepareSwapAndBridge(page, send_amount, send_token, send_network, receive_token) {
+  try {
+    console.log('[INFO] Building swap transaction...')
 
-  // Wait for Proceed to be enabled
-  await page.waitForSelector('text=Select another route', { visible: true })
-  // await page.waitForTimeout(3000)
+    // Select Swap and Bridge
+    await clickOnElement(page, '[data-testid="dashboard-button-swap-and-bridge"]')
+    console.log('[INFO] Navigated to Swap & Bridge.')
 
-  // Get the browser context of the page
-  const context = page.browserContext()
+    // Select Send Token on Network
+    await clickOnElement(page, '[data-testid="from-token-select"]')
+    await clickOnElement(page, `[data-testid*="${send_network}.${send_token}"]`)
 
-  const [newPagePromise] = await Promise.all([
-    new Promise((resolve) => {
-      context.once('targetcreated', async (target) => {
-        const newPage = await target.page()
-        resolve(newPage)
-      })
-    }),
+    // Select Receive Token on the same Network, which is automatically selected
+    await page.waitForTimeout(1000) // Wait 500ms before click for the Receive Token list to be populated
+    await clickOnElement(page, '[data-testid="to-token-select"]')
+    await clickOnElement(page, `[data-testid*="${receive_token}"]`)
+    console.log(`[INFO] Selected ${receive_token} token to receive.`)
 
-    // Select Proceed Button
-    await clickOnElement(page, 'text=Proceed')
-  ])
+    // Ensure a valid send amount is provided
+    if (send_amount === null || send_amount <= 0) {
+      throw new Error('"send_amount" must be greater than 0')
+    }
 
-  // ### Use newPage in this until page is closed
-  const newPage = await newPagePromise
+    // Enter the amount
+    await typeText(page, 'input[placeholder="0"]', send_amount.toString())
+    console.log(`[INFO] Entered ${send_amount} as the amount to send.`)
 
-  // Wait for new page to open
-  await page.waitForTimeout(1500)
+    // Wait for Proceed to be enabled, i.e., wait for "Fetching best route..." text to appear and disappear
+    await page.waitForSelector('text=Fetching best route...', { visible: true })
+    await page.waitForSelector('text=Fetching best route...', { hidden: true })
 
-  // Select Sign
-  await clickOnElement(newPage, 'text=Sign')
-  console.log('[INFO] Clicked Sign')
+    // ToDo: Handle The price impact is too high
+    await expect(page).not.toMatchElement('[data-testid="checkbox"]')
+  } catch (error) {
+    console.error(`[ERROR] Swap Transaction Preparation Failed: ${error.message}`)
+    throw error
+  }
+}
 
-  await clickOnElement(newPage, 'text=Close')
-  console.log('[INFO] Clicked Sign')
-  // ### End of using newPage
+export async function proceedSwapAndBridge(page) {
+  try {
+    // Get the browser context of the page
+    const context = page.browserContext()
 
-  // Select Back Button
-  await clickOnElement(page, 'text=Back')
-  // await page.locator('text=Back').click()
+    const [newPagePromise] = await Promise.all([
+      new Promise((resolve) => {
+        context.once('targetcreated', async (target) => {
+          const newPage = await target.page()
+          resolve(newPage)
+        })
+      }),
+
+      // Select Proceed Button
+      await clickOnElement(page, 'text=Proceed')
+    ])
+
+    // Use newPage for interactions the with new page
+    const newPage = await newPagePromise
+
+    // Wait for new page to open
+    await newPage.waitForTimeout(1500)
+
+    // Select Sign
+    await clickOnElement(newPage, 'text=Sign')
+    console.log('[INFO] Clicked Sign')
+
+    // Wait for transaction to be confirmed
+    await newPage.waitForSelector('text=Timestamp', { visible: true })
+
+    // Asset if the transaction is confirmed
+    await expect(newPage).toMatchElement('div', { text: 'Confirmed' })
+    // eslint-disable-next-line no-console
+    console.log('[INFO] Transaction Confirmed')
+  } catch (error) {
+    console.error(`[ERROR] Sign Swap Transaction Failed: ${error.message}`)
+    throw error
+  }
 }
