@@ -30,49 +30,62 @@ const INTERPOLATE_PROPERTIES = ['backgroundColor', 'color', 'borderColor']
 const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
   const memoizedValues = useDeepMemo(values)
   const [isHovered, setIsHovered] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
-  const [animatedValues, setAnimatedValues] = useState<AnimationValuesExtended[] | null>(null)
 
-  useEffect(() => {
-    setAnimatedValues(null)
+  const animatedValues = useMemo(() => {
     const opacity = memoizedValues.find(({ property }) => property === 'opacity')
 
-    const newAnimatedValues = memoizedValues.map(
-      ({ property, from, to, duration: valueDuration }) => {
-        const shouldInterpolate = INTERPOLATE_PROPERTIES.includes(property)
-        let value = null
+    const newValues = memoizedValues.map(({ property, from, to, duration: valueDuration }) => {
+      const shouldInterpolate = INTERPOLATE_PROPERTIES.includes(property)
+      let value = null
 
-        if (forceHoveredStyle) {
-          value = new Animated.Value(shouldInterpolate ? 1 : (to as number))
-          setIsHovered(true)
-        } else {
-          value = new Animated.Value(shouldInterpolate ? 0 : (from as number))
-          setIsHovered(false)
-        }
-
-        return {
-          value,
-          property,
-          from,
-          to,
-          duration: valueDuration || DURATIONS.FAST
-        }
+      if (forceHoveredStyle) {
+        value = new Animated.Value(shouldInterpolate ? 1 : (to as number))
+        setIsHovered(true)
+      } else {
+        value = new Animated.Value(shouldInterpolate ? 0 : (from as number))
+        setIsHovered(false)
       }
-    )
 
-    if (opacity && !forceHoveredStyle) return
+      return {
+        value,
+        property,
+        from,
+        to,
+        duration: valueDuration || DURATIONS.FAST
+      }
+    })
+
+    // Don't add it if it's already being animated
+    if (opacity) return newValues
 
     // Opacity is always needed for onPressIn and onPressOut
-    newAnimatedValues.push({
+    newValues.push({
       value: new Animated.Value(1),
       property: 'opacity',
       from: 1,
       to: 1,
       duration: DURATIONS.FAST
     })
-    setAnimatedValues(newAnimatedValues)
+
+    return newValues
   }, [memoizedValues, forceHoveredStyle])
 
+  // Set initial animation
+  useEffect(() => {
+    if (!animatedValues) return
+
+    animatedValues.forEach(({ property, value, from }: AnimationValuesExtended) => {
+      const fromValue = !INTERPOLATE_PROPERTIES.includes(property) ? (from as number) : 0
+
+      Animated.timing(value, {
+        toValue: fromValue,
+        duration: 0,
+        useNativeDriver: true
+      }).start()
+    })
+  }, [animatedValues])
+
+  // Animate on hover
   useEffect(() => {
     if (!animatedValues) return
 
@@ -88,22 +101,9 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
         }).start()
       }
     )
-  }, [animatedValues, isHovered, forceHoveredStyle])
+  }, [isHovered, forceHoveredStyle, animatedValues])
 
-  useEffect(() => {
-    if (!animatedValues) return
-
-    const opacity = animatedValues.find(({ property }) => property === 'opacity')
-
-    if (!opacity) return
-
-    Animated.timing(opacity.value, {
-      toValue: isPressed ? 0.7 : 1,
-      duration: 0,
-      useNativeDriver: true
-    }).start()
-  }, [isPressed, animatedValues])
-
+  // Bind the events
   const bind = useMemo(
     () => ({
       onHoverIn: () => {
@@ -113,13 +113,20 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
         setIsHovered(false)
       },
       onPressIn: () => {
-        setIsPressed(true)
+        const opacity = animatedValues.find(({ property }) => property === 'opacity')
+
+        if (!opacity) return
+
+        Animated.timing(opacity.value, {
+          toValue: 0.7,
+          duration: 0,
+          useNativeDriver: true
+        }).start()
       },
-      onPressOut: () => {
-        setIsPressed(false)
-      }
+      // @TODO: Remove
+      onPressOut: () => {}
     }),
-    []
+    [animatedValues]
   )
 
   const style = useMemo(() => {
@@ -139,7 +146,13 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
       }, {})
 
     // Prevents the hook from returning an empty style object on the first render
-    return memoizedValues.reduce((acc, { property, from }) => ({ ...acc, [property]: from }), {})
+    return memoizedValues.reduce(
+      (acc, { property, from }) => ({
+        ...acc,
+        [property]: from
+      }),
+      {}
+    )
   }, [animatedValues, memoizedValues])
 
   const triggerHover = useCallback(() => {

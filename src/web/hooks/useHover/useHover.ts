@@ -34,14 +34,12 @@ interface Props {
 }
 
 const useHover = ({ preset, duration, forceHoveredStyle }: Props) => {
-  const value = useCustomHover({
+  return useCustomHover({
     property: presets[preset].property,
     values: presets[preset],
     duration,
     forceHoveredStyle
   })
-
-  return value
 }
 
 export default useHover
