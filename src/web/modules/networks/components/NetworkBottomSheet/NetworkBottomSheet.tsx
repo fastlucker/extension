@@ -44,7 +44,7 @@ const NetworkBottomSheet = ({
     [networkData, openBlockExplorer]
   )
 
-  const isMissingBlockExplorer = networkData?.explorerUrl
+  const isMissingBlockExplorer = !networkData?.explorerUrl
 
   return (
     <BottomSheet
