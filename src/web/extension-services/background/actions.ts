@@ -358,7 +358,7 @@ type KeystoreControllerAddSecretAction = {
   params: {
     secretId: string
     secret: string
-    extraEntropy: Uint8Array | null
+    extraEntropy: string
     leaveUnlocked: boolean
   }
 }

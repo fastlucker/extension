@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { v4 as uuidv4 } from 'uuid'
 
 import { isDev, isTesting } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
@@ -22,10 +23,7 @@ const useKeyStoreSetup = () => {
   })
   const [isKeystoreReady, setKeystoreReady] = useState(false)
   const password = watch('password', '')
-  const [mousePosition, setMousePosition] = useState<{
-    x: number
-    y: number
-  } | null>(null)
+  const [mousePos, setMousePos] = useState<{ x: number; y: number; timestamp: number } | null>(null)
 
   useEffect(() => {
     if (!getValues('confirmPassword')) return
@@ -42,8 +40,8 @@ const useKeyStoreSetup = () => {
   }, [state.statuses.addSecret])
 
   useEffect(() => {
-    const handleMouseMove = (e: any) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY, timestamp: e.timeStamp })
     }
 
     document.addEventListener('mousemove', handleMouseMove)
@@ -55,17 +53,12 @@ const useKeyStoreSetup = () => {
 
   const handleKeystoreSetup = async () => {
     await handleSubmit(({ password: passwordFieldValue }) => {
-      const extraEntropy = mousePosition
-        ? // eslint-disable-next-line no-bitwise
-          new Uint8Array([mousePosition.x, mousePosition.y])
-        : null
-
       dispatch({
         type: 'KEYSTORE_CONTROLLER_ADD_SECRET',
         params: {
           secretId: 'password',
           secret: passwordFieldValue,
-          extraEntropy,
+          extraEntropy: mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : uuidv4(),
           leaveUnlocked: true
         }
       })
