@@ -1,4 +1,5 @@
-import React, { FC } from 'react'
+import { t } from 'i18next'
+import React, { FC, useCallback } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
@@ -7,6 +8,7 @@ import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -66,6 +68,14 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
   }
 
   const networkData = networks.find((network) => network.id === networkId)
+  const isBlockExplorerMissing = !networkData?.explorerUrl
+  const tooltipBlockExplorerMissingId = `tooltip-for-block-explorer-missing-${networkId}`
+  const handleOpenBlockExplorer = useCallback(async () => {
+    if (isBlockExplorerMissing) return
+
+    await openBlockExplorer(networkData?.explorerUrl)
+  }, [networkData, openBlockExplorer, isBlockExplorerMissing])
+
   const networkBalance = portfolio.latest?.[networkId]?.result?.total
   let networkName = networkData?.name
 
@@ -88,8 +98,11 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
           {networkName}
         </Text>
         <AnimatedPressable
-          onPress={async () => {
-            await openBlockExplorer(networkData?.explorerUrl)
+          onPress={handleOpenBlockExplorer}
+          // @ts-ignore missing type, but the prop is valid
+          dataSet={{
+            tooltipId: tooltipBlockExplorerMissingId,
+            tooltipContent: t('No block explorer available for this network')
           }}
           style={[spacings.mlSm, explorerIconAnimStyle]}
           onHoverIn={triggerHover}
@@ -99,9 +112,11 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
               width={16}
               height={16}
               color={hovered ? theme.primaryText : theme.secondaryText}
+              style={isBlockExplorerMissing && { opacity: 0.4 }}
             />
           )}
         </AnimatedPressable>
+        {isBlockExplorerMissing && <Tooltip id={tooltipBlockExplorerMissingId} />}
       </View>
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
         <Text fontSize={dashboardNetworkFilter === networkId ? 20 : 16} weight="semiBold">
