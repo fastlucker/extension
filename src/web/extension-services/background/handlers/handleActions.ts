@@ -440,6 +440,7 @@ export const handleActions = async (
       return await mainCtrl.portfolio.updateCashbackStatusByAccount({
         accountId: params.accountAddr,
         shouldShowBanner: false,
+        toggleModal: true,
         shouldGetAdditionalPortfolio: true
       })
     }
