@@ -20,6 +20,11 @@ import getStyles from './styles'
 
 const { isPopup } = getUiType()
 
+const maxNetworkNameLengths = {
+  popUp: 11,
+  tab: 8
+} as const
+
 const SelectNetwork = () => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
@@ -53,13 +58,15 @@ const SelectNetwork = () => {
 
     const network = networks.find((n) => n.id === dashboardNetworkFilter)
 
-    let networkName = network?.name || t('Unknown Network')
+    let networkName = network?.name ?? t('Unknown Network') ?? 'Unknown Network'
+
+    const maxNetworkNameLength = maxNetworkNameLengths[isPopup ? 'popUp' : 'tab']
+
+    if (networkName.length > maxNetworkNameLength) {
+      networkName = `${networkName.slice(0, maxNetworkNameLength)}...`
+    }
 
     networkName = `${networkName} ${!isPopup ? t('Portfolio') : ''}`
-
-    if (networkName.length > 20) {
-      networkName = `${networkName.slice(0, 20)}...`
-    }
 
     return networkName
   }, [dashboardNetworkFilter, networks, t])
