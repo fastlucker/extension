@@ -441,7 +441,8 @@ export const handleActions = async (
         accountId: params.accountAddr,
         shouldShowBanner: false,
         toggleModal: true,
-        shouldGetAdditionalPortfolio: true
+        shouldGetAdditionalPortfolio: true,
+        shouldSetCashbackWasZeroAt: false
       })
     }
     case 'KEYSTORE_CONTROLLER_ADD_SECRET':
