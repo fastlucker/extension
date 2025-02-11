@@ -349,10 +349,11 @@ const TransferScreen = () => {
               </View>
             )}
             {isTopUp && isSmartAccount && (
-              <View style={spacings.ptSm}>
+              <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
-                  title={<Trans>Gas Tank deposits cannot be withdrawn.</Trans>}
+                  title={t('Gas Tank deposits cannot be withdrawn')}
+                  text={t('Important: A minimum balance of $10 is required to use the Gas Tank')}
                   isTypeLabelHidden
                 />
               </View>
