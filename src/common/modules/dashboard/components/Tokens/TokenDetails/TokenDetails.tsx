@@ -1,7 +1,7 @@
 import { getAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
@@ -10,12 +10,13 @@ import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
+import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import SwapAndBridgeIcon from '@common/assets/svg/SwapAndBridgeIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
+import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -45,7 +46,7 @@ const TokenDetails = ({
   token: TokenResult | null
   handleClose: () => void
 }) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
@@ -304,16 +305,20 @@ const TokenDetails = ({
               </Text>
             </View>
             {!onGasTank && !isRewards && !isVesting && !token.flags.isDefiToken && (
-              <View style={[flexbox.directionRow, flexbox.alignSelfEnd]}>
-                <Text
-                  weight="medium"
-                  appearance="secondaryText"
-                  fontSize={14}
-                  style={spacings.mrTy}
+              <View style={[flexbox.alignSelfEnd]}>
+                <Pressable
+                  style={[flexbox.directionRow, flexbox.alignCenter]}
+                  onPress={handleHideToken}
                 >
-                  {t('Visibility')}
-                </Text>
-                <Toggle isOn={!isHidden} onToggle={handleHideToken} toggleStyle={spacings.mr0} />
+                  <Text weight="medium" fontSize={12}>
+                    {t(isHidden ? 'Show' : 'Hide')}
+                  </Text>
+                  {isHidden ? (
+                    <InvisibilityIcon color={theme.errorDecorative} style={styles.visibilityIcon} />
+                  ) : (
+                    <VisibilityIcon color={theme.successDecorative} style={styles.visibilityIcon} />
+                  )}
+                </Pressable>
               </View>
             )}
           </View>
