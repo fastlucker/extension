@@ -72,10 +72,12 @@ const AccountSelectScreen = () => {
   )
 
   useEffect(() => {
-    if (shouldTriggerAddAccountSheetFromSearch) {
-      // Added a 100ms in order to open the bottom sheet.
-      setTimeout(() => openBottomSheet(), 100)
-    }
+    if (!shouldTriggerAddAccountSheetFromSearch) return
+
+    // Added a 100ms in order to open the bottom sheet.
+    const timeoutId = setTimeout(() => openBottomSheet(), 100)
+
+    return () => clearTimeout(timeoutId)
   }, [openBottomSheet, shouldTriggerAddAccountSheetFromSearch])
 
   const onAccountSelect = useCallback(
