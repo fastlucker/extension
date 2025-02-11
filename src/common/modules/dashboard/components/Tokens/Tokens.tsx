@@ -59,7 +59,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
   const { navigate } = useNavigation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
-  const { customTokens, tokenPreferences } = usePortfolioControllerState()
+  const { customTokens } = usePortfolioControllerState()
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const {
     ref: addTokenBottomSheetRef,
@@ -168,8 +168,8 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
   )
 
   const hiddenTokensCount = useMemo(
-    () => tokenPreferences.filter((token) => token.isHidden).length,
-    [tokenPreferences]
+    () => tokens.filter((token) => token.flags.isHidden).length,
+    [tokens]
   )
 
   const navigateToAddCustomToken = useCallback(() => {
@@ -258,7 +258,8 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
                   {t('You have {{count}} hidden {{tokensLabel}}', {
                     count: hiddenTokensCount,
                     tokensLabel: hiddenTokensCount > 1 ? t('tokens') : t('token')
-                  })}
+                  })}{' '}
+                  {dashboardNetworkFilter && t('on this network')}
                 </Text>
                 <RightArrowIcon height={12} color={theme.secondaryText} />
               </Pressable>
