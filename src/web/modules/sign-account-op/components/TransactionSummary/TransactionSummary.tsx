@@ -27,6 +27,8 @@ interface Props {
   isHistory?: boolean
   index?: number
   enableExpand?: boolean
+  rightIcon?: React.ReactNode
+  onRightIconPress?: () => void
 }
 
 export const sizeMultiplier = {
@@ -42,7 +44,9 @@ const TransactionSummary = ({
   size = 'lg',
   isHistory,
   index,
-  enableExpand = true
+  enableExpand = true,
+  rightIcon,
+  onRightIconPress
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const imageSize = 32 * sizeMultiplier[size]
@@ -108,7 +112,7 @@ const TransactionSummary = ({
               hasPadding={enableExpand}
             />
           )}
-          {!!call.fromUserRequestId && !isHistory && (
+          {!!call.fromUserRequestId && !isHistory && !rightIcon && (
             <AnimatedPressable
               style={deleteIconAnimStyle}
               onPress={handleRemoveCall}
@@ -116,6 +120,16 @@ const TransactionSummary = ({
               testID={`delete-txn-call-${index}`}
             >
               <DeleteIcon />
+            </AnimatedPressable>
+          )}
+          {rightIcon && onRightIconPress && (
+            <AnimatedPressable
+              style={deleteIconAnimStyle}
+              onPress={onRightIconPress}
+              {...bindDeleteIconAnim}
+              testID={`right-icon-${index}`}
+            >
+              {rightIcon}
             </AnimatedPressable>
           )}
         </>
