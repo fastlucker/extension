@@ -359,7 +359,9 @@ const TransferScreen = () => {
                   title={t('Gas Tank deposits cannot be withdrawn')}
                   text={
                     !doesUserMeetMinimumBalanceForGasTank
-                      ? t('Important: A minimum balance of $10 is required to use the Gas Tank')
+                      ? t(
+                          'Note: A minimum overall balance of $10 is required to pay for gas via the Gas Tank'
+                        )
                       : false
                   }
                   isTypeLabelHidden
