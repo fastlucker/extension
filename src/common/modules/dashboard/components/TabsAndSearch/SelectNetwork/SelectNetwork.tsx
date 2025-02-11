@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -11,7 +11,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
-import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import { AnimatedPressable, DURATIONS, useMultiHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -28,8 +28,21 @@ const SelectNetwork = () => {
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme()
 
-  const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
-    preset: 'opacity'
+  const [bindNetworkButtonAnim, networkButtonAnimStyle] = useMultiHover({
+    values: [
+      {
+        property: 'backgroundColor',
+        from: theme.secondaryBackground,
+        to: theme.tertiaryBackground,
+        duration: DURATIONS.REGULAR
+      },
+      {
+        property: 'borderColor',
+        from: theme.secondaryBorder,
+        to: theme.tertiaryText,
+        duration: DURATIONS.REGULAR
+      }
+    ]
   })
 
   const filterByNetworkName = useMemo(() => {
@@ -54,29 +67,30 @@ const SelectNetwork = () => {
   return (
     <View
       style={[
-        styles.container,
         flexbox.directionRow,
         flexbox.alignCenter,
         spacings.mrTy,
         {
-          ...(dashboardNetworkFilter && {
-            color: theme.primaryText,
-            borderColor: theme.primary,
-            backgroundColor: theme.infoBackground
-          }),
           width: isPopup ? 160 : 190
         }
       ]}
     >
       <AnimatedPressable
         style={[
+          styles.container,
           flexbox.directionRow,
           flexbox.justifySpaceBetween,
           flexbox.alignCenter,
           networkButtonAnimStyle,
           spacings.plTy,
           spacings.prTy,
-          { width: '100%' }
+          {
+            ...(dashboardNetworkFilter && {
+              color: theme.primaryText,
+              borderColor: theme.primary,
+              backgroundColor: theme.infoBackground
+            })
+          }
         ]}
         onPress={() => {
           navigate(WEB_ROUTES.networks, {
@@ -96,7 +110,7 @@ const SelectNetwork = () => {
         ) : (
           <Text fontSize={14}>{t('All Networks')}</Text>
         )}
-        <DownArrowIcon style={spacings.plTy} color={theme.primaryText} width={14} height={6.5} />
+        <RightArrowIcon height={12} color={iconColors.dark} />
       </AnimatedPressable>
     </View>
   )
