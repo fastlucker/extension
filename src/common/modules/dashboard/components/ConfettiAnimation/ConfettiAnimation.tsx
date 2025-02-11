@@ -31,7 +31,6 @@ const ConfettiAnimation = ({
         ...style
       }}
       loop={false}
-      {...rest}
     />
   )
 }
