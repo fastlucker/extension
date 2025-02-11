@@ -234,7 +234,7 @@ const DashboardOverview: FC<Props> = ({
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                   {!portfolio?.isAllReady && isSA ? (
-                    <SkeletonLoader lowOpacity width={200} height={32} borderRadius={8} />
+                    <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
                   ) : (
                     <GasTankButton
                       onPress={openGasTankModal}
