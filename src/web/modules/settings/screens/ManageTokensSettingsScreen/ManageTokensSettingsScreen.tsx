@@ -88,8 +88,14 @@ const ManageTokensSettingsScreen = () => {
         })
         // Filter by search
         .filter((token) => tokenSearch({ search, token, networks }))
-        // Sort by hidden, then custom, then network
+        // Sort by custom, then visibility, then network
         .sort((a, b) => {
+          const isACustom = a.flags.isCustom
+          const isBCustom = b.flags.isCustom
+
+          if (isACustom && !isBCustom) return -1
+          if (!isACustom && isBCustom) return 1
+
           const aInitialIsHidden = initialTokenPreferences?.find(
             ({ address: addr, networkId: nId }) => addr === a.address && nId === a.networkId
           )?.isHidden
@@ -99,12 +105,6 @@ const ManageTokensSettingsScreen = () => {
 
           if (!aInitialIsHidden && bInitialIsHidden) return -1
           if (aInitialIsHidden && !bInitialIsHidden) return 1
-
-          const isACustom = a.flags.isCustom
-          const isBCustom = b.flags.isCustom
-
-          if (isACustom && !isBCustom) return -1
-          if (!isACustom && isBCustom) return 1
 
           const aNetwork = networks.find(({ id }) => id === a.networkId)
           const bNetwork = networks.find(({ id }) => id === b.networkId)
