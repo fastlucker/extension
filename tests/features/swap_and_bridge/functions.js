@@ -4,6 +4,12 @@ import { typeText } from '../../common-helpers/typeText'
 // ToDo: Import and reuse '../../common/transactions'
 // ToDo: Create and use './constants' file
 
+export async function selectButton(pg, text) {
+  // Select Back Button
+  await clickOnElement(pg, `text=${text}`)
+  console.log(`[INFO] Clicked ${text}`)
+}
+
 export async function enterNumber(page, new_amount, is_valid = true) {
   const message = 'Something went wrong! Please contact support'
   // Enter the amount
@@ -18,6 +24,7 @@ export async function enterNumber(page, new_amount, is_valid = true) {
 }
 
 export async function prepareSwapAndBridge(page, send_amount, send_token, send_network, receive_token) {
+  // ToDo: Refactor to use SELECTORS common practice instead of hardcoding selectors
   try {
     console.log('[INFO] Building swap transaction...')
 
@@ -30,7 +37,7 @@ export async function prepareSwapAndBridge(page, send_amount, send_token, send_n
     await clickOnElement(page, `[data-testid*="${send_network}.${send_token}"]`)
 
     // Select Receive Token on the same Network, which is automatically selected
-    await page.waitForTimeout(1000) // Wait 500ms before click for the Receive Token list to be populated
+    await page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
     await clickOnElement(page, '[data-testid="to-token-select"]')
     await clickOnElement(page, `[data-testid*="${receive_token}"]`)
     console.log(`[INFO] Selected ${receive_token} token to receive.`)
@@ -48,47 +55,65 @@ export async function prepareSwapAndBridge(page, send_amount, send_token, send_n
     await page.waitForSelector('text=Fetching best route...', { visible: true })
     await page.waitForSelector('text=Fetching best route...', { hidden: true })
 
-    // ToDo: Handle The price impact is too high
-    await expect(page).not.toMatchElement('[data-testid="checkbox"]')
+    // ToDo: Handle 'No route found' situation - low pty
+
+    try {
+      // If Warning: The price impact is too high
+      await page.waitForSelector('[data-testid="checkbox"]', { timeout: 1000 })
+      await clickOnElement(page, '[data-testid="checkbox"]')
+      return 'Continue anyway'
+    } catch (error) {
+      return 'Proceed'
+    }
   } catch (error) {
     console.error(`[ERROR] Swap Transaction Preparation Failed: ${error.message}`)
     throw error
   }
 }
 
-export async function proceedSwapAndBridge(page) {
+export async function openSwapAndBridgeActionPage(page, callback = null) {
   try {
     // Get the browser context of the page
     const context = page.browserContext()
 
-    const [newPagePromise] = await Promise.all([
+    const [actionPagePromise] = await Promise.all([
       new Promise((resolve) => {
         context.once('targetcreated', async (target) => {
-          const newPage = await target.page()
-          resolve(newPage)
+          const actionPage = await target.page()
+          resolve(actionPage)
         })
       }),
-
-      // Select Proceed Button
-      await clickOnElement(page, 'text=Proceed')
+      // The callback function to be executed
+      await callback(page)
     ])
 
-    // Use newPage for interactions the with new page
-    const newPage = await newPagePromise
+    // Use actionPage for interactions the with Action Page
+    const actionPage = await actionPagePromise
 
-    // Wait for new page to open
-    await newPage.waitForTimeout(1500)
+    // Wait for Action Page to open
+    await actionPage.waitForTimeout(1500)
 
+    // Assert the Action Page is opened
+    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
+
+    return actionPage
+  } catch (error) {
+    console.error(`[ERROR] Proceed Swap Transaction Failed: ${error.message}`)
+    throw error
+  }
+}
+
+export async function signActionPage(actionPage) {
+  try {
     // Select Sign
-    await clickOnElement(newPage, 'text=Sign')
+    await clickOnElement(actionPage, 'text=Sign')
     console.log('[INFO] Clicked Sign')
 
     // Wait for transaction to be confirmed
-    await newPage.waitForSelector('text=Timestamp', { visible: true })
+    await actionPage.waitForSelector('text=Timestamp', { visible: true })
 
     // Asset if the transaction is confirmed
-    await expect(newPage).toMatchElement('div', { text: 'Confirmed' })
-    // eslint-disable-next-line no-console
+    await expect(actionPage).toMatchElement('div', { text: 'Confirmed' })
     console.log('[INFO] Transaction Confirmed')
   } catch (error) {
     console.error(`[ERROR] Sign Swap Transaction Failed: ${error.message}`)

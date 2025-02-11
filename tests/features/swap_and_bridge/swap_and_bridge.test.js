@@ -1,7 +1,13 @@
 import { baParams, saParams } from '../../config/constants'
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 
-import { prepareSwapAndBridge, proceedSwapAndBridge, enterNumber } from './functions'
+import {
+  selectButton,
+  enterNumber,
+  prepareSwapAndBridge,
+  openSwapAndBridgeActionPage,
+  signActionPage
+} from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
   let browser
@@ -22,13 +28,17 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   })
 
   it('should Swap ERC20 tokens USDC to WALLET on Base network with a Basic Account', async () => {
-    await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
-    await proceedSwapAndBridge(page)
+    const text = await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    await signActionPage(
+      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    )
   })
 
   it('should Swap ERC20 tokens WALLET to USDC on Base network with a Basic Account', async () => {
-    await prepareSwapAndBridge(page, 1, 'wallet', 'base', 'usdc')
-    await proceedSwapAndBridge(page)
+    const text = await prepareSwapAndBridge(page, 1, 'wallet', 'base', 'usdc')
+    await signActionPage(
+      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    )
   })
 
   it('should be able to return back to Dashboard from Swap & Bridge page with a Basic Account', async () => {
@@ -42,6 +52,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
 
   it('should accept amount starting with point like ".01" during Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    // ToDo: It fails now. Deveopers to fix the issue with entering amount starting the point
     await enterNumber(page, '.01', true)
   })
 
@@ -55,8 +66,32 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // Consider testing the Dashboard banners (when bridging in progress) and the Route in Progress component
   })
 
-  it.skip('should "proceed" and "reject" Swap & Bridge from the Pending Route component with a Basic Account', async () => {
-    // ToDo: Implement the test
+  it('should "proceed" Swap & Bridge from the Pending Route component with a Basic Account', async () => {
+    const text = await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, text)
+    )
+    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
+    actionPage.close()
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, 'Proceed')
+    )
+    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
+    actionPage.close()
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+  })
+
+  it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Basic Account', async () => {
+    const text = await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, text)
+    )
+    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
+    actionPage.close()
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+    await selectButton(page, 'Cancel')
+    await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
   it.skip('should select a different route when Swap & Bridge with a Basic Account', async () => {
@@ -125,6 +160,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
 
   it('should accept amount starting with point like ".01" during Swap & Bridge with a Smart Account', async () => {
     await prepareSwapAndBridge(page, 0.1, 'dai', 'optimism', 'usdc.e')
+    // ToDo: It fails now. Deveopers to fix the issue with entering amount starting the point
     await enterNumber(page, '.01', true)
   })
 
@@ -138,8 +174,32 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     // Consider testing the Dashboard banners (when bridging in progress) and the Route in Progress component
   })
 
-  it.skip('should "proceed" and "reject" Swap & Bridge from the Pending Route component with a Smart Account', async () => {
-    // ToDo: Implement the test
+  it('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async () => {
+    const text = await prepareSwapAndBridge(page, 0.1, 'usdc.e', 'optimism', 'dai')
+    let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, text)
+    )
+    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
+    actionPage.close()
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, 'Proceed')
+    )
+    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
+    actionPage.close()
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+  })
+
+  it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async () => {
+    const text = await prepareSwapAndBridge(page, 0.1, 'usdc.e', 'optimism', 'dai')
+    const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, text)
+    )
+    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
+    actionPage.close()
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+    await selectButton(page, 'Cancel')
+    await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
   it.skip('should select a different route when Swap & Bridge with a Smart Account', async () => {
