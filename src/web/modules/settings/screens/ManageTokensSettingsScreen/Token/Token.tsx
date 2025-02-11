@@ -131,7 +131,7 @@ const Token: FC<Props> = ({
         </Text>
         {flags.isCustom && <Badge text="Custom" />}
       </View>
-      <View style={[flexbox.directionRow, flexbox.alignCenter, { flex: 1.75 }]}>
+      <View style={[flexbox.directionRow, flexbox.alignCenter, { flex: 1.5 }]}>
         <NetworkIcon id={networkId} style={spacings.mrTy} />
         <Text>{networks.find(({ id }) => id === networkId)?.name || 'Unknown Network'}</Text>
       </View>
@@ -141,7 +141,7 @@ const Token: FC<Props> = ({
           flexbox.alignCenter,
           flexbox.justifySpaceBetween,
           spacings.prSm,
-          { flex: 0.4 }
+          { flex: 0.3 }
         ]}
       >
         <Toggle isOn={!isHidden} onToggle={toggleHideToken} />

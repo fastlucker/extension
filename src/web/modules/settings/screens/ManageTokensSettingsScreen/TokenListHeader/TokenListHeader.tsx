@@ -15,12 +15,12 @@ const TokenListHeader = () => {
           {t('Token')}
         </Text>
       </View>
-      <View style={{ flex: 1.75 }}>
+      <View style={{ flex: 1.5 }}>
         <Text appearance="secondaryText" fontSize={14}>
           {t('Network')}
         </Text>
       </View>
-      <View style={{ flex: 0.4, ...spacings.prSm }}>
+      <View style={{ flex: 0.3, ...spacings.prSm }}>
         <Text appearance="secondaryText" fontSize={14}>
           {t('Visibility')}
         </Text>
