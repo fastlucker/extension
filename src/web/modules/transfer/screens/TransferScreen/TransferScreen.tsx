@@ -59,7 +59,7 @@ const TransferScreen = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-  const { account } = useSelectedAccountControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { userRequests, isOffline } = useMainControllerState()
@@ -75,6 +75,10 @@ const TransferScreen = () => {
       (r) => r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
     )
   }, [account, userRequests])
+
+  const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
+    return portfolio.totalBalance >= 10
+  }, [portfolio.totalBalance])
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -353,7 +357,11 @@ const TransferScreen = () => {
                 <Alert
                   type="warning"
                   title={t('Gas Tank deposits cannot be withdrawn')}
-                  text={t('Important: A minimum balance of $10 is required to use the Gas Tank')}
+                  text={
+                    !doesUserMeetMinimumBalanceForGasTank
+                      ? t('Important: A minimum balance of $10 is required to use the Gas Tank')
+                      : false
+                  }
                   isTypeLabelHidden
                 />
               </View>
