@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import { FlatListProps, View } from 'react-native'
+import { FlatListProps, Pressable, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { Network } from '@ambire-common/interfaces/network'
 import { getTokenAmount, getTokenBalanceInUSD } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -14,10 +16,11 @@ import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { getDoesNetworkMatch } from '@common/utils/search'
+import { tokenSearch } from '@common/utils/search'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import AddTokenBottomSheet from '@web/modules/settings/screens/ManageTokensSettingsScreen/AddTokenBottomSheet'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -58,6 +61,11 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
   const { networks } = useNetworksControllerState()
   const { customTokens } = usePortfolioControllerState()
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
+  const {
+    ref: addTokenBottomSheetRef,
+    open: openAddTokenBottomSheet,
+    close: closeAddTokenBottomSheet
+  } = useModalize()
   const { control, watch, setValue } = useForm({
     mode: 'all',
     defaultValues: {
@@ -77,25 +85,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
 
           return token.networkId === dashboardNetworkFilter && !token.flags.onGasTank
         })
-        .filter((token) => {
-          if (!searchValue) return true
-
-          const lowercaseSearch = searchValue.toLowerCase()
-
-          const doesAddressMatch = token.address.toLowerCase().includes(lowercaseSearch)
-          const doesSymbolMatch = token.symbol.toLowerCase().includes(lowercaseSearch)
-
-          return (
-            doesAddressMatch ||
-            doesSymbolMatch ||
-            getDoesNetworkMatch({
-              networks,
-              tokenFlags: token.flags,
-              itemNetworkId: token.networkId,
-              lowercaseSearch
-            })
-          )
-        }),
+        .filter((token) => tokenSearch({ search: searchValue, token, networks })),
     [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
   )
 
@@ -177,9 +167,14 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
     [tokens, networks, customTokens, userHasNoBalance, portfolio?.isAllReady]
   )
 
+  const hiddenTokensCount = useMemo(
+    () => tokens.filter((token) => token.flags.isHidden).length,
+    [tokens]
+  )
+
   const navigateToAddCustomToken = useCallback(() => {
-    navigate(WEB_ROUTES.manageTokens)
-  }, [navigate])
+    openAddTokenBottomSheet()
+  }, [openAddTokenBottomSheet])
 
   const renderItem = useCallback(
     ({ item, index }: any) => {
@@ -239,12 +234,42 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
           // A trick to render the button once all tokens have been rendered. Otherwise
           // there will be layout shifts
           index === sortedTokens.length + 4 ? (
-          <Button
-            type="secondary"
-            text={t('+ Add Custom Token')}
-            onPress={navigateToAddCustomToken}
-            style={spacings.mtSm}
-          />
+          <View style={hiddenTokensCount ? spacings.ptTy : spacings.ptSm}>
+            {!!hiddenTokensCount && (
+              <Pressable
+                style={[
+                  flexbox.directionRow,
+                  flexbox.alignCenter,
+                  flexbox.justifySpaceBetween,
+                  spacings.pvMi,
+                  spacings.phTy,
+                  spacings.mhTy,
+                  spacings.mbLg,
+                  {
+                    borderRadius: 4,
+                    backgroundColor: theme.secondaryBackground
+                  }
+                ]}
+                onPress={() => {
+                  navigate(WEB_ROUTES.manageTokens)
+                }}
+              >
+                <Text appearance="secondaryText" fontSize={12}>
+                  {t('You have {{count}} hidden {{tokensLabel}}', {
+                    count: hiddenTokensCount,
+                    tokensLabel: hiddenTokensCount > 1 ? t('tokens') : t('token')
+                  })}{' '}
+                  {dashboardNetworkFilter && t('on this network')}
+                </Text>
+                <RightArrowIcon height={12} color={theme.secondaryText} />
+              </Pressable>
+            )}
+            <Button
+              type="secondary"
+              text={t('+ Add Custom Token')}
+              onPress={navigateToAddCustomToken}
+            />
+          </View>
         ) : null
       }
 
@@ -268,6 +293,8 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
     [
       initTab?.tokens,
       theme.primaryBackground,
+      theme.secondaryBackground,
+      theme.secondaryText,
       openTab,
       setOpenTab,
       control,
@@ -277,7 +304,9 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
       dashboardNetworkFilter,
       portfolio?.isAllReady,
       sortedTokens.length,
-      navigateToAddCustomToken
+      hiddenTokensCount,
+      navigateToAddCustomToken,
+      navigate
     ]
   )
 
@@ -294,29 +323,35 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
   }, [setValue])
 
   return (
-    <DashboardPageScrollContainer
-      tab="tokens"
-      openTab={openTab}
-      ListHeaderComponent={<DashboardBanners />}
-      data={[
-        'header',
-        !portfolio?.isReadyToVisualize && !sortedTokens.length
-          ? 'skeleton'
-          : 'keep-this-to-avoid-key-warning',
-        ...(initTab?.tokens ? sortedTokens : []),
-        portfolio.isReadyToVisualize && !portfolio.isAllReady
-          ? 'skeleton'
-          : 'keep-this-to-avoid-key-warning-2',
-        !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',
-        'footer'
-      ]}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      onEndReachedThreshold={isPopup ? 5 : 2.5}
-      initialNumToRender={isPopup ? 10 : 20}
-      windowSize={9} // Larger values can cause performance issues.
-      onScroll={onScroll}
-    />
+    <>
+      <DashboardPageScrollContainer
+        tab="tokens"
+        openTab={openTab}
+        ListHeaderComponent={<DashboardBanners />}
+        data={[
+          'header',
+          !portfolio?.isReadyToVisualize && !sortedTokens.length
+            ? 'skeleton'
+            : 'keep-this-to-avoid-key-warning',
+          ...(initTab?.tokens ? sortedTokens : []),
+          portfolio.isReadyToVisualize && !portfolio.isAllReady
+            ? 'skeleton'
+            : 'keep-this-to-avoid-key-warning-2',
+          !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',
+          'footer'
+        ]}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        onEndReachedThreshold={isPopup ? 5 : 2.5}
+        initialNumToRender={isPopup ? 10 : 20}
+        windowSize={9} // Larger values can cause performance issues.
+        onScroll={onScroll}
+      />
+      <AddTokenBottomSheet
+        sheetRef={addTokenBottomSheetRef}
+        handleClose={closeAddTokenBottomSheet}
+      />
+    </>
   )
 }
 
