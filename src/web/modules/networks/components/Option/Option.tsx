@@ -1,7 +1,9 @@
+import { useCallback } from 'react'
 import { Animated, View } from 'react-native'
 
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -12,11 +14,15 @@ const Option = ({
   renderIcon,
   title,
   text,
-  onPress
+  onPress,
+  disabled = false,
+  tooltip
 }: {
   renderIcon: React.ReactNode
   title: string
   text?: string
+  disabled?: boolean
+  tooltip?: string
   onPress: () => void
 }) => {
   const { styles, theme } = useTheme(getStyles)
@@ -35,47 +41,63 @@ const Option = ({
     ]
   })
 
+  const handleOnPress = useCallback(() => {
+    if (disabled) return
+    onPress()
+  }, [disabled, onPress])
+
+  const tooltipId = `tooltip-for-${text}`
+
   return (
-    <AnimatedPressable
-      onPress={onPress}
-      style={[
-        styles.item,
-        flexbox.justifySpaceBetween,
-        {
-          borderWidth: 1,
-          borderColor: animStyle.borderColor
-        }
-      ]}
-      {...bindAnim}
-    >
-      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        <View
+    <>
+      <AnimatedPressable
+        onPress={handleOnPress}
+        // @ts-ignore missing type, but the prop is valid
+        dataSet={{ tooltipId, tooltipContent: tooltip }}
+        // Purposely don't disable the button (but block the onPress action) in
+        // case of a tooltip, because it should be clickable to show the tooltip.
+        disabled={disabled && !tooltip}
+        style={[
+          styles.item,
+          flexbox.justifySpaceBetween,
+          {
+            borderWidth: 1,
+            borderColor: animStyle.borderColor
+          },
+          disabled && { opacity: 0.4 }
+        ]}
+        {...(!disabled && bindAnim)}
+      >
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              ...flexbox.center,
+              ...spacings.mrTy
+            }}
+          >
+            {renderIcon}
+          </View>
+          <Text fontSize={16} weight="medium">
+            {title}
+          </Text>
+          {!!text && (
+            <Text style={spacings.mlTy} fontSize={14} appearance="secondaryText">
+              {text}
+            </Text>
+          )}
+        </View>
+        <Animated.View
           style={{
-            width: 40,
-            height: 40,
-            ...flexbox.center,
-            ...spacings.mrTy
+            left: animStyle.left
           }}
         >
-          {renderIcon}
-        </View>
-        <Text fontSize={16} weight="medium">
-          {title}
-        </Text>
-        {!!text && (
-          <Text style={spacings.mlTy} fontSize={14} appearance="secondaryText">
-            {text}
-          </Text>
-        )}
-      </View>
-      <Animated.View
-        style={{
-          left: animStyle.left
-        }}
-      >
-        <RightArrowIcon />
-      </Animated.View>
-    </AnimatedPressable>
+          <RightArrowIcon />
+        </Animated.View>
+      </AnimatedPressable>
+      {tooltip && <Tooltip id={tooltipId} />}
+    </>
   )
 }
 

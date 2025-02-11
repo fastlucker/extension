@@ -99,11 +99,6 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
     [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
   )
 
-  const shouldDisplaySkeleton = useMemo(
-    () => !tokens.length || !portfolio.isAllReady,
-    [portfolio.isAllReady, tokens.length]
-  )
-
   const userHasNoBalance = useMemo(
     // Exclude gas tank tokens from the check
     // as new users get some Gas Tank balance by default
@@ -243,7 +238,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
         return portfolio?.isAllReady &&
           // A trick to render the button once all tokens have been rendered. Otherwise
           // there will be layout shifts
-          index === sortedTokens.length + 3 ? (
+          index === sortedTokens.length + 4 ? (
           <Button
             type="secondary"
             text={t('+ Add Custom Token')}
@@ -305,11 +300,11 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
-        !portfolio?.isReadyToVisualize && shouldDisplaySkeleton
+        !portfolio?.isReadyToVisualize && !sortedTokens.length
           ? 'skeleton'
           : 'keep-this-to-avoid-key-warning',
         ...(initTab?.tokens ? sortedTokens : []),
-        portfolio.isReadyToVisualize && shouldDisplaySkeleton
+        portfolio.isReadyToVisualize && !portfolio.isAllReady
           ? 'skeleton'
           : 'keep-this-to-avoid-key-warning-2',
         !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',
