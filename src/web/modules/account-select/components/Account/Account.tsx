@@ -156,8 +156,8 @@ const Account = ({
   )
 
   const add7702option = useMemo(() => {
-    return canBecomeSmarter(account, getAccKeys(account))
-  }, [account, getAccKeys])
+    return mainCtrlState.features['7702'] && canBecomeSmarter(account, getAccKeys(account))
+  }, [account, getAccKeys, mainCtrlState.features])
 
   const submenu = useMemo(() => {
     return add7702option ? [SUBMENU_OPTION_7702, ...SUBMENU_OPTIONS] : SUBMENU_OPTIONS
