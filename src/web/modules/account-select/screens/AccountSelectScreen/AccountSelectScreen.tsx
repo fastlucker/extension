@@ -20,7 +20,6 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
@@ -66,7 +65,7 @@ const AccountSelectScreen = () => {
 
   return !pendingToBeSetSelectedAccount ? (
     <TabLayoutContainer
-      header={<Header withPopupBackButton withAmbireLogo />}
+      header={<Header withAmbireLogo />}
       footer={<BackButton />}
       width="lg"
       hideFooterInPopup
