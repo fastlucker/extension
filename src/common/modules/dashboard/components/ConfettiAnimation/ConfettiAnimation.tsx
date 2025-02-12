@@ -9,17 +9,27 @@ import animation from './animation.json'
 const ConfettiAnimation = ({
   width,
   height,
+  style,
   type = 'primary',
   ...rest
-}: { width: number; height: number; type?: 'primary' | 'secondary' } & Omit<
-  LottieComponentProps,
-  'animationData'
->) => {
+}: {
+  width: number
+  height: number
+  style: React.CSSProperties
+  type?: 'primary' | 'secondary'
+} & Omit<LottieComponentProps, 'animationData'>) => {
   return (
     <LottieView
       {...rest}
       animationData={type === 'primary' ? animation : alternativeAnimation}
-      style={{ width, height, position: 'absolute', pointerEvents: 'none', alignSelf: 'center' }}
+      style={{
+        width,
+        height,
+        position: 'absolute',
+        pointerEvents: 'none',
+        alignSelf: 'center',
+        ...style
+      }}
       loop={false}
     />
   )

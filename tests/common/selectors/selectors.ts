@@ -88,7 +88,12 @@ export const TEST_IDS = {
   proceedBtn: 'proceed-btn',
   privateKeyWarningCheckbox1: 'private-key-warning-checkbox-1',
   privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
-  nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-base'
+  nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-base',
+  bannerButtonOpen: 'banner-button-open',
+  confettiModalActionButton: 'confetti-modal-action-button',
+  refreshButton: 'refresh-button',
+  dashboardGasTankButton: 'dashboard-gas-tank-button',
+  createSmartAccountGasTankModalButton: 'create-smart-account-gas-tank-modal-button'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
