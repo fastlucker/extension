@@ -57,8 +57,8 @@ const SubmittedTransactionSummary = ({
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
 
-  const network = useMemo(
-    () => networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
+  const network: Network | undefined = useMemo(
+    () => networks.find((n) => n.id === submittedAccountOp.networkId),
     [networks, submittedAccountOp.networkId]
   )
 
@@ -114,7 +114,7 @@ const SubmittedTransactionSummary = ({
   ])
 
   const handleOpenBenzina = useCallback(async () => {
-    const chainId = Number(network.chainId)
+    const chainId = Number(network?.chainId)
 
     if (!chainId || !submittedAccountOp.txnId) throw new Error('Invalid chainId or txnId')
 
@@ -129,15 +129,17 @@ const SubmittedTransactionSummary = ({
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
-  }, [network.chainId, submittedAccountOp.txnId, submittedAccountOp.identifiedBy, addToast])
+  }, [network?.chainId, submittedAccountOp.txnId, submittedAccountOp.identifiedBy, addToast])
 
   const handleOpenBlockExplorer = useCallback(async () => {
     try {
-      await createTab(`${network.explorerUrl}/tx/${submittedAccountOp.txnId}`)
+      await createTab(`${network?.explorerUrl}/tx/${submittedAccountOp.txnId}`)
     } catch (e: any) {
       addToast(e?.message || 'Error opening block explorer', { type: 'error' })
     }
-  }, [network.explorerUrl, submittedAccountOp.txnId, addToast])
+  }, [network?.explorerUrl, submittedAccountOp.txnId, addToast])
+
+  if (!network) return null
 
   return calls.length ? (
     <View

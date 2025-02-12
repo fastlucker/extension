@@ -101,7 +101,7 @@ const AccountSelectScreen = () => {
 
   return !pendingToBeSetSelectedAccount ? (
     <TabLayoutContainer
-      header={<Header withPopupBackButton withAmbireLogo />}
+      header={<Header withAmbireLogo />}
       footer={<BackButton />}
       width="lg"
       hideFooterInPopup
