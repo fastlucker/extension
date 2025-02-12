@@ -24,7 +24,9 @@ import Networks from '@web/modules/networks/components/Networks'
 
 import AddNetworkBottomSheet from '../components/AddNetworkBottomSheet'
 import AllNetworksOption from '../components/AllNetworksOption/AllNetworksOption'
-import NetworkBottomSheet, { NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP } from '../components/NetworkBottomSheet'
+import NetworkBottomSheet, {
+  NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP
+} from '../components/NetworkBottomSheet'
 
 const NetworksScreen = () => {
   const { t } = useTranslation()
@@ -83,7 +85,7 @@ const NetworksScreen = () => {
 
   return (
     <TabLayoutContainer
-      header={<Header customTitle="Networks" withPopupBackButton withAmbireLogo />}
+      header={<Header customTitle="Networks" withAmbireLogo />}
       footer={<BackButton />}
       width="lg"
       hideFooterInPopup
