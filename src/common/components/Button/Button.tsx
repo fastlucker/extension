@@ -106,7 +106,7 @@ const Button = ({
       info2: [OPACITY_ANIMATION],
       success: [OPACITY_ANIMATION]
     }),
-    [theme]
+    [theme.errorBackground, theme.primary, theme.primaryLight, theme.infoBackground]
   )
 
   const [bind, animatedStyle] = useMultiHover({
