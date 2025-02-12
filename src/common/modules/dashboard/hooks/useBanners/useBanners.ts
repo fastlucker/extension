@@ -33,7 +33,8 @@ const OFFLINE_BANNER: BannerInterface = {
 
 export default function useBanners(): BannerInterface[] {
   const { isOffline, banners: mainCtrlBanners } = useMainControllerState()
-  const { account, portfolio, deprecatedSmartAccountBanner } = useSelectedAccountControllerState()
+  const { account, portfolio, deprecatedSmartAccountBanner, firstCashbackBanner } =
+    useSelectedAccountControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
@@ -51,7 +52,8 @@ export default function useBanners(): BannerInterface[] {
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
       ...keystoreBanners,
-      ...extensionUpdateBanner
+      ...extensionUpdateBanner,
+      ...firstCashbackBanner
     ]
   }, [
     deprecatedSmartAccountBanner,
@@ -64,7 +66,8 @@ export default function useBanners(): BannerInterface[] {
     emailVaultBanners,
     account?.addr,
     keystoreBanners,
-    extensionUpdateBanner
+    extensionUpdateBanner,
+    firstCashbackBanner
   ])
 
   return allBanners

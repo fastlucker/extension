@@ -19,7 +19,7 @@ import getStyles from './styles'
 interface Props {
   mode?: 'title' | 'image-and-title' | 'custom-inner-content' | 'custom'
   customTitle?: string
-  withPopupBackButton?: boolean
+  displayBackButtonIn?: 'popup' | 'tab' | 'always' | 'never'
   withAmbireLogo?: boolean
   image?: string
   children?: any
@@ -35,7 +35,7 @@ const { isTab, isActionWindow } = getUiType()
 const Header = ({
   mode = 'title',
   customTitle,
-  withPopupBackButton = false,
+  displayBackButtonIn,
   withAmbireLogo,
   children,
   backgroundColor,
@@ -87,7 +87,7 @@ const Header = ({
         <View style={[styles.widthContainer, { maxWidth: tabLayoutWidths[width] }]}>
           <View style={styles.sideContainer}>
             <BackButton
-              hideInPopup={!withPopupBackButton}
+              displayIn={displayBackButtonIn}
               onGoBackPress={onGoBackPress}
               forceBack={forceBack}
             />
