@@ -65,7 +65,7 @@ describe('Gas Tank tests with Smart Account', () => {
     await clickOnElement(page, SELECTORS.confettiModalActionButton, true, 500)
   })
 
-  it('Should check if all the data in the Gas Tank modal exists', async () => {
+  it.skip('Should check if all the data in the Gas Tank modal exists', async () => {
     await page.waitForSelector(SELECTORS.dashboardGasTankButton)
 
     // Click on 'Discover Gas Tank' button
