@@ -1,13 +1,12 @@
-import React, { FC, useCallback, useMemo } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import FilterIcon from '@common/assets/svg/FilterIcon'
+import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
@@ -15,7 +14,6 @@ import Routes from '@common/modules/dashboard/components/Routes'
 import useBalanceAffectingErrors from '@common/modules/dashboard/hooks/useBalanceAffectingErrors'
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -24,23 +22,28 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
-import { getUiType } from '@web/utils/uiType'
 
+import GasTankButton from '../DashboardHeader/GasTankButton'
 import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
 
 interface Props {
   openReceiveModal: () => void
+  openGasTankModal: () => void
   animatedOverviewHeight: Animated.Value
   dashboardOverviewSize: {
     width: number
     height: number
   }
   setDashboardOverviewSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>
+  onGasTankButtonPosition: (position: {
+    x: number
+    y: number
+    width: number
+    height: number
+  }) => void
 }
-
-const { isPopup } = getUiType()
 
 // We create a reusable height constant for both the Balance line-height and the Balance skeleton.
 // We want both components to have the same height; otherwise, clicking on the RefreshIcon causes a layout shift.
@@ -48,20 +51,20 @@ const BALANCE_HEIGHT = 34
 
 const DashboardOverview: FC<Props> = ({
   openReceiveModal,
+  openGasTankModal,
   animatedOverviewHeight,
   dashboardOverviewSize,
-  setDashboardOverviewSize
+  setDashboardOverviewSize,
+  onGasTankButtonPosition
 }) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-  const { navigate } = useNavigation()
-  const { networks } = useNetworksControllerState()
   const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
-  const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
-    preset: 'opacity'
-  })
+
+  const isSA = useMemo(() => isSmartAccount(account), [account])
+
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -74,25 +77,6 @@ const DashboardOverview: FC<Props> = ({
     isLoadingTakingTooLong,
     networksWithErrors
   } = useBalanceAffectingErrors()
-
-  const filterByNetworkName = useMemo(() => {
-    if (!dashboardNetworkFilter) return ''
-
-    if (dashboardNetworkFilter === 'rewards') return 'Ambire Rewards Portfolio'
-    if (dashboardNetworkFilter === 'gasTank') return 'Gas Tank Portfolio'
-
-    const network = networks.find((n) => n.id === dashboardNetworkFilter)
-
-    let networkName = network?.name || 'Unknown Network'
-
-    networkName = `${networkName} Portfolio`
-
-    if (networkName.length > 20 && isPopup) {
-      networkName = `${networkName.slice(0, 20)}...`
-    }
-
-    return networkName
-  }, [dashboardNetworkFilter, networks])
 
   const totalPortfolioAmount = useMemo(() => {
     if (!dashboardNetworkFilter) return portfolio?.totalBalance || 0
@@ -115,6 +99,27 @@ const DashboardOverview: FC<Props> = ({
       }
     })
   }, [dashboardNetworkFilter, dispatch])
+
+  const [buttonPosition, setButtonPosition] = useState<{
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null>(null)
+
+  const onGasTankButtonPositionWrapped = useCallback(
+    (position: { x: number; y: number; width: number; height: number }) => {
+      setButtonPosition(position)
+      onGasTankButtonPosition(position)
+    },
+    [onGasTankButtonPosition]
+  )
+
+  useEffect(() => {
+    if (buttonPosition) {
+      onGasTankButtonPositionWrapped(buttonPosition)
+    }
+  }, [buttonPosition, onGasTankButtonPositionWrapped])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -228,31 +233,16 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <AnimatedPressable
-                    style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
-                    onPress={() => {
-                      navigate(WEB_ROUTES.networks)
-                    }}
-                    {...bindNetworkButtonAnim}
-                  >
-                    {dashboardNetworkFilter ? (
-                      <FilterIcon
-                        color={theme.primaryBackground}
-                        width={16}
-                        height={16}
-                        style={spacings.mrMi}
-                      />
-                    ) : null}
-                    <Text fontSize={14} color={theme.primaryBackground} weight="medium">
-                      {dashboardNetworkFilter ? filterByNetworkName : t('All Networks')}
-                    </Text>
-                    <DownArrowIcon
-                      style={spacings.mlSm}
-                      color={theme.primaryBackground}
-                      width={12}
-                      height={6.5}
+                  {!portfolio?.isAllReady && isSA ? (
+                    <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
+                  ) : (
+                    <GasTankButton
+                      onPress={openGasTankModal}
+                      onPosition={onGasTankButtonPositionWrapped}
+                      portfolio={portfolio}
+                      account={account}
                     />
-                  </AnimatedPressable>
+                  )}
                   <BalanceAffectingErrors
                     reloadAccount={reloadAccount}
                     networksWithErrors={networksWithErrors}

@@ -78,6 +78,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
   const tokens = useMemo(
     () =>
       (portfolio?.tokens || [])
+        .filter((token) => !token.flags.onGasTank) // Hide gas tank tokens from the list
         .filter((token) => {
           if (!dashboardNetworkFilter) return true
           if (dashboardNetworkFilter === 'rewards') return token.flags.rewardsType
@@ -186,6 +187,7 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
               setOpenTab={setOpenTab}
               searchControl={control}
               sessionId={sessionId}
+              setValue={setValue}
             />
             <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>

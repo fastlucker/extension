@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useMemo, useRef } from 'react'
-import { FlatList, FlatListProps, ViewStyle } from 'react-native'
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Dimensions, FlatList, FlatListProps, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import commonWebStyles from '@web/styles/utils/common'
@@ -22,6 +22,8 @@ const HIDDEN_STYLE: ViewStyle = {
   pointerEvents: 'none'
 }
 
+const SCROLLBAR_TRIGGER_THRESHOLD = 4
+
 const getFlatListStyle = (tab: TabType, openTab: TabType, allBannersLength: number) => [
   spacings.ph0,
   commonWebStyles.contentContainer,
@@ -32,6 +34,7 @@ const getFlatListStyle = (tab: TabType, openTab: TabType, allBannersLength: numb
 const { isPopup } = getUiType()
 
 const DashboardPageScrollContainer: FC<Props> = ({ tab, openTab, ...rest }) => {
+  const [hasScrollBar, setHasScrollBar] = useState(false)
   const allBanners = useBanners()
   const flatlistRef = useRef<FlatList | null>(null)
 
@@ -40,15 +43,16 @@ const DashboardPageScrollContainer: FC<Props> = ({ tab, openTab, ...rest }) => {
     [allBanners.length, openTab, tab]
   )
 
-  const contentContainerStyle = useMemo(
-    () => [
+  const contentContainerStyle = useMemo(() => {
+    const popUpPaddingRight = hasScrollBar ? spacings.prTy : spacings.prSm
+
+    return [
       isPopup ? spacings.plSm : {},
-      isPopup ? spacings.prTy : { paddingRight: 2 },
+      isPopup ? popUpPaddingRight : { paddingRight: 2 },
       allBanners.length ? spacings.ptTy : spacings.pt0,
       { flexGrow: 1 }
-    ],
-    [allBanners.length]
-  )
+    ]
+  }, [allBanners.length, hasScrollBar])
 
   useEffect(() => {
     if (!flatlistRef.current) return
@@ -60,6 +64,14 @@ const DashboardPageScrollContainer: FC<Props> = ({ tab, openTab, ...rest }) => {
     })
   }, [openTab])
 
+  const handleContentSizeChange = useCallback((contentWidth: number) => {
+    const windowWidth = Dimensions.get('window').width
+
+    if (windowWidth - contentWidth > SCROLLBAR_TRIGGER_THRESHOLD) return
+
+    setHasScrollBar(contentWidth < windowWidth)
+  }, [])
+
   return (
     <FlatList
       ref={flatlistRef}
@@ -69,6 +81,7 @@ const DashboardPageScrollContainer: FC<Props> = ({ tab, openTab, ...rest }) => {
       removeClippedSubviews
       bounces={false}
       alwaysBounceVertical={false}
+      onContentSizeChange={handleContentSizeChange}
       {...rest}
     />
   )

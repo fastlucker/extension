@@ -35,7 +35,7 @@ const DashboardBanner = ({
   const { navigate } = useNavigation()
   const { visibleActionsQueue } = useActionsControllerState()
   const { statuses } = useMainControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
@@ -71,27 +71,30 @@ const DashboardBanner = ({
           })
           break
 
-        case 'open-external-url':
+        case 'open-external-url': {
           if (type !== 'success') break
 
           window.open(action.meta.url, '_blank')
           break
+        }
 
-        case 'switch-default-wallet':
+        case 'switch-default-wallet': {
           dispatch({
             type: 'SET_IS_DEFAULT_WALLET',
             params: { isDefaultWallet: true }
           })
           addToast('Ambire is your default wallet.', { timeout: 2000 })
           break
+        }
 
-        case 'sync-keys':
+        case 'sync-keys': {
           if (type !== 'info') break
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
             params: { email: action.meta.email, keys: action.meta.keys }
           })
           break
+        }
 
         case 'backup-keystore-secret':
           navigate(ROUTES.devicePasswordRecovery)
@@ -115,6 +118,15 @@ const DashboardBanner = ({
             params: { activeRouteId: action.meta.activeRouteId }
           })
           break
+
+        case 'open-first-cashback-modal': {
+          if (!account) break
+          dispatch({
+            type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
+            params: { accountAddr: account.addr }
+          })
+          break
+        }
 
         case 'hide-activity-banner':
           dispatch({
@@ -142,6 +154,7 @@ const DashboardBanner = ({
             type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
           })
           break
+
         case 'dismiss-email-vault':
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
@@ -153,6 +166,7 @@ const DashboardBanner = ({
             }
           )
           break
+
         case 'dismiss-7702-banner':
           dispatch({
             type: 'ACCOUNT_DISABLE_7702_BANNER',
@@ -167,7 +181,7 @@ const DashboardBanner = ({
           break
       }
     },
-    [visibleActionsQueue, type, dispatch, addToast, navigate]
+    [visibleActionsQueue, type, dispatch, addToast, navigate, account]
   )
 
   const renderButtons = useMemo(
@@ -191,6 +205,7 @@ const DashboardBanner = ({
 
         return (
           <BannerButton
+            testID={`banner-button-${actionText.toLowerCase()}`}
             key={action.actionName}
             isReject={isReject}
             text={actionText}

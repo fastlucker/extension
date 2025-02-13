@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -13,6 +13,7 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useAccountsList from '@common/hooks/useAccountsList'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import DashboardSkeleton from '@common/modules/dashboard/screens/Skeleton'
 import Header from '@common/modules/header/components/Header'
@@ -26,6 +27,26 @@ import AddAccount from '@web/modules/account-select/components/AddAccount'
 
 import getStyles from './styles'
 
+const extractTriggerAddAccountSheetParam = (search: string | undefined): boolean | null => {
+  if (!search) return null
+
+  const params = new URLSearchParams(search)
+  const addAccount = params.get('triggerAddAccountBottomSheet')
+
+  // Remove the addAccount parameter
+  if (addAccount) {
+    params.delete('triggerAddAccountBottomSheet')
+    const updatedSearch = params.toString()
+
+    // Updated URL back into the app, handle it here.
+    window.history.replaceState(null, '', `?${updatedSearch}`)
+
+    return addAccount === 'true'
+  }
+
+  return null
+}
+
 const AccountSelectScreen = () => {
   const { styles, theme } = useTheme(getStyles)
   const flatlistRef = useRef(null)
@@ -37,12 +58,27 @@ const AccountSelectScreen = () => {
     getItemLayout,
     isReadyToScrollToSelectedAccount
   } = useAccountsList({ flatlistRef })
+  const { search: routeParams } = useRoute()
   const { navigate } = useNavigation()
   const { account } = useSelectedAccountControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
   const accountsContainerRef = useRef(null)
   const [pendingToBeSetSelectedAccount, setPendingToBeSetSelectedAccount] = useState('')
+
+  const shouldTriggerAddAccountSheetFromSearch = useMemo(
+    () => extractTriggerAddAccountSheetParam(routeParams),
+    [routeParams]
+  )
+
+  useEffect(() => {
+    if (!shouldTriggerAddAccountSheetFromSearch) return
+
+    // Added a 100ms in order to open the bottom sheet.
+    const timeoutId = setTimeout(() => openBottomSheet(), 100)
+
+    return () => clearTimeout(timeoutId)
+  }, [openBottomSheet, shouldTriggerAddAccountSheetFromSearch])
 
   const onAccountSelect = useCallback(
     (addr: AccountType['addr']) => setPendingToBeSetSelectedAccount(addr),
