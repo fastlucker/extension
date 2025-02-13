@@ -6,14 +6,17 @@ import { View } from 'react-native'
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import CoinsIcon from '@common/assets/svg/CoinsIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import StarFilledIcon from '@common/assets/svg/StarFilledIcon'
 import { SectionedSelect } from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
 interface Props {
   toTokenOptions: SelectValue[]
@@ -36,6 +39,7 @@ const ToTokenSelect: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const { errors, isTokenListLoading } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
   const [didAttemptSearchingTokenByAddress, setDidAttemptSearchingTokenByAddress] =
     React.useState(false)
@@ -56,6 +60,37 @@ const ToTokenSelect: React.FC<Props> = ({
   const notFoundPlaceholderText = didAttemptSearchingTokenByAddress
     ? t('Not found. Wrong receive network?') // TODO: Add "... or unsupported token" when UI allows longer messages
     : t('Not found. Try with token address?')
+
+  const toTokenListError = useMemo(() => {
+    if (isTokenListLoading) return null
+
+    return errors.find(({ id }) => id === 'to-token-list-fetch-failed')
+  }, [errors, isTokenListLoading])
+
+  const toTokenValueOrError = useMemo(() => {
+    if (toTokenListError) {
+      return {
+        value: toTokenListError.id,
+        label: (
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <Text fontSize={14} weight="medium" appearance="errorText" style={spacings.mrMi}>
+              {t(toTokenListError.title)}
+            </Text>
+            <InfoIcon
+              color={theme.secondaryText}
+              width={14}
+              height={14}
+              data-tooltip-id="to-token-list-error-tooltip"
+            />
+            <Tooltip id="to-token-list-error-tooltip" content={toTokenListError.text} />
+          </View>
+        ),
+        icon: null
+      }
+    }
+
+    return toTokenValue
+  }, [t, theme.secondaryText, toTokenListError, toTokenValue])
 
   const selectSections = useMemo(() => {
     const { toTokenOptionsInAccount, restToTokenOptions } = toTokenOptions.reduce<{
@@ -123,7 +158,7 @@ const ToTokenSelect: React.FC<Props> = ({
       setValue={handleChangeToToken}
       sections={selectSections}
       renderSectionHeader={renderFeeOptionSectionHeader}
-      value={toTokenValue}
+      value={toTokenValueOrError}
       headerHeight={SECTION_MENU_HEADER_HEIGHT}
       disabled={toTokenAmountSelectDisabled}
       testID="to-token-select"
