@@ -40,25 +40,13 @@ const DashboardScreen = () => {
   const debouncedDashboardOverviewSize = useDebounce({ value: dashboardOverviewSize, delay: 100 })
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
-  const { account, portfolio, cashbackStatusByAccount } = useSelectedAccountControllerState()
+  const { account, portfolio, cashbackStatus } = useSelectedAccountControllerState()
 
   const hasUnseenFirstCashback = useMemo(() => {
-    if (
-      !account ||
-      cashbackStatusByAccount[account.addr] === undefined ||
-      !cashbackStatusByAccount[account?.addr].firstCashbackSeenAt
-    )
-      return false
+    if (cashbackStatus === undefined) return false
 
-    const cashBackStatusPerCurrentAccount = cashbackStatusByAccount[account?.addr]
-
-    return (
-      !!cashBackStatusPerCurrentAccount.cashbackWasZeroAt &&
-      !!cashBackStatusPerCurrentAccount.firstCashbackReceivedAt &&
-      !!cashBackStatusPerCurrentAccount.firstCashbackSeenAt &&
-      !cashBackStatusPerCurrentAccount.seenModalAt
-    )
-  }, [account, cashbackStatusByAccount])
+    return cashbackStatus === 'cashback-modal'
+  }, [cashbackStatus])
 
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
     x: number
@@ -116,7 +104,7 @@ const DashboardScreen = () => {
   const handleCongratsModalBtnPressed = useCallback(() => {
     dispatch({
       type: 'SELECTED_ACCOUNT_CONTROLLER_UPDATE_CASHBACK_STATUS',
-      params: { shouldSetSeenModalAt: true }
+      params: 'seen-cashback'
     })
   }, [dispatch])
 

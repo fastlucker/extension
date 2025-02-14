@@ -440,7 +440,7 @@ export const handleActions = async (
       )
     }
     case 'SELECTED_ACCOUNT_CONTROLLER_UPDATE_CASHBACK_STATUS': {
-      return await mainCtrl.selectedAccount.updateCashbackStatusByAccount(params)
+      return await mainCtrl.selectedAccount.changeCashbackStatus(params)
     }
     case 'KEYSTORE_CONTROLLER_ADD_SECRET':
       return await mainCtrl.keystore.addSecret(

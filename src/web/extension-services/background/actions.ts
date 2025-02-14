@@ -12,7 +12,7 @@ import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
-import { UpdateCashbackStatusByAccount } from '@ambire-common/interfaces/selectedAccount'
+import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
 import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -308,10 +308,7 @@ type PortfolioControllerCheckToken = {
 
 type PortfolioControllerUpdateConfettiToShown = {
   type: 'SELECTED_ACCOUNT_CONTROLLER_UPDATE_CASHBACK_STATUS'
-  params: {
-    shouldSetFirstCashbackSeenAt?: UpdateCashbackStatusByAccount['shouldSetFirstCashbackReceivedAt']
-    shouldSetSeenModalAt?: UpdateCashbackStatusByAccount['shouldSetSeenModalAt']
-  }
+  params: CashbackStatus
 }
 
 type MainControllerSignAccountOpInitAction = {
