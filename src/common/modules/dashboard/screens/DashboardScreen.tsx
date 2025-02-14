@@ -40,25 +40,25 @@ const DashboardScreen = () => {
   const debouncedDashboardOverviewSize = useDebounce({ value: dashboardOverviewSize, delay: 100 })
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
-  const { account, portfolio } = useSelectedAccountControllerState()
+  const { account, portfolio, cashbackStatusByAccount } = useSelectedAccountControllerState()
 
-  const shouldShowFirstCashbackConfetti = useMemo(() => {
-    if (!account) return false
-
-    const gasTankResult = portfolio?.latest?.gasTank?.result
-
+  const hasUnseenFirstCashback = useMemo(() => {
     if (
-      !gasTankResult ||
-      !('gasTankTokens' in gasTankResult) ||
-      !Array.isArray(gasTankResult.gasTankTokens)
-    ) {
+      !account ||
+      cashbackStatusByAccount[account.addr] === undefined ||
+      !cashbackStatusByAccount[account?.addr].firstCashbackSeenAt
+    )
       return false
-    }
 
-    const hasUnseenFirstCashback = gasTankResult.gasTankTokens[0]?.hasUnseenFirstCashback
+    const cashBackStatusPerCurrentAccount = cashbackStatusByAccount[account?.addr]
 
-    return hasUnseenFirstCashback
-  }, [account, portfolio])
+    return (
+      !!cashBackStatusPerCurrentAccount.cashbackWasZeroAt &&
+      !!cashBackStatusPerCurrentAccount.firstCashbackReceivedAt &&
+      !!cashBackStatusPerCurrentAccount.firstCashbackSeenAt &&
+      !cashBackStatusPerCurrentAccount.seenModalAt
+    )
+  }, [account, cashbackStatusByAccount])
 
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
     x: number
@@ -116,9 +116,9 @@ const DashboardScreen = () => {
   const handleCongratsModalBtnPressed = useCallback(() => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
-      params: { accountAddr: account!.addr }
+      params: { shouldSetSeenModalAt: true }
     })
-  }, [dispatch, account])
+  }, [dispatch])
 
   return (
     <>
@@ -147,7 +147,7 @@ const DashboardScreen = () => {
       </View>
       <PinExtension />
       <DefaultWalletControl />
-      {shouldShowFirstCashbackConfetti && (
+      {hasUnseenFirstCashback && (
         <CongratsFirstCashbackModal
           onPress={handleCongratsModalBtnPressed}
           position={gasTankButtonPosition}

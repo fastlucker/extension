@@ -118,7 +118,7 @@ const DashboardBanner = ({
           if (!account) break
           dispatch({
             type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
-            params: { accountAddr: account.addr }
+            params: { shouldSetFirstCashbackSeenAt: true }
           })
           break
         }
