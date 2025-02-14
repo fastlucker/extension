@@ -11,7 +11,8 @@ import {
   openSwapAndBridgeActionPage,
   signActionPage,
   checkIfSwitchIsActive,
-  switchTokensOnSwapAndBridge
+  switchTokensOnSwapAndBridge,
+  switchUSDValueOnSwapAndBridge
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
@@ -33,38 +34,38 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   })
 
   it('should Swap ERC20 tokens USDC to WALLET on Base network with a Basic Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await signActionPage(
       await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
     )
   })
 
   it('should Swap ERC20 tokens WALLET to USDC on Base network with a Basic Account', async () => {
-    const text = await prepareSwapAndBridge(page, 1, 'wallet', 'base', 'usdc')
+    const text = await prepareSwapAndBridge(page, 1, 'WALLET', 'base', 'USDC')
     await signActionPage(
       await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
     )
   })
 
   it('should be able to return back to Dashboard from Swap & Bridge page with a Basic Account', async () => {
-    await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await selectButton(page, 'Back')
     await checkIfOnDashboardPage(page)
   })
 
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Basic Account', async () => {
-    await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '00.01', true)
   })
 
   it('should accept amount starting with point like ".01" during Swap & Bridge with a Basic Account', async () => {
-    await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     // ToDo: It fails now. Deveopers to fix the issue with entering amount starting the point
     await enterNumber(page, '.01', true)
   })
 
   it('should not accept chars as amount during Swap & Bridge with a Basic Account', async () => {
-    await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, 'abc', true)
   })
 
@@ -74,7 +75,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   })
 
   it('should "proceed" Swap & Bridge from the Pending Route component with a Basic Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
@@ -90,7 +91,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   })
 
   it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Basic Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.015, 'usdc', 'base', 'wallet')
+    const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
@@ -113,7 +114,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
-    await prepareSwapAndBridge(page, null, 'usdc', 'base', 'wallet')
+    await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     await switchTokensOnSwapAndBridge(page, 500)
   })
@@ -122,7 +123,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
-    await prepareSwapAndBridge(page, null, 'usdc', 'base', 'wallet')
+    await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
       await switchTokensOnSwapAndBridge(page, 250)
@@ -133,8 +134,16 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // ToDo: Implement the test
   })
 
-  it.skip('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
-    // ToDo: Implement the test
+  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
+    await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 1)
+    await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
+    await switchUSDValueOnSwapAndBridge(page, 'DAI', 'optimism', 0.02)
+    await switchUSDValueOnSwapAndBridge(page, 'POL', 'polygon', 0.3)
+    await switchUSDValueOnSwapAndBridge(page, 'ETH', 'ethereum', 0.0004)
+    await switchUSDValueOnSwapAndBridge(page, 'ETH', 'ethereum', 0.0001)
+    await switchUSDValueOnSwapAndBridge(page, 'xWALLET', 'ethereum', 1)
+    await switchUSDValueOnSwapAndBridge(page, 'POL', 'polygon', 0.25)
+    await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 4.5)
   })
 
   it.skip('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Basic Account', async () => {
@@ -173,24 +182,24 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it('should be able to return back to Dashboard from Swap & Bridge page with a Smart Account', async () => {
-    await prepareSwapAndBridge(page, 0.1, 'dai', 'optimism', 'usdc.e')
+    await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
     await selectButton(page, 'Back')
     await checkIfOnDashboardPage(page)
   })
 
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async () => {
-    await prepareSwapAndBridge(page, 0.1, 'dai', 'optimism', 'usdc.e')
+    await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
     await enterNumber(page, '00.01', true)
   })
 
   it('should accept amount starting with point like ".01" during Swap & Bridge with a Smart Account', async () => {
-    await prepareSwapAndBridge(page, 0.1, 'dai', 'optimism', 'usdc.e')
+    await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
     // ToDo: It fails now. Deveopers to fix the issue with entering amount starting the point
     await enterNumber(page, '.01', true)
   })
 
   it('should not accept chars as amount during Swap & Bridge with a Smart Account', async () => {
-    await prepareSwapAndBridge(page, 0.1, 'dai', 'optimism', 'usdc.e')
+    await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
     await enterNumber(page, 'abc', true)
   })
 
@@ -200,7 +209,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.1, 'usdc.e', 'optimism', 'dai')
+    const text = await prepareSwapAndBridge(page, 0.1, 'USDC.E', 'optimism', 'DAI')
     let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
@@ -216,7 +225,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.1, 'usdc.e', 'optimism', 'dai')
+    const text = await prepareSwapAndBridge(page, 0.1, 'USDC.E', 'optimism', 'DAI')
     const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
@@ -239,7 +248,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
-    await prepareSwapAndBridge(page, null, 'usdc.e', 'optimism', 'dai')
+    await prepareSwapAndBridge(page, null, 'USDC.E', 'optimism', 'DAI')
     await checkIfSwitchIsActive(page, true)
     await switchTokensOnSwapAndBridge(page, 500)
   })
@@ -248,7 +257,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
-    await prepareSwapAndBridge(page, null, 'usdc.e', 'optimism', 'dai')
+    await prepareSwapAndBridge(page, null, 'USDC.E', 'optimism', 'DAI')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
       await switchTokensOnSwapAndBridge(page, 300)
@@ -259,8 +268,16 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     // ToDo: Implement the test
   })
 
-  it.skip('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
-    // ToDo: Implement the test
+  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
+    await switchUSDValueOnSwapAndBridge(page, 'USDC.E', 'optimism', 0.34)
+    await switchUSDValueOnSwapAndBridge(page, 'DAI', 'optimism', 0.02)
+    await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
+    await switchUSDValueOnSwapAndBridge(page, 'POL', 'polygon', 0.3)
+    await switchUSDValueOnSwapAndBridge(page, 'ETH', 'ethereum', 0.0004)
+    await switchUSDValueOnSwapAndBridge(page, 'xWALLET', 'ethereum', 1)
+    await switchUSDValueOnSwapAndBridge(page, 'POL', 'polygon', 0.24)
+    await switchUSDValueOnSwapAndBridge(page, 'DAI', 'optimism', 0.51)
+    await switchUSDValueOnSwapAndBridge(page, 'xWALLET', 'ethereum', 0.9)
   })
 
   it.skip('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
