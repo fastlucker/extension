@@ -115,7 +115,7 @@ const DashboardScreen = () => {
 
   const handleCongratsModalBtnPressed = useCallback(() => {
     dispatch({
-      type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
+      type: 'SELECTED_ACCOUNT_CONTROLLER_UPDATE_CASHBACK_STATUS',
       params: { shouldSetSeenModalAt: true }
     })
   }, [dispatch])

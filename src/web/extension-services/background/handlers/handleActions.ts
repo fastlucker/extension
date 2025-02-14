@@ -439,8 +439,7 @@ export const handleActions = async (
         mainCtrl.selectedAccount.account.addr
       )
     }
-    // TODO: PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT should be changed
-    case 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT': {
+    case 'SELECTED_ACCOUNT_CONTROLLER_UPDATE_CASHBACK_STATUS': {
       return await mainCtrl.selectedAccount.updateCashbackStatusByAccount(params)
     }
     case 'KEYSTORE_CONTROLLER_ADD_SECRET':

@@ -117,7 +117,7 @@ const DashboardBanner = ({
         case 'open-first-cashback-modal': {
           if (!account) break
           dispatch({
-            type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
+            type: 'SELECTED_ACCOUNT_CONTROLLER_UPDATE_CASHBACK_STATUS',
             params: { shouldSetFirstCashbackSeenAt: true }
           })
           break
