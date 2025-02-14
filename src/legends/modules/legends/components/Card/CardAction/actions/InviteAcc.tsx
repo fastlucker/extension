@@ -15,9 +15,11 @@ import CardActionWrapper from './CardActionWrapper'
 
 type Props = {
   buttonText: string
+  alreadyLinkedAccounts: string[]
+  alreadyInvitedAccounts: string[]
 }
 
-const InviteAcc: FC<Props> = ({ buttonText }) => {
+const InviteAcc: FC<Props> = ({ buttonText, alreadyLinkedAccounts, alreadyInvitedAccounts }) => {
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
   const { connectedAccount, allAccounts } = useAccountContext()
@@ -44,9 +46,16 @@ const InviteAcc: FC<Props> = ({ buttonText }) => {
     if (checksummedAddress === connectedAccount) {
       return 'You cannot invite your connected account.'
     }
+    if (alreadyLinkedAccounts.includes(checksummedAddress)) {
+      return 'This account has already been linked'
+    }
+
+    if (alreadyInvitedAccounts.includes(checksummedAddress)) {
+      return 'This account has already been invited'
+    }
 
     return ''
-  }, [connectedAccount, v1OrEoaAddress])
+  }, [connectedAccount, v1OrEoaAddress, alreadyInvitedAccounts, alreadyLinkedAccounts])
 
   const overwriteSuccessMessage = useMemo(() => {
     let checksummedAddress = ''

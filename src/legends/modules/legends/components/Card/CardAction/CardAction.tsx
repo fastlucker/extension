@@ -3,16 +3,17 @@ import React, { FC, useCallback } from 'react'
 import useToast from '@legends/hooks/useToast'
 import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
-import { CardAction, CardActionType } from '@legends/modules/legends/types'
+import { CardAction, CardActionType, CardFromResponse } from '@legends/modules/legends/types'
 
 import { InviteAcc, LinkAcc, SendAccOp, StakeWallet } from './actions'
 
 export type CardActionComponentProps = {
   action: CardAction
   buttonText: string
+  meta: CardFromResponse['meta']
 }
 
-const CardActionComponent: FC<CardActionComponentProps> = ({ action, buttonText }) => {
+const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
   const { addToast } = useToast()
 
   const handleWalletRouteButtonPress = useCallback(async () => {
@@ -33,10 +34,16 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ action, buttonText 
 
   if (action.type === CardActionType.predefined) {
     if (action.predefinedId === CARD_PREDEFINED_ID.inviteAccount) {
-      return <InviteAcc buttonText={buttonText} />
+      return (
+        <InviteAcc
+          alreadyLinkedAccounts={meta?.alreadyLinkedAccounts || []}
+          alreadyInvitedAccounts={meta?.alreadyInvitedAccounts || []}
+          buttonText={buttonText}
+        />
+      )
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.linkAccount) {
-      return <LinkAcc />
+      return <LinkAcc alreadyLinkedAccounts={meta?.alreadyLinkedAccounts || []} />
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.staking) {
       return <StakeWallet />

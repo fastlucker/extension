@@ -106,7 +106,7 @@ const ActionModal: FC<ActionModalProps> = ({
       )}
       {!!action && (
         <cardActionContext.Provider value={cardActionContextValue}>
-          <CardActionComponent buttonText={buttonText} action={action} />
+          <CardActionComponent meta={meta} buttonText={buttonText} action={action} />
         </cardActionContext.Provider>
       )}
     </Modal>

@@ -80,6 +80,8 @@ export interface CardFromResponse {
     streak?: number
     points?: number[]
     expiresOrResetsAt?: string
+    alreadyLinkedAccounts?: string[]
+    alreadyInvitedAccounts?: string[]
   }
   contentSteps?: string[]
   contentImage?: string
