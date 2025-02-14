@@ -85,7 +85,7 @@ const useGetTokenSelectProps = ({
       amountSelectDisabled: true
     }
 
-  if (tokens?.length === 0) {
+  if (tokens?.length === 0 && !_isToToken) {
     const noTokensEmptyState = getTokenOptionsEmptyState(_isToToken)
 
     return {
