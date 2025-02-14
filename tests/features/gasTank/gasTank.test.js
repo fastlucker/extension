@@ -52,7 +52,8 @@ describe('Gas Tank tests with Smart Account', () => {
     })
   })
 
-  it('Should test Confetti modal on first cashback', async () => {
+  // @TODO: Uncomment after gas tank v2 is deployed in production
+  it.skip('Should test Confetti modal on first cashback', async () => {
     const client = await serviceWorker.client
 
     await mockPortfolioResponse(client, MOCK_RESPONSE)
