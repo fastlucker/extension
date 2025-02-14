@@ -82,6 +82,7 @@ export interface CardFromResponse {
     expiresOrResetsAt?: string
     alreadyLinkedAccounts?: string[]
     alreadyInvitedAccounts?: string[]
+    numbersOfUsedInvitations?: number
   }
   contentSteps?: string[]
   contentImage?: string

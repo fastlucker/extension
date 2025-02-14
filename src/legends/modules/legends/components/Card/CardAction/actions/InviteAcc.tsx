@@ -8,6 +8,7 @@ import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
+import { MAX_INVITATIONS } from '@legends/modules/legends/constants'
 import { useInviteCard } from '@legends/modules/legends/hooks'
 import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
 
@@ -17,9 +18,15 @@ type Props = {
   buttonText: string
   alreadyLinkedAccounts: string[]
   alreadyInvitedAccounts: string[]
+  numbersOfUsedInvitations: number
 }
 
-const InviteAcc: FC<Props> = ({ buttonText, alreadyLinkedAccounts, alreadyInvitedAccounts }) => {
+const InviteAcc: FC<Props> = ({
+  buttonText,
+  alreadyLinkedAccounts,
+  alreadyInvitedAccounts,
+  numbersOfUsedInvitations
+}) => {
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
   const { connectedAccount, allAccounts } = useAccountContext()
@@ -54,8 +61,16 @@ const InviteAcc: FC<Props> = ({ buttonText, alreadyLinkedAccounts, alreadyInvite
       return 'This account has already been invited'
     }
 
+    if (numbersOfUsedInvitations >= MAX_INVITATIONS) return 'No more invitations left'
+
     return ''
-  }, [connectedAccount, v1OrEoaAddress, alreadyInvitedAccounts, alreadyLinkedAccounts])
+  }, [
+    connectedAccount,
+    v1OrEoaAddress,
+    alreadyInvitedAccounts,
+    alreadyLinkedAccounts,
+    numbersOfUsedInvitations
+  ])
 
   const overwriteSuccessMessage = useMemo(() => {
     let checksummedAddress = ''

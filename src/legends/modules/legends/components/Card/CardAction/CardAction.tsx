@@ -38,6 +38,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
         <InviteAcc
           alreadyLinkedAccounts={meta?.alreadyLinkedAccounts || []}
           alreadyInvitedAccounts={meta?.alreadyInvitedAccounts || []}
+          numbersOfUsedInvitations={meta?.numbersOfUsedInvitations || 0}
           buttonText={buttonText}
         />
       )

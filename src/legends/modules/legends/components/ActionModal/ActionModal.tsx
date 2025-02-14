@@ -12,6 +12,7 @@ import { CardFromResponse } from '@legends/modules/legends/types'
 
 import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
+import InviteAccount from './InviteAccount/InviteAccount'
 import Referral from './Referral/Referral'
 
 type CardActionContextType = {
@@ -102,6 +103,7 @@ const ActionModal: FC<ActionModalProps> = ({
           video={contentVideo}
         >
           {predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />}
+          {predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />}
         </HowTo>
       )}
       {!!action && (
