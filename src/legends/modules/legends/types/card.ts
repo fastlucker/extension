@@ -82,6 +82,11 @@ export interface CardFromResponse {
     expiresOrResetsAt?: string
     alreadyLinkedAccounts?: string[]
     alreadyInvitedAccounts?: string[]
+    usersInvitationHistory?: {
+      invitee: string
+      date: string
+      status: 'pending' | 'unaccepted' | 'successful'
+    }[]
     numbersOfUsedInvitations?: number
   }
   contentSteps?: string[]

@@ -8,3 +8,19 @@
 .infoWarning {
   color: $warning;
 }
+
+.successful {
+  color: $success;
+}
+
+.unaccepted {
+  color: $warning;
+}
+
+.pending {
+  color: $info;
+}
+
+.ml {
+  margin-left: 0.5rem;
+}
