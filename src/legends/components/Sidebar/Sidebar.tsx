@@ -59,7 +59,6 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.id === 'referral')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
-  const isChestOpenedForToday = treasureChestOpenedForToday
   const { startPolling, stopPolling } = useDataPollingContext()
 
   const handleWheelOpen = () => {
