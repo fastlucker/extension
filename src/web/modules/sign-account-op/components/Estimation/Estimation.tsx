@@ -4,9 +4,13 @@ import { Image, View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
+import {
+  isSmartAccount as getIsSmartAccount,
+  isBasicAccount
+} from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
+
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
 import Alert from '@common/components/Alert'
@@ -57,8 +61,13 @@ const Estimation = ({
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
 
-    // No need to sort and filter if it's not a smart account
-    if (!isSmartAccount) {
+    // No need to sort and filter if it's an EOA
+    if (
+      isBasicAccount(
+        signAccountOpState.account,
+        accountStates[signAccountOpState.account.addr][signAccountOpState.accountOp.networkId]
+      )
+    ) {
       return [
         signAccountOpState.availableFeeOptions[0],
         ...getDummyFeeOptions(
@@ -72,7 +81,7 @@ const Estimation = ({
       .filter((feeOption) => feeOption.paidBy === signAccountOpState.accountOp.accountAddr)
       .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
-  }, [hasEstimation, isSmartAccount, signAccountOpState])
+  }, [hasEstimation, accountStates, signAccountOpState])
 
   const payOptionsPaidByEOA = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
