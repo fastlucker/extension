@@ -13,7 +13,7 @@ import Rewards from './Rewards'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'description' | 'flavor' | 'xp' | 'image' | 'card' | 'action' | 'timesCollectedToday'
+  'title' | 'flavor' | 'xp' | 'image' | 'card' | 'action' | 'timesCollectedToday'
 > & {
   openActionModal: () => void
   disabled: boolean
@@ -29,7 +29,6 @@ const CARD_FREQUENCY: { [key in CardType]: string } = {
 
 const CardContent: FC<Props> = ({
   title,
-  description,
   xp,
   image,
   timesCollectedToday,
@@ -75,7 +74,6 @@ const CardContent: FC<Props> = ({
       <div className={styles.contentAndAction}>
         <div className={styles.content}>
           <h2 className={styles.heading}>{title}</h2>
-          <p className={styles.description}>{description}</p>
           <span className={styles.rewardFrequency}>{CARD_FREQUENCY[card.type]}</span>
           <div className={styles.rewards}>
             <Rewards xp={xp} size="sm" reverse />

@@ -119,20 +119,14 @@
     .content {
       display: flex;
       flex-direction: column;
+      height: 100%;
 
       .heading {
         font-size: 1.25rem;
         font-weight: 500;
         margin-bottom: 0.25rem;
       }
-      .description {
-        // Always take two lines of text
-        line-height: 1.25rem;
-        height: 2.5rem;
-        margin-bottom: 0.75rem;
-        font-size: 0.875rem;
-        color: $secondaryText;
-      }
+
       .rewardsHeading {
         line-height: 1.25rem;
         margin-bottom: 0.5rem;
@@ -156,6 +150,7 @@
       }
       .rewards {
         display: flex;
+        margin-top: auto;
         justify-content: space-between;
         width: 100%;
         background-color: $tertiaryBackground;
