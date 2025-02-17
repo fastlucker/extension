@@ -65,6 +65,7 @@ const Collectible: FC<Props> = ({
         openCollectibleModal({
           address: collectionData.address,
           name: `${collectionData.name} #${id}`,
+          id,
           networkId: collectionData.networkId,
           lastPrice: collectionData.priceIn ? formatCollectiblePrice(collectionData.priceIn) : '',
           image: imageUrl,

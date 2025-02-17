@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import { networks } from '@ambire-common/consts/networks'
+import LinkIcon from '@common/assets/svg/LinkIcon'
+import spacings from '@common/styles/spacings'
 import CoinIcon from '@legends/common/assets/svg/CoinIcon'
 import SwordIcon from '@legends/common/assets/svg/SwordIcon'
 import Alert from '@legends/components/Alert'
@@ -11,9 +13,7 @@ import EthereumLogo from '@legends/components/NetworkIcons/EthereumLogo'
 import OptimismLogo from '@legends/components/NetworkIcons/OptimismLogo'
 import ScrollLogo from '@legends/components/NetworkIcons/ScrollLogo'
 import Spinner from '@legends/components/Spinner'
-import useAccountContext from '@legends/hooks/useAccountContext'
-import useActivity from '@legends/hooks/useActivity'
-import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
 import { Networks } from '@legends/modules/legends/types'
 
 import SectionHeading from '../SectionHeading'
@@ -29,33 +29,8 @@ const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
 }
 
 const ActivitySection = () => {
-  const { connectedAccount: accountAddress } = useAccountContext()
-  const [page, setPage] = useState(0)
-  const recentActivity = useRecentActivityContext()
-  const historyActivity = useActivity({ page: page === 0 ? null : page, accountAddress })
-
-  const { activity, isLoading, error, getActivity } = page === 0 ? recentActivity : historyActivity
-
-  const { transactions, totalTransactionCount } = activity || {}
-
-  useEffect(() => {
-    if (
-      page !== 0 ||
-      // If the user had 0 transactions before, !0 will be true
-      // so we need to check if totalTransactionCount is undefined
-      !recentActivity?.activity?.totalTransactionCount ||
-      typeof totalTransactionCount === 'undefined'
-    )
-      return
-
-    const isRecentActivityNewer =
-      recentActivity?.activity?.totalTransactionCount > totalTransactionCount
-
-    if (isRecentActivityNewer) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      getActivity()
-    }
-  }, [getActivity, page, recentActivity?.activity?.totalTransactionCount, totalTransactionCount])
+  const { activity, isLoading, error, setPage, currentPage } = useActivityContext()
+  const { transactions } = activity || {}
 
   return (
     <div className={styles.wrapper}>
@@ -66,7 +41,7 @@ const ActivitySection = () => {
         </div>
       )}
       {error && <Alert type="error" title={error} />}
-      {transactions?.length ? (
+      {!isLoading && transactions?.length ? (
         <table className={styles.table}>
           <thead>
             <tr>
@@ -83,24 +58,40 @@ const ActivitySection = () => {
               return (
                 <tr key={act.txId}>
                   <td>
-                    {network ? (
-                      <a
-                        href={`${network.explorerUrl}/tx/${act.txId}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.link}
-                      >
-                        {new Date(act.submittedAt).toLocaleString([], {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </a>
-                    ) : (
-                      new Date(act.submittedAt).toLocaleString()
-                    )}
+                    <div className={styles.linksWrapper}>
+                      {new Date(act.submittedAt).toLocaleString([], {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+
+                      {!!network && (
+                        <>
+                          <a
+                            href={`https://benzin.ambire.com/?chainId=${String(
+                              network.chainId
+                            )}&txnId=${act.txId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={styles.link}
+                          >
+                            View transaction
+                            <LinkIcon style={spacings.phTy} />
+                          </a>
+                          <a
+                            href={`${network.explorerUrl}/tx/${act.txId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={styles.link}
+                          >
+                            View in block explorer
+                            <LinkIcon style={spacings.phTy} />
+                          </a>
+                        </>
+                      )}
+                    </div>
                   </td>
                   <td>
                     {NETWORK_ICONS[act.network as Networks]}
@@ -113,7 +104,7 @@ const ActivitySection = () => {
                   <td className={styles.legendsWrapper}>
                     {act.legends.activities?.map((legendActivity, i) => (
                       <React.Fragment
-                        key={`${act.txId}-${legendActivity.action}-${legendActivity.xp}`}
+                        key={`${act.txId}-${legendActivity.action}-${legendActivity.xp}-${i}`}
                       >
                         <div
                           className={styles.badge}
@@ -140,7 +131,9 @@ const ActivitySection = () => {
         </table>
       ) : null}
       {!transactions?.length && !isLoading && !error && <p>No activity found for this account</p>}
-      {activity ? <Pagination activity={activity} page={page} setPage={setPage} /> : null}
+      {activity ? (
+        <Pagination activity={activity} page={currentPage} setPage={setPage} />
+      ) : null}
     </div>
   )
 }

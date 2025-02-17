@@ -9,14 +9,18 @@ import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
+import MidnightTimer from '@legends/components/MidnightTimer'
+import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
+import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
-import { timeUntilMidnight } from '@legends/modules/legends/components/WheelComponentModal/helpers'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
+import chestBackgroundImage from './assets/chest-background.png'
 import wheelBackgroundImage from './assets/wheel-background.png'
+import DailyQuestBanner from './components/DailyQuestBanner'
 import Link from './components/Link'
 import Socials from './components/Socials'
 import styles from './Sidebar.module.scss'
@@ -43,17 +47,39 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { addToast } = useToast()
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const { wheelSpinOfTheDay, legends, isLoading } = useLegendsContext()
+  const { wheelSpinOfTheDay, treasureChestOpenedForToday, legends, isLoading } = useLegendsContext()
+  const [isTreasureChestModalOpen, setIsTreasureChestModalOpen] = useState(false)
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.title === 'Leader')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
+  const isChestOpenedForToday = treasureChestOpenedForToday
+  const { startPolling, stopPolling } = useDataPollingContext()
 
-  const handleModal = () => {
-    setIsFortuneWheelModalOpen(!isFortuneWheelModalOpen)
+  const handleWheelOpen = () => {
+    stopPolling()
+    setIsFortuneWheelModalOpen(true)
+  }
+  const handleWheelClose = () => {
+    startPolling()
+    setIsFortuneWheelModalOpen(false)
   }
 
-  const handleLeaderModal = () => {
-    setIsLeaderModalOpen(!isLeaderModalOpen)
+  const handleLeaderOpen = () => {
+    stopPolling()
+    setIsLeaderModalOpen(true)
+  }
+  const handleLeaderClose = () => {
+    startPolling()
+    setIsLeaderModalOpen(false)
+  }
+
+  const handleTreasureOpen = () => {
+    stopPolling()
+    setIsTreasureChestModalOpen(true)
+  }
+  const handleTreasureClose = () => {
+    startPolling()
+    setIsTreasureChestModalOpen(false)
   }
 
   const copyInvitationKey = () => {
@@ -66,12 +92,19 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   }
 
   const wheelText = useMemo(() => {
-    if (isLoading) return 'Loading...'
+    if (isLoading) return <span className={styles.wheelText}>Loading...</span>
+    if (wheelSpinOfTheDay) return <MidnightTimer type="minutes" className={styles.bannerText} />
 
-    if (wheelSpinOfTheDay) return timeUntilMidnight().label
+    return <span className={styles.bannerText}>Available Now</span>
+  }, [isLoading, wheelSpinOfTheDay])
 
-    return 'Spin the Wheel'
-  }, [wheelSpinOfTheDay, isLoading])
+  const chestText = useMemo(() => {
+    if (isLoading) return <span className={styles.bannerText}>Loading...</span>
+    if (treasureChestOpenedForToday)
+      return <MidnightTimer type="minutes" className={styles.bannerText} />
+
+    return <span className={styles.bannerText}>Available Now</span>
+  }, [isLoading, treasureChestOpenedForToday])
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -80,35 +113,34 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           <FontAwesomeIcon icon={faChevronLeft} />
         </button>
         <img className={styles.logo} src="/images/logo.png" alt="Ambire Legends" />
-        <div
-          className={`${styles.wheelOfFortuneWrapper} ${wheelSpinOfTheDay ? styles.disabled : ''}`}
-        >
-          <div
-            className={styles.wheelOfFortune}
-            data-tooltip-id="wheel-tooltip"
-            style={{
-              backgroundImage: `url(${wheelBackgroundImage})`
-            }}
-          >
-            <div className={styles.wheelContent}>
-              <span className={styles.wheelTitle}>Daily Legend</span>
-              <span className={styles.wheelText}>{wheelText}</span>
-              <button
-                onClick={handleModal}
-                disabled={wheelSpinOfTheDay}
-                type="button"
-                className={styles.wheelButton}
-              >
-                Spin the Wheel
-              </button>
-            </div>
-          </div>
-        </div>
-        <LeaderModal
-          setIsLeaderModalOpen={setIsLeaderModalOpen}
-          isLeaderModalOpen={isLeaderModalOpen}
+
+        <DailyQuestBanner
+          isDisabled={wheelSpinOfTheDay}
+          tooltipId="wheel-tooltip"
+          backgroundImage={wheelBackgroundImage}
+          title="Daily Legend"
+          text={wheelText}
+          handleClick={handleWheelOpen}
+          buttonText="Spin the Wheel"
+          wrapperStyles={styles.wheelBanner}
         />
-        <WheelComponent isOpen={isFortuneWheelModalOpen} setIsOpen={setIsFortuneWheelModalOpen} />
+        <DailyQuestBanner
+          isDisabled={treasureChestOpenedForToday}
+          tooltipId="daily-quest-tooltip"
+          backgroundImage={chestBackgroundImage}
+          title="Daily Chest"
+          text={chestText}
+          handleClick={handleTreasureOpen}
+          buttonText="Open Now"
+        />
+
+        <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />
+        <WheelComponent isOpen={isFortuneWheelModalOpen} handleClose={handleWheelClose} />
+
+        <TreasureChestComponentModal
+          isOpen={isTreasureChestModalOpen}
+          handleClose={handleTreasureClose}
+        />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
             <Link
@@ -126,7 +158,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         {legendLeader && legendLeader?.meta && (
           <div className={styles.leaderSection}>
             <div className={styles.leaderHeader}>
-              <button type="button" className={styles.inviteTitle} onClick={handleLeaderModal}>
+              <button type="button" className={styles.inviteTitle} onClick={handleLeaderOpen}>
                 Invite a friend
               </button>
               <div>

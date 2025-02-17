@@ -5,6 +5,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
@@ -19,6 +20,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
+import { getUiType } from '@web/utils/uiType'
 
 const ControllersStateLoadedContext = createContext<{
   areControllerStatesLoaded: boolean
@@ -28,9 +30,12 @@ const ControllersStateLoadedContext = createContext<{
   isStatesLoadingTakingTooLong: false
 })
 
+const { isPopup } = getUiType()
+
 const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const [areControllerStatesLoaded, setAreControllerStatesLoaded] = useState(false)
   const [isStatesLoadingTakingTooLong, setIsStatesLoadingTakingTooLong] = useState(false)
+  const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
@@ -155,6 +160,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasExtensionUpdateState
     ) {
       clearTimeout(timeout)
+      if (isPopup) dispatch({ type: 'MAIN_CONTROLLER_ON_LOAD' })
       setAreControllerStatesLoaded(true)
     }
 
@@ -179,7 +185,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasAddressBookState,
     hasInviteState,
     hasSwapAndBridgeState,
-    hasExtensionUpdateState
+    hasExtensionUpdateState,
+    dispatch
   ])
 
   return (

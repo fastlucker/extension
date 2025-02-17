@@ -15,7 +15,7 @@ const SecurityAndPrivacyScreen = () => {
 
   return (
     <>
-      <SettingsPageHeader title="Security & Privacy" />
+      <SettingsPageHeader title="Saved Seed Phrase" />
       <View>
         <SavedSeedControlOption />
       </View>

@@ -10,15 +10,15 @@ import styles from './OnCompleteModal.module.scss'
 
 type Props = {
   isVisible: boolean
-  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>
+  handleClose: () => void
   predefinedId: string
 } & Pick<CardFromResponse, 'meta'>
 
-const OnCompleteModal: FC<Props> = ({ isVisible, setIsVisible, meta, predefinedId }) => {
+const OnCompleteModal: FC<Props> = ({ isVisible, handleClose, meta, predefinedId }) => {
   // All hooks and state should be up here
   const { addToast } = useToast()
 
-  if (predefinedId === CARD_PREDEFINED_ID.addEOA) {
+  if (predefinedId === CARD_PREDEFINED_ID.inviteAccount) {
     const copyToClipboard = async () => {
       try {
         await navigator.clipboard.writeText(
@@ -35,11 +35,11 @@ const OnCompleteModal: FC<Props> = ({ isVisible, setIsVisible, meta, predefinedI
 
     const closeAndCopy = () => {
       copyToClipboard()
-      setIsVisible(false)
+      handleClose()
     }
 
     return (
-      <Modal isOpen={isVisible} setIsOpen={setIsVisible}>
+      <Modal isOpen={isVisible} handleClose={handleClose}>
         <>
           <div> 🎉 Congratulations! 🎉</div>
           <br />

@@ -1,7 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue
+  Action as ActionFromActionsQueue,
+  ActionExecutionType
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -17,7 +18,7 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
@@ -161,7 +162,7 @@ type MainControllerBuildTransferUserRequest = {
     amount: string
     selectedToken: TokenResult
     recipientAddress: string
-    executionType: 'queue' | 'open'
+    actionExecutionType: ActionExecutionType
   }
 }
 type MainControllerBuildClaimWalletUserRequest = {
@@ -185,6 +186,10 @@ type MainControllerResolveUserRequestAction = {
 type MainControllerRejectUserRequestAction = {
   type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
   params: { err: string; id: UserRequest['id'] }
+}
+type MainControllerRejectSignAccountOpCall = {
+  type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
+  params: { callId: string }
 }
 type MainControllerResolveAccountOpAction = {
   type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
@@ -240,6 +245,14 @@ type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
 }
 
+type MainControllerUpdateSelectedAccountPortfolio = {
+  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
+  params?: {
+    forceUpdate?: boolean
+    network?: Network
+  }
+}
+
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
   params: { dashboardNetworkFilter: NetworkId | null }
@@ -253,16 +266,27 @@ type PortfolioControllerGetTemporaryToken = {
   }
 }
 
-type PortfolioControllerUpdateTokenPreferences = {
-  type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
+type PortfolioControllerAddCustomToken = {
+  type: 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN'
   params: {
     token: CustomToken
+    shouldUpdatePortfolio?: boolean
   }
 }
-type PortfolioControllerRemoveTokenPreferences = {
-  type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES'
+
+type PortfolioControllerRemoveCustomToken = {
+  type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN'
   params: {
-    token: CustomToken | TokenResult
+    token: Omit<CustomToken, 'standard'>
+    shouldUpdatePortfolio?: boolean
+  }
+}
+
+type PortfolioControllerToggleHideToken = {
+  type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN'
+  params: {
+    token: Omit<TokenPreference, 'isHidden'>
+    shouldUpdatePortfolio?: boolean
   }
 }
 
@@ -313,6 +337,14 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
+type MainControllerOnLoadAction = {
+  type: 'MAIN_CONTROLLER_ON_LOAD'
+}
+
+type MainControllerLockAction = {
+  type: 'MAIN_CONTROLLER_LOCK'
+}
+
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
@@ -320,9 +352,6 @@ type KeystoreControllerAddSecretAction = {
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
-}
-type KeystoreControllerLockAction = {
-  type: 'KEYSTORE_CONTROLLER_LOCK'
 }
 type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
@@ -447,21 +476,23 @@ type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
   params: { activeRouteId: number }
 }
+type SwapAndBridgeControllerUpdateQuoteAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE'
+}
 type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: number }
 }
 
-type ActionsControllerAddToActionsQueue = {
-  type: 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE'
-  params: ActionFromActionsQueue
-}
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
   params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
 }
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
+}
+type ActionsControllerCloseActionWindow = {
+  type: 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW'
 }
 
 type ActionsControllerMakeAllActionsActive = {
@@ -541,6 +572,8 @@ type InviteControllerVerifyAction = {
   type: 'INVITE_CONTROLLER_VERIFY'
   params: { code: string }
 }
+type InviteControllerBecomeOGAction = { type: 'INVITE_CONTROLLER_BECOME_OG' }
+type InviteControllerRevokeOGAction = { type: 'INVITE_CONTROLLER_REVOKE_OG' }
 
 type MainControllerTraceCallAction = {
   type: 'MAIN_CONTROLLER_TRACE_CALL'
@@ -583,12 +616,15 @@ export type Action =
   | AddNextSmartAccountFromSavedSeedPhraseAction
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
+  | MainControllerLockAction
+  | MainControllerOnLoadAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
   | MainControllerBuildMintVestingUserRequest
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
+  | MainControllerRejectSignAccountOpCall
   | MainControllerResolveAccountOpAction
   | MainControllerRejectAccountOpAction
   | MainControllerResolveSwitchAccountRequest
@@ -606,14 +642,15 @@ export type Action =
   | MainControllerSignAccountOpUpdateAction
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
+  | MainControllerUpdateSelectedAccountPortfolio
   | SelectedAccountSetDashboardNetworkFilter
-  | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken
-  | PortfolioControllerRemoveTokenPreferences
+  | PortfolioControllerToggleHideToken
+  | PortfolioControllerRemoveCustomToken
   | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
-  | KeystoreControllerLockAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
   | KeystoreControllerChangePasswordFromRecoveryAction
@@ -639,10 +676,11 @@ export type Action =
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerSubmitFormAction
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
+  | SwapAndBridgeControllerUpdateQuoteAction
   | SwapAndBridgeControllerRemoveActiveRouteAction
-  | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
+  | ActionsControllerCloseActionWindow
   | ActionsControllerMakeAllActionsActive
   | ActionsControllerSetCurrentActionById
   | ActionsControllerSetCurrentActionByIndex
@@ -658,6 +696,8 @@ export type Action =
   | AutoLockControllerSetLastActiveTimeAction
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction
+  | InviteControllerBecomeOGAction
+  | InviteControllerRevokeOGAction
   | MainControllerTraceCallAction
   | ImportSmartAccountJson
   | KeystoreControllerSendSeedOverChannel

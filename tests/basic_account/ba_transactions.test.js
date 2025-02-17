@@ -1,6 +1,5 @@
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { baParams } from '../config/constants'
-import { SELECTORS } from '../common/selectors/selectors'
 
 import {
   makeSwap,

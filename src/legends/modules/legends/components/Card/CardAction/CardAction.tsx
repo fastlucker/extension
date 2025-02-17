@@ -5,7 +5,7 @@ import CardActionButton from '@legends/modules/legends/components/Card/CardActio
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType } from '@legends/modules/legends/types'
 
-import { LinkAcc, SendAccOp, StakeWallet, SummonAcc } from './actions'
+import { InviteAcc, LinkAcc, SendAccOp, StakeWallet } from './actions'
 
 export type CardActionComponentProps = {
   action: CardAction
@@ -32,10 +32,10 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ action, buttonText 
   }, [action, addToast])
 
   if (action.type === CardActionType.predefined) {
-    if (action.predefinedId === CARD_PREDEFINED_ID.addEOA) {
-      return <SummonAcc buttonText={buttonText} />
+    if (action.predefinedId === CARD_PREDEFINED_ID.inviteAccount) {
+      return <InviteAcc buttonText={buttonText} />
     }
-    if (action.predefinedId === CARD_PREDEFINED_ID.LinkAccount) {
+    if (action.predefinedId === CARD_PREDEFINED_ID.linkAccount) {
       return <LinkAcc />
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.staking) {

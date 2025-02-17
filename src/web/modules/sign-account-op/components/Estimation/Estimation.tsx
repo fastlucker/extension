@@ -29,6 +29,8 @@ import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, getDummyFeeOptions, mapFeeOptions, sortFeeOptions } from './helpers'
 import { FeeOption, Props } from './types'
 
+const FEE_SECTION_LIST_MENU_HEADER_HEIGHT = 34
+
 const Estimation = ({
   signAccountOpState,
   disabled,
@@ -263,7 +265,8 @@ const Estimation = ({
             spacings.phTy,
             spacings.pvTy,
             {
-              backgroundColor: theme.primaryBackground
+              backgroundColor: theme.primaryBackground,
+              height: FEE_SECTION_LIST_MENU_HEADER_HEIGHT
             },
             section?.key === 'eoa-tokens' && {
               borderTopWidth: 1,
@@ -348,6 +351,7 @@ const Estimation = ({
           setValue={setFeeOption}
           testID="fee-option-select"
           label={t('Pay fee with')}
+          headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
           sections={feeOptionSelectSections}
           renderSectionHeader={renderFeeOptionSectionHeader}
           containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}
@@ -438,7 +442,7 @@ const Estimation = ({
           title={t('Note')}
           style={spacings.mtTy}
           text={t(
-            'Because this is your first Ambire transaction, the fee is 32% higher than usual because we have to deploy your smart wallet. Subsequent transactions will be cheaper.'
+            'This is your first transaction on this network, so a one-time Smart Account setup fee will increase the gas cost by around 32%. Future transactions will be cheaper.'
           )}
         />
       ) : null}

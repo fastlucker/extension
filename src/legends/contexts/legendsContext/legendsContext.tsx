@@ -2,13 +2,14 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 
 import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useActivityContext from '@legends/hooks/useActivityContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
-import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import { isWheelSpinTodayDone } from '@legends/modules/legends/components/WheelComponentModal/helpers'
+import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse, CardStatus } from '@legends/modules/legends/types'
-import { sortCards } from '@legends/modules/legends/utils'
+import { isMatchingPredefinedId, sortCards } from '@legends/modules/legends/utils'
 
 type LegendsContextType = {
   legends: CardFromResponse[]
@@ -17,6 +18,7 @@ type LegendsContextType = {
   completedCount: number
   getLegends: () => Promise<void>
   wheelSpinOfTheDay: boolean
+  treasureChestOpenedForToday: boolean
   onLegendComplete: () => Promise<void>
 }
 
@@ -26,7 +28,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
   const { getCharacter } = useCharacterContext()
-  const { getActivity } = useRecentActivityContext()
+  const { getActivity } = useActivityContext()
   const { updateLeaderboard } = useLeaderboardContext()
 
   const [isLoading, setIsLoading] = useState(true)
@@ -39,6 +41,13 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   )
 
   const wheelSpinOfTheDay = useMemo(() => isWheelSpinTodayDone({ legends }), [legends])
+
+  const treasureChestOpenedForToday = useMemo(
+    () =>
+      legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
+        ?.card.status === CardStatus.completed,
+    [legends]
+  )
 
   const getLegends = useCallback(async () => {
     setError(null)
@@ -115,9 +124,19 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
       completedCount,
       getLegends,
       onLegendComplete,
-      wheelSpinOfTheDay
+      wheelSpinOfTheDay,
+      treasureChestOpenedForToday
     }),
-    [legends, isLoading, error, completedCount, getLegends, onLegendComplete, wheelSpinOfTheDay]
+    [
+      legends,
+      isLoading,
+      error,
+      completedCount,
+      getLegends,
+      onLegendComplete,
+      wheelSpinOfTheDay,
+      treasureChestOpenedForToday
+    ]
   )
 
   return <legendsContext.Provider value={contextValue}>{children}</legendsContext.Provider>

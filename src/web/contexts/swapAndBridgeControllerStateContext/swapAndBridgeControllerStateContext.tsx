@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -22,8 +23,10 @@ const SwapAndBridgeControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, mainState.isReady, state])
 
+  const memoizedState = useDeepMemo(state, controller)
+
   return (
-    <SwapAndBridgeControllerStateContext.Provider value={useMemo(() => state, [state])}>
+    <SwapAndBridgeControllerStateContext.Provider value={memoizedState}>
       {children}
     </SwapAndBridgeControllerStateContext.Provider>
   )

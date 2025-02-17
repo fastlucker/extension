@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect } from 'react'
 
 import { MainController } from '@ambire-common/controllers/main/main'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 
@@ -18,8 +19,10 @@ const MainControllerStateProvider: React.FC<any> = ({ children }) => {
     })
   }, [dispatch])
 
+  const memoizedState = useDeepMemo(state, controller)
+
   return (
-    <MainControllerStateContext.Provider value={useMemo(() => state, [state])}>
+    <MainControllerStateContext.Provider value={memoizedState}>
       {children}
     </MainControllerStateContext.Provider>
   )

@@ -10,7 +10,7 @@ import {
 } from '../common/transactions'
 import { typeKeystorePassAndUnlock } from '../common-helpers/typeKeystorePassAndUnlock'
 import { buildSelector } from '../common-helpers/buildSelector'
-import { DASHBOARD_SEND_BTN_SELECTOR, POL_TOKEN_SELECTOR } from '../features/transfer/constants'
+import { DASHBOARD_SEND_BTN_SELECTOR, SEND_TOKEN_SELECTOR } from '../features/transfer/constants'
 
 const startSWAndUnlockKeystore = async (page, extensionURL, recorder, serviceWorker) => {
   const {
@@ -66,17 +66,19 @@ describe("The extension works properly when crucial APIs aren't working from lau
       async () => {
         await startSWAndUnlockKeystore(page, extensionURL, recorder, serviceWorker)
         await clickOnElement(page, '[data-testid="refresh-button"]')
-        const rpcErrorBanner = await page.evaluate(() => {
-          const banners = document.querySelectorAll('[data-testid="dashboard-error-banner"]')
+        await clickOnElement(page, '[data-testid="portfolio-warning-icon')
 
-          const banner = Array.from(banners).find((b) =>
+        const rpcErrorBanner = await page.evaluate(() => {
+          const errors = document.querySelectorAll('[data-testid="portfolio-error-alert"]')
+
+          const error = Array.from(errors).find((b) =>
             b.innerText.includes('Failed to retrieve network data for Polygon')
           )
 
-          return banner ? banner.innerText : ''
+          return error ? error.innerText : ''
         })
 
-        expect(rpcErrorBanner).toBeDefined()
+        expect(rpcErrorBanner).toBeTruthy()
       },
       {
         blockRequests: ['invictus.ambire.com/polygon']
@@ -90,7 +92,7 @@ describe("The extension works properly when crucial APIs aren't working from lau
         await startSWAndUnlockKeystore(page, extensionURL, recorder, serviceWorker)
         await checkTokenBalanceClickOnGivenActionInDashboard(
           page,
-          POL_TOKEN_SELECTOR,
+          SEND_TOKEN_SELECTOR,
           DASHBOARD_SEND_BTN_SELECTOR
         )
         await makeValidTransaction(page, extensionURL, browser)
@@ -100,7 +102,7 @@ describe("The extension works properly when crucial APIs aren't working from lau
       }
     )
   })
-  it('Velcro fail: Should find tokens using previous hints and display an error banner', async () => {
+  it('Velcro fail: Should find tokens using previous hints; Should not display an error banner as there are cached hints', async () => {
     await monitorRequests(
       serviceWorker.client,
       async () => {
@@ -127,17 +129,17 @@ describe("The extension works properly when crucial APIs aren't working from lau
         )
 
         const hintsErrorBanner = await page.evaluate(() => {
-          const banners = document.querySelectorAll('[data-testid="dashboard-error-banner"]')
+          const errors = document.querySelectorAll('[data-testid="portfolio-error-alert"]')
 
-          const banner = Array.from(banners).find((b) =>
-            b.innerText.includes('Failed to retrieve the portfolio data for ')
+          const error = Array.from(errors).find((b) =>
+            b.innerText.includes('Automatic asset discovery is temporarily unavailable')
           )
 
-          return banner ? banner.innerText : ''
+          return error ? error.innerText : ''
         })
 
-        // An error banner is displayed
-        expect(hintsErrorBanner).toBeDefined()
+        // An error banner is displayed because there are valid hints in storage while the relayer is down
+        expect(hintsErrorBanner).not.toBeTruthy()
       },
       {
         blockRequests: ['https://relayer.ambire.com/velcro-v3']

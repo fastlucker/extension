@@ -2,9 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import CartIcon from '@common/assets/svg/CartIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
@@ -15,14 +13,14 @@ import TokenIcon from '@common/components/TokenIcon'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
@@ -33,15 +31,7 @@ import getStyles from './styles'
 
 const { isPopup } = getUiType()
 
-const TokenItem = ({
-  token,
-  tokenPreferences,
-  testID
-}: {
-  token: TokenResult
-  tokenPreferences: CustomToken[]
-  testID?: string
-}) => {
+const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const {
     symbol,
@@ -52,9 +42,10 @@ const TokenItem = ({
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { account } = useSelectedAccountControllerState()
-  const activityState = useActivityControllerState()
-
+  const { tokenPreferences } = usePortfolioControllerState()
+  const { isHidden } = tokenPreferences.find(
+    ({ address: addr, networkId: nId }) => addr === address && nId === networkId
+  ) || { isHidden: false }
   const { styles, theme } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [bindAnim, animStyle] = useCustomHover({
@@ -66,18 +57,7 @@ const TokenItem = ({
   })
   const tokenId = getTokenId(token)
 
-  const pendingLastKnownNonce = portfolio.simulationNonces[token.networkId]
-  const activityNonce = activityState?.lastKnownNonce[token.networkId]
-  const tokenAmounts = useMemo(
-    () =>
-      portfolio.tokenAmounts.find(
-        (tokenAmount) =>
-          tokenAmount.address === token.address &&
-          tokenAmount.networkId === token.networkId &&
-          !token.flags.onGasTank
-      ),
-    [portfolio.tokenAmounts, token.address, token.networkId, token.flags.onGasTank]
-  )
+  const simulatedAccountOp = portfolio.networkSimulatedAccountOp[token.networkId]
 
   const {
     balanceFormatted,
@@ -96,14 +76,9 @@ const TokenItem = ({
     pendingToBeSignedFormatted,
     pendingToBeConfirmed,
     pendingToBeConfirmedFormatted
-  } = getTokenDetails(token, networks, tokenAmounts, activityNonce, pendingLastKnownNonce)
+  } = getAndFormatTokenDetails(token, networks, simulatedAccountOp)
 
-  // By design, we should simulate only for SA on the DashboardScreen
-  const isPending = useMemo(() => {
-    if (!isSmartAccount(account || undefined)) return false
-
-    return !!hasPendingBadges
-  }, [account, hasPendingBadges])
+  const isPending = !!hasPendingBadges
 
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
 
@@ -121,6 +96,29 @@ const TokenItem = ({
     })
   }, [token, dispatch])
 
+  const closeBottomSheetWrapped = useCallback(() => {
+    if (isHidden) {
+      const network = networks.find(({ id }) => id === token.networkId)
+      if (!network) return
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
+        params: {
+          network,
+          forceUpdate: true
+        }
+      })
+    }
+    closeBottomSheet()
+  }, [closeBottomSheet, dispatch, isHidden, networks, token.networkId])
+
+  const textColor = useMemo(() => {
+    if (!isPending) return theme.primaryText
+
+    // pendingToBeSigned is prioritized as both badges can be shown at the same time
+    return pendingToBeSigned ? theme.warningText : colors.azureBlue
+  }, [isPending, pendingToBeSigned, theme.primaryText, theme.warningText])
+
   return (
     <AnimatedPressable
       onPress={() => openBottomSheet()}
@@ -131,13 +129,9 @@ const TokenItem = ({
       <BottomSheet
         id={`token-details-${address}`}
         sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
+        closeBottomSheet={closeBottomSheetWrapped}
       >
-        <TokenDetails
-          tokenPreferences={tokenPreferences}
-          token={token}
-          handleClose={closeBottomSheet}
-        />
+        <TokenDetails token={token} handleClose={closeBottomSheetWrapped} />
       </BottomSheet>
       <View style={flexboxStyles.flex1}>
         <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
@@ -166,7 +160,7 @@ const TokenItem = ({
                   <Text
                     selectable
                     style={spacings.mrTy}
-                    color={isPending ? theme.warningText : theme.primaryText}
+                    color={textColor}
                     fontSize={16}
                     weight="number_bold"
                     numberOfLines={1}
@@ -225,7 +219,7 @@ const TokenItem = ({
             selectable
             fontSize={16}
             weight="number_bold"
-            color={isPending ? theme.warningText : theme.primaryText}
+            color={textColor}
             style={{ flex: 0.4, textAlign: 'right' }}
           >
             {isPending ? pendingBalanceUSDFormatted : balanceUSDFormatted}

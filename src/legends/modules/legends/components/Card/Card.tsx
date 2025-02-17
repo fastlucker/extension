@@ -2,12 +2,14 @@ import React, { FC, useState } from 'react'
 
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
-import useRecentActivityContext from '@legends/hooks/useRecentActivityContext'
 import useToast from '@legends/hooks/useToast'
 import ActionModal from '@legends/modules/legends/components/ActionModal'
 import { PREDEFINED_ACTION_LABEL_MAP } from '@legends/modules/legends/constants'
 import { CardActionType, CardFromResponse, CardStatus } from '@legends/modules/legends/types'
+import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
 
+import useAccountContext from '@legends/hooks/useAccountContext'
+import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 import CardContent from './CardContent'
 import OnCompleteModal from './OnCompleteModal'
 
@@ -22,26 +24,41 @@ const Card: FC<Props> = ({ cardData }) => {
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[predefinedId] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
   const [isOnCompleteModalVisible, setIsOnCompleteModalVisible] = useState(false)
-  const { getActivity } = useRecentActivityContext()
   const { onLegendComplete } = useLegendsContext()
+  const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
+  const { startPolling, stopPolling } = useDataPollingContext()
 
   const openActionModal = () => {
+    stopPolling()
     setIsActionModalOpen(true)
   }
 
   const closeActionModal = () => {
+    startPolling()
     setIsActionModalOpen(false)
   }
 
+  const closeCompleteModal = () => {
+    setIsOnCompleteModalVisible(false)
+  }
+
   const pollActivityUntilComplete = async (txnId: string, attempt: number) => {
+    if (!connectedAccount) return
+
     if (attempt > 10) {
       addToast(ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
       return
     }
 
     // We can't rely on state as it's not updated due to the self-invoking nature of the function
-    const newActivity = await getActivity()
+    let newActivity
+
+    try {
+      newActivity = await getRecentActivity(connectedAccount)
+    } catch (error) {
+      console.error("Couldn't fetch the recent activity:", error)
+    }
 
     const foundTxn = newActivity?.transactions?.find((txn) => txn.txId === txnId)
 
@@ -87,13 +104,12 @@ const Card: FC<Props> = ({ cardData }) => {
       {/* Modals */}
       <OnCompleteModal
         isVisible={isOnCompleteModalVisible}
-        setIsVisible={setIsOnCompleteModalVisible}
+        handleClose={closeCompleteModal}
         predefinedId={predefinedId}
       />
       <ActionModal
         {...cardData}
         isOpen={isActionModalOpen}
-        setIsOpen={setIsActionModalOpen}
         buttonText={buttonText}
         onLegendCompleteWrapped={onLegendCompleteWrapped}
         closeActionModal={closeActionModal}

@@ -20,28 +20,36 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       icon: SendIcon,
       label: t('Send'),
       route: WEB_ROUTES.transfer,
-      isExternal: false
+      isExternal: false,
+      scale: 1.08,
+      scaleOnHover: 1.18
     },
     {
       testID: 'dashboard-button-receive',
       icon: ReceiveIcon,
       label: t('Receive'),
       onPress: openReceiveModal,
-      isExternal: false
+      isExternal: false,
+      scale: 1.08,
+      scaleOnHover: 1.18
     },
     {
       testID: 'dashboard-button-swap-and-bridge',
       icon: SwapAndBridgeIcon,
       label: t('Swap & Bridge'),
       route: WEB_ROUTES.swapAndBridge,
-      isExternal: false
+      isExternal: false,
+      scale: 0.95,
+      scaleOnHover: 1
     },
     {
-      testID: 'dashboard-button-dapps',
+      testID: 'dashboard-button-apps',
       icon: DAppsIcon,
-      label: t('dApps'),
-      route: WEB_ROUTES.dappCatalog,
-      isExternal: false
+      label: t('Apps'),
+      route: WEB_ROUTES.appCatalog,
+      isExternal: false,
+      scale: 0.95,
+      scaleOnHover: 1.02
     }
   ]
 

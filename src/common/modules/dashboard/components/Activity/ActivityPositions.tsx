@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 
@@ -44,12 +44,14 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
   const { networks } = useNetworksControllerState()
 
   useEffect(() => {
+    if (!account?.addr) return
+
     dispatch({
       type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
       params: {
         sessionId,
         filters: {
-          account: account!.addr,
+          account: account.addr,
           ...(dashboardNetworkFilter && { network: dashboardNetworkFilter })
         },
         pagination: {
@@ -58,7 +60,11 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
         }
       }
     })
-  }, [openTab, account, dispatch, dashboardNetworkFilter, sessionId])
+  }, [openTab, account?.addr, dispatch, dashboardNetworkFilter, sessionId])
+
+  const network = useMemo(() => {
+    return networks.find((n) => n.id === dashboardNetworkFilter)
+  }, [dashboardNetworkFilter, networks])
 
   const renderItem = useCallback(
     ({ item }: any) => {
@@ -76,13 +82,8 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
             {t('No transactions history for {{account}}', {
               account: `${account!.preferences.label} (${shortenAddress(account!.addr, 10)})`
             })}
-            {dashboardNetworkFilter && (
-              <>
-                {' '}
-                {t('on {{network}}', {
-                  network: networks.find((network) => network.id === dashboardNetworkFilter)!.name
-                })}
-              </>
+            {!!dashboardNetworkFilter && !!network && (
+              <> {t('on {{network}}', { network: network.name })}</>
             )}
           </Text>
         )
@@ -133,14 +134,10 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
       return (
         <SubmittedTransactionSummary
           key={item.txnId}
+          defaultType="summary"
           submittedAccountOp={item}
-          showFee={false}
-          enableExpand={false}
-          showHeading={false}
           style={spacings.mbSm}
           size="md"
-          blockExplorerAlignedRight
-          showNetworkBadge
         />
       )
     },

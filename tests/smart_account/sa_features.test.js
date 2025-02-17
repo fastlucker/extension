@@ -1,7 +1,6 @@
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
-import { selectPolToken } from '../common-helpers/selectPolToken'
 import { saParams } from '../config/constants'
 import { triggerTransaction } from '../common-helpers/triggerTransaction'
 import { signTransaction } from '../common-helpers/signTransaction'
@@ -10,43 +9,10 @@ import { selectFeeToken } from '../common-helpers/selectFeeToken'
 import { checkBalanceOfToken } from '../common-helpers/checkBalanceOfToken'
 import { SELECTORS } from '../common/selectors/selectors'
 import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../constants/constants'
-
-// TODO: Fix this
-const recipientField = SELECTORS.addressEnsField
-const amountField = '[data-testid="amount-field"]'
-
-// TODO: Remove this function, it's already moved to transactions.js
-// Helper functions for common operations
-async function prepareTransaction(page, recipient, amount) {
-  await page.waitForSelector(amountField)
-  await selectPolToken(page)
-  await typeText(page, amountField, amount)
-  await typeText(page, recipientField, recipient)
-  await page.waitForXPath(
-    '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
-  )
-  await page.waitForSelector(SELECTORS.checkbox)
-  await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
-  await clickOnElement(page, SELECTORS.checkbox)
-  await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
-}
-
-// TODO: Remove this function, it's already moved to transactions.js
-async function handleTransaction(page, extensionURL, browser, feeToken) {
-  const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
-    page,
-    extensionURL,
-    browser,
-    '[data-testid="transfer-button-confirm"]'
-  )
-
-  if (feeToken) {
-    await selectFeeToken(newPage, feeToken)
-  }
-
-  await signTransaction(newPage, transactionRecorder)
-  await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
-}
+import {
+  makeValidTransaction,
+  checkTokenBalanceClickOnGivenActionInDashboard
+} from '../common/transactions'
 
 let browser
 let page
@@ -68,127 +34,20 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  // TODO: fix this. check 'should build a top-up gas tank request' in transfer test
-  // This test is skipped because Top up Gas Tank option is temporarily disabled.
-  it.skip('Top up gas tank with 0.0001 POL', async () => {
-    // Check if POL on Gas Tank are under 0.01
-    await checkBalanceOfToken(page, SELECTORS.nativeTokenPolygonDyn, 0.01)
-
-    await clickOnElement(page, SELECTORS.nativeTokenPolygonDyn)
-    await clickOnElement(page, '[data-testid="top-up-button"]')
-
-    await page.waitForFunction(() => window.location.href.includes('/transfer'), { timeout: 60000 })
-
-    await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, '0.0001')
-    await handleTransaction(
+  it.skip('Top up gas tank with 0.0001 ETH on Base', async () => {
+    await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
-      extensionURL,
-      browser,
-      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]'
-    )
-  })
-
-  //--------------------------------------------------------------------------------------------------------------
-  it('Pay transaction fee with gas tank', async () => {
-    // Check if POL on Gas Tank are under 0.007
-    await checkBalanceOfToken(
-      page,
-      '[data-testid="token-0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270-polygon-gastank"]',
-      0.01
+      SELECTORS.nativeTokenBaseDashboard,
+      SELECTORS.topUpButton
     )
 
-    await clickOnElement(page, '[data-testid="dashboard-button-send"]')
-    await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, '0.0001')
-    await handleTransaction(
-      page,
-      extensionURL,
-      browser,
-      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270wmaticgastank"]'
-    )
-  })
-
-  //--------------------------------------------------------------------------------------------------------------
-  it('Pay transaction fee with basic account. Send 0.0001 POL on Polygon', async () => {
-    // Check if POL on Polygon are under 0.0001
-    await checkBalanceOfToken(page, SELECTORS.nativeTokenPolygonDyn, 0.0001)
-
-    await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
-    await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, '0.0001')
-    await handleTransaction(
-      page,
-      extensionURL,
-      browser,
-      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]'
-    )
-  })
-
-  //--------------------------------------------------------------------------------------------------------------
-  it('Make batched transaction', async () => {
-    // Check if POL on Polygon are under 0.0015
-    await checkBalanceOfToken(page, SELECTORS.nativeTokenPolygonDyn, 0.02)
-
-    await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
-    await prepareTransaction(page, SMART_ACC_VIEW_ONLY_ADDRESS, '0.0001')
-
-    const elementToClick = await page.waitForSelector('[data-testid="transfer-button-confirm"]')
-    await elementToClick.click()
-
-    const newTarget = await browser.waitForTarget((target) =>
-      target.url().startsWith(`${extensionURL}/action-window.html#`)
-    )
-    const newPage = await newTarget.page()
-    await newPage.setViewport({ width: 1300, height: 700 })
-    await clickOnElement(newPage, '[data-testid="queue-and-sign-later-button"]')
-
-    await page.goto(`${extensionURL}/tab.html#/dashboard`, { waitUntil: 'load' })
-    const pendingText = 'Transaction waiting to be signed on Polygon'
-    await page.waitForFunction(
-      (text) => {
-        const element = document.querySelector('body')
-        return element && element.textContent.includes(text)
-      },
-      {},
-      pendingText
-    )
-
-    await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
-    await prepareTransaction(page, '0xe750Fff1AA867DFb52c9f98596a0faB5e05d30A6', '0.0001')
-
-    const { actionWindowPage, transactionRecorder } = await triggerTransaction(
-      page,
-      extensionURL,
-      browser,
-      '[data-testid="transfer-button-confirm"]:not([disabled])'
-    )
-    await actionWindowPage.waitForFunction(
-      (text1, text2) => {
-        const element1 = document.querySelector('[data-testid^="recipient-address-0"]')
-        const element2 = document.querySelector('[data-testid^="recipient-address-1"]')
-        return (
-          (element1 && element1.textContent.includes(text1)) ||
-          (element2 && element2.textContent.includes(text2))
-        )
-      },
-      {},
-      SMART_ACC_VIEW_ONLY_ADDRESS,
-      '0xe750Fff1AA867DFb52c9f98596a0faB5e05d30A6'
-    )
-    await selectFeeToken(
-      actionWindowPage,
-      '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x0000000000000000000000000000000000000000pol"]'
-    )
-    await signTransaction(actionWindowPage, transactionRecorder)
-    await confirmTransactionStatus(actionWindowPage, 'polygon', 137, transactionRecorder)
-
-    await actionWindowPage.waitForFunction(
-      (text1, text2) => {
-        const body = document.querySelector('body')
-        return body.textContent.includes(text1) && body.textContent.includes(text2)
-      },
-      {},
-      SMART_ACC_VIEW_ONLY_ADDRESS,
-      '0xe750Fff1AA867DFb52c9f98596a0faB5e05d30A6'
-    )
+    await makeValidTransaction(page, extensionURL, browser, {
+      recipient: SMART_ACC_VIEW_ONLY_ADDRESS,
+      tokenAmount: '0.0001',
+      feeToken:
+        '[data-testid="option-0x4c71d299f23efc660b3295d1f631724693ae22ac0x833589fcd6edb6e08f4c7c32d4f71b54bda02913usdc"]',
+      shouldTopUpGasTank: true
+    })
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -221,7 +80,7 @@ describe('sa_features', () => {
     )
 
     // Click on "Send"
-    await clickOnElement(page, '[data-testid="token-send"]')
+    await clickOnElement(page, '[data-testid="token-send"]', true, 500)
 
     await page.waitForFunction(
       () => {
@@ -234,7 +93,7 @@ describe('sa_features', () => {
     await typeText(page, '[data-testid="amount-field"]', '0.00000001')
 
     // Type the address of the recipient
-    await typeText(page, recipientField, SMART_ACC_VIEW_ONLY_ADDRESS)
+    await typeText(page, SELECTORS.addressEnsField, SMART_ACC_VIEW_ONLY_ADDRESS)
     await page.waitForXPath(
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
     )
@@ -271,18 +130,18 @@ describe('sa_features', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it.skip('Check token balance needed for e2e tests', async () => {
-    // Check if ETH in optimism are under  0.0000001
+    // Check if ETH in optimism are under 0.0000001
     await checkBalanceOfToken(
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
       0.0000001
     )
-    // Check if POL on Polygon are under 0.0015
-    await checkBalanceOfToken(page, SELECTORS.nativeTokenPolygonDyn, 0.02)
-    // Check if POL on Gas Tank are under 0.007
+    // Check if ETH on Base are under 0.02
+    await checkBalanceOfToken(page, SELECTORS.nativeTokenBaseDashboard, 0.02)
+    // Check if USDC on Gas Tank are under 0.01
     await checkBalanceOfToken(
       page,
-      '[data-testid="token-0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270-polygon-gastank"]',
+      '[data-testid="token-0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48-ethereum-gastank"]',
       0.01
     )
   })

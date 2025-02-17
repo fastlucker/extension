@@ -5,13 +5,13 @@ import { createPortal } from 'react-dom'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
-import { RELAYER_URL } from '@env'
 // @ts-ignore
 import CloseIcon from '@legends/components/CloseIcon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
-import { BASE_CHAIN_ID } from '@legends/constants/network'
-import { ActivityTransaction, LegendActivity } from '@legends/contexts/recentActivityContext/types'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
+import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
+import { ActivityTransaction, LegendActivity } from '@legends/contexts/activityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
@@ -30,12 +30,12 @@ export const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
 interface WheelComponentProps {
   isOpen: boolean
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  handleClose: () => void
 }
 
 const POST_UNLOCK_STATES = ['unlocked', 'spinning', 'spun', 'error']
 
-const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen }) => {
+const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClose }) => {
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
   const [wheelState, setWheelState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
@@ -60,14 +60,10 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
 
   const checkTransactionStatus = useCallback(async () => {
     try {
-      const response = await fetch(`${RELAYER_URL}/legends/activity/${connectedAccount}`)
-
-      if (!response.ok) throw new Error('Failed to fetch transaction status')
-
-      const data = await response.json()
+      const response = await getRecentActivity(connectedAccount!)
       const today = new Date().toISOString().split('T')[0]
 
-      const transaction: ActivityTransaction | undefined = data.transactions.find(
+      const transaction: ActivityTransaction | undefined = response?.transactions.find(
         (txn: ActivityTransaction) =>
           txn.submittedAt.startsWith(today) &&
           txn.legends.activities &&
@@ -177,7 +173,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, setIsOpen 
   }, [prizeNumber, wheelState])
 
   const closeModal = async () => {
-    setIsOpen(false)
+    handleClose()
     if (wheelState === 'spun') {
       await onLegendComplete()
     }

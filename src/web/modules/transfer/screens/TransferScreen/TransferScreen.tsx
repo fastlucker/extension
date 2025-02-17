@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
+import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
@@ -20,7 +21,6 @@ import Panel from '@common/components/Panel'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useAddressInput from '@common/hooks/useAddressInput'
-import useConnectivity from '@common/hooks/useConnectivity'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -46,7 +46,6 @@ import getStyles from './styles'
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
-  const { isOffline } = useConnectivity()
   const { state, transferCtrl } = useTransferControllerState()
   const {
     isTopUp,
@@ -63,12 +62,12 @@ const TransferScreen = () => {
   const { account } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const { userRequests } = useMainControllerState()
+  const { userRequests, isOffline } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
-  const hasOpenedActionWindow = useMemo(
-    () => actionsState.currentAction || actionsState.actionWindow.id,
-    [actionsState.currentAction, actionsState.actionWindow.id]
+  const hasFocusedActionWindow = useMemo(
+    () => actionsState.actionWindow.windowProps?.focused,
+    [actionsState.actionWindow.windowProps]
   )
 
   const transactionUserRequests = useMemo(() => {
@@ -118,21 +117,23 @@ const TransferScreen = () => {
 
   const submitButtonText = useMemo(() => {
     if (isOffline) return t("You're offline")
-    if (isTopUp) return t('Top Up')
 
-    if (hasOpenedActionWindow || !isSmartAccount) return t('Send')
+    if (hasFocusedActionWindow || !isSmartAccount) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
-    if (isFormValid && !addressInputState.validation.isError) {
-      numOfRequests++
-    }
 
     if (numOfRequests) {
+      if (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) {
+        numOfRequests++ // the queued txns + the one from the form
+      }
+
       if (isFormEmpty) return t('Sign All Pending ({{count}})', { count: numOfRequests })
-      return t('Send ({{count}})', { count: numOfRequests })
+      return isTopUp
+        ? t('Top Up ({{count}})', { count: numOfRequests })
+        : t('Send ({{count}})', { count: numOfRequests })
     }
 
-    return t('Send')
+    return isTopUp ? t('Top Up') : t('Send')
   }, [
     isOffline,
     isTopUp,
@@ -141,31 +142,31 @@ const TransferScreen = () => {
     isFormValid,
     isFormEmpty,
     isSmartAccount,
-    hasOpenedActionWindow,
+    hasFocusedActionWindow,
     t
   ])
 
+  const isTransferFormValid = useMemo(
+    () => (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError),
+    [addressInputState.validation.isError, isFormValid, isTopUp]
+  )
+
   const isSendButtonDisabled = useMemo(() => {
     if (isOffline) return true
-    if (isTopUp) return !isFormValid
-
-    const isTransferFormValid = isFormValid && !addressInputState.validation.isError
 
     if (!isSmartAccount) return !isTransferFormValid
 
-    if (transactionUserRequests.length && !hasOpenedActionWindow) {
+    if (transactionUserRequests.length && !hasFocusedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
     return !isTransferFormValid
   }, [
-    addressInputState.validation.isError,
     isFormEmpty,
-    isFormValid,
+    isTransferFormValid,
     isOffline,
-    isTopUp,
     isSmartAccount,
     transactionUserRequests.length,
-    hasOpenedActionWindow
+    hasFocusedActionWindow
   ])
 
   const onBack = useCallback(() => {
@@ -173,9 +174,9 @@ const TransferScreen = () => {
   }, [navigate])
 
   const addTransaction = useCallback(
-    (executionType: 'queue' | 'open') => {
+    (actionExecutionType: ActionExecutionType) => {
       if (isFormValid && state.selectedToken) {
-        if (executionType === 'queue' && !transferCtrl.shouldSkipTransactionQueuedModal) {
+        if (actionExecutionType === 'queue' && !transferCtrl.shouldSkipTransactionQueuedModal) {
           openBottomSheet()
         }
 
@@ -185,7 +186,7 @@ const TransferScreen = () => {
             amount: state.amount,
             selectedToken: state.selectedToken,
             recipientAddress: isTopUp ? FEE_COLLECTOR : getAddressFromAddressState(addressState),
-            executionType
+            actionExecutionType
           }
         })
 
@@ -193,7 +194,11 @@ const TransferScreen = () => {
         return
       }
 
-      if (executionType === 'open' && transactionUserRequests.length && isFormEmpty) {
+      if (
+        actionExecutionType === 'open-action-window' &&
+        transactionUserRequests.length &&
+        isFormEmpty
+      ) {
         const firstAccountOpAction = actionsState.visibleActionsQueue
           .reverse()
           .find((a) => a.type === 'accountOp')
@@ -234,7 +239,7 @@ const TransferScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="xl"
-      header={<HeaderAccountAndNetworkInfo />}
+      header={<HeaderAccountAndNetworkInfo withOG />}
       footer={
         <>
           <BackButton onPress={onBack} />
@@ -257,7 +262,7 @@ const TransferScreen = () => {
               >
                 <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
                   <CartIcon color={theme.primary} />
-                  {!!transactionUserRequests.length && !hasOpenedActionWindow && (
+                  {!!transactionUserRequests.length && !hasFocusedActionWindow && (
                     <Text
                       fontSize={16}
                       weight="medium"
@@ -271,7 +276,7 @@ const TransferScreen = () => {
               testID="transfer-button-confirm"
               type="primary"
               text={submitButtonText}
-              onPress={() => addTransaction('open')}
+              onPress={() => addTransaction('open-action-window')}
               hasBottomSpacing={false}
               size="large"
               disabled={isSendButtonDisabled}

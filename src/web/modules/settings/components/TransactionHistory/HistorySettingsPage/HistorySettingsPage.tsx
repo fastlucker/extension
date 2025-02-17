@@ -8,9 +8,11 @@ import React, {
   useState
 } from 'react'
 import { View } from 'react-native'
+import { useSearchParams } from 'react-router-dom'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
+import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import AccountOption from '@common/components/Option/AccountOption'
 import Pagination from '@common/components/Pagination'
@@ -30,7 +32,6 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-import { useSearchParams } from 'react-router-dom'
 
 const ITEMS_PER_PAGE = 10
 
@@ -43,6 +44,16 @@ interface Props {
   }>
   historyType: 'transactions' | 'messages'
   sessionId: string
+}
+
+const ALL_NETWORKS_OPTION = {
+  value: 'all',
+  label: <Text weight="medium">All Networks</Text>,
+  icon: (
+    <View style={spacings.phMi}>
+      <NetworksIcon width={24} height={24} />
+    </View>
+  )
 }
 
 const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, sessionId }) => {
@@ -69,7 +80,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
   const [account, setAccount] = useState<Account>(
     accounts.filter((acc) => acc.addr === accountData?.addr)[0]
   )
-  const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
+  const [network, setNetwork] = useState<Network | null>(null)
 
   const accountsOptions: SelectValue[] = useMemo(() => {
     return accounts.map((acc) => ({
@@ -80,12 +91,14 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
   }, [accounts])
 
   const networksOptions: SelectValue[] = useMemo(
-    () =>
-      networks.map((n) => ({
+    () => [
+      ALL_NETWORKS_OPTION,
+      ...networks.map((n) => ({
         value: n.id,
         label: <Text weight="medium">{n.name}</Text>,
         icon: <NetworkIcon key={n.id} id={n.id} />
-      })),
+      }))
+    ],
     [networks]
   )
 
@@ -97,7 +110,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     // Loading check for history type = 'transactions'
     return (
       account.addr !== activityState.accountsOps[sessionId]?.filters.account ||
-      network.id !== activityState.accountsOps[sessionId]?.filters.network
+      network?.id !== activityState.accountsOps[sessionId]?.filters.network
     )
   }, [
     account.addr,
@@ -105,11 +118,11 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     activityState.accountsOps,
     sessionId,
     historyType,
-    network.id
+    network?.id
   ])
 
   useEffect(() => {
-    if (!account) return
+    if (!account?.addr) return
 
     dispatch({
       type:
@@ -120,7 +133,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
         sessionId,
         filters: {
           account: account.addr,
-          network: network.id
+          network: network?.id
         },
         pagination: {
           itemsPerPage: ITEMS_PER_PAGE,
@@ -128,7 +141,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
         }
       }
     })
-  }, [dispatch, account, network, page, sessionId, historyType])
+  }, [dispatch, account.addr, network, page, sessionId, historyType])
 
   useEffect(() => {
     // Initialize the port session. This is necessary to automatically terminate the session when the tab is closed.
@@ -155,7 +168,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     return () => {
       killSession()
     }
-  }, [dispatch, historyType, sessionId])
+  }, [dispatch, historyType, sessionId, setSearchParams])
 
   const handleSetAccountValue = useCallback(
     (accountOption: SelectValue) => {
@@ -167,6 +180,11 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
 
   const handleSetNetworkValue = useCallback(
     (networkOption: SelectValue) => {
+      setPage(1)
+      if (networkOption.value === 'all') {
+        setNetwork(null)
+        return
+      }
       setNetwork(networks.filter((net) => net.id === networkOption.value)[0])
     },
     [networks]
@@ -193,7 +211,11 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
             setValue={handleSetNetworkValue}
             containerStyle={{ width: 260 }}
             options={networksOptions}
-            value={networksOptions.filter((opt) => opt.value === network.id)[0]}
+            value={
+              network
+                ? networksOptions.filter((opt) => opt.value === network?.id)[0]
+                : ALL_NETWORKS_OPTION
+            }
           />
         )}
       </View>
@@ -203,7 +225,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
             !!activityState?.signedMessages?.[sessionId]?.result.items?.length && (
               <View style={[flexbox.directionRow, spacings.phSm, spacings.mbTy]}>
                 <View style={flexbox.flex1}>
-                  <Text fontSize={14}>{t('Dapps')}</Text>
+                  <Text fontSize={14}>{t('Apps')}</Text>
                 </View>
                 <View style={flexbox.flex1}>
                   <Text fontSize={14}>{t('Submitted on')}</Text>
@@ -224,7 +246,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
             <HistoryComponent
               page={page}
               account={account}
-              network={network}
+              network={network ?? undefined}
               sessionId={sessionId}
             />
           </ScrollableWrapper>

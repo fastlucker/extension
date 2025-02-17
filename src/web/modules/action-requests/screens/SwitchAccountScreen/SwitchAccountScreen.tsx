@@ -62,7 +62,7 @@ const SwitchAccountScreen = () => {
   const dAppData = useMemo(
     () =>
       userRequest?.session || {
-        name: 'Unknown dApp',
+        name: 'Unknown App',
         origin: '',
         icon: ''
       },
@@ -84,7 +84,7 @@ const SwitchAccountScreen = () => {
     if (!nextAccount) {
       addToast(
         t(
-          'We are unable to switch to that account. Please reinitate the dApp request or contact support if the issue persists.'
+          'We are unable to switch to that account. Please reinitate the app request or contact support if the issue persists.'
         ),
         {
           type: 'error'
@@ -102,8 +102,8 @@ const SwitchAccountScreen = () => {
   }, [addToast, dAppAction, dispatch, nextAccount, t])
 
   const responsiveSizeMultiplier = useMemo(() => {
-    if (minHeightSize('s')) return 0.75
-    if (minHeightSize('m')) return 0.85
+    if (minHeightSize('s')) return 0.85
+    if (minHeightSize('m')) return 0.95
 
     return 1
   }, [minHeightSize])
@@ -138,7 +138,7 @@ const SwitchAccountScreen = () => {
           styles.container,
           {
             paddingVertical: SPACING_LG * responsiveSizeMultiplier,
-            width: responsiveSizeMultiplier * 454
+            width: responsiveSizeMultiplier * 530
           }
         ]}
       >

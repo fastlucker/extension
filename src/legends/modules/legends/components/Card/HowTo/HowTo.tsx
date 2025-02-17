@@ -9,15 +9,21 @@ export type HowToProps = {
   imageAlt?: string
   video?: string
   children?: React.ReactNode
+  activeStep?: number | null
 }
 
-const HowTo: FC<HowToProps> = ({ steps, image, imageAlt, children, video }) => {
+const HowTo: FC<HowToProps> = ({ steps, image, imageAlt, children, video, activeStep }) => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.column}>
         <div className={styles.stepper}>
           {steps.map((step, index) => (
-            <div key={step} className={styles.step}>
+            <div
+              key={step}
+              className={`${styles.step} ${
+                activeStep && activeStep > index ? styles.complete : ''
+              } ${activeStep === index ? styles.active : ''}`}
+            >
               <div className={styles.stepNumber}>{index + 1}</div>
               <div className={styles.stepTitle}>{step}</div>
             </div>

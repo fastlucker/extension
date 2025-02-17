@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Network } from '@ambire-common/interfaces/network'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -33,28 +34,30 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
+  const {
+    portfolio: { tokens, collections, pending }
+  } = useSelectedAccountControllerState()
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
   const { networks } = useNetworksControllerState()
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
-      const pendingData = portfolio.pending[network.id]
+      const pendingData = pending[network.id]
 
       if (!pendingData || !pendingData.isReady || !pendingData.result) {
         return []
       }
 
-      return pendingData.result.tokens.filter((token) => token.simulationAmount !== undefined)
+      return tokens.filter((token) => token.simulationAmount !== undefined)
     }
     return []
-  }, [network, portfolio.pending, signAccountOpState?.accountOp])
+  }, [network, pending, signAccountOpState?.accountOp, tokens])
 
   const portfolioStatePending = useMemo(() => {
     if (!signAccountOpState?.accountOp || !network?.id) return null
 
-    return portfolio.pending[network.id]
-  }, [network, portfolio.pending, signAccountOpState?.accountOp])
+    return pending[network.id]
+  }, [network?.id, pending, signAccountOpState?.accountOp])
 
   const pendingSendTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! < 0),
@@ -63,22 +66,22 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   const pendingSendCollection = useMemo(() => {
     if (signAccountOpState?.accountOp?.accountAddr && network?.id)
       return (
-        portfolio.pending[network.id]?.result?.collections?.filter(
+        collections?.filter(
           (i) => i.postSimulation?.sending && i.postSimulation.sending.length > 0
         ) || []
       )
     return []
-  }, [network, signAccountOpState?.accountOp.accountAddr, portfolio.pending])
+  }, [collections, network?.id, signAccountOpState?.accountOp?.accountAddr])
 
   const pendingReceiveCollection = useMemo(() => {
     if (signAccountOpState?.accountOp?.accountAddr && network?.id)
       return (
-        portfolio.pending[network.id]?.result?.collections?.filter(
+        collections?.filter(
           (i) => i.postSimulation?.receiving && i.postSimulation.receiving.length > 0
         ) || []
       )
     return []
-  }, [network, signAccountOpState?.accountOp.accountAddr, portfolio.pending])
+  }, [signAccountOpState?.accountOp?.accountAddr, network?.id, collections])
 
   const pendingReceiveTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! > 0),
@@ -130,27 +133,39 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     ]
   )
 
-  const simulationView: 'no-changes' | 'changes' | 'error' | 'error-handled-elsewhere' | null =
-    useMemo(() => {
-      if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
+  const simulationView:
+    | 'no-changes'
+    | 'changes'
+    | 'error'
+    | 'error-handled-elsewhere'
+    | 'simulation-not-supported'
+    | null = useMemo(() => {
+    if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
-      if (signAccountOpState.status?.type === SigningStatus.EstimationError)
-        return 'error-handled-elsewhere'
+    if (signAccountOpState.status?.type === SigningStatus.EstimationError)
+      return 'error-handled-elsewhere'
 
-      if (simulationErrorMsg) return 'error'
+    if (simulationErrorMsg) return 'error'
 
-      return pendingSendCollection.length || pendingReceiveCollection.length || pendingTokens.length
-        ? 'changes'
-        : 'no-changes'
-    }, [
-      shouldShowLoader,
-      signAccountOpState?.isInitialized,
-      signAccountOpState?.status,
-      simulationErrorMsg,
-      pendingSendCollection.length,
-      pendingReceiveCollection.length,
-      pendingTokens.length
-    ])
+    if (pendingSendCollection.length || pendingReceiveCollection.length || pendingTokens.length)
+      return 'changes'
+
+    // no-changes from here
+    if (!isSmartAccount(signAccountOpState.account) && !!network?.rpcNoStateOverride)
+      return 'simulation-not-supported'
+
+    return 'no-changes'
+  }, [
+    shouldShowLoader,
+    signAccountOpState?.isInitialized,
+    signAccountOpState?.status,
+    simulationErrorMsg,
+    pendingSendCollection.length,
+    pendingReceiveCollection.length,
+    pendingTokens.length,
+    network?.rpcNoStateOverride,
+    signAccountOpState?.account
+  ])
 
   useEffect(() => {
     if (simulationView && !initialSimulationLoaded) {
@@ -294,6 +309,19 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                 carefully
               </Text>{' '}
               review the transaction preview below.
+            </Trans>
+          }
+        />
+      )}
+      {simulationView === 'simulation-not-supported' && (
+        <Alert
+          type="warning"
+          isTypeLabelHidden
+          title={
+            <Trans>
+              The RPC cannot perform simulations for Basic Accounts. Try changing the RPC from
+              Settings. If you wish to proceed regardless, please carefully review the transaction
+              preview below.
             </Trans>
           }
         />

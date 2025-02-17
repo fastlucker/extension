@@ -49,8 +49,8 @@ const SignMessageScreen = () => {
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { isLedgerConnected } = useLedger()
-  const [didTriggerSigning, setDidTriggerSigning] = useState(false)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const actionState = useActionsControllerState()
   const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
@@ -146,12 +146,20 @@ const SignMessageScreen = () => {
     (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
       // Has more than one key, should first choose the key to sign with
       const hasChosenSigningKey = chosenSigningKeyAddr && chosenSigningKeyType
-      if (selectedAccountKeyStoreKeys.length > 1 && !hasChosenSigningKey) {
+      const hasMultipleKeys = selectedAccountKeyStoreKeys.length > 1
+      if (hasMultipleKeys && !hasChosenSigningKey) {
         return setIsChooseSignerShown(true)
       }
 
-      setDidTriggerSigning(true)
-      if (signMessageState.signingKeyType === 'ledger' && !isLedgerConnected) return
+      const isLedgerKeyChosen = hasMultipleKeys
+        ? // Accounts with multiple keys have an additional step to choose the key first
+          chosenSigningKeyType === 'ledger'
+        : // Take the key type from the account key itself, no additional step to choose key
+          selectedAccountKeyStoreKeys[0].type === 'ledger'
+      if (isLedgerKeyChosen && !isLedgerConnected) {
+        setShouldDisplayLedgerConnectModal(true)
+        return
+      }
 
       const keyAddr = chosenSigningKeyAddr || selectedAccountKeyStoreKeys[0].addr
       const keyType = chosenSigningKeyType || selectedAccountKeyStoreKeys[0].type
@@ -161,7 +169,7 @@ const SignMessageScreen = () => {
         params: { keyAddr, keyType }
       })
     },
-    [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys, signMessageState.signingKeyType]
+    [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys]
   )
 
   const resolveButtonText = useMemo(() => {
@@ -173,7 +181,7 @@ const SignMessageScreen = () => {
   }, [isScrollToBottomForced, signStatus, t])
 
   const handleDismissLedgerConnectModal = useCallback(() => {
-    setDidTriggerSigning(false)
+    setShouldDisplayLedgerConnectModal(false)
   }, [])
 
   // In the split second when the action window opens, but the state is not yet
@@ -257,9 +265,10 @@ const SignMessageScreen = () => {
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={flexbox.flex1}>
             <ExpandableCard
-              enableExpand={false}
-              style={spacings.mbTy}
-              hasArrow={false}
+              enableToggleExpand={!!visualizeHumanized}
+              isInitiallyExpanded={!visualizeHumanized}
+              hasArrow={!!visualizeHumanized}
+              style={{ ...spacings.mbTy, maxHeight: '100%' }}
               content={
                 visualizeHumanized &&
                 // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
@@ -287,11 +296,13 @@ const SignMessageScreen = () => {
                   </>
                 )
               }
-            />
-            <FallbackVisualization
-              setHasReachedBottom={setHasReachedBottom}
-              hasReachedBottom={!!hasReachedBottom}
-              messageToSign={signMessageState.messageToSign}
+              expandedContent={
+                <FallbackVisualization
+                  setHasReachedBottom={setHasReachedBottom}
+                  hasReachedBottom={!!hasReachedBottom}
+                  messageToSign={signMessageState.messageToSign}
+                />
+              }
             />
           </View>
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
@@ -300,7 +311,7 @@ const SignMessageScreen = () => {
               isVisible={signStatus === 'LOADING'}
             />
           )}
-          {signMessageState.signingKeyType === 'ledger' && didTriggerSigning && (
+          {shouldDisplayLedgerConnectModal && (
             <LedgerConnectModal
               isVisible={!isLedgerConnected}
               handleOnConnect={handleDismissLedgerConnectModal}

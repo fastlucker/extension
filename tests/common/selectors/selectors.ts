@@ -76,7 +76,19 @@ export const TEST_IDS = {
   importFromSavedSeed: 'import-from-saved-seed',
   nativeTokenPolygonDyn: 'token-0x0000000000000000000000000000000000000000-polygon',
   topUpButton: 'top-up-button',
-  tokenSend: 'token-send'
+  tokenSend: 'token-send',
+  queueAndSignLaterButton: 'queue-and-sign-later-button',
+  deleteTxnCallDyn: 'delete-txn-call',
+  feeSlow: 'fee-slow:',
+  feeMedium: 'fee-medium:',
+  feeFast: 'fee-fast:',
+  feeApe: 'fee-ape:',
+  transactionButtonReject: 'transaction-button-reject',
+  totalPortfolioAmountInteger: 'total-portfolio-amount-integer',
+  proceedBtn: 'proceed-btn',
+  privateKeyWarningCheckbox1: 'private-key-warning-checkbox-1',
+  privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
+  nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-base'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

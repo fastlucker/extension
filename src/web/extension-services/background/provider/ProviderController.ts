@@ -9,11 +9,11 @@ import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappC
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
-import bundler from '@ambire-common/services/bundlers'
+import { getBundlerByName, getDefaultBundler } from '@ambire-common/services/bundlers/getBundler'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import { APP_VERSION, isProd } from '@common/config/env'
+import { APP_VERSION } from '@common/config/env'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
@@ -34,6 +34,16 @@ const handleSignMessage = (requestRes: RequestRes) => {
   }
 
   throw new Error('Internal error: request result not found', requestRes)
+}
+
+const networkChainIdToHex = (chainId: number | bigint) => {
+  try {
+    // Remove leading zero in hex representation
+    // to match the format expected by dApps (e.g., "0xa" instead of "0x0a")
+    return toBeHex(chainId).replace(/^0x0/, '0x')
+  } catch (error) {
+    return `0x${chainId.toString(16)}`
+  }
 }
 
 export class ProviderController {
@@ -150,6 +160,64 @@ export class ProviderController {
     }
   }
 
+  // ERC-7811 https://github.com/ethereum/ERCs/pull/709/
+  // Adding 'custom' in then name as the ERC is still not completed and might update some
+  // specifications.
+  walletCustomGetAssets = async ({
+    params: { account, assetFilter: _assetFilter },
+    session: { origin }
+  }: DappProviderRequest) => {
+    const assetFilter = _assetFilter as { [a: string]: string[] }
+
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    if (!this.mainCtrl.selectedAccount.account) {
+      throw new Error('wallet account not selected')
+    }
+
+    if (typeof assetFilter !== 'object') throw new Error('Wrong request data format')
+
+    const res: { [chainId: string]: any[] } = {}
+
+    Object.entries(assetFilter).forEach(([chainId, tokens]: [string, string[]]) => {
+      if (!res[chainId]) res[chainId] = []
+      const network = this.mainCtrl.networks.networks.find(
+        (n) => Number(n.chainId) === Number(chainId)
+      )
+      if (!network) return
+      const tokensInPortfolio = this.mainCtrl.selectedAccount.portfolio.tokens
+      if (!tokensInPortfolio) return
+
+      tokens.forEach((requestedTokenAddress) => {
+        const token = (tokensInPortfolio || []).find(
+          ({ address, networkId, amount, amountPostSimulation }) => {
+            return (
+              address === requestedTokenAddress &&
+              networkId === network.id &&
+              (typeof amount === 'bigint' || typeof amountPostSimulation === 'bigint')
+            )
+          }
+        )
+        if (!token) return
+        res[chainId].push({
+          address: token.address,
+          balance: `0x${(token.amountPostSimulation || token.amount || 0).toString(16)}`,
+          type: 'ERC20',
+          metadata: {
+            symbol: token.symbol,
+            decimals: token.decimals,
+            // @NOTE: by the ERC7811 standard this should be name, not symbol, but we do not store token names
+            name: token.symbol
+          }
+        })
+      })
+    })
+
+    return res
+  }
+
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }: DappProviderRequest) => {
     if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
@@ -170,9 +238,9 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   ethChainId = async ({ session: { origin } }: DappProviderRequest) => {
     if (this.mainCtrl.dapps.hasPermission(origin)) {
-      return toBeHex(this.mainCtrl.dapps.getDapp(origin)?.chainId || 1)
+      return networkChainIdToHex(this.mainCtrl.dapps.getDapp(origin)?.chainId || 1)
     }
-    return toBeHex(1)
+    return networkChainIdToHex(1)
   }
 
   @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
@@ -288,7 +356,7 @@ export class ProviderController {
 
     const capabilities: any = {}
     this.mainCtrl.networks.networks.forEach((network) => {
-      capabilities[toBeHex(network.chainId)] = {
+      capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {
           supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
         },
@@ -326,14 +394,16 @@ export class ProviderController {
     const id = data.params[0]
     if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
 
-    const splitInTwo = id.split(':')
-    if (splitInTwo.length !== 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
+    const splitInParts = id.split(':')
+    if (splitInParts.length < 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
 
-    const type = splitInTwo[0]
-    const identifier = splitInTwo[1]
+    const type = splitInParts[0]
+    const identifier = splitInParts[1]
+    const bundlerName = splitInParts.length >= 3 ? splitInParts[2] : undefined
     const identifiedBy: AccountOpIdentifiedBy = {
       type,
-      identifier
+      identifier,
+      bundler: bundlerName
     }
 
     const dappNetwork = this.getDappNetwork(data.session.origin)
@@ -358,6 +428,7 @@ export class ProviderController {
     const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
     const isUserOp = identifiedBy.type === 'UserOperation'
+    const bundler = bundlerName ? getBundlerByName(bundlerName) : getDefaultBundler(network)
     const receipt = isUserOp
       ? await bundler.getReceipt(identifiedBy.identifier, network)
       : await provider.getTransactionReceipt(txnId)
@@ -377,7 +448,7 @@ export class ProviderController {
         {
           logs: receipt.logs,
           status,
-          chainId: toBeHex(network.chainId),
+          chainId: networkChainIdToHex(network.chainId),
           blockHash: isUserOp ? receipt.receipt.blockHash : receipt.blockHash,
           blockNumber: isUserOp
             ? receipt.receipt.blockNumber
@@ -398,14 +469,16 @@ export class ProviderController {
     const id = data.params[0]
     if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
 
-    const splitInTwo = id.split(':')
-    if (splitInTwo.length !== 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
+    const splitInParts = id.split(':')
+    if (splitInParts.length < 2) throw ethErrors.rpc.invalidParams('invalid identifier passed')
 
-    const type = splitInTwo[0]
-    const identifier = splitInTwo[1]
+    const type = splitInParts[0]
+    const identifier = splitInParts[1]
+    const bundlerName = splitInParts.length >= 3 ? splitInParts[2] : undefined
     const identifiedBy: AccountOpIdentifiedBy = {
       type,
-      identifier
+      identifier,
+      bundler: bundlerName
     }
 
     const dappNetwork = this.getDappNetwork(data.session.origin)

@@ -1,31 +1,29 @@
+import { nanoid } from 'nanoid'
 import React, { useEffect, useState } from 'react'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
+import { useSearchParams } from 'react-router-dom'
 
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import { nanoid } from 'nanoid'
-import { useSearchParams } from 'react-router-dom'
-import useBackgroundService from '@web/hooks/useBackgroundService'
+import Activity from '../Activity'
 import Collections from '../Collections'
 import DeFiPositions from '../DeFiPositions'
-import Activity from '../Activity'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import Tokens from '../Tokens'
 
 interface Props {
-  tokenPreferences: CustomToken[]
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 const { isTab } = getUiType()
 
-const DashboardPages = ({ tokenPreferences, onScroll }: Props) => {
+const DashboardPages = ({ onScroll }: Props) => {
   const route = useRoute()
   const [sessionId] = useState(nanoid())
   const [, setSearchParams] = useSearchParams()
@@ -66,11 +64,11 @@ const DashboardPages = ({ tokenPreferences, onScroll }: Props) => {
       // in the port.onDisconnect callback in the background.
       dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS', params: { sessionId } })
     }
-  }, [dispatch, sessionId])
+  }, [dispatch, sessionId, setSearchParams])
+
   return (
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
-        tokenPreferences={tokenPreferences}
         openTab={openTab}
         sessionId={sessionId}
         setOpenTab={setOpenTab}

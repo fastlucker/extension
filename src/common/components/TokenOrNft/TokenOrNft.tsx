@@ -1,6 +1,7 @@
 import React, { FC, memo, useEffect, useMemo, useState } from 'react'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
+import { CollectionResult, TokenResult } from '@ambire-common/libs/portfolio'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 import SkeletonLoader from '@common/components/SkeletonLoader'
@@ -32,7 +33,10 @@ const TokenOrNft: FC<Props> = ({
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { addToast } = useToast()
-  const [assetInfo, setAssetInfo] = useState<any>({})
+  const [assetInfo, setAssetInfo] = useState<{
+    tokenInfo?: TokenResult
+    nftInfo?: CollectionResult
+  }>({})
   const { portfolio } = useSelectedAccountControllerState()
 
   const { t } = useTranslation()
@@ -82,23 +86,11 @@ const TokenOrNft: FC<Props> = ({
     addNetwork,
     chainId
   ])
-  return (
-    <>
-      {!assetInfo.nftInfo && !assetInfo.tokenInfo && isLoading && (
-        <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
-      )}
 
-      {network && assetInfo?.nftInfo && (
-        <Nft
-          address={address}
-          network={network}
-          networks={networks}
-          tokenId={value}
-          nftInfo={assetInfo.nftInfo}
-          hideSendNft
-        />
-      )}
-      {(assetInfo?.tokenInfo || !isLoading) && !assetInfo.nftInfo && (
+  if (!assetInfo.nftInfo && !assetInfo.tokenInfo)
+    if (isLoading) return <SkeletonLoader width={140} height={24} appearance="tertiaryBackground" />
+    else
+      return (
         <Token
           textSize={textSize}
           network={network ?? undefined}
@@ -107,8 +99,29 @@ const TokenOrNft: FC<Props> = ({
           tokenInfo={assetInfo?.tokenInfo}
           marginRight={marginRight}
         />
-      )}
-    </>
+      )
+
+  if (network && assetInfo.nftInfo && !assetInfo.tokenInfo)
+    return (
+      <Nft
+        address={address}
+        network={network}
+        networks={networks}
+        tokenId={value}
+        nftInfo={assetInfo.nftInfo}
+        hideSendNft
+      />
+    )
+
+  return (
+    <Token
+      textSize={textSize}
+      network={network ?? undefined}
+      address={address}
+      amount={value}
+      tokenInfo={assetInfo?.tokenInfo}
+      marginRight={marginRight}
+    />
   )
 }
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { RELAYER_URL } from '@env'
-import { ActivityResponse } from '@legends/contexts/recentActivityContext/types'
+import { ActivityResponse } from '@legends/contexts/activityContext/types'
 
 type Props = {
   page: number | null

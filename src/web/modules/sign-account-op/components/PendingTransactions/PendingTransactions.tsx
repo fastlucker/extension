@@ -57,11 +57,11 @@ const PendingTransactions: FC<Props> = ({ network }) => {
           callsToVisualize.map((call, i) => {
             return (
               <TransactionSummary
-                key={`${call.fromUserRequestId!}+${i}`}
+                key={call.id}
                 style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                 call={call}
                 networkId={network.id}
-                testID={`recipient-address-${i}`}
+                index={i}
               />
             )
           })
