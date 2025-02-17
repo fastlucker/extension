@@ -50,6 +50,10 @@ const Estimation = ({
   const { accountStates, accounts } = useAccountsControllerState()
   const isSmartAccount = getIsSmartAccount(signAccountOpState?.account)
 
+  const feeTokenPriceUnavailableWarning = useMemo(() => {
+    return signAccountOpState?.warnings.find((warning) => warning.id === 'feeTokenPriceUnavailable')
+  }, [signAccountOpState?.warnings])
+
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
 
@@ -207,6 +211,14 @@ const Estimation = ({
     signAccountOpState?.rbfAccountOps
   ])
 
+  const isGaslessTransaction = useMemo(() => {
+    return (
+      feeSpeeds.every((speed) => !speed.amount) &&
+      !signAccountOpState?.estimation?.error &&
+      !signAccountOpState?.errors.length
+    )
+  }, [feeSpeeds, signAccountOpState?.errors.length, signAccountOpState?.estimation?.error])
+
   const selectedFee = useMemo(
     () => feeSpeeds.find((speed) => speed.type === signAccountOpState?.selectedFeeSpeed),
     [signAccountOpState?.selectedFeeSpeed, feeSpeeds]
@@ -346,7 +358,17 @@ const Estimation = ({
           />
         </View>
       )}
-      {!isSponsored && (
+      {isGaslessTransaction && (
+        <Alert
+          type="success"
+          size="md"
+          text={t(
+            'This is a gasless (meta) transaction. Please review the changes on the left before signing.'
+          )}
+          style={spacings.mbSm}
+        />
+      )}
+      {!isSponsored && !isGaslessTransaction && (
         <SectionedSelect
           setValue={setFeeOption}
           testID="fee-option-select"
@@ -366,7 +388,7 @@ const Estimation = ({
           stickySectionHeadersEnabled
         />
       )}
-      {!isSponsored && areTwoHWSignaturesRequired && (
+      {!isSponsored && !isGaslessTransaction && areTwoHWSignaturesRequired && (
         <Alert
           size="sm"
           text={t(
@@ -375,7 +397,7 @@ const Estimation = ({
           style={spacings.mbSm}
         />
       )}
-      {!isSponsored && feeSpeeds.length > 0 && (
+      {!isSponsored && !isGaslessTransaction && feeSpeeds.length > 0 && (
         <View style={[spacings.mbMd]}>
           <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
             {t('Transaction speed')}
@@ -395,23 +417,34 @@ const Estimation = ({
                 key={fee.amount + fee.type}
                 label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
                 type={fee.type}
+                symbol={payValue.token?.symbol}
                 amountUsd={parseFloat(fee.amountUsd)}
+                amountFormatted={fee.amountFormatted}
                 onPress={onFeeSelect}
                 isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
               />
             ))}
             {/* TODO: <CustomFee onPress={() => {}} /> */}
           </View>
+          {feeTokenPriceUnavailableWarning && (
+            <Alert
+              size="sm"
+              type="warning"
+              text={feeTokenPriceUnavailableWarning.text}
+              title={feeTokenPriceUnavailableWarning.title}
+              style={spacings.mtSm}
+            />
+          )}
         </View>
       )}
-      {!isSponsored && !!selectedFee && !!payValue && (
+      {!isSponsored && !isGaslessTransaction && !!selectedFee && !!payValue && (
         <AmountInfo
           label="Fee"
           amountFormatted={formatDecimals(parseFloat(selectedFee.amountFormatted))}
           symbol={payValue.token?.symbol}
         />
       )}
-      {!isSponsored && !!signAccountOpState.gasSavedUSD && (
+      {!isSponsored && !isGaslessTransaction && !!signAccountOpState.gasSavedUSD && (
         <AmountInfo.Wrapper>
           <AmountInfo.Label appearance="primary">{t('Gas Tank saves you')}</AmountInfo.Label>
           <AmountInfo.Text appearance="primary" selectable>
