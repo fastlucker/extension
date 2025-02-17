@@ -57,11 +57,11 @@ const ControlOption: FC<Props> = ({
         {
           backgroundColor: theme.secondaryBackground
         },
-        animStyle,
+        onPress ? animStyle : {},
         style
       ]}
       onPress={onPress}
-      {...bindAnim}
+      {...(onPress ? bindAnim : {})}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1, spacings.pr]}>
         <View

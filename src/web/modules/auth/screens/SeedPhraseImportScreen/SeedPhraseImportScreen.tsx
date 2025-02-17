@@ -9,6 +9,7 @@ import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import InputPassword from '@common/components/InputPassword'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
@@ -22,7 +23,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -42,26 +43,60 @@ const DEFAULT_SEED_LENGTH = 12
 
 const SEED_LENGTH_SELECT_OPTIONS = [
   {
-    label: '12-word seed phrase',
-    value: 12
+    label: 'I have 12-word phrase',
+    value: `${12}.${false}`
   },
   {
-    label: '15-word seed phrase',
-    value: 15
+    label: 'I have 12-word phrase with Passphrase',
+    value: `${12}.${true}`
   },
   {
-    label: '18-word seed phrase',
-    value: 18
+    label: 'I have 15-word phrase',
+    value: `${15}.${false}`
   },
   {
-    label: '21-word seed phrase',
-    value: 21
+    label: 'I have 15-word phrase with Passphrase',
+    value: `${15}.${true}`
   },
   {
-    label: '24-word seed phrase',
-    value: 24
+    label: 'I have 18-word phrase',
+    value: `${18}.${false}`
+  },
+  {
+    label: 'I have 18-word phrase with Passphrase',
+    value: `${18}.${true}`
+  },
+  {
+    label: 'I have 21-word phrase',
+    value: `${21}.${false}`
+  },
+  {
+    label: 'I have 21-word phrase with Passphrase',
+    value: `${21}.${true}`
+  },
+  {
+    label: 'I have 24-word phrase',
+    value: `${24}.${false}`
+  },
+  {
+    label: 'I have 24-word phrase with Passphrase',
+    value: `${24}.${true}`
   }
 ]
+
+const getPropsFromValue = (
+  value: string
+): {
+  length: number
+  withPassphrase: boolean
+} => {
+  const props = value.split('.')
+
+  return {
+    length: Number(props[0]),
+    withPassphrase: props[1] === 'true'
+  }
+}
 
 const SeedPhraseImportScreen = () => {
   const { updateStepperState } = useStepper()
@@ -83,7 +118,8 @@ const SeedPhraseImportScreen = () => {
     mode: 'all',
     defaultValues: {
       seedFields: arrayWithEmptyString(DEFAULT_SEED_LENGTH),
-      seedLength: SEED_LENGTH_SELECT_OPTIONS[0]
+      seedLength: SEED_LENGTH_SELECT_OPTIONS[0],
+      passphrase: ''
     }
   })
   const { maxWidthSize } = useWindowSize()
@@ -91,6 +127,7 @@ const SeedPhraseImportScreen = () => {
     control,
     name: 'seedFields'
   })
+  const [enablePassphrase, setEnablePassphrase] = useState(false)
   const [seedPhraseStatus, setSeedPhraseStatus] = useState<'incomplete' | 'valid' | 'invalid'>(
     'incomplete'
   )
@@ -107,7 +144,15 @@ const SeedPhraseImportScreen = () => {
       const formattedSeed = value.seedFields?.map((field) => field.value?.trim()).join(' ') || ''
 
       // Some fields are empty
-      if (value.seedFields?.filter((field) => field.value).length !== value.seedLength?.value) {
+      if (!value.seedLength) {
+        setSeedPhraseStatus('incomplete')
+        return
+      }
+
+      if (
+        value.seedFields?.filter((field) => field.value).length !==
+        getPropsFromValue(value.seedLength!.value!).length
+      ) {
         setSeedPhraseStatus('incomplete')
         return
       }
@@ -141,12 +186,13 @@ const SeedPhraseImportScreen = () => {
   ])
 
   const handleFormSubmit = useCallback(async () => {
-    await handleSubmit(({ seedFields }) => {
+    await handleSubmit(({ seedFields, passphrase }) => {
       const formattedSeed = seedFields.map((field) => field.value).join(' ')
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
         params: {
           privKeyOrSeed: formattedSeed,
+          seedPassphrase: passphrase || null,
           shouldAddToTemp: !keystoreState.hasKeystoreSavedSeed
         }
       })
@@ -154,9 +200,12 @@ const SeedPhraseImportScreen = () => {
   }, [dispatch, handleSubmit, keystoreState.hasKeystoreSavedSeed])
 
   const updateFieldsLength = useCallback(
-    (newLength: number) => {
+    (value: string) => {
+      const { length, withPassphrase } = getPropsFromValue(value)
       const currentLength = fields.length
-      const lengthDifference = currentLength - newLength
+      const lengthDifference = currentLength - length
+
+      setEnablePassphrase(withPassphrase)
 
       if (lengthDifference === 0) return
 
@@ -192,7 +241,9 @@ const SeedPhraseImportScreen = () => {
       }
 
       const correspondingLengthOption = SEED_LENGTH_SELECT_OPTIONS.find(
-        (option) => option.value === words.length
+        (option) =>
+          getPropsFromValue(option.value).length === words.length &&
+          getPropsFromValue(option.value).withPassphrase === enablePassphrase
       )
 
       if (correspondingLengthOption) {
@@ -225,7 +276,7 @@ const SeedPhraseImportScreen = () => {
         type: 'error'
       })
     },
-    [fields, setValue, addToast, updateFieldsLength, t]
+    [fields, enablePassphrase, setValue, addToast, updateFieldsLength, t]
   )
 
   const validateSeedPhraseWord = useCallback(
@@ -290,13 +341,13 @@ const SeedPhraseImportScreen = () => {
                 <Select
                   testID="select-seed-phrase-length"
                   setValue={(e) => {
-                    updateFieldsLength(e.value as number)
+                    updateFieldsLength(e.value as string)
                     onChange(e)
                   }}
                   options={SEED_LENGTH_SELECT_OPTIONS}
                   selectStyle={{ height: 40 }}
                   value={value}
-                  containerStyle={{ width: 240 }}
+                  containerStyle={{ width: 340 }}
                 />
               )}
             />
@@ -308,7 +359,7 @@ const SeedPhraseImportScreen = () => {
               'Type in the words individually or paste the entire seed phrase (if separated by spaces) into any field.'
             )}
           />
-          <View style={[flexbox.directionRow, flexbox.wrap]}>
+          <View style={[flexbox.directionRow, flexbox.wrap, { marginBottom: -SPACING_MI }]}>
             {fields.map((field, index) => (
               <View
                 key={field.id}
@@ -396,6 +447,27 @@ const SeedPhraseImportScreen = () => {
               </View>
             ))}
           </View>
+
+          {enablePassphrase && (
+            <View style={styles.passphraseContainer}>
+              <Controller
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <InputPassword
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Seed Passphrase"
+                    inputWrapperStyle={{ height: 40 }}
+                    inputStyle={{ height: 40 }}
+                    containerStyle={{ flex: 0.5 }}
+                  />
+                )}
+                name="passphrase"
+              />
+            </View>
+          )}
 
           {seedPhraseStatus === 'invalid' ? (
             <Alert

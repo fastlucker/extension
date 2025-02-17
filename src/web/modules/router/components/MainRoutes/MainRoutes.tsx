@@ -43,12 +43,12 @@ import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsR
 import AboutSettingsScreen from '@web/modules/settings/screens/AboutSettingsScreen'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import AddressBookSettingsScreen from '@web/modules/settings/screens/AddressBookSettingsScreen'
-import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomTokensSettingsScreen'
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
 import ExportKeyScreen from '@web/modules/settings/screens/ExportKeyScreen'
 import GeneralSettingsScreen from '@web/modules/settings/screens/GeneralSettingsScreen'
+import ManageTokensSettingsScreen from '@web/modules/settings/screens/ManageTokensSettingsScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import SavedSeedScreen from '@web/modules/settings/screens/SavedSeedScreen'
 import SecurityAndPrivacyScreen from '@web/modules/settings/screens/SecurityAndPrivacyScreen'
@@ -180,7 +180,7 @@ const MainRoutes = () => {
                     path={WEB_ROUTES.devicePasswordRecovery}
                     element={<DevicePasswordRecoverySettingsScreen />}
                   />
-                  <Route path={WEB_ROUTES.manageTokens} element={<CustomTokensSettingsScreen />} />
+                  <Route path={WEB_ROUTES.manageTokens} element={<ManageTokensSettingsScreen />} />
                   <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
                   <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
                   <Route path={WEB_ROUTES.settingsAbout} element={<AboutSettingsScreen />} />

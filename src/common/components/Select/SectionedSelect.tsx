@@ -27,7 +27,8 @@ const SectionedSelect = ({
     value,
     headerHeight,
     stickySectionHeadersEnabled,
-    data: sections
+    data: sections,
+    attemptToFetchMoreOptions
   })
   const {
     listRef,

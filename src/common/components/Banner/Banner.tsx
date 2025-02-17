@@ -35,15 +35,17 @@ export interface Props {
   style?: ViewStyle
 }
 
-const BannerButton: FC<CommonButtonProps & { isReject?: boolean }> = ({
+const BannerButton: FC<CommonButtonProps & { isReject?: boolean; testId?: string }> = ({
   isReject,
   style,
+  testId,
   ...rest
 }) => {
   const { theme } = useTheme()
 
   return (
     <CommonButton
+      testID={testId}
       size="small"
       textUnderline={isReject}
       textStyle={isReject && { color: theme.errorDecorative }}

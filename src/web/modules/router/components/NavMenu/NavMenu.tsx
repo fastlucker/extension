@@ -71,7 +71,7 @@ const NavMenu = () => {
       footer={<BackButton />}
       footerStyle={{ maxWidth: tabLayoutWidths.xl }}
       header={
-        <Header withPopupBackButton mode="custom">
+        <Header mode="custom">
           <View style={[headerStyles.widthContainer, { maxWidth: tabLayoutWidths.xl }]}>
             <View style={[headerStyles.sideContainer, { width: 180 }]}>
               <HeaderBackButton />

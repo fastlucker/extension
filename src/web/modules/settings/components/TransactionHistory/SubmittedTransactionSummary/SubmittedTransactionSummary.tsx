@@ -26,7 +26,9 @@ import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import TransactionSummary, { sizeMultiplier } from '@web/modules/sign-account-op/components/TransactionSummary'
+import TransactionSummary, {
+  sizeMultiplier
+} from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import getStyles from './styles'
 import SubmittedOn from './SubmittedOn'
@@ -55,13 +57,20 @@ const SubmittedTransactionSummary = ({
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
 
-  const network = useMemo(
-    () => networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
+  const network: Network | undefined = useMemo(
+    () => networks.find((n) => n.id === submittedAccountOp.networkId),
     [networks, submittedAccountOp.networkId]
   )
 
   const calls = useMemo(
-    () => humanizeAccountOp(submittedAccountOp, { network }),
+    () =>
+      humanizeAccountOp(submittedAccountOp, { network }).map((call, index) => ({
+        ...call,
+        // It's okay to use index as:
+        // 1. The calls aren't reordered
+        // 2. We are building the calls only once
+        id: call.id || String(index)
+      })),
     // Humanize the calls only once. Because submittedAccountOp is an object
     // it causes rerenders on every activity update.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,7 +114,7 @@ const SubmittedTransactionSummary = ({
   ])
 
   const handleOpenBenzina = useCallback(async () => {
-    const chainId = Number(network.chainId)
+    const chainId = Number(network?.chainId)
 
     if (!chainId || !submittedAccountOp.txnId) throw new Error('Invalid chainId or txnId')
 
@@ -120,15 +129,17 @@ const SubmittedTransactionSummary = ({
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
-  }, [network.chainId, submittedAccountOp.txnId, submittedAccountOp.identifiedBy, addToast])
+  }, [network?.chainId, submittedAccountOp.txnId, submittedAccountOp.identifiedBy, addToast])
 
   const handleOpenBlockExplorer = useCallback(async () => {
     try {
-      await createTab(`${network.explorerUrl}/tx/${submittedAccountOp.txnId}`)
+      await createTab(`${network?.explorerUrl}/tx/${submittedAccountOp.txnId}`)
     } catch (e: any) {
       addToast(e?.message || 'Error opening block explorer', { type: 'error' })
     }
-  }, [network.explorerUrl, submittedAccountOp.txnId, addToast])
+  }, [network?.explorerUrl, submittedAccountOp.txnId, addToast])
+
+  if (!network) return null
 
   return calls.length ? (
     <View
@@ -142,7 +153,7 @@ const SubmittedTransactionSummary = ({
     >
       {calls.map((call: IrCall) => (
         <TransactionSummary
-          key={call.fromUserRequestId}
+          key={call.id}
           style={{ ...styles.summaryItem, marginBottom: SPACING_SM * sizeMultiplier[size] }}
           call={call}
           networkId={submittedAccountOp.networkId}
