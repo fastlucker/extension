@@ -119,12 +119,14 @@
     .content {
       display: flex;
       flex-direction: column;
-      height: 100%;
 
       .heading {
         font-size: 1.25rem;
         font-weight: 500;
         margin-bottom: 0.25rem;
+        // Always take three lines of text, since some headings are 3 lines
+        line-height: 1.5625rem;
+        height: 5rem;
       }
 
       .rewardsHeading {
@@ -150,7 +152,6 @@
       }
       .rewards {
         display: flex;
-        margin-top: auto;
         justify-content: space-between;
         width: 100%;
         background-color: $tertiaryBackground;
