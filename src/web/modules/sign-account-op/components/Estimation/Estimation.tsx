@@ -50,6 +50,10 @@ const Estimation = ({
   const { accountStates, accounts } = useAccountsControllerState()
   const isSmartAccount = getIsSmartAccount(signAccountOpState?.account)
 
+  const feeTokenPriceUnavailableWarning = useMemo(() => {
+    return signAccountOpState?.warnings.find((warning) => warning.id === 'feeTokenPriceUnavailable')
+  }, [signAccountOpState?.warnings])
+
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
 
@@ -396,12 +400,22 @@ const Estimation = ({
                 label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
                 type={fee.type}
                 amountUsd={parseFloat(fee.amountUsd)}
+                amountFormatted={fee.amountFormatted}
                 onPress={onFeeSelect}
                 isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
               />
             ))}
             {/* TODO: <CustomFee onPress={() => {}} /> */}
           </View>
+          {feeTokenPriceUnavailableWarning && (
+            <Alert
+              size="sm"
+              type="warning"
+              text={feeTokenPriceUnavailableWarning.text}
+              title={feeTokenPriceUnavailableWarning.title}
+              style={spacings.mtSm}
+            />
+          )}
         </View>
       )}
       {!isSponsored && !!selectedFee && !!payValue && (

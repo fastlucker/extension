@@ -16,12 +16,13 @@ interface Props {
   label: string
   type: FeeSpeed
   amountUsd: number
+  amountFormatted: string
   onPress: (fee: FeeSpeed) => void
   isSelected: boolean
   disabled: boolean
 }
 
-const Fee = ({ label, type, amountUsd, onPress, isSelected, disabled }: Props) => {
+const Fee = ({ label, type, amountUsd, amountFormatted, onPress, isSelected, disabled }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const { minWidthSize } = useWindowSize()
   const [bindAnim, animStyle] = useCustomHover({
@@ -64,12 +65,15 @@ const Fee = ({ label, type, amountUsd, onPress, isSelected, disabled }: Props) =
           {label}
         </Text>
         <Text
-          fontSize={minWidthSize('m') ? 12 : 14}
-          numberOfLines={1}
+          fontSize={amountUsd ? (minWidthSize('m') ? 12 : 14) : 10}
+          numberOfLines={amountUsd ? 1 : undefined}
           weight="medium"
           color={isSelected ? theme.primary : theme.primaryText}
+          style={{ width: '100%', textAlign: 'center' }}
         >
-          {formatDecimals(amountUsd, 'value')}
+          {amountUsd
+            ? formatDecimals(amountUsd, 'value')
+            : formatDecimals(Number(amountFormatted), 'precise')}
         </Text>
       </Animated.View>
     </Pressable>
