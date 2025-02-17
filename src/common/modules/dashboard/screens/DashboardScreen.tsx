@@ -42,11 +42,10 @@ const DashboardScreen = () => {
 
   const { account, portfolio, cashbackStatus } = useSelectedAccountControllerState()
 
-  const hasUnseenFirstCashback = useMemo(() => {
-    if (cashbackStatus === undefined) return false
-
-    return cashbackStatus === 'cashback-modal'
-  }, [cashbackStatus])
+  const hasUnseenFirstCashback = useMemo(
+    () => cashbackStatus === 'cashback-modal',
+    [cashbackStatus]
+  )
 
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
     x: number
