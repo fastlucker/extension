@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
-import { v4 as uuidv4 } from 'uuid'
 
 import { EntropyGenerator } from '@ambire-common/libs/entropyGenerator/entropyGenerator'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -12,6 +11,7 @@ import Panel from '@common/components/Panel'
 import { getPanelPaddings } from '@common/components/Panel/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useExtraEntropy from '@common/hooks/useExtraEntropy/useExtraEntropy'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -60,32 +60,19 @@ const CreateSeedPhrasePrepareScreen = () => {
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
   const panelPaddingStyle = getPanelPaddings(maxWidthSize)
   const keystoreState = useKeystoreControllerState()
-  const [mousePos, setMousePos] = useState<{ x: number; y: number; timestamp: number } | null>(null)
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY, timestamp: e.timeStamp })
-    }
-
-    document.addEventListener('mousemove', handleMouseMove)
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-    }
-  }, [])
+  const { getExtraEntropy } = useExtraEntropy()
 
   const handleSubmit = useCallback(() => {
     const entropyGenerator = new EntropyGenerator()
-    const mouseEntropy = mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : null
-    const extraEntropy = `${mouseEntropy || uuidv4()}-${performance.now()}`
-    const seed = entropyGenerator.generateRandomMnemonic(12, extraEntropy).phrase
+    const seed = entropyGenerator.generateRandomMnemonic(12, getExtraEntropy()).phrase
 
     if (!seed) {
       addToast('Failed to generate seed phrase', { type: 'error' })
       return
     }
     navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
-  }, [addToast, navigate, mousePos])
+  }, [addToast, navigate, getExtraEntropy])
 
   // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
   useEffect(() => {
