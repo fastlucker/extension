@@ -1,11 +1,12 @@
 import { getAddress } from 'ethers'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { isValidAddress } from '@ambire-common/services/address'
 import Alert from '@common/components/Alert/Alert'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
 import Input from '@common/components/Input'
@@ -36,7 +37,12 @@ type NetworkOption = {
   icon: JSX.Element
 }
 
-const AddToken = () => {
+type Props = {
+  sheetRef: React.RefObject<any>
+  handleClose: () => void
+}
+
+const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -104,6 +110,14 @@ const AddToken = () => {
     [selectedAccountPortfolio, network, address]
   )
 
+  const handleCloseAndReset = useCallback(() => {
+    handleClose()
+    reset({ address: '' })
+    setAdditionalHintRequested(false)
+    setIsLoading(false)
+    setShowAlreadyInPortfolioMessage(false)
+  }, [handleClose, reset])
+
   const handleAddToken = useCallback(async () => {
     if (!isValidAddress(address) || !network) return
 
@@ -128,17 +142,27 @@ const AddToken = () => {
         shouldUpdatePortfolio: true
       }
     })
-    reset({ address: '' })
-    setAdditionalHintRequested(false)
     addToast(t(`Added token ${address} on ${network.name} to your portfolio`))
-  }, [address, network, addToast, temporaryToken, reset, t, dispatch])
+    handleCloseAndReset()
+  }, [
+    address,
+    network,
+    temporaryToken?.address,
+    temporaryToken?.symbol,
+    temporaryToken?.decimals,
+    dispatch,
+    addToast,
+    t,
+    handleCloseAndReset
+  ])
 
-  const handleTokenType = () => {
+  const handleTokenType = useCallback(() => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN',
       params: { token: { address, networkId: network.id } }
     })
-  }
+  }, [address, dispatch, network.id])
+
   useEffect(() => {
     const handleEffect = async () => {
       if (!address || !network) return
@@ -188,11 +212,20 @@ const AddToken = () => {
   }, [address, network])
 
   return (
-    <View style={flexbox.flex1}>
-      <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">
+    <BottomSheet
+      id="add-custom-token"
+      sheetRef={sheetRef}
+      closeBottomSheet={handleCloseAndReset}
+      style={{
+        maxWidth: 720
+      }}
+      backgroundColor="primaryBackground"
+    >
+      <Text fontSize={20} style={spacings.mbXl} weight="medium">
         {t('Add Token')}
       </Text>
       <Select
+        // @ts-ignore
         setValue={handleSetNetworkValue}
         options={networksOptions}
         value={networksOptions.filter((opt) => opt.value === network.id)[0]}
@@ -223,7 +256,14 @@ const AddToken = () => {
           />
         )}
       />
-      <View style={[spacings.mbXl]}>
+      <View
+        style={[
+          spacings.mbXl,
+          {
+            minHeight: 50 // To prevent the bottom sheet from resizing
+          }
+        ]}
+      >
         {temporaryToken || portfolioToken ? (
           <View
             style={[
@@ -289,11 +329,10 @@ const AddToken = () => {
         }
         text={t('Add Token')}
         hasBottomSpacing={false}
-        style={{ maxWidth: 196 }}
-        onPress={() => handleAddToken()}
+        onPress={handleAddToken}
       />
-    </View>
+    </BottomSheet>
   )
 }
 
-export default React.memo(AddToken)
+export default React.memo(AddTokenBottomSheet)

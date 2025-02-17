@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { Pressable } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
@@ -11,14 +11,14 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getUiType } from '@web/utils/uiType'
 
-const { isPopup, isActionWindow } = getUiType()
+const { isPopup, isTab, isActionWindow } = getUiType()
 
 const HeaderBackButton = ({
-  hideInPopup = false,
+  displayIn = 'popup',
   onGoBackPress,
   forceBack
 }: {
-  hideInPopup?: boolean
+  displayIn?: 'popup' | 'tab' | 'always' | 'never'
   onGoBackPress?: () => void
   forceBack?: boolean
 }) => {
@@ -27,7 +27,6 @@ const HeaderBackButton = ({
   const { navigate } = useNavigation()
   const { t } = useTranslation()
 
-  const shouldHideInPopup = isPopup && hideInPopup
   const navigationEnabled = !isActionWindow
 
   const canGoBack =
@@ -36,9 +35,18 @@ const HeaderBackButton = ({
     path !== '/get-started' &&
     navigationEnabled
 
+  const shouldBeDisplayed = useMemo(() => {
+    if (displayIn === 'never') return false
+    if (displayIn === 'always') return true
+
+    if (displayIn === 'popup') return isPopup
+
+    return isTab
+  }, [displayIn])
+
   const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
 
-  if (shouldHideInPopup || (!canGoBack && !forceBack)) return null
+  if (!shouldBeDisplayed || (!canGoBack && !forceBack)) return null
 
   return (
     <Pressable

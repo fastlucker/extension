@@ -155,7 +155,7 @@ const DappCatalogScreen = () => {
       width="xl"
       footer={<BackButton />}
       footerStyle={{ maxWidth: tabLayoutWidths.xl }}
-      header={<Header withPopupBackButton mode="title" withAmbireLogo />}
+      header={<Header mode="title" withAmbireLogo />}
       withHorizontalPadding={!isPopup}
     >
       <View style={[flexbox.flex1]}>
