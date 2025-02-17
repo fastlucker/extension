@@ -15,6 +15,7 @@ import getStyles from './styles'
 interface Props {
   label: string
   type: FeeSpeed
+  symbol?: string
   amountUsd: number
   amountFormatted: string
   onPress: (fee: FeeSpeed) => void
@@ -22,7 +23,16 @@ interface Props {
   disabled: boolean
 }
 
-const Fee = ({ label, type, amountUsd, amountFormatted, onPress, isSelected, disabled }: Props) => {
+const Fee = ({
+  label,
+  type,
+  symbol,
+  amountUsd,
+  amountFormatted,
+  onPress,
+  isSelected,
+  disabled
+}: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const { minWidthSize } = useWindowSize()
   const [bindAnim, animStyle] = useCustomHover({
@@ -71,9 +81,8 @@ const Fee = ({ label, type, amountUsd, amountFormatted, onPress, isSelected, dis
           color={isSelected ? theme.primary : theme.primaryText}
           style={{ width: '100%', textAlign: 'center' }}
         >
-          {amountUsd
-            ? formatDecimals(amountUsd, 'value')
-            : formatDecimals(Number(amountFormatted), 'precise')}
+          {amountUsd ? formatDecimals(amountUsd, 'value') : formatDecimals(Number(amountFormatted))}{' '}
+          {amountUsd ? '' : symbol}
         </Text>
       </Animated.View>
     </Pressable>
