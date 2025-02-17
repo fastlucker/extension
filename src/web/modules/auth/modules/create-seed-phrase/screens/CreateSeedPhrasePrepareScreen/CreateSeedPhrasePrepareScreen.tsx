@@ -1,7 +1,8 @@
-import { Wallet } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
+import { v4 as uuidv4 } from 'uuid'
 
+import { EntropyGenerator } from '@ambire-common/libs/entropyGenerator/entropyGenerator'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import BackButton from '@common/components/BackButton'
@@ -59,15 +60,31 @@ const CreateSeedPhrasePrepareScreen = () => {
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
   const panelPaddingStyle = getPanelPaddings(maxWidthSize)
   const keystoreState = useKeystoreControllerState()
+  const [mousePos, setMousePos] = useState<{ x: number; y: number; timestamp: number } | null>(null)
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY, timestamp: e.timeStamp })
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [])
+
   const handleSubmit = useCallback(() => {
-    const seed = Wallet.createRandom().mnemonic?.phrase || null
+    const entropyGenerator = new EntropyGenerator()
+    const extraEntropy = mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : uuidv4()
+    const seed = entropyGenerator.generateRandomMnemonic(12, extraEntropy).phrase
 
     if (!seed) {
       addToast('Failed to generate seed phrase', { type: 'error' })
       return
     }
     navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
-  }, [addToast, navigate])
+  }, [addToast, navigate, mousePos])
 
   // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
   useEffect(() => {
