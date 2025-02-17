@@ -37,4 +37,4 @@ const PreviewOutcome: React.FC<Props> = ({ width = 48, height = 31, ...rest }) =
   </Svg>
 )
 
-export default PreviewOutcome
+export default React.memo(PreviewOutcome)

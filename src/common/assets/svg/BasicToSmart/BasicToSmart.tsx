@@ -45,4 +45,4 @@ const BasicToSmart: React.FC<Props> = ({ width = 61, height = 61, ...rest }) => 
   </Svg>
 )
 
-export default BasicToSmart
+export default React.memo(BasicToSmart)

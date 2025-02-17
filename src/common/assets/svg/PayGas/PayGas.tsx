@@ -51,4 +51,4 @@ const PayGas: React.FC<Props> = ({ width = 50, height = 38, ...rest }) => (
   </Svg>
 )
 
-export default PayGas
+export default React.memo(PayGas)

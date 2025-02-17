@@ -59,4 +59,4 @@ const BundleTxns: React.FC<Props> = ({ width = 37, height = 34, ...rest }) => (
   </Svg>
 )
 
-export default BundleTxns
+export default React.memo(BundleTxns)
