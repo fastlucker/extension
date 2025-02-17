@@ -41,19 +41,12 @@ type ActionModalProps = {
   Partial<CardActionComponentProps> &
   Pick<
     CardFromResponse,
-    | 'meta'
-    | 'xp'
-    | 'contentImage'
-    | 'contentSteps'
-    | 'contentVideo'
-    | 'description'
-    | 'flavor'
-    | 'action'
+    'meta' | 'xp' | 'contentImage' | 'contentSteps' | 'contentVideo' | 'title' | 'flavor' | 'action'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
-  description,
+  title,
   flavor,
   xp,
   contentImage,
@@ -89,7 +82,7 @@ const ActionModal: FC<ActionModalProps> = ({
   return (
     <Modal isOpen={isOpen} handleClose={closeActionModal} className={styles.modal}>
       <Modal.Heading className={styles.modalHeading}>
-        <div className={styles.modalHeadingTitle}>{description}</div>
+        <div className={styles.modalHeadingTitle}>{title}</div>
         {xp && <Rewards xp={xp} size="lg" />}
       </Modal.Heading>
       <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
