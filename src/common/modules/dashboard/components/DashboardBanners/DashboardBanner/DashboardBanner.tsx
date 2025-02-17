@@ -22,7 +22,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { visibleActionsQueue } = useActionsControllerState()
+  const { visibleActionsQueue, actionsQueue } = useActionsControllerState()
   const { statuses } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const { ref: sheetRef, close: closeBottomSheet, open: openBottomSheet } = useModalize()
@@ -129,9 +129,21 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           navigate(ROUTES.saveImportedSeed)
           break
 
-        case 'update-extension-version':
-          openBottomSheet()
+        case 'update-extension-version': {
+          const shouldPrompt =
+            actionsQueue.filter(({ type: actionType }) => actionType !== 'benzin').length > 0
+
+          if (shouldPrompt) {
+            openBottomSheet()
+            break
+          }
+
+          dispatch({
+            type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
+          })
+
           break
+        }
 
         case 'reload-selected-account':
           dispatch({

@@ -32,7 +32,11 @@ const DashboardBannerBottomSheet: FC<Props> = ({ id, sheetRef, closeBottomSheet 
       {id === 'update-available' && (
         <DualChoiceModal
           title={t('Are you sure you want to reload the extension?') as string}
-          description={t('This will discard any unsaved data or pending actions.') as string}
+          description={
+            t(
+              'You have pending actions. Reloading the extension will discard all pending actions and unsaved changes.'
+            ) as string
+          }
           primaryButtonText={t('Reload now')}
           onPrimaryButtonPress={() =>
             dispatch({
