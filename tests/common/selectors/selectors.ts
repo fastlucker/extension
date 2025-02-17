@@ -41,7 +41,7 @@ export const TEST_IDS = {
   pinExtensionCloseBtn: 'pin-extension-close-btn',
   accountSelectBtn: 'account-select-btn',
   selectSeedPhraseLength: 'select-seed-phrase-length',
-  option24WordsSeedPhrase: 'option-24-word-seed-phrase',
+  option24WordsSeedPhrase: 'option-i-have-24-word-phrase',
   selectChangeHdPath: 'select-change-hd-path',
   optionBip44LedgerLive: 'option-bip44-ledger-live',
   importExistingWallet: 'import-existing-wallet',
@@ -88,7 +88,12 @@ export const TEST_IDS = {
   proceedBtn: 'proceed-btn',
   privateKeyWarningCheckbox1: 'private-key-warning-checkbox-1',
   privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
-  nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-base'
+  nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-base',
+  bannerButtonOpen: 'banner-button-open',
+  confettiModalActionButton: 'confetti-modal-action-button',
+  refreshButton: 'refresh-button',
+  dashboardGasTankButton: 'dashboard-gas-tank-button',
+  createSmartAccountGasTankModalButton: 'create-smart-account-gas-tank-modal-button'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

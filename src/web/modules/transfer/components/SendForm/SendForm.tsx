@@ -2,7 +2,6 @@ import { formatUnits, JsonRpcProvider, ZeroAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
 import { estimateEOA } from '@ambire-common/libs/estimate/estimateEOA'
 import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
@@ -16,6 +15,7 @@ import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
+import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
@@ -23,52 +23,9 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
-import { mapTokenOptions } from '@web/utils/maps'
 import { getTokenId } from '@web/utils/token'
 
 import styles from './styles'
-
-const NO_TOKENS_ITEMS = [
-  {
-    value: 'noTokens',
-    label: (
-      <Text weight="medium" fontSize={14}>
-        You don&apos;t have any tokens
-      </Text>
-    ),
-    icon: null
-  }
-]
-
-const getSelectProps = ({
-  tokens,
-  token,
-  networks
-}: {
-  tokens: TokenResult[]
-  token: string
-  networks: Network[]
-}) => {
-  let options: any = []
-  let value = null
-  let amountSelectDisabled = true
-
-  if (tokens?.length === 0) {
-    value = NO_TOKENS_ITEMS[0]
-    options = NO_TOKENS_ITEMS
-  } else {
-    options = mapTokenOptions(tokens, networks)
-    value = options.find((item: any) => item.value === token) || options[0]
-    amountSelectDisabled = false
-  }
-
-  return {
-    options,
-    value,
-
-    amountSelectDisabled
-  }
-}
 
 const ONE_MINUTE = 60 * 1000
 
@@ -119,10 +76,11 @@ const SendForm = ({
     value: tokenSelectValue,
     options,
     amountSelectDisabled
-  } = getSelectProps({
+  } = useGetTokenSelectProps({
     tokens,
     token: selectedToken ? getTokenId(selectedToken) : '',
-    networks
+    networks,
+    isToToken: false
   })
 
   const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
@@ -288,7 +246,8 @@ const SendForm = ({
         provider,
         [selectedToken],
         '0x0000000000000000000000000000000000000001',
-        'latest'
+        'latest',
+        () => {}
       )
     ])
       .then(([feeData, newEstimation]) => {
@@ -332,10 +291,10 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
-      {(!state.selectedToken && tokens.length) || !portfolio?.isAllReady ? (
+      {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
-            {!portfolio?.isAllReady
+            {!portfolio?.isReadyToVisualize
               ? t('Loading tokens...')
               : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           </Text>
@@ -364,7 +323,7 @@ const SendForm = ({
         maxAmountInFiat={maxAmountInFiat}
         switchAmountFieldMode={switchAmountFieldMode}
         disabled={disableForm || amountSelectDisabled}
-        isLoading={!portfolio?.isAllReady || !isMaxAmountEnabled}
+        isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
         isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
       />
       <View>

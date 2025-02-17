@@ -13,12 +13,10 @@ interface Props {
 }
 
 const useCustomHover = ({ property, values, duration, forceHoveredStyle }: Props) => {
-  const value = useMultiHover({
+  return useMultiHover({
     values: [{ property, ...values, duration }],
     forceHoveredStyle
   })
-
-  return value
 }
 
 export default useCustomHover

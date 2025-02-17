@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { Animated, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -9,11 +9,15 @@ import DefaultWalletControl from '@common/modules/dashboard/components/DefaultWa
 import PendingActionWindowModal from '@common/modules/dashboard/components/PendingActionWindowModal'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import GasTankModal from '@web/components/GasTankModal'
 import ReceiveModal from '@web/components/ReceiveModal'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import DAppFooter from '../components/DAppFooter'
 import DashboardOverview from '../components/DashboardOverview'
+import CongratsFirstCashbackModal from '../components/DashboardOverview/CongratsFirstCashbackModal'
 import DashboardPages from '../components/DashboardPages'
 import PinExtension from '../components/PinExtension'
 import getStyles from './styles'
@@ -24,7 +28,9 @@ export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 
 const DashboardScreen = () => {
   const { styles } = useTheme(getStyles)
+  const { dispatch } = useBackgroundService()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
+  const { ref: gasTankModalRef, open: openGasTankModal, close: closeGasTankModal } = useModalize()
   const lastOffsetY = useRef(0)
   const scrollUpStartedAt = useRef(0)
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
@@ -33,6 +39,33 @@ const DashboardScreen = () => {
   })
   const debouncedDashboardOverviewSize = useDebounce({ value: dashboardOverviewSize, delay: 100 })
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
+
+  const { account, portfolio } = useSelectedAccountControllerState()
+
+  const shouldShowFirstCashbackConfetti = useMemo(() => {
+    if (!account) return false
+
+    const gasTankResult = portfolio?.latest?.gasTank?.result
+
+    if (
+      !gasTankResult ||
+      !('gasTankTokens' in gasTankResult) ||
+      !Array.isArray(gasTankResult.gasTankTokens)
+    ) {
+      return false
+    }
+
+    const hasUnseenFirstCashback = gasTankResult.gasTankTokens[0]?.hasUnseenFirstCashback
+
+    return hasUnseenFirstCashback
+  }, [account, portfolio])
+
+  const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null>(null)
 
   const onScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -71,17 +104,42 @@ const DashboardScreen = () => {
     [animatedOverviewHeight, dashboardOverviewSize.height, lastOffsetY, scrollUpStartedAt]
   )
 
+  const handleGasTankButtonPosition = useCallback(
+    (bPosition: { x: number; y: number; width: number; height: number } | null) => {
+      if (bPosition) {
+        setGasTankButtonPosition(bPosition)
+      }
+    },
+    []
+  )
+
+  const handleCongratsModalBtnPressed = useCallback(() => {
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
+      params: { accountAddr: account!.addr }
+    })
+  }, [dispatch, account])
+
   return (
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
+      <GasTankModal
+        modalRef={gasTankModalRef}
+        handleClose={closeGasTankModal}
+        portfolio={portfolio}
+        account={account}
+      />
+
       <PendingActionWindowModal />
       <View style={styles.container}>
         <View style={[flexbox.flex1, spacings.ptSm]}>
           <DashboardOverview
             openReceiveModal={openReceiveModal}
+            openGasTankModal={openGasTankModal}
             animatedOverviewHeight={animatedOverviewHeight}
             dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}
+            onGasTankButtonPosition={handleGasTankButtonPosition}
           />
           <DashboardPages onScroll={onScroll} />
         </View>
@@ -89,6 +147,14 @@ const DashboardScreen = () => {
       </View>
       <PinExtension />
       <DefaultWalletControl />
+      {shouldShowFirstCashbackConfetti && (
+        <CongratsFirstCashbackModal
+          onPress={handleCongratsModalBtnPressed}
+          position={gasTankButtonPosition}
+          portfolio={portfolio}
+          account={account}
+        />
+      )}
     </>
   )
 }

@@ -110,7 +110,7 @@ const KeyStoreUnlockScreen = () => {
       backgroundColor={theme.secondaryBackground}
       header={
         !isPopup && (
-          <Header withAmbireLogo mode="custom-inner-content">
+          <Header displayBackButtonIn="never" withAmbireLogo mode="custom-inner-content">
             <View
               style={[
                 flexbox.flex1,

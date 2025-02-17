@@ -15,9 +15,10 @@ const OpenIcon: React.FC<Props> = ({
   width = 19,
   height = 19,
   color = iconColors.primary,
-  strokeWidth = '1.5'
+  strokeWidth = '1.5',
+  ...rest
 }) => (
-  <Svg width={width} height={height} viewBox="0 0 18.951 18.951">
+  <Svg width={width} height={height} viewBox="0 0 18.951 18.951" {...rest}>
     <G id="open" transform="translate(0.75 0.75)">
       <Path
         d="M13,9.955,20.156,2.8"

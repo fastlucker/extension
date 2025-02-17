@@ -26,6 +26,7 @@ interface Props {
   isTypeLabelHidden?: boolean
   buttonProps?: ButtonProps
   customIcon?: React.FC<SvgProps>
+  withIcon?: boolean
   testID?: string
 }
 
@@ -70,6 +71,7 @@ const Alert = ({
   isTypeLabelHidden = true,
   buttonProps,
   customIcon: CustomIcon,
+  withIcon = true,
   testID
 }: Props) => {
   const Icon = ICON_MAP[type]
@@ -93,13 +95,15 @@ const Alert = ({
       ]}
       testID={testID}
     >
-      <View style={[!isSmall && spacings.mr, !!isSmall && spacings.mrTy]}>
-        {CustomIcon ? (
-          <CustomIcon />
-        ) : (
-          <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
-        )}
-      </View>
+      {!!withIcon && (
+        <View style={[!isSmall && spacings.mr, !!isSmall && spacings.mrTy]}>
+          {CustomIcon ? (
+            <CustomIcon />
+          ) : (
+            <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
+          )}
+        </View>
+      )}
 
       <View style={flexbox.flex1}>
         {!!title && (

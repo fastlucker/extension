@@ -11,6 +11,9 @@ interface DailyQuestBannerProps {
   handleClick: () => void
   buttonText: string
   wrapperStyles?: string
+  reversed?: boolean
+  streakBanner?: string
+  streakNumber?: number
 }
 
 const DailyQuestBanner: React.FC<DailyQuestBannerProps> = ({
@@ -21,9 +24,18 @@ const DailyQuestBanner: React.FC<DailyQuestBannerProps> = ({
   text,
   handleClick,
   buttonText,
-  wrapperStyles
+  wrapperStyles,
+  reversed,
+  streakBanner,
+  streakNumber
 }) => (
   <div className={`${styles.wrapper} ${wrapperStyles} ${isDisabled ? styles.disabled : ''}`}>
+    {streakBanner && !!streakNumber && (
+      <div className={styles.streakBanner} style={{ backgroundImage: `url(${streakBanner})` }}>
+        <p className={styles.streakNumber}>{streakNumber}</p>
+        <p className={styles.streakLabel}>{streakNumber === 1 ? 'Day' : 'Days'} Streak</p>
+      </div>
+    )}
     <div
       className={styles.banner}
       data-tooltip-id={tooltipId}
@@ -31,7 +43,7 @@ const DailyQuestBanner: React.FC<DailyQuestBannerProps> = ({
         backgroundImage: `url(${backgroundImage})`
       }}
     >
-      <div className={styles.content}>
+      <div className={`${styles.content} ${reversed ? styles.reversed : ''}`}>
         <span className={styles.title}>{title}</span>
 
         <span className={styles.text}>{text}</span>

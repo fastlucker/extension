@@ -26,7 +26,9 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter
     },
     container: {
-      width: SWAP_AND_BRIDGE_FORM_WIDTH
+      width: SWAP_AND_BRIDGE_FORM_WIDTH,
+      minWidth: SWAP_AND_BRIDGE_FORM_WIDTH,
+      flex: 1
     },
     secondaryContainer: {
       backgroundColor: theme.secondaryBackground,

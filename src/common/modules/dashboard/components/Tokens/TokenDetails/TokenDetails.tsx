@@ -8,7 +8,6 @@ import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-// import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
@@ -305,7 +304,7 @@ const TokenDetails = ({
                 <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
-            {!onGasTank && !isRewards && !isVesting && (
+            {!onGasTank && !isRewards && !isVesting && !token.flags.isDefiToken && (
               <View style={[flexbox.alignSelfEnd]}>
                 <Pressable
                   style={[flexbox.directionRow, flexbox.alignCenter]}

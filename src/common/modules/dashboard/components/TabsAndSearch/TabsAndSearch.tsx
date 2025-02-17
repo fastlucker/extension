@@ -1,16 +1,23 @@
 import { TFunction } from 'i18next'
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
+import { UseFormSetValue } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import SearchIcon from '@common/assets/svg/SearchIcon'
 import Search from '@common/components/Search'
+import useTheme from '@common/hooks/useTheme'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
 import Tabs from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tabs'
 import useBanners from '@common/modules/dashboard/hooks/useBanners'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
+import DURATIONS from '@web/hooks/useHover/durations'
 import { getUiType } from '@web/utils/uiType'
 
-import styles from './styles'
+import SelectNetwork from './SelectNetwork'
+import getStyles from './styles'
 
 const { isPopup } = getUiType()
 
@@ -31,6 +38,9 @@ interface Props {
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   searchControl?: any
   sessionId: string
+  setValue: UseFormSetValue<{
+    search: string
+  }>
 }
 
 // We want to change the query param without refreshing the page.
@@ -49,9 +59,27 @@ const handleChangeQuery = (tab: string, sessionId: string) => {
 
 const TABS = ['tokens', 'collectibles', 'defi']
 
-const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId }) => {
+const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId, setValue }) => {
+  const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const allBanners = useBanners()
+  const [isSearchVisible, setIsSearchVisible] = useState(false)
+  const [bindControlPositionAnim, controlPositionStyles] = useMultiHover({
+    values: [
+      {
+        property: 'backgroundColor',
+        from: theme.secondaryBackground,
+        to: theme.tertiaryBackground,
+        duration: DURATIONS.REGULAR
+      },
+      {
+        property: 'borderColor',
+        from: theme.secondaryBorder,
+        to: theme.tertiaryText,
+        duration: DURATIONS.REGULAR
+      }
+    ]
+  })
 
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
@@ -60,14 +88,40 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
         setOpenTab={setOpenTab}
         openTab={openTab}
       />
-      {TABS.includes(openTab) && searchControl && (
-        <View style={{ margin: -2 }}>
-          <Search
-            containerStyle={{ flex: 1, maxWidth: isPopup ? 184 : 212 }}
-            control={searchControl}
-            height={32}
-            placeholder={getSearchPlaceholder(openTab, t)}
-          />
+      {TABS.includes(openTab) && (
+        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
+          <SelectNetwork />
+          <AnimatedPressable
+            onPress={() => setIsSearchVisible((prev: boolean) => !prev)}
+            style={[
+              styles.searchIconWrapper,
+              controlPositionStyles,
+              {
+                ...(isSearchVisible && {
+                  borderColor: theme.primary,
+                  backgroundColor: theme.infoBackground
+                })
+              }
+            ]}
+            onHoverIn={bindControlPositionAnim.onHoverIn}
+            onHoverOut={bindControlPositionAnim.onHoverOut}
+          >
+            <SearchIcon color={theme.tertiaryText} width={16} />
+          </AnimatedPressable>
+          {isSearchVisible && (
+            <View style={[styles.searchContainer]}>
+              <Search
+                autoFocus
+                borderWrapperStyle={styles.borderWrapper}
+                inputWrapperStyle={styles.searchInputWrapper}
+                control={searchControl}
+                height={32}
+                placeholder={getSearchPlaceholder(openTab, t)}
+                hasLeftIcon={false}
+                setValue={setValue}
+              />
+            </View>
+          )}
         </View>
       )}
     </View>

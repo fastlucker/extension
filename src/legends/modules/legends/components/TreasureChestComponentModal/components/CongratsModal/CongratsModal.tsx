@@ -11,19 +11,14 @@ import styles from './CongratsModal.module.scss'
 interface CongratsModalProps {
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-  treasureLegend: {
-    meta: {
-      points: number[]
-      streak: number
-    }
-  }
+  prizeNumber: number | null
   onButtonClick: () => Promise<void>
 }
 
 const CongratsModal: React.FC<CongratsModalProps> = ({
   isOpen,
   setIsOpen,
-  treasureLegend,
+  prizeNumber,
   onButtonClick
 }) => {
   // Load the modal in the dom but don't show it immediately
@@ -33,15 +28,13 @@ const CongratsModal: React.FC<CongratsModalProps> = ({
   }, [])
 
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} className={styles.modal}>
+    <Modal isOpen={isOpen} handleClose={() => setIsOpen(false)} className={styles.modal}>
       <div className={styles.congratsModal}>
         <Modal.Heading className={styles.title}>Congrats!</Modal.Heading>
-        <Modal.Text className={styles.text}>
-          You Collected +{treasureLegend.meta.points[treasureLegend.meta.streak - 1] || 0} XP today!
-        </Modal.Text>
+        <Modal.Text className={styles.text}>You Collected +{prizeNumber} XP today!</Modal.Text>
         <div className={styles.openedChestWrapper}>
           <div className={styles.prize}>
-            +{treasureLegend.meta.points[treasureLegend.meta.streak - 1] || 0}
+            +{prizeNumber}
             <CoinIcon width={32} height={32} />{' '}
           </div>
           <img src={starImage} alt="star" className={styles.star} />
