@@ -94,15 +94,14 @@ const DevicePasswordChangeSettingsScreen = () => {
   }, [])
 
   const handleChangeKeystorePassword = handleSubmit(
-    ({ password, newPassword: newPasswordFieldValue }) =>
-      dispatch({
+    ({ password, newPassword: newPasswordFieldValue }) => {
+      const mouseEntropy = mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : null
+      const extraEntropy = `${mouseEntropy || uuidv4()}-${performance.now()}`
+      return dispatch({
         type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD',
-        params: {
-          secret: password,
-          newSecret: newPasswordFieldValue,
-          extraEntropy: mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : uuidv4()
-        }
+        params: { secret: password, newSecret: newPasswordFieldValue, extraEntropy }
       })
+    }
   )
 
   return (

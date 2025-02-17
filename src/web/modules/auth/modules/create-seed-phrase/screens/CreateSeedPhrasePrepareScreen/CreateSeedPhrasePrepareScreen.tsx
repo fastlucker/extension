@@ -76,7 +76,8 @@ const CreateSeedPhrasePrepareScreen = () => {
 
   const handleSubmit = useCallback(() => {
     const entropyGenerator = new EntropyGenerator()
-    const extraEntropy = mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : uuidv4()
+    const mouseEntropy = mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : null
+    const extraEntropy = `${mouseEntropy || uuidv4()}-${performance.now()}`
     const seed = entropyGenerator.generateRandomMnemonic(12, extraEntropy).phrase
 
     if (!seed) {

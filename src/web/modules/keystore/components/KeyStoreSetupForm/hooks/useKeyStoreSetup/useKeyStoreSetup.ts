@@ -53,12 +53,14 @@ const useKeyStoreSetup = () => {
 
   const handleKeystoreSetup = async () => {
     await handleSubmit(({ password: passwordFieldValue }) => {
+      const mouseEntropy = mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : null
+      const extraEntropy = `${mouseEntropy || uuidv4()}-${performance.now()}`
       dispatch({
         type: 'KEYSTORE_CONTROLLER_ADD_SECRET',
         params: {
           secretId: 'password',
           secret: passwordFieldValue,
-          extraEntropy: mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : uuidv4(),
+          extraEntropy,
           leaveUnlocked: true
         }
       })
