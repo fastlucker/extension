@@ -436,7 +436,10 @@ const Estimation = ({
           )
         }
       />
-      {!isSponsored && isSmartAccountAndNotDeployed && !estimationFailed ? (
+      {!isSponsored &&
+      isSmartAccountAndNotDeployed &&
+      !estimationFailed &&
+      !signAccountOpState.errors.length ? (
         <Alert
           type="info"
           title={t('Note')}
