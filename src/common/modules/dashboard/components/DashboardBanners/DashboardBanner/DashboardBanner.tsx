@@ -1,7 +1,5 @@
-// Keep the bottomsheet implementation
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import React, { useCallback, useMemo } from 'react'
+import { useModalize } from 'react-native-modalize'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import CartIcon from '@common/assets/svg/CartIcon'
@@ -15,6 +13,8 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
+import DashboardBannerBottomSheet from '../DashboardBannerBottomSheet'
+
 const ERROR_ACTIONS = [
   'reject-accountOp',
   'reject-bridge',
@@ -22,20 +22,15 @@ const ERROR_ACTIONS = [
   'dismiss-7702-banner'
 ]
 
-const DashboardBanner = ({
-  banner,
-  setBottomSheetBanner
-}: {
-  banner: BannerType
-  setBottomSheetBanner: (banner: BannerType) => void
-}) => {
+const DashboardBanner = ({ banner }: { banner: BannerType }) => {
   const { type, category, title, text, actions = [] } = banner
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { visibleActionsQueue } = useActionsControllerState()
+  const { visibleActionsQueue, actionsQueue } = useActionsControllerState()
   const { statuses } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
+  const { ref: sheetRef, close: closeBottomSheet, open: openBottomSheet } = useModalize()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
@@ -143,11 +138,21 @@ const DashboardBanner = ({
           navigate(ROUTES.saveImportedSeed)
           break
 
-        case 'update-extension-version':
+        case 'update-extension-version': {
+          const shouldPrompt =
+            actionsQueue.filter(({ type: actionType }) => actionType !== 'benzin').length > 0
+
+          if (shouldPrompt) {
+            openBottomSheet()
+            break
+          }
+
           dispatch({
             type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
           })
+
           break
+        }
 
         case 'reload-selected-account':
           dispatch({
@@ -181,7 +186,7 @@ const DashboardBanner = ({
           break
       }
     },
-    [visibleActionsQueue, type, dispatch, addToast, navigate, account]
+    [dispatch, navigate, openBottomSheet, visibleActionsQueue, type, addToast, account]
   )
 
   const renderButtons = useMemo(
@@ -218,7 +223,20 @@ const DashboardBanner = ({
   )
 
   return (
-    <Banner CustomIcon={Icon} title={title} type={type} text={text} renderButtons={renderButtons} />
+    <>
+      <Banner
+        CustomIcon={Icon}
+        title={title}
+        type={type}
+        text={text}
+        renderButtons={renderButtons}
+      />
+      <DashboardBannerBottomSheet
+        id={String(banner.id)}
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+      />
+    </>
   )
 }
 
