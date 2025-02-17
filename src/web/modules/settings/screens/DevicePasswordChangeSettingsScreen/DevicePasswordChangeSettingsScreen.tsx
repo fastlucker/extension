@@ -1,7 +1,8 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
+import { v4 as uuidv4 } from 'uuid'
 
 import { isValidPassword } from '@ambire-common/services/validations'
 import BottomSheet from '@common/components/BottomSheet'
@@ -29,7 +30,7 @@ const DevicePasswordChangeSettingsScreen = () => {
   const state = useKeystoreControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
-
+  const [mousePos, setMousePos] = useState<{ x: number; y: number; timestamp: number } | null>(null)
   const {
     control,
     handleSubmit,
@@ -80,11 +81,27 @@ const DevicePasswordChangeSettingsScreen = () => {
     }
   }, [openModal, reset, state.statuses.changeKeystorePassword])
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY, timestamp: e.timeStamp })
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [])
+
   const handleChangeKeystorePassword = handleSubmit(
     ({ password, newPassword: newPasswordFieldValue }) =>
       dispatch({
         type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD',
-        params: { secret: password, newSecret: newPasswordFieldValue }
+        params: {
+          secret: password,
+          newSecret: newPasswordFieldValue,
+          extraEntropy: mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : uuidv4()
+        }
       })
   )
 

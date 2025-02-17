@@ -451,11 +451,19 @@ export const handleActions = async (
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
       return mainCtrl.keystore.resetErrorState()
     case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
-      return await mainCtrl.keystore.changeKeystorePassword(params.newSecret, params.secret)
+      return await mainCtrl.keystore.changeKeystorePassword(
+        params.newSecret,
+        params.secret,
+        params.extraEntropy
+      )
     case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
       // In the case we change the user's device password through the recovery process,
       // we don't know the old password, which is why we send only the new password.
-      return await mainCtrl.keystore.changeKeystorePassword(params.newSecret)
+      return await mainCtrl.keystore.changeKeystorePassword(
+        params.newSecret,
+        undefined,
+        params.extraEntropy
+      )
     case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
     case 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL':
