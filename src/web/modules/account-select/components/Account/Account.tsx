@@ -17,21 +17,22 @@ import Dropdown from '@common/components/Dropdown'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useFeatureFlagsControllerState from '@web/hooks/useFeatureFlagsControllerState'
 import { useCustomHover } from '@web/hooks/useHover'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import useNavigation from '@common/hooks/useNavigation'
-import { ROUTES } from '@common/modules/router/constants/common'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import getStyles from './styles'
 import SUBMENU_OPTIONS, { SUBMENU_OPTION_7702 } from './submenuOptions'
 
@@ -59,6 +60,7 @@ const Account = ({
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const mainCtrlState = useMainControllerState()
+  const featureFlagsState = useFeatureFlagsControllerState()
   const { statuses: accountsStatuses } = useAccountsControllerState()
   const { account: selectedAccount } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
@@ -156,8 +158,8 @@ const Account = ({
   )
 
   const add7702option = useMemo(() => {
-    return mainCtrlState.features.eip7702 && canBecomeSmarter(account, getAccKeys(account))
-  }, [account, getAccKeys, mainCtrlState.features])
+    return featureFlagsState.flags.eip7702 && canBecomeSmarter(account, getAccKeys(account))
+  }, [account, getAccKeys, featureFlagsState.flags.eip7702])
 
   const submenu = useMemo(() => {
     return add7702option ? [SUBMENU_OPTION_7702, ...SUBMENU_OPTIONS] : SUBMENU_OPTIONS
