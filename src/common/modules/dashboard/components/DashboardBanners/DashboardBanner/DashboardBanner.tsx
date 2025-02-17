@@ -1,7 +1,5 @@
-// Keep the bottomsheet implementation
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import React, { useCallback, useMemo } from 'react'
+import { useModalize } from 'react-native-modalize'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import CartIcon from '@common/assets/svg/CartIcon'
@@ -15,15 +13,11 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
+import DashboardBannerBottomSheet from '../DashboardBannerBottomSheet'
+
 const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge', 'dismiss-email-vault']
 
-const DashboardBanner = ({
-  banner,
-  setBottomSheetBanner
-}: {
-  banner: BannerType
-  setBottomSheetBanner: (banner: BannerType) => void
-}) => {
+const DashboardBanner = ({ banner }: { banner: BannerType }) => {
   const { type, category, title, text, actions = [] } = banner
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
@@ -31,6 +25,7 @@ const DashboardBanner = ({
   const { visibleActionsQueue } = useActionsControllerState()
   const { statuses } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
+  const { ref: sheetRef, close: closeBottomSheet, open: openBottomSheet } = useModalize()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
@@ -135,9 +130,7 @@ const DashboardBanner = ({
           break
 
         case 'update-extension-version':
-          dispatch({
-            type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
-          })
+          openBottomSheet()
           break
 
         case 'reload-selected-account':
@@ -162,7 +155,7 @@ const DashboardBanner = ({
           break
       }
     },
-    [visibleActionsQueue, type, dispatch, addToast, navigate, account]
+    [dispatch, navigate, openBottomSheet, visibleActionsQueue, type, addToast, account]
   )
 
   const renderButtons = useMemo(
@@ -199,7 +192,20 @@ const DashboardBanner = ({
   )
 
   return (
-    <Banner CustomIcon={Icon} title={title} type={type} text={text} renderButtons={renderButtons} />
+    <>
+      <Banner
+        CustomIcon={Icon}
+        title={title}
+        type={type}
+        text={text}
+        renderButtons={renderButtons}
+      />
+      <DashboardBannerBottomSheet
+        id={String(banner.id)}
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+      />
+    </>
   )
 }
 
