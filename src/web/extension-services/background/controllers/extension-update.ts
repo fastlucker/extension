@@ -20,7 +20,7 @@ export class ExtensionUpdateController extends EventEmitter {
 
   #updateAvailableHandler: (details: { version: string }) => void
 
-  #isUpdateAvailable: boolean = true
+  #isUpdateAvailable: boolean = false
 
   constructor() {
     super()
