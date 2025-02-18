@@ -42,7 +42,8 @@ import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils
 
 const REFETCH_TIME = 4000 // 4 seconds
 
-export type Cost = {
+export type FeePaidWith = {
+  address: string
   amount: string
   symbol: string
   usdValue: string
@@ -67,7 +68,7 @@ interface Props {
 export interface StepsData {
   blockData: null | Block
   finalizedStatus: FinalizedStatusType
-  cost: Cost | null
+  feePaidWith: FeePaidWith | null
   calls: IrCall[] | null
   pendingTime: number
   txnId: string | null
@@ -145,7 +146,7 @@ const useSteps = ({
   const [refetchTxnIdCounter, setRefetchTxnIdCounter] = useState<number>(0)
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
-  const [cost, setCost] = useState<Cost | null>(null)
+  const [feePaidWith, setFeePaidWith] = useState<FeePaidWith | null>(null)
   const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
   const [foundTxnId, setFoundTxnId] = useState<null | string>(txnId)
@@ -560,9 +561,9 @@ const useSteps = ({
     }
   }, [network, txn, userOpHash, userOp])
 
-  // update the gas cost
+  // update the gas feePaidWith
   useEffect(() => {
-    if (cost || !network) return
+    if (feePaidWith || !network) return
 
     let isMounted = true
     let address: string | undefined
@@ -570,7 +571,7 @@ const useSteps = ({
 
     // Smart account
     // Decode the fee call and get the token address and amount
-    // that was used to cover the gas cost
+    // that was used to cover the gas feePaidWith
     if (feeCall) {
       try {
         const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.id)
@@ -584,7 +585,7 @@ const useSteps = ({
     }
 
     // If the feeCall humanization failed or there isn't a feeCall
-    // we should use the gas cost from the transaction receipt
+    // we should use the gas feePaidWith from the transaction receipt
     if (!address && txnReceipt.actualGasCost) {
       amount = txnReceipt.actualGasCost
       address = ZeroAddress
@@ -602,26 +603,28 @@ const useSteps = ({
 
       if (!isMounted) return
 
-      setCost({
+      setFeePaidWith({
         amount: formatDecimals(fee),
         symbol: tokenInfo.symbol,
         usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
-        isErc20: address !== ZeroAddress
+        isErc20: address !== ZeroAddress,
+        address: address as string
       })
     }).catch(() => {
       if (!isMounted) return
-      setCost({
+      setFeePaidWith({
         amount: address === ZeroAddress ? formatDecimals(parseFloat(formatUnits(amount, 18))) : '-',
         symbol: address === ZeroAddress ? 'ETH' : '',
         usdValue: '-$',
-        isErc20: false
+        isErc20: false,
+        address: address as string
       })
     })
 
     return () => {
       isMounted = false
     }
-  }, [txnReceipt.actualGasCost, cost, feeCall, network])
+  }, [txnReceipt.actualGasCost, feePaidWith, feeCall, network])
 
   useEffect(() => {
     if (!network) return
@@ -679,7 +682,7 @@ const useSteps = ({
   return {
     blockData,
     finalizedStatus,
-    cost,
+    feePaidWith,
     calls: calls || null,
     pendingTime,
     txnId: foundTxnId,
