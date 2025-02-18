@@ -64,7 +64,7 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, networkId, stepsState
               withNetworkIcon={false}
             />
             <Text style={spacings.mlMi} appearance="primary" weight="medium" fontSize={12}>
-              {feePaidWith.symbol}
+              {feePaidWith.symbol} ({feePaidWith.usdValue})
             </Text>
           </View>
         ) : null,
