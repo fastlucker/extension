@@ -85,7 +85,7 @@ export interface CardFromResponse {
     usersInvitationHistory?: {
       invitee: string
       date: string
-      status: 'pending' | 'unaccepted' | 'successful'
+      status: 'pending' | 'expired' | 'accepted'
     }[]
     numbersOfUsedInvitations?: number
   }

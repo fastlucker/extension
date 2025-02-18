@@ -1,26 +1,46 @@
 @import '@legends/styles/base.scss';
 
-.info {
-  font-weight: bold;
-  font-size: 1.5rem;
+.historyWrapper {
+  background-color: $tertiaryBackground;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  height: 100%;
+}
+.invitationItem {
+  display: flex;
 }
 
-.infoWarning {
-  color: $warning;
+.accepted {
+  color: #62804d;
 }
 
-.successful {
-  color: $success;
-}
-
-.unaccepted {
-  color: $warning;
+.expired {
+  color: #991e1e;
 }
 
 .pending {
-  color: $info;
+  color: #b38824;
 }
 
+.floatLeft {
+  margin-right: auto;
+}
+
+.bold {
+  font-weight: 500;
+}
+.mr {
+  margin-right: 0.25rem;
+}
 .ml {
   margin-left: 0.5rem;
+}
+
+.mb {
+  margin-bottom: 1rem;
+}
+
+.heading {
+  font-size: 20px;
+  margin-bottom: 1rem;
 }

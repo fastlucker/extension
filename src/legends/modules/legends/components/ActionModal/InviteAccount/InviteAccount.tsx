@@ -4,6 +4,7 @@ import Address from '@legends/components/Address'
 import { MAX_INVITATIONS } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
 
+import InvitationIcon from './InvitationIcons'
 import styles from './InviteAccount.module.scss'
 
 type Props = Pick<CardFromResponse, 'meta'>
@@ -21,28 +22,29 @@ const getTimeAgo = (date: string): string => {
 }
 
 const InviteAccount: FC<Props> = ({ meta }) => {
-  const leftInvitations = useMemo(
-    () => MAX_INVITATIONS - (meta?.numbersOfUsedInvitations || 0),
-    [meta]
-  )
-
   return (
-    <div>
-      <div className={`${styles.info} ${!leftInvitations ? styles.infoWarning : ''}`}>
-        Invitations left {leftInvitations}/2
-      </div>
-      {meta?.usersInvitationHistory?.length && (
-        <div style={{ fontSize: '1.25rem' }}>Invitations history:</div>
-      )}
-      {(meta?.usersInvitationHistory || []).map(({ status, invitee, date }) => (
-        <div style={{ display: 'flex' }} key={invitee + date}>
-          <div className={`${styles[status]}`}>{status}</div>
-          <div className={`${styles.ml}`}>{getTimeAgo(date)}</div>
-          <div className={`${styles.ml}`}>
-            <Address maxAddressLength={12} address={invitee} />
+    <div className={`${styles.historyWrapper}`}>
+      <div className={`${styles.heading}`}>Invitations history:</div>
+      {meta?.usersInvitationHistory?.length ? (
+        (meta?.usersInvitationHistory || []).map(({ status, invitee, date }) => (
+          <div
+            className={`${styles.invitationItem} ${styles[status]} ${styles.mb}`}
+            key={invitee + date}
+          >
+            <div className={`${styles.floatLeft} ${styles.bold}`}>
+              {status[0].toUpperCase() + status.slice(1)}
+            </div>
+            <div className={`${styles.mr}`}>{getTimeAgo(date)}</div>(
+            <Address className={`${styles[status]}`} maxAddressLength={12} address={invitee} />)
+            <div className={`${styles.ml}`}>
+              {' '}
+              <InvitationIcon status={status} />{' '}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      ) : (
+        <div>No invitations executed yet.</div>
+      )}
     </div>
   )
 }
