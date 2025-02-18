@@ -8,7 +8,19 @@ import styles from './InviteAccount.module.scss'
 
 type Props = Pick<CardFromResponse, 'meta'>
 
-const getTimeAgo = (date: string): string => {
+const getTimeAgo = (date: string, status: string): string => {
+  // since we do not store the time of the accept actions
+  // and we only have the invitation creation time
+  // we should not display the actual `date` value
+  // instead we can show 'today' if it was today
+  // else display X days/weeks ago
+  if (
+    status === 'accepted' &&
+    new Date(date).toISOString().slice(0, 10) === new Date().toISOString().slice(0, 10)
+  ) {
+    return 'today'
+  }
+
   const msAgo = new Date().getTime() - new Date(date).getTime()
   const HOUR = 1000 * 60 * 60
   if (msAgo < HOUR / 60) return 'just now'
@@ -33,7 +45,7 @@ const InviteAccount: FC<Props> = ({ meta }) => {
             <div className={`${styles.floatLeft} ${styles.bold}`}>
               {status[0].toUpperCase() + status.slice(1)}
             </div>
-            <div className={`${styles.mr}`}>{getTimeAgo(date)}</div>(
+            <div className={`${styles.mr}`}>{getTimeAgo(date, status)}</div>(
             <Address className={`${styles[status]}`} maxAddressLength={12} address={invitee} />)
             <div className={`${styles.ml}`}>
               {' '}
