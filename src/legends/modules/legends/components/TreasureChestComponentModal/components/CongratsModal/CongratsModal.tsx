@@ -31,9 +31,7 @@ const CongratsModal: React.FC<CongratsModalProps> = ({
     <Modal isOpen={isOpen} handleClose={() => setIsOpen(false)} className={styles.modal}>
       <div className={styles.congratsModal}>
         <Modal.Heading className={styles.title}>Congrats!</Modal.Heading>
-        <Modal.Text className={styles.text}>
-          You Collected +{prizeNumber} XP today!
-        </Modal.Text>
+        <Modal.Text className={styles.text}>You Collected +{prizeNumber} XP today!</Modal.Text>
         <div className={styles.openedChestWrapper}>
           <div className={styles.prize}>
             +{prizeNumber}
@@ -43,7 +41,7 @@ const CongratsModal: React.FC<CongratsModalProps> = ({
           <img src={chestImageOpened} alt="chest-opened" className={styles.chestOpenedImage} />
         </div>
         <button type="button" className={styles.button} onClick={onButtonClick}>
-          Thanks, go back
+          Go back
         </button>
       </div>
     </Modal>
