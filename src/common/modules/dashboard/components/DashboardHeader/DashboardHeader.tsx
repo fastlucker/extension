@@ -21,7 +21,7 @@ const DashboardHeader = () => {
   const { account } = useSelectedAccountControllerState()
   const [bindBurgerAnim, burgerAnimStyle] = useHover({ preset: 'opacity' })
   const { navigate } = useNavigation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme } = useTheme(getStyles)
 
   if (!account) return null
 
