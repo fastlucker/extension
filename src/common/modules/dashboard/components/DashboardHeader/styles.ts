@@ -11,7 +11,6 @@ interface Styles {
   accountButtonInfo: ViewStyle
   accountButtonInfoIcon: ImageStyle
   accountCopyIcon: ViewStyle
-  maximizeAndMenu: ViewStyle
 }
 
 const { isTab } = getUiType()
@@ -40,12 +39,7 @@ const getStyles = () =>
       ...spacings.mrMi
     },
     accountButtonInfoIcon: { width: 32, height: 32, ...common.borderRadiusPrimary },
-    accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' },
-    maximizeAndMenu: {
-      ...flexbox.directionRow,
-      ...flexbox.alignCenter,
-      ...spacings.mlLg
-    }
+    accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' }
   })
 
 export default getStyles
