@@ -1,7 +1,5 @@
-// Keep the bottomsheet implementation
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import React, { useCallback, useMemo } from 'react'
+import { useModalize } from 'react-native-modalize'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import CartIcon from '@common/assets/svg/CartIcon'
@@ -15,22 +13,19 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
+import DashboardBannerBottomSheet from '../DashboardBannerBottomSheet'
+
 const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge', 'dismiss-email-vault']
 
-const DashboardBanner = ({
-  banner,
-  setBottomSheetBanner
-}: {
-  banner: BannerType
-  setBottomSheetBanner: (banner: BannerType) => void
-}) => {
+const DashboardBanner = ({ banner }: { banner: BannerType }) => {
   const { type, category, title, text, actions = [] } = banner
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { visibleActionsQueue } = useActionsControllerState()
+  const { visibleActionsQueue, actionsQueue } = useActionsControllerState()
   const { statuses } = useMainControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
+  const { ref: sheetRef, close: closeBottomSheet, open: openBottomSheet } = useModalize()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return CartIcon
@@ -66,27 +61,30 @@ const DashboardBanner = ({
           })
           break
 
-        case 'open-external-url':
+        case 'open-external-url': {
           if (type !== 'success') break
 
           window.open(action.meta.url, '_blank')
           break
+        }
 
-        case 'switch-default-wallet':
+        case 'switch-default-wallet': {
           dispatch({
             type: 'SET_IS_DEFAULT_WALLET',
             params: { isDefaultWallet: true }
           })
           addToast('Ambire is your default wallet.', { timeout: 2000 })
           break
+        }
 
-        case 'sync-keys':
+        case 'sync-keys': {
           if (type !== 'info') break
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
             params: { email: action.meta.email, keys: action.meta.keys }
           })
           break
+        }
 
         case 'backup-keystore-secret':
           navigate(ROUTES.devicePasswordRecovery)
@@ -111,6 +109,15 @@ const DashboardBanner = ({
           })
           break
 
+        case 'open-first-cashback-modal': {
+          if (!account) break
+          dispatch({
+            type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
+            params: { accountAddr: account.addr }
+          })
+          break
+        }
+
         case 'hide-activity-banner':
           dispatch({
             type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
@@ -122,18 +129,29 @@ const DashboardBanner = ({
           navigate(ROUTES.saveImportedSeed)
           break
 
-        case 'update-extension-version':
+        case 'update-extension-version': {
+          const shouldPrompt =
+            actionsQueue.filter(({ type: actionType }) => actionType !== 'benzin').length > 0
+
+          if (shouldPrompt) {
+            openBottomSheet()
+            break
+          }
+
           dispatch({
             type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
           })
+
           break
+        }
 
         case 'reload-selected-account':
           dispatch({
             type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
           })
           break
-        case 'dismiss-email-vault':
+
+        case 'dismiss-email-vault': {
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
           })
@@ -144,12 +162,12 @@ const DashboardBanner = ({
             }
           )
           break
-
+        }
         default:
           break
       }
     },
-    [visibleActionsQueue, type, dispatch, addToast, navigate]
+    [dispatch, navigate, openBottomSheet, visibleActionsQueue, type, addToast, account]
   )
 
   const renderButtons = useMemo(
@@ -173,6 +191,7 @@ const DashboardBanner = ({
 
         return (
           <BannerButton
+            testID={`banner-button-${actionText.toLowerCase()}`}
             key={action.actionName}
             isReject={isReject}
             text={actionText}
@@ -185,7 +204,20 @@ const DashboardBanner = ({
   )
 
   return (
-    <Banner CustomIcon={Icon} title={title} type={type} text={text} renderButtons={renderButtons} />
+    <>
+      <Banner
+        CustomIcon={Icon}
+        title={title}
+        type={type}
+        text={text}
+        renderButtons={renderButtons}
+      />
+      <DashboardBannerBottomSheet
+        id={String(banner.id)}
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+      />
+    </>
   )
 }
 

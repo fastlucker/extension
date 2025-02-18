@@ -24,7 +24,7 @@ type ContextReturn = {
 const TransferControllerStateContext = createContext<ContextReturn>({} as ContextReturn)
 
 export const getInfoFromSearch = (search: string | undefined) => {
-  if (!search || !search?.includes('networkId') || !search?.includes('address')) return null
+  if (!search) return null
 
   const params = new URLSearchParams(search)
 
@@ -127,30 +127,25 @@ const TransferControllerStateProvider = ({
   useEffect(() => {
     if (!transferCtrl) return
 
-    let selectedToken
-
     // If a token is already selected, we should retrieve its latest value from tokens.
     // This is important because the token amount is likely to change,
     // especially when initiating a transfer or adding a new one to the queue.
     // As a result, the token `amountPostSimulation` may differ, and we need to update the available token balance accordingly.
-    if (transferCtrl.selectedToken) {
-      selectedToken = tokens.find(
-        (token) =>
-          token.address === transferCtrl.selectedToken?.address &&
+    const selectedToken = tokens.find((token) =>
+      transferCtrl.selectedToken
+        ? token.address === transferCtrl.selectedToken?.address &&
           token.networkId === transferCtrl.selectedToken?.networkId
-      )
-    } else {
-      // If no token is selected, we try to select one based on the URL parameters
-      selectedToken = tokens.find(
-        (token) =>
-          token.address === selectedTokenFromUrl?.addr &&
+        : token.address === selectedTokenFromUrl?.addr &&
           token.networkId === selectedTokenFromUrl?.networkId
-      )
-    }
+    )
 
-    transferCtrl.update({
-      selectedToken
-    })
+    // It has a scenario where no token is provided view URL parameters but only isTopUp and the selectedToken will be undefined
+    // In that case we do not update the selected token
+    if (selectedToken) {
+      transferCtrl.update({
+        selectedToken
+      })
+    }
   }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.networkId, tokens, transferCtrl])
 
   useEffect(() => {
