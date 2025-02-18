@@ -88,6 +88,15 @@ const TokenIcon: React.FC<Props> = ({
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
+      // if there's a hardcoded image, load it
+      const gasTankToken =
+        network && gasTankFeeTokens.find((t) => t.address === address && t.networkId === network.id)
+      if (gasTankToken) {
+        setImageUrl(gasTankToken.icon)
+        setUriStatus(UriStatus.IMAGE_EXISTS)
+        return
+      }
+
       const hasAmbireUriRequiredData = !!(network?.platformId && address)
       if (hasAmbireUriRequiredData) {
         const ambireUri = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
@@ -96,15 +105,6 @@ const TokenIcon: React.FC<Props> = ({
         // quick), in the cast majority of cases, the (default) ambire URI will exist.
         // const doesAmbireUriImageExists = await checkIfImageExists(ambireUri)
         setImageUrl(ambireUri)
-        setUriStatus(UriStatus.IMAGE_EXISTS)
-        return
-      }
-
-      // if there's a hardcoded image, load it
-      const gasTankToken =
-        network && gasTankFeeTokens.find((t) => t.address === address && t.networkId === network.id)
-      if (gasTankToken) {
-        setImageUrl(gasTankToken.icon)
         setUriStatus(UriStatus.IMAGE_EXISTS)
         return
       }
