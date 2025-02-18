@@ -10,6 +10,7 @@ import { InviteController } from '@ambire-common/controllers/invite/invite'
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { NetworksController } from '@ambire-common/controllers/networks/networks'
+import { PhishingController } from '@ambire-common/controllers/phishing/phishing'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
@@ -34,6 +35,7 @@ export const controllersNestedInMainMapping = {
   emailVault: EmailVaultController,
   signAccountOp: SignAccountOpController,
   transfer: TransferController,
+  phishing: PhishingController,
   dapps: DappsController,
   actions: ActionsController,
   addressBook: AddressBookController,
