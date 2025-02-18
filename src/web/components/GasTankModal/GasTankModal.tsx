@@ -18,10 +18,12 @@ import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
@@ -155,16 +157,20 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     >
       {isSA ? (
         <View style={styles.content}>
-          <Text fontSize={20} weight="medium">
+          <Text fontSize={20} weight="medium" style={[spacings.mb]}>
             Gas Tank
           </Text>
           <View>
             <View style={styles.balancesWrapper}>
               <View style={{ ...flexbox.alignStart }}>
-                <Text fontSize={12} appearance="secondaryText" style={{ ...spacings.pbTy }}>
-                  {t('Gas Tank Balance')}
+                <Text
+                  fontSize={12}
+                  appearance="secondaryText"
+                  style={[spacings.pbTy, spacings.plTy]}
+                >
+                  {t('Balance')}
                 </Text>
-                <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
+                <View style={[flexbox.directionRow, flexbox.alignStart]}>
                   <GasTankIcon height={40} width={40} />
                   <Text fontSize={32} weight="number_bold" appearance="primaryText">
                     {formatDecimals(gasTankTotalBalanceInUsd, 'price')}
@@ -172,18 +178,51 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                 </View>
               </View>
               <View style={styles.rightPartWrapper}>
-                <View style={styles.rightPartInnerWrapper}>
-                  <Text fontSize={12} appearance="successText" style={spacings.mrTy}>
-                    {t('Total Saved')}:
+                <View style={[spacings.pbTy]}>
+                  <Text fontSize={12} appearance="secondaryText">
+                    {t('Total')}
                   </Text>
+                </View>
+                <View style={styles.rightPartInnerWrapper}>
+                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
+                    <Text fontSize={12} appearance="successText">
+                      {`${t('Saved')} `}
+                    </Text>
+                    <InfoIcon
+                      color={iconColors.success}
+                      width={12}
+                      data-tooltip-id="saved-tooltip"
+                    />
+                    <Tooltip
+                      id="saved-tooltip"
+                      content={String(
+                        t('The amount of funds you have not spent on gas fees using the Gas Tank.')
+                      )}
+                    />
+                  </View>
                   <Text fontSize={14} appearance="successText">
                     {formatDecimals(savedInUsd, 'price')}
                   </Text>
                 </View>
                 <View style={styles.rightPartInnerWrapper}>
-                  <Text fontSize={12} appearance="primary" style={spacings.mrTy}>
-                    {t('Total Cashback')}:
-                  </Text>
+                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
+                    <Text fontSize={12} appearance="primary">
+                      {`${t('Cashback')} `}
+                    </Text>
+                    <InfoIcon
+                      color={iconColors.primary2}
+                      width={12}
+                      data-tooltip-id="cashback-tooltip"
+                    />
+                    <Tooltip
+                      id="cashback-tooltip"
+                      content={String(
+                        t(
+                          'The total amount returned to your Gas Tank balance based on the difference between estimated and actual gas prices paid.'
+                        )
+                      )}
+                    />
+                  </View>
                   <Text fontSize={14} appearance="primary">
                     {formatDecimals(cashbackInUsd, 'price')}
                   </Text>
@@ -211,7 +250,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
               >
                 <View style={[flexbox.directionRow]}>
                   <InfoIcon width={20} />
-                  <Text style={spacings.mlMd} weight="medium" fontSize={16}>
+                  <Text style={[spacings.mlSm]} weight="medium" fontSize={16}>
                     {t('Learn more about Gas Tank')}
                   </Text>
                 </View>
@@ -282,10 +321,10 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
             isSA ? 'top-up-gas-tank-modal-button' : 'create-smart-account-gas-tank-modal-button'
           }
           type="primary"
-          text={isSA ? t('Top Up Gas Tank') : t('Ok, create a Smart Account')}
+          text={isSA ? t('Top Up') : t('Ok, create a Smart Account')}
           size="large"
           hasBottomSpacing={false}
-          textStyle={{ ...spacings.prSm }}
+          textStyle={[spacings.prTy]}
           onPress={() =>
             isSA
               ? navigate('top-up-gas-tank')
