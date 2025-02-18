@@ -12,11 +12,12 @@ type Props = {
   placeholder?: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   value: string
+  className?: string
 } & React.InputHTMLAttributes<HTMLInputElement>
 
-const Label: FC<Pick<Props, 'label'>> = ({ label }) => {
+const Label: FC<Pick<Props, 'label' | 'className'>> = ({ label, className }) => {
   return (
-    <label htmlFor={label} className={styles.label}>
+    <label htmlFor={label} className={`${styles.label} ${className}`}>
       {label}
     </label>
   )

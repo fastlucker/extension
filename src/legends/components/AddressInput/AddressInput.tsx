@@ -10,10 +10,12 @@ import styles from './AddressInput.module.scss'
 type Props = {
   addressState: AddressState
   setAddressState: React.Dispatch<React.SetStateAction<AddressState>>
+  rightLabel?: string
 } & Omit<InputProps, 'onChange' | 'value'>
 
 const AddressInput: FC<Props> = ({
   label,
+  rightLabel,
   addressState,
   validation,
   infoLabel,
@@ -30,7 +32,10 @@ const AddressInput: FC<Props> = ({
 
   return (
     <div className={styles.wrapper}>
-      <Input.Label label={label} />
+      <div style={{ display: 'flex' }}>
+        <Input.Label label={label} />
+        <Input.Label label={rightLabel} className={`${styles.leftLabel}`} />
+      </div>
       <div className={styles.inputWrapper}>
         <Input.Field
           value={fieldValue}
