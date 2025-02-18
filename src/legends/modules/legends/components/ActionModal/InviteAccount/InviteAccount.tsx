@@ -1,7 +1,6 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC } from 'react'
 
 import Address from '@legends/components/Address'
-import { MAX_INVITATIONS } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
 
 import InvitationIcon from './InvitationIcons'
@@ -13,7 +12,7 @@ const getTimeAgo = (date: string): string => {
   const msAgo = new Date().getTime() - new Date(date).getTime()
   const HOUR = 1000 * 60 * 60
   if (msAgo < HOUR / 60) return 'just now'
-  if (msAgo < HOUR) return `${Math.floor(msAgo / 60)} minutes ago`
+  if (msAgo < HOUR) return `${Math.floor(msAgo / 1000 / 60)} minutes ago`
   if (msAgo < HOUR * 2) return '1 hour ago'
   if (msAgo < 24 * HOUR) return `${Math.floor(msAgo / HOUR)} hours ago`
   if (msAgo < 24 * HOUR * 2) return 'one day ago'
