@@ -1,13 +1,14 @@
 import {
   AbiCoder,
   Block,
-  formatEther,
+  formatUnits,
   getAddress,
   isAddress,
   JsonRpcProvider,
   keccak256,
   TransactionReceipt,
-  TransactionResponse
+  TransactionResponse,
+  ZeroAddress
 } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -22,11 +23,14 @@ import {
   isIdentifiedByTxn,
   SubmittedAccountOp
 } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import { Call } from '@ambire-common/libs/accountOp/types'
+import { decodeFeeCall } from '@ambire-common/libs/calls/calls'
 import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 import { parseLogs } from '@ambire-common/libs/userOperation/userOperation'
+import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import {
   handleOps060,
   handleOps070
@@ -37,6 +41,13 @@ import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOpera
 import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
+
+export type Cost = {
+  amount: string
+  symbol: string
+  usdValue: string
+  isErc20: boolean
+}
 
 interface Props {
   txnId: string | null
@@ -54,10 +65,9 @@ interface Props {
 }
 
 export interface StepsData {
-  nativePrice: number
   blockData: null | Block
   finalizedStatus: FinalizedStatusType
-  cost: null | string
+  cost: Cost | null
   calls: IrCall[] | null
   pendingTime: number
   txnId: string | null
@@ -122,12 +132,11 @@ const useSteps = ({
   bundler,
   extensionAccOp
 }: Props): StepsData => {
-  const [nativePrice, setNativePrice] = useState<number>(0)
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [txnReceipt, setTxnReceipt] = useState<{
-    actualGasCost: null | BigInt
+    actualGasCost: null | bigint
     originatedFrom: null | string
-    blockNumber: null | BigInt
+    blockNumber: null | bigint
   }>({ actualGasCost: null, originatedFrom: null, blockNumber: null })
   const [blockData, setBlockData] = useState<null | Block>(null)
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
@@ -136,12 +145,13 @@ const useSteps = ({
   const [refetchTxnIdCounter, setRefetchTxnIdCounter] = useState<number>(0)
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
-  const [cost, setCost] = useState<null | string>(null)
+  const [cost, setCost] = useState<Cost | null>(null)
   const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
   const [foundTxnId, setFoundTxnId] = useState<null | string>(txnId)
   const [hasCheckedFrontRun, setHasCheckedFrontRun] = useState<boolean>(false)
   const [calls, setCalls] = useState<IrCall[]>([])
+  const [feeCall, setFeeCall] = useState<Call | null>(null)
   const [from, setFrom] = useState<null | string>(null)
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
@@ -421,14 +431,6 @@ const useSteps = ({
       .catch(() => null)
   }, [provider, txnReceipt, blockData])
 
-  useEffect(() => {
-    if (!network) return
-
-    getNativePrice(network, fetch as any)
-      .then((fetchedPrice) => setNativePrice(parseFloat(fetchedPrice.toFixed(2))))
-      .catch(() => setNativePrice(0))
-  }, [network])
-
   // if it's an user op,
   // we need to call the entry point to fetch the hashes
   // and find the matching hash
@@ -560,10 +562,39 @@ const useSteps = ({
 
   // update the gas cost
   useEffect(() => {
-    if (!txnReceipt.actualGasCost || cost) return
+    if (cost || !network) return
 
-    setCost(formatEther(txnReceipt.actualGasCost.toString()))
-  }, [txnReceipt.actualGasCost, cost])
+    let address: string | undefined = ZeroAddress
+    let amount = 0n
+
+    // Smart account
+    if (feeCall) {
+      const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.id)
+
+      address = addr
+      amount = tokenAmount
+    } else if (txnReceipt.actualGasCost) {
+      amount = txnReceipt.actualGasCost
+    }
+
+    if (!address || !amount) return
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    resolveAssetInfo(address, network, ({ tokenInfo }) => {
+      if (!tokenInfo || !amount) return
+      const { decimals, priceIn } = tokenInfo
+      const price = priceIn[0].price
+
+      const fee = parseFloat(formatUnits(amount, decimals))
+
+      setCost({
+        amount: formatDecimals(fee),
+        symbol: tokenInfo.symbol,
+        usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
+        isErc20: address !== ZeroAddress
+      })
+    })
+  }, [txnReceipt.actualGasCost, cost, feeCall, network])
 
   useEffect(() => {
     if (!network) return
@@ -574,6 +605,7 @@ const useSteps = ({
       const humanizedCalls = humanizeAccountOp(extensionAccOp, { network })
       setCalls(parseHumanizer(humanizedCalls))
       setFrom(extensionAccOp.accountAddr)
+      if (extensionAccOp.feeCall) setFeeCall(extensionAccOp.feeCall)
       return
     }
 
@@ -585,13 +617,16 @@ const useSteps = ({
       entryPointTxnSplit[txn.data.slice(0, 10)]
     ) {
       setCalls(entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId))
+      // TODO: Fee call?
       return
     }
 
     if (txn) {
-      const { calls: decodedCalls, from: account } = userOp
-        ? decodeUserOp(userOp)
-        : reproduceCallsFromTxn(txn)
+      const {
+        calls: decodedCalls,
+        from: account,
+        feeCall: decodedFeeCall
+      } = userOp ? decodeUserOp(userOp) : reproduceCallsFromTxn(txn)
       const accountOp: AccountOp = {
         accountAddr: userOp?.sender || account || txnReceipt.originatedFrom || 'Loading...',
         networkId: network.id,
@@ -608,11 +643,13 @@ const useSteps = ({
 
       setCalls(parseHumanizer(humanizedCalls))
       setFrom(accountOp.accountAddr)
+      if (decodedFeeCall) {
+        setFeeCall(decodedFeeCall)
+      }
     }
   }, [network, txnReceipt, txn, userOpHash, userOp, txnId, extensionAccOp])
 
   return {
-    nativePrice,
     blockData,
     finalizedStatus,
     cost,

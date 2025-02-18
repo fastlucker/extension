@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
 import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
@@ -13,15 +12,14 @@ import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from '.
 
 interface Props {
   activeStep: ActiveStepType
-  network: Network
   txnId: string | null
   userOpHash: string | null
   stepsState: StepsData
   summary: any
 }
 
-const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, summary }) => {
-  const { nativePrice, blockData, finalizedStatus, cost, from, originatedFrom } = stepsState
+const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary }) => {
+  const { blockData, finalizedStatus, cost, from, originatedFrom } = stepsState
 
   const stepRows: any = [
     {
@@ -30,7 +28,8 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
     },
     {
       label: 'Transaction fee',
-      value: getFee(cost, network, nativePrice, finalizedStatus)
+      value: getFee(cost, finalizedStatus),
+      isErc20Highlight: cost?.isErc20
     }
   ]
 
@@ -40,10 +39,11 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
         label: 'Sender',
         value: from
       })
-    stepRows.push({
-      label: 'Originated from',
-      value: originatedFrom
-    })
+    if (from !== originatedFrom)
+      stepRows.push({
+        label: 'Originated from',
+        value: originatedFrom
+      })
   }
 
   if (txnId) {
