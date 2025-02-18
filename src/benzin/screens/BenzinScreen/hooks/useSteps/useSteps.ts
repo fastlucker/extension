@@ -564,17 +564,30 @@ const useSteps = ({
   useEffect(() => {
     if (cost || !network) return
 
-    let address: string | undefined = ZeroAddress
+    let isMounted = true
+    let address: string | undefined
     let amount = 0n
 
     // Smart account
+    // Decode the fee call and get the token address and amount
+    // that was used to cover the gas cost
     if (feeCall) {
-      const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.id)
+      try {
+        const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.id)
 
-      address = addr
-      amount = tokenAmount
-    } else if (txnReceipt.actualGasCost) {
+        address = addr
+        amount = tokenAmount
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Error decoding fee call', e)
+      }
+    }
+
+    // If the feeCall humanization failed or there isn't a feeCall
+    // we should use the gas cost from the transaction receipt
+    if (!address && txnReceipt.actualGasCost) {
       amount = txnReceipt.actualGasCost
+      address = ZeroAddress
     }
 
     if (!address || !amount) return
@@ -583,9 +596,11 @@ const useSteps = ({
     resolveAssetInfo(address, network, ({ tokenInfo }) => {
       if (!tokenInfo || !amount) return
       const { decimals, priceIn } = tokenInfo
-      const price = priceIn[0].price
+      const price = priceIn.length ? priceIn[0].price : null
 
       const fee = parseFloat(formatUnits(amount, decimals))
+
+      if (!isMounted) return
 
       setCost({
         amount: formatDecimals(fee),
@@ -593,7 +608,19 @@ const useSteps = ({
         usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
         isErc20: address !== ZeroAddress
       })
+    }).catch(() => {
+      if (!isMounted) return
+      setCost({
+        amount: address === ZeroAddress ? formatDecimals(parseFloat(formatUnits(amount, 18))) : '-',
+        symbol: address === ZeroAddress ? 'ETH' : '',
+        usdValue: '-$',
+        isErc20: false
+      })
     })
+
+    return () => {
+      isMounted = false
+    }
   }, [txnReceipt.actualGasCost, cost, feeCall, network])
 
   useEffect(() => {
