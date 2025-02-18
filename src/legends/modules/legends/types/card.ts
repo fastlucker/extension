@@ -62,7 +62,7 @@ export interface CardXp {
 
 export interface CardFromResponse {
   id: string
-  description: string
+  title: string
   flavor: string
   xp: CardXp[]
   action: CardAction
