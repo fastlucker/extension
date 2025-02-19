@@ -1,7 +1,7 @@
-import { Wallet } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
+import { EntropyGenerator } from '@ambire-common/libs/entropyGenerator/entropyGenerator'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import BackButton from '@common/components/BackButton'
@@ -11,6 +11,7 @@ import Panel from '@common/components/Panel'
 import { getPanelPaddings } from '@common/components/Panel/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useExtraEntropy from '@common/hooks/useExtraEntropy'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -59,15 +60,19 @@ const CreateSeedPhrasePrepareScreen = () => {
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
   const panelPaddingStyle = getPanelPaddings(maxWidthSize)
   const keystoreState = useKeystoreControllerState()
+
+  const { getExtraEntropy } = useExtraEntropy()
+
   const handleSubmit = useCallback(() => {
-    const seed = Wallet.createRandom().mnemonic?.phrase || null
+    const entropyGenerator = new EntropyGenerator()
+    const seed = entropyGenerator.generateRandomMnemonic(12, getExtraEntropy()).phrase
 
     if (!seed) {
       addToast('Failed to generate seed phrase', { type: 'error' })
       return
     }
     navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
-  }, [addToast, navigate])
+  }, [addToast, navigate, getExtraEntropy])
 
   // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
   useEffect(() => {
