@@ -374,11 +374,11 @@ type KeystoreControllerResetErrorStateAction = {
 }
 type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
-  params: { secret: string; newSecret: string }
+  params: { secret: string; newSecret: string; extraEntropy: string }
 }
 type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
-  params: { newSecret: string }
+  params: { newSecret: string; extraEntropy: string }
 }
 type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
