@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Image, ImageProps, View, ViewStyle } from 'react-native'
 
-import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -88,15 +87,6 @@ const TokenIcon: React.FC<Props> = ({
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      // if there's a hardcoded image, load it
-      const gasTankToken =
-        network && gasTankFeeTokens.find((t) => t.address === address && t.networkId === network.id)
-      if (gasTankToken) {
-        setImageUrl(gasTankToken.icon)
-        setUriStatus(UriStatus.IMAGE_EXISTS)
-        return
-      }
-
       const hasAmbireUriRequiredData = !!(network?.platformId && address)
       if (hasAmbireUriRequiredData) {
         const ambireUri = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
