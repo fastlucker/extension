@@ -34,7 +34,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
-import SUBMENU_OPTIONS, { SUBMENU_OPTION_7702 } from './submenuOptions'
+import { SUBMENU_OPTIONS, SUBMENU_OPTION_7702 } from './submenuOptions'
 
 const { isTab } = getUiType()
 
