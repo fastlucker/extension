@@ -106,9 +106,8 @@ const BasicToSmartSettingsScreen = () => {
   )
 
   const availableNetworks = useMemo(() => {
-    return networks.filter((net) => !isActivateDisabled(net))
+    return networks.filter((net) => !isActivateDisabled(net) || has7702(net))
   }, [networks, isActivateDisabled])   
-
 
   return (
     <>
@@ -118,9 +117,9 @@ const BasicToSmartSettingsScreen = () => {
         <SettingsPageHeader title="Make your account smarter" style={[spacings.mb0, spacings.mlLg]} />
       </View>
       <Authorization7702>
-      {account ? (
+      {account && availableNetworks?.length ? (
         <>
-          <Text fontSize={16} style={spacings.mb}>
+          <Text fontSize={16} style={[spacings.mb, spacings.mt]}>
             {t("While we support multiple networks, only those that have implemented EIP-7702 are listed here. As more networks adopt this upgrade, we will update the list to reflect broader availability.")}
           </Text>
           <View
