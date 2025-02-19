@@ -74,11 +74,11 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     [legends]
   )
 
-  const isCompleted = treasureLegend?.card.status === CardStatus.completed || treasureLegend?.card.status === CardStatus.disabled 
+  const isActive = treasureLegend?.card.status === CardStatus.active
 
   const [chestState, setChestState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
-  >(isCompleted ? 'opened' : 'locked')
+  >(isActive ? 'locked' : 'opened')
 
   const buttonLabel = useMemo(() => {
     switch (chestState) {
@@ -227,17 +227,17 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           <div className={styles.content}>
             {treasureLegend.meta.points.map((point, index) => {
               const streak = treasureLegend.meta.streak % 7
-              const isOpened = isCompleted && chestState === 'opened'
+              const isOpened = !isActive && chestState === 'opened'
 
               const isCurrentDay = isOpened
                 ? streak - 1 === index
-                : isCompleted
+                : !isActive
                 ? streak - 1 === index
                 : streak === index
 
               const isPassedDay = isOpened
                 ? index < streak
-                : isCompleted
+                : !isActive
                 ? index < streak - 1 // Prevent marking next day as passed too soon
                 : index < streak
 
