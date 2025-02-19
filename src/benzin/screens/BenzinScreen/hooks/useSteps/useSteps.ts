@@ -647,7 +647,6 @@ const useSteps = ({
       entryPointTxnSplit[txn.data.slice(0, 10)]
     ) {
       setCalls(entryPointTxnSplit[txn.data.slice(0, 10)](txn, network, txnId))
-      // TODO: Fee call?
       return
     }
 

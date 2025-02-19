@@ -165,14 +165,16 @@ export const reproduceCallsFromTxn = (txn: TransactionResponse) => {
   let calls = [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
   let from
 
+  let feeCall: Call | null = null
   if (non4337Matcher[sigHash]) {
     calls = non4337Matcher[sigHash](txn.data)
     if (txn.to) from = txn.to
-    if ([...RELAYER_EXECUTOR_ADDRESSES, ...STAGING_RELAYER_EXECUTOR_ADDRESSES].includes(txn.from))
-      calls = calls.slice(0, -1)
+    if ([...RELAYER_EXECUTOR_ADDRESSES, ...STAGING_RELAYER_EXECUTOR_ADDRESSES].includes(txn.from)) {
+      feeCall = calls.pop() ?? null
+    }
   }
 
-  return { calls, from, feeCall: null }
+  return { calls, from, feeCall }
 }
 
 export const entryPointTxnSplit: {
