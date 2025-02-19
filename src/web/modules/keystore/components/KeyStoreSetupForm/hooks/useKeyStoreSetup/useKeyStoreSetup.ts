@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 
 import { isDev, isTesting } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
-import useExtraEntropy from '@common/hooks/useExtraEntropy/useExtraEntropy'
+import useExtraEntropy from '@common/hooks/useExtraEntropy'
 import useToast from '@common/hooks/useToast'
 import { DEFAULT_KEYSTORE_PASSWORD_DEV } from '@env'
 import useBackgroundService from '@web/hooks/useBackgroundService'
