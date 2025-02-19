@@ -14,20 +14,28 @@ const getTimeAgo = (date: string, status: string): string => {
   // we should not display the actual `date` value
   // instead we can show 'today' if it was today
   // else display X days/weeks ago
+  const msAgo = new Date().getTime() - new Date(date).getTime()
+  const dateAsMs = new Date(date).getTime()
+  const HOUR = 1000 * 60 * 60
   if (
     status === 'accepted' &&
     new Date(date).toISOString().slice(0, 10) === new Date().toISOString().slice(0, 10)
   ) {
     return 'today'
   }
+  if (
+    status === 'accepted' &&
+    new Date(dateAsMs + 24 * HOUR).toISOString().slice(0, 10) ===
+      new Date().toISOString().slice(0, 10)
+  ) {
+    return 'yesterday'
+  }
 
-  const msAgo = new Date().getTime() - new Date(date).getTime()
-  const HOUR = 1000 * 60 * 60
   if (msAgo < HOUR / 60) return 'just now'
   if (msAgo < HOUR) return `${Math.floor(msAgo / 1000 / 60)} minutes ago`
   if (msAgo < HOUR * 2) return '1 hour ago'
   if (msAgo < 24 * HOUR) return `${Math.floor(msAgo / HOUR)} hours ago`
-  if (msAgo < 24 * HOUR * 2) return 'one day ago'
+  if (msAgo < 24 * HOUR * 2) return 'yesterday'
   if (msAgo < 24 * HOUR * 7) return `${Math.floor(msAgo / (HOUR * 24))} days ago`
   return `${Math.floor(msAgo / (HOUR * 24 * 7))} weeks ago`
 }
@@ -48,7 +56,6 @@ const InviteAccount: FC<Props> = ({ meta }) => {
             <div className={`${styles.mr}`}>{getTimeAgo(date, status)}</div>(
             <Address className={`${styles[status]}`} maxAddressLength={12} address={invitee} />)
             <div className={`${styles.ml}`}>
-              {' '}
               <InvitationIcon status={status} />{' '}
             </div>
           </div>
