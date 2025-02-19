@@ -144,7 +144,7 @@ const NavMenu = () => {
                           color={theme.primaryText}
                           // @ts-ignore missing type, but the prop is valid
                           dataSet={{ tooltipId: expandViewTooltipId }}
-                          style={[spacings.phSm, spacings.pv, { marginTop: -1 * SPACING_TY }]}
+                          style={styles.maximizeButton}
                           width={16}
                           height={16}
                         />
