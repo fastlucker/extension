@@ -39,7 +39,7 @@ const DashboardHeader = () => {
       >
         <AccountButton />
         <Pressable
-          style={{ ...spacings.mlLg, ...spacings.mrTy, alignSelf: 'center' }}
+          style={[spacings.ml, spacings.phTy, spacings.pvTy, flexboxStyles.alignSelfCenter]}
           onPress={() =>
             isPopup ? navigate(WEB_ROUTES.menu) : navigate(WEB_ROUTES.generalSettings)
           }
