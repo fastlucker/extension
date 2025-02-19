@@ -168,7 +168,17 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     return () => {
       killSession()
     }
-  }, [dispatch, historyType, sessionId, setSearchParams])
+    // setSearchParams must not be in the dependency array
+    // as it changes on call and kills the session prematurely
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historyType, sessionId, dispatch])
+
+  // Reset network filter state when a network is removed
+  useEffect(() => {
+    if (network?.id && !networks.find((n) => n.id === network?.id)) {
+      setNetwork(null)
+    }
+  }, [network?.id, networks])
 
   const handleSetAccountValue = useCallback(
     (accountOption: SelectValue) => {
@@ -212,9 +222,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
             containerStyle={{ width: 260 }}
             options={networksOptions}
             value={
-              network
-                ? networksOptions.filter((opt) => opt.value === network?.id)[0]
-                : ALL_NETWORKS_OPTION
+              networksOptions.filter((opt) => opt.value === network?.id)[0] ?? ALL_NETWORKS_OPTION
             }
           />
         )}

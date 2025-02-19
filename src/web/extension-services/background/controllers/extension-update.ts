@@ -17,7 +17,9 @@ import { logInfoWithPrefix } from '@web/utils/logger'
  */
 export class ExtensionUpdateController extends EventEmitter {
   isReady: boolean = false
+
   #updateAvailableHandler: (details: { version: string }) => void
+
   #isUpdateAvailable: boolean = false
 
   constructor() {

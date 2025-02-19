@@ -67,7 +67,7 @@ describe("The extension works properly when crucial APIs aren't working from lau
         await startSWAndUnlockKeystore(page, extensionURL, recorder, serviceWorker)
         await clickOnElement(page, '[data-testid="refresh-button"]')
         await page.waitForTimeout(1000)
-        await clickOnElement(page, '[data-testid="portfolio-warning-icon')
+        await clickOnElement(page, '[data-testid="balance-affecting-error-icon')
 
         const rpcErrorBanner = await page.evaluate(() => {
           const errors = document.querySelectorAll('[data-testid="portfolio-error-alert"]')
@@ -132,7 +132,7 @@ describe("The extension works properly when crucial APIs aren't working from lau
         await page.waitForTimeout(1000)
 
         const dashboardErrorTriangle = await page.evaluate(() => {
-          return document.querySelector('[data-testid="portfolio-warning-icon"]')
+          return document.querySelector('[data-testid="balance-affecting-error-icon"]')
         })
 
         // An error banner is displayed because there are valid hints in storage while the relayer is down

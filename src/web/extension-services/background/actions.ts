@@ -46,7 +46,12 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: { privKeyOrSeed: string; shouldPersist?: boolean; shouldAddToTemp?: boolean }
+  params: {
+    privKeyOrSeed: string
+    shouldPersist?: boolean
+    shouldAddToTemp?: boolean
+    seedPassphrase?: string | null
+  }
 }
 type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE'
@@ -243,6 +248,9 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+  params?: {
+    networkId?: Network['id']
+  }
 }
 
 type MainControllerUpdateSelectedAccountPortfolio = {
@@ -296,6 +304,14 @@ type PortfolioControllerCheckToken = {
     token: { address: TokenResult['address']; networkId: NetworkId }
   }
 }
+
+type PortfolioControllerUpdateConfettiToShown = {
+  type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT'
+  params: {
+    accountAddr: Account['addr']
+  }
+}
+
 type MainControllerSignAccountOpInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT'
   params: {
@@ -337,8 +353,8 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
 }
 
-type MainControllerOnLoadAction = {
-  type: 'MAIN_CONTROLLER_ON_LOAD'
+type MainControllerOnPopupOpenAction = {
+  type: 'MAIN_CONTROLLER_ON_POPUP_OPEN'
 }
 
 type MainControllerLockAction = {
@@ -358,11 +374,11 @@ type KeystoreControllerResetErrorStateAction = {
 }
 type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
-  params: { secret: string; newSecret: string }
+  params: { secret: string; newSecret: string; extraEntropy: string }
 }
 type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
-  params: { newSecret: string }
+  params: { newSecret: string; extraEntropy: string }
 }
 type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
@@ -404,6 +420,10 @@ type EmailVaultControllerCleanMagicAndSessionKeysAction = {
 type EmailVaultControllerRequestKeysSyncAction = {
   type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC'
   params: { email: string; keys: string[] }
+}
+
+type EmailVaultControllerDismissBannerAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
 }
 
 type DomainsControllerReverseLookupAction = {
@@ -617,7 +637,7 @@ export type Action =
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction
-  | MainControllerOnLoadAction
+  | MainControllerOnPopupOpenAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
   | MainControllerBuildMintVestingUserRequest
@@ -649,6 +669,7 @@ export type Action =
   | PortfolioControllerToggleHideToken
   | PortfolioControllerRemoveCustomToken
   | PortfolioControllerCheckToken
+  | PortfolioControllerUpdateConfettiToShown
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerResetErrorStateAction
@@ -662,6 +683,7 @@ export type Action =
   | EmailVaultControllerRecoverKeystoreAction
   | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
+  | EmailVaultControllerDismissBannerAction
   | DomainsControllerReverseLookupAction
   | DomainsControllerSaveResolvedReverseLookupAction
   | DappsControllerRemoveConnectedSiteAction
