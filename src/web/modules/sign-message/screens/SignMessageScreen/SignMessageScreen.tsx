@@ -41,7 +41,6 @@ const SignMessageScreen = () => {
   const { isLedgerConnected } = useLedger()
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
-  const [isAuthorization, setIsAuthorization] = useState(false)
   const [makeItSmartConfirmed, setMakeItSmartConfirmed] = useState(false)
   const [doNotAskMeAgain, setDoNotAskMeAgain] = useState(false)
   const actionState = useActionsControllerState()
@@ -65,12 +64,12 @@ const SignMessageScreen = () => {
     return signMessageAction.userRequest
   }, [signMessageAction])
 
-  useEffect(() => {
-    if (!signMessageAction) return undefined
-    if (signMessageAction.userRequest.action.kind !== 'authorization-7702') return
-    if (!signMessageAction.userRequest.meta.show7702Info) return
+  const isAuthorization = useMemo(() => {
+    if (!signMessageAction) return false
+    if (signMessageAction.userRequest.action.kind !== 'authorization-7702') return false
+    if (!signMessageAction.userRequest.meta.show7702Info) return false
 
-    setIsAuthorization(true)
+    return true
   }, [signMessageAction])
 
   const selectedAccountKeyStoreKeys = useMemo(
@@ -274,6 +273,7 @@ const SignMessageScreen = () => {
         <Authorization7702
           onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
           doNotAskMeAgain={doNotAskMeAgain}
+          displayFullInformation
         />
       ) : (
         <Main

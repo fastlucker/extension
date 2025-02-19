@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 
 import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,10 +7,13 @@ import { Network } from '@ambire-common/interfaces/network'
 import { getContractImplementation, has7702 } from '@ambire-common/libs/7702/7702'
 import { getAuthorizationHash } from '@ambire-common/libs/signMessage/signMessage'
 import Alert from '@common/components/Alert'
+import BackButton from '@common/components/BackButton'
 import Badge from '@common/components/Badge'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -19,15 +21,15 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
+import Authorization7702 from '@web/modules/sign-message/screens/SignMessageScreen/Contents/authorization7702'
 
-import useRoute from '@common/hooks/useRoute'
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const BasicToSmartSettingsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { accountStates, accounts } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
-
+  const { theme } = useTheme()
   const { search } = useRoute()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
@@ -103,11 +105,24 @@ const BasicToSmartSettingsScreen = () => {
     [account, accountStates]
   )
 
+  const availableNetworks = useMemo(() => {
+    return networks.filter((net) => !isActivateDisabled(net))
+  }, [networks, isActivateDisabled])   
+
+
   return (
     <>
-      <SettingsPageHeader title="Basic to Smart" />
+      <View style={[flexbox.directionRow, flexbox.alignSelfStart]}>
+        <BackButton type="secondary"  style={ { borderBottomWidth: 1,
+      borderBottomColor: theme.secondaryBorder }}/>
+        <SettingsPageHeader title="Make your account smarter" style={[spacings.mb0, spacings.mlLg]} />
+      </View>
+      <Authorization7702>
       {account ? (
         <>
+          <Text fontSize={16} style={spacings.mb}>
+            {t("While we support multiple networks, only those that have implemented EIP-7702 are listed here. As more networks adopt this upgrade, we will update the list to reflect broader availability.")}
+          </Text>
           <View
             style={[
               {
@@ -128,7 +143,7 @@ const BasicToSmartSettingsScreen = () => {
               <Text>Action</Text>
             </View>
           </View>
-          {networks.map((net) => (
+          {availableNetworks.map((net) => (
             <View
               key={net.id}
               style={[
@@ -144,8 +159,8 @@ const BasicToSmartSettingsScreen = () => {
             >
               <View style={[flexbox.flex1]}>
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <NetworkIcon id={net.id} style={spacings.mrTy} />
-                  <Text>{net.name}</Text>
+                  <NetworkIcon id={net.id} />
+                  <Text style={spacings.mlTy}>{net.name}</Text>
                 </View>
               </View>
               <View style={[flexbox.flex1, flexbox.alignCenter]}>
@@ -182,6 +197,7 @@ const BasicToSmartSettingsScreen = () => {
           </Alert>
         </View>
       )}
+      </Authorization7702>
     </>
   )
 }
