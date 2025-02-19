@@ -9,36 +9,42 @@ import flexbox from '@common/styles/utils/flexbox'
 
 export interface StepRowProps {
   label: string
-  value: string
+  value?: string
+  renderValue?: () => JSX.Element
   isValueSmall?: boolean
   error?: boolean
 }
 
-const StepRow: FC<StepRowProps> = ({ label, value, isValueSmall, error }) => (
+const StepRow: FC<StepRowProps> = ({ label, value, renderValue, isValueSmall, error }) => (
   <View
     style={
       IS_MOBILE_UP_BENZIN_BREAKPOINT
         ? [flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween, spacings.mbTy]
-        : spacings.mbTy
+        : [spacings.mbTy]
     }
     key={label}
   >
-    <Text
-      appearance={error ? 'errorText' : 'secondaryText'}
-      fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 14 : 12}
-    >
-      {label}
-      {!IS_MOBILE_UP_BENZIN_BREAKPOINT && ':'}
-    </Text>
-    <Text
-      appearance={
-        error ? 'errorText' : IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'secondaryText' : 'primaryText'
-      }
-      fontSize={!isValueSmall || !IS_MOBILE_UP_BENZIN_BREAKPOINT ? 14 : 12}
-      selectable
-    >
-      {value === 'loading' ? <Spinner style={{ width: 18, height: 18 }} /> : value}
-    </Text>
+    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+      <Text
+        appearance={error ? 'errorText' : 'secondaryText'}
+        fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 14 : 12}
+      >
+        {label}
+        {!IS_MOBILE_UP_BENZIN_BREAKPOINT && ':'}
+      </Text>
+    </View>
+    {value && (
+      <Text
+        appearance={
+          error ? 'errorText' : IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'secondaryText' : 'primaryText'
+        }
+        fontSize={!isValueSmall || !IS_MOBILE_UP_BENZIN_BREAKPOINT ? 14 : 12}
+        selectable
+      >
+        {value === 'loading' ? <Spinner style={{ width: 18, height: 18 }} /> : value}
+      </Text>
+    )}
+    {renderValue && renderValue()}
   </View>
 )
 

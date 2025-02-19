@@ -174,6 +174,7 @@ const TokenIcon: React.FC<Props> = ({
             id={!onGasTank ? network.id : 'gasTank'}
             size={networkSize}
             style={styles.networkIcon}
+            benzinNetwork={network}
           />
         </View>
       )}
