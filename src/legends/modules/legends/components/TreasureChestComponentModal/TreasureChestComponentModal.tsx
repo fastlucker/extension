@@ -74,7 +74,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     [legends]
   )
 
-  const isCompleted = treasureLegend?.card.status === CardStatus.completed
+  const isCompleted = treasureLegend?.card.status === CardStatus.completed || treasureLegend?.card.status === CardStatus.disabled 
 
   const [chestState, setChestState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
