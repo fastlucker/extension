@@ -51,7 +51,6 @@ const SignAccountOpScreen = () => {
   const { isLedgerConnected } = useLedger()
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(false)
-  const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
   const {
     ref: warningAgreementModalRef,
