@@ -1,27 +1,30 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
+import StarsIcon from '@common/assets/svg/StarsIcon'
 import Text from '@common/components/Text'
+import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 
 import Step from './components/Step'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
 interface Props {
+  networkId: NetworkId
   activeStep: ActiveStepType
-  network: Network
   txnId: string | null
   userOpHash: string | null
   stepsState: StepsData
   summary: any
 }
 
-const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, summary }) => {
-  const { nativePrice, blockData, finalizedStatus, cost, from, originatedFrom } = stepsState
+const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, networkId, stepsState, summary }) => {
+  const { blockData, finalizedStatus, feePaidWith, from, originatedFrom } = stepsState
 
   const stepRows: any = [
     {
@@ -30,7 +33,42 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
     },
     {
       label: 'Transaction fee',
-      value: getFee(cost, network, nativePrice, finalizedStatus)
+      // Render a specific element in case the fee was paid with an ERC20 token
+      renderValue: () =>
+        feePaidWith?.isErc20 ? (
+          <View
+            style={[
+              flexbox.directionRow,
+              flexbox.alignCenter,
+              spacings.mlTy,
+              spacings.pvMi,
+              spacings.phSm,
+              {
+                backgroundColor: '#6000FF14',
+                borderRadius: 20
+              }
+            ]}
+          >
+            <StarsIcon width={14} height={14} />
+            <Text style={spacings.mlTy} appearance="primary" weight="medium" fontSize={12}>
+              Paid with {feePaidWith.amount}
+            </Text>
+            <TokenIcon
+              containerStyle={{ marginLeft: 4 }}
+              address={feePaidWith.address}
+              networkId={networkId}
+              containerHeight={32}
+              containerWidth={32}
+              width={18}
+              height={18}
+              withNetworkIcon={false}
+            />
+            <Text style={spacings.mlMi} appearance="primary" weight="medium" fontSize={12}>
+              {feePaidWith.symbol} ({feePaidWith.usdValue})
+            </Text>
+          </View>
+        ) : null,
+      value: !feePaidWith?.isErc20 ? getFee(feePaidWith, finalizedStatus) : null
     }
   ]
 
@@ -40,10 +78,11 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, 
         label: 'Sender',
         value: from
       })
-    stepRows.push({
-      label: 'Originated from',
-      value: originatedFrom
-    })
+    if (from !== originatedFrom)
+      stepRows.push({
+        label: 'Originated from',
+        value: originatedFrom
+      })
   }
 
   if (txnId) {

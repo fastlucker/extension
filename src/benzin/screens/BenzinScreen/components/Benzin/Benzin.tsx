@@ -114,11 +114,11 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
           <Header activeStep={activeStep} network={network} stepsState={stepsState} />
           <Steps
             activeStep={activeStep}
-            network={network}
             txnId={txnId}
             userOpHash={userOpHash}
             stepsState={stepsState}
             summary={summary}
+            networkId={network.id}
           />
           {!isRenderedInternally && (
             <Buttons
