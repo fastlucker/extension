@@ -1,3 +1,7 @@
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
+
 import BasicToSmart from '@common/assets/svg/BasicToSmart'
 import BundleTxns from '@common/assets/svg/BundleTxns'
 import PayGas from '@common/assets/svg/PayGas'
@@ -13,16 +17,15 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
 
 interface Props {
-  onDoNotAskMeAgainChange: () => void
-  doNotAskMeAgain: boolean
+  onDoNotAskMeAgainChange?: () => void
+  doNotAskMeAgain?: boolean
+  displayFullInformation?: boolean
+  children?: React.ReactNode
 }
 
-const Authorization7702 = ({ onDoNotAskMeAgainChange, doNotAskMeAgain }: Props) => {
+const Authorization7702 = ({ onDoNotAskMeAgainChange, doNotAskMeAgain, displayFullInformation, children }: Props) => {
   const { t } = useTranslation()
   const { maxWidthSize } = useWindowSize()
 
@@ -47,14 +50,18 @@ const Authorization7702 = ({ onDoNotAskMeAgainChange, doNotAskMeAgain }: Props) 
 
   return (
     <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
-      <View style={[flexbox.directionRow, flexbox.center]}>
-        <Text weight="medium" fontSize={16}>
-          {t('Make your account smarter')}
-        </Text>
-      </View>
-      <View style={[flexbox.directionRow, flexbox.center]}>
-        <BasicToSmart style={[spacings.mt, spacings.mb]} />
-      </View>
+      {displayFullInformation && (
+        <>
+          <View style={[flexbox.directionRow, flexbox.center]}>
+            <Text weight="medium" fontSize={16}>
+              {t('Make your account smarter')}
+            </Text>
+          </View>
+          <View style={[flexbox.directionRow, flexbox.center]}>
+            <BasicToSmart style={[spacings.mt, spacings.mb]} />
+          </View>
+        </>
+      )}
       <View style={[flexbox.directionRow, flexbox.center]}>
         <Text weight="light" fontSize={14} style={[{ maxWidth: 650, textAlign: 'center' }]}>
           {t(
@@ -113,7 +120,8 @@ const Authorization7702 = ({ onDoNotAskMeAgainChange, doNotAskMeAgain }: Props) 
             </Text>
           </Text>
         </View>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, { minHeight: '47px' }]}>
+        {displayFullInformation && 
+        (<View style={[flexbox.directionRow, flexbox.alignCenter, { minHeight: '47px' }]}>
           <Checkbox
             value={doNotAskMeAgain}
             style={spacings.mb0}
@@ -126,8 +134,9 @@ const Authorization7702 = ({ onDoNotAskMeAgainChange, doNotAskMeAgain }: Props) 
               <Text fontSize={14}>You can always change this from account settings</Text>
             </Alert>
           )}
-        </View>
+        </View>)}
       </View>
+      {children}
     </TabLayoutWrapperMainContent>
   )
 }
