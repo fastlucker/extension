@@ -1,3 +1,4 @@
+import { ZeroAddress } from 'ethers'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -133,6 +134,7 @@ const useGetTokenSelectProps = ({
             getIsTokenEligibleForSwapAndBridge(pt)
         )
       : currentToken
+    const isNative = currentToken.address === ZeroAddress
 
     const {
       balanceUSDFormatted = '',
@@ -237,7 +239,9 @@ const useGetTokenSelectProps = ({
             )}
           </Text>
           <Text numberOfLines={1} fontSize={12} appearance="secondaryText">
-            {isSelected ? shortenAddress(currentToken.address, 13) : currentToken.address}
+            {isNative && 'Native'}
+            {!isNative && isSelected && shortenAddress(currentToken.address, 13)}
+            {!isNative && !isSelected && currentToken.address}
           </Text>
         </View>
 
