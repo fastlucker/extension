@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { BrowserProvider, Interface } from 'ethers'
+import { BrowserProvider, hashMessage, Interface } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { Linking } from 'react-native'
 
@@ -33,8 +33,11 @@ const Feedback = () => {
   const openForm = useCallback(() => {
     if (!connectedAccount) return addToast('No account connected')
 
-    const queryParam = `17386${BigInt(connectedAccount)}`
-    Linking.openURL(`https://survey.typeform.com/to/nbSnXDPw#timestamp=${queryParam}`).catch(() => {
+    const queryParam = `${hashMessage(`${connectedAccount}ambire salt`)}`
+    const queryParamName = 'ambro'
+    Linking.openURL(
+      `https://survey.typeform.com/to/nbSnXDPw#${queryParamName}=${queryParam}`
+    ).catch(() => {
       addToast('Cannot open survey')
     })
   }, [connectedAccount, addToast])
