@@ -1,6 +1,8 @@
+/* eslint-disable no-await-in-loop */
 import { baParams, saParams } from '../../config/constants'
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
+import { SELECTORS } from '../../common/selectors/selectors'
 
 import {
   checkIfOnDashboardPage,
@@ -12,7 +14,9 @@ import {
   signActionPage,
   checkIfSwitchIsActive,
   switchTokensOnSwapAndBridge,
-  switchUSDValueOnSwapAndBridge
+  switchUSDValueOnSwapAndBridge,
+  bridgeBasicAccount,
+  bridgeSmartAccount
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
@@ -69,9 +73,12 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await enterNumber(page, 'abc', true)
   })
 
-  it.skip('should Bridge tokens with a Basic Account', async () => {
-    // ToDo: Implement the test
-    // Consider testing the Dashboard banners (when bridging in progress) and the Route in Progress component
+  it('should Bridge tokens with a Basic Account', async () => {
+    const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
+    await bridgeBasicAccount(page, 'USDC', 'base', 'optimism', SELECTORS.USDC)
+    await signActionPage(
+      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    )
   })
 
   it('should "proceed" Swap & Bridge from the Pending Route component with a Basic Account', async () => {
@@ -203,9 +210,12 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await enterNumber(page, 'abc', true)
   })
 
-  it.skip('should Bridge tokens with a Smart Account', async () => {
-    // ToDo: Implement the test
-    // Consider testing the Dashboard banners (when bridging in progress) and the Route in Progress component
+  it('should Bridge tokens with a Smart Account', async () => {
+    const text = await prepareSwapAndBridge(page, 0.2, 'USDC', 'base', 'WALLET')
+    await bridgeSmartAccount(page, 'USDC', 'base', 'optimism', SELECTORS.USDC)
+    await signActionPage(
+      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    )
   })
 
   it('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async () => {

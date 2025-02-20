@@ -8,7 +8,9 @@ import {
   ENTER_AMOUNT_SELECTOR,
   SWITCH_TOKENS_TOOLTIP_SELECTOR,
   SWITCH_TOKEN_SELECTOR,
-  SWITCH_USD_SELECTOR
+  SWITCH_USD_SELECTOR,
+  WARNING_THE_PRICE,
+  RECIEVE_TOKEN_INPUT
 } from './constants'
 
 export async function selectButton(page, text) {
@@ -16,19 +18,16 @@ export async function selectButton(page, text) {
 }
 
 export async function checkIfOnDashboardPage(page) {
-  // Assert if the page is Dashboard
   await expect(page).toMatchElement(SELECTORS.dashboardButtonSwapAndBridge)
   expect(page.url()).toContain('/dashboard')
 }
 
 export async function checkIfOnSwapAndBridgePage(page) {
-  // Assert if the page is Swap & Bridge
   await expect(page).toMatchElement('div', { text: 'Swap & Bridge' })
   expect(page.url()).toContain('/swap-and-bridge')
 }
 
 export async function openSwapAndBridge(page) {
-  // Select Swap and Bridge from Dashboard
   await clickOnElement(page, SELECTORS.dashboardButtonSwapAndBridge)
   await checkIfOnSwapAndBridgePage(page)
 }
@@ -120,7 +119,13 @@ async function roundAmount(amount) {
   return changedAmount
 }
 
-export async function switchUSDValueOnSwapAndBridge(page, send_token, send_network, send_amount, delay = 500) {
+export async function switchUSDValueOnSwapAndBridge(
+  page,
+  send_token,
+  send_network,
+  send_amount,
+  delay = 500
+) {
   await page.waitForTimeout(delay)
 
   // Navigate to Swap and Bridge
@@ -179,6 +184,79 @@ export async function enterNumber(page, new_amount, is_valid = true) {
   }
 }
 
+export async function bridgeBasicAccount(
+  page,
+  send_token,
+  send_network,
+  recieve_network,
+  receive_token
+) {
+  await clickOnElement(page, SELECTORS.sendTokenSaB)
+  await clickOnElement(
+    page,
+    `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
+  )
+  await clickOnElement(page, SELECTORS.recieveNetworkBase)
+  await clickOnElement(page, `[data-testid*="option-${recieve_network}"]`)
+  await page.waitForTimeout(1000)
+  await clickOnElement(page, SELECTORS.receiveTokenSaB)
+  await typeText(page, RECIEVE_TOKEN_INPUT, send_token)
+  // It picking ETH all the time, should be investigated
+  // await clickOnElement(page, `[data-testid*="${receive_token.toLowerCase()}"]`)
+  await clickOnElement(page, receive_token)
+
+  await page.waitForSelector(FETCHING_BEST_ROUTE, { visible: true })
+  await page.waitForSelector(FETCHING_BEST_ROUTE, { hidden: true })
+
+  await clickOnElement(page, SELECTORS.confirmFollowUpTxn)
+
+  try {
+    // If Warning: The price impact is too high
+    if (await page.waitForSelector(WARNING_THE_PRICE, { visible: true })) {
+      // If Warning: The price impact is too high
+      await page.keyboard.press('Tab')
+      await page.keyboard.press('Enter')
+    }
+    return 'Continue anyway'
+  } catch (error) {
+    return 'Proceed'
+  }
+}
+
+export async function bridgeSmartAccount(
+  page,
+  send_token,
+  send_network,
+  recieve_network,
+  receive_token
+) {
+  await clickOnElement(page, SELECTORS.sendTokenSaB)
+  await clickOnElement(
+    page,
+    `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
+  )
+  await clickOnElement(page, SELECTORS.recieveNetworkBase)
+  await clickOnElement(page, `[data-testid*="option-${recieve_network}"]`)
+  await page.waitForTimeout(1000)
+  await clickOnElement(page, SELECTORS.receiveTokenSaB)
+  await typeText(page, RECIEVE_TOKEN_INPUT, send_token)
+  // It picking ETH all the time, should be investigated
+  // await clickOnElement(page, `[data-testid*="${receive_token.toLowerCase()}"]`)
+  await clickOnElement(page, receive_token)
+
+  await page.waitForSelector(FETCHING_BEST_ROUTE, { visible: true })
+  await page.waitForSelector(FETCHING_BEST_ROUTE, { hidden: true })
+
+  try {
+    // If Warning: The price impact is too high
+    await page.waitForSelector(SELECTORS.continueAnywayCheckboxSaB, { timeout: 1000 })
+    await clickOnElement(page, SELECTORS.continueAnywayCheckboxSaB)
+    return 'Continue anyway'
+  } catch (error) {
+    return 'Proceed'
+  }
+}
+
 export async function prepareSwapAndBridge(
   page,
   send_amount,
@@ -218,7 +296,6 @@ export async function prepareSwapAndBridge(
     // Wait for Proceed to be enabled, i.e., wait for "Fetching best route..." text to appear and disappear
     await page.waitForSelector(FETCHING_BEST_ROUTE, { visible: true })
     await page.waitForSelector(FETCHING_BEST_ROUTE, { hidden: true })
-
     // ToDo: Handle 'No route found' situation
 
     try {
@@ -230,12 +307,12 @@ export async function prepareSwapAndBridge(
       return 'Proceed'
     }
   } catch (error) {
-    console.error(`[ERROR] Preoare Swap & Bridge Page Failed: ${error.message}`)
+    console.error(`[ERROR] Prepare Swap & Bridge Page Failed: ${error.message}`)
     throw error
   }
 }
 
-export async function openSwapAndBridgeActionPage(page, callback = null) {
+export async function openSwapAndBridgeActionPage(page, callback = 'null') {
   try {
     // Get the browser context of the page
     const context = page.browserContext()
@@ -270,7 +347,7 @@ export async function openSwapAndBridgeActionPage(page, callback = null) {
 export async function signActionPage(actionPage) {
   try {
     // Select Sign
-    await clickOnElement(actionPage, 'text=Sign')
+    await clickOnElement(actionPage, SELECTORS.signTransactionButton)
 
     // Wait for transaction to be confirmed
     await actionPage.waitForSelector('text=Timestamp', { visible: true })

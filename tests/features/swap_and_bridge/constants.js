@@ -6,3 +6,5 @@ export const SWITCH_TOKEN_SELECTOR =
   "//div[contains(@class, 'r-1awozwy') and contains(@class, 'r-1kihuf0')]//div[@tabindex='0']"
 export const SWITCH_USD_SELECTOR =
   "//div[@tabindex='0' and contains(@class, 'r-1loqt21')]//div[contains(@class, 'css-1rynq56') and string-length(translate(text(), '0123456789', '')) != string-length(text())]"
+export const WARNING_THE_PRICE = 'text=Warning: '
+export const RECIEVE_TOKEN_INPUT = '[placeholder="Token name or address..."]'

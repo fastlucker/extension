@@ -97,7 +97,12 @@ export const TEST_IDS = {
   confettiModalActionButton: 'confetti-modal-action-button',
   refreshButton: 'refresh-button',
   dashboardGasTankButton: 'dashboard-gas-tank-button',
-  createSmartAccountGasTankModalButton: 'create-smart-account-gas-tank-modal-button'
+  createSmartAccountGasTankModalButton: 'create-smart-account-gas-tank-modal-button',
+  recieveNetworkBase: 'option-base',
+  recieveNetworkOptimism: 'option-optimism',
+  confirmFollowUpTxn: 'confirm-follow-up-txns-checkbox',
+  USDC: 'option-0x0b2c639c533813f4aa9d7837caf62653d097ff85.usdc',
+  signTransactionButton: 'transaction-button-sign'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
