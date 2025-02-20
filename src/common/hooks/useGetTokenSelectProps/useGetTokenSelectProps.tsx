@@ -232,7 +232,9 @@ const useGetTokenSelectProps = ({
             <Text fontSize={16} weight="medium" numberOfLines={1}>
               {symbol}{' '}
             </Text>
-            {isNameDifferentThanSymbol && (
+            {/* Displaying the name of the token is confusing for native tokens. Example
+            ETH (Ethereum) may confuse the user that the ETH is on Ethereum  */}
+            {isNameDifferentThanSymbol && !isNative && (
               <Text fontSize={14} appearance="secondaryText">
                 ({name})
               </Text>
