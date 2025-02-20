@@ -55,14 +55,21 @@ describe('Gas Tank tests with Smart Account', () => {
   it('Should test Confetti modal on first cashback', async () => {
     const client = await serviceWorker.client
 
-    await mockPortfolioResponse(client, MOCK_RESPONSE)
+    try {
+      await mockPortfolioResponse(client, MOCK_RESPONSE)
 
-    await clickOnElement(page, SELECTORS.refreshButton)
-    await wait(CONFETTI_MODAL_WAIT_TIME)
+      await clickOnElement(page, SELECTORS.refreshButton)
+      await wait(CONFETTI_MODAL_WAIT_TIME)
 
-    await clickOnElement(page, SELECTORS.refreshButton)
-    await clickOnElement(page, SELECTORS.bannerButtonOpen)
-    await clickOnElement(page, SELECTORS.confettiModalActionButton, true, 500)
+      await clickOnElement(page, SELECTORS.refreshButton)
+      await clickOnElement(page, SELECTORS.bannerButtonOpen)
+      await clickOnElement(page, SELECTORS.confettiModalActionButton, true, 500)
+    } finally {
+      // Disable Fetch after test to clean up
+      await client
+        .send('Fetch.disable')
+        .catch((error) => console.warn('Fetch.disable failed:', error.message))
+    }
   })
 
   it('Should check if all the data in the Gas Tank modal exists', async () => {
