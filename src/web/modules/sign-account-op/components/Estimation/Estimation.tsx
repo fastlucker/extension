@@ -215,7 +215,8 @@ const Estimation = ({
     return (
       feeSpeeds.every((speed) => !speed.amount) &&
       !signAccountOpState?.estimation?.error &&
-      !signAccountOpState?.errors.length
+      !signAccountOpState?.errors.length &&
+      !!feeSpeeds.length
     )
   }, [feeSpeeds, signAccountOpState?.errors.length, signAccountOpState?.estimation?.error])
 

@@ -9,7 +9,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useToast from '@legends/hooks/useToast'
-import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
+import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 enum CharacterLoadingMessage {
   Initial = 'Initializing character setup...',
@@ -146,25 +146,24 @@ const useMintCharacter = () => {
 
   const mintCharacter = useCallback(
     async (type: number) => {
-      // Switch to Base chain
-      await window.ambire.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId }] // chainId must be in hexadecimal numbers
-      })
-
-      setIsMinting(true)
-      setLoadingMessage(CharacterLoadingMessage.Signing)
-
-      const provider = new ethers.BrowserProvider(window.ambire)
-
-      const signer = await provider.getSigner()
-
-      const abi = LegendsNFT.abi
-
-      // Create a contract instance
-      const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
-
       try {
+        // Switch to Base chain
+        await window.ambire.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId }] // chainId must be in hexadecimal numbers
+        })
+
+        setIsMinting(true)
+        setLoadingMessage(CharacterLoadingMessage.Signing)
+
+        const provider = new ethers.BrowserProvider(window.ambire)
+
+        const signer = await provider.getSigner()
+
+        const abi = LegendsNFT.abi
+
+        // Create a contract instance
+        const nftContract = new ethers.Contract(LEGENDS_NFT_ADDRESS, abi, signer)
         const sendCallsIdentifier = await sendCalls(chainId, await signer.getAddress(), [
           {
             to: LEGENDS_NFT_ADDRESS,
@@ -184,13 +183,12 @@ const useMintCharacter = () => {
         // in state
       } catch (e) {
         setIsMinting(false)
-        const message = humanizeLegendsBroadcastError(e)
-
-        addToast(
-          message ||
-            `An error occurred during the NFT minting process. ${RETRY_OR_SUPPORT_MESSAGE}`,
-          { type: 'error' }
+        const message = humanizeError(
+          e,
+          `An error occurred during the NFT minting process. ${RETRY_OR_SUPPORT_MESSAGE}`
         )
+
+        addToast(message, { type: 'error' })
         console.log('Error during minting process:', e)
       }
     },
