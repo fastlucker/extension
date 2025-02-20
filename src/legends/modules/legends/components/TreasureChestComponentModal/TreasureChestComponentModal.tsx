@@ -17,7 +17,7 @@ import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
-import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
+import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import chainImage from './assets/chain-treasure-chest.png'
 import chestImageOpened from './assets/chest-opened.png'
@@ -110,16 +110,16 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const unlockChest = useCallback(async () => {
     setChestState('unlocking')
-    await switchNetwork()
-
-    const provider = new BrowserProvider(window.ambire)
-    const signer = await provider.getSigner()
-
-    const formattedCalls = action.calls.map(([to, value, data]) => {
-      return { to, value, data }
-    })
 
     try {
+      await switchNetwork()
+
+      const provider = new BrowserProvider(window.ambire)
+      const signer = await provider.getSigner()
+
+      const formattedCalls = action.calls.map(([to, value, data]) => {
+        return { to, value, data }
+      })
       stopChainAnimation()
 
       const sendCallsIdentifier = await sendCalls(
@@ -163,11 +163,11 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         await checkStatusWithTimeout(0)
       }
     } catch (e: any) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.transactionProcessingFailed)
       setChestState('locked')
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
+      addToast(message, { type: 'error' })
     }
   }, [
     switchNetwork,

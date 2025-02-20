@@ -3,6 +3,7 @@ import { BrowserProvider, Contract, Interface } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
+import HumanReadableError from '@legends/classes/HumanReadableError'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -10,7 +11,7 @@ import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
-import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
+import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import CardActionWrapper from './CardActionWrapper'
 
@@ -54,8 +55,8 @@ const StakeWallet = () => {
 
   const stakeWallet = useCallback(async () => {
     try {
-      if (!connectedAccount) throw new Error('No connected account')
-      if (!walletBalance) throw new Error('Insufficient $WALLET balance')
+      if (!connectedAccount) throw new HumanReadableError('No connected account.')
+      if (!walletBalance) throw new HumanReadableError('Insufficient $WALLET balance')
 
       setIsInProgress(true)
       const provider = new BrowserProvider(window.ambire)
@@ -84,10 +85,10 @@ const StakeWallet = () => {
       onComplete(receipt.transactionHash)
       handleClose()
     } catch (e: any) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.transactionSigningFailed)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
+      addToast(message, { type: 'error' })
     } finally {
       setIsInProgress(false)
     }
