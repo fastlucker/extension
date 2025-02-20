@@ -148,7 +148,7 @@ const LinkAcc = () => {
       if (!connectedAccount) throw new Error('No connected account')
 
       setIsInProgress(true)
-      const provider = new BrowserProvider(window.ethereum)
+      const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner(connectedAccount)
 
       // no sponsorship for linkAcc

@@ -112,7 +112,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     setChestState('unlocking')
     await switchNetwork()
 
-    const provider = new BrowserProvider(window.ethereum)
+    const provider = new BrowserProvider(window.ambire)
     const signer = await provider.getSigner()
 
     const formattedCalls = action.calls.map(([to, value, data]) => {
