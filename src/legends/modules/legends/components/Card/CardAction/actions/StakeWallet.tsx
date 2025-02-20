@@ -33,7 +33,7 @@ const StakeWallet = () => {
   const [walletBalance, setWalletBalance] = useState(null)
 
   useEffect(() => {
-    const provider = new BrowserProvider(window.ethereum)
+    const provider = new BrowserProvider(window.ambire)
     const walletContract = new Contract(WALLET_TOKEN, walletIface, provider)
     // @TODO use the pending $WALLET balance in the future
     switchNetwork()
@@ -59,7 +59,7 @@ const StakeWallet = () => {
       if (!walletBalance) throw new HumanReadableError('Insufficient $WALLET balance')
 
       setIsInProgress(true)
-      const provider = new BrowserProvider(window.ethereum)
+      const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner(connectedAccount)
 
       const useSponsorship = false
