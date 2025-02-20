@@ -44,22 +44,24 @@ const InviteAccount: FC<Props> = ({ meta }) => {
   return (
     <div className={`${styles.historyWrapper}`}>
       <div className={`${styles.heading}`}>Invitations history:</div>
-      {meta?.usersInvitationHistory?.length ? (
-        (meta?.usersInvitationHistory || []).map(({ status, invitee, date }) => (
-          <div className={`${styles.invitationItem} ${styles[status]}`} key={invitee + date}>
-            <div className={`${styles.invitationStatus}`}>
-              {status[0].toUpperCase() + status.slice(1)}
+      <div className={`${styles.scrollableHistory}`}>
+        {meta?.usersInvitationHistory?.length ? (
+          (meta?.usersInvitationHistory || []).map(({ status, invitee, date }) => (
+            <div className={`${styles.invitationItem} ${styles[status]}`} key={invitee + date}>
+              <div className={`${styles.invitationStatus}`}>
+                {status[0].toUpperCase() + status.slice(1)}
+              </div>
+              <div className={`${styles.mr}`}>{getTimeAgo(date, status)}</div>(
+              <Address className={`${styles[status]}`} maxAddressLength={12} address={invitee} />)
+              <div className={`${styles.ml}`}>
+                <InvitationIcon status={status} />{' '}
+              </div>
             </div>
-            <div className={`${styles.mr}`}>{getTimeAgo(date, status)}</div>(
-            <Address className={`${styles[status]}`} maxAddressLength={12} address={invitee} />)
-            <div className={`${styles.ml}`}>
-              <InvitationIcon status={status} />{' '}
-            </div>
-          </div>
-        ))
-      ) : (
-        <div>You haven&apos;t invited anyone yet.</div>
-      )}
+          ))
+        ) : (
+          <div>You haven&apos;t invited anyone yet.</div>
+        )}
+      </div>
     </div>
   )
 }

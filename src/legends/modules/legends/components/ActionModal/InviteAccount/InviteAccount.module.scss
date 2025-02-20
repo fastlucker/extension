@@ -3,9 +3,34 @@
 .historyWrapper {
   background-color: $tertiaryBackground;
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding-top: 1.5rem;
+  padding-left: 1.5rem;
   height: 100%;
 }
+
+.scrollableHistory {
+  height: 15rem;
+  overflow-y: auto; /* Enables vertical scrolling */
+}
+
+.scrollableHistory::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+.scrollableHistory::-webkit-scrollbar-track {
+  background: $bronzeBackground;
+  border-radius: $primaryBorderRadius;
+}
+
+.scrollableHistory::-webkit-scrollbar-thumb {
+  background: $secondaryBorder;
+  border-radius: 8px;
+}
+
+.scrollableHistory::-webkit-scrollbar-thumb:hover {
+  background: $silverDecorative;
+}
+
 .invitationItem {
   display: flex;
 }
