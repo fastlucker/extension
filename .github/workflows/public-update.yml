@@ -1,4 +1,4 @@
-name: Legends 👾
+name: Update the public repository 🔌
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     environment: public-update
-    name: Update public repo
+    name: Update the public repo "main" branch with the latest from "v2"
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
