@@ -12,7 +12,7 @@ import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
-import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
+import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import Input from '../../../../../../components/Input/Input'
 import CardActionButton from './CardActionButton'
@@ -66,7 +66,7 @@ const Feedback = () => {
       onComplete(receipt.transactionHash)
       handleClose()
     } catch (e: any) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.transactionSigningFailed)
 
       console.error(e)
       addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
