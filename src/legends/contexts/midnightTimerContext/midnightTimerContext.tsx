@@ -1,14 +1,13 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import useLegendsContext from '@legends/hooks/useLegendsContext'
-import useUtcMidnightTimer, {
-  MidnightTimerType
-} from '@legends/hooks/useUtcMidnightTimer/useUtcMidnightTimer'
 import useToast from '@legends/hooks/useToast'
+import useUtcMidnightTimer, { MidnightTimerType } from '@legends/hooks/useUtcMidnightTimer/useUtcMidnightTimer'
 
 const MidnightTimerContext = createContext<MidnightTimerType>({
   hoursLabel: '',
   minutesLabel: '',
+  hoursAndMinutesLabel: '',
   hasMidnightOccurred: false,
   startTimer: () => {},
   stopTimer: () => {}
