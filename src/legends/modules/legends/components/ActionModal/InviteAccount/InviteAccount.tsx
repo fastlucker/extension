@@ -14,8 +14,8 @@ const getTimeAgo = (date: string, status: string): string => {
   // we should not display the actual `date` value
   // instead we can show 'today' if it was today
   // else display X days/weeks ago
-  const msAgo = new Date().getTime() - new Date(date).getTime()
   const dateAsMs = new Date(date).getTime()
+  const msAgo = new Date().getTime() - dateAsMs
   const HOUR = 1000 * 60 * 60
   if (
     status === 'accepted' &&
@@ -36,7 +36,7 @@ const getTimeAgo = (date: string, status: string): string => {
   if (msAgo < HOUR * 2) return '1 hour ago'
   if (msAgo < 24 * HOUR) return `${Math.floor(msAgo / HOUR)} hours ago`
   if (msAgo < 24 * HOUR * 2) return 'yesterday'
-  if (msAgo < 24 * HOUR * 7) return `${Math.floor(msAgo / (HOUR * 24))} days ago`
+  if (msAgo < 24 * HOUR * 7 * 2) return `${Math.floor(msAgo / (HOUR * 24))} days ago`
   return `${Math.floor(msAgo / (HOUR * 24 * 7))} weeks ago`
 }
 
