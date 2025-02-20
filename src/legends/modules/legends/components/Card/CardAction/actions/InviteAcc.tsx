@@ -42,22 +42,14 @@ const InviteAcc: FC<Props> = ({
   } = useStandaloneAddressInput()
 
   const overwriteErrorMessage = useMemo(() => {
-    let checksummedAddress = ''
-
-    try {
-      checksummedAddress = getAddress(v1OrEoaAddress)
-    } catch {
-      return '' // There is validation for that in the useAddressInput hook
-    }
-
-    if (checksummedAddress === connectedAccount) {
+    if (v1OrEoaAddress === connectedAccount) {
       return 'You cannot invite your connected account.'
     }
-    if (alreadyLinkedAccounts.includes(checksummedAddress)) {
+    if (alreadyLinkedAccounts.includes(v1OrEoaAddress)) {
       return 'This account has already been linked'
     }
 
-    if (alreadyInvitedAccounts.includes(checksummedAddress)) {
+    if (alreadyInvitedAccounts.includes(v1OrEoaAddress)) {
       return 'This account has already been invited'
     }
 
