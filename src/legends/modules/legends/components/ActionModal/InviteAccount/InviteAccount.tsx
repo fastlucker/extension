@@ -46,10 +46,7 @@ const InviteAccount: FC<Props> = ({ meta }) => {
       <div className={`${styles.heading}`}>Invitations history:</div>
       {meta?.usersInvitationHistory?.length ? (
         (meta?.usersInvitationHistory || []).map(({ status, invitee, date }) => (
-          <div
-            className={`${styles.invitationItem} ${styles[status]} ${styles.mb}`}
-            key={invitee + date}
-          >
+          <div className={`${styles.invitationItem} ${styles[status]}`} key={invitee + date}>
             <div className={`${styles.invitationStatus}`}>
               {status[0].toUpperCase() + status.slice(1)}
             </div>
