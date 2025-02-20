@@ -87,7 +87,7 @@ export interface CardFromResponse {
       date: string
       status: 'pending' | 'expired' | 'accepted'
     }[]
-    numbersOfUsedInvitations?: number
+    usedInvitationSlots?: number
   }
   contentSteps?: string[]
   contentImage?: string

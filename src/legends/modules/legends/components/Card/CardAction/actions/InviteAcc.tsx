@@ -18,14 +18,14 @@ type Props = {
   buttonText: string
   alreadyLinkedAccounts: string[]
   alreadyInvitedAccounts: string[]
-  numbersOfUsedInvitations: number
+  usedInvitationSlots: number
 }
 
 const InviteAcc: FC<Props> = ({
   buttonText,
   alreadyLinkedAccounts,
   alreadyInvitedAccounts,
-  numbersOfUsedInvitations
+  usedInvitationSlots
 }) => {
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
@@ -61,7 +61,7 @@ const InviteAcc: FC<Props> = ({
       return 'This account has already been invited'
     }
 
-    if (numbersOfUsedInvitations >= MAX_INVITATIONS) return 'No more invitations left'
+    if (usedInvitationSlots >= MAX_INVITATIONS) return 'No more invitations left'
 
     return ''
   }, [
@@ -69,7 +69,7 @@ const InviteAcc: FC<Props> = ({
     v1OrEoaAddress,
     alreadyInvitedAccounts,
     alreadyLinkedAccounts,
-    numbersOfUsedInvitations
+    usedInvitationSlots
   ])
 
   const overwriteSuccessMessage = useMemo(() => {
@@ -132,7 +132,7 @@ const InviteAcc: FC<Props> = ({
         setAddressState={setAddressState}
         validation={validation}
         label="Ambire v1 or Basic Account address"
-        rightLabel={`Left invitations ${MAX_INVITATIONS - numbersOfUsedInvitations}/2`}
+        rightLabel={`Left invitations ${MAX_INVITATIONS - usedInvitationSlots}/2`}
       />
     </CardActionWrapper>
   )
