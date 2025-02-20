@@ -37,5 +37,5 @@ jobs:
         run: |
           git checkout v2
           git pull
-          git push --force git@github.com:AmbireTech/extension.git v2:main
+          git push git@github.com:AmbireTech/extension.git v2:main
           git push git@github.com:AmbireTech/extension.git --tags
