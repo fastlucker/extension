@@ -13,9 +13,10 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   value: string
   className?: string
+  disabled?: boolean
 } & React.InputHTMLAttributes<HTMLInputElement>
 
-const Label: FC<Pick<Props, 'label' | 'className'>> = ({ label, className }) => {
+const Label: FC<Pick<Props, 'label' | 'className' | 'disabled'>> = ({ label, className }) => {
   return (
     <label htmlFor={label} className={`${styles.label} ${className}`}>
       {label}
@@ -23,11 +24,7 @@ const Label: FC<Pick<Props, 'label' | 'className'>> = ({ label, className }) => 
   )
 }
 
-const Field: FC<
-  Props & {
-    className?: string
-  }
-> = ({ validation, className, label, ...props }) => {
+const Field: FC<Props> = ({ validation, className, label, ...props }) => {
   const state = useMemo(() => {
     if (!validation) return 'default'
 

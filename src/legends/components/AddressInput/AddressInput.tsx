@@ -19,7 +19,8 @@ const AddressInput: FC<Props> = ({
   addressState,
   validation,
   infoLabel,
-  setAddressState
+  setAddressState,
+  disabled
 }) => {
   const { fieldValue, ensAddress, udAddress } = addressState
 
@@ -42,6 +43,7 @@ const AddressInput: FC<Props> = ({
           onChange={onChange}
           placeholder="Address / ENS / UD"
           className={styles.input}
+          disabled={disabled}
         />
         <div className={styles.domainsIcons}>
           <EnsIcon isActive={!!ensAddress} className={styles.ensIcon} />

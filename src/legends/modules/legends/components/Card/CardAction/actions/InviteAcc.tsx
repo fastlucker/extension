@@ -120,6 +120,7 @@ const InviteAcc: FC<Props> = ({
       onButtonClick={onButtonClick}
     >
       <AddressInput
+        disabled={usedInvitationSlots >= MAX_INVITATIONS}
         addressState={addressState}
         setAddressState={setAddressState}
         validation={validation}
