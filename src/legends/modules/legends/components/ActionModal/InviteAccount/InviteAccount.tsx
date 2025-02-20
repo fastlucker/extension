@@ -61,7 +61,7 @@ const InviteAccount: FC<Props> = ({ meta }) => {
           </div>
         ))
       ) : (
-        <div>No invitations executed yet.</div>
+        <div>You haven&apos;t invited anyone yet.</div>
       )}
     </div>
   )
