@@ -13,7 +13,11 @@ const MidnightTimerContext = createContext<MidnightTimerType>({
   stopTimer: () => {}
 })
 
-const MidnightTimerContextProvider: React.FC<any> = ({ children }) => {
+interface MidnightTimerContextProviderProps {
+  children: React.ReactNode
+}
+
+const MidnightTimerContextProvider: React.FC<MidnightTimerContextProviderProps> = ({ children }) => {
   const { getLegends } = useLegendsContext()
   const { addToast } = useToast()
   const midnightTimer = useUtcMidnightTimer()
