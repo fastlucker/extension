@@ -594,6 +594,9 @@ export const handleActions = async (
       mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       return mainCtrl.dapps.removeDapp(params)
     }
+    case 'PHISHING_CONTROLLER_GET_IS_BLACKLISTED_AND_SEND_TO_UI': {
+      return mainCtrl.phishing.sendIsBlacklistedToUi(params.url)
+    }
     case 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE': {
       extensionUpdateCtrl.applyUpdate()
       break

@@ -3,8 +3,13 @@ import Svg, { Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-const ErrorIcon: React.FC<SvgProps> = ({ width = 24, height = 24, color = colors.martinique }) => (
-  <Svg width={width} height={height} fill="none" viewBox="0 0 24 24">
+const ErrorIcon: React.FC<SvgProps> = ({
+  width = 24,
+  height = 24,
+  color = colors.martinique,
+  ...rest
+}) => (
+  <Svg width={width} height={height} fill="none" viewBox="0 0 24 24" {...rest}>
     <Path
       stroke={color}
       strokeLinecap="round"

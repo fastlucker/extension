@@ -1,16 +1,19 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { View } from 'react-native'
 
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
+import wait from '@ambire-common/utils/wait'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { SPACING_LG } from '@common/styles/spacings'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import eventBus from '@web/extension-services/event/eventBus'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import usePhishingControllerState from '@web/hooks/usePhishingControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 
 import DAppConnectBody from './components/DAppConnectBody'
@@ -25,6 +28,12 @@ const DappConnectScreen = () => {
   const state = useActionsControllerState()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
   const { minHeightSize } = useWindowSize()
+  const { isReady } = usePhishingControllerState()
+  const securityCheckCalled = useRef(false)
+  const [securityCheck, setSecurityCheck] = useState<'BLACKLISTED' | 'NOT_BLACKLISTED' | 'LOADING'>(
+    'LOADING'
+  )
+  const [confirmedRiskCheckbox, setConfirmedRiskCheckbox] = useState(false)
 
   const dappAction = useMemo(() => {
     if (state.currentAction?.type !== 'dappRequest') return undefined
@@ -38,6 +47,35 @@ const DappConnectScreen = () => {
 
     return dappAction.userRequest
   }, [dappAction])
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      if (!userRequest?.session?.origin) return
+      if (securityCheckCalled.current) return
+
+      // slow down the res a bit for better UX
+      if (isReady) await wait(1000)
+
+      securityCheckCalled.current = true
+      dispatch({
+        type: 'PHISHING_CONTROLLER_GET_IS_BLACKLISTED_AND_SEND_TO_UI',
+        params: { url: userRequest.session.origin }
+      })
+    })()
+  }, [dispatch, userRequest?.session?.origin, isReady])
+
+  useEffect(() => {
+    const onReceiveOneTimeData = (data: any) => {
+      if (!data.hostname) return
+
+      setSecurityCheck(data.hostname)
+    }
+
+    eventBus.addEventListener('receiveOneTimeData', onReceiveOneTimeData)
+
+    return () => eventBus.removeEventListener('addToast', onReceiveOneTimeData)
+  }, [])
 
   const handleDenyButtonPress = useCallback(() => {
     if (!dappAction) return
@@ -59,8 +97,11 @@ const DappConnectScreen = () => {
   }, [dappAction, dispatch])
 
   const responsiveSizeMultiplier = useMemo(() => {
-    if (minHeightSize('s')) return 0.75
-    if (minHeightSize('m')) return 0.85
+    if (minHeightSize(690)) return 0.75
+    if (minHeightSize(720)) return 0.8
+    if (minHeightSize(750)) return 0.85
+    if (minHeightSize(780)) return 0.9
+    if (minHeightSize(810)) return 0.95
 
     return 1
   }, [minHeightSize])
@@ -73,8 +114,17 @@ const DappConnectScreen = () => {
         <ActionFooter
           onReject={handleDenyButtonPress}
           onResolve={handleAuthorizeButtonPress}
-          resolveButtonText={isAuthorizing ? t('Connecting...') : t('Connect')}
-          resolveDisabled={isAuthorizing}
+          resolveButtonText={
+            isAuthorizing
+              ? t('Connecting...')
+              : securityCheck === 'BLACKLISTED'
+              ? t('Continue anyway')
+              : t('Connect')
+          }
+          resolveDisabled={
+            isAuthorizing || (securityCheck === 'BLACKLISTED' && !confirmedRiskCheckbox)
+          }
+          resolveType={securityCheck === 'BLACKLISTED' ? 'error' : 'primary'}
           rejectButtonText={t('Deny')}
           resolveButtonTestID="dapp-connect-button"
         />
@@ -97,9 +147,15 @@ const DappConnectScreen = () => {
             name={userRequest?.session?.name}
             origin={userRequest?.session?.origin}
             icon={userRequest?.session?.icon}
+            securityCheck={securityCheck}
             responsiveSizeMultiplier={responsiveSizeMultiplier}
           />
-          <DAppConnectBody responsiveSizeMultiplier={responsiveSizeMultiplier} />
+          <DAppConnectBody
+            securityCheck={securityCheck}
+            responsiveSizeMultiplier={responsiveSizeMultiplier}
+            confirmedRiskCheckbox={confirmedRiskCheckbox}
+            setConfirmedRiskCheckbox={setConfirmedRiskCheckbox}
+          />
         </View>
       </View>
     </TabLayoutContainer>
