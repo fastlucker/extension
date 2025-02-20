@@ -1,12 +1,7 @@
 import React from 'react'
 import Svg, { Circle, Path, SvgProps } from 'react-native-svg'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const PendingInvitationIcon: React.FC<Props> = ({ width = 32, height = 32, ...rest }) => (
+const PendingInvitationIcon: React.FC<SvgProps> = ({ width = 32, height = 32, ...rest }) => (
   <Svg width={width} height={height} viewBox="0 0 32 32" fill="none" {...rest}>
     <Circle cx="8" cy="8.49951" r="8" fill="#B38824" />
     <Path
