@@ -22,6 +22,9 @@ jobs:
 
       - name: Checkout code 🛎️
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
 
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.5.4
@@ -35,7 +38,6 @@ jobs:
 
       - name: Update public repo
         run: |
-          git checkout v2
-          git pull
+          ls -la
           git push git@github.com:AmbireTech/extension.git v2:main
           git push git@github.com:AmbireTech/extension.git --tags
