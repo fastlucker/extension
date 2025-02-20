@@ -46,7 +46,8 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const treasureChestOpenedForToday = useMemo(
     () =>
       legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
-        ?.card.status === CardStatus.completed,
+        ?.card.status === CardStatus.completed ||  legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
+        ?.card.status === CardStatus.disabled,
     [legends]
   )
 
