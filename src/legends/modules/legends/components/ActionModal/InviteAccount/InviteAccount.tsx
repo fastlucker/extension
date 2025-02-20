@@ -50,7 +50,7 @@ const InviteAccount: FC<Props> = ({ meta }) => {
             className={`${styles.invitationItem} ${styles[status]} ${styles.mb}`}
             key={invitee + date}
           >
-            <div className={`${styles.floatLeft} ${styles.bold}`}>
+            <div className={`${styles.invitationStatus}`}>
               {status[0].toUpperCase() + status.slice(1)}
             </div>
             <div className={`${styles.mr}`}>{getTimeAgo(date, status)}</div>(
