@@ -17,7 +17,7 @@ import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 
-import { humanizeLegendsBroadcastError } from '../../utils/errors/humanizeBroadcastError'
+import { humanizeError } from '../../utils/errors/humanizeError'
 import chainImage from './assets/chain.png'
 import mainImage from './assets/main.png'
 import pointerImage from './assets/pointer.png'
@@ -67,16 +67,16 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
   )
 
   const unlockWheel = useCallback(async () => {
-    // Switch to Base chain
-    await window.ambire.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: BASE_CHAIN_ID }]
-    })
-
-    const provider = new ethers.BrowserProvider(window.ambire)
-    const signer = await provider.getSigner()
-
     try {
+      // Switch to Base chain
+      await window.ambire.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: BASE_CHAIN_ID }]
+      })
+
+      const provider = new ethers.BrowserProvider(window.ambire)
+      const signer = await provider.getSigner()
+
       stopSpinnerTeaseAnimation()
       setWheelState('unlocking')
       const randomValueBytes = randomBytes(32)
@@ -124,10 +124,10 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
         await checkStatusWithTimeout(0)
       }
     } catch (e) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.transactionSigningFailed)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
+      addToast(message, { type: 'error' })
       setWheelState('locked')
     }
   }, [

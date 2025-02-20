@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import { useTranslation } from '@common/config/localization'
 import useRoute from '@common/hooks/useRoute'
@@ -32,7 +32,8 @@ const ExportKeyScreen = () => {
     () => accounts.find((acc) => acc.addr === accountAddr),
     [accounts, accountAddr]
   )
-  const isSA = isSmartAccount(account)
+  const isExportingV2SA =
+    isSmartAccount(account) && !isAmbireV1LinkedAccount(account?.creation?.factoryAddr)
 
   const keyAddr = params.get('keyAddr')
   const key = useMemo(
@@ -78,14 +79,16 @@ const ExportKeyScreen = () => {
         <PasswordConfirmation
           onPasswordConfirmed={onPasswordConfirmed}
           text={
-            isSA
+            isExportingV2SA
               ? 'Please enter your device password to export your smart account details'
               : 'Please enter your device password to see your private key'
           }
         />
       )}
-      {passwordConfirmed && privateKey && !isSA && <PrivateKeyExport privateKey={privateKey} />}
-      {passwordConfirmed && privateKey && isSA && (
+      {passwordConfirmed && privateKey && !isExportingV2SA && (
+        <PrivateKeyExport privateKey={privateKey} />
+      )}
+      {passwordConfirmed && privateKey && isExportingV2SA && (
         <SmartAccountExport account={account} privateKey={privateKey} />
       )}
     </View>

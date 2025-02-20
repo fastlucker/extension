@@ -1,7 +1,6 @@
 import { Block } from 'ethers'
 
-import { Network } from '@ambire-common/interfaces/network'
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
+import { Cost } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 
 const doNotShow = ['dropped', 'rejected']
@@ -66,16 +65,9 @@ const getFinalizedRows = (blockData: null | Block, finalizedStatus: FinalizedSta
   return rows
 }
 
-const getFee = (
-  cost: null | string,
-  network: Network,
-  nativePrice: number,
-  finalizedStatus: FinalizedStatusType
-) => {
+const getFee = (cost: Cost | null, finalizedStatus: FinalizedStatusType) => {
   if (cost) {
-    return `${formatDecimals(Number(cost), 'amount')} ${
-      network.nativeAssetSymbol
-    } (${formatDecimals(Number(cost) * nativePrice, 'price')})`
+    return `${cost.amount} ${cost.symbol} (${cost.usdValue})`
   }
 
   return finalizedStatus && doNotShow.indexOf(finalizedStatus.status) !== -1 ? '-' : 'loading'
