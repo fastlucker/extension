@@ -178,15 +178,10 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                 </View>
               </View>
               <View style={styles.rightPartWrapper}>
-                <View style={[spacings.pbTy]}>
-                  <Text fontSize={12} appearance="secondaryText">
-                    {t('Total')}
-                  </Text>
-                </View>
                 <View style={styles.rightPartInnerWrapper}>
                   <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
                     <Text fontSize={12} appearance="successText">
-                      {`${t('Saved')} `}
+                      {`${t('Total Saved')} `}
                     </Text>
                     <InfoIcon
                       color={iconColors.success}
@@ -196,7 +191,9 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     <Tooltip
                       id="saved-tooltip"
                       content={String(
-                        t('The amount of funds you have not spent on gas fees using the Gas Tank.')
+                        t(
+                          "The total amount of funds you've saved on gas fees by using the Gas tank."
+                        )
                       )}
                     />
                   </View>
@@ -207,7 +204,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                 <View style={styles.rightPartInnerWrapper}>
                   <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
                     <Text fontSize={12} appearance="primary">
-                      {`${t('Cashback')} `}
+                      {`${t('Total Cashback')} `}
                     </Text>
                     <InfoIcon
                       color={iconColors.primary2}
