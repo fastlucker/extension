@@ -2,7 +2,9 @@ import React, { createContext, useEffect, useMemo } from 'react'
 
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
-import useUtcMidnightTimer, { MidnightTimerType } from '@legends/hooks/useUtcMidnightTimer/useUtcMidnightTimer'
+import useUtcMidnightTimer, {
+  MidnightTimerType
+} from '@legends/hooks/useUtcMidnightTimer/useUtcMidnightTimer'
 
 const MidnightTimerContext = createContext<MidnightTimerType>({
   hoursLabel: '',
@@ -17,7 +19,9 @@ interface MidnightTimerContextProviderProps {
   children: React.ReactNode
 }
 
-const MidnightTimerContextProvider: React.FC<MidnightTimerContextProviderProps> = ({ children }) => {
+const MidnightTimerContextProvider: React.FC<MidnightTimerContextProviderProps> = ({
+  children
+}) => {
   const { getLegends } = useLegendsContext()
   const { addToast } = useToast()
   const midnightTimer = useUtcMidnightTimer()
