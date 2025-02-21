@@ -40,25 +40,12 @@ const DashboardScreen = () => {
   const debouncedDashboardOverviewSize = useDebounce({ value: dashboardOverviewSize, delay: 100 })
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
-  const { account, portfolio } = useSelectedAccountControllerState()
+  const { account, portfolio, cashbackStatus } = useSelectedAccountControllerState()
 
-  const shouldShowFirstCashbackConfetti = useMemo(() => {
-    if (!account) return false
-
-    const gasTankResult = portfolio?.latest?.gasTank?.result
-
-    if (
-      !gasTankResult ||
-      !('gasTankTokens' in gasTankResult) ||
-      !Array.isArray(gasTankResult.gasTankTokens)
-    ) {
-      return false
-    }
-
-    const hasUnseenFirstCashback = gasTankResult.gasTankTokens[0]?.hasUnseenFirstCashback
-
-    return hasUnseenFirstCashback
-  }, [account, portfolio])
+  const hasUnseenFirstCashback = useMemo(
+    () => cashbackStatus === 'cashback-modal',
+    [cashbackStatus]
+  )
 
   const [gasTankButtonPosition, setGasTankButtonPosition] = useState<{
     x: number
@@ -115,10 +102,10 @@ const DashboardScreen = () => {
 
   const handleCongratsModalBtnPressed = useCallback(() => {
     dispatch({
-      type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT',
-      params: { accountAddr: account!.addr }
+      type: 'SELECTED_ACCOUNT_CONTROLLER_UPDATE_CASHBACK_STATUS',
+      params: 'seen-cashback'
     })
-  }, [dispatch, account])
+  }, [dispatch])
 
   return (
     <>
@@ -147,7 +134,7 @@ const DashboardScreen = () => {
       </View>
       <PinExtension />
       <DefaultWalletControl />
-      {shouldShowFirstCashbackConfetti && (
+      {hasUnseenFirstCashback && (
         <CongratsFirstCashbackModal
           onPress={handleCongratsModalBtnPressed}
           position={gasTankButtonPosition}
