@@ -10,7 +10,7 @@ import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { MAX_INVITATIONS } from '@legends/modules/legends/constants'
 import { useInviteCard } from '@legends/modules/legends/hooks'
-import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
+import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import CardActionWrapper from './CardActionWrapper'
 
@@ -102,9 +102,9 @@ const InviteAcc: FC<Props> = ({
       onComplete(txnId)
       handleClose()
     } catch (e: any) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.transactionSigningFailed)
 
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
+      addToast(message, { type: 'error' })
       console.error(e)
     } finally {
       setIsInProgress(false)

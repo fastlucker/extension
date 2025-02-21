@@ -2,14 +2,11 @@ import React from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
-import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
-import { isDev } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useHover from '@web/hooks/useHover'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import commonWebStyles from '@web/styles/utils/common'
@@ -22,20 +19,10 @@ const { isPopup } = getUiType()
 
 const DashboardHeader = () => {
   const { account } = useSelectedAccountControllerState()
-
-  const [bindBurgerAnim, burgerAnimStyle] = useHover({
-    preset: 'opacity'
-  })
-  const [bindMaximizeAnim, maximizeAnimStyle] = useHover({
-    preset: 'opacity'
-  })
-
+  const [bindBurgerAnim, burgerAnimStyle] = useHover({ preset: 'opacity' })
   const { navigate } = useNavigation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme } = useTheme(getStyles)
 
-  // Temporary measure because UX was found to be confusing
-  // but enable only in dev mode for easier debugging
-  const ENABLE_MAXIMIZE = isDev
   if (!account) return null
 
   return (
@@ -51,29 +38,17 @@ const DashboardHeader = () => {
         style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
       >
         <AccountButton />
-        <View style={styles.maximizeAndMenu}>
-          {!!isPopup && ENABLE_MAXIMIZE && (
-            <Pressable
-              onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}
-              {...bindMaximizeAnim}
-            >
-              <Animated.View style={maximizeAnimStyle}>
-                <MaximizeIcon color={theme.secondaryBackground} width={16} height={16} />
-              </Animated.View>
-            </Pressable>
-          )}
-          <Pressable
-            style={{ ...spacings.mlLg, ...spacings.mrTy }}
-            onPress={() =>
-              isPopup ? navigate(WEB_ROUTES.menu) : navigate(WEB_ROUTES.generalSettings)
-            }
-            {...bindBurgerAnim}
-          >
-            <Animated.View style={burgerAnimStyle}>
-              <BurgerIcon color={theme.primaryBackground} width={20} height={20} />
-            </Animated.View>
-          </Pressable>
-        </View>
+        <Pressable
+          style={[spacings.ml, spacings.phTy, spacings.pvTy, flexboxStyles.alignSelfCenter]}
+          onPress={() =>
+            isPopup ? navigate(WEB_ROUTES.menu) : navigate(WEB_ROUTES.generalSettings)
+          }
+          {...bindBurgerAnim}
+        >
+          <Animated.View style={burgerAnimStyle}>
+            <BurgerIcon color={theme.primaryBackground} width={20} height={20} />
+          </Animated.View>
+        </Pressable>
       </View>
     </View>
   )

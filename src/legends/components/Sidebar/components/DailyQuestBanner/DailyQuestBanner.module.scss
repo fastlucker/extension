@@ -90,7 +90,7 @@
 
       .content {
         padding: 1rem;
-        padding-left: 6rem;
+        padding-left: 6.2rem;
         flex: 1;
 
 
@@ -115,6 +115,7 @@
           box-shadow: 0 0.125rem 0 $primaryBackground;
           border-radius: $primaryBorderRadius;
           height: 2.25rem;
+          width: 9.375rem;
           font-weight: 500;
           font-size: 0.875rem;
           width: 100%;
@@ -128,7 +129,7 @@
 
       .reversed {
         padding-left: 1rem;
-        padding-right: 6rem;
+        padding-right: 6.2rem;
       }
     }
 }

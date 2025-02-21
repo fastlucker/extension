@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
 import {
-  calculateTimeToMidnight,
   calculateLastMidnight,
+  calculateTimeToMidnight,
+  getHoursAndMinutesLabel,
   getHoursLabel,
   getMinutesLabel
 } from './helpers'
@@ -9,6 +11,7 @@ import {
 export type MidnightTimerType = {
   hoursLabel: string
   minutesLabel: string
+  hoursAndMinutesLabel: string
   hasMidnightOccurred: boolean
   startTimer: (forceStart: boolean) => void
   stopTimer: () => void
@@ -26,6 +29,7 @@ export default function useUtcMidnightTimer(): MidnightTimerType {
 
   const hoursLabel = useMemo(() => getHoursLabel(timeRemaining), [timeRemaining])
   const minutesLabel = useMemo(() => getMinutesLabel(timeRemaining), [timeRemaining])
+  const hoursAndMinutesLabel = useMemo(() => getHoursAndMinutesLabel(timeRemaining), [timeRemaining])
   const hasMidnightOccurred = useMemo(() => timeRemaining === 0, [timeRemaining])
 
   const stopTimer = useCallback(() => {
@@ -95,5 +99,5 @@ export default function useUtcMidnightTimer(): MidnightTimerType {
     }
   }, [startTimer, stopTimer])
 
-  return { hoursLabel, minutesLabel, hasMidnightOccurred, startTimer, stopTimer }
+  return { hoursLabel, minutesLabel,hoursAndMinutesLabel, hasMidnightOccurred, startTimer, stopTimer }
 }
