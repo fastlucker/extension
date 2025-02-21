@@ -80,6 +80,13 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
   >(isActive ? 'locked' : 'opened')
 
+  useEffect(() => {
+    if (isActive && chestState === 'opened') {
+      setChestState('locked')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive])
+
   const buttonLabel = useMemo(() => {
     switch (chestState) {
       case 'unlocking':
