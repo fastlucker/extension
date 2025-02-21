@@ -40,6 +40,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
           alreadyInvitedAccounts={meta?.alreadyInvitedAccounts || []}
           usedInvitationSlots={meta?.usedInvitationSlots || 0}
           buttonText={buttonText}
+          usersInvitationHistory={meta?.usersInvitationHistory || []}
         />
       )
     }

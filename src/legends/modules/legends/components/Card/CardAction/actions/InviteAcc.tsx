@@ -19,13 +19,19 @@ type Props = {
   alreadyLinkedAccounts: string[]
   alreadyInvitedAccounts: string[]
   usedInvitationSlots: number
+  usersInvitationHistory: {
+    invitee: string
+    date: string
+    status: 'pending' | 'expired' | 'accepted'
+  }[]
 }
 
 const InviteAcc: FC<Props> = ({
   buttonText,
   alreadyLinkedAccounts,
   alreadyInvitedAccounts,
-  usedInvitationSlots
+  usedInvitationSlots,
+  usersInvitationHistory
 }) => {
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
@@ -42,15 +48,18 @@ const InviteAcc: FC<Props> = ({
   } = useStandaloneAddressInput()
 
   const overwriteErrorMessage = useMemo(() => {
+    if (usersInvitationHistory.some(({ invitee }) => invitee === v1OrEoaAddress))
+      return 'You already invited this account once.'
+
     if (v1OrEoaAddress === connectedAccount) {
       return 'You cannot invite your connected account.'
     }
     if (alreadyLinkedAccounts.includes(v1OrEoaAddress)) {
-      return 'This account has already been linked'
+      return 'This account has already been linked.'
     }
 
     if (alreadyInvitedAccounts.includes(v1OrEoaAddress)) {
-      return 'This account has already been invited'
+      return 'This account has already been invited.'
     }
 
     if (usedInvitationSlots >= MAX_INVITATIONS) return 'No more invitations left'
@@ -61,7 +70,8 @@ const InviteAcc: FC<Props> = ({
     v1OrEoaAddress,
     alreadyInvitedAccounts,
     alreadyLinkedAccounts,
-    usedInvitationSlots
+    usedInvitationSlots,
+    usersInvitationHistory
   ])
 
   const overwriteSuccessMessage = useMemo(() => {
