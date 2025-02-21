@@ -15,15 +15,15 @@ import { useCardActionContext } from '@legends/modules/legends/components/Action
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import Input from '../../../../../../components/Input/Input'
-import CardActionButton from './CardActionButton'
+import styles from './Action.module.scss'
 import CardActionWrapper from './CardActionWrapper'
-import styles from './Input.module.scss'
 
 const iface = new Interface(['function claimXpFromFeedback(string)'])
 
 const Feedback = () => {
   const [isInProgress, setIsInProgress] = useState(false)
-  const [surveyCode, setSurveyCode] = useState<string | null>(null)
+  const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false)
+  const [surveyCode, setSurveyCode] = useState<string>('')
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const { onComplete, handleClose } = useCardActionContext()
   const { addToast } = useToast()
@@ -33,6 +33,7 @@ const Feedback = () => {
   const openForm = useCallback(() => {
     if (!connectedAccount) return addToast('No account connected')
 
+    setIsFeedbackFormOpen(true)
     const queryParam = `${hashMessage(`${connectedAccount}ambire salt`)}`
     const queryParamName = 'ambro'
     Linking.openURL(
@@ -88,24 +89,35 @@ const Feedback = () => {
     switchNetwork
   ])
 
+  const onButtonClick = () => {
+    if (isFeedbackFormOpen) {
+      claimXp()
+    } else {
+      openForm()
+    }
+  }
+
   return (
     <CardActionWrapper
-      disabled={!surveyCode || isInProgress}
-      onButtonClick={claimXp}
+      onButtonClick={onButtonClick}
       isLoading={isInProgress}
       loadingText="Signing..."
-      buttonText={surveyCode ? 'Claim xp' : 'Enter code from survey'}
+      disabled={isFeedbackFormOpen && !surveyCode}
+      buttonText={isFeedbackFormOpen ? 'Claim xp' : 'Open feedback form'}
     >
       <div className={styles.wrapper}>
-        <div className={styles.openFormButton}>
-          <CardActionButton buttonText="Open feedback form" onButtonClick={openForm} />
-        </div>
-        <Input.Field
-          value={surveyCode || ''}
-          placeholder="Enter survey code"
-          onChange={(e) => setSurveyCode(e.target.value)}
-          className={styles.input}
-        />
+        {isFeedbackFormOpen && (
+          <>
+            <Input.Label label="Enter Survey code" />
+            <Input.Field
+              value={surveyCode || ''}
+              label="Enter Survey code"
+              placeholder="Survey code"
+              onChange={(e) => setSurveyCode(e.target.value)}
+              className={styles.input}
+            />
+          </>
+        )}
       </div>
     </CardActionWrapper>
   )
