@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - legends-prod
-  pull_request:
-    branches:
-      - legends-prod
 permissions:
   contents: write
 jobs:
