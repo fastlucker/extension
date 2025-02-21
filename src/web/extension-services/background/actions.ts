@@ -511,9 +511,6 @@ type ActionsControllerRemoveFromActionsQueue = {
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
 }
-type ActionsControllerCloseActionWindow = {
-  type: 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW'
-}
 
 type ActionsControllerMakeAllActionsActive = {
   type: 'ACTIONS_CONTROLLER_MAKE_ALL_ACTIONS_ACTIVE'
@@ -707,7 +704,6 @@ export type Action =
   | SwapAndBridgeControllerRemoveActiveRouteAction
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
-  | ActionsControllerCloseActionWindow
   | ActionsControllerMakeAllActionsActive
   | ActionsControllerSetCurrentActionById
   | ActionsControllerSetCurrentActionByIndex
