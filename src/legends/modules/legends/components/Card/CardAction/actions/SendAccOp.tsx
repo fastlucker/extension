@@ -7,7 +7,7 @@ import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { CardActionCalls } from '@legends/modules/legends/types'
-import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
+import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import CardActionButton from './CardActionButton'
 
@@ -27,16 +27,15 @@ const SendAccOp: FC<Props> = ({ action }) => {
 
     await switchNetwork()
 
-    const provider = new BrowserProvider(window.ethereum)
-    const signer = await provider.getSigner()
-
-    const formattedCalls = action.calls.map(([to, value, data]) => {
-      return { to, value, data }
-    })
-
-    setIsInProgress(false)
-
     try {
+      const provider = new BrowserProvider(window.ambire)
+      const signer = await provider.getSigner()
+
+      const formattedCalls = action.calls.map(([to, value, data]) => {
+        return { to, value, data }
+      })
+
+      setIsInProgress(false)
       const sendCallsIdentifier = await sendCalls(
         chainId,
         await signer.getAddress(),
@@ -48,10 +47,10 @@ const SendAccOp: FC<Props> = ({ action }) => {
       onComplete(receipt.transactionHash)
       handleClose()
     } catch (e: any) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.transactionProcessingFailed)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
+      addToast(message, { type: 'error' })
     }
   }, [
     switchNetwork,
