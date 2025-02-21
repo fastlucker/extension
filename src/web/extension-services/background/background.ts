@@ -819,6 +819,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
       initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()
+      mainCtrl.phishing.updateIfNeeded()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, action: Action) => {

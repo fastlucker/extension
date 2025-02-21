@@ -13,6 +13,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings, { SPACING, SPACING_LG, SPACING_MI } from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 
 import getStyles from '../styles'
 import DAppPermissions from './DAppPermissions'
@@ -104,6 +105,7 @@ const DAppConnectBody: FC<{
                   color={theme.errorDecorative}
                   style={{ lineHeight: 18 * responsiveSizeMultiplier }}
                   underline
+                  onPress={() => openInTab('https://help.ambire.com/hc/en-us/requests/new', false)}
                 >
                   let us know.
                 </Text>
