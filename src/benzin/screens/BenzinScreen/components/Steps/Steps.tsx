@@ -122,11 +122,20 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, networkId, stepsState
           testID="txn-progress-step"
         >
           {!!summary && summary}
-          {!summary.length && stepsState.finalizedStatus?.status !== 'fetching' && (
-            <Text appearance="errorText" fontSize={14}>
-              Could not decode calldata. Open the explorer for a better summarization
-            </Text>
-          )}
+          {
+            // if there's an userOpHash & txnId but no callData decoded,
+            // it means handleOps has not been called directly and we cannot decode
+            // the data correctly
+            txnId &&
+              userOpHash &&
+              stepsState.userOp &&
+              stepsState.userOp.callData === '' &&
+              stepsState.finalizedStatus?.status !== 'fetching' && (
+                <Text appearance="errorText" fontSize={14}>
+                  Could not decode calldata. Open the explorer for a better summarization
+                </Text>
+              )
+          }
         </Step>
       )}
       <Step
