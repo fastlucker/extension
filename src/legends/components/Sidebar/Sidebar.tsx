@@ -99,7 +99,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
   const wheelText = useMemo(() => {
     if (isLoading) return <span className={styles.wheelText}>Loading...</span>
-    if (wheelSpinOfTheDay) return <MidnightTimer type="minutes" className={styles.bannerText} />
+    if (wheelSpinOfTheDay) return <MidnightTimer type="hoursAndMinutes" className={styles.bannerText} />
 
     return <span className={styles.bannerText}>Available Now</span>
   }, [isLoading, wheelSpinOfTheDay])
@@ -107,7 +107,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const chestText = useMemo(() => {
     if (isLoading) return <span className={styles.bannerText}>Loading...</span>
     if (treasureChestOpenedForToday)
-      return <MidnightTimer type="minutes" className={styles.bannerText} />
+      return <MidnightTimer type="hoursAndMinutes" className={styles.bannerText} />
 
     return <span className={styles.bannerText}>Available Now</span>
   }, [isLoading, treasureChestOpenedForToday])
