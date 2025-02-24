@@ -1,5 +1,5 @@
 import { randomBytes } from 'ethers'
-import React, { useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import { ImageBackground, ScrollView, View } from 'react-native'
 
 // @ts-ignore
@@ -28,25 +28,14 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
 
   const summary = useMemo(() => {
     const calls = state?.stepsState?.calls
-    if (!calls) return []
-
-    // if there's an userOpHash & txnId but no callData decoded,
-    // it means handleOps has not been called directly and we cannot decode
-    // the data correctly
-    if (
-      state.txnId &&
-      state.userOpHash &&
-      state.stepsState.userOp &&
-      state.stepsState.userOp.callData === ''
-    )
-      return []
+    if (!calls || !state.network?.id) return []
 
     return calls.map((call, i) => (
       <TransactionSummary
         key={call.data + randomBytes(6)}
         style={i !== calls.length! - 1 ? spacings.mbSm : {}}
         call={call}
-        networkId={state?.network!.id}
+        networkId={state.network!.id}
         rightIcon={
           <OpenIcon
             width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
@@ -58,14 +47,9 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
         isHistory
       />
     ))
-  }, [
-    state?.handleOpenExplorer,
-    state?.network,
-    state?.stepsState?.calls,
-    state?.stepsState?.userOp,
-    state?.txnId,
-    state?.userOpHash
-  ])
+    // Prevents unnecessary re-renders of the humanizer
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state?.handleOpenExplorer, state?.network?.id, state?.stepsState?.calls?.length])
 
   if (state && !state?.isInitialized)
     return (
@@ -134,4 +118,4 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
   )
 }
 
-export default Benzin
+export default memo(Benzin)

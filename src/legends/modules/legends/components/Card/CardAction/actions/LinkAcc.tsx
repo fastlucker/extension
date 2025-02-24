@@ -37,7 +37,10 @@ const BUTTON_TEXT: {
 
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
-const LinkAcc = () => {
+interface Props {
+  alreadyLinkedAccounts: string[]
+}
+const LinkAcc = ({ alreadyLinkedAccounts = [] }: Props) => {
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const {
@@ -80,8 +83,12 @@ const LinkAcc = () => {
       return 'You cannot tame an account that is not in your wallet.'
     }
 
+    if (alreadyLinkedAccounts.includes(checksummedAddress)) {
+      return 'This account has already been linked'
+    }
+
     return ''
-  }, [allAccounts, connectedAccount, v1OrEoaAddress])
+  }, [allAccounts, connectedAccount, v1OrEoaAddress, alreadyLinkedAccounts])
 
   const { validation } = useAddressInput({
     addressState,
@@ -125,12 +132,14 @@ const LinkAcc = () => {
     if (!v1OrEoaAddress) return
 
     try {
+      if (!connectedAccount) throw new HumanReadableError('No connected account')
+
       setIsInProgress(true)
       const signature = await window.ambire.request({
         method: 'personal_sign',
         params: [`Assign ${v1OrEoaAddress} to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
       })
-      setMessageSignedForV2Account(connectedAccount!)
+      setMessageSignedForV2Account(connectedAccount)
 
       if (typeof signature !== 'string') throw new HumanReadableError('Invalid signature')
 
