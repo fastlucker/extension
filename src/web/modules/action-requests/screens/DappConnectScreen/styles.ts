@@ -40,7 +40,9 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.phSm,
-      ...spacings.pvTy
+      ...spacings.pvTy,
+      borderWidth: 1,
+      borderColor: theme.secondaryBackground
     }
   })
 

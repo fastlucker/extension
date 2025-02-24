@@ -139,7 +139,7 @@ const DappConnectScreen = () => {
           styles.container,
           {
             paddingVertical: SPACING_LG * responsiveSizeMultiplier,
-            width: responsiveSizeMultiplier * 454
+            width: responsiveSizeMultiplier * 458
           }
         ]}
       >

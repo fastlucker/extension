@@ -51,7 +51,8 @@ const DAppConnectBody: FC<{
           styles.securityChecksContainer,
           {
             marginBottom: SPACING * responsiveSizeMultiplier
-          }
+          },
+          securityCheck === 'BLACKLISTED' && { borderColor: theme.errorDecorative }
         ]}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
@@ -87,7 +88,7 @@ const DAppConnectBody: FC<{
               fontSize={20 * responsiveSizeMultiplier}
               weight="semiBold"
               color={theme.errorDecorative}
-              style={[{ lineHeight: 26 * responsiveSizeMultiplier }, spacings.mbTy]}
+              style={[{ lineHeight: 18 * responsiveSizeMultiplier }, spacings.mbTy]}
             >
               {t('Potential danger!')}
             </Text>
@@ -98,7 +99,7 @@ const DAppConnectBody: FC<{
                 style={{ lineHeight: 18 * responsiveSizeMultiplier }}
               >
                 {
-                  "This website didn't pass our safety checks. It might trick you into signing malicious transactions, asking you to reveal sensitive information, or be dangerous otherwise. If you believe we have blocked it in error, please "
+                  "This website didn't pass our safety checks and is blacklisted. It might trick you into signing malicious transactions, asking you to reveal sensitive information, or be dangerous otherwise. If you believe we have blocked it in error, please "
                 }
                 <Text
                   fontSize={14 * responsiveSizeMultiplier}
@@ -116,7 +117,7 @@ const DAppConnectBody: FC<{
       </View>
       <DAppPermissions responsiveSizeMultiplier={responsiveSizeMultiplier} />
       {securityCheck === 'BLACKLISTED' ? (
-        <Alert type="warning" withIcon={false}>
+        <Alert type="warning" size="sm" withIcon={false}>
           <Checkbox
             value={confirmedRiskCheckbox}
             style={{ ...spacings.mb0 }}
@@ -128,6 +129,7 @@ const DAppConnectBody: FC<{
               fontSize={16 * responsiveSizeMultiplier}
               appearance="errorText"
               weight="semiBold"
+              style={{ lineHeight: 20 }}
               onPress={handleRiskCheckboxPress}
             >
               {t('I have read and understood the risks')}
