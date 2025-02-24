@@ -69,7 +69,7 @@ const ActionModal: FC<ActionModalProps> = ({
   const cardActionContextValue = useMemo(
     () => ({
       onComplete: onLegendCompleteWrapped,
-      handleClose: () => closeActionModalWrapped,
+      handleClose: closeActionModalWrapped,
       activeStep,
       setActiveStep
     }),
