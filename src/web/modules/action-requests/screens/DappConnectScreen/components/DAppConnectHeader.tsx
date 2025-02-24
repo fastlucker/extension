@@ -117,11 +117,12 @@ const DAppConnectHeader: FC<Props> = ({
             </View>
           )}
         </View>
-        <View>
+        <View style={flexbox.flex1}>
           <Text
-            style={[!minHeightSize('m') && spacings.mbMi, common.fullWidth]}
+            style={[!minHeightSize('m') && spacings.mbMi, flexbox.flex1, { lineHeight: 23 }]}
             fontSize={responsiveSizeMultiplier * 20}
             weight="semiBold"
+            numberOfLines={2}
           >
             {name}
           </Text>
