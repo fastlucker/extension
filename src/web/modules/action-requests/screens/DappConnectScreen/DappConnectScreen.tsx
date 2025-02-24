@@ -106,6 +106,14 @@ const DappConnectScreen = () => {
     return 1
   }, [minHeightSize])
 
+  const resolveButtonText = useMemo(() => {
+    if (securityCheck === 'LOADING') return t('Loading...')
+    if (isAuthorizing) return t('Connecting...')
+    if (securityCheck === 'BLACKLISTED') return t('Continue anyway')
+
+    return t('Connect')
+  }, [isAuthorizing, securityCheck, t])
+
   return (
     <TabLayoutContainer
       width="full"
@@ -114,15 +122,11 @@ const DappConnectScreen = () => {
         <ActionFooter
           onReject={handleDenyButtonPress}
           onResolve={handleAuthorizeButtonPress}
-          resolveButtonText={
-            isAuthorizing
-              ? t('Connecting...')
-              : securityCheck === 'BLACKLISTED'
-              ? t('Continue anyway')
-              : t('Connect')
-          }
+          resolveButtonText={resolveButtonText}
           resolveDisabled={
-            isAuthorizing || (securityCheck === 'BLACKLISTED' && !confirmedRiskCheckbox)
+            isAuthorizing ||
+            securityCheck === 'LOADING' ||
+            (securityCheck === 'BLACKLISTED' && !confirmedRiskCheckbox)
           }
           resolveType={securityCheck === 'BLACKLISTED' ? 'error' : 'primary'}
           rejectButtonText={t('Deny')}
