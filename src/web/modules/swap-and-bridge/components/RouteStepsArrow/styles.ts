@@ -6,6 +6,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
+  arrowSpinnerWrapper: ViewStyle
   arrowStatus: ViewStyle
   arrowLine: ViewStyle
   badgeMiddle: ViewStyle
@@ -21,6 +22,12 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.flex1,
       ...flexbox.directionRow,
       ...flexbox.alignCenter
+    },
+    arrowSpinnerWrapper: {
+      width: 14,
+      height: 14,
+      borderRadius: 50,
+      backgroundColor: theme.primaryBackground
     },
     arrowStatus: {
       width: 14,
