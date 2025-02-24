@@ -57,7 +57,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await checkIfOnDashboardPage(page)
   })
 
-  it.only('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Basic Account', async () => {
+  it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '00.01', true)
   })
@@ -96,7 +96,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
-  it.only('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Basic Account', async () => {
+  it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Basic Account', async () => {
     const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
