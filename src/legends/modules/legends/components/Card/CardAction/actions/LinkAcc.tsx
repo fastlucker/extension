@@ -125,12 +125,14 @@ const LinkAcc = () => {
     if (!v1OrEoaAddress) return
 
     try {
+      if (!connectedAccount) throw new HumanReadableError('No connected account')
+
       setIsInProgress(true)
       const signature = await window.ambire.request({
         method: 'personal_sign',
         params: [`Assign ${v1OrEoaAddress} to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
       })
-      setMessageSignedForV2Account(connectedAccount!)
+      setMessageSignedForV2Account(connectedAccount)
 
       if (typeof signature !== 'string') throw new HumanReadableError('Invalid signature')
 

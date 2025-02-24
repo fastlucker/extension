@@ -201,10 +201,6 @@ type MainControllerResolveAccountOpAction = {
   type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
   params: { data: any; actionId: AccountOpAction['id'] }
 }
-type MainControllerResolveSwitchAccountRequest = {
-  type: 'MAIN_CONTROLLER_RESOLVE_SWITCH_ACCOUNT_REQUEST'
-  params: { actionId: AccountOpAction['id'] }
-}
 type MainControllerRejectAccountOpAction = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
   params: { err: string; actionId: AccountOpAction['id']; shouldOpenNextAction: boolean }
@@ -646,7 +642,6 @@ export type Action =
   | MainControllerRejectSignAccountOpCall
   | MainControllerResolveAccountOpAction
   | MainControllerRejectAccountOpAction
-  | MainControllerResolveSwitchAccountRequest
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerHandleSignMessage
