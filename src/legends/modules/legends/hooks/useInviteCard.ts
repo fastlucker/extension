@@ -21,7 +21,7 @@ const useInviteCard = ({
     setAddress('')
     const checksummedAddress = getAddress(address)
 
-    const provider = new BrowserProvider(window.ethereum)
+    const provider = new BrowserProvider(window.ambire)
     const signer = await provider.getSigner()
 
     // no sponsorship for inviteEOA

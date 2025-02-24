@@ -51,7 +51,6 @@ const SignAccountOpScreen = () => {
   const { isLedgerConnected } = useLedger()
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(false)
-  const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
   const {
     ref: warningAgreementModalRef,
@@ -138,26 +137,6 @@ const SignAccountOpScreen = () => {
       })
     }
   }, [accountOpAction?.id, dispatch])
-
-  // trace the call once gas price and estimation is up
-  // we do this only 1 time when there's no estimation error
-  useEffect(() => {
-    if (
-      accountOpAction?.id &&
-      signAccountOpState &&
-      signAccountOpState.estimation &&
-      hasEstimation && // this includes gas prices as well, we need it
-      !didTraceCall
-    ) {
-      setDidTraceCall(true)
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRACE_CALL',
-        params: {
-          estimation: signAccountOpState.estimation
-        }
-      })
-    }
-  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, dispatch])
 
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)

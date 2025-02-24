@@ -1,5 +1,6 @@
 import { delayPromise } from '@common/utils/promises'
 import { RELAYER_URL } from '@env'
+import HumanReadableError from '@legends/classes/HumanReadableError'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 
 const ENTRY_POINT_BEFORE_EXECUTION_LOG_TOPIC =
@@ -89,7 +90,7 @@ const useErc5792 = () => {
     }
 
     if (Number(receipt.status) === 0)
-      throw new Error(
+      throw new HumanReadableError(
         'The transaction failed and will not grant any XP. Please try signing again.',
         {
           cause: ERRORS.txFailed
@@ -101,7 +102,7 @@ const useErc5792 = () => {
     const is4337 = logs.some((log: any) => log.topics[0] === ENTRY_POINT_BEFORE_EXECUTION_LOG_TOPIC)
 
     if (!is4337 && is4337Required)
-      throw new Error(ERROR_MESSAGES.transactionCostsCoveredWithEOA, {
+      throw new HumanReadableError(ERROR_MESSAGES.transactionCostsCoveredWithEOA, {
         cause: ERRORS.not4337
       })
 

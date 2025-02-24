@@ -17,7 +17,7 @@ import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
-import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
+import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import chainImage from './assets/chain-treasure-chest.png'
 import chestImageOpened from './assets/chest-opened.png'
@@ -74,11 +74,21 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     [legends]
   )
 
-  const isCompleted = treasureLegend?.card.status === CardStatus.completed
+  const isActive = treasureLegend?.card.status === CardStatus.active
 
   const [chestState, setChestState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
-  >(isCompleted ? 'opened' : 'locked')
+  >(isActive ? 'locked' : 'opened')
+
+  useEffect(() => {
+    // In the case we quickly update legends route and switch accounts,
+    // we need to ensure the chestState is in sync with the isActive state
+    // We prevent the caching when isActive is changed, but state is not updated
+    if (isActive && chestState === 'opened') {
+      setChestState('locked')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive])
 
   const buttonLabel = useMemo(() => {
     switch (chestState) {
@@ -110,16 +120,16 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const unlockChest = useCallback(async () => {
     setChestState('unlocking')
-    await switchNetwork()
-
-    const provider = new BrowserProvider(window.ethereum)
-    const signer = await provider.getSigner()
-
-    const formattedCalls = action.calls.map(([to, value, data]) => {
-      return { to, value, data }
-    })
 
     try {
+      await switchNetwork()
+
+      const provider = new BrowserProvider(window.ambire)
+      const signer = await provider.getSigner()
+
+      const formattedCalls = action.calls.map(([to, value, data]) => {
+        return { to, value, data }
+      })
       stopChainAnimation()
 
       const sendCallsIdentifier = await sendCalls(
@@ -163,11 +173,11 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
         await checkStatusWithTimeout(0)
       }
     } catch (e: any) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.transactionProcessingFailed)
       setChestState('locked')
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionProcessingFailed, { type: 'error' })
+      addToast(message, { type: 'error' })
     }
   }, [
     switchNetwork,
@@ -227,17 +237,17 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           <div className={styles.content}>
             {treasureLegend.meta.points.map((point, index) => {
               const streak = treasureLegend.meta.streak % 7
-              const isOpened = isCompleted && chestState === 'opened'
+              const isOpened = !isActive && chestState === 'opened'
 
               const isCurrentDay = isOpened
                 ? streak - 1 === index
-                : isCompleted
+                : !isActive
                 ? streak - 1 === index
                 : streak === index
 
               const isPassedDay = isOpened
                 ? index < streak
-                : isCompleted
+                : !isActive
                 ? index < streak - 1 // Prevent marking next day as passed too soon
                 : index < streak
 

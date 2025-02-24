@@ -4,7 +4,9 @@ import { View } from 'react-native'
 
 import { AMBIRE_V1_QUICK_ACC_MANAGER } from '@ambire-common/consts/addresses'
 import { Account } from '@ambire-common/interfaces/account'
+import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
+import Alert from '@common/components/Alert'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -98,6 +100,15 @@ const AccountKeys: FC<Props> = ({
           )
         })}
       </View>
+      {associatedKeys.length > 1 && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
+        <Alert
+          title={t('Some keys may no longer be signers of this account')}
+          text={t(
+            'The listed keys are based on historical data from the blockchain and may no longer be signers of this account.'
+          )}
+          type="info"
+        />
+      )}
     </>
   )
 }
