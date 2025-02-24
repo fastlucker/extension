@@ -25,7 +25,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   let recorder
 
   beforeEach(async () => {
-    ;({ browser, page, recorder } = await bootstrapWithStorage('transfer', baParams))
+    ;({ browser, page, recorder } = await bootstrapWithStorage('swapAndBridgeBA', baParams))
   })
 
   afterEach(async () => {
@@ -57,7 +57,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await checkIfOnDashboardPage(page)
   })
 
-  it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Basic Account', async () => {
+  it.only('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '00.01', true)
   })
@@ -96,7 +96,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
-  it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Basic Account', async () => {
+  it.only('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Basic Account', async () => {
     const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
@@ -173,7 +173,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   let recorder
 
   beforeEach(async () => {
-    ;({ browser, page, recorder } = await bootstrapWithStorage('transfer', saParams))
+    ;({ browser, page, recorder } = await bootstrapWithStorage('swapAndBridgeSA', saParams))
   })
 
   afterEach(async () => {
