@@ -27,7 +27,9 @@ const getStyles = (theme: ThemeProps) =>
       height: 14,
       borderRadius: 50,
       borderWidth: 1,
-      backgroundColor: theme.primaryBackground
+      backgroundColor: theme.primaryBackground,
+      ...flexbox.alignCenter,
+      ...flexbox.justifyCenter
     },
     arrowLine: {
       width: '100%',
