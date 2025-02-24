@@ -24,6 +24,11 @@
       padding-left: 0.5rem;
       padding-right: 1rem;
 
+      .ensIcon,
+      .udIcon {
+        color: $tertiaryBorder;
+      }
+
       .ensIcon {
         margin-right: 0.5rem;
       }
