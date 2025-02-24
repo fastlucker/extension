@@ -48,9 +48,9 @@ const RouteStepsArrow = ({
             ) : (
               <View style={[styles.arrowStatus, { borderColor: getArrowColor }]}>
                 {isLoading && (
-                  <View style={{ position: 'absolute', top: -1, left: -1 }}>
-                    <Spinner style={{ width: 14, height: 14 }} />
-                  </View>
+                  <Spinner
+                    style={{ width: 14, height: 14, position: 'absolute', top: -1, left: -1 }}
+                  />
                 )}
               </View>
             )}
