@@ -6,8 +6,9 @@ import { Animated, Pressable, View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { GasTankTokenResult } from '@ambire-common/libs/portfolio'
+import { PortfolioGasTankResult } from '@ambire-common/libs/portfolio/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import ReceivingIcon from '@common/assets/svg/ReceivingIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -18,10 +19,12 @@ import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import TokenIcon from '@common/components/TokenIcon'
 import Tooltip from '@common/components/Tooltip'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
@@ -29,6 +32,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import { useCustomHover } from '@web/hooks/useHover'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -60,6 +64,8 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { networks } = useNetworksControllerState()
+
   const [bindAnim, , isHovered] = useCustomHover({
     property: 'borderColor',
     values: {
@@ -78,9 +84,20 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     () => calculateGasTankBalance(portfolio, account, isSA, 'cashback'),
     [account, isSA, portfolio]
   )
-  const gasTankTotalBalanceInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, isSA, 'usd'),
-    [account, isSA, portfolio]
+
+  const gasTankResult = useMemo(
+    () => portfolio?.latest?.gasTank?.result as PortfolioGasTankResult,
+    [portfolio?.latest?.gasTank?.result]
+  )
+
+  const gasTankFeeTokens = isSA && gasTankResult ? gasTankResult.gasTankTokens : []
+
+  const token: GasTankTokenResult | null =
+    isSA && gasTankFeeTokens.length ? gasTankFeeTokens[0] : null
+
+  const balanceFormatted = useMemo(
+    () => (isSA && token ? getAndFormatTokenDetails(token, networks)?.balanceFormatted ?? 0 : 0),
+    [isSA, networks, token]
   )
 
   const [visibleCount, setVisibleCount] = useState(0)
@@ -163,17 +180,27 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
           <View>
             <View style={styles.balancesWrapper}>
               <View style={{ ...flexbox.alignStart }}>
-                <Text
-                  fontSize={12}
-                  appearance="secondaryText"
-                  style={[spacings.pbTy, spacings.plTy]}
-                >
+                <Text fontSize={12} appearance="secondaryText" style={[spacings.pbTy]}>
                   {t('Balance')}
                 </Text>
                 <View style={[flexbox.directionRow, flexbox.alignStart]}>
-                  <GasTankIcon height={40} width={40} />
-                  <Text fontSize={32} weight="number_bold" appearance="primaryText">
-                    {formatDecimals(gasTankTotalBalanceInUsd, 'price')}
+                  <TokenIcon
+                    withContainer
+                    address={token?.address || ''}
+                    networkId={token?.networkId || ''}
+                    onGasTank={token?.flags.onGasTank || false}
+                    containerHeight={40}
+                    containerWidth={40}
+                    width={28}
+                    height={28}
+                  />
+                  <Text
+                    style={[spacings.mlTy]}
+                    fontSize={32}
+                    weight="number_bold"
+                    appearance="primaryText"
+                  >
+                    {`${balanceFormatted} ${token?.symbol || ''}`}
                   </Text>
                 </View>
               </View>

@@ -45,8 +45,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
       ...spacings.pv,
-      ...spacings.plTy,
-      ...spacings.pr,
+      ...spacings.ph,
       backgroundColor: theme.primaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.mbMd
