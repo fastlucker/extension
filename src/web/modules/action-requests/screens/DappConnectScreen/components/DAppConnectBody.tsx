@@ -98,7 +98,7 @@ const DAppConnectBody: FC<{
                 style={{ lineHeight: 18 * responsiveSizeMultiplier }}
               >
                 {
-                  'This website didn’t pass our safety checks. It might trick you into signing malicious transactions, asking you to reveal sensitive information, or be dangerous otherwise. If you believe we have blocked it in error, please '
+                  "This website didn't pass our safety checks. It might trick you into signing malicious transactions, asking you to reveal sensitive information, or be dangerous otherwise. If you believe we have blocked it in error, please "
                 }
                 <Text
                   fontSize={14 * responsiveSizeMultiplier}
