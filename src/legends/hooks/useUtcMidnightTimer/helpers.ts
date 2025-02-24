@@ -34,3 +34,16 @@ export const getMinutesLabel = (remainingTime: number) => {
   // Midnight
   return 'Just a moment'
 }
+
+// Format remaining time (ms) into hours and minutes
+export const getHoursAndMinutesLabel = (remainingTime: number) => {
+  const totalMinutes = Math.floor(remainingTime / (1000 * 60))
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+
+  if (hours > 0) {
+    return `Available in ${hours}h ${minutes}min`
+  }
+
+  return `Available in ${minutes}min`
+}

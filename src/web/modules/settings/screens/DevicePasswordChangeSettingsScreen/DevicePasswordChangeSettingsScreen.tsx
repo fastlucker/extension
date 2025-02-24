@@ -10,6 +10,7 @@ import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useExtraEntropy from '@common/hooks/useExtraEntropy'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -80,11 +81,17 @@ const DevicePasswordChangeSettingsScreen = () => {
     }
   }, [openModal, reset, state.statuses.changeKeystorePassword])
 
+  const { getExtraEntropy } = useExtraEntropy()
+
   const handleChangeKeystorePassword = handleSubmit(
     ({ password, newPassword: newPasswordFieldValue }) =>
       dispatch({
         type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD',
-        params: { secret: password, newSecret: newPasswordFieldValue }
+        params: {
+          secret: password,
+          newSecret: newPasswordFieldValue,
+          extraEntropy: getExtraEntropy()
+        }
       })
   )
 

@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useStandaloneAddressInput from '@common/hooks/useStandaloneAddressInput'
+import HumanReadableError from '@legends/classes/HumanReadableError'
 import AddressInput from '@legends/components/AddressInput'
 import Alert from '@legends/components/Alert'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
@@ -14,7 +15,7 @@ import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
-import { humanizeLegendsBroadcastError } from '@legends/modules/legends/utils/errors/humanizeBroadcastError'
+import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import CardActionWrapper from './CardActionWrapper'
 
@@ -36,7 +37,10 @@ const BUTTON_TEXT: {
 
 const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
-const LinkAcc = () => {
+interface Props {
+  alreadyLinkedAccounts: string[]
+}
+const LinkAcc = ({ alreadyLinkedAccounts = [] }: Props) => {
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const {
@@ -79,8 +83,12 @@ const LinkAcc = () => {
       return 'You cannot tame an account that is not in your wallet.'
     }
 
+    if (alreadyLinkedAccounts.includes(checksummedAddress)) {
+      return 'This account has already been linked'
+    }
+
     return ''
-  }, [allAccounts, connectedAccount, v1OrEoaAddress])
+  }, [allAccounts, connectedAccount, v1OrEoaAddress, alreadyLinkedAccounts])
 
   const { validation } = useAddressInput({
     addressState,
@@ -124,20 +132,22 @@ const LinkAcc = () => {
     if (!v1OrEoaAddress) return
 
     try {
+      if (!connectedAccount) throw new HumanReadableError('No connected account')
+
       setIsInProgress(true)
       const signature = await window.ambire.request({
         method: 'personal_sign',
         params: [`Assign ${v1OrEoaAddress} to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
       })
-      setMessageSignedForV2Account(connectedAccount!)
+      setMessageSignedForV2Account(connectedAccount)
 
-      if (typeof signature !== 'string') throw new Error('Invalid signature')
+      if (typeof signature !== 'string') throw new HumanReadableError('Invalid signature')
 
       setV1OrBasicSignature(signature)
     } catch (e) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.messageSigningFailed)
       console.error(e)
-      addToast(message || ERROR_MESSAGES.messageSigningFailed, { type: 'error' })
+      addToast(message, { type: 'error' })
     } finally {
       setIsInProgress(false)
     }
@@ -145,10 +155,10 @@ const LinkAcc = () => {
 
   const sendV2Transaction = useCallback(async () => {
     try {
-      if (!connectedAccount) throw new Error('No connected account')
+      if (!connectedAccount) throw new HumanReadableError('No connected account')
 
       setIsInProgress(true)
-      const provider = new BrowserProvider(window.ethereum)
+      const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner(connectedAccount)
 
       // no sponsorship for linkAcc
@@ -175,10 +185,10 @@ const LinkAcc = () => {
       onComplete(receipt.transactionHash)
       handleClose()
     } catch (e: any) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.transactionSigningFailed)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
+      addToast(message, { type: 'error' })
 
       setAllowNonV2Connection(false)
     } finally {
