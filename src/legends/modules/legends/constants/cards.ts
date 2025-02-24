@@ -5,7 +5,10 @@ const CARD_PREDEFINED_ID = {
   wheelOfFortune: 'wheelOfFortune',
   staking: 'staking',
   referral: 'referral',
-  chest: 'chest'
+  chest: 'chest',
+  feedback: 'feedback'
 }
 
-export { CARD_PREDEFINED_ID }
+const MAX_INVITATIONS = 2
+
+export { CARD_PREDEFINED_ID, MAX_INVITATIONS }
