@@ -1,6 +1,9 @@
 @import '@legends/styles/base.scss';
 
 .wrapper {
+  .leftLabel {
+    margin-left: auto;
+  }
   .inputWrapper {
     background-color: $tertiaryBackground;
     display: flex;

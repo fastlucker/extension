@@ -9,4 +9,6 @@ const CARD_PREDEFINED_ID = {
   feedback: 'feedback'
 }
 
-export { CARD_PREDEFINED_ID }
+const MAX_INVITATIONS = 2
+
+export { CARD_PREDEFINED_ID, MAX_INVITATIONS }

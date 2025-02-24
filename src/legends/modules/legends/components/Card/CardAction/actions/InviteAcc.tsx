@@ -8,6 +8,7 @@ import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
+import { MAX_INVITATIONS } from '@legends/modules/legends/constants'
 import { useInviteCard } from '@legends/modules/legends/hooks'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
@@ -15,9 +16,23 @@ import CardActionWrapper from './CardActionWrapper'
 
 type Props = {
   buttonText: string
+  alreadyLinkedAccounts: string[]
+  alreadyInvitedAccounts: string[]
+  usedInvitationSlots: number
+  usersInvitationHistory: {
+    invitee: string
+    date: string
+    status: 'pending' | 'expired' | 'accepted'
+  }[]
 }
 
-const InviteAcc: FC<Props> = ({ buttonText }) => {
+const InviteAcc: FC<Props> = ({
+  buttonText,
+  alreadyLinkedAccounts,
+  alreadyInvitedAccounts,
+  usedInvitationSlots,
+  usersInvitationHistory
+}) => {
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
   const { connectedAccount, allAccounts } = useAccountContext()
@@ -33,20 +48,31 @@ const InviteAcc: FC<Props> = ({ buttonText }) => {
   } = useStandaloneAddressInput()
 
   const overwriteErrorMessage = useMemo(() => {
-    let checksummedAddress = ''
+    if (usersInvitationHistory.some(({ invitee }) => invitee === v1OrEoaAddress))
+      return 'You already invited this account once.'
 
-    try {
-      checksummedAddress = getAddress(v1OrEoaAddress)
-    } catch {
-      return '' // There is validation for that in the useAddressInput hook
-    }
-
-    if (checksummedAddress === connectedAccount) {
+    if (v1OrEoaAddress === connectedAccount) {
       return 'You cannot invite your connected account.'
     }
+    if (alreadyLinkedAccounts.includes(v1OrEoaAddress)) {
+      return 'This account has already been linked.'
+    }
+
+    if (alreadyInvitedAccounts.includes(v1OrEoaAddress)) {
+      return 'This account has already been invited.'
+    }
+
+    if (usedInvitationSlots >= MAX_INVITATIONS) return 'No more invitations left'
 
     return ''
-  }, [connectedAccount, v1OrEoaAddress])
+  }, [
+    connectedAccount,
+    v1OrEoaAddress,
+    alreadyInvitedAccounts,
+    alreadyLinkedAccounts,
+    usedInvitationSlots,
+    usersInvitationHistory
+  ])
 
   const overwriteSuccessMessage = useMemo(() => {
     let checksummedAddress = ''
@@ -104,10 +130,12 @@ const InviteAcc: FC<Props> = ({ buttonText }) => {
       onButtonClick={onButtonClick}
     >
       <AddressInput
+        disabled={usedInvitationSlots >= MAX_INVITATIONS}
         addressState={addressState}
         setAddressState={setAddressState}
         validation={validation}
         label="Ambire v1 or Basic Account address"
+        rightLabel={`Left invitations ${MAX_INVITATIONS - usedInvitationSlots}/2`}
       />
     </CardActionWrapper>
   )
