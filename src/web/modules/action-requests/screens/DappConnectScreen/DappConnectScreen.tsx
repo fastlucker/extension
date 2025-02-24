@@ -74,7 +74,7 @@ const DappConnectScreen = () => {
 
     eventBus.addEventListener('receiveOneTimeData', onReceiveOneTimeData)
 
-    return () => eventBus.removeEventListener('addToast', onReceiveOneTimeData)
+    return () => eventBus.removeEventListener('receiveOneTimeData', onReceiveOneTimeData)
   }, [])
 
   const handleDenyButtonPress = useCallback(() => {
