@@ -47,11 +47,7 @@ const RouteStepsArrow = ({
               <CheckIcon width={14} height={14} color={theme.successDecorative} />
             ) : (
               <View style={[styles.arrowStatus, { borderColor: getArrowColor }]}>
-                {isLoading && (
-                  <Spinner
-                    style={{ width: 14, height: 14, position: 'absolute', top: -1, left: -1 }}
-                  />
-                )}
+                {isLoading && <Spinner style={{ width: 14 }} />}
               </View>
             )}
           </View>
