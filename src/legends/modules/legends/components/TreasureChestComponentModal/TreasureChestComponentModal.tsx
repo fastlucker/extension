@@ -81,6 +81,9 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   >(isActive ? 'locked' : 'opened')
 
   useEffect(() => {
+    // In the case we quickly update legends route and switch accounts,
+    // we need to ensure the chestState is in sync with the isActive state
+    // We prevent the caching when isActive is changed, but state is not updated
     if (isActive && chestState === 'opened') {
       setChestState('locked')
     }
