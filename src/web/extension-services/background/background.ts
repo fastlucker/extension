@@ -225,7 +225,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     return fetch(url, initWithCustomHeaders)
   }
 
-  // await handleCleanDappSessions()
+  await handleCleanDappSessions()
 
   mainCtrl = new MainController({
     storage,
