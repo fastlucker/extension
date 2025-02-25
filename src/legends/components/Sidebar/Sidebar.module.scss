@@ -38,17 +38,15 @@
   }
 
   .wheelBanner {
-    margin-bottom: .375rem;
+    margin-bottom: 1.25rem;
   }
 
   .top {
     position: relative;
     .bannerText {
-      font-size: 0.875rem;
+      font-size: .75rem;
       margin-bottom: 0.75rem;
       color: $primaryBackground;
-
-      
     }
     .disabled {
       opacity: 0.5;

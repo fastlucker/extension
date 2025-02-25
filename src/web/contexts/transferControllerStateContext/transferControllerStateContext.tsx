@@ -6,6 +6,7 @@ import { TransferController } from '@ambire-common/controllers/transfer/transfer
 import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { sortPortfolioTokenList } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import Spinner from '@common/components/Spinner'
 import useRoute from '@common/hooks/useRoute'
 import flexbox from '@common/styles/utils/flexbox'
@@ -55,22 +56,24 @@ const TransferControllerStateProvider = ({
 
   const tokens = useMemo(
     () =>
-      portfolio?.tokens.filter((token) => {
-        const hasAmount = Number(getTokenAmount(token)) > 0
+      sortPortfolioTokenList(
+        portfolio?.tokens.filter((token) => {
+          const hasAmount = Number(getTokenAmount(token)) > 0
 
-        if (isTopUp) {
-          const tokenNetwork = networks.find((network) => network.id === token.networkId)
+          if (isTopUp) {
+            const tokenNetwork = networks.find((network) => network.id === token.networkId)
 
-          return (
-            hasAmount &&
-            tokenNetwork?.hasRelayer &&
-            token.flags.canTopUpGasTank &&
-            !token.flags.onGasTank
-          )
-        }
+            return (
+              hasAmount &&
+              tokenNetwork?.hasRelayer &&
+              token.flags.canTopUpGasTank &&
+              !token.flags.onGasTank
+            )
+          }
 
-        return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
-      }) || [],
+          return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
+        }) || []
+      ),
     [portfolio?.tokens, networks, isTopUp]
   )
 

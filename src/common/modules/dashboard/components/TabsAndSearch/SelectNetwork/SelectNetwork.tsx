@@ -1,16 +1,17 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
-import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import { AnimatedPressable, DURATIONS, useMultiHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -18,6 +19,11 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
+
+const maxNetworkNameLengths = {
+  popUp: 11,
+  tab: 8
+} as const
 
 const SelectNetwork = () => {
   const { styles } = useTheme(getStyles)
@@ -27,40 +33,71 @@ const SelectNetwork = () => {
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme()
 
-  const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
-    preset: 'opacity'
+  const [bindNetworkButtonAnim, networkButtonAnimStyle] = useMultiHover({
+    values: [
+      {
+        property: 'backgroundColor',
+        from: theme.secondaryBackground,
+        to: theme.tertiaryBackground,
+        duration: DURATIONS.REGULAR
+      },
+      {
+        property: 'borderColor',
+        from: theme.secondaryBorder,
+        to: theme.tertiaryText,
+        duration: DURATIONS.REGULAR
+      }
+    ]
   })
 
   const filterByNetworkName = useMemo(() => {
     if (!dashboardNetworkFilter) return ''
 
-    if (dashboardNetworkFilter === 'rewards') return 'Ambire Rewards Portfolio'
-    if (dashboardNetworkFilter === 'gasTank') return 'Gas Tank Portfolio'
+    if (dashboardNetworkFilter === 'rewards') return t('Ambire Rewards Portfolio')
+    if (dashboardNetworkFilter === 'gasTank') return t('Gas Tank Portfolio')
 
     const network = networks.find((n) => n.id === dashboardNetworkFilter)
 
-    let networkName = network?.name || 'Unknown Network'
+    let networkName = network?.name ?? t('Unknown Network') ?? 'Unknown Network'
 
-    networkName = `${networkName} Portfolio`
+    const maxNetworkNameLength = maxNetworkNameLengths[isPopup ? 'popUp' : 'tab']
 
-    if (networkName.length > 20 && isPopup) {
-      networkName = `${networkName.slice(0, 20)}...`
+    if (networkName.length > maxNetworkNameLength) {
+      networkName = `${networkName.slice(0, maxNetworkNameLength)}...`
     }
 
+    networkName = `${networkName} ${!isPopup ? t('Portfolio') : ''}`
+
     return networkName
-  }, [dashboardNetworkFilter, networks])
+  }, [dashboardNetworkFilter, networks, t])
 
   return (
-    <View style={[styles.container, flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
+    <View
+      style={[
+        flexbox.directionRow,
+        flexbox.alignCenter,
+        spacings.mrTy,
+        {
+          width: isPopup ? 160 : 190
+        }
+      ]}
+    >
       <AnimatedPressable
         style={[
+          styles.container,
           flexbox.directionRow,
           flexbox.justifySpaceBetween,
           flexbox.alignCenter,
           networkButtonAnimStyle,
           spacings.plTy,
           spacings.prTy,
-          { width: '100%' }
+          {
+            ...(dashboardNetworkFilter && {
+              color: theme.primaryText,
+              borderColor: theme.primary,
+              backgroundColor: theme.infoBackground
+            })
+          }
         ]}
         onPress={() => {
           navigate(WEB_ROUTES.networks, {
@@ -74,13 +111,13 @@ const SelectNetwork = () => {
       >
         {dashboardNetworkFilter ? (
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <FilterIcon width={12} height={12} />
-            <Text fontSize={12}>{filterByNetworkName}</Text>
+            <FilterIcon color={iconColors.dark} style={spacings.prTy} width={14} height={14} />
+            <Text fontSize={14}>{filterByNetworkName}</Text>
           </View>
         ) : (
           <Text fontSize={14}>{t('All Networks')}</Text>
         )}
-        <DownArrowIcon color={theme.primaryText} width={12} height={6.5} />
+        <RightArrowIcon height={12} color={iconColors.dark} />
       </AnimatedPressable>
     </View>
   )

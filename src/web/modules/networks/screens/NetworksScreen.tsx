@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { Network } from '@ambire-common/interfaces/network'
 import AddIcon from '@common/assets/svg/AddIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -23,13 +24,16 @@ import Networks from '@web/modules/networks/components/Networks'
 
 import AddNetworkBottomSheet from '../components/AddNetworkBottomSheet'
 import AllNetworksOption from '../components/AllNetworksOption/AllNetworksOption'
-import NetworkBottomSheet from '../components/NetworkBottomSheet'
+import NetworkBottomSheet, {
+  NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP
+} from '../components/NetworkBottomSheet'
 
 const NetworksScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { theme } = useTheme()
-  const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
+  const { account } = useSelectedAccountControllerState()
+  const [settingsNetworkId, setSettingsNetworkId] = useState<Network['id'] | null>(null)
   const {
     ref: settingsBottomSheetRef,
     open: openSettingsBottomSheet,
@@ -42,14 +46,27 @@ const NetworksScreen = () => {
   } = useModalize()
   const [search, setSearch] = useState('')
 
-  const openAddNetworkBottomSheetWrapped = () => {
+  const handleOpenSettingsBottomSheet = useCallback(
+    (networkId: string) => {
+      setSettingsNetworkId(networkId)
+      openSettingsBottomSheet()
+    },
+    [openSettingsBottomSheet]
+  )
+
+  const handleCloseSettingsBottomSheet = useCallback(() => {
+    setSettingsNetworkId(null)
+    closeSettingsBottomSheet()
+  }, [closeSettingsBottomSheet])
+
+  const handleOpenAddNetworkBottomSheet = useCallback(() => {
     openAddNetworkBottomSheet()
-  }
+  }, [openAddNetworkBottomSheet])
 
   const openBlockExplorer = useCallback(
     async (url?: string) => {
       if (!url) {
-        addToast(t('No block explorer available for this network'), {
+        addToast(NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP, {
           type: 'info'
         })
         return
@@ -68,7 +85,7 @@ const NetworksScreen = () => {
 
   return (
     <TabLayoutContainer
-      header={<Header customTitle="Networks" withPopupBackButton withAmbireLogo />}
+      header={<Header customTitle="Networks" withAmbireLogo />}
       footer={<BackButton />}
       width="lg"
       hideFooterInPopup
@@ -76,8 +93,9 @@ const NetworksScreen = () => {
       <View style={[flexbox.flex1, spacings.pb]}>
         <TabLayoutWrapperMainContent>
           <NetworkBottomSheet
+            networkId={settingsNetworkId}
             sheetRef={settingsBottomSheetRef}
-            closeBottomSheet={closeSettingsBottomSheet}
+            closeBottomSheet={handleCloseSettingsBottomSheet}
             openBlockExplorer={openBlockExplorer}
           />
           <AddNetworkBottomSheet
@@ -95,7 +113,7 @@ const NetworksScreen = () => {
           <Networks
             search={search}
             openBlockExplorer={openBlockExplorer}
-            openSettingsBottomSheet={openSettingsBottomSheet as any}
+            openSettingsBottomSheet={handleOpenSettingsBottomSheet}
           />
         </TabLayoutWrapperMainContent>
         <View style={[spacings.ptSm, { width: '100%' }]}>
@@ -105,7 +123,7 @@ const NetworksScreen = () => {
             hasBottomSpacing={false}
             style={{ maxWidth: tabLayoutWidths.lg, ...flexbox.alignSelfCenter, width: '100%' }}
             childrenPosition="left"
-            onPress={openAddNetworkBottomSheetWrapped}
+            onPress={handleOpenAddNetworkBottomSheet}
           >
             <AddIcon color={theme.primary} style={spacings.mrTy} />
           </Button>

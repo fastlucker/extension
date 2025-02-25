@@ -18,7 +18,7 @@ const TermsSettingsScreen = () => {
   return (
     <>
       <View style={spacings.mb}>
-        <HeaderBackButton forceBack onGoBackPress={goBack} />
+        <HeaderBackButton displayIn="always" forceBack onGoBackPress={goBack} />
       </View>
       <SettingsPageHeader title="Terms of Service" />
       <TermsComponent />

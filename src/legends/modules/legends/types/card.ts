@@ -63,7 +63,6 @@ export interface CardXp {
 export interface CardFromResponse {
   id: string
   title: string
-  description: string
   flavor: string
   xp: CardXp[]
   action: CardAction
@@ -81,6 +80,14 @@ export interface CardFromResponse {
     streak?: number
     points?: number[]
     expiresOrResetsAt?: string
+    alreadyLinkedAccounts?: string[]
+    alreadyInvitedAccounts?: string[]
+    usersInvitationHistory?: {
+      invitee: string
+      date: string
+      status: 'pending' | 'expired' | 'accepted'
+    }[]
+    usedInvitationSlots?: number
   }
   contentSteps?: string[]
   contentImage?: string

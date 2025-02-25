@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { ethers, hexlify, Interface, randomBytes } from 'ethers'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
@@ -10,15 +10,14 @@ import CloseIcon from '@legends/components/CloseIcon'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { BASE_CHAIN_ID } from '@legends/constants/networks'
-import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
-import { ActivityTransaction, LegendActivity } from '@legends/contexts/activityContext/types'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
+import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 
-import { humanizeLegendsBroadcastError } from '../../utils/errors/humanizeBroadcastError'
+import { humanizeError } from '../../utils/errors/humanizeError'
 import chainImage from './assets/chain.png'
 import mainImage from './assets/main.png'
 import pointerImage from './assets/pointer.png'
@@ -58,50 +57,26 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
     if (chainRef.current) chainRef.current.classList.add(styles.unlocked)
   }, [])
 
-  const checkTransactionStatus = useCallback(async () => {
-    try {
-      const response = await getRecentActivity(connectedAccount!)
-      const today = new Date().toISOString().split('T')[0]
-
-      const transaction: ActivityTransaction | undefined = response?.transactions.find(
-        (txn: ActivityTransaction) =>
-          txn.submittedAt.startsWith(today) &&
-          txn.legends.activities &&
-          txn.legends.activities.some((activity: LegendActivity) =>
-            activity.action.startsWith('WheelOfFortune')
-          )
-      )
-
-      if (!transaction) return false
-      const spinWheelActivity = transaction.legends.activities.find((activity: any) => {
-        return activity.action.includes('WheelOfFortune')
-      })
-
-      if (!spinWheelActivity) return false
-
+  const setWheelToUnlocked = useCallback(
+    (receivedXp?: number | null) => {
       unlockChainAnimation()
-      setPrizeNumber(spinWheelActivity.xp)
+      receivedXp && setPrizeNumber(receivedXp)
       setWheelState('unlocked')
-      // Don't await this, we don't want to block the UI
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      return true
-    } catch (error) {
-      console.error('Error fetching transaction status:', error)
-      return false
-    }
-  }, [connectedAccount, unlockChainAnimation])
+    },
+    [unlockChainAnimation]
+  )
 
   const unlockWheel = useCallback(async () => {
-    // Switch to Base chain
-    await window.ambire.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: BASE_CHAIN_ID }]
-    })
-
-    const provider = new ethers.BrowserProvider(window.ambire)
-    const signer = await provider.getSigner()
-
     try {
+      // Switch to Base chain
+      await window.ambire.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: BASE_CHAIN_ID }]
+      })
+
+      const provider = new ethers.BrowserProvider(window.ambire)
+      const signer = await provider.getSigner()
+
       stopSpinnerTeaseAnimation()
       setWheelState('unlocking')
       const randomValueBytes = randomBytes(32)
@@ -119,7 +94,11 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
       await getCallsStatus(callsId)
 
-      const transactionFound = await checkTransactionStatus()
+      const transactionFound = await checkTransactionStatus(
+        connectedAccount,
+        'WheelOfFortune',
+        setWheelToUnlocked
+      )
       if (!transactionFound) {
         const checkStatusWithTimeout = async (attempts: number) => {
           if (attempts >= 10) {
@@ -131,7 +110,11 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
             setWheelState('error')
             return
           }
-          const found = await checkTransactionStatus()
+          const found = await checkTransactionStatus(
+            connectedAccount,
+            'WheelOfFortune',
+            setWheelToUnlocked
+          )
 
           if (!found) {
             setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
@@ -141,13 +124,20 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
         await checkStatusWithTimeout(0)
       }
     } catch (e) {
-      const message = humanizeLegendsBroadcastError(e)
+      const message = humanizeError(e, ERROR_MESSAGES.transactionSigningFailed)
 
       console.error(e)
-      addToast(message || ERROR_MESSAGES.transactionSigningFailed, { type: 'error' })
+      addToast(message, { type: 'error' })
       setWheelState('locked')
     }
-  }, [stopSpinnerTeaseAnimation, checkTransactionStatus, addToast, sendCalls, getCallsStatus])
+  }, [
+    stopSpinnerTeaseAnimation,
+    addToast,
+    sendCalls,
+    getCallsStatus,
+    connectedAccount,
+    setWheelToUnlocked
+  ])
 
   const spinWheel = useCallback(async () => {
     if (!prizeNumber || wheelState !== 'unlocked') return
@@ -192,7 +182,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
     }
   }
 
-  const getButtonLabel = (): string => {
+  const buttonLabel = useMemo((): string => {
     switch (wheelState) {
       case 'unlocking':
         return 'Unlocking...'
@@ -208,7 +198,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
       default:
         return 'Unlock the Wheel'
     }
-  }
+  }, [wheelState, prizeNumber])
 
   if (!isOpen) return null
 
@@ -239,7 +229,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
             }`}
             onClick={onButtonClick}
           >
-            {getButtonLabel()}
+            {buttonLabel}
           </button>
         </div>
       </div>

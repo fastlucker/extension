@@ -60,7 +60,6 @@ const DashboardOverview: FC<Props> = ({
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-  const { networks } = useNetworksControllerState()
   const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
 
@@ -108,11 +107,19 @@ const DashboardOverview: FC<Props> = ({
     height: number
   } | null>(null)
 
+  const onGasTankButtonPositionWrapped = useCallback(
+    (position: { x: number; y: number; width: number; height: number }) => {
+      setButtonPosition(position)
+      onGasTankButtonPosition(position)
+    },
+    [onGasTankButtonPosition]
+  )
+
   useEffect(() => {
     if (buttonPosition) {
-      onGasTankButtonPosition(buttonPosition)
+      onGasTankButtonPositionWrapped(buttonPosition)
     }
-  }, [buttonPosition, onGasTankButtonPosition])
+  }, [buttonPosition, onGasTankButtonPositionWrapped])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -227,11 +234,11 @@ const DashboardOverview: FC<Props> = ({
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                   {!portfolio?.isAllReady && isSA ? (
-                    <SkeletonLoader lowOpacity width={200} height={32} borderRadius={8} />
+                    <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
                   ) : (
                     <GasTankButton
                       onPress={openGasTankModal}
-                      onPosition={setButtonPosition}
+                      onPosition={onGasTankButtonPositionWrapped}
                       portfolio={portfolio}
                       account={account}
                     />

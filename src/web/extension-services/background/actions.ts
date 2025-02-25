@@ -12,6 +12,7 @@ import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
 import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -46,7 +47,12 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: { privKeyOrSeed: string; shouldPersist?: boolean; shouldAddToTemp?: boolean }
+  params: {
+    privKeyOrSeed: string
+    shouldPersist?: boolean
+    shouldAddToTemp?: boolean
+    seedPassphrase?: string | null
+  }
 }
 type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE'
@@ -195,10 +201,6 @@ type MainControllerResolveAccountOpAction = {
   type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
   params: { data: any; actionId: AccountOpAction['id'] }
 }
-type MainControllerResolveSwitchAccountRequest = {
-  type: 'MAIN_CONTROLLER_RESOLVE_SWITCH_ACCOUNT_REQUEST'
-  params: { actionId: AccountOpAction['id'] }
-}
 type MainControllerRejectAccountOpAction = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
   params: { err: string; actionId: AccountOpAction['id']; shouldOpenNextAction: boolean }
@@ -301,10 +303,8 @@ type PortfolioControllerCheckToken = {
 }
 
 type PortfolioControllerUpdateConfettiToShown = {
-  type: 'PORTFOLIO_CONTROLLER_UPDATE_CASHBACK_STATUS_BY_ACCOUNT'
-  params: {
-    accountAddr: Account['addr']
-  }
+  type: 'SELECTED_ACCOUNT_CONTROLLER_UPDATE_CASHBACK_STATUS'
+  params: CashbackStatus
 }
 
 type MainControllerSignAccountOpInitAction = {
@@ -369,11 +369,11 @@ type KeystoreControllerResetErrorStateAction = {
 }
 type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
-  params: { secret: string; newSecret: string }
+  params: { secret: string; newSecret: string; extraEntropy: string }
 }
 type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
-  params: { newSecret: string }
+  params: { newSecret: string; extraEntropy: string }
 }
 type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
@@ -642,7 +642,6 @@ export type Action =
   | MainControllerRejectSignAccountOpCall
   | MainControllerResolveAccountOpAction
   | MainControllerRejectAccountOpAction
-  | MainControllerResolveSwitchAccountRequest
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerHandleSignMessage

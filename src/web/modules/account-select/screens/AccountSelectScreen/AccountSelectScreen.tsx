@@ -27,15 +27,15 @@ import AddAccount from '@web/modules/account-select/components/AddAccount'
 
 import getStyles from './styles'
 
-const getInfoFromSearch = (search: string | undefined): boolean | null => {
+const extractTriggerAddAccountSheetParam = (search: string | undefined): boolean | null => {
   if (!search) return null
 
   const params = new URLSearchParams(search)
-  const addAccount = params.get('addAccount')
+  const addAccount = params.get('triggerAddAccountBottomSheet')
 
   // Remove the addAccount parameter
   if (addAccount) {
-    params.delete('addAccount')
+    params.delete('triggerAddAccountBottomSheet')
     const updatedSearch = params.toString()
 
     // Updated URL back into the app, handle it here.
@@ -58,7 +58,7 @@ const AccountSelectScreen = () => {
     getItemLayout,
     isReadyToScrollToSelectedAccount
   } = useAccountsList({ flatlistRef })
-  const { search } = useRoute()
+  const { search: routeParams } = useRoute()
   const { navigate } = useNavigation()
   const { account } = useSelectedAccountControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -66,13 +66,19 @@ const AccountSelectScreen = () => {
   const accountsContainerRef = useRef(null)
   const [pendingToBeSetSelectedAccount, setPendingToBeSetSelectedAccount] = useState('')
 
-  const shouldAddAccount = useMemo(() => getInfoFromSearch(search), [search])
+  const shouldTriggerAddAccountSheetFromSearch = useMemo(
+    () => extractTriggerAddAccountSheetParam(routeParams),
+    [routeParams]
+  )
 
   useEffect(() => {
-    if (shouldAddAccount) {
-      setTimeout(() => openBottomSheet(), 100)
-    }
-  }, [openBottomSheet, shouldAddAccount])
+    if (!shouldTriggerAddAccountSheetFromSearch) return
+
+    // Added a 100ms in order to open the bottom sheet.
+    const timeoutId = setTimeout(() => openBottomSheet(), 100)
+
+    return () => clearTimeout(timeoutId)
+  }, [openBottomSheet, shouldTriggerAddAccountSheetFromSearch])
 
   const onAccountSelect = useCallback(
     (addr: AccountType['addr']) => setPendingToBeSetSelectedAccount(addr),
@@ -95,7 +101,7 @@ const AccountSelectScreen = () => {
 
   return !pendingToBeSetSelectedAccount ? (
     <TabLayoutContainer
-      header={<Header withPopupBackButton withAmbireLogo />}
+      header={<Header withAmbireLogo />}
       footer={<BackButton />}
       width="lg"
       hideFooterInPopup

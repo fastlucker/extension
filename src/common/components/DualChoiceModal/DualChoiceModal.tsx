@@ -43,7 +43,7 @@ const DualChoiceModal: FC<Props> = ({
   return (
     <View>
       <View style={styles.modalHeader}>
-        <Text weight="medium" fontSize={20} numberOfLines={1}>
+        <Text weight="medium" fontSize={20}>
           {title}
         </Text>
         {!!onCloseIconPress && (

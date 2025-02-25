@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - legends-staging
-  pull_request:
-    branches:
-      - legends-staging
 permissions:
   contents: write
 jobs:

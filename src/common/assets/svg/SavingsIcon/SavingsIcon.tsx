@@ -9,8 +9,8 @@ interface Props extends SvgProps {
 }
 
 const SavingsIcon: React.FC<Props> = ({ width = 24, height = 24, fillColor = '#018649' }) => (
-  <Svg id="save_icon" data-name="save icon" width={width} height={height} viewBox="0 0 32 32">
-    <Circle cx="16" cy="16" fill={fillColor} r="16" data-name="Ellipse 410" />
+  <Svg id="save_icon" width={width} height={height} viewBox="0 0 32 32">
+    <Circle cx="16" cy="16" fill={fillColor} r="16" />
     <G fill="none" stroke="#fff" strokeLinecap="round" strokeWidth="1.5">
       <Path d="M15.002 19.289v1.624a2.691 2.691 0 01-2.856 2.488 2.7 2.7 0 01-2.866-2.488v-1.624a2.593 2.593 0 002.864 2.352 2.6 2.6 0 002.858-2.352z" />
       <Path d="M15 17.088a2.1 2.1 0 01-.3 1.088 2.94 2.94 0 01-2.56 1.264 2.958 2.958 0 01-2.56-1.264 2.1 2.1 0 01-.3-1.088 2.324 2.324 0 01.832-1.752 3.053 3.053 0 012.024-.728 3.1 3.1 0 012.024.728 2.275 2.275 0 01.84 1.752z" />

@@ -41,7 +41,7 @@ export const TEST_IDS = {
   pinExtensionCloseBtn: 'pin-extension-close-btn',
   accountSelectBtn: 'account-select-btn',
   selectSeedPhraseLength: 'select-seed-phrase-length',
-  option24WordsSeedPhrase: 'option-24-word-seed-phrase',
+  option24WordsSeedPhrase: 'option-i-have-24-word-phrase',
   selectChangeHdPath: 'select-change-hd-path',
   optionBip44LedgerLive: 'option-bip44-ledger-live',
   importExistingWallet: 'import-existing-wallet',

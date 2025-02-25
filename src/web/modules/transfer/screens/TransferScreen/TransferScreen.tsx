@@ -59,7 +59,7 @@ const TransferScreen = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-  const { account } = useSelectedAccountControllerState()
+  const { account, portfolio } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const {
@@ -76,10 +76,20 @@ const TransferScreen = () => {
   )
 
   const transactionUserRequests = useMemo(() => {
-    return userRequests.filter(
-      (r) => r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
-    )
-  }, [account, userRequests])
+    return userRequests.filter((r) => {
+      if (!state.amount || !state.selectedToken) return true
+
+      const isSelectedAccountAccountOp =
+        r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
+      const isMatchingSelectedTokenNetwork = r.meta.networkId === state.selectedToken?.networkId
+
+      return isSelectedAccountAccountOp && isMatchingSelectedTokenNetwork
+    })
+  }, [account?.addr, state.amount, state.selectedToken, userRequests])
+
+  const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
+    return portfolio.totalBalance >= 10
+  }, [portfolio.totalBalance])
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -360,10 +370,17 @@ const TransferScreen = () => {
               </View>
             )}
             {isTopUp && isSmartAccount && (
-              <View style={spacings.ptSm}>
+              <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
-                  title={<Trans>Gas Tank deposits cannot be withdrawn.</Trans>}
+                  title={t('Gas Tank deposits cannot be withdrawn')}
+                  text={
+                    !doesUserMeetMinimumBalanceForGasTank
+                      ? t(
+                          'Note: A minimum overall balance of $10 is required to pay for gas via the Gas Tank'
+                        )
+                      : false
+                  }
                   isTypeLabelHidden
                 />
               </View>

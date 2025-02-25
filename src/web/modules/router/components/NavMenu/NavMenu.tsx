@@ -1,20 +1,23 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, ScrollView, View } from 'react-native'
+import { Animated, Pressable, ScrollView, View } from 'react-native'
 
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
 import LockFilledIcon from '@common/assets/svg/LockFilledIcon'
+import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import TelegramIcon from '@common/assets/svg/TelegramIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import HeaderBackButton from '@common/modules/header/components/HeaderBackButton'
-import spacings from '@common/styles/spacings'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import spacings, { SPACING_TY } from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -25,9 +28,10 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { DISCORD_URL, TELEGRAM_URL, TWITTER_URL } from '@web/constants/social'
 import { getAutoLockLabel } from '@web/extension-services/background/controllers/auto-lock'
-import { createTab } from '@web/extension-services/background/webapi/tab'
+import { createTab, openInTab } from '@web/extension-services/background/webapi/tab'
 import useAutoLockStateController from '@web/hooks/useAutoLockStateController'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useHover from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import SettingsLink from '@web/modules/settings/components/SettingsLink'
 import { SETTINGS_LINKS } from '@web/modules/settings/components/Sidebar/Sidebar'
@@ -42,7 +46,8 @@ export const SOCIAL = [
   { Icon: DiscordIcon, url: DISCORD_URL, label: 'Discord' }
 ]
 
-const { isTab } = getUiType()
+const { isTab, isPopup } = getUiType()
+const expandViewTooltipId = 'expand-view-tooltip'
 
 const NavMenu = () => {
   const { t } = useTranslation()
@@ -64,6 +69,8 @@ const NavMenu = () => {
     }
   }, [navigate])
 
+  const [bindMaximizeAnim, maximizeAnimStyle] = useHover({ preset: 'opacity' })
+
   return (
     <TabLayoutContainer
       hideFooterInPopup
@@ -71,7 +78,7 @@ const NavMenu = () => {
       footer={<BackButton />}
       footerStyle={{ maxWidth: tabLayoutWidths.xl }}
       header={
-        <Header withPopupBackButton mode="custom">
+        <Header mode="custom">
           <View style={[headerStyles.widthContainer, { maxWidth: tabLayoutWidths.xl }]}>
             <View style={[headerStyles.sideContainer, { width: 180 }]}>
               <HeaderBackButton />
@@ -117,13 +124,37 @@ const NavMenu = () => {
       <View style={[flexbox.flex1]}>
         <View style={[commonWebStyles.contentContainer, flexbox.flex1, spacings.pt]}>
           <View style={[spacings.ph, flexbox.flex1]}>
-            <Text
-              fontSize={20}
-              weight="medium"
-              style={[SETTINGS_LINKS.length > 8 ? spacings.mbSm : spacings.mb, spacings.pl]}
-            >
-              {t('Settings')}
-            </Text>
+            <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
+              <Text
+                fontSize={20}
+                weight="medium"
+                style={[SETTINGS_LINKS.length > 8 ? spacings.mbSm : spacings.mb, spacings.pl]}
+              >
+                {t('Settings')}
+              </Text>
+              <View>
+                {isPopup && (
+                  <>
+                    <Pressable
+                      onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}
+                      {...bindMaximizeAnim}
+                    >
+                      <Animated.View style={maximizeAnimStyle}>
+                        <MaximizeIcon
+                          color={theme.primaryText}
+                          // @ts-ignore missing type, but the prop is valid
+                          dataSet={{ tooltipId: expandViewTooltipId }}
+                          style={styles.maximizeButton}
+                          width={16}
+                          height={16}
+                        />
+                      </Animated.View>
+                    </Pressable>
+                    <Tooltip content={t('Expand view')} id={expandViewTooltipId} />
+                  </>
+                )}
+              </View>
+            </View>
             <ScrollView style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
               <View style={[flexbox.directionRow, flexbox.wrap, flexbox.alignStart]}>
                 {SETTINGS_LINKS.map((link, i) => (

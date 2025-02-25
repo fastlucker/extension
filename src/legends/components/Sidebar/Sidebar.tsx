@@ -19,6 +19,7 @@ import WheelComponent from '@legends/modules/legends/components/WheelComponentMo
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import chestBackgroundImage from './assets/chest-background.png'
+import streakBanner from './assets/streak-banner.png'
 import wheelBackgroundImage from './assets/wheel-background.png'
 import DailyQuestBanner from './components/DailyQuestBanner'
 import Link from './components/Link'
@@ -47,12 +48,17 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { addToast } = useToast()
   const { pathname } = useLocation()
   const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const { wheelSpinOfTheDay, treasureChestOpenedForToday, legends, isLoading } = useLegendsContext()
+  const {
+    wheelSpinOfTheDay,
+    treasureChestStreak,
+    treasureChestOpenedForToday,
+    legends,
+    isLoading
+  } = useLegendsContext()
   const [isTreasureChestModalOpen, setIsTreasureChestModalOpen] = useState(false)
   const containerRef = useRef(null)
-  const legendLeader = legends.find((legend) => legend.title === 'Leader')
+  const legendLeader = legends.find((legend) => legend.id === 'referral')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
-  const isChestOpenedForToday = treasureChestOpenedForToday
   const { startPolling, stopPolling } = useDataPollingContext()
 
   const handleWheelOpen = () => {
@@ -93,7 +99,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
   const wheelText = useMemo(() => {
     if (isLoading) return <span className={styles.wheelText}>Loading...</span>
-    if (wheelSpinOfTheDay) return <MidnightTimer type="minutes" className={styles.bannerText} />
+    if (wheelSpinOfTheDay) return <MidnightTimer type="hoursAndMinutes" className={styles.bannerText} />
 
     return <span className={styles.bannerText}>Available Now</span>
   }, [isLoading, wheelSpinOfTheDay])
@@ -101,7 +107,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const chestText = useMemo(() => {
     if (isLoading) return <span className={styles.bannerText}>Loading...</span>
     if (treasureChestOpenedForToday)
-      return <MidnightTimer type="minutes" className={styles.bannerText} />
+      return <MidnightTimer type="hoursAndMinutes" className={styles.bannerText} />
 
     return <span className={styles.bannerText}>Available Now</span>
   }, [isLoading, treasureChestOpenedForToday])
@@ -132,6 +138,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           text={chestText}
           handleClick={handleTreasureOpen}
           buttonText="Open Now"
+          reversed
+          streakBanner={streakBanner}
+          streakNumber={treasureChestStreak}
         />
 
         <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />

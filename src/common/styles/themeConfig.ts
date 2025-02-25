@@ -156,7 +156,9 @@ export const iconColors = {
   favorite: '#ffbc00',
   dark: '#141833',
   black: '#000',
-  white: '#fff'
+  white: '#fff',
+  success: '#006D3F',
+  primary2: '#6000FF'
 }
 
 export const lightOnlyRoutesOnMobile = []

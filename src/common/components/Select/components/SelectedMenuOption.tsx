@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -35,15 +35,24 @@ const SelectedMenuOption: FC<SelectedMenuOptionProps> = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
 
+  // We cannot use the disabled prop directly on the Pressable component
+  // because it doesn't allow us to use Tooltips or other hoverable elements
+  // inside of disabled components.
+  const onPressWrapped = useCallback(() => {
+    if (disabled) return
+
+    toggleMenu()
+  }, [disabled, toggleMenu])
+
   return (
     <Pressable
-      disabled={disabled}
       style={[
         styles.selectBorderWrapper,
-        disabled && { opacity: 0.6 },
+        // @ts-ignore
+        disabled && { opacity: 0.6, cursor: 'default' },
         isMenuOpen && { borderColor: theme.infoBackground }
       ]}
-      onPress={toggleMenu}
+      onPress={onPressWrapped}
     >
       <View
         ref={selectRef}

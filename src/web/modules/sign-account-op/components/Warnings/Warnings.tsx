@@ -62,20 +62,22 @@ const Warnings: FC<Props> = ({
       {!signAccountOpState?.errors.length &&
         signAccountOpState.isInitialized &&
         warnings &&
-        warnings.map((warning, index) => {
-          const isLast = warnings.length - 1 === index
-          const isSingle = warnings.length === 1
+        warnings
+          .filter(({ id }) => id !== 'feeTokenPriceUnavailable')
+          .map((warning, index) => {
+            const isLast = warnings.length - 1 === index
+            const isSingle = warnings.length === 1
 
-          return (
-            <Alert
-              key={warning.id}
-              type="warning"
-              text={warning.text}
-              title={warning.title}
-              style={!isSingle && !isLast ? spacings.mbSm : {}}
-            />
-          )
-        })}
+            return (
+              <Alert
+                key={warning.id}
+                type="warning"
+                text={warning.text}
+                title={warning.title}
+                style={!isSingle && !isLast ? spacings.mbSm : {}}
+              />
+            )
+          })}
 
       {!!hasEstimation && bundlerFailure && (
         <View style={spacings.ptTy}>
