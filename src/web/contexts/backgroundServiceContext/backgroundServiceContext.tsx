@@ -11,11 +11,16 @@ import {
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
 import { Action } from '@web/extension-services/background/actions'
+import { controllersMapping } from '@web/extension-services/background/types'
+import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import eventBus from '@web/extension-services/event/eventBus'
 import { PortMessenger } from '@web/extension-services/messengers'
 import { getUiType } from '@web/utils/uiType'
 
 let dispatch: BackgroundServiceContextReturnType['dispatch']
+let pm: PortMessenger
+const actionsBeforeBackgroundReady: Action[] = []
+let backgroundReady: boolean
 
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessenger class to establish a connection between the popup
@@ -25,18 +30,14 @@ let dispatch: BackgroundServiceContextReturnType['dispatch']
 // based on the state of the background process and for sending dApps-initiated
 // actions to the background for further processing.
 if (isExtension) {
-  const pm = new PortMessenger()
-  let backgroundReady: boolean = false
-  const actionsBeforeBackgroundReady: Action[] = []
-
-  const isTab = getUiType().isTab
-  const isActionWindow = getUiType().isActionWindow
-
-  let portName = 'popup'
-  if (isTab) portName = 'tab'
-  if (isActionWindow) portName = 'action-window'
-
   const connectPort = () => {
+    pm = new PortMessenger()
+    backgroundReady = false
+
+    let portName = 'popup'
+    if (getUiType().isTab) portName = 'tab'
+    if (getUiType().isActionWindow) portName = 'action-window'
+
     pm.connect(portName)
     // connect to the portMessenger initialized in the background
     // @ts-ignore
@@ -63,7 +64,20 @@ if (isExtension) {
     }, 150)
   }
 
-  connectPort()
+  const connectToBackground = (shouldCloseWindowOnError?: boolean, onConnect?: () => void) => {
+    chrome.runtime.sendMessage({ action: 'wake_up' }, (res) => {
+      if (chrome.runtime.lastError) {
+        shouldCloseWindowOnError && closeCurrentWindow()
+      } else if (res.status === 'awake') {
+        connectPort()
+        !!onConnect && onConnect()
+      } else {
+        shouldCloseWindowOnError && closeCurrentWindow()
+      }
+    })
+  }
+
+  connectToBackground()
 
   const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
 
@@ -74,13 +88,21 @@ if (isExtension) {
     // dispatches from action-window should not be blocked even when unfocused
     // because we can have only one instance of action-window and only one instance for the given action screen
     // (an action screen could not be opened in tab or popup window by design)
-    const shouldBlockDispatch = document.hidden && !isActionWindow
+    const shouldBlockDispatch = document.hidden && !getUiType().isActionWindow
     if (shouldBlockDispatch && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
 
     if (!backgroundReady) {
       actionsBeforeBackgroundReady.push(action)
     } else {
-      pm.send('> background', action)
+      try {
+        pm.send('> background', action)
+      } catch (error) {
+        connectToBackground(true, () => {
+          Object.keys(controllersMapping).forEach((ctrlName: any) => {
+            dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller: ctrlName } })
+          })
+        })
+      }
     }
   }
 }

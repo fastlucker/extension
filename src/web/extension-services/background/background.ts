@@ -225,7 +225,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     return fetch(url, initWithCustomHeaders)
   }
 
-  await handleCleanDappSessions()
+  // await handleCleanDappSessions()
 
   mainCtrl = new MainController({
     storage,
@@ -808,6 +808,10 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       method: 'extensionUpdate',
       params: { errors: extensionUpdateCtrl.emittedErrors, controller: 'extensionUpdate' }
     })
+  })
+
+  chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+    if (message.action === 'wake_up') sendResponse({ status: 'awake' })
   })
 
   // listen for messages from UI
