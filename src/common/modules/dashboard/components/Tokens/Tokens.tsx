@@ -75,6 +75,17 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
 
   const searchValue = watch('search')
 
+  const dashboardNetworkFilterName = useMemo(() => {
+    if (!dashboardNetworkFilter) return null
+
+    if (dashboardNetworkFilter === 'rewards') return t('Rewards')
+    if (dashboardNetworkFilter === 'gasTank') return t('Gas Tank')
+
+    const network = networks.find(({ id }) => id === dashboardNetworkFilter)
+
+    return network?.name || null
+  }, [dashboardNetworkFilter, networks, t])
+
   const tokens = useMemo(
     () =>
       (portfolio?.tokens || [])
@@ -212,12 +223,16 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
         return (
           <View style={[flexbox.alignCenter, spacings.pv]}>
             <Text fontSize={16} weight="medium">
-              {!searchValue && !dashboardNetworkFilter && t("You don't have any tokens yet.")}
-              {!searchValue && dashboardNetworkFilter && t('No tokens found on this network.')}
-              {searchValue && !dashboardNetworkFilter && t(`No tokens match "${searchValue}".`)}
+              {!searchValue && !dashboardNetworkFilterName && t("You don't have any tokens yet.")}
+              {!searchValue &&
+                dashboardNetworkFilterName &&
+                t(`No tokens found on ${dashboardNetworkFilterName}.`)}
               {searchValue &&
-                dashboardNetworkFilter &&
-                t('No matching tokens with the current filters.')}
+                t(
+                  `No tokens match "${searchValue}"${
+                    dashboardNetworkFilterName ? ` on ${dashboardNetworkFilterName}` : ''
+                  }.`
+                )}
             </Text>
           </View>
         )
@@ -303,10 +318,11 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
       sessionId,
       t,
       searchValue,
-      dashboardNetworkFilter,
+      dashboardNetworkFilterName,
       portfolio?.isAllReady,
       sortedTokens.length,
       hiddenTokensCount,
+      dashboardNetworkFilter,
       navigateToAddCustomToken,
       navigate
     ]
