@@ -15,7 +15,6 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import SavingsIcon from '@common/assets/svg/SavingsIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import TupUpWithBgIcon from '@common/assets/svg/TupUpWithBgIcon'
-import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -85,19 +84,19 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     [account, isSA, portfolio]
   )
 
-  const gasTankResult = useMemo(
-    () => portfolio?.latest?.gasTank?.result as PortfolioGasTankResult,
-    [portfolio?.latest?.gasTank?.result]
-  )
+  const token = useMemo(() => {
+    const result = portfolio?.latest?.gasTank?.result as PortfolioGasTankResult
 
-  const gasTankFeeTokens = isSA && gasTankResult ? gasTankResult.gasTankTokens : []
+    if (!isSA || !result) {
+      return null
+    }
 
-  const token: GasTankTokenResult | null =
-    isSA && gasTankFeeTokens.length ? gasTankFeeTokens[0] : null
+    return result.gasTankTokens ? result.gasTankTokens[0] : null
+  }, [isSA, portfolio?.latest?.gasTank?.result])
 
   const balanceFormatted = useMemo(
-    () => (isSA && token ? getAndFormatTokenDetails(token, networks)?.balanceFormatted ?? 0 : 0),
-    [isSA, networks, token]
+    () => (token ? getAndFormatTokenDetails(token, networks)?.balanceFormatted ?? 0 : 0),
+    [networks, token]
   )
 
   const [visibleCount, setVisibleCount] = useState(0)
