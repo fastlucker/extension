@@ -61,7 +61,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '00.01', true)
   })
-  // TODO: It fails now. Deveopers to fix the issue with entering amount starting the point
+  // TODO: It fails now. Deveopers should fix the issue with entering amount starting the point
   it.skip('should accept amount starting with point like ".01" during Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '.01', true)
@@ -122,10 +122,9 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    // TODO: functions should be improved
-    // await switchTokensOnSwapAndBridge(page, 500)
+    await switchTokensOnSwapAndBridge(page, 500)
   })
-  // TODO: functions should be improved
+
   it('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
@@ -133,16 +132,15 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      // TODO: functions should be improved
-      // await switchTokensOnSwapAndBridge(page, 250)
+      await switchTokensOnSwapAndBridge(page, 250)
     }
   })
 
   it.skip('should do MAX token "From" amount during Swap & Bridge with a Basic Account', async () => {
     // TODO: Implement the test
   })
-  // TODO: functions should be improved
-  it.skip('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
+
+  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 1)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', 'optimism', 0.02)
@@ -258,29 +256,27 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
-    await prepareSwapAndBridge(page, null, 'USDC.E', 'optimism', 'DAI')
+    await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    // TODO: functions should be improved
-    // await switchTokensOnSwapAndBridge(page, 500)
+    await switchTokensOnSwapAndBridge(page, 500)
   })
 
   it('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
-    await prepareSwapAndBridge(page, null, 'USDC.E', 'optimism', 'DAI')
+    await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      // TODO: functions should be improved
-      // await switchTokensOnSwapAndBridge(page, 300)
+      await switchTokensOnSwapAndBridge(page, 300)
     }
   })
 
   it.skip('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async () => {
     // TODO: Implement the test
   })
-  // TODO: functions should be improved
-  it.skip('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
+
+  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'USDC.E', 'optimism', 0.34)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', 'optimism', 0.02)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)

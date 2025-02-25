@@ -3,8 +3,8 @@ export const NETWORK_SELECTOR = '[data-tooltip-id^="network-"].css-1rynq56'
 export const ENTER_AMOUNT_SELECTOR = 'input[placeholder="0"]'
 export const SWITCH_TOKENS_TOOLTIP_SELECTOR = '[data-tooltip-id="switch-tokens-condition-tooltip"]'
 export const SWITCH_TOKEN_SELECTOR =
-  "//div[contains(@class, 'r-1awozwy') and contains(@class, 'r-1kihuf0')]//div[@tabindex='0']"
+  '//*[@id="root"]/div/div/div[1]/div/div[2]/div/div/div[2]/div/div/div[2]/div'
 export const SWITCH_USD_SELECTOR =
-  "//div[@tabindex='0' and contains(@class, 'r-1loqt21')]//div[contains(@class, 'css-1rynq56') and string-length(translate(text(), '0123456789', '')) != string-length(text())]"
+  '//*[@id="root"]/div/div/div[1]/div/div[2]/div/div/div[2]/div/div/div[1]/div[2]/div[2]/div[2]/div[1]/div/div[2]'
 export const WARNING_THE_PRICE = 'text=Warning: '
 export const RECIEVE_TOKEN_INPUT = '[placeholder="Token name or address..."]'

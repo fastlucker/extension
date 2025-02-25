@@ -79,7 +79,9 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
   // Extract text content from the elements
   const sendToken = await getElementContentWords(page, SELECTORS.sendTokenSaB)
   const receiveToken = await getElementContentWords(page, SELECTORS.receiveTokenSaB)
-  const network = await getElementContentWords(page, NETWORK_SELECTOR)
+  // TODO: Selector should be created to have data-testid this is not maintainable
+  // const network = await getElementContentWords(page, NETWORK_SELECTOR)
+  const network = await getElementContentWords(page, SELECTORS.recieveNetworkBase)
 
   // Click the switch Tokens button
   await clickSwitchTokensOnSwapAndBridge(page)
@@ -93,15 +95,14 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
 }
 
 async function getUSDTextContent(page) {
+  // TODO: Selector should be created to have data-testid this is not maintainable
   const selector = SWITCH_USD_SELECTOR
   const [element] = await page.$x(selector)
   expect(element).not.toBeNull()
   const content = await element.evaluate((el) => el.textContent.trim())
 
-  // Regex to match amount and currency (last word)
   const match = content.match(/([\d,.]+)\s*([\w.]+)$/)
 
-  // Extract amount and currency
   const amount = match ? match[1] : null
   const currency = match ? match[2] : null
 
