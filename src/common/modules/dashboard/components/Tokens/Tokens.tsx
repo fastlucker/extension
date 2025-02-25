@@ -187,7 +187,6 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
               setOpenTab={setOpenTab}
               searchControl={control}
               sessionId={sessionId}
-              setValue={setValue}
             />
             <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
