@@ -49,7 +49,7 @@ const Feedback = () => {
       if (!surveyCode) throw new Error('No survey code')
       setIsInProgress(true)
       await switchNetwork()
-      const provider = new BrowserProvider(window.ethereum)
+      const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner(connectedAccount)
 
       const useSponsorship = false
