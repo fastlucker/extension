@@ -39,6 +39,7 @@ interface Props {
     [key: string]: boolean
   }
   onScroll: FlatListProps<any>['onScroll']
+  dashboardNetworkFilterName: string | null
 }
 
 // if any of the post amount (during simulation) or the current state
@@ -54,7 +55,14 @@ const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: Network[]) 
 
 const { isPopup } = getUiType()
 
-const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) => {
+const Tokens = ({
+  openTab,
+  setOpenTab,
+  initTab,
+  sessionId,
+  onScroll,
+  dashboardNetworkFilterName
+}: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
@@ -74,17 +82,6 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
   })
 
   const searchValue = watch('search')
-
-  const dashboardNetworkFilterName = useMemo(() => {
-    if (!dashboardNetworkFilter) return null
-
-    if (dashboardNetworkFilter === 'rewards') return t('Rewards')
-    if (dashboardNetworkFilter === 'gasTank') return t('Gas Tank')
-
-    const network = networks.find(({ id }) => id === dashboardNetworkFilter)
-
-    return network?.name || null
-  }, [dashboardNetworkFilter, networks, t])
 
   const tokens = useMemo(
     () =>
