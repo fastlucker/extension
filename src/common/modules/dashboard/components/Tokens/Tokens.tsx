@@ -212,11 +212,12 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
         return (
           <View style={[flexbox.alignCenter, spacings.pv]}>
             <Text fontSize={16} weight="medium">
-              {!searchValue && !dashboardNetworkFilter && t("You don't have any tokens yet")}
-              {!searchValue &&
+              {!searchValue && !dashboardNetworkFilter && t("You don't have any tokens yet.")}
+              {!searchValue && dashboardNetworkFilter && t('No tokens found on this network.')}
+              {searchValue && !dashboardNetworkFilter && t(`No tokens match "${searchValue}".`)}
+              {searchValue &&
                 dashboardNetworkFilter &&
-                t("You don't have any tokens on this network")}
-              {searchValue && t('No tokens found')}
+                t('No matching tokens with the current filters.')}
             </Text>
           </View>
         )
