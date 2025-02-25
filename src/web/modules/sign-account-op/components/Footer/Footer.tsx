@@ -46,6 +46,7 @@ const Footer = ({
           onPress={onReject}
           hasBottomSpacing={false}
           size="large"
+          disabled={isSignLoading}
         >
           <View style={spacings.plSm}>
             <CloseIcon color={theme.errorDecorative} />

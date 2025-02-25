@@ -100,8 +100,8 @@ const ActionModal: FC<ActionModalProps> = ({
           imageAlt={flavor}
           video={contentVideo}
         >
-          {predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />}
-          {predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />}
+          {(predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />) ||
+            (predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />)}
         </HowTo>
       )}
       {!!action && (
