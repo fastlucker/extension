@@ -59,8 +59,7 @@ const GasTankInfoModal = ({
       sheetRef={sheetRef}
       closeBottomSheet={closeBottomSheet}
       backgroundColor="secondaryBackground"
-      // TODO: check styles
-      style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
+      style={{ overflow: 'hidden', maxWidth: 496, ...spacings.ph0, ...spacings.pv0 }}
       type="modal"
     >
       <DualChoiceModal
