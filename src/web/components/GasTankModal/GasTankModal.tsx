@@ -6,27 +6,32 @@ import { Animated, Pressable, View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { GasTankTokenResult } from '@ambire-common/libs/portfolio'
+import { PortfolioGasTankResult } from '@ambire-common/libs/portfolio/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import ReceivingIcon from '@common/assets/svg/ReceivingIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import SavingsIcon from '@common/assets/svg/SavingsIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import TupUpWithBgIcon from '@common/assets/svg/TupUpWithBgIcon'
-import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import TokenIcon from '@common/components/TokenIcon'
+import Tooltip from '@common/components/Tooltip'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import { useCustomHover } from '@web/hooks/useHover'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -58,6 +63,8 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { networks } = useNetworksControllerState()
+
   const [bindAnim, , isHovered] = useCustomHover({
     property: 'borderColor',
     values: {
@@ -76,9 +83,20 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     () => calculateGasTankBalance(portfolio, account, isSA, 'cashback'),
     [account, isSA, portfolio]
   )
-  const gasTankTotalBalanceInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, isSA, 'usd'),
-    [account, isSA, portfolio]
+
+  const token = useMemo(() => {
+    const result = portfolio?.latest?.gasTank?.result as PortfolioGasTankResult
+
+    if (!isSA || !result) {
+      return null
+    }
+
+    return result.gasTankTokens ? result.gasTankTokens[0] : null
+  }, [isSA, portfolio?.latest?.gasTank?.result])
+
+  const balanceFormatted = useMemo(
+    () => (token ? getAndFormatTokenDetails(token, networks)?.balanceFormatted ?? 0 : 0),
+    [networks, token]
   )
 
   const [visibleCount, setVisibleCount] = useState(0)
@@ -155,35 +173,79 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     >
       {isSA ? (
         <View style={styles.content}>
-          <Text fontSize={20} weight="medium">
+          <Text fontSize={20} weight="medium" style={[spacings.mb]}>
             Gas Tank
           </Text>
           <View>
             <View style={styles.balancesWrapper}>
               <View style={{ ...flexbox.alignStart }}>
-                <Text fontSize={12} appearance="secondaryText" style={{ ...spacings.pbTy }}>
-                  {t('Gas Tank Balance')}
+                <Text fontSize={12} appearance="secondaryText" style={[spacings.pbTy]}>
+                  {t('Balance')}
                 </Text>
-                <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
-                  <GasTankIcon height={40} width={40} />
-                  <Text fontSize={32} weight="number_bold" appearance="primaryText">
-                    {formatDecimals(gasTankTotalBalanceInUsd, 'price')}
+                <View style={[flexbox.directionRow, flexbox.alignStart]}>
+                  <TokenIcon
+                    withContainer
+                    address={token?.address || ''}
+                    networkId={token?.networkId || ''}
+                    onGasTank={token?.flags.onGasTank || false}
+                    containerHeight={40}
+                    containerWidth={40}
+                    width={28}
+                    height={28}
+                  />
+                  <Text
+                    style={[spacings.mlTy]}
+                    fontSize={32}
+                    weight="number_bold"
+                    appearance="primaryText"
+                  >
+                    {`${balanceFormatted} ${token?.symbol || ''}`}
                   </Text>
                 </View>
               </View>
               <View style={styles.rightPartWrapper}>
                 <View style={styles.rightPartInnerWrapper}>
-                  <Text fontSize={12} appearance="successText" style={spacings.mrTy}>
-                    {t('Total Saved')}:
-                  </Text>
+                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
+                    <Text fontSize={12} appearance="successText">
+                      {`${t('Total Saved')} `}
+                    </Text>
+                    <InfoIcon
+                      color={iconColors.success}
+                      width={12}
+                      data-tooltip-id="saved-tooltip"
+                    />
+                    <Tooltip
+                      id="saved-tooltip"
+                      content={String(
+                        t(
+                          "The total amount of funds you've saved on gas fees by using the Gas tank."
+                        )
+                      )}
+                    />
+                  </View>
                   <Text fontSize={14} appearance="successText">
                     {formatDecimals(savedInUsd, 'price')}
                   </Text>
                 </View>
                 <View style={styles.rightPartInnerWrapper}>
-                  <Text fontSize={12} appearance="primary" style={spacings.mrTy}>
-                    {t('Total Cashback')}:
-                  </Text>
+                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrTy]}>
+                    <Text fontSize={12} appearance="primary">
+                      {`${t('Total Cashback')} `}
+                    </Text>
+                    <InfoIcon
+                      color={iconColors.primary2}
+                      width={12}
+                      data-tooltip-id="cashback-tooltip"
+                    />
+                    <Tooltip
+                      id="cashback-tooltip"
+                      content={String(
+                        t(
+                          'The total amount returned to your Gas Tank balance based on the difference between estimated and actual gas prices paid.'
+                        )
+                      )}
+                    />
+                  </View>
                   <Text fontSize={14} appearance="primary">
                     {formatDecimals(cashbackInUsd, 'price')}
                   </Text>
@@ -211,7 +273,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
               >
                 <View style={[flexbox.directionRow]}>
                   <InfoIcon width={20} />
-                  <Text style={spacings.mlMd} weight="medium" fontSize={16}>
+                  <Text style={[spacings.mlSm]} weight="medium" fontSize={16}>
                     {t('Learn more about Gas Tank')}
                   </Text>
                 </View>
@@ -276,16 +338,15 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
         </View>
       )}
       <View style={styles.buttonWrapper}>
-        <BackButton onPress={handleClose} />
         <Button
           testID={
             isSA ? 'top-up-gas-tank-modal-button' : 'create-smart-account-gas-tank-modal-button'
           }
           type="primary"
-          text={isSA ? t('Top Up Gas Tank') : t('Ok, create a Smart Account')}
+          text={isSA ? t('Top Up') : t('Ok, create a Smart Account')}
           size="large"
           hasBottomSpacing={false}
-          textStyle={{ ...spacings.prSm }}
+          textStyle={[spacings.prTy]}
           onPress={() =>
             isSA
               ? navigate('top-up-gas-tank')

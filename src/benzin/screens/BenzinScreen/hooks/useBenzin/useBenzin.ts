@@ -146,7 +146,7 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
       addToast('Error opening explorer', { type: 'error' })
     }
     onOpenExplorer && onOpenExplorer()
-  }, [network, userOpHash, stepsState.txnId, onOpenExplorer, addToast])
+  }, [network?.explorerUrl, network?.id, userOpHash, stepsState.txnId, onOpenExplorer, addToast])
 
   const showCopyBtn = useMemo(() => {
     if (!network) return true

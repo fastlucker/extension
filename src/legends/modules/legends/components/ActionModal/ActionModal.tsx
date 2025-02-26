@@ -1,4 +1,4 @@
-import React, { createContext, FC, useContext, useMemo, useState } from 'react'
+import React, { createContext, FC, useCallback, useContext, useMemo, useState } from 'react'
 
 import Modal from '@legends/components/Modal'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
@@ -12,6 +12,7 @@ import { CardFromResponse } from '@legends/modules/legends/types'
 
 import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
+import InviteAccount from './InviteAccount/InviteAccount'
 import Referral from './Referral/Referral'
 
 type CardActionContextType = {
@@ -61,26 +62,31 @@ const ActionModal: FC<ActionModalProps> = ({
 }) => {
   const [activeStep, setActiveStep] = useState<null | number>(null)
 
+  const closeActionModalWrapped = useCallback(() => {
+    closeActionModal()
+    setActiveStep(null)
+  }, [closeActionModal])
+
   const cardActionContextValue = useMemo(
     () => ({
       onComplete: onLegendCompleteWrapped,
-      handleClose: closeActionModal,
+      handleClose: closeActionModalWrapped,
       activeStep,
       setActiveStep
     }),
-    [activeStep, closeActionModal, onLegendCompleteWrapped]
+    [activeStep, closeActionModalWrapped, onLegendCompleteWrapped]
   )
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
-    return <WheelComponentModal isOpen={isOpen} handleClose={closeActionModal} />
+    return <WheelComponentModal isOpen={isOpen} handleClose={closeActionModalWrapped} />
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.chest) {
-    return <TreasureChestComponentModal isOpen={isOpen} handleClose={closeActionModal} />
+    return <TreasureChestComponentModal isOpen={isOpen} handleClose={closeActionModalWrapped} />
   }
 
   return (
-    <Modal isOpen={isOpen} handleClose={closeActionModal} className={styles.modal}>
+    <Modal isOpen={isOpen} handleClose={closeActionModalWrapped} className={styles.modal}>
       <Modal.Heading className={styles.modalHeading}>
         <div className={styles.modalHeadingTitle}>{title}</div>
         {xp && <Rewards xp={xp} size="lg" />}
@@ -94,12 +100,13 @@ const ActionModal: FC<ActionModalProps> = ({
           imageAlt={flavor}
           video={contentVideo}
         >
-          {predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />}
+          {(predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />) ||
+            (predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />)}
         </HowTo>
       )}
       {!!action && (
         <cardActionContext.Provider value={cardActionContextValue}>
-          <CardActionComponent buttonText={buttonText} action={action} />
+          <CardActionComponent meta={meta} buttonText={buttonText} action={action} />
         </cardActionContext.Provider>
       )}
     </Modal>

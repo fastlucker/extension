@@ -14,6 +14,7 @@ import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePhishingControllerState from '@web/hooks/usePhishingControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -49,6 +50,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const activityState = useActivityControllerState()
   const portfolioState = usePortfolioControllerState()
   const emailVaultState = useEmailVaultControllerState()
+  const phishingState = usePhishingControllerState()
   const { state: dappsState } = useDappsControllerState()
   const addressBookState = useAddressBookControllerState()
   const domainsControllerState = useDomainsControllerState()
@@ -105,6 +107,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(emailVaultState).length && !!emailVaultState?.isReady,
     [emailVaultState]
   )
+  const hasPhishingState: boolean = useMemo(
+    () => !!Object.keys(phishingState).length,
+    [phishingState]
+  )
   const hasDappsState: boolean = useMemo(
     () => !!Object.keys(dappsState).length && dappsState.isReady,
     [dappsState]
@@ -152,6 +158,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasPortfolioState &&
       hasActivityState &&
       hasEmailVaultState &&
+      hasPhishingState &&
       hasDappsState &&
       hasDomainsState &&
       hasAddressBookState &&
@@ -179,6 +186,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasPortfolioState,
     hasActivityState,
     hasEmailVaultState,
+    hasPhishingState,
     hasDappsState,
     areControllerStatesLoaded,
     hasDomainsState,

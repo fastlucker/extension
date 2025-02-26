@@ -24,11 +24,19 @@ interface Props {
   initTab?: { [key: string]: boolean }
   sessionId: string
   onScroll: FlatListProps<any>['onScroll']
+  dashboardNetworkFilterName: string | null
 }
 
 const { isPopup } = getUiType()
 
-const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, sessionId, onScroll }) => {
+const DeFiPositions: FC<Props> = ({
+  openTab,
+  setOpenTab,
+  initTab,
+  sessionId,
+  onScroll,
+  dashboardNetworkFilterName
+}) => {
   const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -85,11 +93,18 @@ const DeFiPositions: FC<Props> = ({ openTab, setOpenTab, initTab, sessionId, onS
       if (item === 'empty') {
         return (
           <Text fontSize={16} weight="medium" style={styles.noPositions}>
-            {!searchValue && !dashboardNetworkFilter && t("You don't have any DeFi positions yet")}
             {!searchValue &&
-              dashboardNetworkFilter &&
-              t("You don't have any DeFi positions on this network")}
-            {searchValue && t('No DeFi positions found')}
+              !dashboardNetworkFilterName &&
+              t("You don't have any DeFi positions yet.")}
+            {!searchValue &&
+              dashboardNetworkFilterName &&
+              t(`You don't have any DeFi positions on ${dashboardNetworkFilterName}.`)}
+            {searchValue &&
+              t(
+                `No DeFi positions match "${searchValue}"${
+                  dashboardNetworkFilterName ? ` on ${dashboardNetworkFilterName}` : ''
+                }.`
+              )}
           </Text>
         )
       }

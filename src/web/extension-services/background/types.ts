@@ -4,12 +4,14 @@ import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
 import { DappsController } from '@ambire-common/controllers/dapps/dapps'
+import { DefiPositionsController } from '@ambire-common/controllers/defiPositions/defiPositions'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
 import { EmailVaultController } from '@ambire-common/controllers/emailVault/emailVault'
 import { InviteController } from '@ambire-common/controllers/invite/invite'
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { NetworksController } from '@ambire-common/controllers/networks/networks'
+import { PhishingController } from '@ambire-common/controllers/phishing/phishing'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
@@ -34,12 +36,14 @@ export const controllersNestedInMainMapping = {
   emailVault: EmailVaultController,
   signAccountOp: SignAccountOpController,
   transfer: TransferController,
+  phishing: PhishingController,
   dapps: DappsController,
   actions: ActionsController,
   addressBook: AddressBookController,
   domains: DomainsController,
   invite: InviteController,
-  swapAndBridge: SwapAndBridgeController
+  swapAndBridge: SwapAndBridgeController,
+  defiPositions: DefiPositionsController
 
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller

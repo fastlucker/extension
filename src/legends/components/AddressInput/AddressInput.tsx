@@ -10,14 +10,17 @@ import styles from './AddressInput.module.scss'
 type Props = {
   addressState: AddressState
   setAddressState: React.Dispatch<React.SetStateAction<AddressState>>
+  rightLabel?: string
 } & Omit<InputProps, 'onChange' | 'value'>
 
 const AddressInput: FC<Props> = ({
   label,
+  rightLabel,
   addressState,
   validation,
   infoLabel,
-  setAddressState
+  setAddressState,
+  disabled
 }) => {
   const { fieldValue, ensAddress, udAddress } = addressState
 
@@ -30,17 +33,25 @@ const AddressInput: FC<Props> = ({
 
   return (
     <div className={styles.wrapper}>
-      <Input.Label label={label} />
+      <div style={{ display: 'flex' }}>
+        <Input.Label label={label} />
+        <Input.Label label={rightLabel} className={`${styles.leftLabel}`} />
+      </div>
       <div className={styles.inputWrapper}>
         <Input.Field
           value={fieldValue}
           onChange={onChange}
           placeholder="Address / ENS / UD"
           className={styles.input}
+          disabled={disabled}
         />
         <div className={styles.domainsIcons}>
-          <EnsIcon isActive={!!ensAddress} className={styles.ensIcon} />
-          <UnstoppableDomainIcon isActive={!!udAddress} className={styles.udIcon} />
+          <EnsIcon color="currentColor" isActive={!!ensAddress} className={styles.ensIcon} />
+          <UnstoppableDomainIcon
+            color="currentColor"
+            isActive={!!udAddress}
+            className={styles.udIcon}
+          />
         </div>
       </div>
       <Input.ValidationAndInfo validation={validation} infoLabel={infoLabel} />

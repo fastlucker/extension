@@ -63,7 +63,7 @@ const getStyles = (theme: ThemeProps) =>
       alignItems: 'baseline',
       width: '100%'
     },
-    buttonWrapper: { ...flexbox.directionRow, ...flexbox.justifySpaceBetween, width: '100%' },
+    buttonWrapper: { ...flexbox.directionRow, ...flexbox.alignSelfEnd },
     iconWrapper: {
       ...flexbox.directionRow,
       ...flexbox.justifyCenter,
