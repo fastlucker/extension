@@ -88,6 +88,7 @@ export interface CardFromResponse {
       status: 'pending' | 'expired' | 'accepted'
     }[]
     usedInvitationSlots?: number
+    accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
   }
   contentSteps?: string[]
   contentImage?: string
