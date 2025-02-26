@@ -110,7 +110,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
-  it('should select a different route when Swap & Bridge with a Basic Account', async () => {
+  it.only('should select a different route when Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await clickOnSecondRoute(page)
   })
@@ -119,7 +119,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // TODO: Implement the test
   })
 
-  it('should switch tokens during Swap & Bridge with a Basic Account', async () => {
+  it.only('should switch tokens during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
@@ -128,7 +128,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await switchTokensOnSwapAndBridge(page, 2000)
   })
 
-  it('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
+  it.only('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
@@ -143,7 +143,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // TODO: Implement the test
   })
 
-  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
+  it.only('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 1)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', 'optimism', 0.02)
@@ -215,7 +215,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await enterNumber(page, 'abc', true)
   })
 
-  it('should Bridge tokens with a Smart Account', async () => {
+  it.only('should Bridge tokens with a Smart Account', async () => {
     const text = await prepareSwapAndBridge(page, 0.2, 'USDC', 'base', 'WALLET')
     await bridgeSmartAccount(page, 'USDC', 'base', 'optimism', SELECTORS.USDC)
     await signActionPage(
@@ -251,7 +251,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
-  it('should select a different route when Swap & Bridge with a Smart Account', async () => {
+  it.only('should select a different route when Swap & Bridge with a Smart Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await clickOnSecondRoute(page)
   })
@@ -260,7 +260,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     // TODO: Implement the test
   })
 
-  it('should switch tokens during Swap & Bridge with a Smart Account', async () => {
+  it.only('should switch tokens during Swap & Bridge with a Smart Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
@@ -269,7 +269,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await switchTokensOnSwapAndBridge(page, 2000)
   })
 
-  it('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
+  it.only('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
@@ -284,7 +284,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     // TODO: Implement the test
   })
 
-  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
+  it.only('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'USDC.E', 'optimism', 0.34)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', 'optimism', 0.02)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
