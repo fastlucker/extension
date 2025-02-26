@@ -365,7 +365,7 @@ export async function clickOnSecondRoute(page) {
   if (await page.waitForSelector('text=Select another route', { visible: true })) {
     await selectButton(page, 'Select another route')
     await page.waitForTimeout(1000)
-    // TODO: Developers should make data-testid for this particular locator
+    // TODO: Selector should be created to have data-testid this is not maintainable
     const elements = await page.$$('.css-view-175oi2r')
     await elements[1].click()
     await page.waitForTimeout(1000)
@@ -374,4 +374,13 @@ export async function clickOnSecondRoute(page) {
     await page.waitForSelector('text=No route found!', { visible: true })
     console.error('[ERROR] No route found!')
   }
+}
+
+export async function changeRoutePriorityToFastest(page) {
+  // TODO: Selector should be created to have data-testid this is not maintainable
+  const elements = await page.$$('.css-view-175oi2r')
+  await elements[28].click()
+  await page.waitForTimeout(1000)
+  await selectButton(page, 'Fastest Transfer')
+  await elements[28].click()
 }

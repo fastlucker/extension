@@ -17,7 +17,8 @@ import {
   switchUSDValueOnSwapAndBridge,
   bridgeBasicAccount,
   bridgeSmartAccount,
-  clickOnSecondRoute
+  clickOnSecondRoute,
+  changeRoutePriorityToFastest
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
@@ -124,7 +125,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    await switchTokensOnSwapAndBridge(page, 1000)
+    await switchTokensOnSwapAndBridge(page, 2000)
   })
 
   it('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
@@ -134,7 +135,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      await switchTokensOnSwapAndBridge(page, 1000)
+      await switchTokensOnSwapAndBridge(page, 2000)
     }
   })
 
@@ -163,7 +164,11 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   })
 
   it.skip('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Basic Account', async () => {
-    // TODO: Implement the test
+    const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
+    await changeRoutePriorityToFastest(page)
+    await signActionPage(
+      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    )
   })
 })
 
@@ -261,7 +266,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    await switchTokensOnSwapAndBridge(page, 1000)
+    await switchTokensOnSwapAndBridge(page, 2000)
   })
 
   it('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
@@ -271,7 +276,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      await switchTokensOnSwapAndBridge(page, 1000)
+      await switchTokensOnSwapAndBridge(page, 2000)
     }
   })
 
@@ -300,6 +305,10 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it.skip('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Smart Account', async () => {
-    // TODO: Implement the test
+    const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
+    await changeRoutePriorityToFastest(page)
+    await signActionPage(
+      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    )
   })
 })
