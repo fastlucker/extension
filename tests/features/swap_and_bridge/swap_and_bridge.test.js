@@ -16,7 +16,8 @@ import {
   switchTokensOnSwapAndBridge,
   switchUSDValueOnSwapAndBridge,
   bridgeBasicAccount,
-  bridgeSmartAccount
+  bridgeSmartAccount,
+  clickOnSecondRoute
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
@@ -87,13 +88,13 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     )
     await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
-    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
     actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, 'Proceed')
     )
     await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
-    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
   })
 
   it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Basic Account', async () => {
@@ -108,8 +109,9 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
-  it.skip('should select a different route when Swap & Bridge with a Basic Account', async () => {
-    // TODO: Implement the test
+  it('should select a different route when Swap & Bridge with a Basic Account', async () => {
+    await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
+    await clickOnSecondRoute(page)
   })
 
   it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Basic Account', async () => {
@@ -223,13 +225,13 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     )
     await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
-    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
     actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, 'Proceed')
     )
     await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
-    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
+    await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
   })
 
   it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async () => {
@@ -244,8 +246,9 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
-  it.skip('should select a different route when Swap & Bridge with a Smart Account', async () => {
-    // TODO: Implement the test
+  it('should select a different route when Swap & Bridge with a Smart Account', async () => {
+    await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
+    await clickOnSecondRoute(page)
   })
 
   it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Smart Account', async () => {

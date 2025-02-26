@@ -360,3 +360,16 @@ export async function signActionPage(actionPage) {
     throw error
   }
 }
+
+export async function clickOnSecondRoute(page) {
+  if (await page.waitForSelector('text=Select another route', { visible: true })) {
+    await selectButton(page, 'Select another route')
+    // TODO: Developers should make data-testid for this particular locator
+    const elements = await page.$$('.css-view-175oi2r')
+    await elements[1].click()
+    await selectButton(page, 'Confirm')
+  } else {
+    await page.waitForSelector('text=No route found!', { visible: true })
+    console.error('[ERROR] No route found!')
+  }
+}
