@@ -35,6 +35,7 @@ type Props = {
   chainId: string
   explorerUrl: string
   nativeAssetSymbol: string
+  nativeAssetName: string
   networkId?: string
   allowRemoveNetwork?: boolean
 }
@@ -47,6 +48,7 @@ const NetworkDetails = ({
   chainId,
   explorerUrl,
   nativeAssetSymbol,
+  nativeAssetName,
   allowRemoveNetwork,
   networkId
 }: Props) => {
@@ -240,6 +242,7 @@ const NetworkDetails = ({
           {renderRpcUrlsItem()}
           {renderInfoItem(t('Chain ID'), chainId)}
           {renderInfoItem(t('Currency Symbol'), nativeAssetSymbol)}
+          {renderInfoItem(t('Currency name'), nativeAssetName)}
           {renderInfoItem(t('Block Explorer URL'), explorerUrl, false)}
         </View>
       </View>
