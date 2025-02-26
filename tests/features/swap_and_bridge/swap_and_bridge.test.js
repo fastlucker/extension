@@ -124,7 +124,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    await switchTokensOnSwapAndBridge(page, 500)
+    await switchTokensOnSwapAndBridge(page, 1000)
   })
 
   it('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
@@ -134,7 +134,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      await switchTokensOnSwapAndBridge(page, 250)
+      await switchTokensOnSwapAndBridge(page, 1000)
     }
   })
 
@@ -261,7 +261,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    await switchTokensOnSwapAndBridge(page, 500)
+    await switchTokensOnSwapAndBridge(page, 1000)
   })
 
   it('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
@@ -271,7 +271,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      await switchTokensOnSwapAndBridge(page, 300)
+      await switchTokensOnSwapAndBridge(page, 1000)
     }
   })
 

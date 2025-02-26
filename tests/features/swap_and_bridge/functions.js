@@ -364,9 +364,11 @@ export async function signActionPage(actionPage) {
 export async function clickOnSecondRoute(page) {
   if (await page.waitForSelector('text=Select another route', { visible: true })) {
     await selectButton(page, 'Select another route')
+    await page.waitForTimeout(1000)
     // TODO: Developers should make data-testid for this particular locator
     const elements = await page.$$('.css-view-175oi2r')
     await elements[1].click()
+    await page.waitForTimeout(1000)
     await selectButton(page, 'Confirm')
   } else {
     await page.waitForSelector('text=No route found!', { visible: true })
