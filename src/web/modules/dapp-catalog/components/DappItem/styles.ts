@@ -20,7 +20,6 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       width: '100%',
       height: '100%',
-      backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.phTy,
       ...spacings.pvTy
