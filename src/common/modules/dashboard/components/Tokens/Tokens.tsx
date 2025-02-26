@@ -39,6 +39,7 @@ interface Props {
     [key: string]: boolean
   }
   onScroll: FlatListProps<any>['onScroll']
+  dashboardNetworkFilterName: string | null
 }
 
 // if any of the post amount (during simulation) or the current state
@@ -54,7 +55,14 @@ const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: Network[]) 
 
 const { isPopup } = getUiType()
 
-const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) => {
+const Tokens = ({
+  openTab,
+  setOpenTab,
+  initTab,
+  sessionId,
+  onScroll,
+  dashboardNetworkFilterName
+}: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
@@ -187,7 +195,6 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
               setOpenTab={setOpenTab}
               searchControl={control}
               sessionId={sessionId}
-              setValue={setValue}
             />
             <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
@@ -213,11 +220,16 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
         return (
           <View style={[flexbox.alignCenter, spacings.pv]}>
             <Text fontSize={16} weight="medium">
-              {!searchValue && !dashboardNetworkFilter && t("You don't have any tokens yet")}
+              {!searchValue && !dashboardNetworkFilterName && t("You don't have any tokens yet.")}
               {!searchValue &&
-                dashboardNetworkFilter &&
-                t("You don't have any tokens on this network")}
-              {searchValue && t('No tokens found')}
+                dashboardNetworkFilterName &&
+                t(`No tokens found on ${dashboardNetworkFilterName}.`)}
+              {searchValue &&
+                t(
+                  `No tokens match "${searchValue}"${
+                    dashboardNetworkFilterName ? ` on ${dashboardNetworkFilterName}` : ''
+                  }.`
+                )}
             </Text>
           </View>
         )
@@ -303,10 +315,11 @@ const Tokens = ({ openTab, setOpenTab, initTab, sessionId, onScroll }: Props) =>
       sessionId,
       t,
       searchValue,
-      dashboardNetworkFilter,
+      dashboardNetworkFilterName,
       portfolio?.isAllReady,
       sortedTokens.length,
       hiddenTokensCount,
+      dashboardNetworkFilter,
       navigateToAddCustomToken,
       navigate
     ]
