@@ -24,7 +24,7 @@ import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridg
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
-import { AccountOp, AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -192,9 +192,14 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     // As of v4.26.0, custom extension-specific headers. TBD for the other apps.
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
     initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
-    const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
-    const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
-    initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
+
+    // if the fetch method is called while the keystore is constructing the keyStoreUid won't be defined yet
+    // in that case we can still fetch but without our custom header
+    if (mainCtrl?.keystore?.keyStoreUid) {
+      const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
+      const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
+      initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
+    }
 
     // As of v4.36.0, for metric purposes, pass the account keys count as an
     // additional param for the batched velcro discovery requests.
@@ -825,6 +830,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
       initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()
+      mainCtrl.phishing.updateIfNeeded()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, action: Action) => {

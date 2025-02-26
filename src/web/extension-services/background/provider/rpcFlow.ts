@@ -4,7 +4,7 @@ import 'reflect-metadata'
 import { ethErrors } from 'eth-rpc-errors'
 
 import { MainController } from '@ambire-common/controllers/main/main'
-import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
+import { Dapp, DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import { RequestRes } from '@web/extension-services/background/provider/types'
 import PromiseFlow from '@web/utils/promiseFlow'
@@ -91,6 +91,7 @@ const flowContext = flow
             )
           })
           connectOrigins.delete(origin)
+          const isBlacklisted = await mainCtrl.phishing.getIsBlacklisted(origin)
           mainCtrl.dapps.addDapp({
             name,
             url: origin,
@@ -98,8 +99,9 @@ const flowContext = flow
             description: 'Custom app automatically added when connected for the first time.',
             favorite: false,
             chainId: 1,
-            isConnected: true
-          })
+            isConnected: true,
+            blacklisted: isBlacklisted
+          } as Dapp)
           mainCtrl.dapps.broadcastDappSessionEvent(
             'chainChanged',
             { chain: '0x1', networkVersion: '1' },

@@ -8,7 +8,7 @@ import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import Text, { Props as TextProps } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_LG, SPACING_MD } from '@common/styles/spacings'
+import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 const dAppPermissionWrapperContext = createContext({
@@ -30,7 +30,7 @@ const DAppPermissionWrapper = ({
         style={[
           flexbox.directionRow,
           {
-            marginBottom: SPACING_MD * responsiveSizeMultiplier
+            marginBottom: SPACING_SM * responsiveSizeMultiplier
           }
         ]}
       >
@@ -68,24 +68,27 @@ const DAppPermissionText = ({ children, ...rest }: { children: React.ReactNode }
   const { responsiveSizeMultiplier } = useContext(dAppPermissionWrapperContext)
 
   return (
-    <Text appearance="secondaryText" fontSize={responsiveSizeMultiplier * 16} {...rest}>
+    <Text appearance="secondaryText" fontSize={responsiveSizeMultiplier * 14} {...rest}>
       {children}
     </Text>
   )
 }
 
-const DAppPermissions: FC<{ responsiveSizeMultiplier: number }> = ({
-  responsiveSizeMultiplier
-}) => {
+const DAppPermissions: FC<{
+  responsiveSizeMultiplier: number
+}> = ({ responsiveSizeMultiplier }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
 
   return (
     <View
       style={{
-        marginBottom: SPACING_LG * responsiveSizeMultiplier
+        marginBottom: SPACING_TY * responsiveSizeMultiplier
       }}
     >
+      <Text fontSize={16} weight="medium" numberOfLines={1} style={spacings.mbSm}>
+        {t('Connecting with this app will:')}
+      </Text>
       <DAppPermissionWrapper responsiveSizeMultiplier={responsiveSizeMultiplier}>
         <DAppPermissionIcon backgroundColor={colors.lightAzureBlue}>
           <VisibilityIcon
