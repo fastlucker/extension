@@ -21,6 +21,7 @@ let dispatch: BackgroundServiceContextReturnType['dispatch']
 let pm: PortMessenger
 const actionsBeforeBackgroundReady: Action[] = []
 let backgroundReady: boolean
+let reconnectAttempt = 0
 
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessenger class to establish a connection between the popup
@@ -68,11 +69,15 @@ if (isExtension) {
     chrome.runtime.sendMessage({ action: 'wake_up' }, (res) => {
       if (chrome.runtime.lastError) {
         shouldCloseWindowOnError && closeCurrentWindow()
-      } else if (res.status === 'awake') {
+      } else if (res?.status === 'awake') {
         connectPort()
         !!onConnect && onConnect()
       } else {
-        shouldCloseWindowOnError && closeCurrentWindow()
+        if (reconnectAttempt >= 5) return
+        setTimeout(() => {
+          connectToBackground(true, onConnect)
+          reconnectAttempt++
+        }, 50)
       }
     })
   }
@@ -101,6 +106,7 @@ if (isExtension) {
           Object.keys(controllersMapping).forEach((ctrlName: any) => {
             dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller: ctrlName } })
           })
+          reconnectAttempt = 0
         })
       }
     }
