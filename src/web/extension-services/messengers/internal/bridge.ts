@@ -5,11 +5,6 @@ import { detectScriptType } from '@web/extension-services/messengers/utils/detec
 
 const messenger = tabMessenger.available ? tabMessenger : windowMessenger
 
-function sendMessageToB(topic, payload) {
-  console.log('CONTENT_SCRIPT_A_IS_ABOUT_TO_SEND_TO_CONTENT_SCRIPT_B')
-  window.postMessage({ type: 'CS_A_TO_CS_B', topic, payload }, '*')
-}
-
 /**
  * Creates a "bridge messenger" that can be used to communicate between
  * scripts where there isn't a direct messaging connection (ie. inpage <-> background).
@@ -23,7 +18,6 @@ export const bridgeMessenger = createMessenger({
   available: messenger.available,
   name: 'bridgeMessenger',
   async send(topic, payload, options) {
-    // sendMessageToB(topic, payload)
     return messenger.send(topic, payload, options || {})
   },
   reply(topic, callback) {
@@ -42,7 +36,7 @@ export function setupBridgeMessengerRelay() {
 
     const t = topic.replace('> ', '')
     const response = await tabMessenger.send(t, payload, { id })
-
+    console.log('bridge', response)
     return response
   })
 

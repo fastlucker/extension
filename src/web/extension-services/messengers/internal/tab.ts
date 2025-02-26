@@ -9,6 +9,9 @@ import { isValidSend } from '@web/extension-services/messengers/internal/isValid
  * like between a content script and the background script.
  */
 function sendMessage<TPayload>(message: SendMessage<TPayload>, { tabId }: { tabId?: number } = {}) {
+  if (!chrome?.runtime?.id) {
+    return window.postMessage({ type: 'CS_A_TO_CS_B', message }, '*')
+  }
   if (typeof tabId === 'undefined') return chrome?.runtime?.sendMessage?.(message)
 
   return chrome.tabs?.sendMessage?.(tabId, message)
@@ -44,15 +47,25 @@ export const tabMessenger = createMessenger({
       ) => {
         if (!isValidReply<TResponse>({ id, message, topic })) return
 
-        chrome.runtime.onMessage?.removeListener(listener)
-
+        chrome?.onMessage?.removeListener(listener)
+        console.log('listen', message)
         const { response: r, error } = message.payload
         if (error) reject(new Error(error.message))
         resolve(r)
         sendResponse({})
         return true
       }
-      chrome.runtime.onMessage?.addListener(listener)
+
+      if (chrome?.runtime?.id) {
+        chrome.runtime.onMessage?.addListener(listener)
+      } else {
+        window.addEventListener('message', async (event) => {
+          if (event.source !== window || event.data?.type !== 'CS_B_TO_CS_A') return
+          const { topic, payload } = event.data
+          console.log('ej tuka gledaj!!!!!', event.data)
+          listener({ id, topic, payload: { response: payload } }, undefined, () => {})
+        })
+      }
 
       sendMessage({ topic: `> ${topic}`, payload, id }, { tabId })
     })

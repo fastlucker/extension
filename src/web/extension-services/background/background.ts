@@ -900,6 +900,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+  console.log('providerRequestTransport reply', { method, id, params })
   // wait for mainCtrl to be initialized before handling dapp requests
   while (!mainCtrl) {
     // eslint-disable-next-line no-await-in-loop
