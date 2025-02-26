@@ -1,4 +1,7 @@
+import { Session } from '@ambire-common/classes/session'
 import { browser, engine, getFirefoxVersion } from '@web/constants/browserapi'
+
+import { storage } from '../webapi/storage'
 
 const handleRegisterScripts = async () => {
   const scripts: {
@@ -14,6 +17,27 @@ const handleRegisterScripts = async () => {
   }[] = []
 
   const registeredScripts = await browser.scripting.getRegisteredContentScripts()
+  if (!registeredScripts.length) {
+    const prevDappSessions: { [key: string]: Session } = await storage.get('dappSessions', {})
+    // Remove previous dappSessions from storage to ensure that on the next service worker load,
+    // only the dappSessions from the last service worker instance are retrieved.
+    await storage.remove('dappSessions')
+    // eslint-disable-next-line no-restricted-syntax
+    for (const { tabId } of Object.values(prevDappSessions)) {
+      // eslint-disable-next-line no-continue
+      if (!tabId) continue
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await chrome.scripting.executeScript({
+          target: { tabId, allFrames: true },
+          files: ['proxy-content-script.js'],
+          injectImmediately: true
+        })
+      } catch (error) {
+        console.error(`Failed to execute script into tab ${tabId}:`, error)
+      }
+    }
+  }
   const registeredContentScriptMessengerBridge = registeredScripts.find(
     (s: any) => s.id === 'content-script-messenger-bridge'
   )
