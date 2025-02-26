@@ -294,13 +294,13 @@ const SendForm = ({
   const gasTankLabelWithInfo = (
     <View style={flexbox.directionRow}>
       <Text appearance="secondaryText" fontSize={14}>
-        Select Gas Tank
+        {t('Select Gas Tank ')}
       </Text>
-      <Pressable style={[spacings.phMi, flexbox.center]} onPress={handleGasTankInfoPressed}>
+      <Pressable style={[flexbox.center]} onPress={handleGasTankInfoPressed}>
         <InfoIcon width={14} height={14} />
       </Pressable>
       <Text appearance="secondaryText" fontSize={14}>
-        Token
+        {t(' Token')}
       </Text>
     </View>
   )
