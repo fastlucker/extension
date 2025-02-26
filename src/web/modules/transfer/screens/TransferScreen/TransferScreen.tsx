@@ -39,6 +39,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
 import getStyles from './styles'
@@ -438,32 +439,14 @@ const TransferScreen = () => {
           primaryButtonTestID="queue-modal-got-it-button"
         />
       </BottomSheet>
-      <BottomSheet
+      <GasTankInfoModal
         id="gas-tank-info"
         sheetRef={gasTankSheetRef}
         closeBottomSheet={closeGasTankInfoBottomSheet}
-        backgroundColor="secondaryBackground"
-        // TODO: check styles
-        style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
-        type="modal"
-      >
-        <DualChoiceModal
-          title={t('Gas Tank')}
-          description={
-            <View>
-              <Text style={spacings.mbTy} appearance="secondaryText">
-                {t(
-                  'You can top-up and use your Gas Tank balance to pay for future transactions on any Ambire-supported network, benefiting from lower fees and the convenience of unified fee management.'
-                )}
-              </Text>
-            </View>
-          }
-          // TODO: Open top up Gas Tank
-          onPrimaryButtonPress={closeGasTankInfoBottomSheet}
-          primaryButtonText={t('Top up Gas Tank')}
-          primaryButtonTestID="top-up-gas-tank-info-modal"
-        />
-      </BottomSheet>
+        onPrimaryButtonPress={closeGasTankInfoBottomSheet}
+        portfolio={portfolio}
+        account={account}
+      />
     </TabLayoutContainer>
   )
 }
