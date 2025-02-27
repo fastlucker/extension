@@ -77,6 +77,7 @@ const AddChainScreen = () => {
     if (!requestData.rpcUrls) return
     const name = requestData.chainName
     const nativeAssetSymbol = requestData.nativeCurrency?.symbol
+    const nativeAssetName = requestData.nativeCurrency?.name
 
     try {
       return {
@@ -85,6 +86,7 @@ const AddChainScreen = () => {
         selectedRpcUrl: rpcUrls[rpcUrlIndex],
         chainId: BigInt(requestData.chainId),
         nativeAssetSymbol,
+        nativeAssetName,
         explorerUrl: requestData.blockExplorerUrls?.[0],
         iconUrls: requestData.iconUrls || []
       }
@@ -206,6 +208,7 @@ const AddChainScreen = () => {
                 rpcUrls={networkDetails.rpcUrls}
                 selectedRpcUrl={rpcUrls[rpcUrlIndex]}
                 nativeAssetSymbol={networkDetails.nativeAssetSymbol}
+                nativeAssetName={networkDetails.nativeAssetName}
                 explorerUrl={networkDetails.explorerUrl}
               />
             </ScrollableWrapper>
