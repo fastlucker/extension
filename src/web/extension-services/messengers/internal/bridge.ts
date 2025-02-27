@@ -1,4 +1,6 @@
+import { ReplyMessage } from '@ambire-common/interfaces/messenger'
 import { createMessenger } from '@web/extension-services/messengers/internal/createMessenger'
+import { isValidReply } from '@web/extension-services/messengers/internal/isValidReply'
 import { tabMessenger } from '@web/extension-services/messengers/internal/tab'
 import { windowMessenger } from '@web/extension-services/messengers/internal/window'
 import { detectScriptType } from '@web/extension-services/messengers/utils/detectScriptType'
@@ -35,9 +37,35 @@ export function setupBridgeMessengerRelay() {
     if (!topic) return
 
     const t = topic.replace('> ', '')
-    const response = await tabMessenger.send(t, payload, { id })
 
-    return response
+    if (chrome.runtime.id) {
+      const response = await tabMessenger.send(t, payload, { id })
+
+      return response
+    }
+
+    return new Promise<any>((resolve, reject) => {
+      const listener = (e: any) => {
+        if (e.source !== window || e.data?.type !== 'CS_B_TO_CS_A') return
+        const message = {
+          id: e.data.payload.id,
+          topic: '< ambireProviderRequest',
+          payload: { response: e.data.payload }
+        } as ReplyMessage<any>
+
+        if (!isValidReply<any>({ id, message, topic: t })) return
+        window.removeEventListener('message', listener)
+
+        const { response: r, error } = message.payload
+        if (error) reject(new Error(error.message))
+        resolve(r)
+        return true
+      }
+
+      window.addEventListener('message', listener)
+
+      window.postMessage({ type: 'CS_A_TO_CS_B', message: { topic: t, payload, id } }, '*')
+    })
   })
 
   // e.g. background -> content script -> inpage

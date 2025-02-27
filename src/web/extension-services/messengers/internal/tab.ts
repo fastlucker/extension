@@ -9,9 +9,6 @@ import { isValidSend } from '@web/extension-services/messengers/internal/isValid
  * like between a content script and the background script.
  */
 function sendMessage<TPayload>(message: SendMessage<TPayload>, { tabId }: { tabId?: number } = {}) {
-  if (!chrome?.runtime?.id) {
-    return window.postMessage({ type: 'CS_A_TO_CS_B', message }, '*')
-  }
   if (typeof tabId === 'undefined') return chrome?.runtime?.sendMessage?.(message)
 
   return chrome.tabs?.sendMessage?.(tabId, message)
@@ -40,20 +37,14 @@ export const tabMessenger = createMessenger({
     }
 
     return new Promise<TResponse>((resolve, reject) => {
-      let windowMessageListener: (event: any) => Promise<void>
       const listener = (
         message: ReplyMessage<TResponse>,
-        _: chrome.runtime.MessageSender | undefined,
+        _: chrome.runtime.MessageSender,
         sendResponse: (response?: unknown) => void
       ) => {
         if (!isValidReply<TResponse>({ id, message, topic })) return
 
-        // @ts-ignore
-        if (chrome?.runtime?.id) {
-          chrome?.onMessage?.removeListener(listener)
-        } else if (windowMessageListener) {
-          window.removeEventListener('message', windowMessageListener)
-        }
+        chrome.runtime.onMessage?.removeListener(listener)
 
         const { response: r, error } = message.payload
         if (error) reject(new Error(error.message))
@@ -61,26 +52,7 @@ export const tabMessenger = createMessenger({
         sendResponse({})
         return true
       }
-
-      windowMessageListener = async (event: any) => {
-        if (event.source !== window || event.data?.type !== 'CS_B_TO_CS_A') return
-
-        listener(
-          {
-            id: event.data.payload.id,
-            topic: event.data.topic,
-            payload: { response: event.data.payload }
-          } as ReplyMessage<TResponse>,
-          undefined,
-          () => {}
-        )
-      }
-
-      if (chrome?.runtime?.id) {
-        chrome.runtime.onMessage?.addListener(listener)
-      } else {
-        window.addEventListener('message', windowMessageListener)
-      }
+      chrome.runtime.onMessage?.addListener(listener)
 
       sendMessage({ topic: `> ${topic}`, payload, id }, { tabId })
     })

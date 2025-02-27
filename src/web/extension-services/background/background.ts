@@ -55,7 +55,7 @@ import { handleCleanUpOnPortDisconnect } from '@web/extension-services/backgroun
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import {
   handleRegisterScripts,
-  handleRestoreDappsConnectionFromPrevSession
+  handleRestoreDappConnection
 } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
@@ -818,7 +818,23 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     })
   })
 
-  handleRestoreDappsConnectionFromPrevSession(mainCtrl)
+  browser.windows.onFocusChanged.addListener(async (windowId: any) => {
+    if (windowId !== chrome.windows.WINDOW_ID_NONE) {
+      const [tab] = await chrome.tabs.query({ active: true, windowId })
+      if (tab) await handleRestoreDappConnection(mainCtrl, tab.id)
+    }
+  })
+
+  chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+    if (tabId) await handleRestoreDappConnection(mainCtrl, tabId)
+  })
+
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  chrome.tabs.query({ active: true, currentWindow: true }).then(async (tabs) => {
+    for (const tab of tabs) {
+      await handleRestoreDappConnection(mainCtrl, tab.id)
+    }
+  })
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
