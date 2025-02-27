@@ -36,7 +36,7 @@ export function setupBridgeMessengerRelay() {
 
     const t = topic.replace('> ', '')
     const response = await tabMessenger.send(t, payload, { id })
-    console.log('bridge', response)
+
     return response
   })
 

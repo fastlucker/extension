@@ -40,15 +40,21 @@ export const tabMessenger = createMessenger({
     }
 
     return new Promise<TResponse>((resolve, reject) => {
+      let windowMessageListener: (event: any) => Promise<void>
       const listener = (
         message: ReplyMessage<TResponse>,
-        _: chrome.runtime.MessageSender,
+        _: chrome.runtime.MessageSender | undefined,
         sendResponse: (response?: unknown) => void
       ) => {
         if (!isValidReply<TResponse>({ id, message, topic })) return
 
-        chrome?.onMessage?.removeListener(listener)
-        console.log('listen', message)
+        // @ts-ignore
+        if (chrome?.runtime?.id) {
+          chrome?.onMessage?.removeListener(listener)
+        } else if (windowMessageListener) {
+          window.removeEventListener('message', windowMessageListener)
+        }
+
         const { response: r, error } = message.payload
         if (error) reject(new Error(error.message))
         resolve(r)
@@ -56,15 +62,24 @@ export const tabMessenger = createMessenger({
         return true
       }
 
+      windowMessageListener = async (event: any) => {
+        if (event.source !== window || event.data?.type !== 'CS_B_TO_CS_A') return
+
+        listener(
+          {
+            id: event.data.payload.id,
+            topic: event.data.topic,
+            payload: { response: event.data.payload }
+          } as ReplyMessage<TResponse>,
+          undefined,
+          () => {}
+        )
+      }
+
       if (chrome?.runtime?.id) {
         chrome.runtime.onMessage?.addListener(listener)
       } else {
-        window.addEventListener('message', async (event) => {
-          if (event.source !== window || event.data?.type !== 'CS_B_TO_CS_A') return
-          const { topic, payload } = event.data
-          console.log('ej tuka gledaj!!!!!', event.data)
-          listener({ id, topic, payload: { response: payload } }, undefined, () => {})
-        })
+        window.addEventListener('message', windowMessageListener)
       }
 
       sendMessage({ topic: `> ${topic}`, payload, id }, { tabId })

@@ -53,7 +53,10 @@ import { handleActions } from '@web/extension-services/background/handlers/handl
 import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
 import { handleCleanUpOnPortDisconnect } from '@web/extension-services/background/handlers/handleCleanUpOnPortDisconnect'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
-import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
+import {
+  handleRegisterScripts,
+  handleRestoreDappsConnectionFromPrevSession
+} from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
@@ -814,6 +817,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       params: { errors: extensionUpdateCtrl.emittedErrors, controller: 'extensionUpdate' }
     })
   })
+
+  handleRestoreDappsConnectionFromPrevSession(mainCtrl)
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {

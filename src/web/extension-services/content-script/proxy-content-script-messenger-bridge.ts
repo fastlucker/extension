@@ -3,21 +3,27 @@
 import { stripTopicDirection } from '@web/extension-services/messengers/internal/stripTopicDirection'
 import { tabMessenger } from '@web/extension-services/messengers/internal/tab'
 
-// Listen for messages from Content Script A
-window.addEventListener('message', async (event) => {
+const handleRelayMessages = async (event: MessageEvent<any>) => {
+  if (!chrome?.runtime?.id) return
   if (event.source !== window || event.data?.type !== 'CS_A_TO_CS_B') return
 
   const { message } = event.data
-  console.log('Content Script B received from A:', message.topic, message.payload)
+  if (message.topic !== '> ambireProviderRequest') return
 
+  console.log('original message', message)
   try {
     const response = await tabMessenger.send(stripTopicDirection(message.topic), message.payload)
-    console.log('response from background', response)
+    console.log('background res', response)
     window.postMessage(
-      { type: 'CS_B_TO_CS_A', topic: `< ${stripTopicDirection(message.topic)}`, payload: response },
+      {
+        type: 'CS_B_TO_CS_A',
+        topic: `< ${stripTopicDirection(message.topic)}`,
+        payload: response
+      },
       '*'
     )
   } catch (error) {
     console.error('Content Script B failed to send message to background:', error)
   }
-})
+}
+window.addEventListener('message', handleRelayMessages)
