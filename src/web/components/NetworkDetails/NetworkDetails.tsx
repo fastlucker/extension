@@ -242,7 +242,7 @@ const NetworkDetails = ({
           {renderRpcUrlsItem()}
           {renderInfoItem(t('Chain ID'), chainId)}
           {renderInfoItem(t('Currency Symbol'), nativeAssetSymbol)}
-          {renderInfoItem(t('Currency name'), nativeAssetName)}
+          {renderInfoItem(t('Currency Name'), nativeAssetName)}
           {renderInfoItem(t('Block Explorer URL'), explorerUrl, false)}
         </View>
       </View>
