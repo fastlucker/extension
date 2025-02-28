@@ -18,7 +18,9 @@ const handleRelayMessages = async (event: MessageEvent<any>) => {
   if (message.topic !== 'ambireProviderRequest') return
 
   try {
-    const response = await tabMessenger.send(stripTopicDirection(message.topic), message.payload)
+    const response = await tabMessenger.send(stripTopicDirection(message.topic), message.payload, {
+      id: message.id
+    })
     window.postMessage({ type: 'CS_B_TO_CS_A', payload: response }, '*')
   } catch (error) {
     console.error('Content Script B failed to send message to background:', error)
