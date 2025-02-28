@@ -71,6 +71,7 @@ const NetworkDetails = ({
     [pathname, isEmpty]
   )
 
+  // TODO: should display if is not predefined network
   const shouldDisplayRemoveButton = useMemo(
     () =>
       pathname?.includes(ROUTES.networksSettings) &&
@@ -86,7 +87,7 @@ const NetworkDetails = ({
 
   const removeCustomNetwork = useCallback(() => {
     if (networkId) {
-      dispatch({ type: 'MAIN_CONTROLLER_REMOVE_NETWORK', params: networkId })
+      dispatch({ type: 'MAIN_CONTROLLER_REMOVE_NETWORK', params: chainId })
       closeDialog()
     } else {
       addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)

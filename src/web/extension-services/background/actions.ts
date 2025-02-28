@@ -11,7 +11,12 @@ import { Account, AccountPreferences, AccountStates } from '@ambire-common/inter
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import {
+  AddNetworkRequestParams,
+  ChainId,
+  Network,
+  NetworkId
+} from '@ambire-common/interfaces/network'
 import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
 import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
@@ -120,7 +125,7 @@ type MainControllerAddNetwork = {
 
 type MainControllerRemoveNetwork = {
   type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: NetworkId
+  params: ChainId
 }
 
 type AccountsControllerUpdateAccountPreferences = {
