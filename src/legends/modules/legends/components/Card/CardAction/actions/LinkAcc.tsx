@@ -6,6 +6,8 @@ import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/c
 import useAddressInput from '@common/hooks/useAddressInput'
 import useStandaloneAddressInput from '@common/hooks/useStandaloneAddressInput'
 import HumanReadableError from '@legends/classes/HumanReadableError'
+import Accordion from '@legends/components/Accordion'
+import Address from '@legends/components/Address'
 import AddressInput from '@legends/components/AddressInput'
 import Alert from '@legends/components/Alert'
 import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
@@ -18,6 +20,7 @@ import { useCardActionContext } from '@legends/modules/legends/components/Action
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import CardActionWrapper from './CardActionWrapper'
+import styles from './LinkAcc.module.scss'
 
 enum STEPS {
   UNUSED,
@@ -39,8 +42,9 @@ const LEGENDS_CONTRACT_INTERFACE = new Interface(LEGENDS_CONTRACT_ABI)
 
 interface Props {
   alreadyLinkedAccounts: string[]
+  accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
 }
-const LinkAcc = ({ alreadyLinkedAccounts = [] }: Props) => {
+const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Props) => {
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const {
@@ -241,6 +245,29 @@ const LinkAcc = ({ alreadyLinkedAccounts = [] }: Props) => {
           label="Ambire v1 or Basic Account address"
         />
       )}
+      <Accordion
+        title={
+          accountLinkingHistory.length
+            ? `Successfully linked accounts (${accountLinkingHistory.length})`
+            : 'No linked accounts yet'
+        }
+      >
+        <div className={`${styles.scrollableHistory}`}>
+          {accountLinkingHistory.map(({ invitedEoaOrV1, date }) => (
+            <div className={`${styles.invitationItem}`} key={invitedEoaOrV1}>
+              <Address className={`${styles.address}`} address={invitedEoaOrV1} />
+              {/* change date UI component */}
+              <div className={`${styles.timeAgo}`}>
+                {new Date(date).toLocaleString([], {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit'
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Accordion>
     </CardActionWrapper>
   )
 }

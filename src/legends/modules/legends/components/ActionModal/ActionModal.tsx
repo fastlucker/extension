@@ -13,7 +13,6 @@ import { CardFromResponse } from '@legends/modules/legends/types'
 import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
 import InviteAccount from './InviteAccount/InviteAccount'
-import LinkingHistory from './LinkingHistory/LinkingHisotry'
 import Referral from './Referral/Referral'
 
 type CardActionContextType = {
@@ -96,7 +95,6 @@ const ActionModal: FC<ActionModalProps> = ({
         <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
       )}
 
-      {predefinedId === CARD_PREDEFINED_ID.linkAccount && <LinkingHistory meta={meta} />}
       {contentSteps && (
         <HowTo
           steps={contentSteps}

@@ -1,16 +1,29 @@
 @import '@legends/styles/base.scss';
 
-.historyWrapper {
-  background-color: $tertiaryBackground;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-}
-
 .scrollableHistory {
-  display: flex;
   flex-wrap: wrap;
-  // max-height: 12rem;
-  overflow-y: auto; /* Enables vertical scrolling */
+  max-height: 10rem;
+  overflow-y: auto;
+  padding-right: 10px;
+
+  .invitationItem {
+    display: flex;
+    width: 100%;
+    font-size: 1rem;
+    line-height: 1.25rem;
+    margin-bottom: 0.5rem;
+    .timeAgo {
+      margin-left: auto;
+      color: $tertiaryText;
+    }
+
+    .address {
+      color: $secondaryText;
+    }
+  }
+  .invitationItem:last-of-type {
+    margin-bottom: 0;
+  }
 }
 
 .scrollableHistory::-webkit-scrollbar {
@@ -29,22 +42,4 @@
 
 .scrollableHistory::-webkit-scrollbar-thumb:hover {
   background: $silverDecorative;
-}
-
-.invitationItem {
-  display: flex;
-  min-width: 50%;
-  padding: 1rem;
-}
-
-.accepted {
-  color: #62804d;
-}
-.timeAgo {
-  margin-left: auto;
-}
-
-.heading {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
 }
