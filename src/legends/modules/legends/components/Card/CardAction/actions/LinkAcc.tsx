@@ -257,7 +257,6 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
           {accountLinkingHistory.map(({ invitedEoaOrV1, date }) => (
             <div className={`${styles.invitationItem}`} key={invitedEoaOrV1}>
               <Address className={`${styles.address}`} address={invitedEoaOrV1} />
-              {/* change date UI component */}
               <div className={`${styles.timeAgo}`}>
                 {new Date(date).toLocaleString([], {
                   year: 'numeric',
