@@ -84,7 +84,7 @@ const Hero = () => {
         <div className={styles.content}>
           <img src="/images/logo.png" alt="Ambire Legends" className={styles.logo} />
           <h1 className={styles.title}>
-            Experience the Power of Smart Accounts With an Epic Onchain Adventure
+            Master Smart Accounts and Get Rewarded for Your Onchain Activity
           </h1>
           <div className={styles.actions}>
             <div className={styles.buttonAndDisclaimer}>
