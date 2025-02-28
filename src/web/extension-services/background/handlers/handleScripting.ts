@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 import { MainController } from '@ambire-common/controllers/main/main'
 import { browser, engine, getFirefoxVersion } from '@web/constants/browserapi'
 
@@ -141,21 +143,46 @@ const handleUnregisterEthereumInpageScript = async () => {
   }
 }
 
-const handleRestoreDappConnection = async (mainCtrl: MainController, tabId?: number) => {
-  if (!tabId) return
+const restoreDappConnection = async (mainCtrl: MainController, tab: chrome.tabs.Tab) => {
+  if (!tab.id || !tab.url) return
   if (
     Object.values(mainCtrl.dapps.dappSessions).some(
-      ({ tabId: sessionTabId }) => sessionTabId === tabId
+      ({ tabId: sessionTabId }) => sessionTabId === tab.id
     )
   ) {
     return
   }
+
+  const MATCH_PATTERNS = ['http://', 'https://']
+
+  if (!MATCH_PATTERNS.some((prefix) => tab.url!.startsWith(prefix))) return
+
   await browser.scripting.executeScript({
-    target: { tabId, allFrames: true },
+    target: { tabId: tab.id, allFrames: true },
     files: ['proxy-content-script.js'],
     injectImmediately: true
   })
-  mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+  mainCtrl.dapps.getOrCreateDappSession({ tabId: tab.id, origin })
+}
+
+const handleRestoreDappConnection = (mainCtrl: MainController) => {
+  browser.windows.onFocusChanged.addListener(async (windowId: number) => {
+    if (windowId !== chrome.windows.WINDOW_ID_NONE) {
+      const [tab] = await chrome.tabs.query({ active: true, windowId })
+      if (tab) await restoreDappConnection(mainCtrl, tab)
+    }
+  })
+
+  browser.tabs.onActivated.addListener(async ({ tabId }: chrome.tabs.TabActiveInfo) => {
+    const tab = await browser.tabs.get(tabId)
+    if (tabId) await restoreDappConnection(mainCtrl, tab)
+  })
+
+  browser.tabs
+    .query({ active: true, currentWindow: true })
+    .then(async (tabs: chrome.tabs.Tab[]) => {
+      for (const tab of tabs) await restoreDappConnection(mainCtrl, tab)
+    })
 }
 
 export {

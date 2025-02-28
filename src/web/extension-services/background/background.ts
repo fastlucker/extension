@@ -264,6 +264,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     },
     notificationManager
   })
+  handleRestoreDappConnection(mainCtrl)
+
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
@@ -816,24 +818,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       method: 'extensionUpdate',
       params: { errors: extensionUpdateCtrl.emittedErrors, controller: 'extensionUpdate' }
     })
-  })
-
-  browser.windows.onFocusChanged.addListener(async (windowId: any) => {
-    if (windowId !== chrome.windows.WINDOW_ID_NONE) {
-      const [tab] = await chrome.tabs.query({ active: true, windowId })
-      if (tab) await handleRestoreDappConnection(mainCtrl, tab.id)
-    }
-  })
-
-  chrome.tabs.onActivated.addListener(async ({ tabId }) => {
-    if (tabId) await handleRestoreDappConnection(mainCtrl, tabId)
-  })
-
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  chrome.tabs.query({ active: true, currentWindow: true }).then(async (tabs) => {
-    for (const tab of tabs) {
-      await handleRestoreDappConnection(mainCtrl, tab.id)
-    }
   })
 
   // listen for messages from UI
