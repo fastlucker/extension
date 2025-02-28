@@ -251,6 +251,7 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
             ? `Successfully linked accounts (${accountLinkingHistory.length})`
             : 'No linked accounts yet'
         }
+        expandable={!!accountLinkingHistory.length}
       >
         <div className={`${styles.scrollableHistory}`}>
           {accountLinkingHistory.map(({ invitedEoaOrV1, date }) => (
