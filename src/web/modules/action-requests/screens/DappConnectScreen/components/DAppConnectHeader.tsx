@@ -3,13 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { Dapp, DappProviderRequest } from '@ambire-common/interfaces/dapp'
+import ErrorFilledIcon from '@common/assets/svg/ErrorFilledIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
+import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings, { SPACING_SM, SPACING_XL } from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_LG, SPACING_MD } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
-import textStyles from '@common/styles/utils/text'
+import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 
@@ -18,16 +20,18 @@ import TrustedIcon from './TrustedIcon'
 
 type Props = Partial<DappProviderRequest['session']> & {
   responsiveSizeMultiplier: number
+  securityCheck: 'BLACKLISTED' | 'NOT_BLACKLISTED' | 'LOADING'
 }
 
 const DAppConnectHeader: FC<Props> = ({
   origin,
   name = 'Unknown App',
   icon,
-  responsiveSizeMultiplier
+  responsiveSizeMultiplier,
+  securityCheck
 }) => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { state } = useDappsControllerState()
   const { minHeightSize } = useWindowSize()
   // When the user connects to a dApp, the dApp is added to the list of dApps.
@@ -51,65 +55,82 @@ const DAppConnectHeader: FC<Props> = ({
 
   const spacingsStyle = useMemo(() => {
     return {
-      paddingHorizontal: SPACING_XL * responsiveSizeMultiplier,
-      paddingVertical: SPACING_XL * responsiveSizeMultiplier
+      paddingHorizontal: SPACING_LG * responsiveSizeMultiplier,
+      paddingTop: SPACING_MD * responsiveSizeMultiplier,
+      paddingBottom: SPACING_LG * responsiveSizeMultiplier
     }
   }, [responsiveSizeMultiplier])
 
   return (
-    <View style={[styles.contentHeader, spacingsStyle]}>
+    <View
+      style={[
+        styles.contentHeader,
+        {
+          backgroundColor:
+            securityCheck === 'BLACKLISTED' ? theme.errorBackground : theme.tertiaryBackground
+        },
+        spacingsStyle
+      ]}
+    >
       <Text
         weight="medium"
         fontSize={responsiveSizeMultiplier * 20}
         style={{
-          marginBottom: SPACING_XL * responsiveSizeMultiplier
+          marginBottom: SPACING * responsiveSizeMultiplier
         }}
       >
-        {t('Connection requested')}
+        {t('Connection request from')}
       </Text>
-      <View>
-        <ManifestImage
-          uri={icon}
-          size={responsiveSizeMultiplier * 56}
-          containerStyle={{
-            marginBottom: SPACING_SM * responsiveSizeMultiplier
-          }}
-          fallback={() => (
-            <ManifestFallbackIcon
-              width={responsiveSizeMultiplier * 56}
-              height={responsiveSizeMultiplier * 56}
-            />
-          )}
-        />
+      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        <View style={spacings.mr}>
+          <ManifestImage
+            uri={icon}
+            size={responsiveSizeMultiplier * 56}
+            fallback={() => (
+              <ManifestFallbackIcon
+                width={responsiveSizeMultiplier * 56}
+                height={responsiveSizeMultiplier * 56}
+              />
+            )}
+          />
 
-        {isDAppTrusted && (
-          <View
-            style={{
-              position: 'absolute',
-              right: -8,
-              top: -2,
-              width: 24,
-              height: 24
-            }}
+          {isDAppTrusted && securityCheck === 'NOT_BLACKLISTED' && (
+            <View
+              style={{
+                position: 'absolute',
+                right: -9,
+                top: -5
+              }}
+            >
+              <TrustedIcon borderColor={theme.tertiaryBackground} />
+            </View>
+          )}
+          {securityCheck === 'BLACKLISTED' && (
+            <View
+              style={{
+                position: 'absolute',
+                right: -9,
+                top: -4
+              }}
+            >
+              <ErrorFilledIcon width={18} height={18} />
+            </View>
+          )}
+        </View>
+        <View style={flexbox.flex1}>
+          <Text
+            style={[!minHeightSize('m') && spacings.mbMi, flexbox.flex1, { lineHeight: 23 }]}
+            fontSize={responsiveSizeMultiplier * 20}
+            weight="semiBold"
+            numberOfLines={2}
           >
-            <TrustedIcon />
-          </View>
-        )}
+            {name}
+          </Text>
+          <Text fontSize={14 * responsiveSizeMultiplier} appearance="secondaryText">
+            {hostname}
+          </Text>
+        </View>
       </View>
-      <Text
-        style={[!minHeightSize('m') && spacings.mbMi, textStyles.center, common.fullWidth]}
-        fontSize={responsiveSizeMultiplier * 20}
-        weight="semiBold"
-      >
-        {name}
-      </Text>
-      <Text
-        style={textStyles.center}
-        fontSize={14 * responsiveSizeMultiplier}
-        appearance="secondaryText"
-      >
-        {hostname}
-      </Text>
     </View>
   )
 }

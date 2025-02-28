@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { useSearchParams } from 'react-router-dom'
 
@@ -9,6 +10,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Activity from '../Activity'
@@ -24,9 +26,11 @@ interface Props {
 const { isTab } = getUiType()
 
 const DashboardPages = ({ onScroll }: Props) => {
+  const { t } = useTranslation()
   const route = useRoute()
   const [sessionId] = useState(nanoid())
   const [, setSearchParams] = useSearchParams()
+  const { dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
 
@@ -42,6 +46,17 @@ const DashboardPages = ({ onScroll }: Props) => {
   const [initTab, setInitTab] = useState<{
     [key: string]: boolean
   }>({})
+
+  const dashboardNetworkFilterName = useMemo(() => {
+    if (!dashboardNetworkFilter) return null
+
+    if (dashboardNetworkFilter === 'rewards') return t('Rewards')
+    if (dashboardNetworkFilter === 'gasTank') return t('Gas Tank')
+
+    const network = networks.find(({ id }) => id === dashboardNetworkFilter)
+
+    return network?.name || null
+  }, [dashboardNetworkFilter, networks, t])
 
   useEffect(() => {
     if (openTab !== prevOpenTab && !initTab?.[openTab]) {
@@ -74,6 +89,7 @@ const DashboardPages = ({ onScroll }: Props) => {
         setOpenTab={setOpenTab}
         onScroll={onScroll}
         initTab={initTab}
+        dashboardNetworkFilterName={dashboardNetworkFilterName}
       />
       <Collections
         openTab={openTab}
@@ -82,6 +98,7 @@ const DashboardPages = ({ onScroll }: Props) => {
         initTab={initTab}
         onScroll={onScroll}
         networks={networks}
+        dashboardNetworkFilterName={dashboardNetworkFilterName}
       />
 
       <DeFiPositions
@@ -90,6 +107,7 @@ const DashboardPages = ({ onScroll }: Props) => {
         setOpenTab={setOpenTab}
         onScroll={onScroll}
         initTab={initTab}
+        dashboardNetworkFilterName={dashboardNetworkFilterName}
       />
 
       <Activity

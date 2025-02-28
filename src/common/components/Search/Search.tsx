@@ -1,6 +1,6 @@
 import React from 'react'
-import { Control, Controller, UseFormSetValue } from 'react-hook-form'
-import { ViewStyle } from 'react-native'
+import { Control, Controller } from 'react-hook-form'
+import { View, ViewStyle } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import SearchIcon from '@common/assets/svg/SearchIcon'
@@ -14,23 +14,25 @@ interface Props extends InputProps {
   containerStyle?: ViewStyle
   inputWrapperStyle?: ViewStyle
   control: Control<{ search: string }, any>
-  setValue?: UseFormSetValue<{ search: string }>
   height?: number
   hasLeftIcon?: boolean
+  onSearchCleared?: () => void
 }
 
 const Search = ({
   placeholder = 'Search',
   style,
   control,
-  setValue,
   containerStyle = {},
   inputWrapperStyle = {},
   height = 40,
   hasLeftIcon = true,
+  onSearchCleared,
   ...rest
 }: Props) => {
   const { theme } = useTheme()
+  // Scale the clear search icon size based on the height of the search input
+  const clearSearchIconSize = Math.min(Math.floor(height / 2.5), 12)
 
   return (
     <Controller
@@ -48,13 +50,27 @@ const Search = ({
           onBlur={onBlur}
           onChange={onChange}
           value={value}
-          {...(setValue && value.length
-            ? {
-                button: <CloseIcon width={12} height={12} strokeWidth="2" />,
-                buttonStyle: spacings.mrTy,
-                onButtonPress: () => setValue('search', '')
-              }
-            : {})}
+          button={
+            // A trick to prevent layout shift when the clear search icon appears
+            <View
+              style={{
+                width: clearSearchIconSize,
+                height: clearSearchIconSize
+              }}
+            >
+              {!!value && <CloseIcon width={clearSearchIconSize} height={clearSearchIconSize} />}
+            </View>
+          }
+          buttonStyle={{
+            ...spacings.pv0,
+            ...spacings.ph0,
+            ...spacings.mrSm
+          }}
+          onButtonPress={() => {
+            if (!value) return
+            onChange('')
+            if (onSearchCleared) onSearchCleared()
+          }}
           {...rest}
         />
       )}

@@ -143,7 +143,7 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
             <Text fontSize={14}>
               <Text fontSize={14}>
                 Built on continuously audited smart contracts by an experienced team. Ambire Wallet
-                keeps your funds safe with on-chain transaction simulation and hardware wallet
+                keeps your funds safe with onchain transaction simulation and hardware wallet
                 support.
               </Text>
             </Text>
