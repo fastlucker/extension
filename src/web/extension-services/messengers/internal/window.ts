@@ -3,6 +3,8 @@ import { createMessenger } from '@web/extension-services/messengers/internal/cre
 import { isValidReply } from '@web/extension-services/messengers/internal/isValidReply'
 import { isValidSend } from '@web/extension-services/messengers/internal/isValidSend'
 
+import { isRelayMessage } from './isRealyMessage'
+
 /**
  * Creates a "window messenger" that can be used to communicate between
  * scripts where `window` is defined.
@@ -25,6 +27,7 @@ export const windowMessenger = createMessenger({
     // ... and also set up an event listener to listen for the response ('< {topic}').
     return new Promise((resolve, reject) => {
       const listener = (event: MessageEvent) => {
+        if (isRelayMessage(event.data?.type)) return
         if (!isValidReply({ id, message: event.data, topic })) return
         // eslint-disable-next-line eqeqeq
         if (event.source != window) return
@@ -40,6 +43,7 @@ export const windowMessenger = createMessenger({
   },
   reply<TPayload, TResponse>(topic: string, callback: CallbackFunction<TPayload, TResponse>) {
     const listener = async (event: MessageEvent<SendMessage<TPayload>>) => {
+      if (isRelayMessage(event.data?.type)) return
       if (!isValidSend({ message: event.data, topic })) return
 
       const sender = event.source

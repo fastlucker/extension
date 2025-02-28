@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { MainController } from '@ambire-common/controllers/main/main'
+import { Messenger } from '@ambire-common/interfaces/messenger'
 import { browser, engine, getFirefoxVersion } from '@web/constants/browserapi'
 
 const handleRegisterScripts = async () => {
@@ -143,7 +144,11 @@ const handleUnregisterEthereumInpageScript = async () => {
   }
 }
 
-const restoreDappConnection = async (mainCtrl: MainController, tab: chrome.tabs.Tab) => {
+const restoreDappConnection = async (
+  mainCtrl: MainController,
+  tab: chrome.tabs.Tab,
+  bridgeMessenger: Messenger
+) => {
   if (!tab.id || !tab.url) return
   if (
     Object.values(mainCtrl.dapps.dappSessions).some(
@@ -162,26 +167,29 @@ const restoreDappConnection = async (mainCtrl: MainController, tab: chrome.tabs.
     files: ['proxy-content-script.js'],
     injectImmediately: true
   })
-  mainCtrl.dapps.getOrCreateDappSession({ tabId: tab.id, origin })
+  const tabOrigin = new URL(tab.url).origin
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId: tab.id, origin: tabOrigin })
+  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
+  if (!mainCtrl.keystore.isUnlocked) mainCtrl.dapps.broadcastDappSessionEvent('lock')
 }
 
-const handleRestoreDappConnection = (mainCtrl: MainController) => {
+const handleRestoreDappConnection = (mainCtrl: MainController, bridgeMessenger: Messenger) => {
   browser.windows.onFocusChanged.addListener(async (windowId: number) => {
     if (windowId !== chrome.windows.WINDOW_ID_NONE) {
       const [tab] = await chrome.tabs.query({ active: true, windowId })
-      if (tab) await restoreDappConnection(mainCtrl, tab)
+      if (tab) await restoreDappConnection(mainCtrl, tab, bridgeMessenger)
     }
   })
 
   browser.tabs.onActivated.addListener(async ({ tabId }: chrome.tabs.TabActiveInfo) => {
     const tab = await browser.tabs.get(tabId)
-    if (tabId) await restoreDappConnection(mainCtrl, tab)
+    if (tabId) await restoreDappConnection(mainCtrl, tab, bridgeMessenger)
   })
 
   browser.tabs
     .query({ active: true, currentWindow: true })
     .then(async (tabs: chrome.tabs.Tab[]) => {
-      for (const tab of tabs) await restoreDappConnection(mainCtrl, tab)
+      for (const tab of tabs) await restoreDappConnection(mainCtrl, tab, bridgeMessenger)
     })
 }
 

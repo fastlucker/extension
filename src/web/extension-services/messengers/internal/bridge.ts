@@ -39,7 +39,7 @@ export function setupBridgeMessengerRelay() {
     const t = topic.replace('> ', '')
 
     if (chrome.runtime.id) {
-      const response = await tabMessenger.send(t, payload, { id })
+      const response: any = await tabMessenger.send(t, payload, { id })
 
       return response
     }
@@ -77,4 +77,17 @@ export function setupBridgeMessengerRelay() {
 
     return response
   })
+
+  const handleRelayedMessages = async (event: MessageEvent<any>) => {
+    if (event.source !== window || event.data?.type !== 'BROADCAST_CS_B_TO_CS_A') return
+
+    const { payload, topic } = event.data
+    if (topic !== 'broadcast') return
+
+    const response = await windowMessenger.send(topic, payload)
+
+    return response
+  }
+
+  window.addEventListener('message', handleRelayedMessages)
 }
