@@ -119,31 +119,31 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // TODO: Implement the test
   })
   // TODO: Test failling in pipeline, should be debbuuged
-  it.skip('should switch tokens during Swap & Bridge with a Basic Account', async () => {
+  it('should switch tokens during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    await switchTokensOnSwapAndBridge(page, 2000)
+    await switchTokensOnSwapAndBridge(page, 4000)
   })
   // TODO: Test failling in pipeline, should be debbuuged
-  it.skip('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
+  it('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      await switchTokensOnSwapAndBridge(page, 2000)
+      await switchTokensOnSwapAndBridge(page, 4000)
     }
   })
 
   it.skip('should do MAX token "From" amount during Swap & Bridge with a Basic Account', async () => {
     // TODO: Implement the test
   })
-  // TODO: Test failling in pipeline, should be debbuuged
-  it.skip('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
+
+  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 1)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', 'optimism', 0.02)
@@ -163,6 +163,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // TODO: Implement the test or assert a step in the other tests
   })
 
+  // TODO: Investigate why cannot click Proceed after choose Faster route
   it.skip('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Basic Account', async () => {
     const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await changeRoutePriorityToFastest(page)
@@ -216,7 +217,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it('should Bridge tokens with a Smart Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.2, 'USDC', 'base', 'WALLET')
+    const text = await prepareSwapAndBridge(page, 0.08, 'USDC', 'base', 'WALLET')
     await bridgeSmartAccount(page, 'USDC', 'base', 'optimism', SELECTORS.USDC)
     await signActionPage(
       await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
@@ -259,24 +260,24 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Smart Account', async () => {
     // TODO: Implement the test
   })
-  // TODO: Test failling in pipeline, should be debbuuged
-  it.skip('should switch tokens during Swap & Bridge with a Smart Account', async () => {
+
+  it('should switch tokens during Swap & Bridge with a Smart Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    await switchTokensOnSwapAndBridge(page, 2000)
+    await switchTokensOnSwapAndBridge(page, 4000)
   })
-  // TODO: Test failling in pipeline, should be debbuuged
-  it.skip('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
+
+  it('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      await switchTokensOnSwapAndBridge(page, 2000)
+      await switchTokensOnSwapAndBridge(page, 4000)
     }
   })
 
@@ -284,7 +285,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     // TODO: Implement the test
   })
   // TODO: Test failling in pipeline, should be debbuuged
-  it.skip('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
+  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'USDC.E', 'optimism', 0.34)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', 'optimism', 0.02)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
@@ -303,7 +304,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   it.skip('should find token that already exists within the "Receive" list during Swap & Bridge with a Smart Account', async () => {
     // TODO: Implement the test or assert a step in the other tests
   })
-
+  // TODO: Investigate why cannot click Proceed after choose Faster route
   it.skip('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Smart Account', async () => {
     const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await changeRoutePriorityToFastest(page)

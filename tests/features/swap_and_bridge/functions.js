@@ -125,7 +125,7 @@ export async function switchUSDValueOnSwapAndBridge(
   send_token,
   send_network,
   send_amount,
-  delay = 500
+  delay = 1000
 ) {
   await page.waitForTimeout(delay)
 
@@ -376,7 +376,8 @@ export async function clickOnSecondRoute(page) {
   }
 }
 
-export async function changeRoutePriorityToFastest(page) {
+export async function changeRoutePriorityToFastest(page, delay = 1000) {
+  await page.waitForTimeout(delay)
   // TODO: Selector should be created to have data-testid this is not maintainable
   const elements = await page.$$('.css-view-175oi2r')
   await elements[28].click()
