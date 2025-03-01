@@ -62,7 +62,7 @@ const OnCompleteModal: FC<Props> = ({ isVisible, handleClose, meta, predefinedId
                   https://www.ambire.com/get-extension
                 </a>
                 <br /> 2. Use my referral code so we both get XP: {meta?.invitationKey} <br /> 3.
-                Join Ambire Legends - on-chain quests by Ambire with XP and rewards:{' '}
+                Join Ambire Legends - onchain quests by Ambire with XP and rewards:{' '}
                 <a
                   target="_blank"
                   href="https://legends.ambire.com/"
