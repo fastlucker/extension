@@ -19,7 +19,7 @@ const Accordion = ({ children, title, expandable = true, initiallyExpanded = fal
     <div className={`${styles.wrapper}`}>
       <Pressable onPress={() => expandable && setIsOpen(!isOpen)}>
         <div className={`${styles.heading} ${expandable ? '' : styles.nonExpandable}`}>
-          <div className={`${styles.title}`}>{title}</div>
+          <span className={`${styles.title}`}>{title}</span>
           {expandable && (
             <FontAwesomeIcon
               className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}

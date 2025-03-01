@@ -33,13 +33,11 @@
   }
   .dropdown {
     border-radius: $primaryBorderRadius;
-    border: 1px solid $primaryBorder;
     max-height: 0;
     overflow: hidden;
     transition: all 0.3s ease-in-out;
     &.open {
-      max-height: 500px;
-      padding-bottom: 0.75rem;
+      max-height: 32px;
     }
   }
 }
