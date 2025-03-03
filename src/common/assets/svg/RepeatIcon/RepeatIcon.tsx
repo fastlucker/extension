@@ -1,10 +1,11 @@
 import React from 'react'
 import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
 
-const SwapBridgeToggleIcon: React.FC<SvgProps> = ({
+const RepeatIcon: React.FC<SvgProps> = ({
   width = 20,
   height = 20,
   color = '#6000ff',
+  strokeWidth = '1.5',
   ...rest
 }) => (
   <Svg width={width} height={height} viewBox="0 0 20 20" {...rest}>
@@ -18,7 +19,7 @@ const SwapBridgeToggleIcon: React.FC<SvgProps> = ({
           stroke={color}
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"
+          strokeWidth={strokeWidth}
         />
         <Path
           d="M1.5,25.509V21H6.009"
@@ -27,7 +28,7 @@ const SwapBridgeToggleIcon: React.FC<SvgProps> = ({
           stroke={color}
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"
+          strokeWidth={strokeWidth}
         />
         <Path
           d="M3.386,9.011a6.764,6.764,0,0,1,11.16-2.525l3.487,3.277M1.5,12.768l3.487,3.277a6.764,6.764,0,0,0,11.16-2.525"
@@ -36,11 +37,11 @@ const SwapBridgeToggleIcon: React.FC<SvgProps> = ({
           stroke={color}
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"
+          strokeWidth={strokeWidth}
         />
       </G>
     </G>
   </Svg>
 )
 
-export default React.memo(SwapBridgeToggleIcon)
+export default React.memo(RepeatIcon)
