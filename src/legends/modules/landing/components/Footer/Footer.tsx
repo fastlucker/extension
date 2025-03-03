@@ -57,7 +57,7 @@ const Footer = () => {
         <LinesDeco2 className={styles.bottomDeco} />
       </div>
       <div className={styles.bottom}>
-        <span className={styles.text}>Onchain game by</span>
+        <span className={styles.text}>Smart Accounts exploration campaign by</span>
         <a href="https://www.ambire.com/" target="_blank" rel="noreferrer">
           <AmbireLogoWithText
             /* @ts-ignore */
