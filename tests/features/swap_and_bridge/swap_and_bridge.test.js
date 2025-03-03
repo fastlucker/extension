@@ -64,7 +64,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await enterNumber(page, '00.01', true)
   })
   // TODO: It fails now. Deveopers should fix the issue with entering amount starting the point
-  it.skip('should accept amount starting with point like ".01" during Swap & Bridge with a Basic Account', async () => {
+  it('should accept amount starting with point like ".01" during Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '.01', true)
   })
@@ -125,7 +125,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    await switchTokensOnSwapAndBridge(page, 4000)
+    await switchTokensOnSwapAndBridge(page)
   })
   // TODO: Test failling in pipeline, should be debbuuged
   it('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
@@ -135,11 +135,11 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      await switchTokensOnSwapAndBridge(page, 4000)
+      await switchTokensOnSwapAndBridge(page, 300)
     }
   })
 
-  it.skip('should do MAX token "From" amount during Swap & Bridge with a Basic Account', async () => {
+  it('should do MAX token "From" amount during Swap & Bridge with a Basic Account', async () => {
     // TODO: Implement the test
   })
 
@@ -267,7 +267,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
-    await switchTokensOnSwapAndBridge(page, 4000)
+    await switchTokensOnSwapAndBridge(page)
   })
 
   it('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
@@ -277,11 +277,11 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await checkIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
-      await switchTokensOnSwapAndBridge(page, 4000)
+      await switchTokensOnSwapAndBridge(page, 300)
     }
   })
 
-  it.skip('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async () => {
+  it('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async () => {
     // TODO: Implement the test
   })
   // TODO: Test failling in pipeline, should be debbuuged
@@ -311,5 +311,8 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await signActionPage(
       await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
     )
+  })
+  it.skip('should be able to batch with each bridge during Swap & Bridge with a Smart Account', async () => {
+    // TODO: Implement the test or assert a step in the other tests
   })
 })
