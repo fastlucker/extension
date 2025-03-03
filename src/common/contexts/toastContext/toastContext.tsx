@@ -20,6 +20,8 @@ export interface ToastOptions {
   sticky?: boolean
   badge?: string
   isTypeLabelHidden?: boolean
+  url?: string
+  onClick?: () => void
 }
 
 export interface Toast extends ToastOptions {
@@ -94,7 +96,7 @@ const ToastProvider = ({ children }: Props) => {
     >
       <Portal hostName="global">
         <View style={[styles.container, { top: topInset }]}>
-          {toasts.map(({ id, type, text, isTypeLabelHidden }) => (
+          {toasts.map(({ id, type, text, url, onClick, isTypeLabelHidden = true }) => (
             <ToastComponent
               key={id}
               id={id}
@@ -102,6 +104,8 @@ const ToastProvider = ({ children }: Props) => {
               type={type}
               removeToast={removeToast}
               isTypeLabelHidden={isTypeLabelHidden}
+              url={url}
+              onClick={onClick}
             />
           ))}
         </View>
