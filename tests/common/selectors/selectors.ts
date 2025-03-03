@@ -102,7 +102,8 @@ export const TEST_IDS = {
   recieveNetworkOptimism: 'option-optimism',
   confirmFollowUpTxn: 'confirm-follow-up-txns-checkbox',
   USDC: 'option-0x0b2c639c533813f4aa9d7837caf62653d097ff85.usdc',
-  signTransactionButton: 'transaction-button-sign'
+  signTransactionButton: 'transaction-button-sign',
+  maxAvailableAmount: 'max-available-amount'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

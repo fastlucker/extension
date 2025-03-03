@@ -109,12 +109,12 @@ async function getUSDTextContent(page) {
   return [Number(amount), currency]
 }
 
-async function getSendAmount(page) {
+export async function getSendAmount(page) {
   const amount = await getElementValue(page, ENTER_AMOUNT_SELECTOR)
   return Number(amount)
 }
 
-async function roundAmount(amount) {
+export async function roundAmount(amount) {
   // ToDo: Check if USD swithed value should be int-ed or rounded
   const changedAmount = Math.trunc(amount * 100) / 100
   return changedAmount
@@ -384,4 +384,33 @@ export async function changeRoutePriorityToFastest(page, delay = 1000) {
   await page.waitForTimeout(1000)
   await selectButton(page, 'Fastest Transfer')
   await elements[28].click()
+}
+
+async function extractMaxBalance(page) {
+  const maxBalanceIndex = 2
+  const maxBalance = await getElementContentWords(page, SELECTORS.maxAvailableAmount, maxBalanceIndex)
+  return Number(maxBalance)
+}
+
+export async function getRoundSendAmount(page) {
+  const amount = await getSendAmount(page)
+  return roundAmount(amount)
+}
+
+async function selectSendTokenOnNetwork(page, send_token, send_network) {
+  await clickOnElement(page, SELECTORS.sendTokenSaB)
+  await clickOnElement(
+    page,
+    `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
+  )
+}
+
+export async function verifySendMaxTokenAmount(page, send_token, send_network) {
+  await openSwapAndBridge(page)
+  await selectSendTokenOnNetwork(page, send_token, send_network)
+  const maxBalance = await extractMaxBalance(page)
+  await selectButton(page, 'Max')
+  const roundSendAmount = await roundAmount(await getSendAmount(page))
+  await selectButton(page, 'Back')
+  expect(maxBalance).toEqual(roundSendAmount)
 }

@@ -18,7 +18,8 @@ import {
   bridgeBasicAccount,
   bridgeSmartAccount,
   clickOnSecondRoute,
-  changeRoutePriorityToFastest
+  changeRoutePriorityToFastest,
+  verifySendMaxTokenAmount
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
@@ -38,7 +39,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   afterAll(async () => {
     // TODO: revoke the approvals upon tests completion
   })
-
+  // TODO: Test failling in pipeline, should be debbuuged
   it('should Swap ERC20 tokens USDC to WALLET on Base network with a Basic Account', async () => {
     const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await signActionPage(
@@ -68,7 +69,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '.01', true)
   })
-
+  // TODO: Test failling in pipeline, should be debbuuged
   it('should not accept chars as amount during Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, 'abc', true)
@@ -109,7 +110,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await selectButton(page, 'Cancel')
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
-
+  // TODO: Test failling in pipeline, should be debbuuged
   it('should select a different route when Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await clickOnSecondRoute(page)
@@ -118,7 +119,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Basic Account', async () => {
     // TODO: Implement the test
   })
-  // TODO: Test failling in pipeline, should be debbuuged
+
   it('should switch tokens during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
@@ -127,7 +128,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await checkIfSwitchIsActive(page, true)
     await switchTokensOnSwapAndBridge(page)
   })
-  // TODO: Test failling in pipeline, should be debbuuged
+
   it('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
     await checkIfSwitchIsActive(page, false)
@@ -140,9 +141,11 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   })
 
   it('should do MAX token "From" amount during Swap & Bridge with a Basic Account', async () => {
-    // TODO: Implement the test
+    await verifySendMaxTokenAmount(page, 'DAI', 'optimism')
+    await verifySendMaxTokenAmount(page, 'USDC', 'base')
+    await verifySendMaxTokenAmount(page, 'xWALLET', 'ethereum')
   })
-
+  // TODO: Test failling in pipeline, should be debbuuged
   it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 1)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
@@ -251,7 +254,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await selectButton(page, 'Cancel')
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
-
+  // TODO: Test failling in pipeline, should be debbuuged
   it('should select a different route when Swap & Bridge with a Smart Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await clickOnSecondRoute(page)
@@ -282,7 +285,9 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async () => {
-    // TODO: Implement the test
+    await verifySendMaxTokenAmount(page, 'DAI', 'optimism')
+    await verifySendMaxTokenAmount(page, 'USDC', 'base')
+    await verifySendMaxTokenAmount(page, 'POL', 'polygon')
   })
   // TODO: Test failling in pipeline, should be debbuuged
   it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
