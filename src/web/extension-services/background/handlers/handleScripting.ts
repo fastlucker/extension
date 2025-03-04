@@ -154,11 +154,16 @@ const executeContentScriptForTabsFromPrevSession = async (
 
   if (!['http://', 'https://'].some((prefix) => tab.url!.startsWith(prefix))) return
 
-  await browser.scripting.executeScript({
-    target: { tabId: tab.id, allFrames: true },
-    files: ['browser-polyfill.min.js', 'content-script.js'],
-    injectImmediately: true
-  })
+  try {
+    await browser.scripting.executeScript({
+      target: { tabId: tab.id, allFrames: true },
+      files: ['browser-polyfill.min.js', 'content-script.js'],
+      injectImmediately: true
+    })
+  } catch (error) {
+    console.error(error)
+  }
+
   const tabOrigin = new URL(tab.url).origin
   const session = mainCtrl.dapps.getOrCreateDappSession({ tabId: tab.id, origin: tabOrigin })
   mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
