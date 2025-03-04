@@ -91,7 +91,10 @@ const ActionModal: FC<ActionModalProps> = ({
         <div className={styles.modalHeadingTitle}>{title}</div>
         {xp && <Rewards xp={xp} size="lg" />}
       </Modal.Heading>
-      <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
+      {![CARD_PREDEFINED_ID.linkAccount].includes(predefinedId || '') && (
+        <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
+      )}
+
       {contentSteps && (
         <HowTo
           steps={contentSteps}
@@ -100,8 +103,8 @@ const ActionModal: FC<ActionModalProps> = ({
           imageAlt={flavor}
           video={contentVideo}
         >
-          {predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />}
-          {predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />}
+          {(predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />) ||
+            (predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />)}
         </HowTo>
       )}
       {!!action && (

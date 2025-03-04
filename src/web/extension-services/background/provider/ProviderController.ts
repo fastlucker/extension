@@ -208,8 +208,7 @@ export class ProviderController {
           metadata: {
             symbol: token.symbol,
             decimals: token.decimals,
-            // @NOTE: by the ERC7811 standard this should be name, not symbol, but we do not store token names
-            name: token.symbol
+            name: token.name
           }
         })
       })

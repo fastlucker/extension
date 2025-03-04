@@ -29,7 +29,7 @@ export const getAutoLockLabel = (time: AUTO_LOCK_TIMES) => {
 export class AutoLockController extends EventEmitter {
   isReady: boolean = false
 
-  #_autoLockTime: AUTO_LOCK_TIMES = 0 // number in ms
+  #_autoLockTime: AUTO_LOCK_TIMES = 0 // number in minutes
 
   get autoLockTime() {
     return this.#_autoLockTime

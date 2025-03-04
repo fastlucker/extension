@@ -4,12 +4,12 @@ import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '../useAccountContext'
 import useToast from '../useToast'
 
-const useSwitchNetwork = (newChainId: number = BASE_CHAIN_ID) => {
+const useSwitchNetwork = () => {
   const { chainId } = useAccountContext()
   const { addToast } = useToast()
-  const isAlreadyConnected = Number(chainId) === newChainId
 
-  const switchNetwork = async () => {
+  const switchNetwork = async (newChainId: number = BASE_CHAIN_ID) => {
+    const isAlreadyConnected = Number(chainId) === newChainId
     // Request a chain change to base and a sign message to associate the EOA address
     try {
       if (isAlreadyConnected) return

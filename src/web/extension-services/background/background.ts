@@ -192,9 +192,14 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     // As of v4.26.0, custom extension-specific headers. TBD for the other apps.
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
     initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
-    const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
-    const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
-    initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
+
+    // if the fetch method is called while the keystore is constructing the keyStoreUid won't be defined yet
+    // in that case we can still fetch but without our custom header
+    if (mainCtrl?.keystore?.keyStoreUid) {
+      const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
+      const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
+      initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
+    }
 
     // As of v4.36.0, for metric purposes, pass the account keys count as an
     // additional param for the batched velcro discovery requests.
@@ -259,7 +264,20 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
-  const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
+  const autoLockCtrl = new AutoLockController(() => {
+    // Prevents sending multiple notifications if the event is triggered multiple times
+    if (mainCtrl.keystore.isUnlocked) {
+      notificationManager
+        .create({
+          title: 'Ambire locked',
+          message: 'Your wallet has been locked due to inactivity.'
+        })
+        .catch((err) => {
+          console.error('Failed to create notification', err)
+        })
+    }
+    mainCtrl.keystore.lock()
+  })
   const extensionUpdateCtrl = new ExtensionUpdateController()
 
   async function initPortfolioContinuousUpdate() {
@@ -815,6 +833,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
       initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()
+      mainCtrl.phishing.updateIfNeeded()
 
       // @ts-ignore
       pm.addListener(port.id, async (messageType, action: Action) => {

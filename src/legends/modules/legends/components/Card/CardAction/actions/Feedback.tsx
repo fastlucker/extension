@@ -28,7 +28,7 @@ const Feedback = () => {
   const { onComplete, handleClose } = useCardActionContext()
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
-  const switchNetwork = useSwitchNetwork(BASE_CHAIN_ID)
+  const switchNetwork = useSwitchNetwork()
 
   const openForm = useCallback(() => {
     if (!connectedAccount) return addToast('No account connected')
@@ -49,7 +49,7 @@ const Feedback = () => {
       if (!surveyCode) throw new Error('No survey code')
       setIsInProgress(true)
       await switchNetwork()
-      const provider = new BrowserProvider(window.ethereum)
+      const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner(connectedAccount)
 
       const useSponsorship = false

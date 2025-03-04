@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, Pressable, PressableProps, View } from 'react-native'
 
-import SwapBridgeToggleIcon from '@common/assets/svg/SwapBridgeToggleIcon'
+import RepeatIcon from '@common/assets/svg/RepeatIcon'
 import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import { useCustomHover } from '@web/hooks/useHover'
@@ -35,7 +35,7 @@ const SwitchTokensButton = ({ disabled, ...rest }: PressableProps) => {
     >
       <Pressable style={styles.switchTokensButton} {...bindAnim} disabled={disabled} {...rest}>
         <Animated.View style={{ transform: [{ rotateZ: rotateInterpolate || '0deg' }] }}>
-          <SwapBridgeToggleIcon />
+          <RepeatIcon />
         </Animated.View>
       </Pressable>
       {disabled && (
