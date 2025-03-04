@@ -232,50 +232,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     return fetch(url, initWithCustomHeaders)
   }
 
-  const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  providerRequestTransport.reply(async ({ method, id, params }, meta) => {
-    // wait for mainCtrl to be initialized before handling dapp requests
-    while (!mainCtrl) {
-      // eslint-disable-next-line no-await-in-loop
-      await wait(200)
-    }
-    const tabId = meta.sender?.tab?.id
-    if (tabId === undefined || !meta.sender?.url) {
-      return
-    }
-
-    const origin = getOriginFromUrl(meta.sender.url)
-    const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
-    mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
-    // Temporarily resolves the subscription methods as successful
-    // but the rpc block subscription is actually not implemented because it causes app crashes
-    if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
-      return true
-    }
-
-    try {
-      const res = await handleProviderRequests(
-        {
-          method,
-          params,
-          session,
-          origin
-        },
-        mainCtrl
-      )
-      return { id, result: res }
-    } catch (error: any) {
-      let errorRes
-      try {
-        errorRes = error.serialize()
-      } catch (e) {
-        errorRes = error
-      }
-      return { id, error: errorRes }
-    }
-  })
-
   mainCtrl = new MainController({
     storage,
     fetch: fetchWithAnalytics,
@@ -946,6 +902,50 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
   await clearHumanizerMetaObjectFromStorage(storage)
 })()
+
+const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+  // wait for mainCtrl to be initialized before handling dapp requests
+  while (!mainCtrl) {
+    // eslint-disable-next-line no-await-in-loop
+    await wait(200)
+  }
+  const tabId = meta.sender?.tab?.id
+  if (tabId === undefined || !meta.sender?.url) {
+    return
+  }
+
+  const origin = getOriginFromUrl(meta.sender.url)
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
+  // Temporarily resolves the subscription methods as successful
+  // but the rpc block subscription is actually not implemented because it causes app crashes
+  if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
+    return true
+  }
+
+  try {
+    const res = await handleProviderRequests(
+      {
+        method,
+        params,
+        session,
+        origin
+      },
+      mainCtrl
+    )
+    return { id, result: res }
+  } catch (error: any) {
+    let errorRes
+    try {
+      errorRes = error.serialize()
+    } catch (e) {
+      errorRes = error
+    }
+    return { id, error: errorRes }
+  }
+})
 
 try {
   browser.tabs.onRemoved.addListener(async (tabId: number) => {
