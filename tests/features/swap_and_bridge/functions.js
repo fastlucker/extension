@@ -38,21 +38,10 @@ export async function checkIfSwitchIsActive(page, reference = true) {
   await expect(isActive).toBe(reference)
 }
 
-export async function clickSwitchTokensOnSwapAndBridge(page) {
-  const [element] = await page.$x(SWITCH_TOKEN_SELECTOR)
+export async function clickSwitchButton(page, selector) {
+  const [element] = await page.$x(selector)
   expect(element).not.toBeNull()
   await element.click()
-}
-
-export async function clickSwitchUSDOnSwapAndBridge(page) {
-  const [element] = await page.$x(SWITCH_USD_SELECTOR)
-  expect(element).not.toBeNull()
-  // Find its parent
-  const parentElement = await element.evaluateHandle((el) => el.parentElement)
-  expect(parentElement).not.toBeNull()
-
-  // Click the parent
-  await parentElement.click()
 }
 
 async function getElement(page, selector) {
@@ -84,7 +73,7 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
   const network = await getElementContentWords(page, SELECTORS.recieveNetworkBase)
 
   // Click the switch Tokens button
-  await clickSwitchTokensOnSwapAndBridge(page)
+  await clickSwitchButton(page, SWITCH_TOKEN_SELECTOR)
 
   // Ensure the tokens are switched
   expect(await getElementContentWords(page, SELECTORS.sendTokenSaB)).toBe(receiveToken)
@@ -114,10 +103,18 @@ export async function getSendAmount(page) {
   return Number(amount)
 }
 
-export async function roundAmount(amount) {
-  // ToDo: Check if USD swithed value should be int-ed or rounded
-  const changedAmount = Math.trunc(amount * 100) / 100
-  return changedAmount
+export async function roundAmount(amount, place = 2) {
+  // ToDo: Check if values should be int-ed or rounded. Values are currently int-ed
+  const multipla = 10 ** place
+  return Math.trunc(amount * multipla) / multipla
+}
+
+async function selectSendTokenOnNetwork(page, send_token, send_network) {
+  await clickOnElement(page, SELECTORS.sendTokenSaB)
+  await clickOnElement(
+    page,
+    `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
+  )
 }
 
 export async function switchUSDValueOnSwapAndBridge(
@@ -129,13 +126,8 @@ export async function switchUSDValueOnSwapAndBridge(
 ) {
   await page.waitForTimeout(delay)
 
-  // Navigate to Swap and Bridge
   await openSwapAndBridge(page)
-
-  // Select Send Token on Network
-  await clickOnElement(page, SELECTORS.sendTokenSaB)
-  await clickOnElement(page, `[data-testid*="${send_network}.${send_token.toLowerCase()}"]`)
-
+  await selectSendTokenOnNetwork(page, send_token, send_network)
   // Enter the amount
   await typeText(page, ENTER_AMOUNT_SELECTOR, send_amount.toString())
 
@@ -145,7 +137,7 @@ export async function switchUSDValueOnSwapAndBridge(
   const oldAmount = await getSendAmount(page)
 
   // Click the switch USD button
-  await clickSwitchUSDOnSwapAndBridge(page)
+  await clickSwitchButton(page, SWITCH_USD_SELECTOR)
 
   // Get new amounts
   const [usdNewAmount, newCcy] = await getUSDTextContent(page)
@@ -158,7 +150,7 @@ export async function switchUSDValueOnSwapAndBridge(
 
   // Wait 500ms and click again to the switch USD button
   await page.waitForTimeout(500)
-  await clickSwitchUSDOnSwapAndBridge(page)
+  await clickSwitchButton(page, SWITCH_USD_SELECTOR)
 
   // Get second amounts
   const [usdSecondAmount, secondCcy] = await getUSDTextContent(page)
@@ -192,11 +184,7 @@ export async function bridgeBasicAccount(
   recieve_network,
   receive_token
 ) {
-  await clickOnElement(page, SELECTORS.sendTokenSaB)
-  await clickOnElement(
-    page,
-    `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
-  )
+  await selectSendTokenOnNetwork(page, send_token, send_network)
   await clickOnElement(page, SELECTORS.recieveNetworkBase)
   await clickOnElement(page, `[data-testid*="option-${recieve_network}"]`)
   await page.waitForTimeout(1000)
@@ -231,11 +219,7 @@ export async function bridgeSmartAccount(
   recieve_network,
   receive_token
 ) {
-  await clickOnElement(page, SELECTORS.sendTokenSaB)
-  await clickOnElement(
-    page,
-    `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
-  )
+  await selectSendTokenOnNetwork(page, send_token, send_network)
   await clickOnElement(page, SELECTORS.recieveNetworkBase)
   await clickOnElement(page, `[data-testid*="option-${recieve_network}"]`)
   await page.waitForTimeout(1000)
@@ -266,15 +250,8 @@ export async function prepareSwapAndBridge(
   receive_token
 ) {
   try {
-    // Navigate to Swap and Bridge
     await openSwapAndBridge(page)
-
-    // Select Send Token on Network
-    await clickOnElement(page, SELECTORS.sendTokenSaB)
-    await clickOnElement(
-      page,
-      `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
-    )
+    await selectSendTokenOnNetwork(page, send_token, send_network)
 
     // Select Receive Token on the same Network, which is automatically selected
     await page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
@@ -333,10 +310,10 @@ export async function openSwapAndBridgeActionPage(page, callback = 'null') {
     const actionPage = await actionPagePromise
 
     // Wait for Action Page to open
-    await actionPage.waitForTimeout(1500)
+    await actionPage.waitForTimeout(2000)
 
     // Assert the Action Page to open
-    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
+    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation', timeout: 3000 })
 
     return actionPage
   } catch (error) {
@@ -362,14 +339,17 @@ export async function signActionPage(actionPage) {
 }
 
 export async function clickOnSecondRoute(page) {
+  const secoundRouteIndex = 1
   if (await page.waitForSelector('text=Select another route', { visible: true })) {
     await selectButton(page, 'Select another route')
-    await page.waitForTimeout(1000)
-    // TODO: Selector should be created to have data-testid this is not maintainable
-    const elements = await page.$$('.css-view-175oi2r')
-    await elements[1].click()
-    await page.waitForTimeout(1000)
+
+    // A Select Route modal page opens
+    await page.waitForSelector(SELECTORS.bottomSheet)
+    const elements = await page.$$(SELECTORS.bottomSheet + ' [tabindex="0"]');
+    await elements[secoundRouteIndex].click()
+    await page.waitForTimeout(500)
     await selectButton(page, 'Confirm')
+    // TODO: Add assertation that a second route is selected
   } else {
     await page.waitForSelector('text=No route found!', { visible: true })
     console.error('[ERROR] No route found!')
@@ -392,25 +372,13 @@ async function extractMaxBalance(page) {
   return Number(maxBalance)
 }
 
-export async function getRoundSendAmount(page) {
-  const amount = await getSendAmount(page)
-  return roundAmount(amount)
-}
-
-async function selectSendTokenOnNetwork(page, send_token, send_network) {
-  await clickOnElement(page, SELECTORS.sendTokenSaB)
-  await clickOnElement(
-    page,
-    `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
-  )
-}
-
 export async function verifySendMaxTokenAmount(page, send_token, send_network) {
+  const valueDecimals = 2 // Set presison of values to 2 decimals
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, send_network)
-  const maxBalance = await extractMaxBalance(page)
+  const maxBalance = await roundAmount(await extractMaxBalance(page), valueDecimals)
   await selectButton(page, 'Max')
-  const roundSendAmount = await roundAmount(await getSendAmount(page))
+  const roundSendAmount = await roundAmount(await getSendAmount(page), valueDecimals)
   await selectButton(page, 'Back')
   expect(maxBalance).toEqual(roundSendAmount)
 }

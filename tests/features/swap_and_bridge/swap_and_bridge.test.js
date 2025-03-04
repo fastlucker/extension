@@ -88,13 +88,11 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
-    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
     actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, 'Proceed')
     )
-    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
   })
@@ -104,7 +102,6 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
-    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
     await selectButton(page, 'Cancel')
@@ -145,7 +142,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await verifySendMaxTokenAmount(page, 'USDC', 'base')
     await verifySendMaxTokenAmount(page, 'xWALLET', 'ethereum')
   })
-  // TODO: Test failling in pipeline, should be debbuuged
+
   it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 1)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
@@ -232,29 +229,26 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
-    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
     actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, 'Proceed')
     )
-    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
   })
 
   it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.1, 'USDC.E', 'optimism', 'DAI')
+    const text = await prepareSwapAndBridge(page, 0.08, 'USDC', 'base', 'WALLET')
     const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
-    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation' })
     actionPage.close()
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
     await selectButton(page, 'Cancel')
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
-  // TODO: Test failling in pipeline, should be debbuuged
+
   it('should select a different route when Swap & Bridge with a Smart Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await clickOnSecondRoute(page)
