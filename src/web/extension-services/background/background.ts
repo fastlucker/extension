@@ -921,6 +921,9 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
   mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
 
+  if (method === 'tabCheckin') {
+    mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId)
+  }
   // Prevents handling the same request more than once
   if (session.lastHandledRequestId >= id) return
   mainCtrl.dapps.setSessionLastHandledRequestsId(session.sessionId, id)

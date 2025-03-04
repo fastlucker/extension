@@ -173,15 +173,14 @@ const executeContentScriptForTabsFromPrevSession = async (
 const handleRestoreDappConnection = (mainCtrl: MainController, bridgeMessenger: Messenger) => {
   const tabIdsFromPrevSession: number[] = []
   browser.tabs.query({}).then(async (tabs: chrome.tabs.Tab[]) => {
-    for (const tab of tabs) {
-      if (tab.id) tabIdsFromPrevSession.push(tab.id)
-    }
+    for (const tab of tabs) if (tab.id) tabIdsFromPrevSession.push(tab.id)
   })
 
   browser.tabs.onActivated.addListener(async ({ tabId }: chrome.tabs.TabActiveInfo) => {
     if (tabId && tabIdsFromPrevSession.includes(tabId)) {
       const tab = await browser.tabs.get(tabId)
       await executeContentScriptForTabsFromPrevSession(mainCtrl, tab, bridgeMessenger)
+      tabIdsFromPrevSession.splice(tabIdsFromPrevSession.indexOf(tabId), 1)
     }
   })
 }
