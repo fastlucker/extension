@@ -1,6 +1,5 @@
 import { TFunction } from 'i18next'
-import React, { FC, useState } from 'react'
-import { UseFormSetValue } from 'react-hook-form'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -38,9 +37,6 @@ interface Props {
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   searchControl?: any
   sessionId: string
-  setValue: UseFormSetValue<{
-    search: string
-  }>
 }
 
 // We want to change the query param without refreshing the page.
@@ -59,7 +55,9 @@ const handleChangeQuery = (tab: string, sessionId: string) => {
 
 const TABS = ['tokens', 'collectibles', 'defi']
 
-const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId, setValue }) => {
+const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId }) => {
+  const searchRef = useRef<any>(null)
+  const searchButtonRef = useRef<any>(null)
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const allBanners = useBanners()
@@ -81,6 +79,30 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
     ]
   })
 
+  const toggleSearchVisibility = () => {
+    setIsSearchVisible((prev) => !prev)
+  }
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      // Don't close the search if the user clicked on the search button because
+      // the button toggles the search visibility.
+      const clickedToOpenSearch =
+        searchButtonRef.current && searchButtonRef.current.contains(e.target as Node)
+      const clickedOnSearch = searchRef.current && searchRef.current.contains(e.target as Node)
+
+      if (!isSearchVisible || clickedToOpenSearch || clickedOnSearch) return
+
+      setIsSearchVisible(false)
+    }
+
+    window.addEventListener('mousedown', onClick)
+
+    return () => {
+      window.removeEventListener('mousedown', onClick)
+    }
+  }, [isSearchVisible])
+
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
       <Tabs
@@ -92,7 +114,8 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <SelectNetwork />
           <AnimatedPressable
-            onPress={() => setIsSearchVisible((prev: boolean) => !prev)}
+            onPress={toggleSearchVisibility}
+            ref={searchButtonRef}
             style={[
               styles.searchIconWrapper,
               controlPositionStyles,
@@ -109,7 +132,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
             <SearchIcon color={theme.tertiaryText} width={16} />
           </AnimatedPressable>
           {isSearchVisible && (
-            <View style={[styles.searchContainer]}>
+            <View style={[styles.searchContainer]} ref={searchRef}>
               <Search
                 autoFocus
                 borderWrapperStyle={styles.borderWrapper}
@@ -118,7 +141,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
                 height={32}
                 placeholder={getSearchPlaceholder(openTab, t)}
                 hasLeftIcon={false}
-                setValue={setValue}
+                onSearchCleared={toggleSearchVisibility}
               />
             </View>
           )}

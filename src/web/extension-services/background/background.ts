@@ -312,15 +312,18 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => {
+    // Prevents sending multiple notifications if the event is triggered multiple times
+    if (mainCtrl.keystore.isUnlocked) {
+      notificationManager
+        .create({
+          title: 'Ambire locked',
+          message: 'Your wallet has been locked due to inactivity.'
+        })
+        .catch((err) => {
+          console.error('Failed to create notification', err)
+        })
+    }
     mainCtrl.keystore.lock()
-    notificationManager
-      .create({
-        title: 'Ambire locked',
-        message: 'Your wallet has been locked due to inactivity.'
-      })
-      .catch((err) => {
-        console.error('Failed to create notification', err)
-      })
   })
   const extensionUpdateCtrl = new ExtensionUpdateController()
 

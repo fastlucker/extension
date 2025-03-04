@@ -10,6 +10,7 @@ import MidnightTimer from '@legends/components/MidnightTimer'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
+import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
@@ -38,6 +39,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 }) => {
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
+  const { onLegendComplete } = useLegendsContext()
+  
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
 
@@ -64,6 +67,9 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const closeModal = async () => {
     handleClose()
+    if (chestState === 'opened') {
+      await onLegendComplete()
+    }
   }
 
   const treasureLegend: ChestCard | undefined = useMemo(
@@ -210,6 +216,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const onCongratsModalButtonClick = async () => {
     setCongratsModalOpen(false)
   }
+  // Close Modal on ESC
+  useEscModal(isOpen, closeModal)
 
   if (!treasureLegend || !isOpen) {
     return null
