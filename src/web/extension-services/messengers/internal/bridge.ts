@@ -1,6 +1,4 @@
-import { ReplyMessage } from '@ambire-common/interfaces/messenger'
 import { createMessenger } from '@web/extension-services/messengers/internal/createMessenger'
-import { isValidReply } from '@web/extension-services/messengers/internal/isValidReply'
 import { tabMessenger } from '@web/extension-services/messengers/internal/tab'
 import { windowMessenger } from '@web/extension-services/messengers/internal/window'
 import { detectScriptType } from '@web/extension-services/messengers/utils/detectScriptType'
@@ -32,9 +30,16 @@ export function setupBridgeMessengerRelay() {
     throw new Error('`setupBridgeMessengerRelay` is only supported in Content Scripts.')
   }
 
+  let windowReplyListener: (() => void) | undefined
+
   // e.g. inpage -> content script -> background
-  windowMessenger.reply('*', async (payload, { topic, id }) => {
+  windowReplyListener = windowMessenger.reply('*', async (payload, { topic, id }) => {
     if (!topic) return
+
+    if (!chrome.runtime.id && windowReplyListener) {
+      windowReplyListener()
+      windowReplyListener = undefined
+    }
 
     const t = topic.replace('> ', '')
 
@@ -43,51 +48,22 @@ export function setupBridgeMessengerRelay() {
 
       return response
     }
-
-    return new Promise<any>((resolve, reject) => {
-      const listener = (e: any) => {
-        if (e.source !== window || e.data?.type !== 'CS_B_TO_CS_A') return
-        const message = {
-          id: e.data.payload.id,
-          topic: '< ambireProviderRequest',
-          payload: { response: e.data.payload }
-        } as ReplyMessage<any>
-
-        if (!isValidReply<any>({ id, message, topic: t })) return
-        window.removeEventListener('message', listener)
-
-        const { response: r, error } = message.payload
-        if (error) reject(new Error(error.message))
-        resolve(r)
-        return true
-      }
-
-      window.addEventListener('message', listener)
-
-      window.postMessage({ type: 'CS_A_TO_CS_B', message: { topic: t, payload, id } }, '*')
-    })
   })
 
+  let tabReplyListener: (() => void) | undefined
+
   // e.g. background -> content script -> inpage
-  tabMessenger.reply('*', async (payload, { topic, id }) => {
+  tabReplyListener = tabMessenger.reply('*', async (payload, { topic, id }) => {
     if (!topic) return
+
+    if (!chrome.runtime.id && tabReplyListener) {
+      tabReplyListener()
+      tabReplyListener = undefined
+    }
 
     const t = topic.replace('> ', '')
     const response = await windowMessenger.send(t, payload, { id })
 
     return response
   })
-
-  const handleRelayedMessages = async (event: MessageEvent<any>) => {
-    if (event.source !== window || event.data?.type !== 'BROADCAST_CS_B_TO_CS_A') return
-
-    const { payload, topic } = event.data
-    if (topic !== 'broadcast') return
-
-    const response = await windowMessenger.send(topic, payload)
-
-    return response
-  }
-
-  window.addEventListener('message', handleRelayedMessages)
 }

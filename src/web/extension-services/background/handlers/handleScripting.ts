@@ -86,6 +86,7 @@ const handleRegisterScripts = async () => {
         matches: ['http://*/*', 'https://*/*'],
         excludeMatches: ['*://doInWebPack.lan/*'],
         js: ['content-script-ethereum-injection.js'],
+        persistAcrossSessions: false,
         runAt: 'document_start'
       })
     }
@@ -144,27 +145,18 @@ const handleUnregisterEthereumInpageScript = async () => {
   }
 }
 
-const restoreDappConnection = async (
+const executeContentScriptForTabsFromPrevSession = async (
   mainCtrl: MainController,
   tab: chrome.tabs.Tab,
   bridgeMessenger: Messenger
 ) => {
   if (!tab.id || !tab.url) return
-  if (
-    Object.values(mainCtrl.dapps.dappSessions).some(
-      ({ tabId: sessionTabId }) => sessionTabId === tab.id
-    )
-  ) {
-    return
-  }
 
-  const MATCH_PATTERNS = ['http://', 'https://']
-
-  if (!MATCH_PATTERNS.some((prefix) => tab.url!.startsWith(prefix))) return
+  if (!['http://', 'https://'].some((prefix) => tab.url!.startsWith(prefix))) return
 
   await browser.scripting.executeScript({
     target: { tabId: tab.id, allFrames: true },
-    files: ['proxy-content-script.js'],
+    files: ['browser-polyfill.min.js', 'content-script.js'],
     injectImmediately: true
   })
   const tabOrigin = new URL(tab.url).origin
@@ -174,23 +166,19 @@ const restoreDappConnection = async (
 }
 
 const handleRestoreDappConnection = (mainCtrl: MainController, bridgeMessenger: Messenger) => {
-  browser.windows.onFocusChanged.addListener(async (windowId: number) => {
-    if (windowId !== chrome.windows.WINDOW_ID_NONE) {
-      const [tab] = await chrome.tabs.query({ active: true, windowId })
-      if (tab) await restoreDappConnection(mainCtrl, tab, bridgeMessenger)
+  const tabIdsFromPrevSession: number[] = []
+  browser.tabs.query({}).then(async (tabs: chrome.tabs.Tab[]) => {
+    for (const tab of tabs) {
+      if (tab.id) tabIdsFromPrevSession.push(tab.id)
     }
   })
 
   browser.tabs.onActivated.addListener(async ({ tabId }: chrome.tabs.TabActiveInfo) => {
-    const tab = await browser.tabs.get(tabId)
-    if (tabId) await restoreDappConnection(mainCtrl, tab, bridgeMessenger)
+    if (tabId && tabIdsFromPrevSession.includes(tabId)) {
+      const tab = await browser.tabs.get(tabId)
+      await executeContentScriptForTabsFromPrevSession(mainCtrl, tab, bridgeMessenger)
+    }
   })
-
-  browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(async (tabs: chrome.tabs.Tab[]) => {
-      for (const tab of tabs) await restoreDappConnection(mainCtrl, tab, bridgeMessenger)
-    })
 }
 
 export {
