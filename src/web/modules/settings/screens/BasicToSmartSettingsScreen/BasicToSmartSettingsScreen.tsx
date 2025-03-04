@@ -1,4 +1,3 @@
-
 import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -107,95 +106,103 @@ const BasicToSmartSettingsScreen = () => {
 
   const availableNetworks = useMemo(() => {
     return networks.filter((net) => !isActivateDisabled(net) || has7702(net))
-  }, [networks, isActivateDisabled])   
+  }, [networks, isActivateDisabled])
 
   return (
     <>
       <View style={[flexbox.directionRow, flexbox.alignSelfStart]}>
-        <BackButton type="secondary"  style={ { borderBottomWidth: 1,
-      borderBottomColor: theme.secondaryBorder }}/>
-        <SettingsPageHeader title="Make your account smarter" style={[spacings.mb0, spacings.mlLg]} />
+        <BackButton
+          type="secondary"
+          style={{ borderBottomWidth: 1, borderBottomColor: theme.secondaryBorder }}
+        />
+        <SettingsPageHeader
+          title="Make your account smarter"
+          // @ts-ignore
+          style={[spacings.mb0, spacings.mlLg]}
+        />
       </View>
       <Authorization7702>
-      {account && availableNetworks?.length ? (
-        <>
-          <Text fontSize={16} style={[spacings.mb, spacings.mt]}>
-            {t("While we support multiple networks, only those that have implemented EIP-7702 are listed here. As more networks adopt this upgrade, we will update the list to reflect broader availability.")}
-          </Text>
-          <View
-            style={[
-              {
-                borderBottomWidth: 2,
-                borderBottomColor: colors.lightAzureBlue
-              },
-              flexbox.directionRow,
-              spacings.mb
-            ]}
-          >
-            <View style={[flexbox.flex1]}>
-              <Text>Network</Text>
-            </View>
-            <View style={[flexbox.flex1, flexbox.alignCenter]}>
-              <Text>Status</Text>
-            </View>
-            <View style={[flexbox.flex1, flexbox.alignEnd]}>
-              <Text>Action</Text>
-            </View>
-          </View>
-          {availableNetworks.map((net) => (
+        {account && availableNetworks?.length ? (
+          <>
+            <Text fontSize={16} style={[spacings.mb, spacings.mt]}>
+              {t(
+                'While we support multiple networks, only those that have implemented EIP-7702 are listed here. As more networks adopt this upgrade, we will update the list to reflect broader availability.'
+              )}
+            </Text>
             <View
-              key={net.id}
               style={[
                 {
-                  borderBottomWidth: 1,
+                  borderBottomWidth: 2,
                   borderBottomColor: colors.lightAzureBlue
                 },
                 flexbox.directionRow,
-                flexbox.alignCenter,
-                spacings.pb,
                 spacings.mb
               ]}
             >
               <View style={[flexbox.flex1]}>
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <NetworkIcon id={net.id} />
-                  <Text style={spacings.mlTy}>{net.name}</Text>
-                </View>
+                <Text>Network</Text>
               </View>
               <View style={[flexbox.flex1, flexbox.alignCenter]}>
-                <View style={[flexbox.directionRow]}>
-                  {getIsSmarterEOA(net.chainId) ? (
-                    <Badge type="success" text={t('activated')} />
-                  ) : (
-                    <Badge type="default" text={t('deactivated')} />
-                  )}
-                </View>
+                <Text>Status</Text>
               </View>
               <View style={[flexbox.flex1, flexbox.alignEnd]}>
-                <View style={[flexbox.directionRow]}>
-                  <Button
-                    size="small"
-                    disabled={isActivateDisabled(net)}
-                    style={[spacings.mb0]}
-                    onPress={() => activate(net.chainId)}
-                    text="Activate"
-                  />
-                </View>
+                <Text>Action</Text>
               </View>
             </View>
-          ))}
-        </>
-      ) : (
-        <View>
-          <Alert type="info" size="md">
-            <Text fontSize={16} appearance="infoText">
-              {t(
-                'No accounts available. Turning Basic Accounts into Smart is only available for hot wallets (wallets whose key is directly imported into the extension) as none of the hardware wallets support this functionality, yet. To proceed, please import a Basic Account through private key import'
-              )}
-            </Text>
-          </Alert>
-        </View>
-      )}
+            {availableNetworks.map((net) => (
+              <View
+                key={net.id}
+                style={[
+                  {
+                    borderBottomWidth: 1,
+                    borderBottomColor: colors.lightAzureBlue
+                  },
+                  flexbox.directionRow,
+                  flexbox.alignCenter,
+                  spacings.pb,
+                  spacings.mb
+                ]}
+              >
+                <View style={[flexbox.flex1]}>
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <NetworkIcon id={net.id} />
+                    <Text style={spacings.mlTy}>{net.name}</Text>
+                  </View>
+                </View>
+                <View style={[flexbox.flex1, flexbox.alignCenter]}>
+                  <View style={[flexbox.directionRow]}>
+                    {getIsSmarterEOA(net.chainId) ? (
+                      <Badge type="success" text={t('activated')} />
+                    ) : (
+                      <Badge type="default" text={t('deactivated')} />
+                    )}
+                  </View>
+                </View>
+                <View style={[flexbox.flex1, flexbox.alignEnd]}>
+                  <View style={[flexbox.directionRow]}>
+                    <Button
+                      size="small"
+                      disabled={isActivateDisabled(net)}
+                      style={[spacings.mb0]}
+                      onPress={() => activate(net.chainId)}
+                      text="Activate"
+                    />
+                  </View>
+                </View>
+              </View>
+            ))}
+          </>
+        ) : (
+          <View>
+            <Alert type="info" size="md">
+              <Text fontSize={16} appearance="infoText">
+                {t(
+                  'No accounts available. Turning Basic Accounts into Smart is only available for hot wallets (wallets whose key is directly imported into the extension) as none of the hardware wallets support this functionality, yet. To proceed, please import a Basic Account through private key import'
+                )}
+              </Text>
+            </Alert>
+          </View>
+        )}
       </Authorization7702>
     </>
   )
