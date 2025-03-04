@@ -107,6 +107,8 @@ let mainCtrl: MainController
 handleRegisterScripts()
 handleKeepAlive()
 
+const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
+
 function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
   // 5s + new Date().getTime() - timestamp of newest op / 10
   // here are some example of what this means:
@@ -903,7 +905,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   await clearHumanizerMetaObjectFromStorage(storage)
 })()
 
-const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   // wait for mainCtrl to be initialized before handling dapp requests
@@ -919,6 +920,10 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   const origin = getOriginFromUrl(meta.sender.url)
   const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
   mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
+
+  // Prevents handling the same request more than once
+  if (session.lastHandledRequestId >= id) return
+  mainCtrl.dapps.setSessionLastHandledRequestsId(session.sessionId, id)
   // Temporarily resolves the subscription methods as successful
   // but the rpc block subscription is actually not implemented because it causes app crashes
   if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
