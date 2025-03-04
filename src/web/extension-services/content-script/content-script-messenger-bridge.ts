@@ -3,6 +3,4 @@
 //
 import { setupBridgeMessengerRelay } from '../messengers/internal/bridge'
 
-console.log('injected setupBridgeMessengerRelay')
-
 setupBridgeMessengerRelay()

@@ -12,7 +12,7 @@ const messenger = tabMessenger.available ? tabMessenger : windowMessenger
  * Compatible connections:
  * - ✅ Background <-> Inpage
  * - ❌ Background <-> Content Script
-//  * - ❌ Content Script <-> Inpage
+ * - ❌ Content Script <-> Inpage
  */
 export const bridgeMessenger = createMessenger({
   available: messenger.available,
