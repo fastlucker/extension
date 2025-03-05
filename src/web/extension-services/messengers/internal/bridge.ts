@@ -39,6 +39,7 @@ export function setupBridgeMessengerRelay() {
     // chrome.runtime.id will be defined only if the content script
     // is registered from the current service worker or background script session
     if (!chrome?.runtime?.id) {
+      // calling this func clears the window reply listener
       !!windowReplyListener && windowReplyListener()
       windowReplyListener = undefined
       return
@@ -59,6 +60,7 @@ export function setupBridgeMessengerRelay() {
     // chrome.runtime.id will be defined only if the content script
     // is registered from the current service worker or background script session
     if (!chrome?.runtime?.id) {
+      // calling this func clears the tab reply listener
       !!tabReplyListener && tabReplyListener()
       tabReplyListener = undefined
       return
