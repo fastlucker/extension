@@ -96,9 +96,11 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
 
         case 'reject-bridge':
         case 'close-bridge':
-          dispatch({
-            type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
-            params: { activeRouteId: action.meta.activeRouteId }
+          action.meta.activeRouteIds.forEach((activeRouteId) => {
+            dispatch({
+              type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+              params: { activeRouteId }
+            })
           })
           break
 
