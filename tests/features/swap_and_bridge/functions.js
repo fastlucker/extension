@@ -4,6 +4,7 @@ import { SELECTORS } from '../../common/selectors/selectors'
 // ToDo: Import and reuse '../../common/transactions'
 import {
   FETCHING_BEST_ROUTE,
+  ROUTE_BUTTON_SELECTOR,
   NETWORK_SELECTOR,
   ENTER_AMOUNT_SELECTOR,
   SWITCH_TOKENS_TOOLTIP_SELECTOR,
@@ -313,7 +314,7 @@ export async function openSwapAndBridgeActionPage(page, callback = 'null') {
     await actionPage.waitForTimeout(2000)
 
     // Assert the Action Page to open
-    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation', timeout: 3000 })
+    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation', timeout: 5000 })
 
     return actionPage
   } catch (error) {
@@ -356,14 +357,12 @@ export async function clickOnSecondRoute(page) {
   }
 }
 
-export async function changeRoutePriorityToFastest(page, delay = 1000) {
-  await page.waitForTimeout(delay)
-  // TODO: Selector should be created to have data-testid this is not maintainable
-  const elements = await page.$$('.css-view-175oi2r')
-  await elements[28].click()
-  await page.waitForTimeout(1000)
-  await selectButton(page, 'Fastest Transfer')
-  await elements[28].click()
+export async function changeRoutePriority(page, route_type, delay = 500) {
+  await openSwapAndBridge(page)
+  await clickSwitchButton(page, ROUTE_BUTTON_SELECTOR)
+  await page.waitForTimeout(500)
+  await selectButton(page, route_type)
+  await selectButton(page, 'Back')
 }
 
 async function extractMaxBalance(page) {

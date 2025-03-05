@@ -18,7 +18,7 @@ import {
   bridgeBasicAccount,
   bridgeSmartAccount,
   clickOnSecondRoute,
-  changeRoutePriorityToFastest,
+  changeRoutePriority,
   verifySendMaxTokenAmount
 } from './functions'
 
@@ -64,7 +64,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '00.01', true)
   })
-  // TODO: It fails now. Deveopers should fix the issue with entering amount starting the point
+
   it('should accept amount starting with point like ".01" during Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '.01', true)
@@ -163,13 +163,24 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // TODO: Implement the test or assert a step in the other tests
   })
 
-  // TODO: Investigate why cannot click Proceed after choose Faster route
-  it.skip('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Basic Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
-    await changeRoutePriorityToFastest(page)
-    await signActionPage(
-      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+  it('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Basic Account', async () => {
+    // Use Fastest Transfer route
+    await changeRoutePriority(page, 'Fastest Transfer')
+    let text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
+    let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, text)
     )
+    await selectButton(actionPage, 'Reject')
+    await selectButton(page, 'Back')
+
+    // Use Highest Return route
+    await changeRoutePriority(page, 'Highest Return')
+    text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
+    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, text)
+    )
+    await selectButton(actionPage, 'Reject')
+    await selectButton(page, 'Back')
   })
 })
 
@@ -205,8 +216,8 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
     await enterNumber(page, '00.01', true)
   })
-  // TODO: It fails now. Deveopers to fix the issue with entering amount starting the point
-  it.skip('should accept amount starting with point like ".01" during Swap & Bridge with a Smart Account', async () => {
+
+  it('should accept amount starting with point like ".01" during Swap & Bridge with a Smart Account', async () => {
     await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
     await enterNumber(page, '.01', true)
   })
@@ -303,14 +314,27 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   it.skip('should find token that already exists within the "Receive" list during Swap & Bridge with a Smart Account', async () => {
     // TODO: Implement the test or assert a step in the other tests
   })
-  // TODO: Investigate why cannot click Proceed after choose Faster route
-  it.skip('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Smart Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
-    await changeRoutePriorityToFastest(page)
-    await signActionPage(
-      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+
+  it('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Smart Account', async () => {
+    // Use Fastest Transfer route
+    await changeRoutePriority(page, 'Fastest Transfer')
+    let text = await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
+    let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, text)
     )
+    await selectButton(actionPage, 'Reject')
+    await selectButton(page, 'Back')
+
+    // Use Highest Return route
+    await changeRoutePriority(page, 'Highest Return')
+    text = await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
+    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+      selectButton(callback_page, text)
+    )
+    await selectButton(actionPage, 'Reject')
+    await selectButton(page, 'Back')
   })
+
   it.skip('should be able to batch with each bridge during Swap & Bridge with a Smart Account', async () => {
     // TODO: Implement the test or assert a step in the other tests
   })
