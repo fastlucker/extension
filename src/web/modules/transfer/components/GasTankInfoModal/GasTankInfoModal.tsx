@@ -75,7 +75,7 @@ const GasTankInfoModal = ({
             </Text>
             <Text style={spacings.mbTy} appearance="secondaryText">
               {t(
-                'You can top-up and use your Gas Tank balance to pay for future transactions on any Ambire-supported network, benefiting from lower fees and the convenience of unified fee management.'
+                'You can top up and use your Gas Tank balance to pay for future transactions on any Ambire-supported network, benefiting from lower fees and the convenience of unified fee management.'
               )}
             </Text>
 

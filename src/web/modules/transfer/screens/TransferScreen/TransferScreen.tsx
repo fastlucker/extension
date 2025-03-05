@@ -9,6 +9,7 @@ import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import CartIcon from '@common/assets/svg/CartIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
@@ -24,6 +25,7 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useWindowSize from '@common/hooks/useWindowSize'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -47,6 +49,7 @@ import getStyles from './styles'
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
+  const { maxWidthSize } = useWindowSize()
   const { state, transferCtrl } = useTransferControllerState()
   const {
     isTopUp,
@@ -256,6 +259,26 @@ const TransferScreen = () => {
     [openGasTankInfoBottomSheet]
   )
 
+  const gasTankLabelWithInfo = useMemo(
+    () => (
+      <View style={flexbox.directionRow}>
+        <Text
+          fontSize={maxWidthSize('xl') ? 20 : 18}
+          weight="medium"
+          appearance="primaryText"
+          numberOfLines={1}
+          style={spacings.mrTy}
+        >
+          {t('Top Up Gas Tank')}
+        </Text>
+        <Pressable style={[flexbox.center]} onPress={handleGasTankInfoPressed}>
+          <InfoIcon width={18} height={18} />
+        </Pressable>
+      </View>
+    ),
+    [handleGasTankInfoPressed, maxWidthSize, t]
+  )
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -326,7 +349,7 @@ const TransferScreen = () => {
           <Panel
             style={[styles.panel]}
             forceContainerSmallSpacings
-            title={state.isTopUp ? 'Top Up Gas Tank' : 'Send'}
+            title={state.isTopUp ? gasTankLabelWithInfo : 'Send'}
           >
             <SendForm
               addressInputState={addressInputState}
@@ -337,7 +360,6 @@ const TransferScreen = () => {
                 isRecipientHumanizerKnownTokenOrSmartContract
               }
               isSWWarningVisible={isSWWarningVisible}
-              handleGasTankInfoPressed={handleGasTankInfoPressed}
             />
             {isTopUp && !isSmartAccount && (
               <View style={spacings.ptLg}>
