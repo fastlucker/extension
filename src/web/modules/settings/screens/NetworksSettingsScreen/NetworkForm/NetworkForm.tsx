@@ -179,6 +179,7 @@ const NetworkForm = ({
       rpcUrl: '',
       chainId: '',
       nativeAssetSymbol: '',
+      nativeAssetName: '',
       explorerUrl: '',
       coingeckoPlatformId: '',
       coingeckoNativeAssetId: '',
@@ -189,6 +190,7 @@ const NetworkForm = ({
       rpcUrl: '',
       chainId: Number(selectedNetwork?.chainId) || '',
       nativeAssetSymbol: selectedNetwork?.nativeAssetSymbol || '',
+      nativeAssetName: selectedNetwork?.nativeAssetName || '',
       explorerUrl: selectedNetwork?.explorerUrl || '',
       coingeckoPlatformId: (selectedNetwork?.platformId as string) || '',
       coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || '',
@@ -354,6 +356,10 @@ const NetworkForm = ({
         clearErrors('nativeAssetSymbol')
       }
 
+      if (name === 'nativeAssetName') {
+        clearErrors('nativeAssetName')
+      }
+
       if (name === 'chainId') {
         if (
           selectedNetworkId === 'add-custom-network' &&
@@ -463,6 +469,7 @@ const NetworkForm = ({
             ...networkFormValues,
             name: networkFormValues.name,
             nativeAssetSymbol: networkFormValues.nativeAssetSymbol,
+            nativeAssetName: networkFormValues.nativeAssetName,
             explorerUrl: networkFormValues.explorerUrl,
             rpcUrls,
             selectedRpcUrl,
@@ -577,24 +584,24 @@ const NetworkForm = ({
         <View style={[flexbox.directionRow, flexbox.flex1]}>
           <View style={flexbox.flex1}>
             <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
+              <Controller
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    inputWrapperStyle={{ height: 40 }}
+                    inputStyle={{ height: 40 }}
+                    containerStyle={{ ...spacings.mb, ...spacings.mrMi, flex: 1 }}
+                    label={t('Network name')}
+                    disabled={selectedNetworkId !== 'add-custom-network'}
+                    error={handleErrors(errors.name)}
+                  />
+                )}
+                name="name"
+              />
               <View style={[flexbox.directionRow, flexbox.alignStart]}>
-                <Controller
-                  control={control}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <Input
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      inputWrapperStyle={{ height: 40 }}
-                      inputStyle={{ height: 40 }}
-                      containerStyle={{ ...spacings.mb, ...spacings.mrMi, flex: 1 }}
-                      label={t('Network name')}
-                      disabled={selectedNetworkId !== 'add-custom-network'}
-                      error={handleErrors(errors.name)}
-                    />
-                  )}
-                  name="name"
-                />
                 <Controller
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
@@ -611,6 +618,23 @@ const NetworkForm = ({
                     />
                   )}
                   name="nativeAssetSymbol"
+                />
+                <Controller
+                  control={control}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 40 }}
+                      containerStyle={{ ...spacings.mb, ...spacings.mlMi, flex: 1 }}
+                      label={t('Currency Name')}
+                      disabled={selectedNetworkId !== 'add-custom-network'}
+                      error={handleErrors(errors.nativeAssetName)}
+                    />
+                  )}
+                  name="nativeAssetName"
                 />
               </View>
 

@@ -191,7 +191,7 @@ const useGetTokenSelectProps = ({
                   fontSize={12}
                   numberOfLines={1}
                 >
-                  {t('(On-chain)')}
+                  {t('(Onchain)')}
                 </Text>
               </View>
               {!!pendingToBeSigned && !!pendingToBeSignedFormatted && (

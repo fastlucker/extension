@@ -13,7 +13,6 @@ import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWr
 import eventBus from '@web/extension-services/event/eventBus'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import usePhishingControllerState from '@web/hooks/usePhishingControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 
 import DAppConnectBody from './components/DAppConnectBody'
@@ -28,7 +27,6 @@ const DappConnectScreen = () => {
   const state = useActionsControllerState()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
   const { minHeightSize } = useWindowSize()
-  const { isReady } = usePhishingControllerState()
   const securityCheckCalled = useRef(false)
   const [securityCheck, setSecurityCheck] = useState<'BLACKLISTED' | 'NOT_BLACKLISTED' | 'LOADING'>(
     'LOADING'
@@ -55,7 +53,7 @@ const DappConnectScreen = () => {
       if (securityCheckCalled.current) return
 
       // slow down the res a bit for better UX
-      if (isReady) await wait(1000)
+      await wait(1000)
 
       securityCheckCalled.current = true
       dispatch({
@@ -63,7 +61,7 @@ const DappConnectScreen = () => {
         params: { url: userRequest.session.origin }
       })
     })()
-  }, [dispatch, userRequest?.session?.origin, isReady])
+  }, [dispatch, userRequest?.session?.origin])
 
   useEffect(() => {
     const onReceiveOneTimeData = (data: any) => {

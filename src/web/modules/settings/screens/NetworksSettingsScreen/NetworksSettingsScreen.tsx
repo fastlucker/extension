@@ -149,6 +149,7 @@ const NetworksSettingsScreen = () => {
                 rpcUrls={selectedNetwork?.rpcUrls || ['-']}
                 selectedRpcUrl={selectedNetwork?.selectedRpcUrl || '-'}
                 nativeAssetSymbol={selectedNetwork?.nativeAssetSymbol || '-'}
+                nativeAssetName={selectedNetwork?.nativeAssetName || '-'}
                 explorerUrl={selectedNetwork?.explorerUrl || '-'}
                 networkId={selectedNetworkId}
                 allowRemoveNetwork
