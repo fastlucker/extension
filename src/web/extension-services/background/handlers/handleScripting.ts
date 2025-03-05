@@ -165,6 +165,12 @@ const executeContentScriptForTabsFromPrevSession = async (
   !!callback && callback(tab)
 }
 
+// The background script or service worker may become inactive unexpectedly,
+// disrupting communication between the extension and connected dApps.
+// This mechanism ensures that the connection is restored as soon as
+// the background script or service worker is reactivated.
+// By doing so, it enhances the user experience, allowing seamless continuation
+// of dApp usage from the previous session without requiring a page refresh to reconnect.
 const handleRestoreDappConnection = async (callback: (tab: chrome.tabs.Tab) => void) => {
   const tabIdsFromPrevSession: number[] = []
   let prevSessionTabIdsLoading: boolean = true
@@ -191,7 +197,6 @@ const handleRestoreDappConnection = async (callback: (tab: chrome.tabs.Tab) => v
       for (const tab of tabs) {
         if (tab.id && tabIdsFromPrevSession.includes(tab.id)) {
           tabIdsFromPrevSession.splice(tabIdsFromPrevSession.indexOf(tab.id), 1)
-
           await executeContentScriptForTabsFromPrevSession(tab, callback)
         }
       }

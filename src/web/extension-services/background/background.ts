@@ -116,7 +116,11 @@ handleRestoreDappConnection(async (tab) => {
   const tabOrigin = new URL(tab.url).origin
   const session = mainCtrl.dapps.getOrCreateDappSession({ tabId: tab.id, origin: tabOrigin })
   mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
+  // otherwise the dapp will think that we are still unlocked after a sw restart
   if (!mainCtrl.keystore.isUnlocked) mainCtrl.dapps.broadcastDappSessionEvent('lock')
+  // broadcasting `tabCheckin` event to the inpage will update the session with the
+  // name and icon of the connected page
+  mainCtrl.dapps.broadcastDappSessionEvent('tabCheckin')
 })
 
 function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {

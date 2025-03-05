@@ -130,12 +130,9 @@ export class EthereumProvider extends EventEmitter {
         origin
 
       const id = this.requestId++
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
-        {
-          id,
-          method: 'tabCheckin',
-          params: { icon, name, origin }
-        },
+        { id, method: 'tabCheckin', params: { icon, name, origin } },
         { id }
       )
 
@@ -179,6 +176,28 @@ export class EthereumProvider extends EventEmitter {
   }
 
   #handleBackgroundMessage = ({ event, data }: any) => {
+    if (event === 'tabCheckin') {
+      const origin = location.origin
+      const icon =
+        ($('head > link[rel~="icon"]') as HTMLLinkElement)?.href ||
+        ($('head > meta[itemprop="image"]') as HTMLMetaElement)?.content
+
+      const name =
+        document.title ||
+        ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
+        location.hostname ||
+        origin
+
+      const id = this.requestId++
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      providerRequestTransport.send(
+        { id, method: 'tabCheckin', params: { icon, name, origin } },
+        { id }
+      )
+
+      return
+    }
+
     if ((this.#pushEventHandlers as any)[event]) {
       return (this.#pushEventHandlers as any)[event](data)
     }
