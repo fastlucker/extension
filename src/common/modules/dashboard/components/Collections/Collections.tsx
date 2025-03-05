@@ -29,6 +29,7 @@ interface Props {
   sessionId: string
   onScroll: FlatListProps<any>['onScroll']
   networks: Network[]
+  dashboardNetworkFilterName: string | null
 }
 
 const { isPopup } = getUiType()
@@ -39,7 +40,8 @@ const Collections: FC<Props> = ({
   initTab,
   sessionId,
   onScroll,
-  networks
+  networks,
+  dashboardNetworkFilterName
 }) => {
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
@@ -109,12 +111,17 @@ const Collections: FC<Props> = ({
         return (
           <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
             {!searchValue &&
-              !dashboardNetworkFilter &&
-              t("You don't have any collectibles (NFTs) yet")}
+              !dashboardNetworkFilterName &&
+              t("You don't have any collectibles (NFTs) yet.")}
             {!searchValue &&
               dashboardNetworkFilter &&
-              t("You don't have any collectibles (NFTs) on this network")}
-            {searchValue && t('No collectibles (NFTs) found')}
+              t(`You don't have any collectibles (NFTs) on ${dashboardNetworkFilterName}.`)}
+            {searchValue &&
+              t(
+                `No collectibles (NFTs) match "${searchValue}"${
+                  dashboardNetworkFilterName ? ` on ${dashboardNetworkFilterName}` : ''
+                }.`
+              )}
           </Text>
         )
       }
@@ -141,18 +148,19 @@ const Collections: FC<Props> = ({
       )
     },
     [
-      control,
-      dashboardNetworkFilter,
-      filteredPortfolioCollections.length,
       initTab?.collectibles,
-      networks,
       openCollectibleModal,
-      openTab,
-      searchValue,
-      setOpenTab,
-      t,
+      networks,
       theme.primaryBackground,
-      sessionId
+      openTab,
+      setOpenTab,
+      control,
+      sessionId,
+      searchValue,
+      dashboardNetworkFilterName,
+      t,
+      dashboardNetworkFilter,
+      filteredPortfolioCollections.length
     ]
   )
 

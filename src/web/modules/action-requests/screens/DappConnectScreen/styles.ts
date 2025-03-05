@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { SPACING_SM } from '@common/styles/spacings'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -10,6 +10,7 @@ interface Styles {
   content: ViewStyle
   contentHeader: ViewStyle
   contentBody: ViewStyle
+  securityChecksContainer: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -29,12 +30,19 @@ const getStyles = (theme: ThemeProps) =>
       elevation: SPACING_SM
     },
     contentHeader: {
-      ...flexbox.alignCenter,
       ...flexbox.flex1,
-      backgroundColor: theme.tertiaryBackground
+      ...flexbox.alignStart
     },
     contentBody: {
       backgroundColor: theme.primaryBackground
+    },
+    securityChecksContainer: {
+      backgroundColor: theme.secondaryBackground,
+      ...common.borderRadiusPrimary,
+      ...spacings.phSm,
+      ...spacings.pvTy,
+      borderWidth: 1,
+      borderColor: theme.secondaryBackground
     }
   })
 

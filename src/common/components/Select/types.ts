@@ -15,7 +15,7 @@ export type CommonSelectProps = {
   handleSearch?: (search: string) => void
   defaultValue?: {}
   placeholder?: string
-  label?: string
+  label?: string | ReactNode
   size?: 'sm' | 'md'
   containerStyle?: ViewStyle
   selectStyle?: ViewStyle

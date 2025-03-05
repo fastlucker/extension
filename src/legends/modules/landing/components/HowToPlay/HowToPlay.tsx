@@ -10,7 +10,7 @@ import styles from './HowToPlay.module.scss'
 const HowToPlay = () => {
   return (
     <div className={styles.wrapper}>
-      <Title title="How to Play Ambire Legends" className={styles.title} />
+      <Title title="How to Join Ambire Legends" className={styles.title} />
       <div className={styles.steps}>
         <div className={styles.step}>
           <div className={styles.stepContent}>

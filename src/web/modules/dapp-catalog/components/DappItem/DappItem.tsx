@@ -26,7 +26,7 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 const DappItem = (dapp: Dapp) => {
-  const { url, name, icon, description, isConnected, favorite } = dapp
+  const { url, name, icon, description, isConnected, favorite, blacklisted } = dapp
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
@@ -36,8 +36,8 @@ const DappItem = (dapp: Dapp) => {
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
-      from: theme.secondaryBackground,
-      to: theme.tertiaryBackground
+      from: blacklisted ? theme.errorBackground : theme.secondaryBackground,
+      to: blacklisted ? theme.errorBackground : theme.tertiaryBackground
     }
   })
 
@@ -61,13 +61,9 @@ const DappItem = (dapp: Dapp) => {
                 uri={icon || ''}
                 size={40}
                 fallback={fallbackIcon}
-                containerStyle={{
-                  backgroundColor: theme.primaryBackground
-                }}
+                containerStyle={{ backgroundColor: theme.primaryBackground }}
                 iconScale={0.8}
-                imageStyle={{
-                  borderRadius: BORDER_RADIUS_PRIMARY
-                }}
+                imageStyle={{ borderRadius: BORDER_RADIUS_PRIMARY }}
               />
             </View>
             <View style={[flexbox.flex1, flexbox.justifySpaceBetween]}>
@@ -81,12 +77,12 @@ const DappItem = (dapp: Dapp) => {
                       params: { url, dapp: { favorite: !favorite } }
                     })
                   }}
-                  style={flexbox.alignSelfStart}
                 >
-                  <StarIcon isFilled={favorite} />
+                  <StarIcon isFilled={favorite} style={spacings.mrTy} />
                 </Pressable>
+                {!!blacklisted && <Badge text={t('Blacklisted')} type="error" />}
                 {!!hovered && (
-                  <Pressable onPress={openBottomSheet as any}>
+                  <Pressable onPress={openBottomSheet as any} style={spacings.mlTy}>
                     {({ hovered: iconHovered }: any) => (
                       <SettingsIcon
                         width={16}
@@ -109,16 +105,13 @@ const DappItem = (dapp: Dapp) => {
             appearance="secondaryText"
             numberOfLines={isConnected ? 2 : 3}
             // @ts-ignore
-            dataSet={{
-              tooltipId: url,
-              tooltipContent: description
-            }}
+            dataSet={{ tooltipId: url, tooltipContent: description }}
           >
             {description}
           </Text>
           {!!getUiType().isPopup && <Tooltip id={url} delayShow={900} />}
           <View style={[flexbox.alignEnd, flexbox.directionRow, flexbox.flex1]}>
-            {!!isConnected && <Badge text={t('Connected')} type="success" />}
+            {!!isConnected && <Badge text={t('Connected')} type="success" style={spacings.mrTy} />}
             {hovered && (
               <View style={{ marginLeft: 'auto' }}>
                 <OpenIcon width={16} height={16} />

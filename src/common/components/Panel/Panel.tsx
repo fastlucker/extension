@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { Animated, View, ViewProps } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -10,7 +10,7 @@ import spacings, { SPACING_3XL, SPACING_LG, SPACING_XL } from '@common/styles/sp
 import getStyles from './styles'
 
 interface Props extends ViewProps {
-  title?: string
+  title?: string | ReactNode
   forceContainerSmallSpacings?: boolean
   isAnimated?: boolean
 }

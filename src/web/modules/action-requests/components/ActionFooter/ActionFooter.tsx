@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
-import Button from '@common/components/Button'
+import Button, { Props as ButtonProps } from '@common/components/Button'
 import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -17,6 +17,7 @@ type Props = {
   rejectButtonText?: string
   resolveButtonText: string
   resolveDisabled: boolean
+  resolveType: ButtonProps['type']
   rejectButtonTestID?: string
   resolveButtonTestID?: string
 }
@@ -27,6 +28,7 @@ const ActionFooter = ({
   rejectButtonText,
   resolveButtonText,
   resolveDisabled,
+  resolveType = 'primary',
   rejectButtonTestID,
   resolveButtonTestID
 }: Props) => {
@@ -59,6 +61,7 @@ const ActionFooter = ({
           testID={resolveButtonTestID}
           style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}
           size="large"
+          type={resolveType}
           hasBottomSpacing={false}
           onPress={handleOnResolve}
           disabled={resolveDisabled}
