@@ -36,18 +36,18 @@ export function setupBridgeMessengerRelay() {
   windowReplyListener = windowMessenger.reply('*', async (payload, { topic, id }) => {
     if (!topic) return
 
-    if (!chrome.runtime.id && windowReplyListener) {
-      windowReplyListener()
+    // chrome.runtime.id will be defined only if the content script
+    // is registered from the current service worker or background script session
+    if (!chrome?.runtime?.id) {
+      !!windowReplyListener && windowReplyListener()
       windowReplyListener = undefined
+      return
     }
 
     const t = topic.replace('> ', '')
+    const response: any = await tabMessenger.send(t, payload, { id })
 
-    if (chrome?.runtime?.id) {
-      const response: any = await tabMessenger.send(t, payload, { id })
-
-      return response
-    }
+    return response
   })
 
   let tabReplyListener: (() => void) | undefined
@@ -56,9 +56,12 @@ export function setupBridgeMessengerRelay() {
   tabReplyListener = tabMessenger.reply('*', async (payload, { topic, id }) => {
     if (!topic) return
 
-    if (!chrome?.runtime?.id && tabReplyListener) {
-      tabReplyListener()
+    // chrome.runtime.id will be defined only if the content script
+    // is registered from the current service worker or background script session
+    if (!chrome?.runtime?.id) {
+      !!tabReplyListener && tabReplyListener()
       tabReplyListener = undefined
+      return
     }
 
     const t = topic.replace('> ', '')
