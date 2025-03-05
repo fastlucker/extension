@@ -43,7 +43,7 @@ export function setupBridgeMessengerRelay() {
 
     const t = topic.replace('> ', '')
 
-    if (chrome.runtime.id) {
+    if (chrome?.runtime?.id) {
       const response: any = await tabMessenger.send(t, payload, { id })
 
       return response
@@ -56,7 +56,7 @@ export function setupBridgeMessengerRelay() {
   tabReplyListener = tabMessenger.reply('*', async (payload, { topic, id }) => {
     if (!topic) return
 
-    if (!chrome.runtime.id && tabReplyListener) {
+    if (!chrome?.runtime?.id && tabReplyListener) {
       tabReplyListener()
       tabReplyListener = undefined
     }
