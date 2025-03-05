@@ -259,25 +259,26 @@ const TransferScreen = () => {
     [openGasTankInfoBottomSheet]
   )
 
-  const gasTankLabelWithInfo = useMemo(
-    () => (
+  const gasTankLabelWithInfo = useMemo(() => {
+    const fontSize = maxWidthSize('xl') ? 20 : 18
+
+    return (
       <View style={flexbox.directionRow}>
         <Text
-          fontSize={maxWidthSize('xl') ? 20 : 18}
+          fontSize={fontSize}
           weight="medium"
           appearance="primaryText"
           numberOfLines={1}
-          style={spacings.mrTy}
+          style={spacings.mrMi}
         >
           {t('Top Up Gas Tank')}
         </Text>
         <Pressable style={[flexbox.center]} onPress={handleGasTankInfoPressed}>
-          <InfoIcon width={18} height={18} />
+          <InfoIcon width={fontSize} height={fontSize} />
         </Pressable>
       </View>
-    ),
-    [handleGasTankInfoPressed, maxWidthSize, t]
-  )
+    )
+  }, [handleGasTankInfoPressed, maxWidthSize, t])
 
   return (
     <TabLayoutContainer
