@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -22,16 +22,19 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import Authorization7702 from '@web/modules/sign-message/screens/SignMessageScreen/Contents/authorization7702'
 
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const BasicToSmartSettingsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { accountStates, accounts } = useAccountsControllerState()
+  const { account: selectedAccount } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme()
   const { search } = useRoute()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
+  const [hasRefreshedState, setHasRefreshedState] = useState(false)
 
   useEffect(() => {
     setCurrentSettingsPage('basic-to-smart')
@@ -107,6 +110,17 @@ const BasicToSmartSettingsScreen = () => {
   const availableNetworks = useMemo(() => {
     return networks.filter((net) => !isActivateDisabled(net) || has7702(net))
   }, [networks, isActivateDisabled])
+
+  if (!hasRefreshedState && selectedAccount && account && selectedAccount.addr !== account.addr) {
+    setHasRefreshedState(true)
+    dispatch({
+      type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE',
+      params: {
+        addr: account.addr,
+        networkIds: availableNetworks.map((net) => net.id)
+      }
+    })
+  }
 
   return (
     <>

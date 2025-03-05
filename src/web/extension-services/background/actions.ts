@@ -128,6 +128,11 @@ type AccountsControllerUpdateAccountPreferences = {
   params: { addr: string; preferences: AccountPreferences }[]
 }
 
+type AccountsControllerUpdateAccountState = {
+  type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE'
+  params: { addr: string; networkIds: Network['id'][] }
+}
+
 type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
   params: {
@@ -624,6 +629,7 @@ export type Action =
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderResetIfNeeded
   | AccountsControllerUpdateAccountPreferences
+  | AccountsControllerUpdateAccountState
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork
