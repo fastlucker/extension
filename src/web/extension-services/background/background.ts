@@ -101,13 +101,23 @@ function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   logInfoWithPrefix(event, logData)
 }
 
+const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
 handleKeepAlive()
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+handleRestoreDappConnection(async (tab) => {
+  if (!tab.id || !tab.url) return
 
-const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
+  while (!mainCtrl) await wait(100)
+
+  const tabOrigin = new URL(tab.url).origin
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId: tab.id, origin: tabOrigin })
+  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
+  if (!mainCtrl.keystore.isUnlocked) mainCtrl.dapps.broadcastDappSessionEvent('lock')
+})
 
 function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
   // 5s + new Date().getTime() - timestamp of newest op / 10
@@ -263,8 +273,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     },
     notificationManager
   })
-
-  handleRestoreDappConnection(mainCtrl, bridgeMessenger)
 
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

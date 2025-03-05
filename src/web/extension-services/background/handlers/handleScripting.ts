@@ -1,7 +1,6 @@
 /* eslint-disable no-await-in-loop */
+import wait from '@ambire-common/utils/wait'
 /* eslint-disable no-restricted-syntax */
-import { MainController } from '@ambire-common/controllers/main/main'
-import { Messenger } from '@ambire-common/interfaces/messenger'
 import { browser, engine, getFirefoxVersion } from '@web/constants/browserapi'
 
 const handleRegisterScripts = async () => {
@@ -146,9 +145,8 @@ const handleUnregisterEthereumInpageScript = async () => {
 }
 
 const executeContentScriptForTabsFromPrevSession = async (
-  mainCtrl: MainController,
   tab: chrome.tabs.Tab,
-  bridgeMessenger: Messenger
+  callback: (tab: chrome.tabs.Tab) => void
 ) => {
   if (!tab.id || !tab.url) return
 
@@ -164,25 +162,40 @@ const executeContentScriptForTabsFromPrevSession = async (
     console.error(error)
   }
 
-  const tabOrigin = new URL(tab.url).origin
-  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId: tab.id, origin: tabOrigin })
-  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
-  if (!mainCtrl.keystore.isUnlocked) mainCtrl.dapps.broadcastDappSessionEvent('lock')
+  !!callback && callback(tab)
 }
 
-const handleRestoreDappConnection = (mainCtrl: MainController, bridgeMessenger: Messenger) => {
+const handleRestoreDappConnection = async (callback: (tab: chrome.tabs.Tab) => void) => {
   const tabIdsFromPrevSession: number[] = []
+  let prevSessionTabIdsLoading: boolean = true
   browser.tabs.query({}).then(async (tabs: chrome.tabs.Tab[]) => {
     for (const tab of tabs) if (tab.id) tabIdsFromPrevSession.push(tab.id)
+    prevSessionTabIdsLoading = false
   })
 
   browser.tabs.onActivated.addListener(async ({ tabId }: chrome.tabs.TabActiveInfo) => {
+    while (prevSessionTabIdsLoading) await wait(100)
+
     if (tabId && tabIdsFromPrevSession.includes(tabId)) {
-      const tab = await browser.tabs.get(tabId)
-      await executeContentScriptForTabsFromPrevSession(mainCtrl, tab, bridgeMessenger)
       tabIdsFromPrevSession.splice(tabIdsFromPrevSession.indexOf(tabId), 1)
+      const tab = await browser.tabs.get(tabId)
+      await executeContentScriptForTabsFromPrevSession(tab, callback)
     }
   })
+
+  while (prevSessionTabIdsLoading) await wait(100)
+
+  browser.tabs
+    .query({ active: true, currentWindow: true })
+    .then(async (tabs: chrome.tabs.Tab[]) => {
+      for (const tab of tabs) {
+        if (tab.id && tabIdsFromPrevSession.includes(tab.id)) {
+          tabIdsFromPrevSession.splice(tabIdsFromPrevSession.indexOf(tab.id), 1)
+
+          await executeContentScriptForTabsFromPrevSession(tab, callback)
+        }
+      }
+    })
 }
 
 export {
