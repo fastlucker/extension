@@ -153,6 +153,7 @@ const NetworksSettingsScreen = () => {
                 explorerUrl={selectedNetwork?.explorerUrl || '-'}
                 networkId={selectedNetworkId}
                 allowRemoveNetwork
+                predefined={selectedNetwork?.predefined}
               />
             </View>
             {!!selectedNetwork && !!selectedNetworkId && (

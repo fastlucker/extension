@@ -38,6 +38,7 @@ type Props = {
   nativeAssetName: string
   networkId?: string
   allowRemoveNetwork?: boolean
+  predefined?: boolean
 }
 
 const NetworkDetails = ({
@@ -50,7 +51,8 @@ const NetworkDetails = ({
   nativeAssetSymbol,
   nativeAssetName,
   allowRemoveNetwork,
-  networkId
+  networkId,
+  predefined
 }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -76,18 +78,18 @@ const NetworkDetails = ({
     () =>
       pathname?.includes(ROUTES.networksSettings) &&
       !isEmpty &&
-      !predefinedNetworks.find((n) => Number(n.chainId) === Number(chainId)) &&
+      !predefined &&
       allowRemoveNetwork,
     [pathname, chainId, isEmpty, allowRemoveNetwork]
   )
-
+  console.log('shouldDisplayRemoveButton', shouldDisplayRemoveButton, networkId, allowRemoveNetwork, predefined, isEmpty)
   const promptRemoveCustomNetwork = useCallback(() => {
     openDialog()
   }, [openDialog])
 
   const removeCustomNetwork = useCallback(() => {
     if (networkId) {
-      dispatch({ type: 'MAIN_CONTROLLER_REMOVE_NETWORK', params: chainId })
+      dispatch({ type: 'MAIN_CONTROLLER_REMOVE_NETWORK', params: { chainId: chainId.toString(), networkId }})
       closeDialog()
     } else {
       addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)

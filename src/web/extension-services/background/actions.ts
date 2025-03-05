@@ -125,7 +125,7 @@ type MainControllerAddNetwork = {
 
 type MainControllerRemoveNetwork = {
   type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: ChainId
+  params: { chainId: ChainId, networkId: NetworkId }
 }
 
 type AccountsControllerUpdateAccountPreferences = {

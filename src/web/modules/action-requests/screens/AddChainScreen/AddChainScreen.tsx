@@ -210,6 +210,7 @@ const AddChainScreen = () => {
                 nativeAssetSymbol={networkDetails.nativeAssetSymbol}
                 nativeAssetName={networkDetails.nativeAssetName}
                 explorerUrl={networkDetails.explorerUrl}
+                predefined={false}
               />
             </ScrollableWrapper>
             <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
