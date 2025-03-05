@@ -355,16 +355,18 @@ export class ProviderController {
 
     const capabilities: any = {}
     this.mainCtrl.networks.networks.forEach((network) => {
+      const accountState = this.mainCtrl.accounts.accountStates[accountAddr][network.id]
+      const isSmart = !accountState.isEOA || accountState.isSmarterEoa
       capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {
-          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+          supported: isSmart
         },
         auxiliaryFunds: {
-          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+          supported: isSmart
         },
         paymasterService: {
           supported:
-            !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA &&
+            isSmart &&
             // enabled: obvious, it means we're operaring with 4337
             // hasBundlerSupport means it might not be 4337 but we support it
             // our default may be the relayer but we will broadcast an userOp

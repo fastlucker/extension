@@ -1,10 +1,11 @@
 import { Signature, toBeHex, Transaction } from 'ethers'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
+import { Hex } from '@ambire-common/interfaces/hex'
 import {
   ExternalKey,
   ExternalSignerController,
-  KeystoreSigner
+  KeystoreSignerInterface
 } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import {
@@ -37,7 +38,7 @@ const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED'
  */
 const delayBetweenStarting = () => wait(DELAY_BETWEEN_POPUPS)
 
-class TrezorSigner implements KeystoreSigner {
+class TrezorSigner implements KeystoreSignerInterface {
   key: ExternalKey
 
   controller: TrezorController | null = null
@@ -121,7 +122,7 @@ class TrezorSigner implements KeystoreSigner {
     }
   }
 
-  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
+  signRawTransaction: KeystoreSignerInterface['signRawTransaction'] = async (txnRequest) => {
     if (typeof txnRequest.value === 'undefined') {
       throw new ExternalSignerError('trezorSigner: missing value in transaction request')
     }
@@ -200,7 +201,7 @@ class TrezorSigner implements KeystoreSigner {
     }
   }
 
-  signTypedData: KeystoreSigner['signTypedData'] = async ({
+  signTypedData: KeystoreSignerInterface['signTypedData'] = async ({
     domain: _domain,
     types: _types,
     message,
@@ -252,7 +253,7 @@ class TrezorSigner implements KeystoreSigner {
     return res.payload.signature
   }
 
-  signMessage: KeystoreSigner['signMessage'] = async (hex) => {
+  signMessage: KeystoreSignerInterface['signMessage'] = async (hex) => {
     await this.#prepareForSigning()
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
@@ -272,6 +273,11 @@ class TrezorSigner implements KeystoreSigner {
     this.#validateSigningKey(res.payload.address)
 
     return addHexPrefix(res.payload.signature)
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  sign7702(hex: string): { yParity: Hex; r: Hex; s: Hex } {
+    throw new Error('not support', { cause: hex })
   }
 }
 

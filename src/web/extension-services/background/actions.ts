@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
-  ActionExecutionType
+  ActionExecutionType,
+  Action as ActionFromActionsQueue
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -128,6 +128,11 @@ type AccountsControllerUpdateAccountPreferences = {
   params: { addr: string; preferences: AccountPreferences }[]
 }
 
+type AccountsControllerUpdateAccountState = {
+  type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE'
+  params: { addr: string; networkIds: Network['id'][] }
+}
+
 type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
   params: {
@@ -191,7 +196,7 @@ type MainControllerResolveUserRequestAction = {
 }
 type MainControllerRejectUserRequestAction = {
   type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
-  params: { err: string; id: UserRequest['id'] }
+  params: { err: string; id: UserRequest['id']; opts?: { shouldDisable7702Asking?: boolean } }
 }
 type MainControllerRejectSignAccountOpCall = {
   type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
@@ -506,9 +511,6 @@ type ActionsControllerRemoveFromActionsQueue = {
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
 }
-type ActionsControllerCloseActionWindow = {
-  type: 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW'
-}
 
 type ActionsControllerMakeAllActionsActive = {
   type: 'ACTIONS_CONTROLLER_MAKE_ALL_ACTIONS_ACTIVE'
@@ -609,6 +611,11 @@ type ExtensionUpdateControllerApplyUpdate = {
   type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
 }
 
+type AccountDisable7702Banner = {
+  type: 'ACCOUNT_DISABLE_7702_BANNER'
+  params: { accountAddr: string }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -622,6 +629,7 @@ export type Action =
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderResetIfNeeded
   | AccountsControllerUpdateAccountPreferences
+  | AccountsControllerUpdateAccountState
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork
@@ -701,7 +709,6 @@ export type Action =
   | SwapAndBridgeControllerRemoveActiveRouteAction
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
-  | ActionsControllerCloseActionWindow
   | ActionsControllerMakeAllActionsActive
   | ActionsControllerSetCurrentActionById
   | ActionsControllerSetCurrentActionByIndex
@@ -727,3 +734,4 @@ export type Action =
   | KeystoreControllerMoveSeedFromTemp
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
+  | AccountDisable7702Banner

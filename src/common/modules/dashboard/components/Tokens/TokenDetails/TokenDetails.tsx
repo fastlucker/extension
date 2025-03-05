@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
-import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
@@ -35,6 +34,8 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getTokenId } from '@web/utils/token'
 
+import { hasBecomeSmarter } from '@ambire-common/libs/account/account'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
@@ -52,6 +53,7 @@ const TokenDetails = ({
   const { t } = useTranslation()
   const { tokenPreferences } = usePortfolioControllerState()
   const { account } = useSelectedAccountControllerState()
+  const { accountStates } = useAccountsControllerState()
   const { supportedChainIds } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -72,11 +74,17 @@ const TokenDetails = ({
   const isGasTankOrRewardsToken = isGasTankToken || isRewardsToken
   const isAmountZero = token && getTokenAmount(token) === 0n
   const canToToppedUp = token?.flags.canTopUpGasTank
-  const isSmartAccount = account ? getIsSmartAccount(account) : false
   const tokenId = token ? getTokenId(token) : ''
   const isNetworkNotSupportedForSwapAndBridge = !getIsNetworkSupported(supportedChainIds, network)
   const shouldDisableSwapAndBridge =
     isNetworkNotSupportedForSwapAndBridge || isGasTankOrRewardsToken || isAmountZero
+
+  const isBasicAcc = useMemo(() => {
+    if (account && account.creation) return false
+    if (!account || !accountStates) return true
+
+    return !hasBecomeSmarter(account, accountStates)
+  }, [account, accountStates])
 
   const unavailableBecauseGasTankOrRewardsTokenTooltipText = t(
     'Unavailable. {{tokenType}} tokens cannot be sent, swapped, or bridged.',
@@ -158,8 +166,8 @@ const TokenDetails = ({
             navigate(`${WEB_ROUTES.topUpGasTank}?networkId=${networkId}&address=${address}`)
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
-        isDisabled: !canToToppedUp || !isSmartAccount,
-        tooltipText: !isSmartAccount
+        isDisabled: !canToToppedUp || isBasicAcc,
+        tooltipText: isBasicAcc
           ? t('Feature only available for Smart Accounts.')
           : !canToToppedUp
           ? t(
@@ -211,7 +219,6 @@ const TokenDetails = ({
       isGasTankOrRewardsToken,
       isAmountZero,
       canToToppedUp,
-      isSmartAccount,
       coinGeckoTokenSlug,
       navigate,
       networks,
@@ -224,7 +231,8 @@ const TokenDetails = ({
       unavailableBecauseGasTankOrRewardsTokenTooltipText,
       notImplementedYetTooltipText,
       isGasTankToken,
-      isTokenInfoLoading
+      isTokenInfoLoading,
+      isBasicAcc
     ]
   )
   useEffect(() => {
