@@ -9,6 +9,7 @@ import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import CartIcon from '@common/assets/svg/CartIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
@@ -24,6 +25,7 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useWindowSize from '@common/hooks/useWindowSize'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -39,6 +41,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
 import getStyles from './styles'
@@ -46,6 +49,7 @@ import getStyles from './styles'
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
+  const { maxWidthSize } = useWindowSize()
   const { state, transferCtrl } = useTransferControllerState()
   const {
     isTopUp,
@@ -62,6 +66,11 @@ const TransferScreen = () => {
   const { account, portfolio } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const {
+    ref: gasTankSheetRef,
+    open: openGasTankInfoBottomSheet,
+    close: closeGasTankInfoBottomSheet
+  } = useModalize()
   const { userRequests, isOffline } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
@@ -245,6 +254,32 @@ const TransferScreen = () => {
     ]
   )
 
+  const handleGasTankInfoPressed = useCallback(
+    () => openGasTankInfoBottomSheet(),
+    [openGasTankInfoBottomSheet]
+  )
+
+  const gasTankLabelWithInfo = useMemo(() => {
+    const fontSize = maxWidthSize('xl') ? 20 : 18
+
+    return (
+      <View style={flexbox.directionRow}>
+        <Text
+          fontSize={fontSize}
+          weight="medium"
+          appearance="primaryText"
+          numberOfLines={1}
+          style={spacings.mrMi}
+        >
+          {t('Top Up Gas Tank')}
+        </Text>
+        <Pressable style={[flexbox.center]} onPress={handleGasTankInfoPressed}>
+          <InfoIcon width={fontSize} height={fontSize} />
+        </Pressable>
+      </View>
+    )
+  }, [handleGasTankInfoPressed, maxWidthSize, t])
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -315,7 +350,7 @@ const TransferScreen = () => {
           <Panel
             style={[styles.panel]}
             forceContainerSmallSpacings
-            title={state.isTopUp ? 'Top Up Gas Tank' : 'Send'}
+            title={state.isTopUp ? gasTankLabelWithInfo : 'Send'}
           >
             <SendForm
               addressInputState={addressInputState}
@@ -427,6 +462,14 @@ const TransferScreen = () => {
           primaryButtonTestID="queue-modal-got-it-button"
         />
       </BottomSheet>
+      <GasTankInfoModal
+        id="gas-tank-info"
+        sheetRef={gasTankSheetRef}
+        closeBottomSheet={closeGasTankInfoBottomSheet}
+        onPrimaryButtonPress={closeGasTankInfoBottomSheet}
+        portfolio={portfolio}
+        account={account}
+      />
     </TabLayoutContainer>
   )
 }
