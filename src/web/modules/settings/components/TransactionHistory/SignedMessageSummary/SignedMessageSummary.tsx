@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { ScrollView, View, ViewStyle } from 'react-native'
 
 import { SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { stringify } from '@ambire-common/libs/richJson/richJson'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
@@ -25,7 +26,7 @@ const getParsedSignedMessageContent = (content: SignedMessage['content']) => {
     return visualizeContent(content.kind, content.message)
   }
 
-  return JSON.stringify(content, null, 4)
+  return stringify(content, { pretty: true })
 }
 
 const SignedMessageSummary = ({ signedMessage, style }: Props) => {
