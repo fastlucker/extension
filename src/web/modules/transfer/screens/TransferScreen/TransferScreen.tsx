@@ -71,7 +71,7 @@ const TransferScreen = () => {
     open: openGasTankInfoBottomSheet,
     close: closeGasTankInfoBottomSheet
   } = useModalize()
-  const { userRequests, isOffline } = useMainControllerState()
+  const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
   const hasFocusedActionWindow = useMemo(
@@ -135,8 +135,6 @@ const TransferScreen = () => {
   }, [transferCtrl.amount, transferCtrl.recipientAddress, transferCtrl.selectedToken])
 
   const submitButtonText = useMemo(() => {
-    if (isOffline) return t("You're offline")
-
     if (hasFocusedActionWindow || !isSmartAccount) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
@@ -154,7 +152,6 @@ const TransferScreen = () => {
 
     return isTopUp ? t('Top Up') : t('Send')
   }, [
-    isOffline,
     isTopUp,
     transactionUserRequests,
     addressInputState.validation.isError,
@@ -171,8 +168,6 @@ const TransferScreen = () => {
   )
 
   const isSendButtonDisabled = useMemo(() => {
-    if (isOffline) return true
-
     if (!isSmartAccount) return !isTransferFormValid
 
     if (transactionUserRequests.length && !hasFocusedActionWindow) {
@@ -182,7 +177,6 @@ const TransferScreen = () => {
   }, [
     isFormEmpty,
     isTransferFormValid,
-    isOffline,
     isSmartAccount,
     transactionUserRequests.length,
     hasFocusedActionWindow
@@ -298,9 +292,7 @@ const TransferScreen = () => {
                 accentColor={theme.primary}
                 text={t('Queue and Add More')}
                 onPress={() => addTransaction('queue')}
-                disabled={
-                  !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
-                }
+                disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
                 hasBottomSpacing={false}
                 style={spacings.mr}
                 size="large"
@@ -326,20 +318,18 @@ const TransferScreen = () => {
               size="large"
               disabled={isSendButtonDisabled}
             >
-              {!isOffline && (
-                <View style={spacings.plTy}>
-                  {isTopUp ? (
-                    <TopUpIcon
-                      strokeWidth={1}
-                      width={24}
-                      height={24}
-                      color={theme.primaryBackground}
-                    />
-                  ) : (
-                    <SendIcon width={24} height={24} color={theme.primaryBackground} />
-                  )}
-                </View>
-              )}
+              <View style={spacings.plTy}>
+                {isTopUp ? (
+                  <TopUpIcon
+                    strokeWidth={1}
+                    width={24}
+                    height={24}
+                    color={theme.primaryBackground}
+                  />
+                ) : (
+                  <SendIcon width={24} height={24} color={theme.primaryBackground} />
+                )}
+              </View>
             </Button>
           </View>
         </>
