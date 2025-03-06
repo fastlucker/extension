@@ -53,8 +53,8 @@ import { handleActions } from '@web/extension-services/background/handlers/handl
 import { handleCleanUpOnPortDisconnect } from '@web/extension-services/background/handlers/handleCleanUpOnPortDisconnect'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import {
-  handleRegisterScripts,
-  handleRestoreDappConnection
+  handleRegisterContentScriptAcrossSessions,
+  handleRegisterScripts
 } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
@@ -108,20 +108,7 @@ let mainCtrl: MainController
 handleRegisterScripts()
 handleKeepAlive()
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-handleRestoreDappConnection(async (tab) => {
-  if (!tab.id || !tab.url) return
-
-  while (!mainCtrl) await wait(100)
-
-  const tabOrigin = new URL(tab.url).origin
-  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId: tab.id, origin: tabOrigin })
-  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
-  // otherwise the dapp will think that we are still unlocked after a sw restart
-  if (!mainCtrl.keystore.isUnlocked) mainCtrl.dapps.broadcastDappSessionEvent('lock')
-  // broadcasting `tabCheckin` event to the inpage will update the session with the
-  // name and icon of the connected page
-  mainCtrl.dapps.broadcastDappSessionEvent('tabCheckin')
-})
+handleRegisterContentScriptAcrossSessions()
 
 function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
   // 5s + new Date().getTime() - timestamp of newest op / 10
@@ -920,10 +907,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   // wait for mainCtrl to be initialized before handling dapp requests
-  while (!mainCtrl) {
-    // eslint-disable-next-line no-await-in-loop
-    await wait(200)
-  }
+  while (!mainCtrl) await wait(200)
+
   const tabId = meta.sender?.tab?.id
   if (tabId === undefined || !meta.sender?.url) {
     return
@@ -933,18 +918,6 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
   mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
 
-  if (method === 'tabCheckin') {
-    mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId)
-  }
-  // Prevents handling the same request more than once
-  if (session.lastHandledRequestId >= id) return
-  mainCtrl.dapps.setSessionLastHandledRequestsId(session.sessionId, id)
-  // Temporarily resolves the subscription methods as successful
-  // but the rpc block subscription is actually not implemented because it causes app crashes
-  if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
-    return true
-  }
-
   try {
     const res = await handleProviderRequests(
       {
@@ -953,7 +926,8 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
         session,
         origin
       },
-      mainCtrl
+      mainCtrl,
+      id
     )
     return { id, result: res }
   } catch (error: any) {

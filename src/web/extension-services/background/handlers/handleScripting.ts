@@ -1,5 +1,4 @@
 /* eslint-disable no-await-in-loop */
-import wait from '@ambire-common/utils/wait'
 /* eslint-disable no-restricted-syntax */
 import { browser, engine, getFirefoxVersion } from '@web/constants/browserapi'
 
@@ -17,20 +16,6 @@ const handleRegisterScripts = async () => {
   }[] = []
 
   const registeredScripts = await browser.scripting.getRegisteredContentScripts()
-  const registeredContentScriptMessengerBridge = registeredScripts.find(
-    (s: any) => s.id === 'content-script-messenger-bridge'
-  )
-
-  if (!registeredContentScriptMessengerBridge) {
-    scripts.push({
-      id: 'content-script-messenger-bridge',
-      allFrames: true,
-      matches: ['http://*/*', 'https://*/*'],
-      excludeMatches: ['*://doInWebPack.lan/*'],
-      js: ['browser-polyfill.min.js', 'content-script.js'],
-      runAt: 'document_start'
-    })
-  }
 
   const firefoxVersion = getFirefoxVersion()
 
@@ -143,14 +128,14 @@ const handleUnregisterEthereumInpageScript = async () => {
     console.warn(`Failed to inject ethereum-inpage: ${err}`)
   }
 }
+let executeContentScriptForTabsFromPrevSessionPromise: Promise<void> | undefined
 
-const executeContentScriptForTabsFromPrevSession = async (
-  tab: chrome.tabs.Tab,
-  callback: (tab: chrome.tabs.Tab) => void
-) => {
+const executeContentScriptForTabsFromPrevSession = async (tab: chrome.tabs.Tab) => {
   if (!tab.id || !tab.url) return
 
   if (!['http://', 'https://'].some((prefix) => tab.url!.startsWith(prefix))) return
+
+  await executeContentScriptForTabsFromPrevSessionPromise
 
   try {
     await browser.scripting.executeScript({
@@ -161,51 +146,40 @@ const executeContentScriptForTabsFromPrevSession = async (
   } catch (error) {
     console.error(error)
   }
-
-  !!callback && callback(tab)
 }
 
-// The background script or service worker may become inactive unexpectedly,
-// disrupting communication between the extension and connected dApps.
-// This mechanism ensures that the connection is restored as soon as
-// the background script or service worker is reactivated.
-// By doing so, it enhances the user experience, allowing seamless continuation
-// of dApp usage from the previous session without requiring a page refresh to reconnect.
-const handleRestoreDappConnection = async (callback: (tab: chrome.tabs.Tab) => void) => {
-  const tabIdsFromPrevSession: number[] = []
-  let prevSessionTabIdsLoading: boolean = true
-  browser.tabs.query({}).then(async (tabs: chrome.tabs.Tab[]) => {
-    for (const tab of tabs) if (tab.id) tabIdsFromPrevSession.push(tab.id)
-    prevSessionTabIdsLoading = false
+// This mechanism keeps the content script used for communication between dApps and extension
+// up to date across the sessions of the extension and when the service worker/background script
+// goes inactive and then reactivates
+const handleRegisterContentScriptAcrossSessions = () => {
+  browser.tabs.onUpdated.addListener(
+    async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
+      if (changeInfo.status === 'loading') {
+        executeContentScriptForTabsFromPrevSessionPromise =
+          executeContentScriptForTabsFromPrevSession(tab)
+        await executeContentScriptForTabsFromPrevSessionPromise
+      }
+    }
+  )
+  browser.tabs.onActivated.addListener(async ({ tabId }: chrome.tabs.TabActiveInfo) => {
+    const tab = await browser.tabs.get(tabId)
+    executeContentScriptForTabsFromPrevSessionPromise =
+      executeContentScriptForTabsFromPrevSession(tab)
+    await executeContentScriptForTabsFromPrevSessionPromise
   })
 
-  browser.tabs.onActivated.addListener(async ({ tabId }: chrome.tabs.TabActiveInfo) => {
-    while (prevSessionTabIdsLoading) await wait(100)
-
-    if (tabId && tabIdsFromPrevSession.includes(tabId)) {
-      tabIdsFromPrevSession.splice(tabIdsFromPrevSession.indexOf(tabId), 1)
-      const tab = await browser.tabs.get(tabId)
-      await executeContentScriptForTabsFromPrevSession(tab, callback)
+  browser.tabs.query({ active: true }).then(async (tabs: chrome.tabs.Tab[]) => {
+    for (const tab of tabs) {
+      executeContentScriptForTabsFromPrevSessionPromise =
+        executeContentScriptForTabsFromPrevSession(tab)
+      await executeContentScriptForTabsFromPrevSessionPromise
     }
   })
-
-  while (prevSessionTabIdsLoading) await wait(100)
-
-  browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(async (tabs: chrome.tabs.Tab[]) => {
-      for (const tab of tabs) {
-        if (tab.id && tabIdsFromPrevSession.includes(tab.id)) {
-          tabIdsFromPrevSession.splice(tabIdsFromPrevSession.indexOf(tab.id), 1)
-          await executeContentScriptForTabsFromPrevSession(tab, callback)
-        }
-      }
-    })
 }
 
 export {
   handleRegisterScripts,
   handleUnregisterAmbireInpageScript,
   handleUnregisterEthereumInpageScript,
-  handleRestoreDappConnection
+  handleRegisterContentScriptAcrossSessions
 }

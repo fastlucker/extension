@@ -198,6 +198,24 @@ export class EthereumProvider extends EventEmitter {
       return
     }
 
+    if (event === 'setProviderState') {
+      try {
+        const { chainId, accounts, networkVersion, isUnlocked }: any = data
+
+        if (isUnlocked) {
+          this._isUnlocked = true
+          this._state.isUnlocked = true
+        }
+        this.chainId = chainId
+        this.networkVersion = networkVersion
+        this.emit('connect', { chainId })
+        this.#pushEventHandlers.chainChanged({ chain: chainId, networkVersion })
+        this.#pushEventHandlers.accountsChanged(accounts)
+      } catch {
+        // silent fail
+      }
+    }
+
     if ((this.#pushEventHandlers as any)[event]) {
       return (this.#pushEventHandlers as any)[event](data)
     }
