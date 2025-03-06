@@ -1,5 +1,6 @@
 export type ActivityTransaction = {
   txId: string
+  userOpHash?: string
   network: string
   submittedAt: string
   txns: { id: string; amount: number; status: string }[][] | null
