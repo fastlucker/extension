@@ -100,6 +100,7 @@ const TokenOrNft: FC<Props> = ({
         setAssetInfo(_assetInfo)
         fetchFallbackNameIfNeeded(_assetInfo).catch(console.error)
       }).catch((e) => {
+        fetchFallbackNameIfNeeded({}).catch(console.error)
         console.error(e)
         addToast(t('We were unable to fetch token info'), { type: 'error' })
       })
