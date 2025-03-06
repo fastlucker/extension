@@ -101,7 +101,7 @@ const TokenIcon: React.FC<Props> = ({
 
       await attemptToLoadFallbackImage()
     })()
-  }, [address, network?.platformId, fallbackUri, attemptToLoadFallbackImage])
+  }, [address, network?.platformId, fallbackUri, attemptToLoadFallbackImage, network])
 
   const memoizedContainerStyle = useMemo(
     () => [
