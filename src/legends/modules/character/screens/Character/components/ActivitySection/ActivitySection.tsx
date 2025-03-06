@@ -51,14 +51,14 @@ const ActivitySection = () => {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((act) => {
-              const network = networks.find(({ id }) => id === act.network)
+            {transactions.map(({ network: networkId, legends, submittedAt, userOpHash, txId }) => {
+              const network = networks.find(({ id }) => id === networkId)
 
               return (
-                <tr key={act.txId}>
+                <tr key={txId}>
                   <td>
                     <div className={styles.linksWrapper}>
-                      {new Date(act.submittedAt).toLocaleString([], {
+                      {new Date(submittedAt).toLocaleString([], {
                         year: 'numeric',
                         month: '2-digit',
                         day: '2-digit',
@@ -69,9 +69,9 @@ const ActivitySection = () => {
                       {!!network && (
                         <>
                           <a
-                            href={`https://benzin.ambire.com/?chainId=${String(
+                            href={`https://benzin.ambire.com/?chainId=${
                               network.chainId
-                            )}&txnId=${act.txId}`}
+                            }&txnId=${txId}${userOpHash ? `&userOpHash=${userOpHash}` : ''}`}
                             target="_blank"
                             rel="noreferrer"
                             className={styles.link}
@@ -80,7 +80,7 @@ const ActivitySection = () => {
                             <LinkIcon style={spacings.phTy} />
                           </a>
                           <a
-                            href={`${network.explorerUrl}/tx/${act.txId}`}
+                            href={`${network.explorerUrl}/tx/${txId}`}
                             target="_blank"
                             rel="noreferrer"
                             className={styles.link}
@@ -93,22 +93,22 @@ const ActivitySection = () => {
                     </div>
                   </td>
                   <td>
-                    {NETWORK_ICONS[act.network as Networks]}
-                    <span className={styles.network}>{act.network}</span>
+                    {NETWORK_ICONS[networkId as Networks]}
+                    <span className={styles.network}>{networkId}</span>
                   </td>
                   <td>
-                    <span className={styles.xp}>{act.legends.totalXp}</span>
+                    <span className={styles.xp}>{legends.totalXp}</span>
                     <CoinIcon width={24} height={24} className={styles.coin} />
                   </td>
                   <td className={styles.legendsWrapper}>
-                    {act.legends.activities?.map((legendActivity, i) => (
+                    {legends.activities?.map((legendActivity, i) => (
                       <React.Fragment
-                        key={`${act.txId}-${legendActivity.action}-${legendActivity.xp}-${i}`}
+                        key={`${txId}-${legendActivity.action}-${legendActivity.xp}-${i}`}
                       >
                         <div
                           className={styles.badge}
                           key={legendActivity.action + legendActivity.xp}
-                          data-tooltip-id={`tooltip-${act.txId}-${i}`}
+                          data-tooltip-id={`tooltip-${txId}-${i}`}
                         >
                           <SwordIcon width={24} height={24} className={styles.sword} />
                           {legendActivity.labelText} (+{legendActivity.xp} XP)

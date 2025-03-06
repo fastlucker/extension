@@ -28,7 +28,7 @@ const Feedback = () => {
   const { onComplete, handleClose } = useCardActionContext()
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
-  const switchNetwork = useSwitchNetwork(BASE_CHAIN_ID)
+  const switchNetwork = useSwitchNetwork()
 
   const openForm = useCallback(() => {
     if (!connectedAccount) return addToast('No account connected')
