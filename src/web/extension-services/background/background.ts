@@ -107,7 +107,6 @@ let mainCtrl: MainController
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
 handleKeepAlive()
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterContentScriptAcrossSessions()
 
 function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
