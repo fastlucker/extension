@@ -80,11 +80,11 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
     }
 
     if (checksummedAddress === connectedAccount) {
-      return 'You cannot tame your connected account.'
+      return 'You cannot link your connected account.'
     }
 
     if (!allAccounts.includes(checksummedAddress)) {
-      return 'You cannot tame an account that is not in your wallet.'
+      return 'You cannot link an account that is not in your wallet.'
     }
 
     if (alreadyLinkedAccounts.includes(checksummedAddress)) {
