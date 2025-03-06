@@ -1,8 +1,9 @@
+import { nanoid } from 'nanoid'
 import React, { FC, useState } from 'react'
 import { Trans } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 
-import { SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { SignedMessage } from '@ambire-common/controllers/activity/types'
 import { Account } from '@ambire-common/interfaces/account'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Text from '@common/components/Text'
@@ -11,7 +12,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 
-import { nanoid } from 'nanoid'
 import HistorySettingsPage from '../../components/TransactionHistory/HistorySettingsPage'
 import SignedMessageSummary from '../../components/TransactionHistory/SignedMessageSummary'
 

@@ -70,6 +70,7 @@ const WEB_ROUTES = {
   settingsAbout: 'settings/about',
   networksSettings: 'settings/networks',
   accountsSettings: 'settings/accounts',
+  basicToSmartSettingsScreen: 'settings/accounts/basic-to-smart',
   exportKey: 'settings/accounts/exportKey',
   devicePasswordSet: 'settings/device-password-set',
   devicePasswordChange: 'settings/device-password-change',

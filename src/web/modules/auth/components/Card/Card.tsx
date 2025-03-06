@@ -29,6 +29,7 @@ interface Props {
   iconProps?: SvgProps
   testID?: string
   children?: React.ReactNode | React.ReactNode[]
+  iconWrapperStyles?: any
 }
 
 const Card: React.FC<Props> = ({
@@ -45,7 +46,8 @@ const Card: React.FC<Props> = ({
   buttonText,
   isSecondary = false,
   iconProps = {},
-  children
+  children,
+  iconWrapperStyles
 }) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered, triggerHovered] = useCustomHover({
@@ -80,7 +82,7 @@ const Card: React.FC<Props> = ({
     >
       <View style={[flexbox.flex1, isPartiallyDisabled && { opacity: 0.7 }]}>
         {!!Icon && (
-          <View style={styles.iconWrapper}>
+          <View style={[styles.iconWrapper, iconWrapperStyles]}>
             <Icon color={isHovered ? hoveredIconColor : theme.secondaryText} {...iconProps} />
           </View>
         )}

@@ -15,7 +15,12 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 
 import DashboardBannerBottomSheet from '../DashboardBannerBottomSheet'
 
-const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge', 'dismiss-email-vault']
+const ERROR_ACTIONS = [
+  'reject-accountOp',
+  'reject-bridge',
+  'dismiss-email-vault',
+  'dismiss-7702-banner'
+]
 
 const DashboardBanner = ({ banner }: { banner: BannerType }) => {
   const { type, category, title, text, actions = [] } = banner
@@ -96,9 +101,11 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
 
         case 'reject-bridge':
         case 'close-bridge':
-          dispatch({
-            type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
-            params: { activeRouteId: action.meta.activeRouteId }
+          action.meta.activeRouteIds.forEach((activeRouteId) => {
+            dispatch({
+              type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+              params: { activeRouteId }
+            })
           })
           break
 
@@ -123,6 +130,10 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
             type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
             params: action.meta
           })
+          break
+
+        case 'activate-7702':
+          navigate(`${ROUTES.basicToSmartSettingsScreen}?accountAddr=${action.meta.accountAddr}`)
           break
 
         case 'confirm-temp-seed':
@@ -151,7 +162,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           })
           break
 
-        case 'dismiss-email-vault': {
+        case 'dismiss-email-vault':
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
           })
@@ -162,7 +173,17 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
             }
           )
           break
-        }
+
+        case 'dismiss-7702-banner':
+          dispatch({
+            type: 'ACCOUNT_DISABLE_7702_BANNER',
+            params: action.meta
+          })
+          addToast('Dismissed! You can make your account smart anytime from Settings.', {
+            type: 'info'
+          })
+          break
+
         default:
           break
       }
