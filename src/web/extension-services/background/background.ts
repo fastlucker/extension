@@ -818,10 +818,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     })
   })
 
-  chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
-    if (message.action === 'wake_up') sendResponse({ status: 'awake' })
-  })
-
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
     if (['popup', 'tab', 'action-window'].includes(port.name)) {

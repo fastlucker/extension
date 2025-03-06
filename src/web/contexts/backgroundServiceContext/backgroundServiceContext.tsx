@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect, useMemo, useRef } from 'react'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { ToastOptions } from '@common/contexts/toastContext'
+import useIsScreenFocused from '@common/hooks/useIsScreenFocused'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import { isExtension } from '@web/constants/browserapi'
@@ -11,8 +12,6 @@ import {
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
 import { Action } from '@web/extension-services/background/actions'
-import { controllersMapping } from '@web/extension-services/background/types'
-import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import eventBus from '@web/extension-services/event/eventBus'
 import { PortMessenger } from '@web/extension-services/messengers'
 import { getUiType } from '@web/utils/uiType'
@@ -21,7 +20,6 @@ let dispatch: BackgroundServiceContextReturnType['dispatch']
 let pm: PortMessenger
 const actionsBeforeBackgroundReady: Action[] = []
 let backgroundReady: boolean
-let reconnectAttempt = 0
 
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessenger class to establish a connection between the popup
@@ -65,24 +63,10 @@ if (isExtension) {
     }, 150)
   }
 
-  const connectToBackground = (shouldCloseWindowOnError?: boolean, onConnect?: () => void) => {
-    chrome.runtime.sendMessage({ action: 'wake_up' }, (res) => {
-      if (chrome.runtime.lastError) {
-        shouldCloseWindowOnError && closeCurrentWindow()
-      } else if (res?.status === 'awake') {
-        connectPort()
-        !!onConnect && onConnect()
-      } else {
-        if (reconnectAttempt >= 5) return
-        setTimeout(() => {
-          connectToBackground(true, onConnect)
-          reconnectAttempt++
-        }, 50)
-      }
-    })
-  }
-
-  connectToBackground()
+  connectPort()
+  chrome.runtime.onMessage.addListener((message: any) => {
+    if (message.action === 'awake') connectPort()
+  })
 
   const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
 
@@ -101,14 +85,7 @@ if (isExtension) {
     } else {
       try {
         pm.send('> background', action)
-      } catch (error) {
-        connectToBackground(true, () => {
-          Object.keys(controllersMapping).forEach((ctrlName: any) => {
-            dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller: ctrlName } })
-          })
-          reconnectAttempt = 0
-        })
-      }
+      } catch (error) {}
     }
   }
 }
@@ -120,11 +97,30 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   const { addToast } = useToast()
   const route = useRoute()
-
+  const timer: any = useRef()
+  const isFocused = useIsScreenFocused()
   useEffect(() => {
     const url = `${window.location.origin}${route.pathname}${route.search}${route.hash}`
     dispatch({ type: 'UPDATE_PORT_URL', params: { url } })
   }, [route])
+
+  useEffect(() => {
+    const keepAlive = async () => {
+      await chrome.runtime.sendMessage('ping')
+      timer.current = setTimeout(keepAlive, 1000)
+    }
+
+    if (isFocused) {
+      keepAlive()
+    } else if (timer.current) {
+      clearTimeout(timer.current)
+      timer.current = null
+    }
+
+    return () => {
+      if (timer.current) clearTimeout(timer.current)
+    }
+  }, [isFocused])
 
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
