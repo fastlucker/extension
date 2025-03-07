@@ -1,5 +1,10 @@
+import * as sigUtil from 'eth-sig-util'
+
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
-import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import {
+  ExternalSignerController,
+  KeystoreSignerInterface
+} from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { ledgerUSBVendorId } from '@ledgerhq/devices'
@@ -244,6 +249,45 @@ class LedgerController implements ExternalSignerController {
 
       return keys
     })
+  }
+
+  /**
+   * Attempts to sign an EIP-712 message using the Ledger device. If the device
+   * does not support direct EIP-712 signing, it falls back to signing the hash
+   * of the message.
+   */
+  signEIP712MessageWithHashFallback = ({
+    path,
+    signTypedData: { domain, types, message, primaryType }
+  }: {
+    path: string
+    signTypedData: KeystoreSignerInterface['signTypedData']
+  }) => {
+    try {
+      return this.walletSDK!.signEIP712Message(path, {
+        domain,
+        types,
+        message,
+        primaryType
+      })
+    } catch {
+      // NOT all Ledger devices support the signEIP712Message. The alternative
+      // is signing the hash of the message, which is supported by all devices.
+      const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
+        'EIP712Domain',
+        domain,
+        types,
+        true
+      ).toString('hex')
+      const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
+        primaryType as string,
+        message,
+        types,
+        true
+      ).toString('hex')
+
+      return this.walletSDK!.signEIP712HashedMessage(path, domainSeparatorHex, hashStructMessageHex)
+    }
   }
 
   cleanUp = async () => {
