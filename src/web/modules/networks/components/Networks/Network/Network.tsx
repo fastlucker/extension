@@ -1,7 +1,8 @@
-import { t } from 'i18next'
 import React, { FC, useCallback } from 'react'
 import { Pressable, View } from 'react-native'
+import { useSearchParams } from 'react-router-dom'
 
+import wait from '@ambire-common/utils/wait'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
@@ -28,6 +29,7 @@ interface Props {
 }
 
 const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSheet }) => {
+  const [searchParams] = useSearchParams()
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
@@ -60,12 +62,24 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
     duration: DURATIONS.REGULAR
   })
 
-  const navigateAndFilterDashboard = () => {
+  const navigateAndFilterDashboard = async () => {
     dispatch({
       type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER',
       params: { dashboardNetworkFilter: networkId }
     })
-    navigate(WEB_ROUTES.dashboard)
+
+    // TODO: We navigate to the new URL faster than the above network change is applied.
+    // Because of this, on the Dashboard tab, we initially see the previous network data,
+    // and after a moment, the new data is displayed.
+    // We need to figure out how to handle this.
+    await wait(10)
+
+    const prevSearchParams = searchParams.get('prevSearchParams')
+    const url = prevSearchParams
+      ? `${WEB_ROUTES.dashboard}?${decodeURIComponent(prevSearchParams)}`
+      : WEB_ROUTES.dashboard
+
+    navigate(url)
   }
 
   const networkData = networks.find((network) => network.id === networkId)
