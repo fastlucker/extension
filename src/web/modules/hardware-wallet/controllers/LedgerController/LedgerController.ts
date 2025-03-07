@@ -278,6 +278,10 @@ class LedgerController implements ExternalSignerController {
         { EIP712Domain: types.EIP712Domain },
         domain
       )
+
+      // Explicitly remove it (by convention) because it breaks for composite types
+      // eslint-disable-next-line no-param-reassign
+      if (types.EIP712Domain) delete types.EIP712Domain
       const hashStructMessageHex = TypedDataEncoder.hashStruct(
         primaryType,
         { [primaryType]: types[primaryType] },
