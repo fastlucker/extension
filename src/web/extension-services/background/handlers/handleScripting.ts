@@ -145,6 +145,8 @@ const executeContentScriptForTabsFromPrevSession = async (tab: chrome.tabs.Tab) 
     })
   } catch (error) {
     console.error(error)
+  } finally {
+    executeContentScriptForTabsFromPrevSessionPromise = undefined
   }
 }
 
