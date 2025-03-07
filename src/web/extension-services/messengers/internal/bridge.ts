@@ -93,6 +93,7 @@ export async function setupBridgeMessengerRelay() {
 
   // next tick
   setTimeout(() => {
+    // Notify the background that the content script is ready to receive messages
     tabMessenger.send('ambireProviderRequest', { id: 0, method: 'contentScriptReady' }, { id: 0 })
   }, 0)
 }
