@@ -93,7 +93,8 @@ export class WalletStateController extends EventEmitter {
 
   async #init(): Promise<void> {
     // @ts-ignore
-    const isDefault = await storage.get('isDefaultWallet')
+    const isDefault = await storage.get('isDefaultWallet', undefined)
+
     // Initialize isDefaultWallet in storage if needed
     if (isDefault === undefined) {
       await storage.set('isDefaultWallet', true)

@@ -41,7 +41,9 @@ const Info: FC<Props> = () => {
 
   return (
     <View style={[styles.container, maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd]}>
-      {(!messageToSign || messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
+      {(!messageToSign ||
+        (messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID &&
+          messageToSign.content.kind !== 'authorization-7702')) && (
         <View style={spacings.mbMd}>
           {dapp?.icon ? (
             <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
@@ -108,6 +110,39 @@ const Info: FC<Props> = () => {
           </Trans>
           <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
             {t('If you still have any doubts, please ')}
+            <Text
+              fontSize={maxWidthSize('xl') ? 16 : 14}
+              style={{ color: theme.primary, textDecorationLine: 'underline' }}
+              onPress={linkToSupportPage}
+            >
+              {t('contact support.')}
+            </Text>
+          </Text>
+        </>
+      )}
+
+      {messageToSign && messageToSign.content.kind === 'authorization-7702' && (
+        <>
+          <Text
+            style={spacings.mbMd}
+            fontSize={maxWidthSize('xl') ? 24 : 20}
+            appearance="secondaryText"
+            weight="medium"
+          >
+            {t('EIP-7702 authorization')}
+          </Text>
+          <Trans t={t}>
+            <Text
+              appearance="secondaryText"
+              fontSize={maxWidthSize('xl') ? 16 : 14}
+              style={spacings.mbMd}
+            >
+              You are signing an authorization that is going to make your Basic Account Smarter,
+              meaning you will be able to use Smart Account functionalities.
+            </Text>
+          </Trans>
+          <Text fontSize={maxWidthSize('xl') ? 16 : 14} appearance="secondaryText">
+            {t('If you are unsure or worried for any reason, please ')}
             <Text
               fontSize={maxWidthSize('xl') ? 16 : 14}
               style={{ color: theme.primary, textDecorationLine: 'underline' }}

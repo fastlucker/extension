@@ -14,6 +14,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
+import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 
@@ -35,6 +36,7 @@ interface WheelComponentProps {
 const POST_UNLOCK_STATES = ['unlocked', 'spinning', 'spun', 'error']
 
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClose }) => {
+  const switchNetwork = useSwitchNetwork()
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
   const [wheelState, setWheelState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
@@ -68,11 +70,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
   const unlockWheel = useCallback(async () => {
     try {
-      // Switch to Base chain
-      await window.ambire.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: BASE_CHAIN_ID }]
-      })
+      await switchNetwork()
 
       const provider = new ethers.BrowserProvider(window.ambire)
       const signer = await provider.getSigner()
@@ -131,9 +129,10 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
       setWheelState('locked')
     }
   }, [
+    switchNetwork,
     stopSpinnerTeaseAnimation,
-    addToast,
     sendCalls,
+    addToast,
     getCallsStatus,
     connectedAccount,
     setWheelToUnlocked

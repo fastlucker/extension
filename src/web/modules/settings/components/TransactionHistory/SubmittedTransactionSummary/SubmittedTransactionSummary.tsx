@@ -5,6 +5,7 @@ import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 import { SubmittedAccountOp } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
@@ -14,6 +15,7 @@ import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import LinkIcon from '@common/assets/svg/LinkIcon'
+import RepeatIcon from '@common/assets/svg/RepeatIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Badge from '@common/components/Badge'
 import SkeletonLoader from '@common/components/SkeletonLoader'
@@ -25,6 +27,7 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import TransactionSummary, {
   sizeMultiplier
@@ -46,7 +49,8 @@ const SubmittedTransactionSummary = ({
   style,
   defaultType
 }: Props) => {
-  const { styles } = useTheme(getStyles)
+  const { dispatch } = useBackgroundService()
+  const { styles, theme } = useTheme(getStyles)
   const { addToast } = useToast()
   const { networks } = useNetworksControllerState()
   const { maxWidthSize } = useWindowSize()
@@ -130,6 +134,30 @@ const SubmittedTransactionSummary = ({
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
   }, [network?.chainId, submittedAccountOp.txnId, submittedAccountOp.identifiedBy, addToast])
+
+  const handleRepeatTransaction = useCallback(() => {
+    const { calls: rawCalls } = submittedAccountOp
+
+    const userTx = {
+      kind: 'calls' as const,
+      calls: rawCalls
+    }
+
+    const userRequest: UserRequest = {
+      id: new Date().getTime(),
+      action: userTx,
+      meta: {
+        isSignAction: true,
+        networkId: submittedAccountOp.networkId,
+        accountAddr: submittedAccountOp.accountAddr
+      }
+    }
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+      params: userRequest
+    })
+  }, [dispatch, submittedAccountOp])
 
   const handleOpenBlockExplorer = useCallback(async () => {
     try {
@@ -249,7 +277,27 @@ const SubmittedTransactionSummary = ({
             </View>
 
             {defaultType === 'summary' && isFooterExpanded && (
-              <View style={[flexbox.alignEnd, spacings.mbSm]}>
+              <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.mbSm]}>
+                <TouchableOpacity
+                  style={[flexbox.directionRow, flexbox.alignCenter]}
+                  onPress={handleRepeatTransaction}
+                >
+                  <Text
+                    fontSize={textSize}
+                    appearance="secondaryText"
+                    weight="medium"
+                    style={spacings.mrMi}
+                  >
+                    {t('Repeat Transaction')}
+                  </Text>
+                  <RepeatIcon
+                    width={textSize}
+                    height={textSize}
+                    color={theme.secondaryText}
+                    style={spacings.mrMi}
+                    strokeWidth={2}
+                  />
+                </TouchableOpacity>
                 <TouchableOpacity
                   style={[flexbox.directionRow, flexbox.alignCenter]}
                   onPress={() => setIsFooterExpanded(false)}
