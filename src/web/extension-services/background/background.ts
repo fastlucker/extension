@@ -720,9 +720,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             if (ctrlName === 'keystore') {
               if (controller.isReadyToStoreKeys) {
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
-                  mainCtrl.dapps.broadcastDappSessionEvent('lock')
+                  await mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
-                  mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
+                  await mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
                     mainCtrl.selectedAccount.account?.addr
                   ])
                 }

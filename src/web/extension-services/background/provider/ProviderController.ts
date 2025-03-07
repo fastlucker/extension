@@ -118,7 +118,7 @@ export class ProviderController {
 
     const account = this._internalGetAccounts(origin)
 
-    this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
+    await this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
   }
@@ -302,7 +302,7 @@ export class ProviderController {
       return true
     }
   ])
-  walletAddEthereumChain = ({
+  walletAddEthereumChain = async ({
     params: [chainParams],
     session: { origin, name }
   }: ProviderRequest) => {
@@ -325,7 +325,7 @@ export class ProviderController {
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
-    this.mainCtrl.dapps.broadcastDappSessionEvent(
+    await this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: `0x${network.chainId.toString(16)}`,
@@ -522,7 +522,7 @@ export class ProviderController {
       return true
     }
   ])
-  walletSwitchEthereumChain = ({
+  walletSwitchEthereumChain = async ({
     params: [chainParams],
     session: { origin, name }
   }: ProviderRequest) => {
@@ -544,7 +544,7 @@ export class ProviderController {
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
-    this.mainCtrl.dapps.broadcastDappSessionEvent(
+    await this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: `0x${network.chainId.toString(16)}`,

@@ -102,7 +102,7 @@ const flowContext = flow
             isConnected: true,
             blacklisted: isBlacklisted
           } as Dapp)
-          mainCtrl.dapps.broadcastDappSessionEvent(
+          await mainCtrl.dapps.broadcastDappSessionEvent(
             'chainChanged',
             { chain: '0x1', networkVersion: '1' },
             origin
