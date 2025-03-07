@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import { v4 } from 'uuid'
+
 import { createMessenger } from '@web/extension-services/messengers/internal/createMessenger'
 import { tabMessenger } from '@web/extension-services/messengers/internal/tab'
 import { windowMessenger } from '@web/extension-services/messengers/internal/window'
 import { detectScriptType } from '@web/extension-services/messengers/utils/detectScriptType'
 
 const messenger = tabMessenger.available ? tabMessenger : windowMessenger
+const id = v4()
 
 /**
  * Creates a "bridge messenger" that can be used to communicate between
@@ -14,6 +18,7 @@ const messenger = tabMessenger.available ? tabMessenger : windowMessenger
  * - ❌ Background <-> Content Script
  * - ❌ Content Script <-> Inpage
  */
+
 export const bridgeMessenger = createMessenger({
   available: messenger.available,
   name: 'bridgeMessenger',
@@ -30,10 +35,23 @@ export async function setupBridgeMessengerRelay() {
     throw new Error('`setupBridgeMessengerRelay` is only supported in Content Scripts.')
   }
 
-  window.postMessage({ type: 'removeEventListener' }, '*')
+  window.postMessage({ type: 'removeEventListener', id }, '*')
 
   let windowReplyListener: (() => void) | undefined
   let tabReplyListener: (() => void) | undefined
+
+  const handleDestroy = (e: MessageEvent<any>) => {
+    // the id here prevents destroying the current script that sends the `removeEventListener` message
+    if (e.data?.type === 'removeEventListener' && e.data?.id !== id) {
+      !!windowReplyListener && windowReplyListener()
+      windowReplyListener = undefined
+      !!tabReplyListener && tabReplyListener()
+      tabReplyListener = undefined
+      window.removeEventListener('message', handleDestroy)
+    }
+  }
+
+  window.addEventListener('message', handleDestroy)
 
   // e.g. inpage -> content script -> background
   windowReplyListener = windowMessenger.reply('*', async (payload, { topic, id }) => {
@@ -45,6 +63,7 @@ export async function setupBridgeMessengerRelay() {
       // calling this func clears the window reply listener
       !!windowReplyListener && windowReplyListener()
       windowReplyListener = undefined
+      // avoid returning here to prevent sending an incorrect response to the inpage from this content script
     } else {
       const t = topic.replace('> ', '')
       const response: any = await tabMessenger.send(t, payload, { id })
@@ -63,6 +82,7 @@ export async function setupBridgeMessengerRelay() {
       // calling this func clears the tab reply listener
       !!tabReplyListener && tabReplyListener()
       tabReplyListener = undefined
+      // avoid returning here to prevent sending an incorrect response to the background from this content script
     } else {
       const t = topic.replace('> ', '')
       const response = await windowMessenger.send(t, payload, { id })
@@ -71,20 +91,8 @@ export async function setupBridgeMessengerRelay() {
     }
   })
 
+  // next tick
   setTimeout(() => {
-    const handleDestroy = (e: MessageEvent<any>) => {
-      if (e.data?.type === 'removeEventListener') {
-        !!windowReplyListener && windowReplyListener()
-        windowReplyListener = undefined
-        !!tabReplyListener && tabReplyListener()
-        tabReplyListener = undefined
-        window.removeEventListener('message', handleDestroy)
-      }
-    }
-
-    window.addEventListener('message', handleDestroy)
-
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     tabMessenger.send('ambireProviderRequest', { id: 0, method: 'contentScriptReady' }, { id: 0 })
   }, 0)
 }

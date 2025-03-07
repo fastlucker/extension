@@ -15,6 +15,10 @@ const handleProviderRequests = async (
 ): Promise<any> => {
   const { method, params, session } = request
 
+  if (requestId === 0) {
+    mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId)
+  }
+
   if (method === 'contentScriptReady') {
     mainCtrl.dapps.broadcastDappSessionEvent('tabCheckin', undefined, session.origin)
     const providerController = new ProviderController(mainCtrl)
