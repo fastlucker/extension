@@ -15,10 +15,11 @@ interface Props extends TextProps {
   // example of highestPriorityAlias: a name coming from the humanizer's metadata
   highestPriorityAlias?: string
   explorerNetworkId?: string
+  marginRight?: number
 }
 const HUMANIZER_META = humanizerInfo as HumanizerMeta
 
-const HumanizerAddress: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
+const HumanizerAddress: FC<Props> = ({ address, highestPriorityAlias, marginRight, ...rest }) => {
   const { styles } = useTheme(getStyles)
 
   const addressInfo: any = useMemo(
@@ -27,7 +28,7 @@ const HumanizerAddress: FC<Props> = ({ address, highestPriorityAlias, ...rest })
   )
 
   return (
-    <View style={flexbox.directionRow}>
+    <View style={{ ...flexbox.directionRow, marginRight }}>
       {addressInfo?.logo && <Image source={{ uri: addressInfo.logo }} style={styles.logo} />}
       <HumanizerAddressInner
         address={address}
