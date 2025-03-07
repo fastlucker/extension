@@ -256,15 +256,16 @@ class LedgerController implements ExternalSignerController {
    * does not support direct EIP-712 signing, it falls back to signing the hash
    * of the message.
    */
-  signEIP712MessageWithHashFallback = ({
+  signEIP712MessageWithHashFallback = async ({
     path,
     signTypedData: { domain, types, message, primaryType }
   }: {
     path: string
     signTypedData: KeystoreSignerInterface['signTypedData']
   }) => {
+    let res: { v: number; s: string; r: string }
     try {
-      return this.walletSDK!.signEIP712Message(path, {
+      res = await this.walletSDK!.signEIP712Message(path, {
         domain,
         types,
         message,
@@ -286,8 +287,19 @@ class LedgerController implements ExternalSignerController {
         true
       ).toString('hex')
 
-      return this.walletSDK!.signEIP712HashedMessage(path, domainSeparatorHex, hashStructMessageHex)
+      res = await this.walletSDK!.signEIP712HashedMessage(
+        path,
+        domainSeparatorHex,
+        hashStructMessageHex
+      )
     }
+
+    if (!res)
+      throw new ExternalSignerError(
+        'Your Ledger device returned an empty signature, which is unexpected. Please try signing again.'
+      )
+
+    return res
   }
 
   cleanUp = async () => {
