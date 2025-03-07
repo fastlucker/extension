@@ -1,10 +1,8 @@
 import * as sigUtil from 'eth-sig-util'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
-import {
-  ExternalSignerController,
-  KeystoreSignerInterface
-} from '@ambire-common/interfaces/keystore'
+import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { ledgerUSBVendorId } from '@ledgerhq/devices'
@@ -253,15 +251,15 @@ class LedgerController implements ExternalSignerController {
 
   /**
    * Attempts to sign an EIP-712 message using the Ledger device. If the device
-   * does not support direct EIP-712 signing, it falls back to signing the hash
-   * of the message.
+   * does not support direct (clear) EIP-712 signing, it falls back to signing
+   * hashes of the message (that works across all Ledger devices).
    */
   signEIP712MessageWithHashFallback = async ({
     path,
     signTypedData: { domain, types, message, primaryType }
   }: {
     path: string
-    signTypedData: KeystoreSignerInterface['signTypedData']
+    signTypedData: TypedMessage
   }) => {
     let res: { v: number; s: string; r: string }
     try {
@@ -272,8 +270,9 @@ class LedgerController implements ExternalSignerController {
         primaryType
       })
     } catch {
-      // NOT all Ledger devices support the signEIP712Message. The alternative
-      // is signing the hash of the message, which is supported by all devices.
+      // NOT all Ledger devices support clear signing EIP-721 message (via
+      // `signEIP712Message`), example: Ledger Nano S. The alternative is signing
+      // hashes - that works across all Ledger devices.
       const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
         'EIP712Domain',
         domain,
