@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import React, { createContext, useEffect, useMemo } from 'react'
+import React, { createContext, useEffect, useMemo, useRef } from 'react'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { ToastOptions } from '@common/contexts/toastContext'
+import useIsScreenFocused from '@common/hooks/useIsScreenFocused'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import { isExtension } from '@web/constants/browserapi'
@@ -16,6 +17,9 @@ import { PortMessenger } from '@web/extension-services/messengers'
 import { getUiType } from '@web/utils/uiType'
 
 let dispatch: BackgroundServiceContextReturnType['dispatch']
+let pm: PortMessenger
+const actionsBeforeBackgroundReady: Action[] = []
+let backgroundReady: boolean
 
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessenger class to establish a connection between the popup
@@ -25,18 +29,14 @@ let dispatch: BackgroundServiceContextReturnType['dispatch']
 // based on the state of the background process and for sending dApps-initiated
 // actions to the background for further processing.
 if (isExtension) {
-  const pm = new PortMessenger()
-  let backgroundReady: boolean = false
-  const actionsBeforeBackgroundReady: Action[] = []
-
-  const isTab = getUiType().isTab
-  const isActionWindow = getUiType().isActionWindow
-
-  let portName = 'popup'
-  if (isTab) portName = 'tab'
-  if (isActionWindow) portName = 'action-window'
-
   const connectPort = () => {
+    pm = new PortMessenger()
+    backgroundReady = false
+
+    let portName = 'popup'
+    if (getUiType().isTab) portName = 'tab'
+    if (getUiType().isActionWindow) portName = 'action-window'
+
     pm.connect(portName)
     // connect to the portMessenger initialized in the background
     // @ts-ignore
@@ -64,6 +64,9 @@ if (isExtension) {
   }
 
   connectPort()
+  chrome.runtime.onMessage.addListener((message: any) => {
+    if (message.action === 'awake') connectPort()
+  })
 
   const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
 
@@ -74,13 +77,15 @@ if (isExtension) {
     // dispatches from action-window should not be blocked even when unfocused
     // because we can have only one instance of action-window and only one instance for the given action screen
     // (an action screen could not be opened in tab or popup window by design)
-    const shouldBlockDispatch = document.hidden && !isActionWindow
+    const shouldBlockDispatch = document.hidden && !getUiType().isActionWindow
     if (shouldBlockDispatch && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
 
     if (!backgroundReady) {
       actionsBeforeBackgroundReady.push(action)
     } else {
-      pm.send('> background', action)
+      try {
+        pm.send('> background', action)
+      } catch (error) {}
     }
   }
 }
@@ -92,11 +97,30 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   const { addToast } = useToast()
   const route = useRoute()
-
+  const timer: any = useRef()
+  const isFocused = useIsScreenFocused()
   useEffect(() => {
     const url = `${window.location.origin}${route.pathname}${route.search}${route.hash}`
     dispatch({ type: 'UPDATE_PORT_URL', params: { url } })
   }, [route])
+
+  useEffect(() => {
+    const keepAlive = async () => {
+      await chrome.runtime.sendMessage('ping')
+      timer.current = setTimeout(keepAlive, 1000)
+    }
+
+    if (isFocused) {
+      keepAlive()
+    } else if (timer.current) {
+      clearTimeout(timer.current)
+      timer.current = null
+    }
+
+    return () => {
+      if (timer.current) clearTimeout(timer.current)
+    }
+  }, [isFocused])
 
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
