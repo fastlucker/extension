@@ -284,7 +284,7 @@ class LedgerController implements ExternalSignerController {
       if (types.EIP712Domain) delete types.EIP712Domain
       const hashStructMessageHex = TypedDataEncoder.hashStruct(
         primaryType,
-        { [primaryType]: types[primaryType] },
+        types,
         message
       )
 
