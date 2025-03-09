@@ -1,4 +1,4 @@
-import { TypedDataEncoder } from 'ethers'
+import * as sigUtil from 'eth-sig-util'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
@@ -273,20 +273,18 @@ class LedgerController implements ExternalSignerController {
       // NOT all Ledger devices support clear signing EIP-721 message (via
       // `signEIP712Message`), example: Ledger Nano S. The alternative is signing
       // hashes - that works across all Ledger devices.
-      const domainSeparatorHex = TypedDataEncoder.hashStruct(
+      const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
         'EIP712Domain',
-        { EIP712Domain: types.EIP712Domain },
-        domain
-      )
-
-      // Explicitly remove it (by convention) because it breaks for composite types
-      // eslint-disable-next-line no-param-reassign
-      if (types.EIP712Domain) delete types.EIP712Domain
-      const hashStructMessageHex = TypedDataEncoder.hashStruct(
-        primaryType,
-        { [primaryType]: types[primaryType] },
-        message
-      )
+        domain,
+        types,
+        true
+      ).toString('hex')
+      const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
+        primaryType as string,
+        message,
+        types,
+        true
+      ).toString('hex')
 
       res = await this.walletSDK!.signEIP712HashedMessage(
         path,
