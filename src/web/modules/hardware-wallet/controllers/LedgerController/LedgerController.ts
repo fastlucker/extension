@@ -280,7 +280,7 @@ class LedgerController implements ExternalSignerController {
         true
       ).toString('hex')
       const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
-        primaryType as string,
+        primaryType,
         message,
         types,
         true
