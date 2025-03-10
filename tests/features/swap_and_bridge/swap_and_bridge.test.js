@@ -309,7 +309,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await switchUSDValueOnSwapAndBridge(page, 'xWALLET', 'ethereum', 0.9)
   })
 
-  it.only('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
+  it('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
     await verifyNonDefaultReceiveToken(page, 'Ethereum', 'wCRES')
     await verifyNonDefaultReceiveToken(page, 'Ethereum', 'GLQ')
   })
