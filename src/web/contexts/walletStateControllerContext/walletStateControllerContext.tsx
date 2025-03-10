@@ -14,7 +14,6 @@ const WalletStateControllerProvider: React.FC<any> = ({ children }) => {
   const controller = 'walletState'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
-  const { isDefaultWallet, isReady } = state
 
   useEffect(() => {
     dispatch({
@@ -22,16 +21,6 @@ const WalletStateControllerProvider: React.FC<any> = ({ children }) => {
       params: { controller }
     })
   }, [dispatch])
-
-  // checks if the wallet is the default wallet and sets it if it's not
-  useEffect(() => {
-    if (state && isReady && (isDefaultWallet === undefined || !isDefaultWallet)) {
-      dispatch({
-        type: 'SET_IS_DEFAULT_WALLET',
-        params: { isDefaultWallet: true }
-      })
-    }
-  }, [dispatch, isDefaultWallet, isReady, state])
 
   const memoizedState = useDeepMemo(state, controller)
 
