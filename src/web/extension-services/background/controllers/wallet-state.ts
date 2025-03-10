@@ -91,7 +91,6 @@ export class WalletStateController extends EventEmitter {
     return {
       ...this,
       ...super.toJSON(),
-      isDefaultWallet: this.isDefaultWallet,
       onboardingState: this.onboardingState,
       isPinned: this.isPinned,
       isSetupComplete: this.isSetupComplete
