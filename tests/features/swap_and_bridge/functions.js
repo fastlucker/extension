@@ -5,41 +5,41 @@ import { SELECTORS } from '../../common/selectors/selectors'
 import {
   FETCHING_BEST_ROUTE,
   ROUTE_BUTTON_SELECTOR,
-  NETWORK_SELECTOR,
   ENTER_AMOUNT_SELECTOR,
   SWITCH_TOKENS_TOOLTIP_SELECTOR,
   SWITCH_TOKEN_SELECTOR,
   SWITCH_USD_SELECTOR,
   WARNING_THE_PRICE,
-  RECIEVE_TOKEN_INPUT
+  RECIEVE_TOKEN_INPUT,
+  TOKEN_ADDRESS
 } from './constants'
 
 export async function selectButton(page, text) {
   await clickOnElement(page, `text=${text}`)
 }
 
-export async function checkIfOnDashboardPage(page) {
+export async function verifyIfOnDashboardPage(page) {
   await expect(page).toMatchElement(SELECTORS.dashboardButtonSwapAndBridge)
   expect(page.url()).toContain('/dashboard')
 }
 
-export async function checkIfOnSwapAndBridgePage(page) {
+export async function verifyIfOnSwapAndBridgePage(page) {
   await expect(page).toMatchElement('div', { text: 'Swap & Bridge' })
   expect(page.url()).toContain('/swap-and-bridge')
 }
 
 export async function openSwapAndBridge(page) {
   await clickOnElement(page, SELECTORS.dashboardButtonSwapAndBridge)
-  await checkIfOnSwapAndBridgePage(page)
+  await verifyIfOnSwapAndBridgePage(page)
 }
 
-export async function checkIfSwitchIsActive(page, reference = true) {
+export async function verifyIfSwitchIsActive(page, reference = true) {
   await page.waitForTimeout(500)
   const isActive = (await page.$(SWITCH_TOKENS_TOOLTIP_SELECTOR)) === null
   await expect(isActive).toBe(reference)
 }
 
-export async function clickSwitchButton(page, selector) {
+async function clickXPathElement(page, selector) {
   const [element] = await page.$x(selector)
   expect(element).not.toBeNull()
   await element.click()
@@ -74,7 +74,7 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
   const network = await getElementContentWords(page, SELECTORS.recieveNetworkBase)
 
   // Click the switch Tokens button
-  await clickSwitchButton(page, SWITCH_TOKEN_SELECTOR)
+  await clickXPathElement(page, SWITCH_TOKEN_SELECTOR)
 
   // Ensure the tokens are switched
   expect(await getElementContentWords(page, SELECTORS.sendTokenSaB)).toBe(receiveToken)
@@ -138,7 +138,7 @@ export async function switchUSDValueOnSwapAndBridge(
   const oldAmount = await getSendAmount(page)
 
   // Click the switch USD button
-  await clickSwitchButton(page, SWITCH_USD_SELECTOR)
+  await clickXPathElement(page, SWITCH_USD_SELECTOR)
 
   // Get new amounts
   const [usdNewAmount, newCcy] = await getUSDTextContent(page)
@@ -151,7 +151,7 @@ export async function switchUSDValueOnSwapAndBridge(
 
   // Wait 500ms and click again to the switch USD button
   await page.waitForTimeout(500)
-  await clickSwitchButton(page, SWITCH_USD_SELECTOR)
+  await clickXPathElement(page, SWITCH_USD_SELECTOR)
 
   // Get second amounts
   const [usdSecondAmount, secondCcy] = await getUSDTextContent(page)
@@ -241,6 +241,25 @@ export async function bridgeSmartAccount(
   } catch (error) {
     return 'Proceed'
   }
+}
+
+export async function verifyNonDefaultReceiveToken(page, recieve_network, receive_token) {
+  await openSwapAndBridge(page)
+  await selectSendTokenOnNetwork(page, 'ETH', recieve_network)
+  await page.waitForTimeout(1000) // Wait before click for the Receive Token list to be populated
+  await clickOnElement(page, SELECTORS.receiveTokenSaB)
+  await typeText(page, 'input[placeholder="Token name or address..."]', receive_token)
+  await expect(page).toMatchElement('div', { text: 'Not found. Try with token address?' })
+  await page.waitForTimeout(500)
+  await typeText(page, ENTER_AMOUNT_SELECTOR, '') // Click on the amount to clear input address field
+  await page.waitForTimeout(500)
+  await clickOnElement(page, SELECTORS.receiveTokenSaB)
+  const address = TOKEN_ADDRESS[`${recieve_network}.${receive_token}`]
+  const selector = `[data-tooltip-id*="${address}"]`
+  await typeText(page, 'input[placeholder="Token name or address..."]', address)
+  await expect(page).toMatchElement(selector, { text: receive_token.toUpperCase(), timeout: 3000 })
+  await expect(page).toMatchElement(selector, { text: address, timeout: 3000 })
+  await selectButton(page, 'Back')
 }
 
 export async function prepareSwapAndBridge(
@@ -359,7 +378,7 @@ export async function clickOnSecondRoute(page) {
 
 export async function changeRoutePriority(page, route_type, delay = 500) {
   await openSwapAndBridge(page)
-  await clickSwitchButton(page, ROUTE_BUTTON_SELECTOR)
+  await clickXPathElement(page, ROUTE_BUTTON_SELECTOR)
   await page.waitForTimeout(500)
   await selectButton(page, route_type)
   await selectButton(page, 'Back')

@@ -5,21 +5,22 @@ import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { SELECTORS } from '../../common/selectors/selectors'
 
 import {
-  checkIfOnDashboardPage,
+  verifyIfOnDashboardPage,
   selectButton,
   openSwapAndBridge,
   enterNumber,
   prepareSwapAndBridge,
   openSwapAndBridgeActionPage,
   signActionPage,
-  checkIfSwitchIsActive,
+  verifyIfSwitchIsActive,
   switchTokensOnSwapAndBridge,
   switchUSDValueOnSwapAndBridge,
   bridgeBasicAccount,
   bridgeSmartAccount,
   clickOnSecondRoute,
   changeRoutePriority,
-  verifySendMaxTokenAmount
+  verifySendMaxTokenAmount,
+  verifyNonDefaultReceiveToken
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
@@ -57,7 +58,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   it('should be able to return back to Dashboard from Swap & Bridge page with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await selectButton(page, 'Back')
-    await checkIfOnDashboardPage(page)
+    await verifyIfOnDashboardPage(page)
   })
 
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Basic Account', async () => {
@@ -119,19 +120,19 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
 
   it('should switch tokens during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
-    await checkIfSwitchIsActive(page, false)
+    await verifyIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
-    await checkIfSwitchIsActive(page, true)
+    await verifyIfSwitchIsActive(page, true)
     await switchTokensOnSwapAndBridge(page)
   })
 
   it('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
-    await checkIfSwitchIsActive(page, false)
+    await verifyIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
-    await checkIfSwitchIsActive(page, true)
+    await verifyIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
       await switchTokensOnSwapAndBridge(page, 300)
     }
@@ -155,8 +156,9 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 4.5)
   })
 
-  it.skip('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Basic Account', async () => {
-    // TODO: Implement the test
+  it('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Basic Account', async () => {
+    await verifyNonDefaultReceiveToken(page, 'Ethereum', 'wCRES')
+    await verifyNonDefaultReceiveToken(page, 'Ethereum', 'GLQ')
   })
 
   it.skip('should find token that already exists within the "Receive" list during Swap & Bridge with a Basic Account', async () => {
@@ -209,7 +211,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   it('should be able to return back to Dashboard from Swap & Bridge page with a Smart Account', async () => {
     await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
     await selectButton(page, 'Back')
-    await checkIfOnDashboardPage(page)
+    await verifyIfOnDashboardPage(page)
   })
 
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async () => {
@@ -271,19 +273,19 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
 
   it('should switch tokens during Swap & Bridge with a Smart Account', async () => {
     await openSwapAndBridge(page)
-    await checkIfSwitchIsActive(page, false)
+    await verifyIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
-    await checkIfSwitchIsActive(page, true)
+    await verifyIfSwitchIsActive(page, true)
     await switchTokensOnSwapAndBridge(page)
   })
 
   it('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
     await openSwapAndBridge(page)
-    await checkIfSwitchIsActive(page, false)
+    await verifyIfSwitchIsActive(page, false)
     await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
-    await checkIfSwitchIsActive(page, true)
+    await verifyIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
       await switchTokensOnSwapAndBridge(page, 300)
     }
@@ -307,8 +309,9 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await switchUSDValueOnSwapAndBridge(page, 'xWALLET', 'ethereum', 0.9)
   })
 
-  it.skip('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
-    // TODO: Implement the test
+  it.only('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
+    await verifyNonDefaultReceiveToken(page, 'Ethereum', 'wCRES')
+    await verifyNonDefaultReceiveToken(page, 'Ethereum', 'GLQ')
   })
 
   it.skip('should find token that already exists within the "Receive" list during Swap & Bridge with a Smart Account', async () => {
