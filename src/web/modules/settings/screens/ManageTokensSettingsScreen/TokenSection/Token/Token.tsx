@@ -1,14 +1,16 @@
 import React, { FC, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Badge from '@common/components/Badge'
+import Button from '@common/components/Button'
 import Dropdown from '@common/components/Dropdown'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -20,6 +22,7 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 type Props = {
   onTokenPreferenceOrCustomTokenChange: () => void
   onTokenRemove: (token: Pick<TokenResult, 'networkId' | 'address'>) => void
+  onTokenUnhide: (token: Pick<TokenResult, 'networkId' | 'address'>) => void
 } & TokenResult
 
 const Token: FC<Props> = ({
@@ -28,20 +31,25 @@ const Token: FC<Props> = ({
   flags,
   symbol,
   onTokenPreferenceOrCustomTokenChange,
-  onTokenRemove
+  onTokenRemove,
+  onTokenUnhide
 }) => {
+  const { t } = useTranslation()
+  const { addToast } = useToast()
   const { tokenPreferences } = usePortfolioControllerState()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  // Because flags.isHidden is updated after the portfolio updates
-  // we can't rely on it for the toggle
+  // flags.isHidden is updated after the portfolio is updated
+  // so we use tokenPreferences to get the value faster
   const isHidden = !!tokenPreferences?.find(
     ({ address: addr, networkId: nId }) =>
       addr.toLowerCase() === address.toLowerCase() && nId === networkId
   )?.isHidden
 
   const toggleHideToken = useCallback(async () => {
+    addToast(t('Token is now visible. You can hide it again from the dashboard.'))
+
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
       params: {
@@ -51,10 +59,20 @@ const Token: FC<Props> = ({
         }
       }
     })
+    onTokenUnhide({ address, networkId })
     onTokenPreferenceOrCustomTokenChange()
-  }, [dispatch, address, networkId, onTokenPreferenceOrCustomTokenChange])
+  }, [
+    addToast,
+    t,
+    dispatch,
+    address,
+    networkId,
+    onTokenUnhide,
+    onTokenPreferenceOrCustomTokenChange
+  ])
 
   const removeCustomToken = useCallback(() => {
+    addToast(t('Token removed'))
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN',
       params: {
@@ -63,27 +81,24 @@ const Token: FC<Props> = ({
     })
     onTokenRemove({ address, networkId })
     onTokenPreferenceOrCustomTokenChange()
-  }, [address, dispatch, networkId, onTokenPreferenceOrCustomTokenChange, onTokenRemove])
+  }, [
+    addToast,
+    address,
+    dispatch,
+    networkId,
+    onTokenPreferenceOrCustomTokenChange,
+    onTokenRemove,
+    t
+  ])
 
   const dropdownOptions = useMemo(() => {
-    const defaultOptions = [
+    return [
       {
         label: 'View on block explorer',
         value: 'explorer'
       }
     ]
-
-    if (!flags.isCustom) return defaultOptions
-
-    return [
-      ...defaultOptions,
-      {
-        label: 'Remove custom token',
-        value: 'remove',
-        style: { color: theme.errorText }
-      }
-    ]
-  }, [flags.isCustom, theme.errorText])
+  }, [])
 
   const onDropdownSelect = useCallback(
     async ({ value }: { value: string }) => {
@@ -141,10 +156,28 @@ const Token: FC<Props> = ({
           flexbox.alignCenter,
           flexbox.justifySpaceBetween,
           spacings.prSm,
-          { flex: 0.3 }
+          { flex: 0.4 }
         ]}
       >
-        <Toggle isOn={!isHidden} onToggle={toggleHideToken} />
+        {isHidden ? (
+          <Button
+            type="secondary"
+            size="small"
+            style={{ width: 80 }}
+            text={t('Unhide')}
+            onPress={toggleHideToken}
+            hasBottomSpacing={false}
+          />
+        ) : (
+          <Button
+            type="secondary"
+            size="small"
+            style={{ width: 80 }}
+            text={t('Remove')}
+            onPress={removeCustomToken}
+            hasBottomSpacing={false}
+          />
+        )}
         <Dropdown data={dropdownOptions} onSelect={onDropdownSelect} />
       </View>
     </View>

@@ -25,12 +25,12 @@ const TokenListHeader = () => {
         </Text>
       </View>
       <View
-        style={{ flex: 0.3, ...flexbox.directionRow, ...flexbox.alignCenter, ...spacings.prSm }}
+        style={{ flex: 0.4, ...flexbox.directionRow, ...flexbox.alignCenter, ...spacings.prSm }}
       >
         <Text appearance="secondaryText" fontSize={14}>
-          {t('Visibility')}
+          {t('Manage')}
         </Text>
-        <InfoIcon
+        {/* <InfoIcon
           color={theme.secondaryText}
           width={14}
           height={14}
@@ -42,7 +42,7 @@ const TokenListHeader = () => {
           content={t(
             'Control which tokens appear in your portfolio. Hidden tokens will not be shown and will be excluded from your total balance.'
           )}
-        />
+        /> */}
       </View>
     </View>
   )
