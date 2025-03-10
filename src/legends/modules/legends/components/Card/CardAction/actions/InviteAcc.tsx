@@ -84,7 +84,7 @@ const InviteAcc: FC<Props> = ({
     }
 
     if (allAccounts.includes(checksummedAddress)) {
-      return "The account you're trying to invite is imported in your wallet. You won't gain any additional XP by inviting it before taming it. You can directly tame your address using Beastwhisperer."
+      return "The account you're trying to invite is imported in your wallet. You won't gain any additional XP by inviting it before linking it."
     }
 
     return ''
