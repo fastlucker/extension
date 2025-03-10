@@ -30,7 +30,7 @@ import AmountInfo from './components/AmountInfo'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import EstimationWrapper from './components/EstimationWrapper'
 import { NO_FEE_OPTIONS } from './consts'
-import { getDefaultFeeOption, getDummyFeeOptions, mapFeeOptions, sortFeeOptions } from './helpers'
+import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
 import { FeeOption, Props } from './types'
 
 const FEE_SECTION_LIST_MENU_HEADER_HEIGHT = 34
@@ -68,13 +68,9 @@ const Estimation = ({
         accountStates[signAccountOpState.account.addr][signAccountOpState.accountOp.networkId]
       )
     ) {
-      return [
-        signAccountOpState.availableFeeOptions[0],
-        ...getDummyFeeOptions(
-          signAccountOpState.accountOp.networkId,
-          signAccountOpState.account.addr
-        )
-      ].map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
+      return [signAccountOpState.availableFeeOptions[0]].map((feeOption) =>
+        mapFeeOptions(feeOption, signAccountOpState)
+      )
     }
 
     return signAccountOpState.availableFeeOptions
