@@ -53,7 +53,8 @@ import { handleActions } from '@web/extension-services/background/handlers/handl
 import { handleCleanUpOnPortDisconnect } from '@web/extension-services/background/handlers/handleCleanUpOnPortDisconnect'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import {
-  handleRegisterContentScriptAcrossSessions,
+  handleIsBrowserWindowFocused,
+  handleKeepBridgeContentScriptAcrossSessions,
   handleRegisterScripts
 } from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
@@ -107,7 +108,58 @@ let mainCtrl: MainController
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
 handleKeepAlive()
-handleRegisterContentScriptAcrossSessions()
+
+let isBrowserFocused = false
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+handleIsBrowserWindowFocused((isFocused) => {
+  isBrowserFocused = isFocused
+})
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+  console.log(method)
+  // wait for mainCtrl to be initialized before handling dapp requests
+  while (!mainCtrl) await wait(200)
+
+  const tabId = meta.sender?.tab?.id
+  if (tabId === undefined || !meta.sender?.url) {
+    return
+  }
+
+  while (!isBrowserFocused) await wait(500)
+
+  const origin = getOriginFromUrl(meta.sender.url)
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+
+  await mainCtrl.dapps.initialLoadPromise
+  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
+  console.log(method, id, params, session.sessionId)
+
+  try {
+    const res = await handleProviderRequests(
+      {
+        method,
+        params,
+        session,
+        origin
+      },
+      mainCtrl,
+      id
+    )
+    return { id, result: res }
+  } catch (error: any) {
+    let errorRes
+    try {
+      errorRes = error.serialize()
+    } catch (e) {
+      errorRes = error
+    }
+    return { id, error: errorRes }
+  }
+})
+
+handleKeepBridgeContentScriptAcrossSessions()
 
 function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
   // 5s + new Date().getTime() - timestamp of newest op / 10
@@ -902,43 +954,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
   await clearHumanizerMetaObjectFromStorage(storage)
 })()
-
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-providerRequestTransport.reply(async ({ method, id, params }, meta) => {
-  // wait for mainCtrl to be initialized before handling dapp requests
-  while (!mainCtrl) await wait(200)
-
-  const tabId = meta.sender?.tab?.id
-  if (tabId === undefined || !meta.sender?.url) {
-    return
-  }
-
-  const origin = getOriginFromUrl(meta.sender.url)
-  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
-  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
-
-  try {
-    const res = await handleProviderRequests(
-      {
-        method,
-        params,
-        session,
-        origin
-      },
-      mainCtrl,
-      id
-    )
-    return { id, result: res }
-  } catch (error: any) {
-    let errorRes
-    try {
-      errorRes = error.serialize()
-    } catch (e) {
-      errorRes = error
-    }
-    return { id, error: errorRes }
-  }
-})
 
 try {
   browser.tabs.onRemoved.addListener(async (tabId: number) => {

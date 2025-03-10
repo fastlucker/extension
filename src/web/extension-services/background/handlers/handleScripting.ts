@@ -17,6 +17,21 @@ const handleRegisterScripts = async () => {
 
   const registeredScripts = await browser.scripting.getRegisteredContentScripts()
 
+  const registeredContentScriptMessengerBridge = registeredScripts.find(
+    (s: any) => s.id === 'content-script-messenger-bridge'
+  )
+
+  if (!registeredContentScriptMessengerBridge) {
+    scripts.push({
+      id: 'content-script-messenger-bridge',
+      allFrames: true,
+      matches: ['http://*/*', 'https://*/*'],
+      excludeMatches: ['*://doInWebPack.lan/*'],
+      js: ['browser-polyfill.min.js', 'content-script.js'],
+      runAt: 'document_start'
+    })
+  }
+
   const firefoxVersion = getFirefoxVersion()
 
   // Firefox versions older than 128.0 do not support world: MAIN.
@@ -153,7 +168,7 @@ const executeContentScriptForTabsFromPrevSession = async (tab: chrome.tabs.Tab) 
 // This mechanism keeps the content script used for communication between dApps and extension
 // up to date across the sessions of the extension and when the service worker/background script
 // goes inactive and then reactivates
-const handleRegisterContentScriptAcrossSessions = () => {
+const handleKeepBridgeContentScriptAcrossSessions = () => {
   browser.tabs.onUpdated.addListener(
     async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
       if (changeInfo.status === 'loading') {
@@ -170,18 +185,31 @@ const handleRegisterContentScriptAcrossSessions = () => {
     await executeContentScriptForTabsFromPrevSessionPromise
   })
 
-  browser.tabs.query({ active: true }).then(async (tabs: chrome.tabs.Tab[]) => {
-    for (const tab of tabs) {
-      executeContentScriptForTabsFromPrevSessionPromise =
-        executeContentScriptForTabsFromPrevSession(tab)
-      await executeContentScriptForTabsFromPrevSessionPromise
-    }
+  browser.tabs
+    .query({ active: true, currentWindow: true })
+    .then(async (tabs: chrome.tabs.Tab[]) => {
+      for (const tab of tabs) {
+        executeContentScriptForTabsFromPrevSessionPromise =
+          executeContentScriptForTabsFromPrevSession(tab)
+        await executeContentScriptForTabsFromPrevSessionPromise
+      }
+    })
+}
+
+const handleIsBrowserWindowFocused = async (callback: (isWindowFocused: boolean) => void) => {
+  // Track when the browser window gains or loses focus
+  browser.windows.onFocusChanged.addListener((windowId: number) => {
+    callback(windowId !== chrome.windows.WINDOW_ID_NONE)
   })
+
+  const window = await browser.windows.getLastFocused()
+  callback(!!window.focused)
 }
 
 export {
   handleRegisterScripts,
   handleUnregisterAmbireInpageScript,
   handleUnregisterEthereumInpageScript,
-  handleRegisterContentScriptAcrossSessions
+  handleKeepBridgeContentScriptAcrossSessions,
+  handleIsBrowserWindowFocused
 }

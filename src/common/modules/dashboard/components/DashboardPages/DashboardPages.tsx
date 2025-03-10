@@ -116,6 +116,7 @@ const DashboardPages = ({ onScroll }: Props) => {
         setOpenTab={setOpenTab}
         onScroll={onScroll}
         initTab={initTab}
+        dashboardNetworkFilterName={dashboardNetworkFilterName}
       />
     </View>
   )
