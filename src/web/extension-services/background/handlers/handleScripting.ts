@@ -170,18 +170,35 @@ const handleRegisterContentScriptAcrossSessions = () => {
     await executeContentScriptForTabsFromPrevSessionPromise
   })
 
-  browser.tabs.query({ active: true }).then(async (tabs: chrome.tabs.Tab[]) => {
-    for (const tab of tabs) {
-      executeContentScriptForTabsFromPrevSessionPromise =
-        executeContentScriptForTabsFromPrevSession(tab)
-      await executeContentScriptForTabsFromPrevSessionPromise
+  browser.tabs
+    .query({ active: true, currentWindow: true })
+    .then(async (tabs: chrome.tabs.Tab[]) => {
+      for (const tab of tabs) {
+        executeContentScriptForTabsFromPrevSessionPromise =
+          executeContentScriptForTabsFromPrevSession(tab)
+        await executeContentScriptForTabsFromPrevSessionPromise
+      }
+    })
+}
+
+const handleIsBrowserWindowFocused = async (callback: (isWindowFocused: boolean) => void) => {
+  // Track when the browser window gains or loses focus
+  browser.windows.onFocusChanged.addListener((windowId: number) => {
+    if (windowId === chrome.windows.WINDOW_ID_NONE) {
+      callback(false)
+    } else {
+      callback(true)
     }
   })
+
+  const window = await browser.windows.getLastFocused()
+  callback(!!window.focused)
 }
 
 export {
   handleRegisterScripts,
   handleUnregisterAmbireInpageScript,
   handleUnregisterEthereumInpageScript,
-  handleRegisterContentScriptAcrossSessions
+  handleRegisterContentScriptAcrossSessions,
+  handleIsBrowserWindowFocused
 }
