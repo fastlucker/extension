@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { v4 } from 'uuid'
 
 import { createMessenger } from '@web/extension-services/messengers/internal/createMessenger'
 import { tabMessenger } from '@web/extension-services/messengers/internal/tab'
@@ -7,7 +6,7 @@ import { windowMessenger } from '@web/extension-services/messengers/internal/win
 import { detectScriptType } from '@web/extension-services/messengers/utils/detectScriptType'
 
 const messenger = tabMessenger.available ? tabMessenger : windowMessenger
-const id = v4()
+const scriptId = Date.now()
 
 /**
  * Creates a "bridge messenger" that can be used to communicate between
@@ -35,14 +34,14 @@ export async function setupBridgeMessengerRelay() {
     throw new Error('`setupBridgeMessengerRelay` is only supported in Content Scripts.')
   }
 
-  window.postMessage({ type: 'removeEventListener', id }, '*')
+  window.postMessage({ type: 'removeEventListener', scriptId }, '*')
 
   let windowReplyListener: (() => void) | undefined
   let tabReplyListener: (() => void) | undefined
 
   const handleDestroy = (e: MessageEvent<any>) => {
     // the id here prevents destroying the current script that sends the `removeEventListener` message
-    if (e.data?.type === 'removeEventListener' && e.data?.id !== id) {
+    if (e.data?.type === 'removeEventListener' && e.data?.scriptId > scriptId) {
       !!windowReplyListener && windowReplyListener()
       windowReplyListener = undefined
       !!tabReplyListener && tabReplyListener()
