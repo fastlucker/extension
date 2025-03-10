@@ -1,14 +1,11 @@
-import React, { FC, useCallback, useMemo } from 'react'
+import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import Alert from '@common/components/Alert'
-import Checkbox from '@common/components/Checkbox'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
-import Text from '@common/components/Text/'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 
 import getStyles from './styles'
@@ -33,14 +30,6 @@ const Warnings: FC<Props> = ({
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const signAccountOpState = useSignAccountOpControllerState()
-  const { dispatch } = useBackgroundService()
-
-  const onGasUsedTooHighAgreed = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-      params: { gasUsedTooHighAgreed: !signAccountOpState?.gasUsedTooHighAgreed }
-    })
-  }, [signAccountOpState?.gasUsedTooHighAgreed, dispatch])
 
   const warnings = useMemo(() => {
     return signAccountOpState?.warnings.filter((warning) => warning.displayBeforeSign)
@@ -87,24 +76,6 @@ const Warnings: FC<Props> = ({
               'Smart account fee options are temporarily unavailable. You can pay fee with a Basic account or try again later'
             )}
           />
-        </View>
-      )}
-
-      {!!hasEstimation && signAccountOpState.gasUsedTooHigh && !signAccountOpState?.errors.length && (
-        <View style={spacings.ptTy}>
-          <Alert
-            type="warning"
-            title="Estimation for this request is enormously high (more than 25% of the block gas limit). The transaction may be invalid. Are you sure you want to proceed?"
-          />
-          <Checkbox
-            value={signAccountOpState.gasUsedTooHighAgreed}
-            onValueChange={onGasUsedTooHighAgreed}
-            style={spacings.mtSm}
-          >
-            <Text fontSize={14} onPress={onGasUsedTooHighAgreed}>
-              {t('I understand the risks')}
-            </Text>
-          </Checkbox>
         </View>
       )}
 

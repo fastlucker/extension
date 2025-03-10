@@ -474,7 +474,7 @@ const Estimation = ({
         isViewOnly={isViewOnly}
         rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
         bundlerFailure={
-          !!signAccountOpState.estimation?.nonFatalErrors?.find(
+          !!signAccountOpState.estimation?.bundlerEstimation?.nonFatalErrors?.find(
             (err) => err.cause === '4337_ESTIMATION'
           )
         }

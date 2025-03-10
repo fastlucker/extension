@@ -138,7 +138,6 @@ type SettingsControllerSetNetworkToAddOrUpdate = {
   params: {
     chainId: Network['chainId']
     rpcUrl: string
-    force4337?: boolean
   }
 }
 
