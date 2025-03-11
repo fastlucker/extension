@@ -73,23 +73,21 @@ const NetworkDetails = ({
     [pathname, isEmpty]
   )
 
-  // TODO: should display if is not predefined network
   const shouldDisplayRemoveButton = useMemo(
     () =>
-      pathname?.includes(ROUTES.networksSettings) &&
-      !isEmpty &&
-      !predefined &&
-      allowRemoveNetwork,
+      pathname?.includes(ROUTES.networksSettings) && !isEmpty && !predefined && allowRemoveNetwork,
     [pathname, chainId, isEmpty, allowRemoveNetwork]
   )
-  console.log('shouldDisplayRemoveButton', shouldDisplayRemoveButton, networkId, allowRemoveNetwork, predefined, isEmpty)
   const promptRemoveCustomNetwork = useCallback(() => {
     openDialog()
   }, [openDialog])
 
   const removeCustomNetwork = useCallback(() => {
     if (networkId) {
-      dispatch({ type: 'MAIN_CONTROLLER_REMOVE_NETWORK', params: { chainId: chainId.toString(), networkId }})
+      dispatch({
+        type: 'MAIN_CONTROLLER_REMOVE_NETWORK',
+        params: { chainId: chainId.toString(), networkId }
+      })
       closeDialog()
     } else {
       addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
@@ -281,7 +279,7 @@ const NetworkDetails = ({
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
         <NetworkForm
-          selectedNetworkId={name.toLowerCase()}
+          selectedNetworkId={chainId.toLowerCase()}
           onCancel={closeBottomSheet}
           onSaved={closeBottomSheet}
         />

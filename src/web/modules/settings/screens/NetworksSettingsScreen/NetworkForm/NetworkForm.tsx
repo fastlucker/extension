@@ -153,7 +153,7 @@ const NetworkForm = ({
   const { styles, theme } = useTheme(getStyles)
 
   const selectedNetwork = useMemo(
-    () => networks.find((network) => network.id === selectedNetworkId),
+    () => networks.find((network) => network.chainId.toString() === selectedNetworkId),
     [networks, selectedNetworkId]
   )
 
