@@ -100,49 +100,6 @@ const handleRegisterScripts = async () => {
   }
 }
 
-const handleUnregisterAmbireInpageScript = async () => {
-  try {
-    const firefoxVersion = getFirefoxVersion()
-    const shouldUseWorldMain = engine === 'webkit' || (firefoxVersion && firefoxVersion >= 128)
-
-    const registeredScripts = await browser.scripting.getRegisteredContentScripts()
-
-    const registeredAmbireInpage = registeredScripts.find(
-      (s: any) =>
-        s.id === (shouldUseWorldMain ? 'ambire-inpage' : 'content-script-ambire-injection')
-    )
-    if (registeredAmbireInpage) {
-      await browser.scripting.unregisterContentScripts({
-        ids: shouldUseWorldMain ? ['ambire-inpage'] : ['content-script-ambire-injection']
-      })
-    }
-  } catch (err) {
-    console.warn(`Failed to unregister ambire-inpage: ${err}`)
-  }
-}
-
-// mainly used to unregister injection of window.ethereum when Ambire is not the default wallet
-const handleUnregisterEthereumInpageScript = async () => {
-  try {
-    const firefoxVersion = getFirefoxVersion()
-    const shouldUseWorldMain = engine === 'webkit' || (firefoxVersion && firefoxVersion >= 128)
-
-    const registeredScripts = await browser.scripting.getRegisteredContentScripts()
-
-    const registeredEthereumInpage = registeredScripts.find(
-      (s: any) =>
-        s.id === (shouldUseWorldMain ? 'ethereum-inpage' : 'content-script-ethereum-injection')
-    )
-
-    if (registeredEthereumInpage) {
-      await browser.scripting.unregisterContentScripts({
-        ids: shouldUseWorldMain ? ['ethereum-inpage'] : ['content-script-ethereum-injection']
-      })
-    }
-  } catch (err) {
-    console.warn(`Failed to inject ethereum-inpage: ${err}`)
-  }
-}
 let executeContentScriptForTabsFromPrevSessionPromise: Promise<void> | undefined
 
 const executeContentScriptForTabsFromPrevSession = async (tab: chrome.tabs.Tab) => {
@@ -199,8 +156,6 @@ const handleIsBrowserWindowFocused = async (callback: (isWindowFocused: boolean)
 
 export {
   handleRegisterScripts,
-  handleUnregisterAmbireInpageScript,
-  handleUnregisterEthereumInpageScript,
   handleKeepBridgeContentScriptAcrossSessions,
   handleIsBrowserWindowFocused
 }
