@@ -73,15 +73,6 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           break
         }
 
-        case 'switch-default-wallet': {
-          dispatch({
-            type: 'SET_IS_DEFAULT_WALLET',
-            params: { isDefaultWallet: true }
-          })
-          addToast('Ambire is your default wallet.', { timeout: 2000 })
-          break
-        }
-
         case 'sync-keys': {
           if (type !== 'info') break
           dispatch({
