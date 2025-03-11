@@ -169,15 +169,6 @@ const executeContentScriptForTabsFromPrevSession = async (tab: chrome.tabs.Tab) 
 // up to date across the sessions of the extension and when the service worker/background script
 // goes inactive and then reactivates
 const handleKeepBridgeContentScriptAcrossSessions = () => {
-  browser.tabs.onUpdated.addListener(
-    async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
-      if (changeInfo.status === 'loading') {
-        executeContentScriptForTabsFromPrevSessionPromise =
-          executeContentScriptForTabsFromPrevSession(tab)
-        await executeContentScriptForTabsFromPrevSessionPromise
-      }
-    }
-  )
   browser.tabs.onActivated.addListener(async ({ tabId }: chrome.tabs.TabActiveInfo) => {
     const tab = await browser.tabs.get(tabId)
     executeContentScriptForTabsFromPrevSessionPromise =
