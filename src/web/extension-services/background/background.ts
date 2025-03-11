@@ -600,7 +600,10 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
 
-    return createRecurringTimeout(() => mainCtrl.updateSignAccountOpGasPrice(), time)
+    return createRecurringTimeout(
+      () => mainCtrl.updateSignAccountOpGasPrice({ emitLevelOnFailure: 'major' }),
+      time
+    )
   }
 
   function createEstimateRecurringTimeout() {

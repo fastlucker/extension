@@ -88,6 +88,10 @@ const SignAccountOpScreen = () => {
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
+    if (signAccountOpState?.estimationRetryError) {
+      setSlowRequest(false)
+      return
+    }
     const timeout = setTimeout(() => {
       // set the request to slow if the state is not init (no estimation)
       // or the gas prices haven't been fetched
@@ -104,7 +108,11 @@ const SignAccountOpScreen = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
+  }, [
+    signAccountOpState?.isInitialized,
+    signAccountOpState?.gasPrices,
+    signAccountOpState?.estimationRetryError
+  ])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
