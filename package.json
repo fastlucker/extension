@@ -79,7 +79,7 @@
     "@gnosis.pm/safe-apps-sdk": "6.2.0",
     "@gorhom/portal": "^1.0.11",
     "@ledgerhq/devices": "8.4.4",
-    "@ledgerhq/hw-app-eth": "6.42.1",
+    "@ledgerhq/hw-app-eth": "6.42.8",
     "@ledgerhq/hw-transport-webhid": "6.30.0",
     "@ledgerhq/react-native-hw-transport-ble": "6.32.5",
     "@metamask/eth-sig-util": "6.0.2",
@@ -98,7 +98,7 @@
     "@sentry/react-native": "5.0.0-alpha.10",
     "@tradle/react-native-http": "^2.0.0",
     "@trezor/connect-plugin-ethereum": "9.0.5",
-    "@trezor/connect-webextension": "9.4.7",
+    "@trezor/connect-webextension": "9.5.0",
     "@trezor/trezor-user-env-link": "^1.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/react-dom": "^18.2.0",
@@ -235,7 +235,8 @@
     "validator": "^13.7.0",
     "vm-browserify": "0.0.4",
     "web3": "^1.7.5",
-    "webextension-polyfill": "^0.10.0"
+    "webextension-polyfill": "^0.10.0",
+    "secp256k1": "^5.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",

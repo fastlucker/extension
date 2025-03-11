@@ -53,7 +53,7 @@ const handleChangeQuery = (tab: string, sessionId: string) => {
   window.history.pushState(null, '', `${window.location.href}?tab=${tab}&sessionId=${sessionId}`)
 }
 
-const TABS = ['tokens', 'collectibles', 'defi']
+const TABS = ['tokens', 'collectibles', 'defi', 'activity']
 
 const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId }) => {
   const searchRef = useRef<any>(null)
@@ -113,24 +113,26 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
       {TABS.includes(openTab) && (
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <SelectNetwork />
-          <AnimatedPressable
-            onPress={toggleSearchVisibility}
-            ref={searchButtonRef}
-            style={[
-              styles.searchIconWrapper,
-              controlPositionStyles,
-              {
-                ...(isSearchVisible && {
-                  borderColor: theme.primary,
-                  backgroundColor: theme.infoBackground
-                })
-              }
-            ]}
-            onHoverIn={bindControlPositionAnim.onHoverIn}
-            onHoverOut={bindControlPositionAnim.onHoverOut}
-          >
-            <SearchIcon color={theme.tertiaryText} width={16} />
-          </AnimatedPressable>
+          {searchControl && (
+            <AnimatedPressable
+              onPress={toggleSearchVisibility}
+              ref={searchButtonRef}
+              style={[
+                styles.searchIconWrapper,
+                controlPositionStyles,
+                {
+                  ...(isSearchVisible && {
+                    borderColor: theme.primary,
+                    backgroundColor: theme.infoBackground
+                  })
+                }
+              ]}
+              onHoverIn={bindControlPositionAnim.onHoverIn}
+              onHoverOut={bindControlPositionAnim.onHoverOut}
+            >
+              <SearchIcon color={theme.tertiaryText} width={16} />
+            </AnimatedPressable>
+          )}
           {isSearchVisible && (
             <View style={[styles.searchContainer]} ref={searchRef}>
               <Search

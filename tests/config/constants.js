@@ -10,7 +10,6 @@ const parseEnvVariables = (envVariables, prefix) => {
 
   const params = {
     parsedKeystoreAccounts: JSON.parse(envVariables[`${prefix}_ACCOUNTS`]),
-    parsedIsDefaultWallet: envVariables[`${prefix}_IS_DEFAULT_WALLET`],
     parsedKeyPreferences: JSON.parse(envVariables[`${prefix}_KEY_PREFERENCES`]),
     parsedKeystoreUID: envVariables[`${prefix}_KEYSTORE_UID`],
     parsedKeystoreKeys: JSON.parse(envVariables[`${prefix}_KEYS`]),

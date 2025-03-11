@@ -153,6 +153,9 @@ export const handleActions = async (
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
       return await mainCtrl.accounts.updateAccountPreferences(params)
     }
+    case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE': {
+      return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.networkIds)
+    }
     case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
       return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
     }
@@ -296,7 +299,7 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
       return mainCtrl.resolveUserRequest(params.data, params.id)
     case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-      return mainCtrl.rejectUserRequest(params.err, params.id)
+      return mainCtrl.rejectUserRequest(params.err, params.id, params.opts)
     case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
       return mainCtrl.rejectSignAccountOpCall(params.callId)
     }
@@ -384,8 +387,6 @@ export const handleActions = async (
       return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
       return mainCtrl.actions.focusActionWindow()
-    case 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW':
-      return mainCtrl.actions.closeActionWindow()
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
       return mainCtrl.actions.setCurrentActionById(params.actionId)
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
@@ -527,9 +528,6 @@ export const handleActions = async (
       return await mainCtrl.domains.reverseLookup(params.address)
     case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
       return mainCtrl.domains.saveResolvedReverseLookup(params)
-    case 'SET_IS_DEFAULT_WALLET': {
-      return await walletStateCtrl.setDefaultWallet(params.isDefaultWallet)
-    }
     case 'SET_ONBOARDING_STATE': {
       walletStateCtrl.onboardingState = params
       break
@@ -595,8 +593,14 @@ export const handleActions = async (
       extensionUpdateCtrl.applyUpdate()
       break
     }
+    case 'ACCOUNT_DISABLE_7702_BANNER': {
+      return mainCtrl.updateDisable7702Reminders(params.accountAddr, {
+        disable7702Banner: true
+      })
+    }
 
     default:
+      // eslint-disable-next-line no-console
       return console.error(
         `Dispatched ${type} action, but handler in the extension background process not found!`
       )
