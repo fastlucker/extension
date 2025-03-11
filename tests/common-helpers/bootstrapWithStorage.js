@@ -22,7 +22,6 @@ export async function bootstrapWithStorage(
 
   const {
     parsedKeystoreAccounts: accounts,
-    parsedIsDefaultWallet: isDefaultWallet,
     parsedKeyPreferences: keyPreferences,
     parsedNetworkPreferences: networkPreferences,
     parsedNetworksWithAssetsByAccount: networksWithAssetsByAccount,
@@ -41,7 +40,6 @@ export async function bootstrapWithStorage(
 
   const storageParamsMapped = {
     accounts,
-    isDefaultWallet,
     keyPreferences,
     networkPreferences,
     networksWithAssetsByAccount,
