@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Outlet, Route, Routes, useLocation } from 'react-router-dom'
 
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { WEB_ROUTES, WEB_ROUTES_TITLES } from '@common/modules/router/constants/common'
 import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
@@ -68,71 +69,17 @@ const stepperProvider = (
     <Outlet />
   </StepperProvider>
 )
-const routeTitles = {
-  [WEB_ROUTES.noConnection]: 'No Connection',
-  [WEB_ROUTES.keyStoreSetup]: 'Key Store Setup',
-  [WEB_ROUTES.keyStoreReset]: 'Key Store Reset',
-  [WEB_ROUTES.getStarted]: 'Get Started',
-  [WEB_ROUTES.terms]: 'Terms',
-  [WEB_ROUTES.authEmailAccount]: 'Email Account',
-  [WEB_ROUTES.authEmailLogin]: 'Email Login',
-  [WEB_ROUTES.authEmailRegister]: 'Email Register',
-  [WEB_ROUTES.importHotWallet]: 'Import Hot Wallet',
-  [WEB_ROUTES.hardwareWalletSelect]: 'Select Hardware Wallet',
-  [WEB_ROUTES.hardwareWalletReconnect]: 'Reconnect Hardware Wallet',
-  [WEB_ROUTES.viewOnlyAccountAdder]: 'Add View Only Account',
-  [WEB_ROUTES.importPrivateKey]: 'Import Private Key',
-  [WEB_ROUTES.importSeedPhrase]: 'Import Seed Phrase',
-  [WEB_ROUTES.importSmartAccountJson]: 'Import Smart Account JSON',
-  [WEB_ROUTES.createHotWallet]: 'Create Hot Wallet',
-  [WEB_ROUTES.createSeedPhrasePrepare]: 'Prepare Seed Phrase',
-  [WEB_ROUTES.createSeedPhraseWrite]: 'Write Seed Phrase',
-  [WEB_ROUTES.createSeedPhraseConfirm]: 'Confirm Seed Phrase',
-  [WEB_ROUTES.accountAdder]: 'Add Account',
-  [WEB_ROUTES.accountPersonalize]: 'Personalize Account',
-  [WEB_ROUTES.saveImportedSeed]: 'Save Imported Seed',
-  [WEB_ROUTES.transfer]: 'Transfer',
-  [WEB_ROUTES.topUpGasTank]: 'Top Up Gas Tank',
-  [WEB_ROUTES.swapAndBridge]: 'Swap and Bridge',
-  [WEB_ROUTES.generalSettings]: 'General Settings',
-  [WEB_ROUTES.securityAndPrivacy]: 'Security and Privacy',
-  [WEB_ROUTES.accountsSettings]: 'Accounts Settings',
-  [WEB_ROUTES.basicToSmartSettingsScreen]: 'Basic to Smart Settings',
-  [WEB_ROUTES.exportKey]: 'Export Key',
-  [WEB_ROUTES.savedSeed]: 'Saved Seed',
-  [WEB_ROUTES.networksSettings]: 'Networks Settings',
-  [WEB_ROUTES.transactions]: 'Transaction History',
-  [WEB_ROUTES.signedMessages]: 'Signed Messages History',
-  [WEB_ROUTES.devicePasswordSet]: 'Set Device Password',
-  [WEB_ROUTES.devicePasswordChange]: 'Change Device Password',
-  [WEB_ROUTES.devicePasswordRecovery]: 'Recover Device Password',
-  [WEB_ROUTES.manageTokens]: 'Manage Tokens',
-  [WEB_ROUTES.addressBook]: 'Address Book',
-  [WEB_ROUTES.settingsTerms]: 'Settings Terms',
-  [WEB_ROUTES.settingsAbout]: 'About Settings',
-  [WEB_ROUTES.signAccountOp]: 'Sign Account Operation',
-  [WEB_ROUTES.signMessage]: 'Sign Message',
-  [WEB_ROUTES.benzin]: 'Benzin',
-  [WEB_ROUTES.switchAccount]: 'Switch Account',
-  [WEB_ROUTES.dappConnectRequest]: 'Dapp Connect Request',
-  [WEB_ROUTES.addChain]: 'Add Chain',
-  [WEB_ROUTES.watchAsset]: 'Watch Asset',
-  [WEB_ROUTES.getEncryptionPublicKeyRequest]: 'Get Encryption Public Key Request',
-  [WEB_ROUTES.menu]: 'Menu',
-  [WEB_ROUTES.accountSelect]: 'Select Account',
-  [WEB_ROUTES.appCatalog]: 'Dapp Catalog',
-  [WEB_ROUTES.networks]: 'Networks'
-}
 
 const MainRoutes = () => {
   const location = useLocation()
+  const { t } = useTranslation()
 
   useEffect(() => {
     const trimmedPathName = location.pathname.replace(/^\/|\/$/g, '')
-    const title = `Ambire ${routeTitles[trimmedPathName]}` || 'Ambire Wallet'
+    const title = `Ambire ${t(WEB_ROUTES_TITLES[trimmedPathName]) || 'Wallet'}`
 
     document.title = title
-  }, [location.pathname])
+  }, [location.pathname, t])
 
   return (
     <Routes>
