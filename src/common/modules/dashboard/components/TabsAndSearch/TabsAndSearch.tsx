@@ -94,7 +94,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
       <Tabs
-        handleChangeQuery={(tab) => setSearchParams({ tab })}
+        handleChangeQuery={(tab) => setSearchParams({ tab, sessionId })}
         setOpenTab={setOpenTab}
         openTab={openTab}
       />
