@@ -10,9 +10,40 @@ import { openInternalPageInTab } from '@web/extension-services/background/webapi
 
 const handleProviderRequests = async (
   request: DappProviderRequest & { session: Session },
-  mainCtrl: MainController
+  mainCtrl: MainController,
+  requestId: number
 ): Promise<any> => {
   const { method, params, session } = request
+
+  if (requestId === 0) {
+    mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId)
+  }
+
+  if (method === 'contentScriptReady') {
+    await mainCtrl.dapps.broadcastDappSessionEvent('tabCheckin', undefined, session.origin)
+    const providerController = new ProviderController(mainCtrl)
+    const isUnlocked = mainCtrl.keystore.isUnlocked
+    const chainId = await providerController.ethChainId(request)
+    let networkVersion = '1'
+
+    try {
+      networkVersion = parseInt(chainId, 16).toString()
+    } catch (error) {
+      networkVersion = '1'
+    }
+
+    await mainCtrl.dapps.broadcastDappSessionEvent(
+      'setProviderState',
+      {
+        chainId,
+        isUnlocked,
+        accounts: isUnlocked ? await providerController.ethAccounts(request) : [],
+        networkVersion
+      },
+      session.origin
+    )
+    return
+  }
 
   if (method === 'tabCheckin') {
     mainCtrl.dapps.setSessionProp(session.sessionId, {
@@ -21,8 +52,19 @@ const handleProviderRequests = async (
       icon: params.icon
     })
     mainCtrl.dapps.updateDapp(params.origin, { name: params.name })
+    mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId)
     return
   }
+
+  // Temporarily resolves the subscription methods as successful
+  // but the rpc block subscription is actually not implemented because it causes app crashes
+  if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
+    return true
+  }
+
+  // Prevents handling the same request more than once
+  if (session.lastHandledRequestId >= requestId) return
+  mainCtrl.dapps.setSessionLastHandledRequestsId(session.sessionId, requestId)
 
   if (method === 'getProviderState') {
     const providerController = new ProviderController(mainCtrl)

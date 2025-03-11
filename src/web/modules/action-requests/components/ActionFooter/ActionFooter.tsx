@@ -17,7 +17,7 @@ type Props = {
   rejectButtonText?: string
   resolveButtonText: string
   resolveDisabled: boolean
-  resolveType: ButtonProps['type']
+  resolveType?: ButtonProps['type']
   rejectButtonTestID?: string
   resolveButtonTestID?: string
 }

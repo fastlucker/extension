@@ -130,12 +130,9 @@ export class EthereumProvider extends EventEmitter {
         origin
 
       const id = this.requestId++
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
-        {
-          id,
-          method: 'tabCheckin',
-          params: { icon, name, origin }
-        },
+        { id, method: 'tabCheckin', params: { icon, name, origin } },
         { id }
       )
 
@@ -179,6 +176,46 @@ export class EthereumProvider extends EventEmitter {
   }
 
   #handleBackgroundMessage = ({ event, data }: any) => {
+    if (event === 'tabCheckin') {
+      const origin = location.origin
+      const icon =
+        ($('head > link[rel~="icon"]') as HTMLLinkElement)?.href ||
+        ($('head > meta[itemprop="image"]') as HTMLMetaElement)?.content
+
+      const name =
+        document.title ||
+        ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
+        location.hostname ||
+        origin
+
+      const id = this.requestId++
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      providerRequestTransport.send(
+        { id, method: 'tabCheckin', params: { icon, name, origin } },
+        { id }
+      )
+
+      return
+    }
+
+    if (event === 'setProviderState') {
+      try {
+        const { chainId, accounts, networkVersion, isUnlocked }: any = data
+
+        if (isUnlocked) {
+          this._isUnlocked = true
+          this._state.isUnlocked = true
+        }
+        this.chainId = chainId
+        this.networkVersion = networkVersion
+        this.emit('connect', { chainId })
+        this.#pushEventHandlers.chainChanged({ chain: chainId, networkVersion })
+        this.#pushEventHandlers.accountsChanged(accounts)
+      } catch {
+        // silent fail
+      }
+    }
+
     if ((this.#pushEventHandlers as any)[event]) {
       return (this.#pushEventHandlers as any)[event](data)
     }

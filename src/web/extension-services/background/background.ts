@@ -50,10 +50,13 @@ import { BadgesController } from '@web/extension-services/background/controllers
 import ExtensionUpdateController from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { handleActions } from '@web/extension-services/background/handlers/handleActions'
-import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
 import { handleCleanUpOnPortDisconnect } from '@web/extension-services/background/handlers/handleCleanUpOnPortDisconnect'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
-import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
+import {
+  handleIsBrowserWindowFocused,
+  handleKeepBridgeContentScriptAcrossSessions,
+  handleRegisterScripts
+} from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
@@ -99,11 +102,64 @@ function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   logInfoWithPrefix(event, logData)
 }
 
+const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
 handleKeepAlive()
+
+let isBrowserFocused = false
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+handleIsBrowserWindowFocused((isFocused) => {
+  isBrowserFocused = isFocused
+})
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+  console.log(method)
+  // wait for mainCtrl to be initialized before handling dapp requests
+  while (!mainCtrl) await wait(200)
+
+  const tabId = meta.sender?.tab?.id
+  if (tabId === undefined || !meta.sender?.url) {
+    return
+  }
+
+  while (!isBrowserFocused) await wait(500)
+
+  const origin = getOriginFromUrl(meta.sender.url)
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+
+  await mainCtrl.dapps.initialLoadPromise
+  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
+  console.log(method, id, params, session.sessionId)
+
+  try {
+    const res = await handleProviderRequests(
+      {
+        method,
+        params,
+        session,
+        origin
+      },
+      mainCtrl,
+      id
+    )
+    return { id, result: res }
+  } catch (error: any) {
+    let errorRes
+    try {
+      errorRes = error.serialize()
+    } catch (e) {
+      errorRes = error
+    }
+    return { id, error: errorRes }
+  }
+})
+
+handleKeepBridgeContentScriptAcrossSessions()
 
 function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
   // 5s + new Date().getTime() - timestamp of newest op / 10
@@ -230,8 +286,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     return fetch(url, initWithCustomHeaders)
   }
 
-  await handleCleanDappSessions()
-
   mainCtrl = new MainController({
     storage,
     fetch: fetchWithAnalytics,
@@ -261,6 +315,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     },
     notificationManager
   })
+
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
@@ -717,9 +772,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             if (ctrlName === 'keystore') {
               if (controller.isReadyToStoreKeys) {
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
-                  mainCtrl.dapps.broadcastDappSessionEvent('lock')
+                  await mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
-                  mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
+                  await mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
                     mainCtrl.selectedAccount.account?.addr
                   ])
                 }
@@ -818,10 +873,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     })
   })
 
-  chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
-    if (message.action === 'wake_up') sendResponse({ status: 'awake' })
-  })
-
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
     if (['popup', 'tab', 'action-window'].includes(port.name)) {
@@ -903,50 +954,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
   await clearHumanizerMetaObjectFromStorage(storage)
 })()
-
-const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-providerRequestTransport.reply(async ({ method, id, params }, meta) => {
-  // wait for mainCtrl to be initialized before handling dapp requests
-  while (!mainCtrl) {
-    // eslint-disable-next-line no-await-in-loop
-    await wait(200)
-  }
-  const tabId = meta.sender?.tab?.id
-  if (tabId === undefined || !meta.sender?.url) {
-    return
-  }
-
-  const origin = getOriginFromUrl(meta.sender.url)
-  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
-  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
-  // Temporarily resolves the subscription methods as successful
-  // but the rpc block subscription is actually not implemented because it causes app crashes
-  if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
-    return true
-  }
-
-  try {
-    const res = await handleProviderRequests(
-      {
-        method,
-        params,
-        session,
-        origin
-      },
-      mainCtrl
-    )
-    return { id, result: res }
-  } catch (error: any) {
-    let errorRes
-    try {
-      errorRes = error.serialize()
-    } catch (e) {
-      errorRes = error
-    }
-    return { id, error: errorRes }
-  }
-})
 
 try {
   browser.tabs.onRemoved.addListener(async (tabId: number) => {
