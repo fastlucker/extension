@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
-  Action as ActionFromActionsQueue
+  Action as ActionFromActionsQueue,
+  ActionExecutionType
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -560,10 +560,6 @@ type ChangeCurrentDappNetworkAction = {
   params: { chainId: number; origin: string }
 }
 
-type SetIsDefaultWalletAction = {
-  type: 'SET_IS_DEFAULT_WALLET'
-  params: { isDefaultWallet: boolean }
-}
 type SetOnboardingStateAction = {
   type: 'SET_ONBOARDING_STATE'
   params: { version: string; viewedAt: number }
@@ -717,7 +713,6 @@ export type Action =
   | AddressBookControllerRenameContact
   | AddressBookControllerRemoveContact
   | ChangeCurrentDappNetworkAction
-  | SetIsDefaultWalletAction
   | SetOnboardingStateAction
   | SetIsPinnedAction
   | SetIsSetupCompleteAction
