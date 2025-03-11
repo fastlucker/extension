@@ -141,9 +141,6 @@ export const handleActions = async (
 
       return await mainCtrl.accountAdder.setPage({ page: 1 })
     }
-    case 'MAIN_CONTROLLER_TRACE_CALL': {
-      return await mainCtrl.traceCall(params.estimation)
-    }
     case 'MAIN_CONTROLLER_ADD_NETWORK': {
       return await mainCtrl.addNetwork(params)
     }
@@ -299,7 +296,7 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
       return mainCtrl.resolveUserRequest(params.data, params.id)
     case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-      return mainCtrl.rejectUserRequest(params.err, params.id, params.opts)
+      return mainCtrl.rejectUserRequest(params.err, params.id)
     case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
       return mainCtrl.rejectSignAccountOpCall(params.callId)
     }
@@ -595,11 +592,6 @@ export const handleActions = async (
     case 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE': {
       extensionUpdateCtrl.applyUpdate()
       break
-    }
-    case 'ACCOUNT_DISABLE_7702_BANNER': {
-      return mainCtrl.updateDisable7702Reminders(params.accountAddr, {
-        disable7702Banner: true
-      })
     }
 
     default:

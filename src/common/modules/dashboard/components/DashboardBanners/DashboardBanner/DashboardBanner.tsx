@@ -174,16 +174,6 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           )
           break
 
-        case 'dismiss-7702-banner':
-          dispatch({
-            type: 'ACCOUNT_DISABLE_7702_BANNER',
-            params: action.meta
-          })
-          addToast('Dismissed! You can make your account smart anytime from Settings.', {
-            type: 'info'
-          })
-          break
-
         default:
           break
       }

@@ -16,7 +16,7 @@ import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
 import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
+import { FullEstimation } from '@ambire-common/libs/estimate/interfaces'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
@@ -195,7 +195,7 @@ type MainControllerResolveUserRequestAction = {
 }
 type MainControllerRejectUserRequestAction = {
   type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
-  params: { err: string; id: UserRequest['id']; opts?: { shouldDisable7702Asking?: boolean } }
+  params: { err: string; id: UserRequest['id'] }
 }
 type MainControllerRejectSignAccountOpCall = {
   type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
@@ -333,7 +333,7 @@ type MainControllerSignAccountOpUpdateAction = {
   params: {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
-    estimation?: EstimateResult
+    estimation?: FullEstimation
     feeToken?: TokenResult
     paidBy?: string
     speed?: FeeSpeed
@@ -591,11 +591,6 @@ type InviteControllerVerifyAction = {
 type InviteControllerBecomeOGAction = { type: 'INVITE_CONTROLLER_BECOME_OG' }
 type InviteControllerRevokeOGAction = { type: 'INVITE_CONTROLLER_REVOKE_OG' }
 
-type MainControllerTraceCallAction = {
-  type: 'MAIN_CONTROLLER_TRACE_CALL'
-  params: { estimation: EstimateResult }
-}
-
 type ImportSmartAccountJson = {
   type: 'IMPORT_SMART_ACCOUNT_JSON'
   params: { readyToAddAccount: Account; keys: ReadyToAddKeys['internal'] }
@@ -608,11 +603,6 @@ type PhishingControllerGetIsBlacklistedAndSendToUiAction = {
 
 type ExtensionUpdateControllerApplyUpdate = {
   type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
-}
-
-type AccountDisable7702Banner = {
-  type: 'ACCOUNT_DISABLE_7702_BANNER'
-  params: { accountAddr: string }
 }
 
 export type Action =
@@ -725,7 +715,6 @@ export type Action =
   | InviteControllerVerifyAction
   | InviteControllerBecomeOGAction
   | InviteControllerRevokeOGAction
-  | MainControllerTraceCallAction
   | ImportSmartAccountJson
   | KeystoreControllerSendSeedOverChannel
   | MainControllerActivityHideBanner
@@ -733,4 +722,3 @@ export type Action =
   | KeystoreControllerMoveSeedFromTemp
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
-  | AccountDisable7702Banner
