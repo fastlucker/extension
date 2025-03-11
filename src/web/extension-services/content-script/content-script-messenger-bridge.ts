@@ -3,6 +3,7 @@
 //
 import { setupBridgeMessengerRelay } from '../messengers/internal/bridge'
 
+console.log('bridge!!!')
 setupBridgeMessengerRelay()
 
 let lastMoveTime = 0
