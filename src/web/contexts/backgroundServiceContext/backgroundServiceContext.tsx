@@ -12,6 +12,7 @@ import {
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
 import { Action } from '@web/extension-services/background/actions'
+import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import eventBus from '@web/extension-services/event/eventBus'
 import { PortMessenger } from '@web/extension-services/messengers'
 import { getUiType } from '@web/utils/uiType'
@@ -20,7 +21,7 @@ let dispatch: BackgroundServiceContextReturnType['dispatch']
 let pm: PortMessenger
 const actionsBeforeBackgroundReady: Action[] = []
 let backgroundReady: boolean
-
+let connectPort: () => void = () => {}
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessenger class to establish a connection between the popup
 // and background pages, and the eventBus to emit and listen for events.
@@ -29,7 +30,7 @@ let backgroundReady: boolean
 // based on the state of the background process and for sending dApps-initiated
 // actions to the background for further processing.
 if (isExtension) {
-  const connectPort = () => {
+  connectPort = () => {
     pm = new PortMessenger()
     backgroundReady = false
 
@@ -64,29 +65,24 @@ if (isExtension) {
   }
 
   connectPort()
-  chrome.runtime.onMessage.addListener((message: any) => {
-    if (message.action === 'awake') connectPort()
-  })
+}
 
-  const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
+const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
 
-  dispatch = (action) => {
-    // Dispatch the action only when the tab or popup is focused or active.
-    // Otherwise, multiple dispatches could occur if the same screen is open in multiple tabs/popup windows,
-    // causing unpredictable background/controllers state behavior.
-    // dispatches from action-window should not be blocked even when unfocused
-    // because we can have only one instance of action-window and only one instance for the given action screen
-    // (an action screen could not be opened in tab or popup window by design)
-    const shouldBlockDispatch = document.hidden && !getUiType().isActionWindow
-    if (shouldBlockDispatch && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
+dispatch = (action) => {
+  // Dispatch the action only when the tab or popup is focused or active.
+  // Otherwise, multiple dispatches could occur if the same screen is open in multiple tabs/popup windows,
+  // causing unpredictable background/controllers state behavior.
+  // dispatches from action-window should not be blocked even when unfocused
+  // because we can have only one instance of action-window and only one instance for the given action screen
+  // (an action screen could not be opened in tab or popup window by design)
+  const shouldBlockDispatch = document.hidden && !getUiType().isActionWindow
+  if (shouldBlockDispatch && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
 
-    if (!backgroundReady) {
-      actionsBeforeBackgroundReady.push(action)
-    } else {
-      try {
-        pm.send('> background', action)
-      } catch (error) {}
-    }
+  if (!backgroundReady) {
+    actionsBeforeBackgroundReady.push(action)
+  } else {
+    pm.send('> background', action)
   }
 }
 
@@ -99,12 +95,15 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   const route = useRoute()
   const timer: any = useRef()
   const isFocused = useIsScreenFocused()
+
   useEffect(() => {
     const url = `${window.location.origin}${route.pathname}${route.search}${route.hash}`
     dispatch({ type: 'UPDATE_PORT_URL', params: { url } })
   }, [route])
 
   useEffect(() => {
+    if (!isExtension) return
+
     const keepAlive = async () => {
       await chrome.runtime.sendMessage('ping')
       timer.current = setTimeout(keepAlive, 1000)
@@ -121,6 +120,37 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
       if (timer.current) clearTimeout(timer.current)
     }
   }, [isFocused])
+
+  useEffect(() => {
+    if (!isExtension) return
+
+    chrome.runtime.onMessage.addListener(async (message: any) => {
+      if (message.action === 'sw-started') {
+        // if the sw restarts and the current window is an action window then close it
+        // because the actions state has been lost after the sw restart
+        if (getUiType().isActionWindow) {
+          closeCurrentWindow()
+        } else {
+          sessionStorage.setItem('backgroundState', 'restarted')
+          window.location.reload()
+        }
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!isExtension) return
+
+    const backgroundState = sessionStorage.getItem('backgroundState')
+
+    if (backgroundState === 'restarted') {
+      addToast(
+        'Page was restarted because the browser put Ambire to sleep. Any transactions or operations you have started have been cleared.',
+        { type: 'info', sticky: true }
+      )
+      sessionStorage.removeItem('backgroundState')
+    }
+  })
 
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
