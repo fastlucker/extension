@@ -79,7 +79,7 @@
     "@gnosis.pm/safe-apps-sdk": "6.2.0",
     "@gorhom/portal": "^1.0.11",
     "@ledgerhq/devices": "8.4.4",
-    "@ledgerhq/hw-app-eth": "6.42.1",
+    "@ledgerhq/hw-app-eth": "6.42.8",
     "@ledgerhq/hw-transport-webhid": "6.30.0",
     "@ledgerhq/react-native-hw-transport-ble": "6.32.5",
     "@metamask/eth-sig-util": "6.0.2",
