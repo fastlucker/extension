@@ -163,14 +163,14 @@ const ErrorBoundary = ({ error }: Props) => {
           <Text
             fontSize={20}
             weight="medium"
-            style={[text.center, spacings.mbMd, { maxWidth: 360 }]}
+            style={[text.center, spacings.mbSm, { maxWidth: 360 }]}
           >
             {t('Something went wrong, but your funds are safe!')}
           </Text>
           <View
             style={{
-              maxWidth: 312,
-              ...spacings.mbMd,
+              maxWidth: 360,
+              ...spacings.mb,
               marginHorizontal: 'auto'
             }}
           >
