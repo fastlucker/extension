@@ -123,10 +123,6 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           })
           break
 
-        case 'activate-7702':
-          navigate(`${ROUTES.basicToSmartSettingsScreen}?accountAddr=${action.meta.accountAddr}`)
-          break
-
         case 'confirm-temp-seed':
           navigate(ROUTES.saveImportedSeed)
           break
