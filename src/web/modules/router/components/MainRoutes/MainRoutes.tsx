@@ -70,7 +70,6 @@ const stepperProvider = (
 )
 
 const MainRoutes = () => {
-  throw new Error('IBASI HUQ')
   return (
     <Routes>
       <Route element={<InviteVerifiedRoute />}>
