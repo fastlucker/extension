@@ -1,4 +1,3 @@
-import { t } from 'i18next'
 import React, { FC, useCallback } from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -9,12 +8,9 @@ import OpenIcon from '@common/assets/svg/OpenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
-import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, DURATIONS, useCustomHover, useMultiHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -25,14 +21,13 @@ interface Props {
   networkId: NetworkId
   openBlockExplorer: (url?: string) => void
   openSettingsBottomSheet: (networkId: NetworkId) => void
+  onPress: (networkId: NetworkId) => void
 }
 
-const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSheet }) => {
-  const { navigate } = useNavigation()
+const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSheet, onPress }) => {
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
-  const { dispatch } = useBackgroundService()
   const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({
     values: [
       {
@@ -60,14 +55,6 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
     duration: DURATIONS.REGULAR
   })
 
-  const navigateAndFilterDashboard = () => {
-    dispatch({
-      type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER',
-      params: { dashboardNetworkFilter: networkId }
-    })
-    navigate(WEB_ROUTES.dashboard)
-  }
-
   const networkData = networks.find((network) => network.id === networkId)
   const isBlockExplorerMissing = !networkData?.explorerUrl
   const tooltipBlockExplorerMissingId = `tooltip-for-block-explorer-missing-${networkId}`
@@ -86,10 +73,14 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
     networkName = 'Gas Tank'
   }
 
+  const handleOnPress = useCallback(() => {
+    onPress(networkId)
+  }, [networkId])
+
   return (
     <AnimatedPressable
       key={networkId}
-      onPress={navigateAndFilterDashboard}
+      onPress={handleOnPress}
       style={[styles.network, isInternalNetwork ? styles.noKebabNetwork : {}, animStyle]}
       {...bindAnim}
     >
