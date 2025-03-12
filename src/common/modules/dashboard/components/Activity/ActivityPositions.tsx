@@ -50,7 +50,8 @@ const ActivityPositions: FC<Props> = ({
   const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
 
   useEffect(() => {
-    if (!account?.addr) return
+    // Optimization: Don't apply filtration if we are not on Activity tab
+    if (!account?.addr || openTab !== 'activity') return
 
     dispatch({
       type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
