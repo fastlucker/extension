@@ -2,19 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
 
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
-import AndromedaLogo from '@common/assets/svg/AndromedaLogo'
-import ArbitrumLogo from '@common/assets/svg/ArbitrumLogo'
-import AvalancheLogo from '@common/assets/svg/AvalancheLogo'
-import BinanceLogo from '@common/assets/svg/BinanceLogo'
-import EthereumLogo from '@common/assets/svg/EthereumLogo'
-import FantomLogo from '@common/assets/svg/FantomLogo'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
-import GnosisLogo from '@common/assets/svg/GnosisLogo'
-import KCCKuCoinLogo from '@common/assets/svg/KCCKuCoinLogo'
-import MoonbeamLogo from '@common/assets/svg/MoonbeamLogo'
-import MoonriverLogo from '@common/assets/svg/MoonriverLogo'
-import OptimismLogo from '@common/assets/svg/OptimismLogo'
-import PolygonLogo from '@common/assets/svg/PolygonLogo'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
@@ -38,19 +26,6 @@ type Props = {
 }
 
 const icons: { [key: NetworkId]: any } = {
-  ethereum: EthereumLogo,
-  rinkeby: EthereumLogo,
-  polygon: PolygonLogo,
-  avalanche: AvalancheLogo,
-  'binance-smart-chain': BinanceLogo,
-  fantom: FantomLogo,
-  moonbeam: MoonbeamLogo,
-  moonriver: MoonriverLogo,
-  arbitrum: ArbitrumLogo,
-  optimism: OptimismLogo,
-  gnosis: GnosisLogo,
-  kucoin: KCCKuCoinLogo,
-  andromeda: AndromedaLogo,
   gastank: GasTankIcon,
   rewards: RewardsIcon
 }
@@ -78,7 +53,7 @@ const NetworkIcon = ({
   const network = useMemo(() => {
     return benzinNetwork ?? networks.find((n) => n.id === networkId)
   }, [networkId, networks, benzinNetwork])
-
+  console.log('network', network)
   const iconUrls = useMemo(
     () => [
       ...((network as Network)?.iconUrls || []),
