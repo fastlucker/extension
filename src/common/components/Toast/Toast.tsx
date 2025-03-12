@@ -116,7 +116,7 @@ const Toast = ({
         <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
 
         <View style={[flexbox.flex1, spacings.mlTy]}>
-          <Text>
+          <Text style={spacings.mrXl}>
             {!isTypeLabelHidden && (
               <Text
                 selectable
