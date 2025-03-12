@@ -20,7 +20,7 @@ const handleProviderRequests = async (
   }
 
   if (method === 'contentScriptReady') {
-    await mainCtrl.dapps.broadcastDappSessionEvent('tabCheckin', undefined, session.origin)
+    await mainCtrl.dapps.broadcastDappSessionEvent('tabCheckin', undefined, session.origin, true)
     const providerController = new ProviderController(mainCtrl)
     const isUnlocked = mainCtrl.keystore.isUnlocked
     const chainId = await providerController.ethChainId(request)
