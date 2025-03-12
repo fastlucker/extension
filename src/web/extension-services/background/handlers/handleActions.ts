@@ -557,13 +557,13 @@ export const handleActions = async (
     }
 
     case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
-      mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
+      await mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       mainCtrl.dapps.updateDapp(params, { isConnected: false })
       break
     }
     case 'CHANGE_CURRENT_DAPP_NETWORK': {
       mainCtrl.dapps.updateDapp(params.origin, { chainId: params.chainId })
-      mainCtrl.dapps.broadcastDappSessionEvent(
+      await mainCtrl.dapps.broadcastDappSessionEvent(
         'chainChanged',
         {
           chain: `0x${params.chainId.toString(16)}`,
@@ -580,7 +580,7 @@ export const handleActions = async (
       return mainCtrl.dapps.updateDapp(params.url, params.dapp)
     }
     case 'DAPP_CONTROLLER_REMOVE_DAPP': {
-      mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
+      await mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       return mainCtrl.dapps.removeDapp(params)
     }
     case 'PHISHING_CONTROLLER_GET_IS_BLACKLISTED_AND_SEND_TO_UI': {

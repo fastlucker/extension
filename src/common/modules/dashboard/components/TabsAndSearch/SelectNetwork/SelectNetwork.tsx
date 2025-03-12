@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
+import { useSearchParams } from 'react-router-dom'
 
 import FilterIcon from '@common/assets/svg/FilterIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -32,6 +33,7 @@ const SelectNetwork = () => {
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme()
+  const [searchParams] = useSearchParams()
 
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useMultiHover({
     values: [
@@ -100,12 +102,13 @@ const SelectNetwork = () => {
           }
         ]}
         onPress={() => {
-          navigate(WEB_ROUTES.networks, {
-            state: {
-              dashboardNetworkFilter,
-              prevTab: window.location.hash.split('?')[1] || ''
-            }
-          })
+          const urlParams = new URLSearchParams(searchParams)
+
+          const url = urlParams
+            ? `${WEB_ROUTES.networks}?prevSearchParams=${encodeURIComponent(urlParams.toString())}`
+            : WEB_ROUTES.networks
+
+          navigate(url)
         }}
         {...bindNetworkButtonAnim}
       >
