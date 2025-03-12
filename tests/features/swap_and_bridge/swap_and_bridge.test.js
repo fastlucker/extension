@@ -78,8 +78,8 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   })
 
   it('should Bridge tokens with a Basic Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
-    await bridgeBasicAccount(page, 'USDC', 'base', 'optimism', SELECTORS.USDC)
+    await prepareSwapAndBridge(page, 0.08, 'USDC', 'base', 'WALLET')
+    const text = await bridgeBasicAccount(page, 'USDC', 'base', 'optimism', SELECTORS.USDC)
     await signActionPage(
       await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
     )
@@ -240,8 +240,8 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it('should Bridge tokens with a Smart Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.08, 'USDC', 'base', 'WALLET')
-    await bridgeSmartAccount(page, 'USDC', 'base', 'optimism', SELECTORS.USDC)
+    await prepareSwapAndBridge(page, 0.08, 'USDC', 'base', 'WALLET')
+    const text = await bridgeSmartAccount(page, 'USDC', 'base', 'optimism', SELECTORS.USDC)
     await signActionPage(
       await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
     )
