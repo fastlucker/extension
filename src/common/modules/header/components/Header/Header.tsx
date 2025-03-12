@@ -56,6 +56,7 @@ const Header = ({
     if (!path) return
 
     const nextRoute = path?.substring(1)
+    console.log(nextRoute, routesConfig[nextRoute])
     setTitle((routesConfig as any)?.[nextRoute]?.title || '')
   }, [path])
 
@@ -73,7 +74,7 @@ const Header = ({
 
     return spacings.ph
   }, [maxWidthSize])
-
+  console.log('header title', title)
   return (
     <View
       style={[
