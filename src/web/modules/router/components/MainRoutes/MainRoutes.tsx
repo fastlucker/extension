@@ -4,7 +4,8 @@ import { Outlet, Route, Routes, useLocation } from 'react-router-dom'
 
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
-import { WEB_ROUTES, WEB_ROUTES_TITLES } from '@common/modules/router/constants/common'
+import routesConfig from '@common/modules/router/config/routesConfig'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
@@ -76,7 +77,8 @@ const MainRoutes = () => {
 
   useEffect(() => {
     const trimmedPathName = location.pathname.replace(/^\/|\/$/g, '')
-    const title = `Ambire ${t(WEB_ROUTES_TITLES[trimmedPathName]) || 'Wallet'}`
+    const routeConfig = routesConfig[trimmedPathName as keyof typeof routesConfig]
+    const title = `Ambire ${routeConfig?.name || t('Wallet')}`
 
     document.title = title
   }, [location.pathname, t])
