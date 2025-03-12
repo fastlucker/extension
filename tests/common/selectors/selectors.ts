@@ -68,8 +68,6 @@ export const TEST_IDS = {
   addressBookMyWalletContactDyn: 'address-book-my-wallet-contact',
   dashboardButtonSend: 'dashboard-button-send',
   dashboardButtonSwapAndBridge: 'dashboard-button-swap-and-bridge',
-  sendTokenSaB: 'from-token-select',
-  receiveTokenSaB: 'to-token-select',
   continueAnywayCheckboxSaB: 'checkbox',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
@@ -103,7 +101,17 @@ export const TEST_IDS = {
   confirmFollowUpTxn: 'confirm-follow-up-txns-checkbox',
   USDC: 'option-0x0b2c639c533813f4aa9d7837caf62653d097ff85.usdc',
   signTransactionButton: 'transaction-button-sign',
-  maxAvailableAmount: 'max-available-amount'
+  maxAvailableAmount: 'max-available-amount',
+  searchInput: 'search-input',
+  // Swap & Bridge selectors
+  sendTokenSaB: 'from-token-select',
+  receiveTokenSaB: 'to-token-select',
+  routeLoadingTextSab: 'route-loading-text-sab',
+  fromAmountInputSab: 'from-amount-input-sab',
+  switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
+  switchCurrencySab: 'switch-currency-sab',
+  routePrioritySab: 'route-priority-sab',
+  highPriceImpactSab: 'high-price-impact-sab'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

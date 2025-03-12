@@ -2,17 +2,7 @@ import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { typeText } from '../../common-helpers/typeText'
 import { SELECTORS } from '../../common/selectors/selectors'
 // ToDo: Import and reuse '../../common/transactions'
-import {
-  FETCHING_BEST_ROUTE,
-  ROUTE_BUTTON_SELECTOR,
-  ENTER_AMOUNT_SELECTOR,
-  SWITCH_TOKENS_TOOLTIP_SELECTOR,
-  SWITCH_TOKEN_SELECTOR,
-  SWITCH_USD_SELECTOR,
-  WARNING_THE_PRICE,
-  RECIEVE_TOKEN_INPUT,
-  TOKEN_ADDRESS
-} from './constants'
+import { TOKEN_ADDRESS } from './constants'
 
 export async function selectButton(page, text) {
   await clickOnElement(page, `text=${text}`)
@@ -35,14 +25,16 @@ export async function openSwapAndBridge(page) {
 
 export async function verifyIfSwitchIsActive(page, reference = true) {
   await page.waitForTimeout(500)
-  const isActive = (await page.$(SWITCH_TOKENS_TOOLTIP_SELECTOR)) === null
-  await expect(isActive).toBe(reference)
-}
 
-async function clickXPathElement(page, selector) {
-  const [element] = await page.$x(selector)
-  expect(element).not.toBeNull()
-  await element.click()
+  const switchElement = await page.$(SELECTORS.switchTokensTooltipSab)
+
+  const isDisabled = await page.evaluate((element) => {
+    const firstChild = element.children[0]
+    return firstChild ? firstChild.getAttribute('aria-disabled') === 'true' : false
+  }, switchElement)
+
+  const isActive = !isDisabled
+  expect(isActive).toBe(reference)
 }
 
 async function getElement(page, selector) {
@@ -80,7 +72,7 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
   const network = await getElementContentWords(page, SELECTORS.recieveNetworkBase)
 
   // Click the switch Tokens button
-  await clickXPathElement(page, SWITCH_TOKEN_SELECTOR)
+  await clickOnElement(page, SELECTORS.switchTokensTooltipSab)
 
   // Ensure the tokens are switched
   expect(await getElementContentWords(page, SELECTORS.sendTokenSaB)).toBe(receiveToken)
@@ -91,9 +83,8 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
 }
 
 async function getUSDTextContent(page) {
-  // TODO: Selector should be created to have data-testid this is not maintainable
-  const selector = SWITCH_USD_SELECTOR
-  const [element] = await page.$x(selector)
+  const selector = SELECTORS.switchCurrencySab
+  const element = await page.$(selector)
   expect(element).not.toBeNull()
   const content = await element.evaluate((el) => el.textContent.trim())
 
@@ -106,7 +97,7 @@ async function getUSDTextContent(page) {
 }
 
 export async function getSendAmount(page) {
-  const amount = await getElementValue(page, ENTER_AMOUNT_SELECTOR)
+  const amount = await getElementValue(page, SELECTORS.fromAmountInputSab)
   return Number(amount)
 }
 
@@ -136,7 +127,7 @@ export async function switchUSDValueOnSwapAndBridge(
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, send_network)
   // Enter the amount
-  await typeText(page, ENTER_AMOUNT_SELECTOR, send_amount.toString())
+  await typeText(page, SELECTORS.fromAmountInputSab, send_amount.toString())
 
   // Get current values in the USD text contenet
   const [usdOldAmount, ccy] = await getUSDTextContent(page)
@@ -144,7 +135,7 @@ export async function switchUSDValueOnSwapAndBridge(
   const oldAmount = await getSendAmount(page)
 
   // Click the switch USD button
-  await clickXPathElement(page, SWITCH_USD_SELECTOR)
+  await clickOnElement(page, SELECTORS.switchCurrencySab)
 
   // Get new amounts
   const [usdNewAmount, newCcy] = await getUSDTextContent(page)
@@ -157,7 +148,7 @@ export async function switchUSDValueOnSwapAndBridge(
 
   // Wait 500ms and click again to the switch USD button
   await page.waitForTimeout(500)
-  await clickXPathElement(page, SWITCH_USD_SELECTOR)
+  await clickOnElement(page, SELECTORS.switchCurrencySab)
 
   // Get second amounts
   const [usdSecondAmount, secondCcy] = await getUSDTextContent(page)
@@ -175,7 +166,7 @@ export async function switchUSDValueOnSwapAndBridge(
 export async function enterNumber(page, new_amount, is_valid = true) {
   const message = 'Something went wrong! Please contact support'
   // Enter the amount
-  await typeText(page, ENTER_AMOUNT_SELECTOR, new_amount.toString())
+  await typeText(page, SELECTORS.fromAmountInputSab, new_amount.toString())
   // Assert if the message should be displayed
   if (is_valid) {
     await expect(page).not.toMatchElement('span', { text: `${message}` })
@@ -196,19 +187,19 @@ export async function bridgeBasicAccount(
   await clickOnElement(page, `[data-testid*="option-${recieve_network}"]`)
   await page.waitForTimeout(1000)
   await clickOnElement(page, SELECTORS.receiveTokenSaB)
-  await typeText(page, RECIEVE_TOKEN_INPUT, send_token)
+  await typeText(page, SELECTORS.searchInput, send_token)
   // It picking ETH all the time, should be investigated
   // await clickOnElement(page, `[data-testid*="${receive_token.toLowerCase()}"]`)
   await clickOnElement(page, receive_token)
 
-  await page.waitForSelector(FETCHING_BEST_ROUTE, { visible: true })
-  await page.waitForSelector(FETCHING_BEST_ROUTE, { hidden: true })
+  await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true })
+  await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
 
   await clickOnElement(page, SELECTORS.confirmFollowUpTxn)
 
   try {
     // If Warning: The price impact is too high
-    if (await page.waitForSelector(WARNING_THE_PRICE, { visible: true })) {
+    if (await page.waitForSelector(SELECTORS.highPriceImpactSab, { visible: true })) {
       // If Warning: The price impact is too high
       await page.keyboard.press('Tab')
       await page.keyboard.press('Enter')
@@ -231,18 +222,17 @@ export async function bridgeSmartAccount(
   await clickOnElement(page, `[data-testid*="option-${recieve_network}"]`)
   await page.waitForTimeout(1000)
   await clickOnElement(page, SELECTORS.receiveTokenSaB)
-  await typeText(page, RECIEVE_TOKEN_INPUT, send_token)
+  await typeText(page, SELECTORS.searchInput, send_token)
   // It picking ETH all the time, should be investigated
   // await clickOnElement(page, `[data-testid*="${receive_token.toLowerCase()}"]`)
   await clickOnElement(page, receive_token)
 
-  await page.waitForSelector(FETCHING_BEST_ROUTE, { visible: true })
-  await page.waitForSelector(FETCHING_BEST_ROUTE, { hidden: true })
+  await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true })
+  await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
 
   try {
     // If Warning: The price impact is too high
-    await page.waitForSelector(SELECTORS.continueAnywayCheckboxSaB, { timeout: 1000 })
-    await clickOnElement(page, SELECTORS.continueAnywayCheckboxSaB)
+    await clickOnElement(page, SELECTORS.highPriceImpactSab)
     return 'Continue anyway'
   } catch (error) {
     return 'Proceed'
@@ -259,14 +249,14 @@ export async function verifyNonDefaultReceiveToken(
   await selectSendTokenOnNetwork(page, send_token, recieve_network)
   await page.waitForTimeout(1000) // Wait before click for the Receive Token list to be populated
   await clickOnElement(page, SELECTORS.receiveTokenSaB)
-  await typeText(page, 'input[placeholder="Token name or address..."]', receive_token)
+  await typeText(page, SELECTORS.searchInput, receive_token)
   await expect(page).toMatchElement('div', { text: 'Not found. Try with token address?' })
   await page.waitForTimeout(500)
-  await typeText(page, ENTER_AMOUNT_SELECTOR, '') // Click on the amount to clear input address field
+  await typeText(page, SELECTORS.fromAmountInputSab, '') // Click on the amount to clear input address field
   await page.waitForTimeout(500)
   await clickOnElement(page, SELECTORS.receiveTokenSaB)
   const address = TOKEN_ADDRESS[`${recieve_network}.${receive_token}`]
-  await typeText(page, 'input[placeholder="Token name or address..."]', address)
+  await typeText(page, SELECTORS.searchInput, address)
   const selector = `[data-tooltip-id*="${address}"]`
   await expect(page).toMatchElement(selector, { text: receive_token.toUpperCase(), timeout: 3000 })
   await expect(page).toMatchElement(selector, { text: address, timeout: 3000 })
@@ -278,7 +268,7 @@ export async function verifyDefaultReceiveToken(page, send_token, recieve_networ
   await selectSendTokenOnNetwork(page, send_token, recieve_network)
   await page.waitForTimeout(1000) // Wait before click for the Receive Token list to be populated
   await clickOnElement(page, SELECTORS.receiveTokenSaB)
-  await typeText(page, 'input[placeholder="Token name or address..."]', receive_token)
+  await typeText(page, SELECTORS.searchInput, receive_token)
   const selector = `[data-testid*="${receive_token.toLowerCase()}"]`
   await expect(page).toMatchElement(selector, { text: receive_token.toUpperCase(), timeout: 3000 })
   const address = TOKEN_ADDRESS[`${recieve_network}.${receive_token}`]
@@ -300,6 +290,7 @@ export async function prepareSwapAndBridge(
 ) {
   try {
     await openSwapAndBridge(page)
+    await page.waitForTimeout(1000)
     await selectSendTokenOnNetwork(page, send_token, send_network)
 
     // Select Receive Token on the same Network, which is automatically selected
@@ -318,17 +309,16 @@ export async function prepareSwapAndBridge(
     }
 
     // Enter the amount
-    await typeText(page, ENTER_AMOUNT_SELECTOR, send_amount.toString())
+    await typeText(page, SELECTORS.fromAmountInputSab, send_amount.toString())
 
     // Wait for Proceed to be enabled, i.e., wait for "Fetching best route..." text to appear and disappear
-    await page.waitForSelector(FETCHING_BEST_ROUTE, { visible: true })
-    await page.waitForSelector(FETCHING_BEST_ROUTE, { hidden: true })
+    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true })
+    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
     // ToDo: Handle 'No route found' situation
 
     try {
       // If Warning: The price impact is too high
-      await page.waitForSelector(SELECTORS.continueAnywayCheckboxSaB, { timeout: 1000 })
-      await clickOnElement(page, SELECTORS.continueAnywayCheckboxSaB)
+      await clickOnElement(page, SELECTORS.highPriceImpactSab)
       return 'Continue anyway'
     } catch (error) {
       return 'Proceed'
@@ -362,7 +352,10 @@ export async function openSwapAndBridgeActionPage(page, callback = 'null') {
     await actionPage.waitForTimeout(2000)
 
     // Assert the Action Page to open
-    await expect(actionPage).toMatchElement('div', { text: 'Transaction simulation', timeout: 5000 })
+    await expect(actionPage).toMatchElement('div', {
+      text: 'Transaction simulation',
+      timeout: 5000
+    })
 
     return actionPage
   } catch (error) {
@@ -394,7 +387,7 @@ export async function clickOnSecondRoute(page) {
 
     // A Select Route modal page opens
     await page.waitForSelector(SELECTORS.bottomSheet)
-    const elements = await page.$$(SELECTORS.bottomSheet + ' [tabindex="0"]');
+    const elements = await page.$$(`${SELECTORS.bottomSheet} [tabindex="0"]`)
     await elements[secoundRouteIndex].click()
     await page.waitForTimeout(500)
     await selectButton(page, 'Confirm')
@@ -405,9 +398,9 @@ export async function clickOnSecondRoute(page) {
   }
 }
 
-export async function changeRoutePriority(page, route_type, delay = 500) {
+export async function changeRoutePriority(page, route_type) {
   await openSwapAndBridge(page)
-  await clickXPathElement(page, ROUTE_BUTTON_SELECTOR)
+  await clickOnElement(page, SELECTORS.routePrioritySab)
   await page.waitForTimeout(500)
   await selectButton(page, route_type)
   await selectButton(page, 'Back')
@@ -415,7 +408,11 @@ export async function changeRoutePriority(page, route_type, delay = 500) {
 
 async function extractMaxBalance(page) {
   const maxBalanceIndex = 2
-  const maxBalance = await getElementContentWords(page, SELECTORS.maxAvailableAmount, maxBalanceIndex)
+  const maxBalance = await getElementContentWords(
+    page,
+    SELECTORS.maxAvailableAmount,
+    maxBalanceIndex
+  )
   return Number(maxBalance)
 }
 
