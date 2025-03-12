@@ -153,7 +153,7 @@ const NetworkForm = ({
   const { styles, theme } = useTheme(getStyles)
 
   const selectedNetwork = useMemo(
-    () => networks.find((network) => network.chainId.toString() === selectedNetworkId),
+    () => networks.find((network) => network.chainId.toString() === selectedNetworkId.toString()),
     [networks, selectedNetworkId]
   )
 
@@ -487,7 +487,7 @@ const NetworkForm = ({
               explorerUrl: networkFormValues.explorerUrl,
               ...(allowedToForce4337 ? { force4337: networkFormValues.force4337 } : {})
             },
-            networkId: selectedNetworkId
+            chainId: BigInt(networkFormValues.chainId)
           }
         })
       }

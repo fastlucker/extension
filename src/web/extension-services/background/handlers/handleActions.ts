@@ -148,7 +148,7 @@ export const handleActions = async (
       return await mainCtrl.addNetwork(params)
     }
     case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
-      return await mainCtrl.removeNetwork(params)
+      return await mainCtrl.removeNetwork(params.chainId, params.networkId)
     }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
       return await mainCtrl.accounts.updateAccountPreferences(params)

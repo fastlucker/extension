@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
@@ -32,7 +31,7 @@ type Props = {
   iconUrls?: string[]
   selectedRpcUrl: string
   rpcUrls: string[]
-  chainId: string
+  chainId: bigint
   explorerUrl: string
   nativeAssetSymbol: string
   nativeAssetName: string
@@ -76,7 +75,7 @@ const NetworkDetails = ({
   const shouldDisplayRemoveButton = useMemo(
     () =>
       pathname?.includes(ROUTES.networksSettings) && !isEmpty && !predefined && allowRemoveNetwork,
-    [pathname, chainId, isEmpty, allowRemoveNetwork]
+    [pathname, isEmpty, allowRemoveNetwork, predefined]
   )
   const promptRemoveCustomNetwork = useCallback(() => {
     openDialog()
@@ -86,7 +85,7 @@ const NetworkDetails = ({
     if (networkId) {
       dispatch({
         type: 'MAIN_CONTROLLER_REMOVE_NETWORK',
-        params: { chainId: chainId.toString(), networkId }
+        params: { chainId, networkId }
       })
       closeDialog()
     } else {
@@ -279,7 +278,7 @@ const NetworkDetails = ({
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
         <NetworkForm
-          selectedNetworkId={chainId.toLowerCase()}
+          selectedNetworkId={chainId.toString()}
           onCancel={closeBottomSheet}
           onSaved={closeBottomSheet}
         />

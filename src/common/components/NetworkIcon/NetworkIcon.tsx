@@ -53,7 +53,6 @@ const NetworkIcon = ({
   const network = useMemo(() => {
     return benzinNetwork ?? networks.find((n) => n.id === networkId)
   }, [networkId, networks, benzinNetwork])
-  console.log('network', network)
   const iconUrls = useMemo(
     () => [
       ...((network as Network)?.iconUrls || []),
