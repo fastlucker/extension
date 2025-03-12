@@ -118,7 +118,6 @@ handleIsBrowserWindowFocused((isFocused) => {
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 providerRequestTransport.reply(async ({ method, id, params }, meta) => {
-  console.log(method)
   // wait for mainCtrl to be initialized before handling dapp requests
   while (!mainCtrl) await wait(200)
 
@@ -134,7 +133,6 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
 
   await mainCtrl.dapps.initialLoadPromise
   mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
-  console.log(method, id, params, session.sessionId)
 
   try {
     const res = await handleProviderRequests(

@@ -60,10 +60,8 @@ const flowContext = flow
             })
           }
           await lockedOrigins[origin]
+        } finally {
           delete lockedOrigins[origin]
-        } catch (e) {
-          delete lockedOrigins[origin]
-          throw e
         }
       }
     }
@@ -88,7 +86,6 @@ const flowContext = flow
             })
           }
           await connectOrigins[origin]
-          delete connectOrigins[origin]
 
           const isBlacklisted = await mainCtrl.phishing.getIsBlacklisted(origin)
           mainCtrl.dapps.addDapp({
@@ -106,9 +103,8 @@ const flowContext = flow
             { chain: '0x1', networkVersion: '1' },
             origin
           )
-        } catch (e) {
+        } finally {
           delete connectOrigins[origin]
-          throw e
         }
       }
     }

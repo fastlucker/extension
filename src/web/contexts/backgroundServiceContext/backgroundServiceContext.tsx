@@ -105,7 +105,11 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
     if (!isExtension) return
 
     const keepAlive = async () => {
-      await chrome.runtime.sendMessage('ping')
+      try {
+        await chrome.runtime.sendMessage('ping')
+      } catch (error) {
+        console.error(error)
+      }
       timer.current = setTimeout(keepAlive, 1000)
     }
 
@@ -124,18 +128,22 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     if (!isExtension) return
 
-    chrome.runtime.onMessage.addListener(async (message: any) => {
-      if (message.action === 'sw-started') {
-        // if the sw restarts and the current window is an action window then close it
-        // because the actions state has been lost after the sw restart
-        if (getUiType().isActionWindow) {
-          closeCurrentWindow()
-        } else {
-          sessionStorage.setItem('backgroundState', 'restarted')
-          window.location.reload()
+    try {
+      chrome.runtime.onMessage.addListener(async (message: any) => {
+        if (message.action === 'sw-started') {
+          // if the sw restarts and the current window is an action window then close it
+          // because the actions state has been lost after the sw restart
+          if (getUiType().isActionWindow) {
+            closeCurrentWindow()
+          } else {
+            sessionStorage.setItem('backgroundState', 'restarted')
+            window.location.reload()
+          }
         }
-      }
-    })
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }, [])
 
   useEffect(() => {

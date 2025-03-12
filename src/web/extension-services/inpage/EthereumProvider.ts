@@ -110,11 +110,12 @@ export class EthereumProvider extends EventEmitter {
   initialize = async () => {
     document.addEventListener('visibilitychange', this.#requestPromiseCheckVisibility)
 
+    const id = this.#requestId++
     domReadyCall(() => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
         {
-          id: this.#requestId++,
+          id,
           method: 'tabCheckin',
           params: {
             // @ts-ignore
@@ -129,7 +130,7 @@ export class EthereumProvider extends EventEmitter {
             origin: location.origin
           }
         },
-        { id: this.#requestId++ }
+        { id }
       )
 
       this.#requestPromise.check(2)
@@ -171,10 +172,11 @@ export class EthereumProvider extends EventEmitter {
 
   #handleBackgroundMessage = ({ event, data }: any) => {
     if (event === 'tabCheckin') {
+      const id = this.#requestId++
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
         {
-          id: this.#requestId++,
+          id,
           method: 'tabCheckin',
           params: {
             // @ts-ignore
@@ -189,7 +191,7 @@ export class EthereumProvider extends EventEmitter {
             origin: location.origin
           }
         },
-        { id: this.#requestId++ }
+        { id }
       )
 
       return
@@ -388,11 +390,13 @@ export class EthereumProvider extends EventEmitter {
   }
 
   shimLegacy = () => {
-    // eslint-disable-next-line @typescript-eslint/naming-convention, no-restricted-syntax
-    for (const [_method, method] of [
+    const legacyMethods = [
       ['enable', 'eth_requestAccounts'],
       ['net_version', 'net_version']
-    ]) {
+    ]
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention, no-restricted-syntax
+    for (const [_method, method] of legacyMethods) {
       this[_method] = () => this.request({ method })
     }
   }

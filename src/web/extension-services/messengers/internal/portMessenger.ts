@@ -73,7 +73,7 @@ export class PortMessenger {
         port.postMessage({ messageType: type, message: stringify(message) })
       })
     } catch (error) {
-      console.error(error)
+      console.error('Error in port.postMessage', error)
     }
   }
 
