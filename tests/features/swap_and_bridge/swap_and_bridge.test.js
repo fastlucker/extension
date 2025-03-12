@@ -20,7 +20,8 @@ import {
   clickOnSecondRoute,
   changeRoutePriority,
   verifySendMaxTokenAmount,
-  verifyNonDefaultReceiveToken
+  verifyNonDefaultReceiveToken,
+  verifyDefaultReceiveToken
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
@@ -157,12 +158,21 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   })
 
   it('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Basic Account', async () => {
-    await verifyNonDefaultReceiveToken(page, 'Ethereum', 'wCRES')
-    await verifyNonDefaultReceiveToken(page, 'Ethereum', 'GLQ')
+    await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'wCRES')
+    await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'GLQ')
+    await verifyNonDefaultReceiveToken(page, 'POL', 'polygon', 'AMUSDC')
   })
 
-  it.skip('should find token that already exists within the "Receive" list during Swap & Bridge with a Basic Account', async () => {
-    // TODO: Implement the test or assert a step in the other tests
+  it.skip('should behave the same 1st and 2nd time when enter NON default "Receive" token during Swap & Bridge with a Basic Account', async () => {
+    // TODO: Is different behavior 1st and 2nd time a bug or a feature?
+    await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'GLQ')
+    await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'GLQ')
+  })
+
+  it('should find token that already exists within the "Receive" list during Swap & Bridge with a Basic Account', async () => {
+    await verifyDefaultReceiveToken(page, 'USDC', 'base', 'WALLET')
+    await verifyDefaultReceiveToken(page, 'WALLET', 'base', 'USDC')
+    await verifyDefaultReceiveToken(page, 'ETH', 'optimism', 'DAI')
   })
 
   it('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Basic Account', async () => {
@@ -310,12 +320,15 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
-    await verifyNonDefaultReceiveToken(page, 'Ethereum', 'wCRES')
-    await verifyNonDefaultReceiveToken(page, 'Ethereum', 'GLQ')
+    await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'wCRES')
+    await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'GLQ')
+    await verifyNonDefaultReceiveToken(page, 'POL', 'polygon', 'AMUSDC')
   })
 
-  it.skip('should find token that already exists within the "Receive" list during Swap & Bridge with a Smart Account', async () => {
-    // TODO: Implement the test or assert a step in the other tests
+  it('should find token that already exists within the "Receive" list during Swap & Bridge with a Smart Account', async () => {
+    await verifyDefaultReceiveToken(page, 'USDC', 'base', 'WALLET')
+    await verifyDefaultReceiveToken(page, 'WALLET', 'base', 'USDC')
+    await verifyDefaultReceiveToken(page, 'ETH', 'optimism', 'DAI')
   })
 
   it('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Smart Account', async () => {

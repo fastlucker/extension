@@ -57,6 +57,12 @@ async function getElementValue(page, selector) {
   return content
 }
 
+async function getElementContent(page, selector) {
+  const element = await getElement(page, selector)
+  const content = (await element.evaluate((el) => el.textContent)).split(' ')
+  return content
+}
+
 async function getElementContentWords(page, selector, index = 1) {
   const element = await getElement(page, selector)
   const content = (await element.evaluate((el) => el.textContent.trim())).split(' ')[index - 1]
@@ -243,9 +249,14 @@ export async function bridgeSmartAccount(
   }
 }
 
-export async function verifyNonDefaultReceiveToken(page, recieve_network, receive_token) {
+export async function verifyNonDefaultReceiveToken(
+  page,
+  send_token,
+  recieve_network,
+  receive_token
+) {
   await openSwapAndBridge(page)
-  await selectSendTokenOnNetwork(page, 'ETH', recieve_network)
+  await selectSendTokenOnNetwork(page, send_token, recieve_network)
   await page.waitForTimeout(1000) // Wait before click for the Receive Token list to be populated
   await clickOnElement(page, SELECTORS.receiveTokenSaB)
   await typeText(page, 'input[placeholder="Token name or address..."]', receive_token)
@@ -255,10 +266,28 @@ export async function verifyNonDefaultReceiveToken(page, recieve_network, receiv
   await page.waitForTimeout(500)
   await clickOnElement(page, SELECTORS.receiveTokenSaB)
   const address = TOKEN_ADDRESS[`${recieve_network}.${receive_token}`]
-  const selector = `[data-tooltip-id*="${address}"]`
   await typeText(page, 'input[placeholder="Token name or address..."]', address)
+  const selector = `[data-tooltip-id*="${address}"]`
   await expect(page).toMatchElement(selector, { text: receive_token.toUpperCase(), timeout: 3000 })
   await expect(page).toMatchElement(selector, { text: address, timeout: 3000 })
+  await selectButton(page, 'Back')
+}
+
+export async function verifyDefaultReceiveToken(page, send_token, recieve_network, receive_token) {
+  await openSwapAndBridge(page)
+  await selectSendTokenOnNetwork(page, send_token, recieve_network)
+  await page.waitForTimeout(1000) // Wait before click for the Receive Token list to be populated
+  await clickOnElement(page, SELECTORS.receiveTokenSaB)
+  await typeText(page, 'input[placeholder="Token name or address..."]', receive_token)
+  const selector = `[data-testid*="${receive_token.toLowerCase()}"]`
+  await expect(page).toMatchElement(selector, { text: receive_token.toUpperCase(), timeout: 3000 })
+  const address = TOKEN_ADDRESS[`${recieve_network}.${receive_token}`]
+  if (address) {
+    await expect(page).toMatchElement(selector, { text: address, timeout: 3000 })
+  } else {
+    console.log(`[WARNING] Token address not found for ${recieve_network}.${receive_token}`)
+    console.log(`Element Content: ${await getElementContent(page, selector)}`)
+  }
   await selectButton(page, 'Back')
 }
 
