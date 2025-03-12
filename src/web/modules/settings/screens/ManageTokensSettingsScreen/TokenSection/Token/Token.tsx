@@ -21,8 +21,6 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 
 type Props = {
   onTokenPreferenceOrCustomTokenChange: () => void
-  onTokenRemove: (token: Pick<TokenResult, 'networkId' | 'address'>) => void
-  onTokenUnhide: (token: Pick<TokenResult, 'networkId' | 'address'>) => void
 } & TokenResult
 
 const Token: FC<Props> = ({
@@ -30,9 +28,7 @@ const Token: FC<Props> = ({
   networkId,
   flags,
   symbol,
-  onTokenPreferenceOrCustomTokenChange,
-  onTokenRemove,
-  onTokenUnhide
+  onTokenPreferenceOrCustomTokenChange
 }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
@@ -59,17 +55,8 @@ const Token: FC<Props> = ({
         }
       }
     })
-    onTokenUnhide({ address, networkId })
     onTokenPreferenceOrCustomTokenChange()
-  }, [
-    addToast,
-    t,
-    dispatch,
-    address,
-    networkId,
-    onTokenUnhide,
-    onTokenPreferenceOrCustomTokenChange
-  ])
+  }, [addToast, t, dispatch, address, networkId, onTokenPreferenceOrCustomTokenChange])
 
   const removeCustomToken = useCallback(() => {
     addToast(t('Token removed'))
@@ -79,17 +66,8 @@ const Token: FC<Props> = ({
         token: { address, networkId }
       }
     })
-    onTokenRemove({ address, networkId })
     onTokenPreferenceOrCustomTokenChange()
-  }, [
-    addToast,
-    address,
-    dispatch,
-    networkId,
-    onTokenPreferenceOrCustomTokenChange,
-    onTokenRemove,
-    t
-  ])
+  }, [addToast, address, dispatch, networkId, onTokenPreferenceOrCustomTokenChange, t])
 
   const dropdownOptions = useMemo(() => {
     return [

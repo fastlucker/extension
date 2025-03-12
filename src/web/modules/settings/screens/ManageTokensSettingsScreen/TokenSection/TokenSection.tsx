@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollView, View } from 'react-native'
+import { View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Text from '@common/components/Text'
@@ -17,8 +17,6 @@ type Props = {
   isLoading: boolean
   data: TokenResult[]
   onTokenPreferenceOrCustomTokenChange: () => void
-  onTokenRemove: (token: Pick<TokenResult, 'networkId' | 'address'>) => void
-  onTokenUnhide: (token: Pick<TokenResult, 'networkId' | 'address'>) => void
   networkFilter: string
   search: string
 }
@@ -28,8 +26,6 @@ const TokenSection: FC<Props> = ({
   isLoading,
   data,
   onTokenPreferenceOrCustomTokenChange,
-  onTokenRemove,
-  onTokenUnhide,
   networkFilter,
   search
 }) => {
@@ -59,35 +55,30 @@ const TokenSection: FC<Props> = ({
   }, [networkFilter, search, t, variant])
 
   return (
-    <View style={[{ maxHeight: '50%' }, variant === 'custom' && spacings.mbLg]}>
+    <View style={[variant === 'custom' && spacings.mbLg]}>
       <Text fontSize={16} weight="medium" style={spacings.mbTy}>
         {t(variant === 'custom' ? 'Custom Tokens' : 'Hidden Tokens')}
       </Text>
       <TokenListHeader />
-      {/* @ts-ignore */}
-      <ScrollView style={{ flex: 'unset' }}>
-        {!isLoading && !data.length && (
-          <Text
-            appearance="secondaryText"
-            fontSize={16}
-            style={[spacings.mt2Xl, text.center]}
-            weight="medium"
-          >
-            {emptyText}
-          </Text>
-        )}
-        {!isLoading &&
-          data.map((token) => (
-            <Token
-              key={getTokenId(token)}
-              onTokenPreferenceOrCustomTokenChange={onTokenPreferenceOrCustomTokenChange}
-              onTokenRemove={onTokenRemove}
-              onTokenUnhide={onTokenUnhide}
-              {...token}
-            />
-          ))}
-        {isLoading && <Skeletons />}
-      </ScrollView>
+      {!isLoading && !data.length && (
+        <Text
+          appearance="secondaryText"
+          fontSize={16}
+          style={[spacings.mt2Xl, text.center]}
+          weight="medium"
+        >
+          {emptyText}
+        </Text>
+      )}
+      {!isLoading &&
+        data.map((token) => (
+          <Token
+            key={getTokenId(token)}
+            onTokenPreferenceOrCustomTokenChange={onTokenPreferenceOrCustomTokenChange}
+            {...token}
+          />
+        ))}
+      {isLoading && <Skeletons />}
     </View>
   )
 }
