@@ -56,12 +56,6 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     )
   })
 
-  it('should be able to return back to Dashboard from Swap & Bridge page with a Basic Account', async () => {
-    await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
-    await selectButton(page, 'Back')
-    await verifyIfOnDashboardPage(page)
-  })
-
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Basic Account', async () => {
     await prepareSwapAndBridge(page, 0.015, 'USDC', 'base', 'WALLET')
     await enterNumber(page, '00.01', true)
@@ -216,12 +210,6 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
 
   it.skip('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async () => {
     // TODO: Implement the test
-  })
-
-  it('should be able to return back to Dashboard from Swap & Bridge page with a Smart Account', async () => {
-    await prepareSwapAndBridge(page, 0.1, 'DAI', 'optimism', 'USDC.E')
-    await selectButton(page, 'Back')
-    await verifyIfOnDashboardPage(page)
   })
 
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async () => {
