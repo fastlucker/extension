@@ -73,7 +73,7 @@ const Header = ({
 
     return spacings.ph
   }, [maxWidthSize])
-  console.log('header title', title)
+
   return (
     <View
       style={[
