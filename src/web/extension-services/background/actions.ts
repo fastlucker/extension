@@ -560,10 +560,6 @@ type ChangeCurrentDappNetworkAction = {
   params: { chainId: number; origin: string }
 }
 
-type SetOnboardingStateAction = {
-  type: 'SET_ONBOARDING_STATE'
-  params: { version: string; viewedAt: number }
-}
 type SetIsPinnedAction = {
   type: 'SET_IS_PINNED'
   params: { isPinned: boolean }
@@ -713,7 +709,6 @@ export type Action =
   | AddressBookControllerRenameContact
   | AddressBookControllerRemoveContact
   | ChangeCurrentDappNetworkAction
-  | SetOnboardingStateAction
   | SetIsPinnedAction
   | SetIsSetupCompleteAction
   | AutoLockControllerSetLastActiveTimeAction
