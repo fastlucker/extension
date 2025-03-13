@@ -115,7 +115,7 @@ const SubmittedTransactionSummary = ({
   const accountOpDividedIntoMultipleIfNeeded = isIdentifiedByMultipleTxn(
     submittedAccountOp.identifiedBy
   )
-    ? submittedAccountOp.calls.map((call) => {
+    ? submittedAccountOp.calls.reverse().map((call) => {
         return {
           ...submittedAccountOp,
           txnId: call.txnId,
