@@ -5,12 +5,11 @@ import { Image, View } from 'react-native'
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import {
-  isSmartAccount as getIsSmartAccount,
-  isBasicAccount
+  isBasicAccount,
+  isSmartAccount as getIsSmartAccount
 } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
 import Alert from '@common/components/Alert'
@@ -311,7 +310,11 @@ const Estimation = ({
     [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
-  if (!signAccountOpState || !hasEstimation || !payValue) {
+  if (
+    !signAccountOpState ||
+    (!hasEstimation && signAccountOpState.estimationRetryError) ||
+    !payValue
+  ) {
     return (
       <EstimationWrapper>
         {!estimationFailed && <EstimationSkeleton />}
