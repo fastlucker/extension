@@ -1,11 +1,13 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { TouchableOpacity, View } from 'react-native'
 
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
+import Checkbox from '@common/components/Checkbox'
 import Panel from '@common/components/Panel'
-import { useTranslation } from '@common/config/localization'
+import Text from '@common/components/Text'
+import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
@@ -23,6 +25,7 @@ import storage from '@web/extension-services/background/webapi/storage'
 import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
 import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup'
 import Stepper from '@web/modules/router/components/Stepper'
+import { TERMS_VERSION } from '@web/modules/terms/screens/Terms'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
@@ -31,6 +34,7 @@ const KeyStoreSetupScreen = () => {
   const { updateStepperState } = useStepper()
   const { theme } = useTheme()
   const keyStoreSetup = useKeyStoreSetup()
+  const [agreedWithTerms, setAgreedWithTerms] = useState(false)
 
   const flow = useMemo(() => {
     if (params?.flow) return params.flow
@@ -102,6 +106,11 @@ const KeyStoreSetupScreen = () => {
     }
   }, [flow, navigate])
 
+  const handleCreateButtonPress = useCallback(async () => {
+    await storage.set('termsState', { version: TERMS_VERSION, acceptedAt: Date.now() })
+    await keyStoreSetup.handleKeystoreSetup()
+  }, [keyStoreSetup])
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -123,14 +132,15 @@ const KeyStoreSetupScreen = () => {
               keyStoreSetup.formState.isSubmitting ||
               keyStoreSetup.isKeystoreSetupLoading ||
               !keyStoreSetup.formState.isValid ||
-              keyStoreSetup.hasPasswordSecret
+              keyStoreSetup.hasPasswordSecret ||
+              !agreedWithTerms
             }
             text={
               keyStoreSetup.formState.isSubmitting || keyStoreSetup.isKeystoreSetupLoading
                 ? t('Creating...')
                 : t('Create')
             }
-            onPress={keyStoreSetup.handleKeystoreSetup}
+            onPress={handleCreateButtonPress}
           >
             <View style={spacings.pl}>
               <RightArrowIcon color={colors.titan} />
@@ -141,7 +151,24 @@ const KeyStoreSetupScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Create a Device Password')} forceContainerSmallSpacings>
-          <KeyStoreSetupForm onContinue={onKeyStoreCreation} {...keyStoreSetup} />
+          <KeyStoreSetupForm onContinue={onKeyStoreCreation} {...keyStoreSetup}>
+            <Checkbox
+              value={agreedWithTerms}
+              onValueChange={setAgreedWithTerms}
+              uncheckedBorderColor={theme.primaryText}
+              label={
+                <Trans>
+                  <Text fontSize={14}>I agree to the </Text>
+                  <TouchableOpacity onPress={() => navigate('terms', { state: { storyIndex: 5 } })}>
+                    <Text fontSize={14} underline color={theme.infoDecorative}>
+                      Terms of Service
+                    </Text>
+                  </TouchableOpacity>
+                  .
+                </Trans>
+              }
+            />
+          </KeyStoreSetupForm>
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

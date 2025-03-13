@@ -34,6 +34,7 @@ type Props = {
   control: Control<FormFields>
   password: string
   formState: FormState<FormFields>
+  children?: React.ReactNode
 }
 
 const KeyStoreSetupForm = ({
@@ -44,7 +45,8 @@ const KeyStoreSetupForm = ({
   password,
   isKeystoreSetupLoading,
   isKeystoreReady,
-  formState
+  formState,
+  children
 }: Props) => {
   const { t } = useTranslation()
   const { ref: devicePasswordSetModalRef, open: openDevicePasswordSetModal } = useModalize()
@@ -93,11 +95,10 @@ const KeyStoreSetupForm = ({
               onChangeText={onChange}
               value={value}
               isValid={!!value && !formState.errors.password && password === value}
-              validLabel={t('✅ Passwords match, you are ready to continue')}
+              validLabel={t('✅ Passwords match')}
               secureTextEntry
               error={formState.errors.confirmPassword && (t("Passwords don't match.") as string)}
               autoCorrect={false}
-              containerStyle={!showSubmitButton ? spacings.mb3Xl : {}}
               onSubmitEditing={handleKeystoreSetup}
             />
           )}
@@ -117,12 +118,14 @@ const KeyStoreSetupForm = ({
             </View>
           </Button>
         )}
+        {children}
         <Alert
           type="info"
           isTypeLabelHidden
           title={t('Password requirements:')}
           titleWeight="semiBold"
           text={t('Your password must be unique and at least 8 characters long.')}
+          style={!showSubmitButton ? (children ? spacings.mtXl : spacings.mt3Xl) : {}}
         />
       </View>
       <BottomSheet

@@ -139,22 +139,6 @@ const GetStartedScreen = () => {
     [isReadyToStoreKeys, openHotWalletModal, navigate, keyStoreUid, accounts.length, addToast]
   )
 
-  // const handleSetStoriesCompleted = () => {
-  //   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  //   storage
-  //     .set('termsState', {
-  //       version: TERMS_VERSION,
-  //       acceptedAt: Date.now()
-  //     })
-  //     .then(() => {
-  //       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  //       dispatch({
-  //         type: 'SET_ONBOARDING_STATE',
-  //         params: { version: ONBOARDING_VERSION, viewedAt: Date.now() }
-  //       })
-  //     })
-  // }
-
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [`${Math.min((STORY_CARD_WIDTH / (width || 0)) * 100, 100)}%`, '100%'],
