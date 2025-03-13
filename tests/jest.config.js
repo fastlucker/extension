@@ -1,4 +1,3 @@
-const path = require('path')
 require('dotenv').config()
 
 module.exports = {
@@ -25,15 +24,6 @@ module.exports = {
     // path.join('<rootDir>', 'tests/basic_account')
   ],
   reporters: [
-    "default",
-    ["jest-html-reporter", {
-      outputPath: "./tests/reports/test-report.html",
-      includeFailureMsg: true,
-      includeConsoleLog: true,
-      customInfos: [
-        { title: 'Screenshots', value: '<a href="./screenshots">View Screenshots</a>' },
-        { title: 'Videos', value: '<a href="./videos">View Videos</a>' }
-      ]
-    }]
+    "default"
   ]
 }
