@@ -109,6 +109,7 @@ export async function roundAmount(amount, place = 2) {
 
 async function selectSendTokenOnNetwork(page, send_token, send_network) {
   await clickOnElement(page, SELECTORS.sendTokenSaB)
+  await typeText(page, SELECTORS.searchInput, send_token)
   await clickOnElement(
     page,
     `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
