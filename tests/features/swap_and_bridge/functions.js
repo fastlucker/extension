@@ -196,7 +196,12 @@ export async function bridgeBasicAccount(
   await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true })
   await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
 
-  await clickOnElement(page, SELECTORS.confirmFollowUpTxn)
+  try {
+    await clickOnElement(page, SELECTORS.confirmFollowUpTxn)
+    // @ts-ignore
+  } catch (error) {
+    // No error actually, as Confirm follow-up transaction might be not shown if there is a direct swap & bridge route
+  }
 
   try {
     // If Warning: The price impact is too high
@@ -230,6 +235,13 @@ export async function bridgeSmartAccount(
 
   await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true })
   await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
+
+  try {
+    await clickOnElement(page, SELECTORS.confirmFollowUpTxn)
+    // @ts-ignore
+  } catch (error) {
+    // No error actually, as Confirm follow-up transaction might be not shown if there is a direct swap & bridge route
+  }
 
   try {
     // If Warning: The price impact is too high
