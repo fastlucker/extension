@@ -297,6 +297,7 @@ export async function prepareSwapAndBridge(
     // Select Receive Token on the same Network, which is automatically selected
     await page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
     await clickOnElement(page, SELECTORS.receiveTokenSaB)
+    await typeText(page, SELECTORS.searchInput, receive_token)
     await clickOnElement(page, `[data-testid*="${receive_token.toLowerCase()}"]`)
 
     // If checking prepareSwapAndBridge functionality without providing send amount
