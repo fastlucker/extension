@@ -13,13 +13,11 @@ import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import LinkIcon from '@common/assets/svg/LinkIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
-import Badge from '@common/components/Badge'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
@@ -27,6 +25,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { sizeMultiplier } from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import RepeatTransaction from './RepeatTransaction'
+import StatusBadge from './StatusBadge'
 import getStyles from './styles'
 import SubmittedOn from './SubmittedOn'
 
@@ -55,10 +54,13 @@ const Footer: FC<Props> = ({
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { networks } = useNetworksControllerState()
-  const { maxWidthSize } = useWindowSize()
   const { t } = useTranslation()
   const textSize = 14 * sizeMultiplier[size]
   const iconSize = 26 * sizeMultiplier[size]
+  const isFooterExpandable =
+    status !== AccountOpStatus.Rejected &&
+    status !== AccountOpStatus.BroadcastButStuck &&
+    status !== AccountOpStatus.UnknownButPastNonce
   const [isFooterExpanded, setIsFooterExpanded] = useState(defaultType === 'full-info')
   const networkId = network.id
 
@@ -127,195 +129,114 @@ const Footer: FC<Props> = ({
   ])
 
   return (
-    <>
-      {status !== AccountOpStatus.Rejected &&
-        status !== AccountOpStatus.BroadcastButStuck &&
-        status !== AccountOpStatus.UnknownButPastNonce && (
-          <View style={spacings.phMd}>
-            <View style={styles.footer}>
-              {status === AccountOpStatus.Failure && (
-                <Badge type="error" weight="medium" text={t('Failed')} withRightSpacing />
-              )}
-              {status === AccountOpStatus.Success && (
-                <Badge type="success" weight="medium" text={t('Confirmed')} withRightSpacing />
-              )}
-              {!!isFooterExpanded && (
-                <View style={spacings.mrTy}>
-                  <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
-                    {t('Fee')}:
-                  </Text>
+    <View style={spacings.phMd}>
+      <View style={styles.footer}>
+        <StatusBadge status={status} textSize={textSize} />
+        {!!isFooterExpanded && isFooterExpandable && (
+          <View style={spacings.mrTy}>
+            <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
+              {t('Fee')}:
+            </Text>
 
-                  {gasFeePayment?.isSponsored ? (
-                    <Text fontSize={14} appearance="successText" style={spacings.mrTy}>
-                      {t('Sponsored')}
-                    </Text>
-                  ) : (
-                    <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
-                      {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
-                    </Text>
-                  )}
-                </View>
-              )}
-              <SubmittedOn
-                fontSize={textSize}
-                iconSize={iconSize}
-                networkId={network.id}
-                timestamp={timestamp}
-                numberOfLines={isFooterExpanded ? 2 : 1}
-              />
-              {isFooterExpanded ? (
-                <View style={flexbox.alignEnd}>
-                  <TouchableOpacity
-                    style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
-                    onPress={handleOpenBenzina}
-                  >
-                    <Text
-                      fontSize={textSize}
-                      appearance="secondaryText"
-                      weight="medium"
-                      style={spacings.mrMi}
-                      underline
-                    >
-                      {t('View transaction')}
-                    </Text>
-                    <LinkIcon />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[flexbox.directionRow, flexbox.alignCenter]}
-                    onPress={handleOpenBlockExplorer}
-                  >
-                    <Text
-                      fontSize={textSize}
-                      appearance="secondaryText"
-                      weight="medium"
-                      style={spacings.mrMi}
-                      underline
-                    >
-                      {t('View in block explorer')}
-                    </Text>
-                    <LinkIcon />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  style={[flexbox.directionRow, flexbox.alignCenter]}
-                  onPress={() => setIsFooterExpanded(true)}
-                >
-                  <Text
-                    fontSize={textSize}
-                    appearance="secondaryText"
-                    weight="medium"
-                    style={spacings.mrMi}
-                  >
-                    {t('Show more')}
-                  </Text>
-                  <DownArrowIcon />
-                </TouchableOpacity>
-              )}
-            </View>
-
-            {defaultType === 'summary' && isFooterExpanded && (
-              <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.mbSm]}>
-                {rawCalls?.length ? (
-                  <RepeatTransaction
-                    accountAddr={accountAddr}
-                    networkId={network.id}
-                    rawCalls={rawCalls}
-                    textSize={textSize}
-                  />
-                ) : (
-                  <View />
-                )}
-                <TouchableOpacity
-                  style={[flexbox.directionRow, flexbox.alignCenter]}
-                  onPress={() => setIsFooterExpanded(false)}
-                >
-                  <Text
-                    fontSize={textSize}
-                    appearance="secondaryText"
-                    weight="medium"
-                    style={spacings.mrMi}
-                  >
-                    {t('Show less')}
-                  </Text>
-                  <UpArrowIcon />
-                </TouchableOpacity>
-              </View>
+            {gasFeePayment?.isSponsored ? (
+              <Text fontSize={14} appearance="successText" style={spacings.mrTy}>
+                {t('Sponsored')}
+              </Text>
+            ) : (
+              <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
+                {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
+              </Text>
             )}
           </View>
         )}
-      {status === AccountOpStatus.Rejected && (
-        <View style={spacings.phMd}>
-          <View style={[styles.footer, flexbox.justifyStart]}>
-            <View style={spacings.mrTy}>
+        <SubmittedOn
+          fontSize={textSize}
+          iconSize={iconSize}
+          networkId={network.id}
+          timestamp={timestamp}
+          numberOfLines={isFooterExpanded ? 2 : 1}
+        />
+        {isFooterExpanded && isFooterExpandable && (
+          <View style={flexbox.alignEnd}>
+            <TouchableOpacity
+              style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
+              onPress={handleOpenBenzina}
+            >
               <Text
                 fontSize={textSize}
-                appearance="errorText"
-                style={spacings.mrTy}
-                weight="semiBold"
+                appearance="secondaryText"
+                weight="medium"
+                style={spacings.mrMi}
+                underline
               >
-                {t('Failed to send')}
+                {t('View transaction')}
               </Text>
-            </View>
-            <SubmittedOn
-              fontSize={textSize}
-              iconSize={iconSize}
-              networkId={network.id}
-              timestamp={timestamp}
-              numberOfLines={1}
-            />
-          </View>
-        </View>
-      )}
-      {status === AccountOpStatus.BroadcastButStuck && (
-        <View style={spacings.phMd}>
-          <View style={[styles.footer, flexbox.justifyStart]}>
-            <View style={spacings.mrTy}>
+              <LinkIcon />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[flexbox.directionRow, flexbox.alignCenter]}
+              onPress={handleOpenBlockExplorer}
+            >
               <Text
                 fontSize={textSize}
-                appearance="errorText"
-                style={spacings.mrTy}
-                weight="semiBold"
+                appearance="secondaryText"
+                weight="medium"
+                style={spacings.mrMi}
+                underline
               >
-                {maxWidthSize(1000)
-                  ? t('Dropped or stuck in mempool with fee too low')
-                  : t('Dropped or stuck in\nmempool with fee too low')}
+                {t('View in block explorer')}
               </Text>
-            </View>
-            <SubmittedOn
-              fontSize={textSize}
-              iconSize={iconSize}
-              networkId={network.id}
-              timestamp={timestamp}
-              numberOfLines={maxWidthSize(1150) ? 1 : 2}
-            />
+              <LinkIcon />
+            </TouchableOpacity>
           </View>
+        )}
+        {isFooterExpandable && !isFooterExpanded && (
+          <TouchableOpacity
+            style={[flexbox.directionRow, flexbox.alignCenter]}
+            onPress={() => setIsFooterExpanded(true)}
+          >
+            <Text
+              fontSize={textSize}
+              appearance="secondaryText"
+              weight="medium"
+              style={spacings.mrMi}
+            >
+              {t('Show more')}
+            </Text>
+            <DownArrowIcon />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {isFooterExpandable && defaultType === 'summary' && isFooterExpanded && (
+        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.mbSm]}>
+          {rawCalls?.length ? (
+            <RepeatTransaction
+              accountAddr={accountAddr}
+              networkId={network.id}
+              rawCalls={rawCalls}
+              textSize={textSize}
+            />
+          ) : (
+            <View />
+          )}
+          <TouchableOpacity
+            style={[flexbox.directionRow, flexbox.alignCenter]}
+            onPress={() => setIsFooterExpanded(false)}
+          >
+            <Text
+              fontSize={textSize}
+              appearance="secondaryText"
+              weight="medium"
+              style={spacings.mrMi}
+            >
+              {t('Show less')}
+            </Text>
+            <UpArrowIcon />
+          </TouchableOpacity>
         </View>
       )}
-      {status === AccountOpStatus.UnknownButPastNonce && (
-        <View style={spacings.phMd}>
-          <View style={[styles.footer, flexbox.justifyStart]}>
-            <View style={spacings.mrTy}>
-              <Text
-                fontSize={textSize}
-                appearance="errorText"
-                style={spacings.mrTy}
-                weight="semiBold"
-              >
-                {t('Replaced by fee (RBF)')}
-              </Text>
-            </View>
-            <SubmittedOn
-              fontSize={textSize}
-              iconSize={iconSize}
-              networkId={network.id}
-              timestamp={timestamp}
-              numberOfLines={1}
-            />
-          </View>
-        </View>
-      )}
-    </>
+    </View>
   )
 }
 
