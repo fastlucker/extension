@@ -5,8 +5,8 @@ import { Image, View } from 'react-native'
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import {
-  isBasicAccount,
-  isSmartAccount as getIsSmartAccount
+  isSmartAccount as getIsSmartAccount,
+  isBasicAccount
 } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -314,12 +314,6 @@ const Estimation = ({
     return (
       <EstimationWrapper>
         {!estimationFailed && <EstimationSkeleton />}
-        {estimationFailed && (
-          <Alert
-            type="info"
-            title={t('The estimation could not be completed because of the transaction problem.')}
-          />
-        )}
         <Warnings
           hasEstimation={hasEstimation}
           slowRequest={slowRequest}
