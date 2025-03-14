@@ -46,14 +46,14 @@ jobs:
 
       - name: Setup Environment
         uses: ./.github/composite-actions/setup
-  
+
       - name: Cache Chrome
         id: cache-chrome
         uses: actions/cache@v4
         with:
           path: /home/runner/.cache/puppeteer
           key: ${{ runner.os }}-chrome
-      
+
       - name: Install Chrome
         if: steps.cache-chrome.outputs.cache-hit != 'true'
         run: node node_modules/puppeteer/install.js
@@ -90,34 +90,30 @@ jobs:
           BA_ACCOUNT_PREFERENCES: ${{ vars.BA_ACCOUNT_PREFERENCES }}
           BA_ACCOUNTS: ${{ vars.BA_ACCOUNTS }}
           BA_IS_DEFAULT_WALLET: ${{ vars.BA_IS_DEFAULT_WALLET }}
-          BA_KEY_PREFERENCES: ${{ vars.BA_KEY_PREFERENCES }}
           BA_KEYSTORE_UID: ${{ vars.BA_KEYSTORE_UID }}
           BA_KEYS: ${{ vars.BA_KEYS }}
           BA_SECRETS: ${{ secrets.BA_SECRETS }}
-          BA_NETWORK_PREFERENCES: ${{ vars.BA_NETWORK_PREFERENCES }}
+          BA_SEEDS: ${{ secrets.BA_SEEDS }}
           BA_NETWORK_WITH_ASSETS: ${{ vars.BA_NETWORK_WITH_ASSETS }}
+          BA_NETWORK_WITH_POSITIONS: ${{ vars.BA_NETWORK_WITH_POSITIONS }}
           BA_ONBOARDING_STATE: ${{ vars.BA_ONBOARDING_STATE }}
-          BA_PERMISSION: ${{ vars.BA_PERMISSION }}
           BA_PREVIOUSHINTS: ${{ vars.BA_PREVIOUSHINTS }}
           BA_SELECTED_ACCOUNT: ${{ vars.BA_SELECTED_ACCOUNT }}
           BA_TERMSTATE: ${{ vars.BA_TERMSTATE }}
-          BA_TOKEN_ITEMS: ${{ vars.BA_TOKEN_ITEMS }}
           SA_ACCOUNT_PREFERENCES: ${{ vars.SA_ACCOUNT_PREFERENCES }}
           SA_ACCOUNTS: ${{ vars.SA_ACCOUNTS }}
           SA_IS_DEFAULT_WALLET: ${{ vars.SA_IS_DEFAULT_WALLET }}
           SA_IS_ONBOARDED: ${{ vars.SA_IS_ONBOARDED }}
-          SA_KEY_PREFERENCES: ${{ vars.SA_KEY_PREFERENCES }}
           SA_KEYSTORE_UID: ${{ vars.SA_KEYSTORE_UID }}
           SA_KEYS: ${{ vars.SA_KEYS }}
           SA_SECRETS: ${{ secrets.SA_SECRETS }}
-          SA_NETWORK_PREFERENCES: ${{ vars.SA_NETWORK_PREFERENCES }}
+          SA_SEEDS: ${{ secrets.SA_SEEDS }}
           SA_ONBOARDING_STATE: ${{ vars.SA_ONBOARDING_STATE }}
-          SA_PERMISSION: ${{ vars.SA_PERMISSION }}
           SA_PREVIOUSHINTS: ${{ vars.SA_PREVIOUSHINTS }}
           SA_SELECTED_ACCOUNT: ${{ vars.SA_SELECTED_ACCOUNT }}
           SA_TERMSTATE: ${{ vars.SA_TERMSTATE }}
-          SA_TOKEN_ITEMS: ${{ vars.SA_TOKEN_ITEMS }}
           SA_NETWORK_WITH_ASSETS: ${{ vars.SA_NETWORK_WITH_ASSETS }}
+          SA_NETWORK_WITH_POSITIONS: ${{ vars.SA_NETWORK_WITH_POSITIONS }}
           SA_PASSPHRASE: ${{ secrets.SA_PASSPHRASE }}
           DEFAULT_INVITATION_CODE_DEV: ${{ vars.DEFAULT_INVITATION_CODE_DEV }}
           SEED_24_WORDS: ${{ secrets.SEED_24_WORDS }}
