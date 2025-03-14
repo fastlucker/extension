@@ -359,7 +359,7 @@ export class ProviderController {
       const isSmart = !accountState.isEOA || accountState.isSmarterEoa
       capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {
-          supported: isSmart
+          supported: true
         },
         auxiliaryFunds: {
           supported: isSmart
