@@ -157,12 +157,6 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await verifyNonDefaultReceiveToken(page, 'POL', 'polygon', 'AMUSDC')
   })
 
-  it.skip('should behave the same 1st and 2nd time when enter NON default "Receive" token during Swap & Bridge with a Basic Account', async () => {
-    // TODO: Is different behavior 1st and 2nd time a bug or a feature?
-    await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'GLQ')
-    await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'GLQ')
-  })
-
   it('should find token that already exists within the "Receive" list during Swap & Bridge with a Basic Account', async () => {
     await verifyDefaultReceiveToken(page, 'USDC', 'base', 'WALLET')
     await verifyDefaultReceiveToken(page, 'WALLET', 'base', 'USDC')
@@ -337,9 +331,5 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     )
     await selectButton(actionPage, 'Reject')
     await selectButton(page, 'Back')
-  })
-
-  it.skip('should be able to batch with each bridge during Swap & Bridge with a Smart Account', async () => {
-    // TODO: Implement the test or assert a step in the other tests
   })
 })

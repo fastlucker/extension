@@ -294,6 +294,32 @@ export async function verifyDefaultReceiveToken(page, send_token, recieve_networ
   await selectButton(page, 'Back')
 }
 
+async function verifyRouteFound(page) {
+  let attempts = 0
+  let isTextPresent = true
+
+  while (attempts < 2 && isTextPresent) {
+    // Wait for Proceed to be enabled (Wait for "Fetching best route..." to appear and disappear)
+    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true}).catch(() => null)
+    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true})
+
+    // Check if "No Route Found!" is displayed
+    isTextPresent = await page.waitForSelector('body:has-text("No Route Found!")', { timeout: 1000 }).catch(() => null)
+
+    if (isTextPresent) {
+      console.log(`⚠️ Attempt ${attempts + 1}: 'No Route Found!' detected, retrying...`)
+      // Pause for 5 seconds before retrying
+      await page.waitForTimeout(5000)
+      // Change route priority and retry; this is one way of retrying it
+      await changeRoutePriority(page, 'Highest Return')
+      attempts++
+    } else {
+      return // Exit if a route is found as expected
+    }
+  }
+}
+
+
 export async function prepareSwapAndBridge(
   page,
   send_amount,
@@ -325,18 +351,17 @@ export async function prepareSwapAndBridge(
     // Enter the amount
     await typeText(page, SELECTORS.fromAmountInputSab, send_amount.toString())
 
-    // Wait for Proceed to be enabled, i.e., wait for "Fetching best route..." text to appear and disappear
-    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true })
-    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
-    // ToDo: Handle 'No route found' situation
+    await verifyRouteFound(page)
 
-    try {
-      // If Warning: The price impact is too high
+    // If Warning: The price impact is too high
+    const isHighPrice = await page.waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 }).catch(() => null)
+    if (isHighPrice) {
       await clickOnElement(page, SELECTORS.highPriceImpactSab)
       return 'Continue anyway'
-    } catch (error) {
+    } else {
       return 'Proceed'
     }
+
   } catch (error) {
     console.error(`[ERROR] Prepare Swap & Bridge Page Failed: ${error.message}`)
     throw error
