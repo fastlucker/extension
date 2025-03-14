@@ -144,18 +144,4 @@ const handleKeepBridgeContentScriptAcrossSessions = () => {
     })
 }
 
-const handleIsBrowserWindowFocused = async (callback: (isWindowFocused: boolean) => void) => {
-  // Track when the browser window gains or loses focus
-  browser.windows.onFocusChanged.addListener((windowId: number) => {
-    callback(windowId !== chrome.windows.WINDOW_ID_NONE)
-  })
-
-  const window = await browser.windows.getLastFocused()
-  callback(!!window.focused)
-}
-
-export {
-  handleRegisterScripts,
-  handleKeepBridgeContentScriptAcrossSessions,
-  handleIsBrowserWindowFocused
-}
+export { handleRegisterScripts, handleKeepBridgeContentScriptAcrossSessions }
