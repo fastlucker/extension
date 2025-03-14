@@ -87,27 +87,25 @@ jobs:
           SEED: ${{ secrets.SEED }}
           BA_PRIVATE_KEY: ${{ secrets.BA_PRIVATE_KEY }}
           BA_PASSPHRASE: ${{ secrets.BA_PASSPHRASE }}
-          BA_ACCOUNT_PREFERENCES: ${{ vars.BA_ACCOUNT_PREFERENCES }}
           BA_ACCOUNTS: ${{ vars.BA_ACCOUNTS }}
           BA_IS_DEFAULT_WALLET: ${{ vars.BA_IS_DEFAULT_WALLET }}
           BA_KEYSTORE_UID: ${{ vars.BA_KEYSTORE_UID }}
           BA_KEYS: ${{ vars.BA_KEYS }}
           BA_SECRETS: ${{ secrets.BA_SECRETS }}
-          BA_SEEDS: ${{ secrets.BA_SEEDS }}
+          BA_SEEDS: ${{ vars.BA_SEEDS }}
           BA_NETWORK_WITH_ASSETS: ${{ vars.BA_NETWORK_WITH_ASSETS }}
           BA_NETWORK_WITH_POSITIONS: ${{ vars.BA_NETWORK_WITH_POSITIONS }}
           BA_ONBOARDING_STATE: ${{ vars.BA_ONBOARDING_STATE }}
           BA_PREVIOUSHINTS: ${{ vars.BA_PREVIOUSHINTS }}
           BA_SELECTED_ACCOUNT: ${{ vars.BA_SELECTED_ACCOUNT }}
           BA_TERMSTATE: ${{ vars.BA_TERMSTATE }}
-          SA_ACCOUNT_PREFERENCES: ${{ vars.SA_ACCOUNT_PREFERENCES }}
           SA_ACCOUNTS: ${{ vars.SA_ACCOUNTS }}
           SA_IS_DEFAULT_WALLET: ${{ vars.SA_IS_DEFAULT_WALLET }}
           SA_IS_ONBOARDED: ${{ vars.SA_IS_ONBOARDED }}
           SA_KEYSTORE_UID: ${{ vars.SA_KEYSTORE_UID }}
           SA_KEYS: ${{ vars.SA_KEYS }}
           SA_SECRETS: ${{ secrets.SA_SECRETS }}
-          SA_SEEDS: ${{ secrets.SA_SEEDS }}
+          SA_SEEDS: ${{ vars.SA_SEEDS }}
           SA_ONBOARDING_STATE: ${{ vars.SA_ONBOARDING_STATE }}
           SA_PREVIOUSHINTS: ${{ vars.SA_PREVIOUSHINTS }}
           SA_SELECTED_ACCOUNT: ${{ vars.SA_SELECTED_ACCOUNT }}
