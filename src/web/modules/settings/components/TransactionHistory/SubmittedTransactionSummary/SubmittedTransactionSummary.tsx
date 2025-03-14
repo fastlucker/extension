@@ -120,7 +120,19 @@ const SubmittedTransactionSummary = ({
           ...submittedAccountOp,
           txnId: call.txnId,
           status: call.status,
-          calls: [call]
+          calls: [call],
+          // if the call has a fee set, use it
+          gasFeePayment: submittedAccountOp.gasFeePayment
+            ? {
+                ...submittedAccountOp.gasFeePayment,
+                inToken: call.fee?.inToken
+                  ? call.fee?.inToken
+                  : submittedAccountOp.gasFeePayment.inToken,
+                amount: call.fee?.amount
+                  ? call.fee?.amount
+                  : submittedAccountOp.gasFeePayment.amount
+              }
+            : null
         }
       })
     : [submittedAccountOp]
