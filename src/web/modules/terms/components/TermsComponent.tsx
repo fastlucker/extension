@@ -8,6 +8,8 @@ import flexbox from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 
+export const TERMS_VERSION = '1.0.0'
+
 const TermsComponent = () => {
   const { t } = useTranslation()
 

@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
+import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
+import DualChoiceModal from '@common/components/DualChoiceModal'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
@@ -16,6 +20,7 @@ import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   tabLayoutWidths,
@@ -25,7 +30,8 @@ import storage from '@web/extension-services/background/webapi/storage'
 import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
 import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup'
 import Stepper from '@web/modules/router/components/Stepper'
-import { TERMS_VERSION } from '@web/modules/terms/screens/Terms'
+import TermsComponent from '@web/modules/terms/components'
+import { TERMS_VERSION } from '@web/modules/terms/components/TermsComponent'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
@@ -34,7 +40,8 @@ const KeyStoreSetupScreen = () => {
   const { updateStepperState } = useStepper()
   const { theme } = useTheme()
   const keyStoreSetup = useKeyStoreSetup()
-  const [agreedWithTerms, setAgreedWithTerms] = useState(false)
+  const [agreedWithTerms, setAgreedWithTerms] = useState(true)
+  const { ref: termstModalRef, open: openTermsModal, close: closeTermsModal } = useModalize()
 
   const flow = useMemo(() => {
     if (params?.flow) return params.flow
@@ -159,7 +166,7 @@ const KeyStoreSetupScreen = () => {
               label={
                 <Trans>
                   <Text fontSize={14}>I agree to the </Text>
-                  <TouchableOpacity onPress={() => navigate('terms', { state: { storyIndex: 5 } })}>
+                  <TouchableOpacity onPress={openTermsModal}>
                     <Text fontSize={14} underline color={theme.infoDecorative}>
                       Terms of Service
                     </Text>
@@ -171,6 +178,26 @@ const KeyStoreSetupScreen = () => {
           </KeyStoreSetupForm>
         </Panel>
       </TabLayoutWrapperMainContent>
+      <BottomSheet
+        id="terms-modal"
+        style={{ maxWidth: 800 }}
+        closeBottomSheet={closeTermsModal}
+        backgroundColor="primaryBackground"
+        sheetRef={termstModalRef}
+      >
+        <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
+          <AmbireLogo style={[spacings.mbLg, flexbox.alignCenter]} width={185} height={92} />
+          <Text fontSize={32} weight="regular" style={[{ textAlign: 'center' }, spacings.mbXl]}>
+            {t('Terms Of Service')}
+          </Text>
+        </View>
+        <DualChoiceModal
+          hideHeader
+          description={<TermsComponent />}
+          primaryButtonText={t('Ok')}
+          onPrimaryButtonPress={closeTermsModal}
+        />
+      </BottomSheet>
     </TabLayoutContainer>
   )
 }

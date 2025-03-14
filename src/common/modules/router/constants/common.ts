@@ -47,7 +47,6 @@ const MOBILE_ROUTES = {
 const WEB_ROUTES = {
   ...COMMON_ROUTES,
   inviteVerify: 'invite-verify',
-  terms: 'terms',
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
