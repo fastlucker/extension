@@ -17,9 +17,11 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 
 const PayOption = ({
   feeOption,
-  disabledReason
+  disabledReason,
+  amount
 }: {
   feeOption: FeePaymentOption
+  amount: bigint
   disabledReason?: string
 }) => {
   const { t } = useTranslation()
@@ -35,11 +37,12 @@ const PayOption = ({
   )
 
   const formattedAmount = useMemo(() => {
-    return formatDecimals(
-      Number(formatUnits(feeOption.availableAmount, feeOption.token.decimals)),
-      'amount'
-    )
-  }, [feeOption.availableAmount, feeOption.token.decimals])
+    return formatDecimals(Number(formatUnits(amount, feeOption.token.decimals)), 'amount')
+  }, [amount, feeOption.token.decimals])
+
+  const formattedAmountUsd = useMemo(() => {
+    return formatDecimals(Number(formatUnits(amount, feeOption.token.decimals)), 'value')
+  }, [amount, feeOption.token.decimals])
 
   const feeTokenNetworkName = useMemo(() => {
     if (feeOption.token.flags.onGasTank) {
@@ -84,12 +87,17 @@ const PayOption = ({
 
         <View style={[flexbox.flex1, spacings.mlTy]}>
           <Text weight="semiBold" fontSize={12} numberOfLines={1}>
-            {formattedAmount} {feeOption.token.symbol} <Text fontSize={12}>{t('on ')}</Text>
+            {formattedAmount} {feeOption.token.symbol}{' '}
+            <Text fontSize={12}>{feeOption.token.flags.onGasTank ? t('from ') : t('on ')}</Text>
             <Text fontSize={12}>{feeTokenNetworkName}</Text>
           </Text>
-          {disabledReason && (
+          {disabledReason ? (
             <Text weight="medium" fontSize={10} numberOfLines={1} appearance="errorText">
               {disabledReason}
+            </Text>
+          ) : (
+            <Text appearance="secondaryText" weight="medium" fontSize={10}>
+              {formattedAmountUsd}
             </Text>
           )}
         </View>

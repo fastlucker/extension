@@ -13,16 +13,16 @@ import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
 import Alert from '@common/components/Alert'
-import { SectionedSelect } from '@common/components/Select'
+import Select, { SectionedSelect } from '@common/components/Select'
+import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import Fee from '@web/modules/sign-account-op/components/Fee'
 import Warnings from '@web/modules/sign-account-op/components/Warnings'
 
 import AmountInfo from './components/AmountInfo'
@@ -30,7 +30,7 @@ import EstimationSkeleton from './components/EstimationSkeleton'
 import EstimationWrapper from './components/EstimationWrapper'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
-import { FeeOption, Props } from './types'
+import { Props } from './types'
 
 const FEE_SECTION_LIST_MENU_HEADER_HEIGHT = 34
 
@@ -92,7 +92,15 @@ const Estimation = ({
     [payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank]
   )
 
-  const [payValue, setPayValue] = useState<FeeOption | null>(null)
+  const [selectedFeeOption, setSelectedFeeOption] = useState<SelectValue['value'] | null>(null)
+
+  const payValue = useMemo(() => {
+    return (
+      payOptionsPaidByUsOrGasTank.find(({ value }) => value === selectedFeeOption) ||
+      payOptionsPaidByEOA.find(({ value }) => value === selectedFeeOption)
+    )
+  }, [payOptionsPaidByUsOrGasTank, payOptionsPaidByEOA, selectedFeeOption])
+  // const [payValue, setPayValue] = useState<FeeOption | null>(null)
 
   // Only Hardware Wallet signatures are needed manually as the keys of
   // hot wallets are stored in the extension
@@ -124,7 +132,7 @@ const Estimation = ({
   const setFeeOption = useCallback(
     (localPayValue: any) => {
       if (!signAccountOpState?.selectedFeeSpeed) return
-      setPayValue(localPayValue)
+      setSelectedFeeOption(localPayValue.value)
 
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
@@ -133,7 +141,7 @@ const Estimation = ({
           paidBy: localPayValue.paidBy,
           speed: localPayValue.speedCoverage.includes(signAccountOpState.selectedFeeSpeed)
             ? signAccountOpState.selectedFeeSpeed
-            : FeeSpeed.Slow
+            : FeeSpeed.Fast
         }
       })
     },
@@ -224,17 +232,31 @@ const Estimation = ({
     )
   }, [feeSpeeds, signAccountOpState?.errors.length, signAccountOpState?.estimation?.error])
 
+  const feeSpeedOptions = useMemo(() => {
+    return feeSpeeds.map((speed) => ({
+      label: `${t(speed.type.charAt(0).toUpperCase() + speed.type.slice(1))}`,
+      value: speed.type
+    }))
+  }, [feeSpeeds, t])
+
   const selectedFee = useMemo(
-    () => feeSpeeds.find((speed) => speed.type === signAccountOpState?.selectedFeeSpeed),
-    [signAccountOpState?.selectedFeeSpeed, feeSpeeds]
+    () =>
+      feeSpeedOptions.find(({ value }) => value === signAccountOpState?.selectedFeeSpeed) ||
+      feeSpeedOptions[0],
+    [feeSpeedOptions, signAccountOpState?.selectedFeeSpeed]
   )
 
   const onFeeSelect = useCallback(
-    (speed: FeeSpeed) => {
+    ({ value }: { value: string }) => {
+      if (!Object.values(FeeSpeed).includes(value as FeeSpeed)) {
+        console.error('Invalid fee speed')
+        return
+      }
+
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params: {
-          speed
+          speed: value as FeeSpeed
         }
       })
     },
@@ -372,24 +394,49 @@ const Estimation = ({
         />
       )}
       {!isSponsored && !isGaslessTransaction && (
-        <SectionedSelect
-          setValue={setFeeOption}
-          testID="fee-option-select"
-          label={t('Pay fee with')}
-          headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
-          sections={feeOptionSelectSections}
-          renderSectionHeader={renderFeeOptionSectionHeader}
-          containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}
-          value={payValue || NO_FEE_OPTIONS}
-          disabled={
-            disabled ||
-            (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
-            defaultFeeOption.label === NO_FEE_OPTIONS.label
-          }
-          defaultValue={payValue ?? undefined}
-          withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
-          stickySectionHeadersEnabled
-        />
+        <>
+          <View
+            style={[
+              flexbox.directionRow,
+              flexbox.alignCenter,
+              flexbox.justifySpaceBetween,
+              spacings.mbMi
+            ]}
+          >
+            <Text appearance="secondaryText" fontSize={14} weight="regular">
+              {t('Pay fee with')}
+            </Text>
+            {selectedFee && (
+              <Select
+                value={selectedFee}
+                // @ts-ignore
+                setValue={onFeeSelect}
+                options={feeSpeedOptions}
+                selectStyle={{ height: 32 }}
+                menuOptionHeight={32}
+                withSearch={false}
+                containerStyle={{ ...spacings.mb0, width: 120 }}
+              />
+            )}
+          </View>
+          <SectionedSelect
+            setValue={setFeeOption}
+            testID="fee-option-select"
+            headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
+            sections={feeOptionSelectSections}
+            renderSectionHeader={renderFeeOptionSectionHeader}
+            containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}
+            value={payValue || NO_FEE_OPTIONS}
+            disabled={
+              disabled ||
+              (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
+              defaultFeeOption.label === NO_FEE_OPTIONS.label
+            }
+            defaultValue={payValue ?? undefined}
+            withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
+            stickySectionHeadersEnabled
+          />
+        </>
       )}
       {!isSponsored && !isGaslessTransaction && areTwoHWSignaturesRequired && (
         <Alert
@@ -400,52 +447,25 @@ const Estimation = ({
           style={spacings.mbSm}
         />
       )}
-      {!isSponsored && !isGaslessTransaction && feeSpeeds.length > 0 && (
-        <View style={[spacings.mbMd]}>
-          <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
-            {t('TBD: Transaction speed')}
-          </Text>
-          {/* <View
-            style={[
-              flexbox.wrap,
-              flexbox.flex1,
-              flexbox.directionRow,
-              disabled && { opacity: 0.6 },
-              minWidthSize('xxl') && { margin: -SPACING_MI }
-            ]}
-          >
-            {feeSpeeds.map((fee) => (
-              <Fee
-                disabled={disabled || fee.disabled}
-                key={fee.amount + fee.type}
-                label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
-                type={fee.type}
-                symbol={payValue.token?.symbol}
-                amountUsd={parseFloat(fee.amountUsd)}
-                amountFormatted={fee.amountFormatted}
-                onPress={onFeeSelect}
-                isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
-              />
-            ))}
-          </View> */}
-          {feeTokenPriceUnavailableWarning && (
-            <Alert
-              size="sm"
-              type="warning"
-              text={feeTokenPriceUnavailableWarning.text}
-              title={feeTokenPriceUnavailableWarning.title}
-              style={spacings.mtSm}
-            />
-          )}
-        </View>
-      )}
-      {!isSponsored && !isGaslessTransaction && !!selectedFee && !!payValue && (
+      {!isSponsored &&
+        !isGaslessTransaction &&
+        feeSpeeds.length > 0 &&
+        !!feeTokenPriceUnavailableWarning && (
+          <Alert
+            size="sm"
+            type="warning"
+            text={feeTokenPriceUnavailableWarning.text}
+            title={feeTokenPriceUnavailableWarning.title}
+            style={{ ...spacings.mtSm, ...spacings.mbMd }}
+          />
+        )}
+      {/* {!isSponsored && !isGaslessTransaction && !!selectedFee && !!payValue && (
         <AmountInfo
           label="Fee"
           amountFormatted={formatDecimals(parseFloat(selectedFee.amountFormatted))}
           symbol={payValue.token?.symbol}
         />
-      )}
+      )} */}
       {!isSponsored && !isGaslessTransaction && !!signAccountOpState.gasSavedUSD && (
         <AmountInfo.Wrapper>
           <AmountInfo.Label appearance="primary">{t('Gas Tank saves you')}</AmountInfo.Label>

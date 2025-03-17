@@ -6,9 +6,7 @@ interface Styles {
 
 const getStyles = () =>
   StyleSheet.create<Styles>({
-    container: {
-      marginTop: 'auto'
-    }
+    container: {}
   })
 
 export default getStyles
