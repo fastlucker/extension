@@ -125,7 +125,7 @@ type MainControllerAddNetwork = {
 
 type MainControllerRemoveNetwork = {
   type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: { chainId: ChainId, networkId: NetworkId }
+  params: { chainId: ChainId; networkId: NetworkId }
 }
 
 type AccountsControllerUpdateAccountPreferences = {
@@ -164,7 +164,7 @@ type MainControllerUpdateNetworkAction = {
   type: 'MAIN_CONTROLLER_UPDATE_NETWORK'
   params: {
     network: Partial<Network>
-    networkId: NetworkId
+    chainId: ChainId
   }
 }
 

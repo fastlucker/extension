@@ -166,7 +166,7 @@ export const handleActions = async (
       return await mainCtrl.keystore.updateKeyPreferences(params)
     }
     case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
-      return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
+      return await mainCtrl.networks.updateNetwork(params.network, params.chainId)
     }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
       return await mainCtrl.selectAccount(params.accountAddr)

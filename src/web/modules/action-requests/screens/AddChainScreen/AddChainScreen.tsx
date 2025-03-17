@@ -40,7 +40,7 @@ const AddChainScreen = () => {
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { maxWidthSize } = useWindowSize()
   const { statuses, networkToAddOrUpdate } = useNetworksControllerState()
-  const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
+  const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined, undefined))
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
   const actionButtonPressedRef = useRef(false)
 
@@ -106,8 +106,8 @@ const AddChainScreen = () => {
   }, [dispatch, rpcUrlIndex, networkDetails])
 
   useEffect(() => {
-    setFeatures(getFeatures(networkToAddOrUpdate?.info))
-  }, [networkToAddOrUpdate?.info])
+    setFeatures(getFeatures(networkToAddOrUpdate?.info, undefined))
+  }, [networkToAddOrUpdate?.info, networkDetails])
 
   useEffect(() => {
     if (!dappAction) return

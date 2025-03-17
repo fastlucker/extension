@@ -209,11 +209,11 @@ const NetworkForm = ({
   const features = useMemo(
     () =>
       networkToAddOrUpdate?.info
-        ? getFeatures(networkToAddOrUpdate?.info)
+        ? getFeatures(networkToAddOrUpdate?.info, selectedNetwork)
         : errors.chainId
-        ? getFeatures(undefined)
-        : selectedNetwork?.features || getFeatures(undefined),
-    [errors.chainId, networkToAddOrUpdate?.info, selectedNetwork?.features]
+        ? getFeatures(undefined, selectedNetwork)
+        : selectedNetwork?.features || getFeatures(undefined, selectedNetwork),
+    [errors.chainId, networkToAddOrUpdate?.info, selectedNetwork?.features, selectedNetwork]
   )
 
   useEffect(() => {

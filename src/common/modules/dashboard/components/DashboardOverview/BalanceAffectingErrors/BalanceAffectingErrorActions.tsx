@@ -47,7 +47,7 @@ const BalanceAffectingErrorActions: FC<Props> = ({ actionName, meta, closeBottom
           setTimeout(() => {
             dispatch({
               type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
-              params: { network: { selectedRpcUrl: value }, networkId: network.id }
+              params: { network: { selectedRpcUrl: value }, chainId: network.chainId }
             })
           }, 1)
           closeBottomSheet()
