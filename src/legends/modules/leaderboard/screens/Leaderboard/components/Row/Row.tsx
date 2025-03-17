@@ -90,7 +90,7 @@ const Row: FC<Props> = ({
         )}
       </div>
       <h5 className={styles.cell}>{level}</h5>
-      <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(weight)}</h5>
+      <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(weight || 0)}</h5>
       <h5 className={styles.cell}>{xp}</h5>
     </div>
   )
