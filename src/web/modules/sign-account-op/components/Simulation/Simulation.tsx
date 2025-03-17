@@ -289,15 +289,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
         <Alert
           type="info"
           isTypeLabelHidden
-          title={
-            <Trans>
-              No token balance changes detected. Please{' '}
-              <Text appearance="infoText" weight="semiBold">
-                carefully
-              </Text>{' '}
-              review the transaction preview below.
-            </Trans>
-          }
+          title={<Trans>No token balance changes detected.</Trans>}
         />
       )}
       {simulationView === 'simulation-not-supported' && (
