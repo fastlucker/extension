@@ -23,7 +23,7 @@ const ASSET_TYPE_TO_LABEL = {
 }
 
 const POSITION_TYPE_TO_NAME = {
-  lending: 'Lending',
+  lending: 'Net Worth',
   'liquidity-pool': 'Liquidity Pool'
 }
 

@@ -8,11 +8,10 @@ import { Pressable, View, ViewStyle } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { NetworkId } from '@ambire-common/interfaces/network'
-import { canForce4337, getFeatures } from '@ambire-common/libs/networks/networks'
+import { getFeatures } from '@ambire-common/libs/networks/networks'
 import { isValidURL } from '@ambire-common/services/validations'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
-import Checkbox from '@common/components/Checkbox'
 import Input from '@common/components/Input'
 import NetworkIcon from '@common/components/NetworkIcon'
 import NumberInput from '@common/components/NumberInput'
@@ -150,7 +149,7 @@ const NetworkForm = ({
   const { addToast } = useToast()
   const { networks, networkToAddOrUpdate, statuses } = useNetworksControllerState()
   const [isValidatingRPC, setValidatingRPC] = useState<boolean>(false)
-  const { styles, theme } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
 
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.chainId.toString() === selectedNetworkId.toString()),
@@ -161,8 +160,6 @@ const NetworkForm = ({
     () => selectedNetwork && selectedNetwork.predefined,
     [selectedNetwork]
   )
-
-  const allowedToForce4337 = canForce4337(selectedNetwork)
 
   const {
     watch,
@@ -182,8 +179,7 @@ const NetworkForm = ({
       nativeAssetName: '',
       explorerUrl: '',
       coingeckoPlatformId: '',
-      coingeckoNativeAssetId: '',
-      ...(allowedToForce4337 ? { force4337: false } : {})
+      coingeckoNativeAssetId: ''
     },
     values: {
       name: selectedNetwork?.name || '',
@@ -193,8 +189,7 @@ const NetworkForm = ({
       nativeAssetName: selectedNetwork?.nativeAssetName || '',
       explorerUrl: selectedNetwork?.explorerUrl || '',
       coingeckoPlatformId: (selectedNetwork?.platformId as string) || '',
-      coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || '',
-      ...(allowedToForce4337 ? { force4337: selectedNetwork?.force4337 ?? false } : {})
+      coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || ''
     }
   })
   const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
@@ -332,7 +327,7 @@ const NetworkForm = ({
     // when resetting the form.
     const subscription = watch(async (value, { name }) => {
       if (name && !value[name]) {
-        if (name !== 'rpcUrl' && (!allowedToForce4337 || name !== 'force4337')) {
+        if (name !== 'rpcUrl') {
           setError(name, { type: 'custom-error', message: 'Field is required' })
           return
         }
@@ -412,7 +407,6 @@ const NetworkForm = ({
     selectedNetworkId,
     networks,
     touchedFields,
-    allowedToForce4337,
     validateRpcUrlAndRecalculateFeatures,
     clearErrors,
     setError,
@@ -484,8 +478,7 @@ const NetworkForm = ({
             network: {
               rpcUrls,
               selectedRpcUrl,
-              explorerUrl: networkFormValues.explorerUrl,
-              ...(allowedToForce4337 ? { force4337: networkFormValues.force4337 } : {})
+              explorerUrl: networkFormValues.explorerUrl
             },
             chainId: BigInt(networkFormValues.chainId)
           }
@@ -796,44 +789,6 @@ const NetworkForm = ({
             <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
               <View style={flexbox.flex1}>
                 <NetworkAvailableFeatures networkId={selectedNetwork?.id} features={features} />
-
-                {!!allowedToForce4337 && (
-                  <View style={spacings.mtSm}>
-                    <Controller
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <Checkbox
-                          value={value!}
-                          onValueChange={async (changedValue) => {
-                            if (selectedNetwork) {
-                              dispatch({
-                                type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
-                                params: {
-                                  rpcUrl: selectedNetwork.selectedRpcUrl,
-                                  chainId: selectedNetwork.chainId,
-                                  force4337: changedValue
-                                }
-                              })
-                            }
-
-                            return onChange(changedValue)
-                          }}
-                          uncheckedBorderColor={theme.secondaryText}
-                          label={t('Use ERC-4337 Account Abstraction')}
-                          labelProps={{
-                            style: {
-                              color: theme.secondaryText,
-                              fontSize: 16
-                            },
-                            weight: 'medium'
-                          }}
-                          style={[flexbox.directionRow, flexbox.alignCenter]}
-                        />
-                      )}
-                      name="force4337"
-                    />
-                  </View>
-                )}
               </View>
             </ScrollableWrapper>
             <View style={[flexbox.alignEnd, spacings.ptXl]}>

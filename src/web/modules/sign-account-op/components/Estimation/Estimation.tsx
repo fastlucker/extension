@@ -5,8 +5,8 @@ import { Image, View } from 'react-native'
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import {
-  isBasicAccount,
-  isSmartAccount as getIsSmartAccount
+  isSmartAccount as getIsSmartAccount,
+  isBasicAccount
 } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -29,7 +29,7 @@ import AmountInfo from './components/AmountInfo'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import EstimationWrapper from './components/EstimationWrapper'
 import { NO_FEE_OPTIONS } from './consts'
-import { getDefaultFeeOption, getDummyFeeOptions, mapFeeOptions, sortFeeOptions } from './helpers'
+import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
 import { FeeOption, Props } from './types'
 
 const FEE_SECTION_LIST_MENU_HEADER_HEIGHT = 34
@@ -67,13 +67,9 @@ const Estimation = ({
         accountStates[signAccountOpState.account.addr][signAccountOpState.accountOp.networkId]
       )
     ) {
-      return [
-        signAccountOpState.availableFeeOptions[0],
-        ...getDummyFeeOptions(
-          signAccountOpState.accountOp.networkId,
-          signAccountOpState.account.addr
-        )
-      ].map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
+      return [signAccountOpState.availableFeeOptions[0]].map((feeOption) =>
+        mapFeeOptions(feeOption, signAccountOpState)
+      )
     }
 
     return signAccountOpState.availableFeeOptions
@@ -318,12 +314,6 @@ const Estimation = ({
     return (
       <EstimationWrapper>
         {!estimationFailed && <EstimationSkeleton />}
-        {estimationFailed && (
-          <Alert
-            type="info"
-            title={t('The estimation could not be completed because of the transaction problem.')}
-          />
-        )}
         <Warnings
           hasEstimation={hasEstimation}
           slowRequest={slowRequest}
@@ -477,7 +467,7 @@ const Estimation = ({
         isViewOnly={isViewOnly}
         rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
         bundlerFailure={
-          !!signAccountOpState.estimation?.nonFatalErrors?.find(
+          !!signAccountOpState.estimation?.bundlerEstimation?.nonFatalErrors?.find(
             (err) => err.cause === '4337_ESTIMATION'
           )
         }
