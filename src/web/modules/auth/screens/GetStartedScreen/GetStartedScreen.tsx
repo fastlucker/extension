@@ -32,12 +32,13 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 import Card from '@web/modules/auth/components/Card'
-import { STORY_CARD_WIDTH } from '@web/modules/auth/components/Stories/styles'
 import { getExtensionInstanceId } from '@web/utils/analytics'
 
 import HotWalletCreateCards from '../../components/HotWalletCreateCards'
 import { showEmailVaultInterest } from '../../utils/emailVault'
 import getStyles from './styles'
+
+export const CARD_WIDTH = 488
 
 const GetStartedScreen = () => {
   const { theme } = useTheme(getStyles)
@@ -141,7 +142,7 @@ const GetStartedScreen = () => {
 
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [`${Math.min((STORY_CARD_WIDTH / (width || 0)) * 100, 100)}%`, '100%'],
+    outputRange: [`${Math.min((CARD_WIDTH / (width || 0)) * 100, 100)}%`, '100%'],
     extrapolate: 'clamp'
   })
 
