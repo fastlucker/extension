@@ -10,8 +10,6 @@ import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
-import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
@@ -56,7 +54,6 @@ const SignAccountOpScreen = () => {
     open: openWarningAgreementModal,
     close: closeWarningAgreementModal
   } = useModalize()
-  const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () =>
       signAccountOpState?.isInitialized &&
@@ -410,43 +407,38 @@ const SignAccountOpScreen = () => {
           />
         ) : null}
         <TabLayoutWrapperMainContent scrollEnabled={false}>
-          <View style={styles.container}>
-            <View style={styles.leftSideContainer}>
-              <Simulation
-                network={network}
-                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
-              />
-              <PendingTransactions network={network} />
-            </View>
-            <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
-            <Estimation
-              signAccountOpState={signAccountOpState}
-              disabled={isSignLoading}
-              hasEstimation={!!hasEstimation}
-              slowRequest={slowRequest}
-              slowPaymasterRequest={slowPaymasterRequest}
-              isViewOnly={isViewOnly}
-              isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
-              sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
+          <PendingTransactions network={network} />
+          <Simulation
+            network={network}
+            isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+          />
+          <Estimation
+            signAccountOpState={signAccountOpState}
+            disabled={isSignLoading}
+            hasEstimation={!!hasEstimation}
+            slowRequest={slowRequest}
+            slowPaymasterRequest={slowPaymasterRequest}
+            isViewOnly={isViewOnly}
+            isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
+            sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
+          />
+
+          {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
+            <SignAccountOpHardwareWalletSigningModal
+              signingKeyType={signingKeyType}
+              feePayerKeyType={feePayerKeyType}
+              broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
+              signAccountOpStatusType={signAccountOpState?.status?.type}
             />
+          )}
 
-            {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
-              <SignAccountOpHardwareWalletSigningModal
-                signingKeyType={signingKeyType}
-                feePayerKeyType={feePayerKeyType}
-                broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
-                signAccountOpStatusType={signAccountOpState?.status?.type}
-              />
-            )}
-
-            {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
-              <LedgerConnectModal
-                isVisible={shouldDisplayLedgerConnectModal}
-                handleClose={handleDismissLedgerConnectModal}
-                displayOptionToAuthorize={false}
-              />
-            )}
-          </View>
+          {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
+            <LedgerConnectModal
+              isVisible={shouldDisplayLedgerConnectModal}
+              handleClose={handleDismissLedgerConnectModal}
+              displayOptionToAuthorize={false}
+            />
+          )}
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>
     </>

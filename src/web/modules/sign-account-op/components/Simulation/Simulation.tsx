@@ -6,7 +6,6 @@ import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAcco
 import { Network } from '@ambire-common/interfaces/network'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
-import NetworkBadge from '@common/components/NetworkBadge'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import Nft from '@common/components/TokenOrNft/components/Nft'
@@ -173,17 +172,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
 
   return (
     <View style={styles.simulationSection}>
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.alignCenter,
-          flexbox.justifySpaceBetween,
-          spacings.mbLg
-        ]}
-      >
-        <SectionHeading withMb={false}>{t('Transaction simulation')}</SectionHeading>
-        <NetworkBadge networkId={network?.id} withOnPrefix />
-      </View>
+      <SectionHeading>{t('Transaction simulation')}</SectionHeading>
       {simulationView === 'changes' && (
         <View style={[flexbox.directionRow, flexbox.flex1]}>
           {(!!pendingSendTokens.length || !!pendingSendCollection.length) && (

@@ -4,19 +4,18 @@ import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { Props as TextProps } from '@common/components/Text/Text'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 const AmountInfoWrapper = ({ children }: { children: React.ReactNode | React.ReactNode[] }) => (
-  <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-    {children}
-  </View>
+  <View style={[flexbox.directionRow, flexbox.alignCenter]}>{children}</View>
 )
 
 const AmountInfoText = ({
   children,
   ...props
 }: TextProps & { children: React.ReactNode | React.ReactNode[] }) => (
-  <Text fontSize={16} weight="medium" {...props}>
+  <Text fontSize={16} weight="medium" style={spacings.mlMi} {...props}>
     {children}
   </Text>
 )

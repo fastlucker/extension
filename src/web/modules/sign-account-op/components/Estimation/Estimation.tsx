@@ -5,8 +5,8 @@ import { Image, View } from 'react-native'
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import {
-  isSmartAccount as getIsSmartAccount,
-  isBasicAccount
+  isBasicAccount,
+  isSmartAccount as getIsSmartAccount
 } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -403,9 +403,9 @@ const Estimation = ({
       {!isSponsored && !isGaslessTransaction && feeSpeeds.length > 0 && (
         <View style={[spacings.mbMd]}>
           <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
-            {t('Transaction speed')}
+            {t('TBD: Transaction speed')}
           </Text>
-          <View
+          {/* <View
             style={[
               flexbox.wrap,
               flexbox.flex1,
@@ -427,8 +427,7 @@ const Estimation = ({
                 isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
               />
             ))}
-            {/* TODO: <CustomFee onPress={() => {}} /> */}
-          </View>
+          </View> */}
           {feeTokenPriceUnavailableWarning && (
             <Alert
               size="sm"
