@@ -99,11 +99,6 @@ const Warnings: FC<Props> = ({
         </View>
       )}
 
-      {!!signAccountOpState?.errors.length && !isViewOnly ? (
-        <View style={spacings.ptTy}>
-          <Alert type="error" title={signAccountOpState?.errors[0]} />
-        </View>
-      ) : null}
       {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
     </View>
   )

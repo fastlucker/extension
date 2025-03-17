@@ -32,6 +32,7 @@ import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-o
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
+import Errors from '../../components/Errors'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
@@ -408,20 +409,26 @@ const SignAccountOpScreen = () => {
         ) : null}
         <TabLayoutWrapperMainContent scrollEnabled={false}>
           <PendingTransactions network={network} />
-          <Simulation
-            network={network}
-            isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
-          />
-          <Estimation
-            signAccountOpState={signAccountOpState}
-            disabled={isSignLoading}
-            hasEstimation={!!hasEstimation}
-            slowRequest={slowRequest}
-            slowPaymasterRequest={slowPaymasterRequest}
-            isViewOnly={isViewOnly}
-            isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
-            sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
-          />
+          {signAccountOpState?.errors && signAccountOpState.errors.length > 0 ? (
+            <Errors isViewOnly={isViewOnly} />
+          ) : (
+            <>
+              <Simulation
+                network={network}
+                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+              />
+              <Estimation
+                signAccountOpState={signAccountOpState}
+                disabled={isSignLoading}
+                hasEstimation={!!hasEstimation}
+                slowRequest={slowRequest}
+                slowPaymasterRequest={slowPaymasterRequest}
+                isViewOnly={isViewOnly}
+                isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
+                sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
+              />
+            </>
+          )}
 
           {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
             <SignAccountOpHardwareWalletSigningModal
