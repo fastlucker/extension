@@ -1,51 +1,31 @@
+// common routes between the mobile app and the extension(web)
 const COMMON_ROUTES = {
+  // TODO: move here the common routes between the mobile app and the extension
+}
+
+const MOBILE_ROUTES = {
+  ...COMMON_ROUTES
+  // TODO: add here mobile only routes
+}
+
+const WEB_ROUTES = {
+  ...COMMON_ROUTES,
   keyStoreUnlock: 'keystore-unlock',
-  resetVault: 'reset-vault',
   getStarted: 'get-started',
-  createVault: 'create-vault',
-  auth: 'auth',
-  ambireAccountLogin: 'ambire-account-email-login',
-  externalSigner: 'external-signer',
   accountAdder: 'account-adder',
   dashboard: 'dashboard',
-  collectible: 'collectible',
   earn: 'earn',
   transfer: 'transfer',
   topUpGasTank: 'top-up-gas-tank',
   signAccountOp: 'sign-account-op',
   transactions: 'transactions',
   signedMessages: 'signed-messages',
-  gasTank: 'gas-tank',
-  pendingTransactions: 'pending-transactions',
-  receive: 'receive',
-  provider: 'provider',
   signMessage: 'sign-message',
-  gasInformation: 'gas-information',
-  signers: 'signers',
   menu: 'menu',
   swap: 'swap',
   noConnection: 'no-connection',
-  backup: 'backup',
   accounts: 'accounts',
-  appCatalog: 'app-catalog'
-}
-
-const MOBILE_ROUTES = {
-  ...COMMON_ROUTES,
-  addReferral: 'add-referral',
-  connect: 'connect',
-  dataDeletionPolicy: 'data-deletion-policy',
-  manageVaultLock: 'manage-vault-lock',
-  onboardingOnFirstLogin: 'onboarding-on-first-login',
-  noConnection: 'no-connection',
-  hardwareWallet: 'hardware-wallet',
-  web3Browser: 'web3-browser',
-  enableOtp2FA: 'enable-otp-2fa',
-  disableOtp2FA: 'disable-otp-2fa'
-}
-
-const WEB_ROUTES = {
-  ...COMMON_ROUTES,
+  appCatalog: 'app-catalog',
   inviteVerify: 'invite-verify',
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',
@@ -91,10 +71,6 @@ const WEB_ROUTES = {
   saveImportedSeed: 'save-imported-seed'
 }
 
-const ROUTES = {
-  ...COMMON_ROUTES,
-  ...MOBILE_ROUTES,
-  ...WEB_ROUTES
-}
+const ROUTES = { ...MOBILE_ROUTES, ...WEB_ROUTES }
 
 export { ROUTES, MOBILE_ROUTES, WEB_ROUTES }

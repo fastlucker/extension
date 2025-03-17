@@ -123,10 +123,6 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           })
           break
 
-        case 'activate-7702':
-          navigate(`${ROUTES.basicToSmartSettingsScreen}?accountAddr=${action.meta.accountAddr}`)
-          break
-
         case 'confirm-temp-seed':
           navigate(ROUTES.saveImportedSeed)
           break
@@ -163,16 +159,6 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
               type: 'info'
             }
           )
-          break
-
-        case 'dismiss-7702-banner':
-          dispatch({
-            type: 'ACCOUNT_DISABLE_7702_BANNER',
-            params: action.meta
-          })
-          addToast('Dismissed! You can make your account smart anytime from Settings.', {
-            type: 'info'
-          })
           break
 
         default:

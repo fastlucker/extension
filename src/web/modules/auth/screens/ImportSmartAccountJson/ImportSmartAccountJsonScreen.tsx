@@ -29,7 +29,6 @@ import {
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import Stepper from '@web/modules/router/components/Stepper'
 
 import getStyles from './styles'
 
@@ -226,11 +225,7 @@ const SmartAccountImportScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="md"
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
       footer={<BackButton fallbackBackRoute={ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>

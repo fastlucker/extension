@@ -3,13 +3,15 @@ import { Platform } from 'react-native'
 import i18n from '@common/config/localization/localization'
 import { ROUTES } from '@common/modules/router/constants/common'
 
-const routesConfig: {
-  [key in keyof typeof ROUTES]: {
-    route: keyof typeof ROUTES
+type RouteConfig = {
+  [K in keyof typeof ROUTES]: {
+    route: string
     title: string
     name: string
   }
-} = {
+}
+
+const routesConfig: RouteConfig = {
   [ROUTES.keyStoreUnlock]: {
     route: ROUTES.keyStoreUnlock,
     title: Platform.select({
@@ -17,17 +19,6 @@ const routesConfig: {
     }),
     name: Platform.select({
       default: i18n.t('Welcome Back')
-    })
-  },
-  [ROUTES.resetVault]: {
-    route: ROUTES.resetVault,
-    title: Platform.select({
-      web: i18n.t('Reset your\nAmbire Key Store Lock'),
-      default: i18n.t('Reset Ambire Key Store')
-    }),
-    name: Platform.select({
-      web: i18n.t('Reset your\nAmbire Key Store Lock'),
-      default: i18n.t('Reset Ambire Key Store')
     })
   },
   [ROUTES.noConnection]: {
@@ -39,12 +30,6 @@ const routesConfig: {
       default: i18n.t('No Connection')
     })
   },
-  [ROUTES.addReferral]: {
-    route: ROUTES.addReferral,
-    // Next screen has title, this makes the transition smoother (no logo jump effect)
-    title: ' ',
-    name: ''
-  },
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
@@ -55,11 +40,6 @@ const routesConfig: {
       default: i18n.t('Welcome to Ambire Wallet'),
       web: i18n.t('Welcome to Ambire Wallet')
     })
-  },
-  [ROUTES.onboardingOnFirstLogin]: {
-    route: ROUTES.onboardingOnFirstLogin,
-    title: '',
-    name: ''
   },
   [ROUTES.authEmailAccount]: {
     route: ROUTES.authEmailAccount,
@@ -104,37 +84,6 @@ const routesConfig: {
     title: i18n.t('Restore Key Store Passphrase'),
     name: i18n.t('Restore Key Store Passphrase')
   },
-  [ROUTES.auth]: {
-    route: ROUTES.auth,
-    title: Platform.select({
-      web: i18n.t('Welcome to\nAmbire Wallet Extension'),
-      default: i18n.t('Welcome to Ambire')
-    }),
-    name: Platform.select({
-      web: i18n.t('Welcome to\nAmbire Wallet Extension'),
-      default: i18n.t('Welcome to Ambire')
-    })
-  },
-  [ROUTES.ambireAccountLogin]: {
-    route: ROUTES.ambireAccountLogin,
-    title: Platform.select({
-      default: i18n.t('Login'),
-      web: 'Login'
-    }),
-    name: Platform.select({
-      default: i18n.t('Login'),
-      web: 'Login'
-    })
-  },
-  [ROUTES.hardwareWallet]: {
-    route: ROUTES.hardwareWallet,
-    title: Platform.select({
-      default: i18n.t('Login with Hardware Wallet')
-    }),
-    name: Platform.select({
-      default: i18n.t('Login with Hardware Wallet')
-    })
-  },
   [ROUTES.hardwareWalletSelect]: {
     route: ROUTES.hardwareWalletSelect,
     title: Platform.select({
@@ -174,10 +123,10 @@ const routesConfig: {
   [ROUTES.viewOnlyAccountAdder]: {
     route: ROUTES.viewOnlyAccountAdder,
     title: Platform.select({
-      default: i18n.t('Add View Only Account')
+      default: i18n.t('Add View-Only Account')
     }),
     name: Platform.select({
-      default: i18n.t('Add View Only Account')
+      default: i18n.t('Add View-Only Account')
     })
   },
   [ROUTES.dashboard]: {
@@ -186,20 +135,6 @@ const routesConfig: {
       default: i18n.t('Dashboard')
     }),
     name: Platform.select({ default: i18n.t('Dashboard') })
-  },
-  [ROUTES.collectible]: {
-    route: ROUTES.collectible,
-    title: Platform.select({
-      default: i18n.t('Collectibles')
-    }),
-    name: Platform.select({ default: i18n.t('Collectibles') })
-  },
-  [ROUTES.earn]: {
-    route: ROUTES.earn,
-    title: Platform.select({
-      default: i18n.t('Earn')
-    }),
-    name: Platform.select({ default: i18n.t('Earn') })
   },
   [ROUTES.signAccountOp]: {
     route: ROUTES.signAccountOp,
@@ -222,54 +157,12 @@ const routesConfig: {
     }),
     name: Platform.select({ default: i18n.t('Transaction History') })
   },
-  [ROUTES.gasTank]: {
-    route: ROUTES.gasTank,
-    title: Platform.select({
-      default: i18n.t('Gas Tank')
-    }),
-    name: Platform.select({ default: i18n.t('Gas Tank') })
-  },
-  [ROUTES.pendingTransactions]: {
-    route: ROUTES.pendingTransactions,
-    title: Platform.select({
-      default: i18n.t('Pending Transactions')
-    }),
-    name: Platform.select({ default: i18n.t('Pending Transactions') })
-  },
-  [ROUTES.receive]: {
-    route: ROUTES.receive,
-    title: Platform.select({
-      default: i18n.t('Receive')
-    }),
-    name: Platform.select({ default: i18n.t('Receive') })
-  },
-  [ROUTES.provider]: {
-    route: ROUTES.provider,
-    title: Platform.select({
-      default: i18n.t('Provider')
-    }),
-    name: Platform.select({ default: i18n.t('Provider') })
-  },
   [ROUTES.signMessage]: {
     route: ROUTES.signMessage,
     title: Platform.select({
       default: i18n.t('Sign Message')
     }),
     name: Platform.select({ default: i18n.t('Sign Message') })
-  },
-  [ROUTES.gasInformation]: {
-    route: ROUTES.gasInformation,
-    title: Platform.select({
-      default: i18n.t('Gas Information')
-    }),
-    name: Platform.select({ default: i18n.t('Gas Information') })
-  },
-  [ROUTES.signers]: {
-    route: ROUTES.signers,
-    title: Platform.select({
-      default: i18n.t('Manage Signers')
-    }),
-    name: Platform.select({ default: i18n.t('Manage Signers') })
   },
   [ROUTES.dappConnectRequest]: {
     route: ROUTES.dappConnectRequest,
@@ -315,15 +208,6 @@ const routesConfig: {
       default: i18n.t('Side Menu')
     })
   },
-  [ROUTES.manageVaultLock]: {
-    route: ROUTES.manageVaultLock,
-    title: Platform.select({
-      default: i18n.t('Manage Key Store Lock')
-    }),
-    name: Platform.select({
-      default: i18n.t('Manage Key Store Lock')
-    })
-  },
   [ROUTES.getEncryptionPublicKeyRequest]: {
     route: ROUTES.getEncryptionPublicKeyRequest,
     title: Platform.select({
@@ -331,24 +215,6 @@ const routesConfig: {
     }),
     name: Platform.select({
       default: i18n.t('Get Encryption Public Key Request')
-    })
-  },
-  [ROUTES.dataDeletionPolicy]: {
-    route: ROUTES.dataDeletionPolicy,
-    title: Platform.select({
-      default: i18n.t('Data Deletion Policy')
-    }),
-    name: Platform.select({
-      default: i18n.t('Data Deletion Policy')
-    })
-  },
-  [ROUTES.connect]: {
-    route: ROUTES.connect,
-    title: Platform.select({
-      default: i18n.t('Connect an app')
-    }),
-    name: Platform.select({
-      default: i18n.t('Connect an app')
     })
   },
   [ROUTES.swap]: {
@@ -360,34 +226,10 @@ const routesConfig: {
       default: i18n.t('Swap')
     })
   },
-  [ROUTES.backup]: {
-    route: ROUTES.backup,
-    title: Platform.select({
-      default: i18n.t('Backup')
-    }),
-    name: Platform.select({
-      default: i18n.t('Backup')
-    })
-  },
-  [ROUTES.web3Browser]: {
-    route: ROUTES.web3Browser,
-    title: '',
-    name: ''
-  },
   [ROUTES.appCatalog]: {
     route: ROUTES.appCatalog,
     title: i18n.t('App Catalog'),
     name: i18n.t('App Catalog')
-  },
-  [ROUTES.enableOtp2FA]: {
-    route: ROUTES.enableOtp2FA,
-    title: i18n.t('Enable 2FA'),
-    name: i18n.t('Enable 2FA')
-  },
-  [ROUTES.disableOtp2FA]: {
-    route: ROUTES.disableOtp2FA,
-    title: i18n.t('Disable 2FA'),
-    name: i18n.t('Disable 2FA')
   },
   [ROUTES.accountSelect]: {
     route: ROUTES.accountSelect,
@@ -596,16 +438,6 @@ const routesConfig: {
     route: ROUTES.networks,
     title: Platform.select({ default: i18n.t('Networks') }),
     name: Platform.select({ default: i18n.t('Networks') })
-  },
-  [ROUTES.createVault]: {
-    route: ROUTES.createVault,
-    title: Platform.select({ default: i18n.t('Create Vault') }),
-    name: Platform.select({ default: i18n.t('Create Vault') })
-  },
-  [ROUTES.externalSigner]: {
-    route: ROUTES.externalSigner,
-    title: Platform.select({ default: i18n.t('External Signer') }),
-    name: Platform.select({ default: i18n.t('External Signer') })
   }
 }
 

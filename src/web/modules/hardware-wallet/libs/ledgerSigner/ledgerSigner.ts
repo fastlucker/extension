@@ -118,23 +118,16 @@ class LedgerSigner implements KeystoreSignerInterface {
     }
   }
 
-  signTypedData: KeystoreSignerInterface['signTypedData'] = async ({
-    domain,
-    types,
-    message,
-    primaryType
-  }) => {
+  signTypedData: KeystoreSignerInterface['signTypedData'] = async (signTypedData) => {
     await this.#prepareForSigning()
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
       const rsvRes = await LedgerController.withDisconnectProtection(() =>
         this.#withNormalizedError(() =>
-          this.controller!.walletSDK!.signEIP712Message(path, {
-            domain,
-            types,
-            message,
-            primaryType
+          this.controller!.signEIP712MessageWithHashFallback({
+            path,
+            signTypedData
           })
         )
       )
