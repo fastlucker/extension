@@ -25,7 +25,6 @@ import { Fetch } from '@ambire-common/interfaces/fetch'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -953,7 +952,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   initPortfolioContinuousUpdate()
   initDefiPositionsContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
-  await clearHumanizerMetaObjectFromStorage(storage)
 })()
 
 try {
