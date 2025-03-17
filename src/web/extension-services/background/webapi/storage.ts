@@ -25,10 +25,10 @@ const formatValue = (value: any, defaultValue?: any) => {
   }
 }
 
-export const get = async (key: string | null, defaultValue?: any) => {
+export const get = async (key?: string, defaultValue?: any) => {
   const res = await browser.storage.local.get(null)
 
-  if (key === null) {
+  if (!key) {
     return Object.fromEntries(Object.entries(res).map(([k, value]) => [k, formatValue(value)]))
   }
 
