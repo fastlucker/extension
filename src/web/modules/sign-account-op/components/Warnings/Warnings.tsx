@@ -61,6 +61,7 @@ const Warnings: FC<Props> = ({
               <Alert
                 key={warning.id}
                 type="warning"
+                size="sm"
                 text={warning.text}
                 title={warning.title}
                 style={!isSingle && !isLast ? spacings.mbSm : {}}
@@ -72,6 +73,7 @@ const Warnings: FC<Props> = ({
         <View style={spacings.ptTy}>
           <Alert
             type="warning"
+            size="sm"
             title={t(
               'Smart account fee options are temporarily unavailable. You can pay fee with a Basic account or try again later'
             )}
@@ -83,6 +85,7 @@ const Warnings: FC<Props> = ({
         <View style={spacings.ptTy}>
           <Alert
             type="warning"
+            size="sm"
             title="Estimating this transaction is taking an unexpectedly long time. We'll keep trying, but it is possible that there's an issue with this network or RPC - please change your RPC provider or contact Ambire support if this issue persists."
           />
         </View>
@@ -92,6 +95,7 @@ const Warnings: FC<Props> = ({
         <View style={spacings.ptTy}>
           <Alert
             type="warning"
+            size="sm"
             title={t(
               'Requesting the paymaster is taking an unexpectedly long time. Waiting for response...'
             )}

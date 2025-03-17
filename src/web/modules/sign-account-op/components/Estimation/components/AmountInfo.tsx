@@ -15,7 +15,7 @@ const AmountInfoText = ({
   children,
   ...props
 }: TextProps & { children: React.ReactNode | React.ReactNode[] }) => (
-  <Text fontSize={16} weight="medium" style={spacings.mlMi} {...props}>
+  <Text fontSize={14} weight="medium" style={spacings.mlMi} {...props}>
     {children}
   </Text>
 )
@@ -24,7 +24,7 @@ const AmountInfoLabel = ({
   children,
   ...props
 }: TextProps & { children: React.ReactNode | React.ReactNode[] }) => (
-  <Text fontSize={16} weight="medium" {...props}>
+  <Text fontSize={14} weight="medium" {...props}>
     {children}:
   </Text>
 )

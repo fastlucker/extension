@@ -350,6 +350,32 @@ const Estimation = ({
 
   return (
     <EstimationWrapper>
+      <Warnings
+        hasEstimation={hasEstimation}
+        slowRequest={slowRequest}
+        slowPaymasterRequest={slowPaymasterRequest}
+        isViewOnly={isViewOnly}
+        rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
+        bundlerFailure={
+          !!signAccountOpState.estimation?.bundlerEstimation?.nonFatalErrors?.find(
+            (err) => err.cause === '4337_ESTIMATION'
+          )
+        }
+      />
+      {!isSponsored &&
+      isSmartAccountAndNotDeployed &&
+      !estimationFailed &&
+      !signAccountOpState.errors.length ? (
+        <Alert
+          type="info"
+          title={t('Note')}
+          size="sm"
+          style={{ ...spacings.mtTy, ...spacings.mb }}
+          text={t(
+            'This is your first transaction on this network, so a one-time Smart Account setup fee will increase the gas cost by around 32%. Future transactions will be cheaper.'
+          )}
+        />
+      ) : null}
       {isSponsored && (
         <View>
           {sponsor && (
@@ -479,31 +505,6 @@ const Estimation = ({
       {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
       {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
       {/* </View> */}
-      <Warnings
-        hasEstimation={hasEstimation}
-        slowRequest={slowRequest}
-        slowPaymasterRequest={slowPaymasterRequest}
-        isViewOnly={isViewOnly}
-        rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
-        bundlerFailure={
-          !!signAccountOpState.estimation?.bundlerEstimation?.nonFatalErrors?.find(
-            (err) => err.cause === '4337_ESTIMATION'
-          )
-        }
-      />
-      {!isSponsored &&
-      isSmartAccountAndNotDeployed &&
-      !estimationFailed &&
-      !signAccountOpState.errors.length ? (
-        <Alert
-          type="info"
-          title={t('Note')}
-          style={spacings.mtTy}
-          text={t(
-            'This is your first transaction on this network, so a one-time Smart Account setup fee will increase the gas cost by around 32%. Future transactions will be cheaper.'
-          )}
-        />
-      ) : null}
     </EstimationWrapper>
   )
 }
