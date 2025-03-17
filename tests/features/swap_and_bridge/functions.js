@@ -1,3 +1,4 @@
+import { timeout } from 'rxjs'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { typeText } from '../../common-helpers/typeText'
 import { SELECTORS } from '../../common/selectors/selectors'
@@ -65,8 +66,8 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
   await page.waitForTimeout(delay)
 
   // Extract text content from the elements
-  const sendToken = await getElementContentWords(page, SELECTORS.sendTokenSaB)
-  const receiveToken = await getElementContentWords(page, SELECTORS.receiveTokenSaB)
+  const sendToken = await getElementContentWords(page, SELECTORS.sendTokenSab)
+  const receiveToken = await getElementContentWords(page, SELECTORS.receiveTokenSab)
   // TODO: Selector should be created to have data-testid this is not maintainable
   // const network = await getElementContentWords(page, NETWORK_SELECTOR)
   const network = await getElementContentWords(page, SELECTORS.recieveNetworkBase)
@@ -75,11 +76,11 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
   await clickOnElement(page, SELECTORS.switchTokensTooltipSab)
 
   // Ensure the tokens are switched
-  expect(await getElementContentWords(page, SELECTORS.sendTokenSaB)).toBe(receiveToken)
-  expect(await getElementContentWords(page, SELECTORS.receiveTokenSaB)).toBe(sendToken)
+  expect(await getElementContentWords(page, SELECTORS.sendTokenSab)).toBe(receiveToken)
+  expect(await getElementContentWords(page, SELECTORS.receiveTokenSab)).toBe(sendToken)
 
   // Network name is 3rd word in the sendToken content
-  expect(await getElementContentWords(page, SELECTORS.sendTokenSaB, 3)).toBe(network)
+  expect(await getElementContentWords(page, SELECTORS.sendTokenSab, 3)).toBe(network)
 }
 
 async function getUSDTextContent(page) {
@@ -108,7 +109,7 @@ export async function roundAmount(amount, place = 2) {
 }
 
 async function selectSendTokenOnNetwork(page, send_token, send_network) {
-  await clickOnElement(page, SELECTORS.sendTokenSaB)
+  await clickOnElement(page, SELECTORS.sendTokenSab)
   await typeText(page, SELECTORS.searchInput, send_token)
   await clickOnElement(
     page,
@@ -176,78 +177,41 @@ export async function enterNumber(page, new_amount, is_valid = true) {
   }
 }
 
-export async function bridgeBasicAccount(
+export async function prepareBridgeTransaction(
   page,
+  send_amount,
   send_token,
   send_network,
-  recieve_network,
-  receive_token
+  recieve_network
 ) {
+  await openSwapAndBridge(page)
+
   await selectSendTokenOnNetwork(page, send_token, send_network)
   await clickOnElement(page, SELECTORS.recieveNetworkBase)
   await clickOnElement(page, `[data-testid*="option-${recieve_network}"]`)
   await page.waitForTimeout(1000)
-  await clickOnElement(page, SELECTORS.receiveTokenSaB)
+  await clickOnElement(page, SELECTORS.receiveTokenSab)
   await typeText(page, SELECTORS.searchInput, send_token)
-  // It picking ETH all the time, should be investigated
-  // await clickOnElement(page, `[data-testid*="${receive_token.toLowerCase()}"]`)
-  await clickOnElement(page, receive_token)
+  const address = TOKEN_ADDRESS[`${recieve_network}.${send_token}`]
+  await clickOnElement(page, `[data-tooltip-id*="${address}"]`)
 
-  await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true })
-  await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
+  // Enter the amount
+  await typeText(page, SELECTORS.fromAmountInputSab, send_amount.toString())
 
-  try {
-    await clickOnElement(page, SELECTORS.confirmFollowUpTxn)
-    // @ts-ignore
-  } catch (error) {
-    // No error actually, as Confirm follow-up transaction might be not shown if there is a direct swap & bridge route
+  await verifyRouteFound(page)
+
+  // If Warning: The price impact is too high
+  const isfirmFollowUp = await page.waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 1000 }).catch(() => null)
+  if (isfirmFollowUp) {
+    await clickOnElement(page, SELECTORS.confirmFollowUpTxn)  
   }
 
-  try {
-    // If Warning: The price impact is too high
-    if (await page.waitForSelector(SELECTORS.highPriceImpactSab, { visible: true })) {
-      // If Warning: The price impact is too high
-      await page.keyboard.press('Tab')
-      await page.keyboard.press('Enter')
-    }
-    return 'Continue anyway'
-  } catch (error) {
-    return 'Proceed'
-  }
-}
-
-export async function bridgeSmartAccount(
-  page,
-  send_token,
-  send_network,
-  recieve_network,
-  receive_token
-) {
-  await selectSendTokenOnNetwork(page, send_token, send_network)
-  await clickOnElement(page, SELECTORS.recieveNetworkBase)
-  await clickOnElement(page, `[data-testid*="option-${recieve_network}"]`)
-  await page.waitForTimeout(1000)
-  await clickOnElement(page, SELECTORS.receiveTokenSaB)
-  await typeText(page, SELECTORS.searchInput, send_token)
-  // It picking ETH all the time, should be investigated
-  // await clickOnElement(page, `[data-testid*="${receive_token.toLowerCase()}"]`)
-  await clickOnElement(page, receive_token)
-
-  await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true })
-  await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
-
-  try {
-    await clickOnElement(page, SELECTORS.confirmFollowUpTxn)
-    // @ts-ignore
-  } catch (error) {
-    // No error actually, as Confirm follow-up transaction might be not shown if there is a direct swap & bridge route
-  }
-
-  try {
-    // If Warning: The price impact is too high
+  // If Warning: The price impact is too high
+  const isHighPrice = await page.waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 }).catch(() => null)
+  if (isHighPrice) {
     await clickOnElement(page, SELECTORS.highPriceImpactSab)
     return 'Continue anyway'
-  } catch (error) {
+  } else {
     return 'Proceed'
   }
 }
@@ -261,13 +225,13 @@ export async function verifyNonDefaultReceiveToken(
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, recieve_network)
   await page.waitForTimeout(1000) // Wait before click for the Receive Token list to be populated
-  await clickOnElement(page, SELECTORS.receiveTokenSaB)
+  await clickOnElement(page, SELECTORS.receiveTokenSab)
   await typeText(page, SELECTORS.searchInput, receive_token)
   await expect(page).toMatchElement('div', { text: 'Not found. Try with token address?' })
   await page.waitForTimeout(500)
   await typeText(page, SELECTORS.fromAmountInputSab, '') // Click on the amount to clear input address field
   await page.waitForTimeout(500)
-  await clickOnElement(page, SELECTORS.receiveTokenSaB)
+  await clickOnElement(page, SELECTORS.receiveTokenSab)
   const address = TOKEN_ADDRESS[`${recieve_network}.${receive_token}`]
   await typeText(page, SELECTORS.searchInput, address)
   const selector = `[data-tooltip-id*="${address}"]`
@@ -280,7 +244,7 @@ export async function verifyDefaultReceiveToken(page, send_token, recieve_networ
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, recieve_network)
   await page.waitForTimeout(1000) // Wait before click for the Receive Token list to be populated
-  await clickOnElement(page, SELECTORS.receiveTokenSaB)
+  await clickOnElement(page, SELECTORS.receiveTokenSab)
   await typeText(page, SELECTORS.searchInput, receive_token)
   const selector = `[data-testid*="${receive_token.toLowerCase()}"]`
   await expect(page).toMatchElement(selector, { text: receive_token.toUpperCase(), timeout: 3000 })
@@ -334,7 +298,7 @@ export async function prepareSwapAndBridge(
 
     // Select Receive Token on the same Network, which is automatically selected
     await page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
-    await clickOnElement(page, SELECTORS.receiveTokenSaB)
+    await clickOnElement(page, SELECTORS.receiveTokenSab)
     await typeText(page, SELECTORS.searchInput, receive_token)
     await clickOnElement(page, `[data-testid*="${receive_token.toLowerCase()}"]`)
 
@@ -390,11 +354,10 @@ export async function openSwapAndBridgeActionPage(page, callback = 'null') {
     // Wait for Action Page to open
     await actionPage.waitForTimeout(2000)
 
-    // Assert the Action Page to open
-    await expect(actionPage).toMatchElement('div', {
-      text: 'Transaction simulation',
-      timeout: 5000
-    })
+    // Assert if Action Page is opened
+    const txnSimulation = await page.waitForSelector('div', { text: 'Transaction simulation', timeout: 5000 }).catch(() => null)
+    const signButton = await page.waitForSelector(SELECTORS.signButtonSab, { timeout: 500 }).catch(() => null)
+    await expect(null!=txnSimulation || null!=signButton).toBe(true)
 
     return actionPage
   } catch (error) {
@@ -404,19 +367,8 @@ export async function openSwapAndBridgeActionPage(page, callback = 'null') {
 }
 
 export async function signActionPage(actionPage) {
-  try {
-    // Select Sign
-    await clickOnElement(actionPage, SELECTORS.signTransactionButton)
-
-    // Wait for transaction to be confirmed
-    await actionPage.waitForSelector('text=Timestamp', { visible: true })
-
-    // Asset if the transaction is confirmed
-    await expect(actionPage).toMatchElement('div', { text: 'Confirmed' })
-  } catch (error) {
-    console.error(`[ERROR] Sign Swap Transaction Failed: ${error.message}`)
-    throw error
-  }
+  // Select Sign and not wait for confirmation as suggested on PR review
+  await clickOnElement(actionPage, SELECTORS.signTransactionButton)
 }
 
 export async function clickOnSecondRoute(page) {

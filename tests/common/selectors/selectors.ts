@@ -104,14 +104,15 @@ export const TEST_IDS = {
   maxAvailableAmount: 'max-available-amount',
   searchInput: 'search-input',
   // Swap & Bridge selectors
-  sendTokenSaB: 'from-token-select',
-  receiveTokenSaB: 'to-token-select',
+  sendTokenSab: 'from-token-select',
+  receiveTokenSab: 'to-token-select',
   routeLoadingTextSab: 'route-loading-text-sab',
   fromAmountInputSab: 'from-amount-input-sab',
   switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
-  highPriceImpactSab: 'high-price-impact-sab'
+  highPriceImpactSab: 'high-price-impact-sab',
+  signButtonSab: 'button-sign'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
