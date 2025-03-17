@@ -74,7 +74,8 @@ describe('Monitor network requests and make sure only necessary requests are mad
       rpcRequests,
       nativeTokenPriceRequests,
       batchedErc20TokenPriceRequests,
-      uncategorizedRequests
+      uncategorizedRequests,
+      externalServiceRequests
     } = getBackgroundRequestsByType(httpRequests)
 
     const nonBaseAndEthereumRpcRequests = rpcRequests.filter(
@@ -88,6 +89,8 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(nativeTokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(batchedErc20TokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(uncategorizedRequests.length).toBe(0)
+    // We are using pimlico to get the gas price
+    expect(externalServiceRequests.length).toBe(1)
   })
 
   // TODO: Uniswap changes their UI frequently, which breaks this test quite often.
