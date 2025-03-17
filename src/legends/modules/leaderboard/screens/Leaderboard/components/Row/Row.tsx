@@ -37,11 +37,19 @@ const getBadge = (rank: number) => {
   }
 }
 
+function prettifyWeight(weight: number) {
+  if (weight > 1_000) return `${(weight / 1_000).toFixed(2)}K`
+  if (weight > 1_000_000) return `${(weight / 1_000_000).toFixed(2)}M`
+  if (weight > 1_000_000_000) return `${(weight / 1_000_000_000).toFixed(2)}B`
+  return Math.floor(weight)
+}
+
 const Row: FC<Props> = ({
   account,
   image_avatar,
   rank,
   xp,
+  weight,
   level,
   stickyPosition,
   currentUserRef
@@ -58,8 +66,8 @@ const Row: FC<Props> = ({
       ref={isConnectedAccountRow ? currentUserRef : null}
       style={calculateRowStyle(isConnectedAccountRow, stickyPosition)}
     >
-      <div className={styles.rankWrapper}>{rank > 3 ? rank : getBadge(rank)}</div>
       <div className={styles.cell}>
+        <div className={styles.rankWrapper}>{rank > 3 ? rank : getBadge(rank)}</div>
         <img src={image_avatar} alt="avatar" className={styles.avatar} />
         {isConnectedAccountRow ? (
           <>
@@ -82,6 +90,7 @@ const Row: FC<Props> = ({
         )}
       </div>
       <h5 className={styles.cell}>{level}</h5>
+      <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(weight)}</h5>
       <h5 className={styles.cell}>{xp}</h5>
     </div>
   )

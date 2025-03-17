@@ -1,9 +1,8 @@
 import React from 'react'
 import { ITooltip, Tooltip as ReactTooltip } from 'react-tooltip'
 
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useTheme from '@common/hooks/useTheme'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { Portal } from '@gorhom/portal'
 
 type Props = ITooltip & { tooltipRef?: any; withPortal?: boolean }
@@ -20,7 +19,6 @@ const TooltipInner = ({ tooltipRef, style, ...rest }: Props) => {
       style={{
         maxWidth: 380,
         fontSize: 14,
-        fontFamily: FONT_FAMILIES.REGULAR,
         backgroundColor: theme.tertiaryBackground as any,
         color: theme.secondaryText as any,
         borderRadius: BORDER_RADIUS_PRIMARY,
