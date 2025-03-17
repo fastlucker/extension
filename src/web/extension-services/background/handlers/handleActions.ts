@@ -141,9 +141,6 @@ export const handleActions = async (
 
       return await mainCtrl.accountAdder.setPage({ page: 1 })
     }
-    case 'MAIN_CONTROLLER_TRACE_CALL': {
-      return await mainCtrl.traceCall(params.estimation)
-    }
     case 'MAIN_CONTROLLER_ADD_NETWORK': {
       return await mainCtrl.addNetwork(params)
     }
@@ -299,12 +296,10 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
       return mainCtrl.resolveUserRequest(params.data, params.id)
     case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-      return mainCtrl.rejectUserRequest(params.err, params.id, params.opts)
+      return mainCtrl.rejectUserRequest(params.err, params.id)
     case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
       return mainCtrl.rejectSignAccountOpCall(params.callId)
     }
-    case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
-      return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
     case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
       return mainCtrl.rejectAccountOpAction(
         params.err,
@@ -528,9 +523,6 @@ export const handleActions = async (
       return await mainCtrl.domains.reverseLookup(params.address)
     case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
       return mainCtrl.domains.saveResolvedReverseLookup(params)
-    case 'SET_IS_DEFAULT_WALLET': {
-      return await walletStateCtrl.setDefaultWallet(params.isDefaultWallet)
-    }
     case 'SET_ONBOARDING_STATE': {
       walletStateCtrl.onboardingState = params
       break
@@ -563,13 +555,13 @@ export const handleActions = async (
     }
 
     case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
-      mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
+      await mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       mainCtrl.dapps.updateDapp(params, { isConnected: false })
       break
     }
     case 'CHANGE_CURRENT_DAPP_NETWORK': {
       mainCtrl.dapps.updateDapp(params.origin, { chainId: params.chainId })
-      mainCtrl.dapps.broadcastDappSessionEvent(
+      await mainCtrl.dapps.broadcastDappSessionEvent(
         'chainChanged',
         {
           chain: `0x${params.chainId.toString(16)}`,
@@ -586,7 +578,7 @@ export const handleActions = async (
       return mainCtrl.dapps.updateDapp(params.url, params.dapp)
     }
     case 'DAPP_CONTROLLER_REMOVE_DAPP': {
-      mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
+      await mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       return mainCtrl.dapps.removeDapp(params)
     }
     case 'PHISHING_CONTROLLER_GET_IS_BLACKLISTED_AND_SEND_TO_UI': {
@@ -595,11 +587,6 @@ export const handleActions = async (
     case 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE': {
       extensionUpdateCtrl.applyUpdate()
       break
-    }
-    case 'ACCOUNT_DISABLE_7702_BANNER': {
-      return mainCtrl.updateDisable7702Reminders(params.accountAddr, {
-        disable7702Banner: true
-      })
     }
 
     default:

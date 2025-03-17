@@ -11,11 +11,13 @@ import NetworkComponent from './Network'
 const Networks = ({
   openSettingsBottomSheet,
   openBlockExplorer,
-  search
+  search,
+  onPress
 }: {
   openSettingsBottomSheet: (networkId: NetworkId) => void
   openBlockExplorer: (url?: string) => void
   search: string
+  onPress: (networkId: NetworkId) => void
 }) => {
   const { networks } = useNetworksControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
@@ -62,6 +64,7 @@ const Networks = ({
             networkId={networkId}
             openBlockExplorer={openBlockExplorer}
             openSettingsBottomSheet={openSettingsBottomSheet}
+            onPress={onPress}
           />
         ))}
     </View>

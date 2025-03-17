@@ -5,7 +5,6 @@ import { useModalize } from 'react-native-modalize'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { isBasicAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
@@ -20,7 +19,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -42,7 +40,6 @@ const SignAccountOpScreen = () => {
   const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
-  const { accountStates } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
@@ -91,6 +88,10 @@ const SignAccountOpScreen = () => {
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
+    if (signAccountOpState?.estimationRetryError) {
+      setSlowRequest(false)
+      return
+    }
     const timeout = setTimeout(() => {
       // set the request to slow if the state is not init (no estimation)
       // or the gas prices haven't been fetched
@@ -107,7 +108,11 @@ const SignAccountOpScreen = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
+  }, [
+    signAccountOpState?.isInitialized,
+    signAccountOpState?.gasPrices,
+    signAccountOpState?.estimationRetryError
+  ])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -373,14 +378,7 @@ const SignAccountOpScreen = () => {
           <Footer
             onReject={handleRejectAccountOp}
             onAddToCart={handleAddToCart}
-            isAddToCartDisplayed={
-              !!signAccountOpState &&
-              !!network &&
-              !isBasicAccount(
-                signAccountOpState.account,
-                accountStates[signAccountOpState.account.addr][network.id]
-              )
-            }
+            isAddToCartDisplayed={!!signAccountOpState && !!network}
             isSignLoading={isSignLoading}
             isSignDisabled={
               isViewOnly ||

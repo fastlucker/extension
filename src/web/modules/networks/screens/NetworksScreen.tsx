@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -21,7 +21,11 @@ import {
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Networks from '@web/modules/networks/components/Networks'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
+import { useSearchParams } from 'react-router-dom'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import AddNetworkBottomSheet from '../components/AddNetworkBottomSheet'
 import AllNetworksOption from '../components/AllNetworksOption/AllNetworksOption'
 import NetworkBottomSheet, {
@@ -31,9 +35,14 @@ import NetworkBottomSheet, {
 const NetworksScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
+  const { dispatch } = useBackgroundService()
+  const { navigate } = useNavigation()
   const { theme } = useTheme()
-  const { account } = useSelectedAccountControllerState()
+  const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const [settingsNetworkId, setSettingsNetworkId] = useState<Network['id'] | null>(null)
+  const [searchParams] = useSearchParams()
+  const [changedNetwork, setChangedNetwork] = useState<undefined | null | Network['id']>(undefined)
+
   const {
     ref: settingsBottomSheetRef,
     open: openSettingsBottomSheet,
@@ -45,6 +54,31 @@ const NetworksScreen = () => {
     close: closeAddNetworkBottomSheet
   } = useModalize()
   const [search, setSearch] = useState('')
+
+  // Navigate back to the dashboard only if `dashboardNetworkFilter` is already set in SelectedAccountControllerState.
+  // Otherwise, a race condition occurs, and we navigate to the dashboard faster than `dashboardNetworkFilter` is set,
+  // causing the dashboard to display data for the previous `dashboardNetworkFilter` for a brief moment.
+  useEffect(() => {
+    if (changedNetwork === dashboardNetworkFilter) {
+      const prevSearchParams = searchParams.get('prevSearchParams')
+      const url = prevSearchParams
+        ? `${WEB_ROUTES.dashboard}?${decodeURIComponent(prevSearchParams)}`
+        : WEB_ROUTES.dashboard
+
+      navigate(url)
+    }
+  }, [changedNetwork, dashboardNetworkFilter, searchParams, navigate])
+
+  const handleChangeNetwork = useCallback(
+    (networkId: string | null) => {
+      dispatch({
+        type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER',
+        params: { dashboardNetworkFilter: networkId }
+      })
+      setChangedNetwork(networkId)
+    },
+    [dispatch, setChangedNetwork]
+  )
 
   const handleOpenSettingsBottomSheet = useCallback(
     (networkId: string) => {
@@ -109,11 +143,12 @@ const NetworksScreen = () => {
             onChangeText={setSearch}
             placeholder={t('Search for network')}
           />
-          <AllNetworksOption />
+          <AllNetworksOption onPress={handleChangeNetwork} />
           <Networks
             search={search}
             openBlockExplorer={openBlockExplorer}
             openSettingsBottomSheet={handleOpenSettingsBottomSheet}
+            onPress={handleChangeNetwork}
           />
         </TabLayoutWrapperMainContent>
         <View style={[spacings.ptSm, { width: '100%' }]}>

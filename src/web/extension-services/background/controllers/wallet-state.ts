@@ -3,16 +3,8 @@ import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
-import {
-  handleRegisterScripts,
-  handleUnregisterAmbireInpageScript,
-  handleUnregisterEthereumInpageScript
-} from '../handlers/handleScripting'
-
 export class WalletStateController extends EventEmitter {
   isReady: boolean = false
-
-  #_isDefaultWallet: boolean = true
 
   #_onboardingState?: { version: string; viewedAt: number } = undefined
 
@@ -21,34 +13,6 @@ export class WalletStateController extends EventEmitter {
   #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
 
   #isSetupComplete: boolean = true
-
-  get isDefaultWallet() {
-    return this.#_isDefaultWallet
-  }
-
-  async setDefaultWallet(newValue: boolean) {
-    this.#_isDefaultWallet = newValue
-    storage.set('isDefaultWallet', newValue)
-    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
-    const extensionUrl = chrome.runtime.getURL('')
-
-    // If the url of the current tab is the url of the extension, skip the reload
-    // Perhaps we should also skip the injection of the scripts
-    const skipReload = tab?.url?.startsWith(extensionUrl)
-
-    if (newValue) {
-      // if Ambire is the default wallet inject and reload the current tab
-      await handleUnregisterAmbireInpageScript()
-      await handleUnregisterEthereumInpageScript()
-      await handleRegisterScripts()
-      if (!skipReload && tab?.id) await this.#reloadPageOnSwitchDefaultWallet(tab.id)
-    } else {
-      await handleUnregisterEthereumInpageScript()
-      if (!skipReload && tab?.id) await this.#reloadPageOnSwitchDefaultWallet(tab.id)
-    }
-
-    this.emitUpdate()
-  }
 
   get onboardingState() {
     return this.#_onboardingState
@@ -92,20 +56,12 @@ export class WalletStateController extends EventEmitter {
   }
 
   async #init(): Promise<void> {
-    // @ts-ignore
-    const isDefault = await storage.get('isDefaultWallet', undefined)
+    // We no longer need to check for isDefaultWallet, but we need to remove it from storage if it is set in storage
+    const isDefaultWalletStorageSet = await storage.get('isDefaultWallet', undefined)
 
-    // Initialize isDefaultWallet in storage if needed
-    if (isDefault === undefined) {
-      await storage.set('isDefaultWallet', true)
-    } else {
-      this.#_isDefaultWallet = isDefault
-
-      if (!isDefault) {
-        // injecting is registered first thing in the background
-        // but if Ambire is not the default wallet the injection should be removed
-        handleUnregisterEthereumInpageScript()
-      }
+    // If isDefaultWallet is set, remove the key from storage
+    if (isDefaultWalletStorageSet !== undefined) {
+      await storage.remove('isDefaultWallet')
     }
 
     this.#_onboardingState = await storage.get('onboardingState', undefined)
@@ -117,19 +73,6 @@ export class WalletStateController extends EventEmitter {
 
     this.isReady = true
     this.emitUpdate()
-  }
-
-  async #reloadPageOnSwitchDefaultWallet(tabId: number) {
-    try {
-      await chrome.scripting.executeScript({
-        target: { tabId },
-        func: () => {
-          window.location.reload()
-        }
-      })
-    } catch (error) {
-      // Silent fail
-    }
   }
 
   async #initCheckIsPinned() {
@@ -148,7 +91,6 @@ export class WalletStateController extends EventEmitter {
     return {
       ...this,
       ...super.toJSON(),
-      isDefaultWallet: this.isDefaultWallet,
       onboardingState: this.onboardingState,
       isPinned: this.isPinned,
       isSetupComplete: this.isSetupComplete

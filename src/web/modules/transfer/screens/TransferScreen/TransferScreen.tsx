@@ -137,7 +137,7 @@ const TransferScreen = () => {
   const submitButtonText = useMemo(() => {
     if (isOffline) return t("You're offline")
 
-    if (hasFocusedActionWindow || !isSmartAccount) return isTopUp ? t('Top Up') : t('Send')
+    if (hasFocusedActionWindow) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
 
@@ -160,7 +160,6 @@ const TransferScreen = () => {
     addressInputState.validation.isError,
     isFormValid,
     isFormEmpty,
-    isSmartAccount,
     hasFocusedActionWindow,
     t
   ])
@@ -173,8 +172,6 @@ const TransferScreen = () => {
   const isSendButtonDisabled = useMemo(() => {
     if (isOffline) return true
 
-    if (!isSmartAccount) return !isTransferFormValid
-
     if (transactionUserRequests.length && !hasFocusedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
@@ -183,7 +180,6 @@ const TransferScreen = () => {
     isFormEmpty,
     isTransferFormValid,
     isOffline,
-    isSmartAccount,
     transactionUserRequests.length,
     hasFocusedActionWindow
   ])
@@ -291,32 +287,30 @@ const TransferScreen = () => {
           <View
             style={[flexbox.directionRow, !isSmartAccount && flexbox.flex1, flexbox.justifyEnd]}
           >
-            {!!isSmartAccount && (
-              <Button
-                testID="transfer-queue-and-add-more-button"
-                type="outline"
-                accentColor={theme.primary}
-                text={t('Queue and Add More')}
-                onPress={() => addTransaction('queue')}
-                disabled={
-                  !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
-                }
-                hasBottomSpacing={false}
-                style={spacings.mr}
-                size="large"
-              >
-                <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
-                  <CartIcon color={theme.primary} />
-                  {!!transactionUserRequests.length && !hasFocusedActionWindow && (
-                    <Text
-                      fontSize={16}
-                      weight="medium"
-                      color={theme.primary}
-                    >{` (${transactionUserRequests.length})`}</Text>
-                  )}
-                </View>
-              </Button>
-            )}
+            <Button
+              testID="transfer-queue-and-add-more-button"
+              type="outline"
+              accentColor={theme.primary}
+              text={t('Queue and Add More')}
+              onPress={() => addTransaction('queue')}
+              disabled={
+                !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
+              }
+              hasBottomSpacing={false}
+              style={spacings.mr}
+              size="large"
+            >
+              <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
+                <CartIcon color={theme.primary} />
+                {!!transactionUserRequests.length && !hasFocusedActionWindow && (
+                  <Text
+                    fontSize={16}
+                    weight="medium"
+                    color={theme.primary}
+                  >{` (${transactionUserRequests.length})`}</Text>
+                )}
+              </View>
+            </Button>
             <Button
               testID="transfer-button-confirm"
               type="primary"
