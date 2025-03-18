@@ -431,7 +431,7 @@ type DomainsControllerSaveResolvedReverseLookupAction = {
   params: {
     address: string
     name: string
-    type: 'ens' | 'ud'
+    type: 'ens'
   }
 }
 

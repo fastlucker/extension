@@ -36,8 +36,7 @@ const AddContactForm = () => {
       addressState: {
         fieldValue: '',
         isDomainResolving: false,
-        ensAddress: '',
-        udAddress: ''
+        ensAddress: ''
       }
     }
   })
@@ -64,7 +63,7 @@ const AddContactForm = () => {
   }, [trigger])
 
   const customValidation = useMemo(() => {
-    const address = addressState.ensAddress || addressState.udAddress || addressState.fieldValue
+    const address = addressState.ensAddress || addressState.fieldValue
 
     if (accounts.some((account) => account.addr.toLowerCase() === address.toLowerCase())) {
       return t('This address is already in your account list')
@@ -75,17 +74,10 @@ const AddContactForm = () => {
     }
 
     return ''
-  }, [
-    accounts,
-    addressState.ensAddress,
-    addressState.fieldValue,
-    addressState.udAddress,
-    contacts,
-    t
-  ])
+  }, [accounts, addressState.ensAddress, addressState.fieldValue, contacts, t])
 
   const handleCacheResolvedDomain = useCallback(
-    (address: string, domain: string, type: 'ens' | 'ud') => {
+    (address: string, domain: string, type: 'ens') => {
       dispatch({
         type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
         params: {
@@ -114,7 +106,7 @@ const AddContactForm = () => {
       type: 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT',
       params: {
         name,
-        address: addressState.ensAddress || addressState.udAddress || addressState.fieldValue
+        address: addressState.ensAddress || addressState.fieldValue
       }
     })
 
@@ -157,7 +149,6 @@ const AddContactForm = () => {
             onChangeText={onChange}
             onBlur={onBlur}
             validation={validation}
-            udAddress={addressState.udAddress}
             ensAddress={addressState.ensAddress}
             value={addressState.fieldValue}
             isRecipientDomainResolving={addressState.isDomainResolving}

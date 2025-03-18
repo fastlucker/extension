@@ -81,7 +81,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
       (request) => !request.includes('base') && !request.includes('ethereum')
     )
 
-    // Expect more rpc requests because of ENS/UD resolution
+    // Expect more rpc requests because of ENS resolution
     // @TODO: check if we can reduce the number of requests
     expect(rpcRequests.length).toBeLessThanOrEqual(10)
     expect(nonBaseAndEthereumRpcRequests.length).toBe(0)

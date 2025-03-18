@@ -28,7 +28,6 @@ import styles from './styles'
 interface Props extends InputProps {
   setAddress: (text: string) => void
   address: string
-  uDAddress: string
   ensAddress: string
   addressValidationMsg: string
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
@@ -50,7 +49,6 @@ const ADDRESS_BOOK_VISIBLE_VALIDATION = {
 const Recipient: React.FC<Props> = ({
   setAddress,
   address,
-  uDAddress,
   ensAddress,
   addressValidationMsg,
   isRecipientAddressUnknownAgreed,
@@ -65,7 +63,7 @@ const Recipient: React.FC<Props> = ({
   selectedTokenSymbol
 }) => {
   const { account } = useSelectedAccountControllerState()
-  const actualAddress = ensAddress || uDAddress || address
+  const actualAddress = ensAddress || address
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -104,10 +102,8 @@ const Recipient: React.FC<Props> = ({
   })
 
   const setAddressAndCloseAddressBook = (newAddress: string) => {
-    const correspondingDomain = domains[newAddress]?.ens || domains[newAddress]?.ud
-
     setIsAddressBookVisible(false)
-    setAddress(correspondingDomain || newAddress)
+    setAddress(domains[newAddress]?.ens || newAddress)
   }
 
   const visualizeAddressBookDropdown = () => {
@@ -117,10 +113,9 @@ const Recipient: React.FC<Props> = ({
   const selectSingleContactResult = () => {
     if (!isAddressBookVisible || filteredContacts.length !== 1) return
 
-    const correspondingDomain =
-      domains[filteredContacts[0].address]?.ens || domains[filteredContacts[0].address]?.ud
-
-    setAddressAndCloseAddressBook(correspondingDomain || filteredContacts[0].address)
+    setAddressAndCloseAddressBook(
+      domains[filteredContacts[0].address]?.ens || filteredContacts[0].address
+    )
   }
 
   return (
@@ -128,7 +123,6 @@ const Recipient: React.FC<Props> = ({
       <AddressInput
         validation={isAddressBookVisible ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
         containerStyle={styles.inputContainer}
-        udAddress={uDAddress}
         ensAddress={ensAddress}
         isRecipientDomainResolving={isRecipientDomainResolving}
         label="Add Recipient"
@@ -194,7 +188,7 @@ const Recipient: React.FC<Props> = ({
       </View>
       <AddContactBottomSheet
         sheetRef={sheetRef}
-        address={ensAddress || uDAddress || address}
+        address={ensAddress || address}
         closeBottomSheet={closeBottomSheet}
       />
     </>

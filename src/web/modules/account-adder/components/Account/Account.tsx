@@ -57,8 +57,8 @@ const Account = ({
   importStatus: ImportStatus
   displayTypeBadge?: boolean
 }) => {
-  const { isLoading: isDomainResolving, ens, ud } = useReverseLookup({ address: account.addr })
-  const domainName = ens || ud
+  const { isLoading: isDomainResolving, ens } = useReverseLookup({ address: account.addr })
+  const domainName = ens
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { setShowIntroSteps } = useContext(AccountAdderIntroStepsContext)
