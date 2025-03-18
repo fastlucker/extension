@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
+import { hasBecomeSmarter } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
@@ -27,6 +28,7 @@ import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -34,8 +36,6 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getTokenId } from '@web/utils/token'
 
-import { hasBecomeSmarter } from '@ambire-common/libs/account/account'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
@@ -312,7 +312,7 @@ const TokenDetails = ({
                 <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
-            {!onGasTank && !isRewards && !isVesting && !token.flags.isDefiToken && (
+            {!onGasTank && !isRewards && !isVesting && !token.flags.defiTokenType && (
               <View style={[flexbox.alignSelfEnd]}>
                 <Pressable
                   style={[flexbox.directionRow, flexbox.alignCenter]}
