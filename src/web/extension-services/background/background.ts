@@ -207,6 +207,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
     accountStatePendingInterval?: ReturnType<typeof setTimeout>
     selectedAccountStateInterval?: number
+    networksLastUpdatedByIntervalAt: number
+    updateNetworksInterval?: ReturnType<typeof setTimeout>
   } = {
     /**
       ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
@@ -222,7 +224,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     activityRefreshInterval: ACTIVITY_REFRESH_INTERVAL,
     hasSignAccountOpCtrlInitialized: false,
     swapAndBridgeQuoteStatus: 'INITIAL',
-    portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
+    portfolioLastUpdatedByIntervalAt: Date.now(), // Because the first update is immediate
+    networksLastUpdatedByIntervalAt: Date.now()
   }
 
   const pm = new PortMessenger()
@@ -321,6 +324,36 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     mainCtrl.keystore.lock()
   })
   const extensionUpdateCtrl = new ExtensionUpdateController()
+
+  /**
+   * Schedules periodic network synchronization.
+   *
+   * This function ensures that the `synchronizeNetworks` method runs every 8 hours
+   * to periodically refetch networks in case there are updates,
+   * since the extension relies on the config from relayer.
+   *
+   * Networks are also updated on NetworksController load and background process refresh,
+   * but this ensures they stay refreshed.
+   * Because of this, tt does **not** execute immediately at startup, only after the first interval.
+   */
+  function scheduleNetworkSync() {
+    if (backgroundState.updateNetworksInterval) {
+      clearTimeout(backgroundState.updateNetworksInterval)
+    }
+
+    backgroundState.updateNetworksInterval = setTimeout(async () => {
+      try {
+        await mainCtrl.networks.synchronizeNetworks()
+        backgroundState.networksLastUpdatedByIntervalAt = Date.now()
+      } catch (error) {
+        console.error('Failed to synchronize networks:', error)
+      }
+
+      scheduleNetworkSync()
+    }, 8 * 60 * 60 * 1000)
+  }
+
+  scheduleNetworkSync()
 
   async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
