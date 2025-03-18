@@ -86,7 +86,7 @@ const Tokens = ({
   const tokens = useMemo(
     () =>
       (portfolio?.tokens || [])
-        .filter((token) => !token.flags.onGasTank) // Hide gas tank tokens from the list
+        .filter((token) => !token.flags.onGasTank && !token.flags.isDefiToken) // Hide gas tank and defi tokens from the list
         .filter((token) => {
           if (!dashboardNetworkFilter) return true
           if (dashboardNetworkFilter === 'rewards') return token.flags.rewardsType
