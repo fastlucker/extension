@@ -210,12 +210,13 @@ const SendForm = ({
       return
     const networkData = networks.find((network) => network.id === selectedToken?.networkId)
 
-    if (!networkData) return
-
-    if (isSmartAccount || !account || !selectedToken?.networkId) return
+    if (!networkData || isSmartAccount || !account || !selectedToken?.networkId) return
 
     const rpcUrl = networkData.selectedRpcUrl
     const provider = new JsonRpcProvider(rpcUrl)
+    const nonce = accountStates?.[account.addr]?.[selectedToken.networkId]?.nonce
+
+    if (typeof nonce !== 'bigint') return
 
     setIsEstimationLoading(true)
 
@@ -228,7 +229,7 @@ const SendForm = ({
           networkId: selectedToken.networkId,
           signingKeyAddr: null,
           signingKeyType: null,
-          nonce: accountStates[account.addr][selectedToken.networkId].nonce,
+          nonce,
           calls: [
             {
               to: ZeroAddress,
