@@ -145,7 +145,7 @@ const AddContactForm = () => {
         }}
         render={({ field: { onChange, onBlur } }) => (
           <AddressInput
-            label={t('Address / ENS / Unstoppable domains')}
+            label={t('Address / ENS')}
             onChangeText={onChange}
             onBlur={onBlur}
             validation={validation}
