@@ -6,7 +6,6 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View, ViewStyle } from 'react-native'
 
-import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
 import { isValidURL } from '@ambire-common/services/validations'
@@ -506,7 +505,11 @@ const NetworkForm = ({
 
   const handleRemoveRpcUrl = useCallback(
     (url: string) => {
-      if (isPredefinedNetwork && predefinedNetworks.find((n) => n.rpcUrls.includes(url))) return
+      if (
+        isPredefinedNetwork &&
+        networks.filter((n) => n.predefined).find((n) => n.rpcUrls.includes(url))
+      )
+        return
 
       const filteredRpcUrls = rpcUrls.filter((u) => u !== url)
       if (url === selectedRpcUrl) {
@@ -688,7 +691,9 @@ const NetworkForm = ({
                         onPress={handleSelectRpcUrl}
                         shouldShowRemove={
                           isPredefinedNetwork
-                            ? !predefinedNetworks.find((n) => n.rpcUrls.includes(url))
+                            ? !networks
+                                .filter((n) => n.predefined)
+                                .find((n) => n.rpcUrls.includes(url))
                             : true
                         }
                         onRemove={handleRemoveRpcUrl}
