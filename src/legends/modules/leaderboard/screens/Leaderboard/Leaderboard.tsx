@@ -88,9 +88,10 @@ const LeaderboardContainer: React.FC = () => {
                 </div>
                 <h5 className={styles.cell}>Level</h5>
                 <div className={styles.cell}>
-                  <h5 style={{ marginRight: '0.25rem' }}>Weight</h5>
+                  <h5 className={styles.weightText}>Weight</h5>
                   <InfoIcon width={10} height={10} data-tooltip-id="weight-info" />
                   <Tooltip
+                    className={styles.tooltip}
                     id="weight-info"
                     content="Projected weight based on last week's balance snapshot. End results might vary."
                   />

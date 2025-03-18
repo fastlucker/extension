@@ -1,5 +1,9 @@
 @import '@legends/styles/base';
 
+.tooltip {
+  font-family: $primaryFont !important;
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -59,12 +63,15 @@
 
       &:nth-child(2),
       &:nth-child(3) {
-        flex: calc(5 / 3);
+        flex: 1.5;
       }
       &:last-child {
         text-align: right;
         flex: 1;
         justify-content: flex-end;
+      }
+      .weightText {
+        margin-right: 0.25rem;
       }
     }
   }
@@ -85,9 +92,6 @@
     border: 0.0625rem solid $primaryBorder;
     background-color: $secondaryBackground;
 
-    .weight {
-      color: $secondaryText !important;
-    }
     .cell:first-child {
       display: flex;
       align-items: center;
@@ -98,6 +102,9 @@
       color: $primaryText;
       justify-content: flex-end;
       font-weight: 500;
+    }
+    .cell.weight {
+      color: $secondaryText;
     }
   }
 
