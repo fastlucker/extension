@@ -143,10 +143,7 @@ const SignMessageScreen = () => {
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
       params: {
         err: t('User rejected the request.'),
-        id: userRequest.id,
-        opts: {
-          shouldDisable7702Asking: doNotAskMeAgain
-        }
+        id: userRequest.id
       }
     })
   }
