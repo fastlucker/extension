@@ -109,6 +109,16 @@ const KeyStoreSetupScreen = () => {
         state: { backTo: WEB_ROUTES.importHotWallet }
       })
     }
+    if (flow === 'import-hot-wallet') {
+      navigate(WEB_ROUTES.importHotWallet, {
+        state: { backTo: WEB_ROUTES.getStarted }
+      })
+    }
+    if (flow === 'view-only') {
+      navigate(WEB_ROUTES.viewOnlyAccountAdder, {
+        state: { backTo: WEB_ROUTES.getStarted }
+      })
+    }
   }, [flow, navigate])
 
   const handleCreateButtonPress = useCallback(async () => {
