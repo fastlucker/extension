@@ -1,8 +1,13 @@
-import React, { createContext, FC, useCallback, useMemo, useState } from 'react'
+import React, { createContext, FC, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { ChainlistNetwork, Network } from '@ambire-common/interfaces/network'
+import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
 import { convertToAmbireNetworkFormat } from '@ambire-common/utils/networks'
+import { RELAYER_URL } from '@env'
+
+const fetch = window.fetch.bind(window) as any
+const callRelayer = relayerCall.bind({ url: RELAYER_URL, fetch })
 
 type Props = {
   children: React.ReactNode
@@ -36,9 +41,28 @@ const fetchNetworkData = async (chainId: bigint) => {
   return networkDataInAmbireNetworkFormat
 }
 
+const fetchNetworks = async () => {
+  try {
+    const res = await callRelayer('/v2/config/networks')
+    const networks = Object.values(res.data.extensionConfigNetworks)
+    return networks
+  } catch (error) {
+    console.error('Failed to fetch networks:', error)
+    return predefinedNetworks
+  }
+}
+
 const BenzinNetworksContextProvider: FC<Props> = ({ children }) => {
-  const [benzinNetworks, setBenzinNetworks] = useState<Network[]>(predefinedNetworks)
+  const [benzinNetworks, setBenzinNetworks] = useState<Network[]>([])
   const [loadingBenzinNetworks, setLoadingBenzinNetworks] = useState<bigint[]>([])
+
+  useEffect(() => {
+    const fetchAndSetNetworks = async () => {
+      const networks = (await fetchNetworks()) as Network[]
+      setBenzinNetworks(networks)
+    }
+    fetchAndSetNetworks()
+  }, [])
 
   const addNetwork = useCallback(
     async (chainId: bigint) => {
