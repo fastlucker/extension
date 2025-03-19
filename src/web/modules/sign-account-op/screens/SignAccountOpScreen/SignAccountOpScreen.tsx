@@ -61,9 +61,9 @@ const SignAccountOpScreen = () => {
     () =>
       signAccountOpState?.isInitialized &&
       !!signAccountOpState?.gasPrices &&
-      !signAccountOpState.estimationController.error,
+      !signAccountOpState.estimation.error,
     [
-      signAccountOpState?.estimationController?.error,
+      signAccountOpState?.estimation?.error,
       signAccountOpState?.gasPrices,
       signAccountOpState?.isInitialized
     ]
@@ -88,7 +88,7 @@ const SignAccountOpScreen = () => {
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
-    if (signAccountOpState?.estimationRetryError) {
+    if (signAccountOpState?.estimation.estimationRetryError) {
       setSlowRequest(false)
       return
     }
@@ -111,7 +111,7 @@ const SignAccountOpScreen = () => {
   }, [
     signAccountOpState?.isInitialized,
     signAccountOpState?.gasPrices,
-    signAccountOpState?.estimationRetryError
+    signAccountOpState?.estimation.estimationRetryError
   ])
 
   useEffect(() => {
@@ -370,7 +370,7 @@ const SignAccountOpScreen = () => {
       )}
       <SafetyChecksOverlay
         shouldBeVisible={
-          !signAccountOpState?.estimationController.estimation || !signAccountOpState?.isInitialized
+          !signAccountOpState?.estimation.estimation || !signAccountOpState?.isInitialized
         }
       />
       <TabLayoutContainer
