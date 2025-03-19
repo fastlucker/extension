@@ -1,4 +1,4 @@
-import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 
 const getTokenDataFromId = (id: string) => {
@@ -8,8 +8,8 @@ const getTokenDataFromId = (id: string) => {
   return [address, networkId, symbol, onGasTank, rewardsType]
 }
 
-const getTokenId = (token: SocketAPIToken | TokenResult) => {
-  const socketAPIToken = token as SocketAPIToken
+const getTokenId = (token: SwapAndBridgeToToken | TokenResult) => {
+  const socketAPIToken = token as SwapAndBridgeToToken
   if (!(socketAPIToken as any).networkId || !(socketAPIToken as any).flags)
     return `${token.address}.${token.symbol}`
 
