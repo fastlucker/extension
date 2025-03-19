@@ -293,6 +293,7 @@ const Estimation = ({
 
   if (
     !signAccountOpState ||
+    estimationFailed ||
     (!hasEstimation && signAccountOpState.estimation.estimationRetryError) ||
     !payValue
   ) {
