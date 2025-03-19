@@ -55,18 +55,18 @@ const Estimation = ({
   }, [signAccountOpState?.warnings])
 
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
-    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
+    if (!signAccountOpState?.estimation.availableFeeOptions.length || !hasEstimation) return []
 
-    return signAccountOpState.availableFeeOptions
+    return signAccountOpState.estimation.availableFeeOptions
       .filter((feeOption) => feeOption.paidBy === signAccountOpState.accountOp.accountAddr)
       .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
   }, [hasEstimation, signAccountOpState])
 
   const payOptionsPaidByEOA = useMemo(() => {
-    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
+    if (!signAccountOpState?.estimation.availableFeeOptions.length || !hasEstimation) return []
 
-    return signAccountOpState.availableFeeOptions
+    return signAccountOpState.estimation.availableFeeOptions
       .filter((feeOption) => feeOption.paidBy !== signAccountOpState.accountOp.accountAddr)
       .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
