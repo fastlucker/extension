@@ -61,9 +61,9 @@ const SignAccountOpScreen = () => {
     () =>
       signAccountOpState?.isInitialized &&
       !!signAccountOpState?.gasPrices &&
-      !signAccountOpState.estimation?.error,
+      !signAccountOpState.estimationController.error,
     [
-      signAccountOpState?.estimation?.error,
+      signAccountOpState?.estimationController?.error,
       signAccountOpState?.gasPrices,
       signAccountOpState?.isInitialized
     ]
@@ -369,7 +369,9 @@ const SignAccountOpScreen = () => {
         </BottomSheet>
       )}
       <SafetyChecksOverlay
-        shouldBeVisible={!signAccountOpState?.estimation || !signAccountOpState?.isInitialized}
+        shouldBeVisible={
+          !signAccountOpState?.estimationController.estimation || !signAccountOpState?.isInitialized
+        }
       />
       <TabLayoutContainer
         width="full"

@@ -203,11 +203,11 @@ const Estimation = ({
   const isGaslessTransaction = useMemo(() => {
     return (
       feeSpeeds.every((speed) => !speed.amount) &&
-      !signAccountOpState?.estimation?.error &&
+      !signAccountOpState?.estimationController.error &&
       !signAccountOpState?.errors.length &&
       !!feeSpeeds.length
     )
-  }, [feeSpeeds, signAccountOpState?.errors.length, signAccountOpState?.estimation?.error])
+  }, [feeSpeeds, signAccountOpState?.errors.length, signAccountOpState?.estimationController.error])
 
   const selectedFee = useMemo(
     () => feeSpeeds.find((speed) => speed.type === signAccountOpState?.selectedFeeSpeed),
@@ -452,7 +452,7 @@ const Estimation = ({
         isViewOnly={isViewOnly}
         rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
         bundlerFailure={
-          !!signAccountOpState.estimation?.bundlerEstimation?.nonFatalErrors?.find(
+          !!signAccountOpState.estimationController.estimation?.bundlerEstimation?.nonFatalErrors?.find(
             (err) => err.cause === '4337_ESTIMATION'
           )
         }
