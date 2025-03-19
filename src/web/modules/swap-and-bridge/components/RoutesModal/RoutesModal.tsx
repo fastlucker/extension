@@ -1,7 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
-import { SocketAPIRoute } from '@ambire-common/interfaces/swapAndBridge'
+import {
+  SocketAPIRoute,
+  SwapAndBridgeRoute,
+  SwapAndBridgeStep
+} from '@ambire-common/interfaces/swapAndBridge'
 import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
@@ -53,8 +57,10 @@ const RoutesModal = ({
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ item, index }: { item: SocketAPIRoute; index: number }) => {
-      const steps = getQuoteRouteSteps(item.userTxs)
+    ({ item, index }: { item: SwapAndBridgeRoute; index: number }) => {
+      // TODO: Migrate Socket to SwapAndBridgeStep
+      // const steps = getQuoteRouteSteps(item.userTxs)
+      const steps = item.steps
 
       return (
         <Pressable
