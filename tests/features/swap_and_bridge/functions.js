@@ -426,11 +426,13 @@ export async function verifySendMaxTokenAmount(page, send_token, send_network) {
   await page.waitForTimeout(500) // Wait before read Amount value 
   const maxBalance = await extractMaxBalance(page)
   const roundMaxBalance = await roundAmount(maxBalance, valueDecimals)
-  console.log(``)
   await selectButton(page, 'Max')
   await page.waitForTimeout(500) // Wait before read Amount value 
   const sendAmount = await getSendAmount(page)
   const roundSendAmount = await roundAmount(sendAmount, valueDecimals)
-  console.log(`[DEBUG] Token: ${send_token} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}, roundMaxBalance: ${roundMaxBalance}`)
-  expect(roundMaxBalance).toBeCloseTo(roundSendAmount,valueDecimals - 1)
+  // There is an intermittent difference in balances when running on CI; I have added an Alert to monitor it and using toBeCloseTo 
+  if (roundMaxBalance != roundSendAmount) {
+    console.log(`⚠️ Token: ${send_token} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}, roundMaxBalance: ${roundMaxBalance}`)
+  } 
+  expect(roundMaxBalance).toBeCloseTo(roundSendAmount, valueDecimals - 1) // 1 decimal presisison 
 }
