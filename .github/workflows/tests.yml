@@ -46,14 +46,14 @@ jobs:
 
       - name: Setup Environment
         uses: ./.github/composite-actions/setup
-  
+
       - name: Cache Chrome
         id: cache-chrome
         uses: actions/cache@v4
         with:
           path: /home/runner/.cache/puppeteer
           key: ${{ runner.os }}-chrome
-      
+
       - name: Install Chrome
         if: steps.cache-chrome.outputs.cache-hit != 'true'
         run: node node_modules/puppeteer/install.js
@@ -81,6 +81,7 @@ jobs:
           RELAYER_URL: ${{ vars.RELAYER_URL }}
           VELCRO_URL: ${{ vars.VELCRO_URL }}
           SOCKET_API_KEY: ${{ vars.SOCKET_API_KEY }}
+          LI_FI_API_KEY: ${{ vars.LI_FI_API_KEY }}
           BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: ${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD }}
           BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: ${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV }}
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}

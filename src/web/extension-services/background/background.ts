@@ -39,6 +39,7 @@ import { isProd } from '@common/config/env'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
+  LI_FI_API_KEY,
   RELAYER_URL,
   SOCKET_API_KEY,
   VELCRO_URL
@@ -280,6 +281,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
     socketApiKey: SOCKET_API_KEY,
+    lifiApiKey: LI_FI_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
