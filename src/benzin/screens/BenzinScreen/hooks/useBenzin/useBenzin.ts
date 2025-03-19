@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
 import { allBundlers, BUNDLER } from '@ambire-common/consts/bundlers'
-import { networks as constantNetworks } from '@ambire-common/consts/networks'
+import { Network } from '@ambire-common/interfaces/network'
 import {
   AccountOpIdentifiedBy,
   SubmittedAccountOp
@@ -45,12 +45,14 @@ const getParams = (search?: string) => {
   }
 }
 
-const getChainId = (networkId: string | null, paramsChainId: string | null) => {
+const getChainId = (
+  networkId: string | null,
+  paramsChainId: string | null,
+  networks: Network[]
+) => {
   if (paramsChainId) return paramsChainId
 
-  const chainIdDerivedFromNetworkId = constantNetworks.find(
-    (network) => network.id === networkId
-  )?.chainId
+  const chainIdDerivedFromNetworkId = networks.find((network) => network.id === networkId)?.chainId
 
   if (!chainIdDerivedFromNetworkId) return null
 
@@ -70,9 +72,9 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
     bundler
   } = getParams(route?.search)
 
-  const chainId = getChainId(networkId, paramChainId)
   const { networks } = useNetworksControllerState()
   const { benzinNetworks, loadingBenzinNetworks = [], addNetwork } = useBenzinNetworksContext()
+  const chainId = getChainId(networkId, paramChainId, benzinNetworks)
   const bigintChainId = BigInt(chainId || '') || 0n
   const actualNetworks = networks ?? benzinNetworks
   const network = actualNetworks.find((n) => n.chainId === bigintChainId) || null

@@ -43,7 +43,10 @@ const fetchNetworkData = async (chainId: bigint) => {
 
 const fetchNetworks = async () => {
   try {
-    const res = await callRelayer('/v2/config/networks')
+    const timeout = new Promise<void>((_, reject) => {
+      setTimeout(() => reject(new Error('Request timed out')), 20000)
+    })
+    const res = await Promise.race([callRelayer('/v2/config/networks'), timeout])
     const networks = Object.values(res.data.extensionConfigNetworks)
     return networks
   } catch (error) {
