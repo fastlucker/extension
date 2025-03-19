@@ -39,7 +39,7 @@ const KeyStoreSetupScreen = () => {
   const { theme } = useTheme()
   const keyStoreSetup = useKeyStoreSetup()
   const [agreedWithTerms, setAgreedWithTerms] = useState(true)
-  const { ref: termstModalRef, open: openTermsModal, close: closeTermsModal } = useModalize()
+  const { ref: termsModalRef, open: openTermsModal, close: closeTermsModal } = useModalize()
 
   const flow = useMemo(() => {
     if (params?.flow) return params.flow
@@ -160,7 +160,7 @@ const KeyStoreSetupScreen = () => {
               label={
                 <Trans>
                   <Text fontSize={14}>I agree to the </Text>
-                  <TouchableOpacity onPress={openTermsModal}>
+                  <TouchableOpacity onPress={() => openTermsModal()}>
                     <Text fontSize={14} underline color={theme.infoDecorative}>
                       Terms of Service
                     </Text>
@@ -177,7 +177,7 @@ const KeyStoreSetupScreen = () => {
         style={{ maxWidth: 800 }}
         closeBottomSheet={closeTermsModal}
         backgroundColor="primaryBackground"
-        sheetRef={termstModalRef}
+        sheetRef={termsModalRef}
       >
         <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
           <AmbireLogo style={[spacings.mbLg, flexbox.alignCenter]} width={185} height={92} />
