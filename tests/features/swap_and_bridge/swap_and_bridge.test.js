@@ -10,6 +10,7 @@ import {
   enterNumber,
   prepareSwapAndBridge,
   openSwapAndBridgeActionPage,
+  batchActionPage,
   signActionPage,
   verifyIfSwitchIsActive,
   switchTokensOnSwapAndBridge,
@@ -19,7 +20,8 @@ import {
   changeRoutePriority,
   verifySendMaxTokenAmount,
   verifyNonDefaultReceiveToken,
-  verifyDefaultReceiveToken
+  verifyDefaultReceiveToken,
+  verifyAutoRefreshRoute
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
@@ -38,7 +40,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
 
   afterAll(async () => {
   })
-  // TODO: Test failling in pipeline, should be debbuuged
+
   it('should Swap ERC20 tokens USDC to WALLET on Base network with a Basic Account', async () => {
     const text = await prepareSwapAndBridge(page, 0.009, 'USDC', 'base', 'WALLET')
     await signActionPage(
@@ -105,14 +107,9 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await clickOnSecondRoute(page)
   })
 
-  it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Basic Account', async () => {
-    // TODO: Implement the test
-  })
-
   it('should switch tokens during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
     await verifyIfSwitchIsActive(page, false)
-    await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await verifyIfSwitchIsActive(page, true)
     await switchTokensOnSwapAndBridge(page)
@@ -121,7 +118,6 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   it('should switch tokens 12x during Swap & Bridge with a Basic Account', async () => {
     await openSwapAndBridge(page)
     await verifyIfSwitchIsActive(page, false)
-    await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await verifyIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {
@@ -134,7 +130,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     await verifySendMaxTokenAmount(page, 'USDC', 'base')
     await verifySendMaxTokenAmount(page, 'xWALLET', 'ethereum')
   })
-  // TODO: Test failling in pipeline, should be debbuuged
+
   it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Basic Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 1)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', 'base', 0.012)
@@ -146,7 +142,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
     // POL: await switchUSDValueOnSwapAndBridge(page, 'POL', 'polygon', 0.25)
     await switchUSDValueOnSwapAndBridge(page, 'WALLET', 'base', 4.5)
   })
-  // TODO: Test failling in pipeline, should be debbuuged
+
   it('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Basic Account', async () => {
     await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'wCRES')
     await verifyNonDefaultReceiveToken(page, 'ETH', 'ethereum', 'GLQ')
@@ -197,8 +193,29 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   afterAll(async () => {
   })
 
-  it.skip('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async () => {
-    // TODO: Implement the test
+  it('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async () => {
+    let text = await prepareSwapAndBridge(page, 0.03, 'WALLET', 'base', 'USDC')
+    // Get receive amount of the first transaction
+    const reverseAmount1 = 0.000324
+    await batchActionPage(
+      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    )
+    text = await prepareSwapAndBridge(page, 0.02, 'USDC', 'base', 'ETH')
+    // Get receive amount of the second transaction
+    const reverseAmount2 = 0.000010453
+    const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    await signActionPage(actionPage)
+    actionPage.close() // To be able to run the reverse below
+
+    // Reverese the above batch to recover tokens balances
+    text = await prepareSwapAndBridge(page, reverseAmount1, 'USDC', 'base', 'WALLET')
+    await batchActionPage(
+      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    )
+    text = await prepareSwapAndBridge(page, reverseAmount2, 'ETH', 'base', 'USDC')
+    await signActionPage(
+      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    )
   })
 
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async () => {
@@ -260,7 +277,6 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   it('should switch tokens during Swap & Bridge with a Smart Account', async () => {
     await openSwapAndBridge(page)
     await verifyIfSwitchIsActive(page, false)
-    await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await verifyIfSwitchIsActive(page, true)
     await switchTokensOnSwapAndBridge(page)
@@ -269,7 +285,6 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   it('should switch tokens 12x during Swap & Bridge with a Smart Account', async () => {
     await openSwapAndBridge(page)
     await verifyIfSwitchIsActive(page, false)
-    await clickOnElement(page, 'text=Back')
     await prepareSwapAndBridge(page, null, 'USDC', 'base', 'WALLET')
     await verifyIfSwitchIsActive(page, true)
     for (let i = 1; i <= 12; i++) {

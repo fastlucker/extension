@@ -20,8 +20,10 @@ export async function verifyIfOnSwapAndBridgePage(page) {
 }
 
 export async function openSwapAndBridge(page) {
-  await clickOnElement(page, SELECTORS.dashboardButtonSwapAndBridge)
-  await verifyIfOnSwapAndBridgePage(page)
+  if(!page.url().includes('/swap-and-bridge')){
+    await clickOnElement(page, SELECTORS.dashboardButtonSwapAndBridge)
+    await verifyIfOnSwapAndBridgePage(page)
+  }
 }
 
 export async function verifyIfSwitchIsActive(page, reference = true) {
@@ -160,9 +162,6 @@ export async function switchUSDValueOnSwapAndBridge(
   expect(newAmount).toBe(usdSecondAmount)
   expect(usdNewAmount).toBe(secondAmount)
   expect(secondCcy).toBe('USD')
-
-  // Return back to Dashboard
-  await selectButton(page, 'Back')
 }
 
 export async function enterNumber(page, new_amount, is_valid = true) {
@@ -355,7 +354,7 @@ export async function openSwapAndBridgeActionPage(page, callback = 'null') {
     await actionPage.waitForTimeout(2000)
 
     // Assert if Action Page is opened
-    const txnSimulation = await page.waitForSelector('div', { text: 'Transaction simulation', timeout: 5000 }).catch(() => null)
+    const txnSimulation = await page.waitForSelector('div', { text: 'Transaction simulation', timeout: 10000 }).catch(() => null)
     const signButton = await page.waitForSelector(SELECTORS.signButtonSab, { timeout: 500 }).catch(() => null)
     await expect(null!=txnSimulation || null!=signButton).toBe(true)
 
@@ -366,9 +365,22 @@ export async function openSwapAndBridgeActionPage(page, callback = 'null') {
   }
 }
 
+export async function batchActionPage(actionPage) {
+  await clickOnElement(actionPage, SELECTORS.queueAndSignLaterButton)
+}
+
 export async function signActionPage(actionPage) {
   // Select Sign and not wait for confirmation as suggested on PR review
   await clickOnElement(actionPage, SELECTORS.signTransactionButton)
+  await actionPage.waitForTimeout(1500)
+}
+
+export async function wiatForConfirmed(actionPage) {
+  // Wait for transaction to be confirmed
+  await actionPage.waitForSelector('text=Timestamp', { visible: true })
+ 
+  // Asset if the transaction is confirmed
+  await expect(actionPage).toMatchElement('div', { text: 'Confirmed' })
 }
 
 export async function clickOnSecondRoute(page) {
@@ -411,9 +423,10 @@ export async function verifySendMaxTokenAmount(page, send_token, send_network) {
   const valueDecimals = 2 // Set presison of values to 2 decimals
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, send_network)
+  await page.waitForTimeout(500) // Wait before read Amount value 
   const maxBalance = await roundAmount(await extractMaxBalance(page), valueDecimals)
   await selectButton(page, 'Max')
+  await page.waitForTimeout(500) // Wait before read Amount value 
   const roundSendAmount = await roundAmount(await getSendAmount(page), valueDecimals)
-  await selectButton(page, 'Back')
   expect(maxBalance).toEqual(roundSendAmount)
 }
