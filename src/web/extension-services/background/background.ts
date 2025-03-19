@@ -649,7 +649,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   function createEstimateRecurringTimeout() {
-    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 30000)
+    return createRecurringTimeout(() => {
+      if (mainCtrl.signAccountOp) return mainCtrl.signAccountOp.simulate()
+      return new Promise((resolve) => {
+        resolve()
+      })
+    }, 30000)
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
