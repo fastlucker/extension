@@ -4,7 +4,6 @@ import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 
 import {
-  verifyIfOnDashboardPage,
   selectButton,
   openSwapAndBridge,
   enterNumber,
@@ -20,8 +19,7 @@ import {
   changeRoutePriority,
   verifySendMaxTokenAmount,
   verifyNonDefaultReceiveToken,
-  verifyDefaultReceiveToken,
-  verifyAutoRefreshRoute
+  verifyDefaultReceiveToken
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
