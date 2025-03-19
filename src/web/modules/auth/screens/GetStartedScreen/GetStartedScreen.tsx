@@ -109,6 +109,10 @@ const GetStartedScreen = () => {
     async (
       flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-seed' | 'create-hot-wallet' | 'view-only'
     ) => {
+      if (!isReadyToStoreKeys) {
+        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
+        return
+      }
       if (flow === 'create-hot-wallet') {
         openHotWalletModal()
         return
@@ -125,10 +129,6 @@ const GetStartedScreen = () => {
         await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
         return
       }
-      if (!isReadyToStoreKeys && flow !== 'hw') {
-        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
-        return
-      }
       if (flow === 'hw') {
         navigate(WEB_ROUTES.hardwareWalletSelect)
         return
@@ -137,7 +137,7 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
-    [isReadyToStoreKeys, openHotWalletModal, navigate, keyStoreUid, accounts.length, addToast]
+    [accounts.length, addToast, isReadyToStoreKeys, keyStoreUid, navigate, openHotWalletModal]
   )
 
   const panelWidthInterpolate = animation.interpolate({

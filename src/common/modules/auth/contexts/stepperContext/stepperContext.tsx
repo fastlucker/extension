@@ -15,6 +15,8 @@ export type StepperFlow =
   | 'create-seed'
   | 'import-json'
   | 'seed-with-option-to-save'
+  | 'import-hot-wallet'
+  | 'view-only'
 
 export const STEPPER_FLOWS = {
   email: {
@@ -61,6 +63,18 @@ export const STEPPER_FLOWS = {
     [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
     [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
     [WEB_ROUTES.importSmartAccountJson]: 'Import your\njson backup',
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
+  },
+  'import-hot-wallet': {
+    [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
+    [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
+    [WEB_ROUTES.importHotWallet]: 'Import your\nhot wallet',
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
+  },
+  'view-only': {
+    [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
+    [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
+    [WEB_ROUTES.viewOnlyAccountAdder]: 'View only\naccount',
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   }
 }
