@@ -40,6 +40,8 @@ const SectionedSelect = ({
     handleLayout
   } = selectData
 
+  console.log({ filteredData })
+
   return (
     <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
       <SectionList
