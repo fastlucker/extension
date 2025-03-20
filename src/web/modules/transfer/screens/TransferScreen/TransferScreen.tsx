@@ -85,7 +85,7 @@ const TransferScreen = () => {
 
       const isSelectedAccountAccountOp =
         r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
-      const isMatchingSelectedTokenNetwork = r.meta.networkId === state.selectedToken?.networkId
+      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
 
       return isSelectedAccountAccountOp && isMatchingSelectedTokenNetwork
     })

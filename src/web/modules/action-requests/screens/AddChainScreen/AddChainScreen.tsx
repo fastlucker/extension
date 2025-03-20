@@ -23,7 +23,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -34,7 +33,7 @@ import getStyles from './styles'
 
 const AddChainScreen = () => {
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
@@ -204,7 +203,7 @@ const AddChainScreen = () => {
               <NetworkDetails
                 name={userRequest?.action?.params?.[0]?.chainName}
                 iconUrls={networkDetails?.iconUrls || []}
-                chainId={Number(networkDetails.chainId).toString()}
+                chainId={networkDetails.chainId}
                 rpcUrls={networkDetails.rpcUrls}
                 selectedRpcUrl={rpcUrls[rpcUrlIndex]}
                 nativeAssetSymbol={networkDetails.nativeAssetSymbol}
@@ -242,7 +241,7 @@ const AddChainScreen = () => {
               {!!networkDetails && (
                 <NetworkAvailableFeatures
                   features={features}
-                  networkId={networkDetails.name.toLowerCase()}
+                  chainId={networkDetails.chainId}
                   withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
                   handleRetry={handleRetryWithDifferentRpcUrl}
                 />

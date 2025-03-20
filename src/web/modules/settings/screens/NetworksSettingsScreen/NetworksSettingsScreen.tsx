@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import AddIcon from '@common/assets/svg/AddIcon'
 import ChainlistIcon from '@common/assets/svg/ChainlistIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -37,9 +36,10 @@ const NetworksSettingsScreen = () => {
 
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { theme } = useTheme()
-  const [selectedNetworkId, setSelectedNetworkId] = useState(() => {
+  const [selectedChainId, setSelectedChainId] = useState(() => {
     const parsedSearchParams = new URLSearchParams(searchParams)
-    if (parsedSearchParams.has('networkId')) return parsedSearchParams.get('networkId') as string
+    if (parsedSearchParams.has('chainId'))
+      return BigInt(parsedSearchParams.get('chainId') as string)
 
     return undefined
   })
@@ -51,8 +51,8 @@ const NetworksSettingsScreen = () => {
   }, [searchParams])
 
   const selectedNetwork = useMemo(
-    () => networks.find((network) => network.id === selectedNetworkId),
-    [networks, selectedNetworkId]
+    () => networks.find((n) => n.chainId === selectedChainId),
+    [networks, selectedChainId]
   )
 
   const search = watch('search')
@@ -66,8 +66,8 @@ const NetworksSettingsScreen = () => {
     [networks, search]
   )
 
-  const handleSelectNetwork = useCallback((id: NetworkId) => {
-    setSelectedNetworkId(id)
+  const handleSelectNetwork = useCallback((chainId: bigint) => {
+    setSelectedChainId(chainId)
   }, [])
 
   const navigateToChainlist = useCallback(async () => {
@@ -89,9 +89,9 @@ const NetworksSettingsScreen = () => {
             {filteredNetworkBySearch.length > 0 ? (
               filteredNetworkBySearch.map((network) => (
                 <Network
-                  key={network.id}
+                  key={network.chainId.toString()}
                   network={network}
-                  selectedNetworkId={selectedNetworkId}
+                  selectedChainId={selectedChainId}
                   handleSelectNetwork={handleSelectNetwork}
                 />
               ))
@@ -143,23 +143,20 @@ const NetworksSettingsScreen = () => {
             <View style={spacings.mb}>
               <NetworkDetails
                 name={selectedNetwork?.name || '-'}
-                chainId={
-                  selectedNetwork?.chainId ? Number(selectedNetwork.chainId).toString() : '-'
-                }
+                chainId={selectedNetwork?.chainId || '-'}
                 rpcUrls={selectedNetwork?.rpcUrls || ['-']}
                 selectedRpcUrl={selectedNetwork?.selectedRpcUrl || '-'}
                 nativeAssetSymbol={selectedNetwork?.nativeAssetSymbol || '-'}
                 nativeAssetName={selectedNetwork?.nativeAssetName || '-'}
                 explorerUrl={selectedNetwork?.explorerUrl || '-'}
-                networkId={selectedNetworkId}
                 allowRemoveNetwork
                 predefined={selectedNetwork?.predefined}
               />
             </View>
-            {!!selectedNetwork && !!selectedNetworkId && (
+            {!!selectedNetwork && !!selectedChainId && (
               <NetworkAvailableFeatures
                 features={selectedNetwork.features}
-                networkId={selectedNetworkId}
+                chainId={selectedChainId}
               />
             )}
           </ScrollableWrapper>

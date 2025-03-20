@@ -66,7 +66,7 @@ const SendForm = ({
   const [isEstimationLoading, setIsEstimationLoading] = useState(true)
   const [estimation, setEstimation] = useState<null | {
     totalGasWei: bigint
-    networkId: string
+    chainId: bigint
     updatedAt: number
   }>(null)
 
@@ -103,7 +103,7 @@ const SendForm = ({
 
   const setMaxAmount = useCallback(() => {
     const shouldDeductGas = selectedToken?.address === ZeroAddress && !isSmartAccount
-    const canDeductGas = estimation && estimation.networkId === selectedToken?.networkId
+    const canDeductGas = estimation && estimation.chainId === selectedToken?.chainId
 
     if (!shouldDeductGas || !canDeductGas) {
       transferCtrl.update({
@@ -186,7 +186,7 @@ const SendForm = ({
         const correspondingToken = tokens.find(
           (token) =>
             token.address === selectedTokenFromUrl.addr &&
-            token.networkId === selectedTokenFromUrl.networkId &&
+            token.chainId.toString() === selectedTokenFromUrl.chainId &&
             token.flags.onGasTank === false
         )
 
@@ -204,15 +204,15 @@ const SendForm = ({
   useEffect(() => {
     if (
       estimation &&
-      estimation.networkId === selectedToken?.networkId &&
+      estimation.chainId === selectedToken?.chainId &&
       estimation.updatedAt > Date.now() - ONE_MINUTE
     )
       return
-    const networkData = networks.find((network) => network.id === selectedToken?.networkId)
+    const networkData = networks.find((n) => n.chainId === selectedToken?.chainId)
 
     if (!networkData) return
 
-    if (isSmartAccount || !account || !selectedToken?.networkId) return
+    if (isSmartAccount || !account || !selectedToken?.chainId) return
 
     const rpcUrl = networkData.selectedRpcUrl
     const provider = new JsonRpcProvider(rpcUrl)
@@ -225,10 +225,10 @@ const SendForm = ({
         account,
         {
           accountAddr: account.addr,
-          networkId: selectedToken.networkId,
+          chainId: selectedToken.chainId,
           signingKeyAddr: null,
           signingKeyType: null,
-          nonce: accountStates[account.addr][selectedToken.networkId].nonce,
+          nonce: accountStates[account.addr][selectedToken.chainId.toString()].nonce,
           calls: [
             {
               to: ZeroAddress,
@@ -269,7 +269,7 @@ const SendForm = ({
 
         setEstimation({
           totalGasWei,
-          networkId: selectedToken.networkId,
+          chainId: selectedToken.chainId,
           updatedAt: Date.now()
         })
       })

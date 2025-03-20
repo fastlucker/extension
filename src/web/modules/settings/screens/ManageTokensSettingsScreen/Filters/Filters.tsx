@@ -36,9 +36,9 @@ const Filters: FC<Props> = ({ control, networkFilter, setNetworkFilterValue }) =
     () => [
       ALL_NETWORKS_OPTION,
       ...networks.map((n) => ({
-        value: n.id,
+        value: n.chainId.toString(),
         label: <Text weight="medium">{n.name}</Text>,
-        icon: <NetworkIcon key={n.id} id={n.id} />
+        icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} />
       }))
     ],
     [networks]
@@ -73,4 +73,4 @@ const Filters: FC<Props> = ({ control, networkFilter, setNetworkFilterValue }) =
   )
 }
 
-export default Filters
+export default React.memo(Filters)

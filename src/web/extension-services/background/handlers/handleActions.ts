@@ -151,7 +151,7 @@ export const handleActions = async (
       return await mainCtrl.accounts.updateAccountPreferences(params)
     }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE': {
-      return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.networkIds)
+      return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.chainIds)
     }
     case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
       return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
@@ -403,7 +403,7 @@ export const handleActions = async (
 
       return await mainCtrl.portfolio.getTemporaryTokens(
         mainCtrl.selectedAccount.account.addr,
-        params.networkId,
+        params.chainId,
         params.additionalHint
       )
     }

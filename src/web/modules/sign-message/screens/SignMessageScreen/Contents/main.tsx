@@ -1,3 +1,7 @@
+import React, { Dispatch, SetStateAction, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
+
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import Alert from '@common/components/Alert'
@@ -17,9 +21,6 @@ import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerCo
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
 import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
 import getStyles from '@web/modules/sign-message/screens/SignMessageScreen/styles'
-import React, { Dispatch, SetStateAction, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
 
 interface Props {
   shouldDisplayLedgerConnectModal: boolean
@@ -50,7 +51,7 @@ const Main = ({
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
           ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
-          : n.id === signMessageState.messageToSign?.networkId
+          : n.chainId === signMessageState.messageToSign?.chainId
       }),
     [networks, signMessageState.messageToSign]
   )
@@ -82,7 +83,7 @@ const Main = ({
           </Text>
           <NetworkBadge
             style={{ borderRadius: 25, ...spacings.pv0 }}
-            networkId={signMessageState.messageToSign?.networkId}
+            chainId={signMessageState.messageToSign?.chainId}
             withOnPrefix
           />
         </View>
@@ -122,7 +123,7 @@ const Main = ({
               signMessageState.messageToSign?.content.kind ? (
                 <HumanizedVisualization
                   data={humanizedMessage.fullVisualization}
-                  networkId={network?.id || 'ethereum'}
+                  chainId={network?.chainId || 1n}
                 />
               ) : (
                 <>

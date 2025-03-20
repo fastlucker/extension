@@ -2,7 +2,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { SubmittedAccountOp } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Text from '@common/components/Text'
@@ -13,7 +12,7 @@ interface Props {
   timestamp: SubmittedAccountOp['timestamp']
   fontSize?: number
   iconSize?: number
-  networkId: NetworkId
+  chainId: bigint
   numberOfLines?: 1 | 2
 }
 
@@ -21,7 +20,7 @@ const SubmittedOn = ({
   timestamp,
   fontSize = 14,
   iconSize = 32,
-  networkId,
+  chainId,
   numberOfLines = 2
 }: Props) => {
   const { t } = useTranslation()
@@ -38,7 +37,7 @@ const SubmittedOn = ({
       <Text fontSize={fontSize} appearance="secondaryText" weight="semiBold">
         {t('Submitted ')}
         <NetworkBadge
-          networkId={networkId}
+          chainId={chainId}
           withOnPrefix
           fontSize={fontSize}
           weight="semiBold"

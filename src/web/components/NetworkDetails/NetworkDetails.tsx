@@ -31,7 +31,7 @@ type Props = {
   iconUrls?: string[]
   selectedRpcUrl: string
   rpcUrls: string[]
-  chainId: bigint
+  chainId: bigint | string
   explorerUrl: string
   nativeAssetSymbol: string
   nativeAssetName: string
@@ -83,7 +83,7 @@ const NetworkDetails = ({
     if (chainId) {
       dispatch({
         type: 'MAIN_CONTROLLER_REMOVE_NETWORK',
-        params: { chainId }
+        params: { chainId: chainId as bigint }
       })
       closeDialog()
     } else {

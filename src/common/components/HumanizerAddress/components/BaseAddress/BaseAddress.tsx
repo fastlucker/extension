@@ -6,7 +6,6 @@ import { Linking, Pressable, View } from 'react-native'
 
 import { getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
-import { NetworkId } from '@ambire-common/interfaces/network'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 // import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -27,18 +26,18 @@ import Option from './BaseAddressOption'
 
 interface Props extends TextProps {
   address: string
-  explorerNetworkId?: NetworkId
+  explorerChainId?: bigint
 }
 
 const { isActionWindow } = getUiType()
 
-const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest }) => {
+const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
   // Standalone Benzin doesn't have access to controllers
   const { networks = constantNetworks } = useNetworksControllerState()
-  const network = networks?.find((n) => n.id === explorerNetworkId)
+  const network = networks?.find((n) => n.chainId === explorerChainId)
 
   const handleCopyAddress = useCallback(async () => {
     try {

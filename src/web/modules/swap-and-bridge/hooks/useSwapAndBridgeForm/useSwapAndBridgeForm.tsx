@@ -68,14 +68,14 @@ const useSwapAndBridgeForm = () => {
   useEffect(() => {
     if (
       searchParams.get('address') &&
-      searchParams.get('networkId') &&
+      searchParams.get('chainId') &&
       !!portfolio?.isReadyToVisualize &&
       (sessionIds || []).includes(sessionId)
     ) {
       const tokenToSelectOnInit = portfolio.tokens.find(
         (t) =>
           t.address === searchParams.get('address') &&
-          t.networkId === searchParams.get('networkId') &&
+          t.chainId.toString() === searchParams.get('chainId') &&
           getIsTokenEligibleForSwapAndBridge(t)
       )
 
@@ -87,7 +87,7 @@ const useSwapAndBridgeForm = () => {
         // Reset search params once updated in the state
         setSearchParams((prev) => {
           prev.delete('address')
-          prev.delete('networkId')
+          prev.delete('chainId')
           return prev
         })
       }
@@ -246,11 +246,11 @@ const useSwapAndBridgeForm = () => {
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
       networks.map((n) => {
-        const tooltipId = `network-${n.id}-not-supported-tooltip`
+        const tooltipId = `network-${n.chainId}-not-supported-tooltip`
         const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
 
         return {
-          value: n.id,
+          value: n.chainId.toString(),
           disabled: !isNetworkSupported,
           label: (
             <>
@@ -264,8 +264,8 @@ const useSwapAndBridgeForm = () => {
           ),
           icon: (
             <NetworkIcon
-              key={n.id}
-              id={n.id}
+              key={n.chainId.toString()}
+              id={n.chainId.toString()}
               style={{ backgroundColor: theme.primaryBackground }}
               size={28}
             />
@@ -279,7 +279,7 @@ const useSwapAndBridgeForm = () => {
     const network = networks.find((n) => Number(n.chainId) === toChainId)
     if (!network) return toNetworksOptions[0]
 
-    return toNetworksOptions.filter((opt) => opt.value === network.id)[0]
+    return toNetworksOptions.filter((opt) => opt.value === network.chainId.toString())[0]
   }, [networks, toChainId, toNetworksOptions])
 
   const handleSetToNetworkValue = useCallback(
@@ -287,7 +287,7 @@ const useSwapAndBridgeForm = () => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: {
-          toChainId: networks.filter((net) => net.id === networkOption.value)[0].chainId
+          toChainId: networks.filter((n) => n.chainId.toString() === networkOption.value)[0].chainId
         }
       })
     },
