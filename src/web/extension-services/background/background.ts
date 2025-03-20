@@ -517,11 +517,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         console.error('No selected account to latest state')
         return
       }
-      const failedNetworkIds = getNetworksWithFailedRPC({
+      const failedChainIds = getNetworksWithFailedRPC({
         providers: mainCtrl.providers.providers
       })
       const networksToUpdate = mainCtrl.networks.networks
-        .filter(({ chainId }) => !failedNetworkIds.includes(chainId.toString()))
+        .filter(({ chainId }) => !failedChainIds.includes(chainId.toString()))
         .map(({ chainId }) => chainId)
 
       await mainCtrl.accounts.updateAccountState(
@@ -611,11 +611,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     if (!isExtensionActive) return
 
     const updateAccountState = async () => {
-      const failedNetworkIds = getNetworksWithFailedRPC({
+      const failedChainIds = getNetworksWithFailedRPC({
         providers: mainCtrl.providers.providers
       })
 
-      if (!failedNetworkIds.length) return
+      if (!failedChainIds.length) return
 
       const retriedFastAccountStateReFetchForNetworks =
         backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks
@@ -624,7 +624,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // if the RPC goes down again
       if (retriedFastAccountStateReFetchForNetworks.length) {
         retriedFastAccountStateReFetchForNetworks.forEach((chainId, index) => {
-          if (!failedNetworkIds.includes(chainId)) {
+          if (!failedChainIds.includes(chainId)) {
             delete retriedFastAccountStateReFetchForNetworks[index]
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             mainCtrl.updateSelectedAccountPortfolio(
@@ -638,7 +638,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       }
 
       // Filter out the network ids that have already been retried
-      const recentlyFailedNetworks = failedNetworkIds.filter(
+      const recentlyFailedNetworks = failedChainIds.filter(
         (id) =>
           !backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks.find(
             (chainId) => chainId === id
@@ -649,16 +649,16 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
       await mainCtrl.accounts.updateAccountStates(
         'latest',
-        failedNetworkIds.map((id) => BigInt(id))
+        failedChainIds.map((id) => BigInt(id))
       )
       // Add the network ids that have been retried to the list
-      failedNetworkIds.forEach((id) => {
+      failedChainIds.forEach((id) => {
         if (retriedFastAccountStateReFetchForNetworks.includes(id)) return
 
         retriedFastAccountStateReFetchForNetworks.push(id)
       })
 
-      if (!failedNetworkIds.length) return
+      if (!failedChainIds.length) return
 
       backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
         updateAccountState,
