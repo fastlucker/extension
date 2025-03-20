@@ -276,7 +276,7 @@ const NetworkDetails = ({
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
         <NetworkForm
-          selectedNetworkId={chainId.toString()}
+          selectedChainId={chainId.toString()}
           onCancel={closeBottomSheet}
           onSaved={closeBottomSheet}
         />
