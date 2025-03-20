@@ -94,9 +94,9 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     () => [
       ALL_NETWORKS_OPTION,
       ...networks.map((n) => ({
-        value: n.id,
+        value: n.chainId.toString(),
         label: <Text weight="medium">{n.name}</Text>,
-        icon: <NetworkIcon key={n.id} id={n.id} />
+        icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} />
       }))
     ],
     [networks]
@@ -110,7 +110,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     // Loading check for history type = 'transactions'
     return (
       account.addr !== activityState.accountsOps[sessionId]?.filters.account ||
-      network?.id !== activityState.accountsOps[sessionId]?.filters.network
+      network?.chainId !== activityState.accountsOps[sessionId]?.filters.chainId
     )
   }, [
     account.addr,
@@ -118,7 +118,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     activityState.accountsOps,
     sessionId,
     historyType,
-    network?.id
+    network?.chainId
   ])
 
   useEffect(() => {
@@ -133,7 +133,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
         sessionId,
         filters: {
           account: account.addr,
-          network: network?.id
+          chainId: network?.chainId
         },
         pagination: {
           itemsPerPage: ITEMS_PER_PAGE,
@@ -175,10 +175,10 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
 
   // Reset network filter state when a network is removed
   useEffect(() => {
-    if (network?.id && !networks.find((n) => n.id === network?.id)) {
+    if (network?.chainId && !networks.find((n) => n.chainId === network?.chainId)) {
       setNetwork(null)
     }
-  }, [network?.id, networks])
+  }, [network?.chainId, networks])
 
   const handleSetAccountValue = useCallback(
     (accountOption: SelectValue) => {
@@ -195,7 +195,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
         setNetwork(null)
         return
       }
-      setNetwork(networks.filter((net) => net.id === networkOption.value)[0])
+      setNetwork(networks.filter((n) => n.chainId.toString() === networkOption.value)[0])
     },
     [networks]
   )
@@ -222,7 +222,8 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
             containerStyle={{ width: 260 }}
             options={networksOptions}
             value={
-              networksOptions.filter((opt) => opt.value === network?.id)[0] ?? ALL_NETWORKS_OPTION
+              networksOptions.filter((opt) => opt.value === network?.chainId.toString())[0] ??
+              ALL_NETWORKS_OPTION
             }
           />
         )}

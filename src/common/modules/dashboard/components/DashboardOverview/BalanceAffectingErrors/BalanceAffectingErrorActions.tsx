@@ -23,8 +23,8 @@ const BalanceAffectingErrorActions: FC<Props> = ({ actionName, meta, closeBottom
 
   if (actionName === 'select-rpc-url') {
     const network = useMemo(() => {
-      return networks.find((n) => n.id === meta?.network?.id)
-    }, [meta?.network?.id, networks])
+      return networks.find((n) => n.chainId === meta?.network?.chainId)
+    }, [meta?.network?.chainId, networks])
 
     useEffect(() => {
       if (statuses.updateNetwork === 'SUCCESS') {
