@@ -91,10 +91,10 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
 
     if (!isEstimationComplete) return true
 
-    const portfolioAccountOpCalls = networkSimulatedAccountOp[network.id].calls
+    const portfolioAccountOpCalls = networkSimulatedAccountOp[network.id]?.calls
     const signAccountOpCalls = signAccountOpState?.accountOp.calls
 
-    return portfolioAccountOpCalls.length !== signAccountOpCalls?.length
+    return portfolioAccountOpCalls?.length !== signAccountOpCalls?.length
   }, [
     initialSimulationLoaded,
     isEstimationComplete,
