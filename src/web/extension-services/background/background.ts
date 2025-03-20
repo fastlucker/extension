@@ -25,7 +25,6 @@ import { Fetch } from '@ambire-common/interfaces/fetch'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -53,7 +52,6 @@ import { handleActions } from '@web/extension-services/background/handlers/handl
 import { handleCleanUpOnPortDisconnect } from '@web/extension-services/background/handlers/handleCleanUpOnPortDisconnect'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
 import {
-  handleIsBrowserWindowFocused,
   handleKeepBridgeContentScriptAcrossSessions,
   handleRegisterScripts
 } from '@web/extension-services/background/handlers/handleScripting'
@@ -109,13 +107,6 @@ let mainCtrl: MainController
 handleRegisterScripts()
 handleKeepAlive()
 
-let isBrowserFocused = false
-
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-handleIsBrowserWindowFocused((isFocused) => {
-  isBrowserFocused = isFocused
-})
-
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   // wait for mainCtrl to be initialized before handling dapp requests
@@ -125,8 +116,6 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   if (tabId === undefined || !meta.sender?.url) {
     return
   }
-
-  while (!isBrowserFocused) await wait(500)
 
   const origin = getOriginFromUrl(meta.sender.url)
   const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
@@ -953,7 +942,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   initPortfolioContinuousUpdate()
   initDefiPositionsContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
-  await clearHumanizerMetaObjectFromStorage(storage)
 })()
 
 try {

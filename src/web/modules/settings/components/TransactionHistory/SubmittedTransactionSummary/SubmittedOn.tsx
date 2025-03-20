@@ -10,7 +10,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Props {
-  submittedAccountOp: SubmittedAccountOp
+  timestamp: SubmittedAccountOp['timestamp']
   fontSize?: number
   iconSize?: number
   networkId: NetworkId
@@ -18,14 +18,14 @@ interface Props {
 }
 
 const SubmittedOn = ({
-  submittedAccountOp,
+  timestamp,
   fontSize = 14,
   iconSize = 32,
   networkId,
   numberOfLines = 2
 }: Props) => {
   const { t } = useTranslation()
-  const date = new Date(submittedAccountOp.timestamp)
+  const date = new Date(timestamp)
 
   return (
     <View
