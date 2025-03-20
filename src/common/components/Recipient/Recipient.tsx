@@ -127,15 +127,6 @@ const Recipient: React.FC<Props> = ({
     [domains, setAddress]
   )
 
-  const closeSelectIfEmpty = useCallback(
-    (toggleMenu: RenderSelectedOptionParams['toggleMenu']) => {
-      if (filteredContacts.length > 0) return
-
-      toggleMenu()
-    },
-    [filteredContacts]
-  )
-
   const walletAccountsSourcedContactOptions = useMemo(
     () =>
       filteredContacts
@@ -163,11 +154,10 @@ const Recipient: React.FC<Props> = ({
     () =>
       filteredContacts
         .filter((contact) => !contact.isWalletAccount)
-        .map((contact, index) => ({
+        .map((contact) => ({
           value: contact.address,
           label: (
             <AddressBookContact
-              testID={`address-book-my-wallet-contact-${index + 1}`}
               key={contact.address}
               style={{
                 borderRadius: 0,
@@ -260,7 +250,6 @@ const Recipient: React.FC<Props> = ({
           onChangeText={setAddress}
           disabled={disabled}
           onFocus={toggleMenu}
-          onSubmitEditing={() => closeSelectIfEmpty(toggleMenu)}
           childrenBeforeButtons={
             <AccountsFilledIcon
               color={theme[isAddressInAddressBook ? 'primary' : 'secondaryText']}
@@ -288,8 +277,7 @@ const Recipient: React.FC<Props> = ({
       setAddress,
       disabled,
       theme,
-      isAddressInAddressBook,
-      closeSelectIfEmpty
+      isAddressInAddressBook
     ]
   )
 
