@@ -38,6 +38,7 @@ import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTo
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import getStyles from './styles'
 
 const SWAP_AND_BRIDGE_HC_URL = 'https://help.ambire.com/hc/en-us/articles/16748050198428'
@@ -98,11 +99,26 @@ const SwapAndBridgeScreen = () => {
     shouldEnableRoutesSelection,
     updateQuoteStatus,
     statuses: swapAndBridgeCtrlStatuses
+    // signAccountOpController
   } = useSwapAndBridgeControllerState()
   const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { portfolio } = useSelectedAccountControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
+  const { dispatch } = useBackgroundService()
+
+  useEffect(() => {
+    if (formStatus === SwapAndBridgeFormStatus.ReadyToSubmit) {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_SIGN_ACCOUNT_OP'
+      })
+    }
+  }, [formStatus, dispatch])
+
+  // useEffect(() => {
+  //   if (!signAccountOpController) return
+  //   console.log(signAccountOpController.status)
+  // }, [signAccountOpController])
 
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
