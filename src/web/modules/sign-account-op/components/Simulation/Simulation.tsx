@@ -35,7 +35,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   const { styles } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
   const {
-    portfolio: { tokens, collections, pending }
+    portfolio: { tokens, collections, pending, networkSimulatedAccountOp }
   } = useSelectedAccountControllerState()
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
   const { networks } = useNetworksControllerState()
@@ -86,10 +86,22 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     [pendingTokens]
   )
 
-  const isReloading = useMemo(
-    () => initialSimulationLoaded && !isEstimationComplete,
-    [isEstimationComplete, initialSimulationLoaded]
-  )
+  const isReloading = useMemo(() => {
+    if (!network?.id || !initialSimulationLoaded) return false
+
+    if (!isEstimationComplete) return true
+
+    const portfolioAccountOpCalls = networkSimulatedAccountOp[network.id]?.calls
+    const signAccountOpCalls = signAccountOpState?.accountOp.calls
+
+    return portfolioAccountOpCalls?.length !== signAccountOpCalls?.length
+  }, [
+    initialSimulationLoaded,
+    isEstimationComplete,
+    network?.id,
+    networkSimulatedAccountOp,
+    signAccountOpState?.accountOp.calls
+  ])
 
   const simulationErrorMsg = useMemo(() => {
     if (portfolioStatePending?.isLoading && !initialSimulationLoaded) return ''

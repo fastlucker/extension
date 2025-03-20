@@ -100,8 +100,6 @@ const ManageTokensSettingsScreen = () => {
       })
   }, [filteredTokens, networks, tokenPreferences])
 
-  const isLoading = useMemo(() => !isAllReady, [isAllReady])
-
   const setNetworkFilterValue = useCallback(({ value }: SelectValue) => {
     if (typeof value !== 'string') return
 
@@ -145,7 +143,7 @@ const ManageTokensSettingsScreen = () => {
       <ScrollableWrapper>
         <TokenSection
           variant="custom"
-          isLoading={isLoading}
+          isLoading={!isAllReady}
           data={customTokens}
           onTokenPreferenceOrCustomTokenChange={onTokenPreferenceOrCustomTokenChange}
           networkFilter={networkFilter}
@@ -153,7 +151,7 @@ const ManageTokensSettingsScreen = () => {
         />
         <TokenSection
           variant="hidden"
-          isLoading={isLoading}
+          isLoading={!isAllReady}
           data={hiddenTokens}
           onTokenPreferenceOrCustomTokenChange={onTokenPreferenceOrCustomTokenChange}
           networkFilter={networkFilter}
