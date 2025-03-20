@@ -80,7 +80,7 @@ const Recipient: React.FC<Props> = ({
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { contacts } = useAddressBookControllerState()
   const { domains } = useDomainsControllerState()
-  const menuClosedBecauseOfError = useRef(false)
+  const menuClosedAutomatically = useRef(false)
   const [bindManageBtnAnim, manageBtnAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -223,9 +223,9 @@ const Recipient: React.FC<Props> = ({
     ({ toggleMenu, isMenuOpen, selectRef }: RenderSelectedOptionParams) => {
       if (isMenuOpen && !filteredContacts.length) {
         toggleMenu()
-        menuClosedBecauseOfError.current = true
+        menuClosedAutomatically.current = true
       } else if (
-        menuClosedBecauseOfError.current &&
+        menuClosedAutomatically.current &&
         !isMenuOpen &&
         filteredContacts.length &&
         // Reopen the menu only if the address is invalid
@@ -234,7 +234,7 @@ const Recipient: React.FC<Props> = ({
         validation.isError
       ) {
         toggleMenu()
-        menuClosedBecauseOfError.current = false
+        menuClosedAutomatically.current = false
       }
 
       return (
