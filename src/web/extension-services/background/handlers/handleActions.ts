@@ -145,7 +145,7 @@ export const handleActions = async (
       return await mainCtrl.addNetwork(params)
     }
     case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
-      return await mainCtrl.removeNetwork(params.chainId, params.networkId)
+      return await mainCtrl.removeNetwork(params.chainId)
     }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
       return await mainCtrl.accounts.updateAccountPreferences(params)
@@ -391,7 +391,7 @@ export const handleActions = async (
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({
-        networkId: params?.networkId
+        chainId: params?.chainId ? BigInt(params?.chainId) : undefined
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {

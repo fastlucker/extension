@@ -55,20 +55,20 @@ const ManageDapp = ({
 
   const [network, setNetwork] = useState<Network>(
     networks.filter((n) => Number(n.chainId) === dapp?.chainId)[0] ||
-      networks.filter((n) => n.id === 'ethereum')[0]
+      networks.filter((n) => n.chainId.toString() === '1')[0]
   )
   const { dispatch } = useBackgroundService()
 
   const networksOptions: NetworkOption[] = useMemo(
     () =>
       networks.map((n) => ({
-        value: n.id,
+        value: n.chainId.toString(),
         label: (
           <Text weight="medium" numberOfLines={1}>
             {n.name}
           </Text>
         ),
-        icon: <NetworkIcon key={n.id} id={n.id} size={30} />
+        icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} size={30} />
       })),
     [networks]
   )
@@ -76,7 +76,7 @@ const ManageDapp = ({
   const handleSetNetworkValue = useCallback(
     (networkOption: NetworkOption) => {
       if (dapp?.url) {
-        const newNetwork = networks.filter((net) => net.id === networkOption.value)[0]
+        const newNetwork = networks.filter((n) => n.chainId.toString() === networkOption.value)[0]
         setNetwork(newNetwork)
         dispatch({
           type: 'CHANGE_CURRENT_DAPP_NETWORK',
@@ -159,7 +159,7 @@ const ManageDapp = ({
           containerStyle={{ width: 230 }}
           selectStyle={{ height: 40 }}
           options={networksOptions}
-          value={networksOptions.filter((opt) => opt.value === network.id)[0]}
+          value={networksOptions.filter((opt) => opt.value === network.chainId.toString())[0]}
         />
       </View>
       {!!shouldShowRemoveDappFromCatalog && (

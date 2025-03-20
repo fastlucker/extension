@@ -20,11 +20,11 @@ import styles from './ActivitySection.module.scss'
 import Pagination from './Pagination'
 
 const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
-  ethereum: <EthereumLogo width={24} height={24} />,
-  base: <BaseLogo width={24} height={24} />,
-  arbitrum: <ArbitrumLogo width={24} height={24} />,
-  optimism: <OptimismLogo width={24} height={24} />,
-  scroll: <ScrollLogo width={24} height={24} />
+  '1': <EthereumLogo width={24} height={24} />,
+  '8453': <BaseLogo width={24} height={24} />,
+  '42161': <ArbitrumLogo width={24} height={24} />,
+  '10': <OptimismLogo width={24} height={24} />,
+  '534352': <ScrollLogo width={24} height={24} />
 }
 
 const ActivitySection = () => {
@@ -51,8 +51,8 @@ const ActivitySection = () => {
             </tr>
           </thead>
           <tbody>
-            {transactions.map(({ network: networkId, legends, submittedAt, userOpHash, txId }) => {
-              const network = networks.find(({ id }) => id === networkId)
+            {transactions.map(({ chainId, legends, submittedAt, userOpHash, txId }) => {
+              const network = networks.find(({ chainId: nChainId }) => chainId === nChainId)
 
               return (
                 <tr key={txId}>
@@ -93,8 +93,8 @@ const ActivitySection = () => {
                     </div>
                   </td>
                   <td>
-                    {NETWORK_ICONS[networkId as Networks]}
-                    <span className={styles.network}>{networkId}</span>
+                    {NETWORK_ICONS[chainId.toString() as Networks]}
+                    <span className={styles.network}>{chainId.toString()}</span>
                   </td>
                   <td>
                     <span className={styles.xp}>{legends.totalXp}</span>

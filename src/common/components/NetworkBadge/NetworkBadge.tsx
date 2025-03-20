@@ -2,7 +2,6 @@ import React, { FC, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
 import Text, { TextWeight } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -13,7 +12,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import NetworkIcon from '../NetworkIcon'
 
 interface Props {
-  networkId?: Network['id']
+  chainId?: bigint
   withOnPrefix?: boolean
   style?: ViewStyle
   fontSize?: number
@@ -22,7 +21,7 @@ interface Props {
 }
 
 const NetworkBadge: FC<Props> = ({
-  networkId,
+  chainId,
   withOnPrefix,
   style,
   fontSize = 16,
@@ -33,11 +32,11 @@ const NetworkBadge: FC<Props> = ({
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
 
-  const networkName = useMemo(() => {
-    return networks.find((network) => network.id === networkId)?.name
-  }, [networkId, networks])
+  const network = useMemo(() => {
+    return networks.find((n) => n.chainId === chainId)
+  }, [chainId, networks])
 
-  if (!networkId) return null
+  if (!chainId) return null
 
   return (
     <View
@@ -58,9 +57,13 @@ const NetworkBadge: FC<Props> = ({
             on{' '}
           </Text>
         ) : null}
-        {networkName || t('Unknown network')}
+        {network?.name || t('Unknown network')}
       </Text>
-      <NetworkIcon style={{ backgroundColor: 'transparent' }} id={networkId} size={iconSize} />
+      <NetworkIcon
+        style={{ backgroundColor: 'transparent' }}
+        id={network?.chainId.toString() || ''}
+        size={iconSize}
+      />
     </View>
   )
 }

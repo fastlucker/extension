@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
+import { hasBecomeSmarter } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
@@ -27,6 +28,7 @@ import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -34,8 +36,6 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getTokenId } from '@web/utils/token'
 
-import { hasBecomeSmarter } from '@ambire-common/libs/account/account'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
@@ -60,11 +60,11 @@ const TokenDetails = ({
   const [coinGeckoTokenSlug, setCoinGeckoTokenSlug] = useState('')
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const { isHidden } = tokenPreferences.find(
-    ({ address, networkId }) => address === token?.address && networkId === token?.networkId
+    ({ address, chainId }) => address === token?.address && chainId === token?.chainId
   ) || { isHidden: false }
   const network = useMemo(
-    () => networks.find((n) => n.id === token?.networkId),
-    [networks, token?.networkId]
+    () => networks.find((n) => n.chainId === token?.chainId),
+    [networks, token?.chainId]
   )
 
   // if the token is a gas tank token, all actions except
@@ -102,8 +102,8 @@ const TokenDetails = ({
         id: 'send',
         text: t('Send'),
         icon: SendIcon,
-        onPress: ({ networkId, address }: TokenResult) =>
-          navigate(`${WEB_ROUTES.transfer}?networkId=${networkId}&address=${address}`),
+        onPress: ({ chainId, address }: TokenResult) =>
+          navigate(`${WEB_ROUTES.transfer}?chainId=${chainId}&address=${address}`),
         isDisabled: isGasTankOrRewardsToken || isAmountZero,
         tooltipText: isGasTankOrRewardsToken
           ? unavailableBecauseGasTankOrRewardsTokenTooltipText
@@ -116,8 +116,8 @@ const TokenDetails = ({
         text: t('Swap or Bridge'),
         icon: SwapAndBridgeIcon,
         iconWidth: 86,
-        onPress: ({ networkId, address }: TokenResult) =>
-          navigate(`${WEB_ROUTES.swapAndBridge}?networkId=${networkId}&address=${address}`),
+        onPress: ({ chainId, address }: TokenResult) =>
+          navigate(`${WEB_ROUTES.swapAndBridge}?chainId=${chainId}&address=${address}`),
         isDisabled: shouldDisableSwapAndBridge,
         tooltipText: isNetworkNotSupportedForSwapAndBridge
           ? t(
@@ -153,17 +153,18 @@ const TokenDetails = ({
         id: 'top-up',
         text: t('Top Up Gas Tank'),
         icon: TopUpIcon,
-        onPress: async ({ networkId, address }: TokenResult) => {
-          const assets: { network: string; address: string }[] = await fetch(
+        onPress: async ({ chainId, address }: TokenResult) => {
+          const assets: { chainId: number; address: string }[] = await fetch(
             `${RELAYER_URL}/gas-tank/assets`
           )
             .then((r) => r.json())
             .catch(() => addToast(t('Error while fetching from relayer'), { type: 'error' }))
           const canTopUp = !!assets.find(
-            (a) => getAddress(a.address) === getAddress(address) && a.network === networkId
+            (a) =>
+              getAddress(a.address) === getAddress(address) &&
+              a.chainId.toString() === chainId.toString()
           )
-          if (canTopUp)
-            navigate(`${WEB_ROUTES.topUpGasTank}?networkId=${networkId}&address=${address}`)
+          if (canTopUp) navigate(`${WEB_ROUTES.topUpGasTank}?chainId=${chainId}&address=${address}`)
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
         isDisabled: !canToToppedUp || isBasicAcc,
@@ -236,7 +237,7 @@ const TokenDetails = ({
     ]
   )
   useEffect(() => {
-    if (!token?.address || !token?.networkId || !networks.length) return
+    if (!token?.address || !token?.chainId || !networks.length) return
 
     setIsTokenInfoLoading(true)
 
@@ -254,7 +255,7 @@ const TokenDetails = ({
       .then((response) => response.json())
       .then((result) => setCoinGeckoTokenSlug(result.web_slug))
       .finally(() => setIsTokenInfoLoading(false))
-  }, [t, token?.address, token?.networkId, networks, addToast, network])
+  }, [t, token?.address, token?.chainId, networks, addToast, network])
 
   const handleHideToken = () => {
     if (!token) return
@@ -264,7 +265,7 @@ const TokenDetails = ({
       params: {
         token: {
           address: token.address,
-          networkId: token.networkId
+          chainId: token.chainId
         }
       }
     })
@@ -273,7 +274,7 @@ const TokenDetails = ({
 
   const {
     flags: { onGasTank },
-    networkId,
+    chainId,
     symbol,
     address
   } = token
@@ -293,7 +294,7 @@ const TokenDetails = ({
           withContainer
           address={address}
           onGasTank={onGasTank}
-          networkId={networkId}
+          chainId={chainId}
         />
         <View style={styles.tokenInfo}>
           <View style={styles.tokenSymbolAndNetwork}>

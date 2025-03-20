@@ -22,7 +22,6 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
@@ -489,8 +488,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         providers: mainCtrl.providers.providers
       })
       const networksToUpdate = mainCtrl.networks.networks
-        .filter(({ id }) => !failedNetworkIds.includes(id))
-        .map(({ id }) => id)
+        .filter(({ chainId }) => !failedNetworkIds.includes(chainId.toString()))
+        .map(({ chainId }) => chainId)
 
       await mainCtrl.accounts.updateAccountState(
         mainCtrl.selectedAccount.account.addr,
@@ -514,15 +513,15 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       clearTimeout(backgroundState.accountStatePendingInterval)
 
     const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
-      .map((op) => op.networkId)
-      .filter((networkId, index, self) => self.indexOf(networkId) === index)
+      .map((op) => op.chainId)
+      .filter((chainId, index, self) => self.indexOf(chainId) === index)
     await mainCtrl.accounts.updateAccountState(
       mainCtrl.selectedAccount.account.addr,
       'pending',
       networksToUpdate
     )
 
-    const updateAccountState = async (networkIds: NetworkId[]) => {
+    const updateAccountState = async (chainIds: bigint[]) => {
       if (!mainCtrl.selectedAccount.account) {
         console.error('No selected account to update pending state')
         return
@@ -531,14 +530,14 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       await mainCtrl.accounts.updateAccountState(
         mainCtrl.selectedAccount.account.addr,
         'pending',
-        networkIds
+        chainIds
       )
 
       // if there are no more broadcastedButNotConfirmed ops for the network,
       // remove the timeout
       const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
-        .map((op) => op.networkId)
-        .filter((networkId, index, self) => self.indexOf(networkId) === index)
+        .map((op) => op.chainId)
+        .filter((chainId, index, self) => self.indexOf(chainId) === index)
       if (!networksToUpdate.length) {
         clearTimeout(backgroundState.accountStatePendingInterval)
       } else {
@@ -591,16 +590,16 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // Delete the network ids that have been successfully re-fetched so the logic can be re-applied
       // if the RPC goes down again
       if (retriedFastAccountStateReFetchForNetworks.length) {
-        retriedFastAccountStateReFetchForNetworks.forEach((networkId, index) => {
-          if (!failedNetworkIds.includes(networkId)) {
+        retriedFastAccountStateReFetchForNetworks.forEach((chainId, index) => {
+          if (!failedNetworkIds.includes(chainId)) {
             delete retriedFastAccountStateReFetchForNetworks[index]
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             mainCtrl.updateSelectedAccountPortfolio(
               false,
-              mainCtrl.networks.networks.find((n) => n.id === networkId)
+              mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
             )
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.defiPositions.updatePositions({ networkId })
+            mainCtrl.defiPositions.updatePositions({ chainId: BigInt(chainId) })
           }
         })
       }
@@ -609,13 +608,16 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       const recentlyFailedNetworks = failedNetworkIds.filter(
         (id) =>
           !backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks.find(
-            (networkId) => networkId === id
+            (chainId) => chainId === id
           )
       )
 
       const updateTime = recentlyFailedNetworks.length ? 8000 : 20000
 
-      await mainCtrl.accounts.updateAccountStates('latest', failedNetworkIds)
+      await mainCtrl.accounts.updateAccountStates(
+        'latest',
+        failedNetworkIds.map((id) => BigInt(id))
+      )
       // Add the network ids that have been retried to the list
       failedNetworkIds.forEach((id) => {
         if (retriedFastAccountStateReFetchForNetworks.includes(id)) return
@@ -638,7 +640,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
-    const currentNetwork = mainCtrl.networks.networks.filter((n) => n.id === accountOp.networkId)[0]
+    const currentNetwork = mainCtrl.networks.networks.filter(
+      (n) => n.chainId === accountOp.chainId
+    )[0]
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
 

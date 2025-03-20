@@ -35,7 +35,6 @@ type Props = {
   explorerUrl: string
   nativeAssetSymbol: string
   nativeAssetName: string
-  networkId?: string
   allowRemoveNetwork?: boolean
   predefined?: boolean
 }
@@ -50,7 +49,6 @@ const NetworkDetails = ({
   nativeAssetSymbol,
   nativeAssetName,
   allowRemoveNetwork,
-  networkId,
   predefined
 }: Props) => {
   const { t } = useTranslation()
@@ -82,16 +80,16 @@ const NetworkDetails = ({
   }, [openDialog])
 
   const removeCustomNetwork = useCallback(() => {
-    if (networkId) {
+    if (chainId) {
       dispatch({
         type: 'MAIN_CONTROLLER_REMOVE_NETWORK',
-        params: { chainId, networkId }
+        params: { chainId }
       })
       closeDialog()
     } else {
       addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
     }
-  }, [networkId, dispatch, closeDialog, addToast, chainId])
+  }, [dispatch, closeDialog, addToast, chainId])
 
   const renderInfoItem = useCallback(
     (title: string, value: string, withBottomSpacing = true) => {
@@ -109,7 +107,7 @@ const NetworkDetails = ({
               <View style={spacings.mrMi}>
                 <NetworkIcon
                   key={name.toLowerCase() as any}
-                  id={name.toLowerCase() as any}
+                  id={chainId.toString()}
                   uris={iconUrls.length ? iconUrls : undefined}
                   size={32}
                 />
@@ -226,7 +224,7 @@ const NetworkDetails = ({
               text={t('Remove')}
               type="danger"
               onPress={() => {
-                if (!networkId || !allowRemoveNetwork) return
+                if (!chainId || !allowRemoveNetwork) return
                 promptRemoveCustomNetwork()
               }}
               hasBottomSpacing={false}
@@ -240,7 +238,7 @@ const NetworkDetails = ({
         <View style={flexbox.flex1}>
           {renderInfoItem(t('Network Name'), name)}
           {renderRpcUrlsItem()}
-          {renderInfoItem(t('Chain ID'), chainId)}
+          {renderInfoItem(t('Chain ID'), chainId.toString())}
           {renderInfoItem(t('Currency Symbol'), nativeAssetSymbol)}
           {renderInfoItem(t('Currency Name'), nativeAssetName)}
           {renderInfoItem(t('Block Explorer URL'), explorerUrl, false)}

@@ -50,7 +50,9 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
   const { validTokens, customTokens, temporaryTokens } = usePortfolioControllerState()
   const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
 
-  const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
+  const [network, setNetwork] = useState<Network>(
+    networks.filter((n) => n.chainId.toString() === '1')[0]
+  )
 
   const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -72,7 +74,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
 
   const handleSetNetworkValue = useCallback(
     (networkOption: NetworkOption) => {
-      setNetwork(networks.filter((net) => net.id === networkOption.value)[0])
+      setNetwork(networks.filter((net) => net.chainId.toString() === networkOption.value)[0])
     },
     [networks]
   )
@@ -80,9 +82,9 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
   const networksOptions: NetworkOption[] = useMemo(
     () =>
       networks.map((n) => ({
-        value: n.id,
+        value: n.chainId.toString(),
         label: <Text weight="medium">{t(n.name)}</Text>,
-        icon: <NetworkIcon id={n.id} name={n.id as NetworkIconIdType} />
+        icon: <NetworkIcon id={n.chainId.toString()} name={n.name as NetworkIconIdType} />
       })),
     [t, networks]
   )
@@ -95,8 +97,8 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
   const isCustomToken = useMemo(
     () =>
       !!customTokens.find(
-        ({ address: addr, networkId }) =>
-          addr.toLowerCase() === address.toLowerCase() && networkId === network.id
+        ({ address: addr, chainId }) =>
+          addr.toLowerCase() === address.toLowerCase() && chainId === network.chainId
       ),
     [customTokens, address, network]
   )
@@ -136,7 +138,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
       params: {
         token: {
           address: temporaryToken.address,
-          networkId: network.id,
+          chainId: network.chainId,
           standard: 'ERC20'
         },
         shouldUpdatePortfolio: true
@@ -159,9 +161,9 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
   const handleTokenType = useCallback(() => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN',
-      params: { token: { address, networkId: network.id } }
+      params: { token: { address, chainId: network.chainId } }
     })
-  }, [address, dispatch, network.id])
+  }, [address, dispatch, network.chainId])
 
   useEffect(() => {
     const handleEffect = async () => {
@@ -188,7 +190,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
           setIsLoading(true)
           dispatch({
             type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS',
-            params: { networkId: network?.id, additionalHint: getAddress(address) }
+            params: { chainId: network?.chainId, additionalHint: getAddress(address) }
           })
           setAdditionalHintRequested(true)
         } else if (tokenTypeEligibility === undefined) {
@@ -228,7 +230,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
         // @ts-ignore
         setValue={handleSetNetworkValue}
         options={networksOptions}
-        value={networksOptions.filter((opt) => opt.value === network.id)[0]}
+        value={networksOptions.filter((opt) => opt.value === network.chainId.toString())[0]}
         label={t('Choose Network')}
         containerStyle={spacings.mbMd}
       />
@@ -281,7 +283,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
                 width={22}
                 height={22}
                 withContainer
-                networkId={network.id}
+                chainId={network.chainId}
                 address={address}
               />
               <Text fontSize={16} style={spacings.mlTy} weight="semiBold">

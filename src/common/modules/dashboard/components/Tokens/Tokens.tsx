@@ -50,7 +50,7 @@ const hasAmount = (token: TokenResult) => {
 // if the token is on the gas tank and the network is not a relayer network (a custom network)
 // we should not show it on dashboard
 const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: Network[]) => {
-  return token.flags.onGasTank && !networks.find((n) => n.id === token.networkId && n.hasRelayer)
+  return token.flags.onGasTank && !networks.find((n) => n.chainId === token.chainId && n.hasRelayer)
 }
 
 const { isPopup } = getUiType()
@@ -92,7 +92,7 @@ const Tokens = ({
           if (dashboardNetworkFilter === 'rewards') return token.flags.rewardsType
           if (dashboardNetworkFilter === 'gasTank') return token.flags.onGasTank
 
-          return token.networkId === dashboardNetworkFilter && !token.flags.onGasTank
+          return token.chainId === dashboardNetworkFilter && !token.flags.onGasTank
         })
         .filter((token) => tokenSearch({ search: searchValue, token, networks })),
     [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
@@ -114,12 +114,12 @@ const Tokens = ({
 
           const hasTokenAmount = hasAmount(token)
           const isCustom = customTokens.find(
-            ({ address, networkId }) =>
-              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+            ({ address, chainId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
           )
           const isPinned = PINNED_TOKENS.find(
-            ({ address, networkId }) =>
-              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+            ({ address, chainId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
           )
 
           return (
@@ -298,9 +298,7 @@ const Tokens = ({
       return (
         <TokenItem
           token={item}
-          testID={`token-${item.address}-${item.networkId}${
-            item.flags.onGasTank ? '-gastank' : ''
-          }`}
+          testID={`token-${item.address}-${item.chainId}${item.flags.onGasTank ? '-gastank' : ''}`}
         />
       )
     },

@@ -7,7 +7,7 @@ import { View } from 'react-native'
 
 import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelper.json'
 import { AMBIRE_ACCOUNT_FACTORY, SINGLETON } from '@ambire-common/consts/deploy'
-import { NetworkFeature, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkFeature } from '@ambire-common/interfaces/network'
 import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { getRpcProvider } from '@ambire-common/services/provider'
@@ -33,13 +33,13 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import getStyles from './styles'
 
 type Props = {
-  networkId?: NetworkId
+  chainId?: bigint
   features: NetworkFeature[] | undefined
   withRetryButton?: boolean
   handleRetry?: () => void
 }
 
-const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handleRetry }: Props) => {
+const NetworkAvailableFeatures = ({ chainId, features, withRetryButton, handleRetry }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
@@ -50,8 +50,8 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
   const [checkedDeploy, setCheckedDeploy] = useState<boolean>(false)
 
   const selectedNetwork = useMemo(
-    () => networks.find((network) => network.id === networkId),
-    [networks, networkId]
+    () => networks.find((network) => network.chainId === chainId),
+    [networks, chainId]
   )
 
   useEffect(() => {
@@ -121,7 +121,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
       id: new Date().getTime(),
       meta: {
         isSignAction: true,
-        networkId: selectedNetwork.id,
+        chainId: selectedNetwork.chainId,
         accountAddr: account.addr as string
       },
       action: txn

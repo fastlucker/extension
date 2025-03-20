@@ -125,7 +125,7 @@ type MainControllerAddNetwork = {
 
 type MainControllerRemoveNetwork = {
   type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: { chainId: ChainId; networkId: NetworkId }
+  params: { chainId: ChainId }
 }
 
 type AccountsControllerUpdateAccountPreferences = {
@@ -250,9 +250,7 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
-  params?: {
-    networkId?: Network['id']
-  }
+  params?: { chainId?: bigint | string }
 }
 
 type MainControllerUpdateSelectedAccountPortfolio = {
@@ -272,7 +270,7 @@ type PortfolioControllerGetTemporaryToken = {
   type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS'
   params: {
     additionalHint: TokenResult['address']
-    networkId: NetworkId
+    chainId: bigint
   }
 }
 

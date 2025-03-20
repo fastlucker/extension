@@ -36,7 +36,7 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
   const {
     symbol,
     address,
-    networkId,
+    chainId,
     flags: { onGasTank }
   } = token
   const { t } = useTranslation()
@@ -44,7 +44,7 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
   const { networks } = useNetworksControllerState()
   const { tokenPreferences } = usePortfolioControllerState()
   const { isHidden } = tokenPreferences.find(
-    ({ address: addr, networkId: nId }) => addr === address && nId === networkId
+    ({ address: addr, chainId: nChainId }) => addr === address && nChainId === chainId
   ) || { isHidden: false }
   const { styles, theme } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -57,7 +57,7 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
   })
   const tokenId = getTokenId(token)
 
-  const simulatedAccountOp = portfolio.networkSimulatedAccountOp[token.networkId]
+  const simulatedAccountOp = portfolio.networkSimulatedAccountOp[token.chainId.toString()]
 
   const {
     balanceFormatted,
@@ -98,7 +98,7 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
 
   const closeBottomSheetWrapped = useCallback(() => {
     if (isHidden) {
-      const network = networks.find(({ id }) => id === token.networkId)
+      const network = networks.find(({ chainId: nChainId }) => nChainId === token.chainId)
       if (!network) return
 
       dispatch({
@@ -110,7 +110,7 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
       })
     }
     closeBottomSheet()
-  }, [closeBottomSheet, dispatch, isHidden, networks, token.networkId])
+  }, [closeBottomSheet, dispatch, isHidden, networks, token.chainId])
 
   const textColor = useMemo(() => {
     if (!isPending) return theme.primaryText
@@ -145,7 +145,7 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
                 <TokenIcon
                   withContainer
                   address={address}
-                  networkId={networkId}
+                  chainId={chainId}
                   onGasTank={onGasTank}
                   containerHeight={40}
                   containerWidth={40}
