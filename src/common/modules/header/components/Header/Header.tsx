@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 import { ColorValue, Image, View, ViewStyle } from 'react-native'
 
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
@@ -14,13 +14,15 @@ import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { getUiType } from '@web/utils/uiType'
 
+import AmbireLogoHorizontalWithOG from '@common/components/AmbireLogoHorizontalWithOG'
 import getStyles from './styles'
 
 interface Props {
   mode?: 'title' | 'image-and-title' | 'custom-inner-content' | 'custom'
-  customTitle?: string
+  customTitle?: string | ReactNode
   displayBackButtonIn?: 'popup' | 'tab' | 'always' | 'never'
   withAmbireLogo?: boolean
+  withOG?: boolean
   image?: string
   children?: any
   backgroundColor?: ColorValue
@@ -37,6 +39,7 @@ const Header = ({
   customTitle,
   displayBackButtonIn,
   withAmbireLogo,
+  withOG,
   children,
   backgroundColor,
   forceBack,
@@ -115,9 +118,15 @@ const Header = ({
           )}
           {mode === 'custom-inner-content' && <View style={styles.containerInner}>{children}</View>}
           {/* Middle content end */}
-          <View style={[styles.sideContainer, flexbox.alignEnd]}>
-            {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
-          </View>
+          {!!withAmbireLogo && (
+            <View style={[styles.sideContainer, flexbox.alignEnd]}>
+              {withOG ? (
+                <AmbireLogoHorizontalWithOG width={72} />
+              ) : (
+                <AmbireLogoHorizontal width={72} />
+              )}
+            </View>
+          )}
         </View>
       ) : (
         children

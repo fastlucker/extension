@@ -147,22 +147,6 @@ const MainRoutes = () => {
               <Route path={WEB_ROUTES.saveImportedSeed} element={<SaveImportedSeedScreen />} />
 
               <Route element={<AuthenticatedRoute />}>
-                <Route
-                  path={WEB_ROUTES.transfer}
-                  element={
-                    <TransferControllerStateProvider>
-                      <TransferScreen />
-                    </TransferControllerStateProvider>
-                  }
-                />
-                <Route
-                  path={WEB_ROUTES.topUpGasTank}
-                  element={
-                    <TransferControllerStateProvider isTopUp>
-                      <TransferScreen />
-                    </TransferControllerStateProvider>
-                  }
-                />
                 <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
                 <Route element={<SettingsRoutesProvider />}>
                   <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
@@ -210,6 +194,22 @@ const MainRoutes = () => {
 
         <Route element={<KeystoreUnlockedRoute />}>
           <Route element={<AuthenticatedRoute />}>
+            <Route
+              path={WEB_ROUTES.transfer}
+              element={
+                <TransferControllerStateProvider>
+                  <TransferScreen />
+                </TransferControllerStateProvider>
+              }
+            />
+            <Route
+              path={WEB_ROUTES.topUpGasTank}
+              element={
+                <TransferControllerStateProvider isTopUp>
+                  <TransferScreen />
+                </TransferControllerStateProvider>
+              }
+            />
             <Route
               path={WEB_ROUTES.signAccountOp}
               element={
