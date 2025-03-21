@@ -92,7 +92,10 @@ const Tokens = ({
           if (dashboardNetworkFilter === 'rewards') return token.flags.rewardsType
           if (dashboardNetworkFilter === 'gasTank') return token.flags.onGasTank
 
-          return token.chainId === dashboardNetworkFilter && !token.flags.onGasTank
+          return (
+            token?.chainId?.toString() === dashboardNetworkFilter.toString() &&
+            !token.flags.onGasTank
+          )
         })
         .filter((token) => tokenSearch({ search: searchValue, token, networks })),
     [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
