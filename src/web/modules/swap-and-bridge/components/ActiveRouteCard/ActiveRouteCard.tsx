@@ -34,7 +34,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
   const steps = useMemo(() => {
     // TODO: Migrate Socket to SwapAndBridgeStep
     // return getQuoteRouteSteps(activeRoute.route.userTxs)
-    return getQuoteRouteSteps(activeRoute.route.steps)
+    return activeRoute.route.steps
   }, [activeRoute.route.steps])
 
   const handleRejectActiveRoute = useCallback(() => {
