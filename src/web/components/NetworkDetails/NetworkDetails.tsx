@@ -107,7 +107,7 @@ const NetworkDetails = ({
               <View style={spacings.mrMi}>
                 <NetworkIcon
                   key={name.toLowerCase() as any}
-                  id={chainId.toString()}
+                  id={name.toLowerCase()}
                   uris={iconUrls.length ? iconUrls : undefined}
                   size={32}
                 />
@@ -125,7 +125,7 @@ const NetworkDetails = ({
         </View>
       )
     },
-    [name, iconUrls]
+    [name, iconUrls, chainId]
   )
 
   const renderRpcUrlsItem = useCallback(() => {
