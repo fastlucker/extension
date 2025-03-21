@@ -967,6 +967,15 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         initDefiPositionsContinuousUpdate()
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
+        // The selectedAccount portfolio is reset onLoad of the popup
+        // (from the background) while the portfolio update is triggered
+        // by a useEffect. If that useEffect doesn't trigger, the portfolio
+        // state will remain reset until an automatic update is triggered.
+        // Example: the user has the dashboard opened in tab, opens the popup
+        // and closes it immediately.
+        if (port.name === 'popup') {
+          mainCtrl.portfolio.forceEmitUpdate()
+        }
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           ledgerCtrl.cleanUp()

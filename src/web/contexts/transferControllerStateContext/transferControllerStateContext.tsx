@@ -157,6 +157,11 @@ const TransferControllerStateProvider = ({
   // and we need to select another token
   useEffect(() => {
     if (!state.selectedToken?.address || !transferCtrl) return
+    const isSelectedTokenNetworkLoading =
+      portfolio.pending[state.selectedToken.networkId]?.isLoading ||
+      portfolio.latest[state.selectedToken.networkId]?.isLoading
+
+    if (isSelectedTokenNetworkLoading) return
 
     const isSelectedTokenInTokens = tokens.find(
       (token) =>
@@ -171,6 +176,8 @@ const TransferControllerStateProvider = ({
       selectedToken: tokens[0]
     })
   }, [
+    portfolio.latest,
+    portfolio.pending,
     state.selectedToken?.address,
     state.selectedToken?.flags.rewardsType,
     state.selectedToken?.chainId,
