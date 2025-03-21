@@ -195,6 +195,7 @@ const NetworkForm = ({
   const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
   const [selectedRpcUrl, setSelectedRpcUrl] = useState(selectedNetwork?.selectedRpcUrl)
   const networkFormValues = watch()
+  const errorCount = Object.keys(errors).length
 
   const isSomethingUpdated = useMemo(() => {
     if (selectedRpcUrl !== selectedNetwork?.selectedRpcUrl) return true
@@ -535,11 +536,13 @@ const NetworkForm = ({
 
   const isSaveOrAddButtonDisabled = useMemo(
     () =>
-      !!Object.keys(errors).length ||
+      !!errorCount ||
       isValidatingRPC ||
       features.some((f) => f.level === 'loading') ||
       !!features.filter((f) => f.id === 'flagged')[0],
-    [errors, features, isValidatingRPC]
+    // errorCount must be a dependency in order to re-calculate the value when
+    // errors change. Using errors as a dependency doesn't work
+    [errorCount, features, isValidatingRPC]
   )
 
   return (
