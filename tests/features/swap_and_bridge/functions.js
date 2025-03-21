@@ -2,10 +2,27 @@ import { timeout } from 'rxjs'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { typeText } from '../../common-helpers/typeText'
 import { SELECTORS } from '../../common/selectors/selectors'
-// ToDo: Import and reuse '../../common/transactions'
+// TODO: Import and reuse '../../common/transactions'
 import { TOKEN_ADDRESS } from './constants'
 
 export async function selectButton(page, text) {
+  if (text === 'Proceed') {
+    // Get all elements that contain the text "Proceed"
+    const elements = await page.$x(`//div[contains(text(), "${text}")]`)
+    
+    if (elements.length > 1) {
+      // Click the 2nd matching element (index 1)
+      await elements[1].click()
+    } else {
+      await elements[0].click()
+    }
+  } else {
+    await clickOnElement(page, `text=${text}`)
+  }
+}
+
+export async function selectFirstButton(page, text) {
+  // TODO: Refactor this function and select button after adding data-testId for 'Proceed' button placeholder
   await clickOnElement(page, `text=${text}`)
 }
 
@@ -435,4 +452,11 @@ export async function verifySendMaxTokenAmount(page, send_token, send_network) {
     console.log(`⚠️ Token: ${send_token} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}, roundMaxBalance: ${roundMaxBalance}`)
   } 
   expect(roundMaxBalance).toBeCloseTo(roundSendAmount, valueDecimals - 1) // 1 decimal presisison 
+}
+
+export async function verifyAutoRefreshRoute(page){
+  // Wait for "Select another route" to appear and disappear
+  await page.waitForSelector('text=Select another route', { visible: true, timeout: 1000}).catch(() => null)
+  const routeLoading = await page.waitForSelector('text=Select another route', { hidden: true, timeout: 63000}).catch(() => null)
+  expect(routeLoading).toBe(null)
 }

@@ -19,7 +19,9 @@ import {
   changeRoutePriority,
   verifySendMaxTokenAmount,
   verifyNonDefaultReceiveToken,
-  verifyDefaultReceiveToken
+  verifyDefaultReceiveToken,
+  verifyAutoRefreshRoute,
+  selectFirstButton
 } from './functions'
 
 describe('Swap & Bridge transactions with a Basic Account', () => {
@@ -66,28 +68,24 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async () => {
-    let text = await prepareSwapAndBridge(page, 0.03, 'WALLET', 'base', 'USDC')
-    // Get receive amount of the first transaction
-    const reverseAmount1 = 0.000324
-    await batchActionPage(
-      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
-    )
+    let text = await prepareSwapAndBridge(page, 0.03, 'WALLET', 'base', 'USDC')  
+    let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    await batchActionPage(actionPage)
     text = await prepareSwapAndBridge(page, 0.02, 'USDC', 'base', 'ETH')
-    // Get receive amount of the second transaction
-    const reverseAmount2 = 0.000010453
-    const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
     await signActionPage(actionPage)
-    actionPage.close() // To be able to run the reverse below
 
     // Reverese the above batch to recover tokens balances
+    actionPage.close() // To be able to run the reverse below
+    const reverseAmount1 = 0.000324
+    const reverseAmount2 = 0.000010453
+
     text = await prepareSwapAndBridge(page, reverseAmount1, 'USDC', 'base', 'WALLET')
-    await batchActionPage(
-      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
-    )
+    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    await batchActionPage(actionPage)
     text = await prepareSwapAndBridge(page, reverseAmount2, 'ETH', 'base', 'USDC')
-    await signActionPage(
-      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
-    )
+    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+    await signActionPage(actionPage)
   })
 
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async () => {
@@ -120,7 +118,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     actionPage.close()
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
     actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectButton(callback_page, 'Proceed')
+      selectFirstButton(callback_page, 'Proceed')
     )
     actionPage.close()
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
@@ -142,8 +140,9 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await clickOnSecondRoute(page)
   })
 
-  it.skip('should auto-refresh active route on 60s during Swap & Bridge with a Smart Account', async () => {
-    // TODO: Implement the test
+  it('should auto-refresh active route on 60s during Swap & Bridge with a Smart Account', async () => {
+    await prepareSwapAndBridge(page, 0.009, 'USDC', 'base', 'WALLET')
+    await verifyAutoRefreshRoute(page)
   })
 
   it('should switch tokens during Swap & Bridge with a Smart Account', async () => {
