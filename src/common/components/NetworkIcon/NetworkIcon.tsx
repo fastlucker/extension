@@ -42,11 +42,10 @@ const NetworkIcon = ({
 }: Props) => {
   const { networks } = useNetworksControllerState()
 
-  const networkName = useMemo(() => {
-    if (id === '56') return 'binance-smart-chain'
-
-    return (networks.find((n) => n.chainId.toString() === id)?.name || id).toLowerCase()
-  }, [id, networks])
+  const networkName = useMemo(
+    () => (networks.find((n) => n.chainId.toString() === id)?.name || id).toLowerCase(),
+    [id, networks]
+  )
 
   const network = useMemo(() => {
     return benzinNetwork ?? networks.find((n) => n.name.toLowerCase() === networkName)
