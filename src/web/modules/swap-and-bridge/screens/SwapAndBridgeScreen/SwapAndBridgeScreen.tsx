@@ -248,6 +248,7 @@ const SwapAndBridgeScreen = () => {
                         inputStyle={spacings.pl0}
                         error={validateFromAmount.message || ''}
                         errorType="warning"
+                        testID="from-amount-input-sab"
                       />
                     </View>
                     <Select
@@ -288,7 +289,12 @@ const SwapAndBridgeScreen = () => {
                           >
                             <FlipIcon width={11} height={11} color={theme.primary} />
                           </View>
-                          <Text fontSize={12} appearance="primary" weight="medium">
+                          <Text
+                            fontSize={12}
+                            appearance="primary"
+                            weight="medium"
+                            testID="switch-currency-sab"
+                          >
                             {fromAmountFieldMode === 'token'
                               ? `≈ ${
                                   fromAmountInFiat
@@ -535,7 +541,7 @@ const SwapAndBridgeScreen = () => {
                 style={[spacings.pt, { borderTopWidth: 1, borderTopColor: theme.secondaryBorder }]}
               >
                 {!!highPriceImpactInPercentage && (
-                  <View style={spacings.mbTy}>
+                  <View style={spacings.mbTy} testID="high-price-impact-sab">
                     <Alert type="error" withIcon={false}>
                       <Checkbox
                         value={highPriceImpactConfirmed}
