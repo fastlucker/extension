@@ -103,7 +103,6 @@ const ManageTokensSettingsScreen = () => {
 
   const setNetworkFilterValue = useCallback(({ value }: SelectValue) => {
     if (typeof value !== 'string') return
-    console.log('setNetworkFilterValue', value)
     setNetworkFilter(value)
   }, [])
 
