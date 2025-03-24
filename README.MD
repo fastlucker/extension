@@ -8,6 +8,8 @@ Request invite code: [Discord](https://discord.com/invite/Ambire) | [Telegram](h
 
 [Report a bug](https://help.ambire.com/hc/en-us/requests/new) | [Request features](https://help.ambire.com/hc/en-us/requests/new)
 
+![Mockup](./mockups/mockup-banner.jpg)
+
 ## Environment Setup
 
 Built in a hybrid approach (with React Native and React Native Web) so that in a single codebase we can support building cross-browser extensions, mobile apps and web apps.
