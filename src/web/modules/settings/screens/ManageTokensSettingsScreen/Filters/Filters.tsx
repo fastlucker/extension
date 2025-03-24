@@ -36,7 +36,7 @@ const Filters: FC<Props> = ({ control, networkFilter, setNetworkFilterValue }) =
     () => [
       ALL_NETWORKS_OPTION,
       ...networks.map((n) => ({
-        value: n.chainId.toString(),
+        value: n.name,
         label: <Text weight="medium">{n.name}</Text>,
         icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} />
       }))

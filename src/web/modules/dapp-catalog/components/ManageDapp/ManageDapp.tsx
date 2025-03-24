@@ -62,7 +62,7 @@ const ManageDapp = ({
   const networksOptions: NetworkOption[] = useMemo(
     () =>
       networks.map((n) => ({
-        value: n.chainId.toString(),
+        value: n.name,
         label: (
           <Text weight="medium" numberOfLines={1}>
             {n.name}
@@ -76,7 +76,7 @@ const ManageDapp = ({
   const handleSetNetworkValue = useCallback(
     (networkOption: NetworkOption) => {
       if (dapp?.url) {
-        const newNetwork = networks.filter((n) => n.chainId.toString() === networkOption.value)[0]
+        const newNetwork = networks.filter((n) => n.name === networkOption.value)[0]
         setNetwork(newNetwork)
         dispatch({
           type: 'CHANGE_CURRENT_DAPP_NETWORK',
@@ -154,12 +154,12 @@ const ManageDapp = ({
           {t('Select App Network')}
         </Text>
         <Select
-          setValue={handleSetNetworkValue}
+          setValue={handleSetNetworkValue as any}
           menuOptionHeight={48}
           containerStyle={{ width: 230 }}
           selectStyle={{ height: 40 }}
           options={networksOptions}
-          value={networksOptions.filter((opt) => opt.value === network.chainId.toString())[0]}
+          value={networksOptions.filter((opt) => opt.value === network.name)[0]}
         />
       </View>
       {!!shouldShowRemoveDappFromCatalog && (

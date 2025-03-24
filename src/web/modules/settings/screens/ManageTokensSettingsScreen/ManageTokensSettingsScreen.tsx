@@ -45,7 +45,8 @@ const ManageTokensSettingsScreen = () => {
     return tokens.filter((token) => {
       const { flags, chainId } = token
       if (flags.onGasTank || !!flags.rewardsType) return false
-      if (networkFilter !== 'all' && chainId.toString() !== networkFilter) return false
+      const network = networks.find((n) => n.chainId === chainId)
+      if (networkFilter !== 'all' && network?.name !== networkFilter) return false
 
       return tokenSearch({ search, token, networks })
     })
@@ -102,7 +103,7 @@ const ManageTokensSettingsScreen = () => {
 
   const setNetworkFilterValue = useCallback(({ value }: SelectValue) => {
     if (typeof value !== 'string') return
-
+    console.log('setNetworkFilterValue', value)
     setNetworkFilter(value)
   }, [])
 

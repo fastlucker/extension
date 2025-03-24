@@ -74,7 +74,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
 
   const handleSetNetworkValue = useCallback(
     (networkOption: NetworkOption) => {
-      setNetwork(networks.filter((net) => net.chainId.toString() === networkOption.value)[0])
+      setNetwork(networks.filter((net) => net.name === networkOption.value)[0])
     },
     [networks]
   )
@@ -82,9 +82,11 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
   const networksOptions: NetworkOption[] = useMemo(
     () =>
       networks.map((n) => ({
-        value: n.chainId.toString(),
+        value: n.name,
         label: <Text weight="medium">{t(n.name)}</Text>,
-        icon: <NetworkIcon id={n.chainId.toString()} name={n.name as NetworkIconIdType} />
+        icon: (
+          <NetworkIcon key={n.chainId.toString()} id={n.name} name={n.name as NetworkIconIdType} />
+        )
       })),
     [t, networks]
   )
@@ -227,10 +229,9 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
         {t('Add Token')}
       </Text>
       <Select
-        // @ts-ignore
-        setValue={handleSetNetworkValue}
+        setValue={handleSetNetworkValue as any}
         options={networksOptions}
-        value={networksOptions.filter((opt) => opt.value === network.chainId.toString())[0]}
+        value={networksOptions.filter((opt) => opt.value === network.name)[0]}
         label={t('Choose Network')}
         containerStyle={spacings.mbMd}
       />

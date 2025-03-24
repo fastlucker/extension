@@ -94,7 +94,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
     () => [
       ALL_NETWORKS_OPTION,
       ...networks.map((n) => ({
-        value: n.chainId.toString(),
+        value: n.name,
         label: <Text weight="medium">{n.name}</Text>,
         icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} />
       }))
@@ -195,7 +195,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
         setNetwork(null)
         return
       }
-      setNetwork(networks.filter((n) => n.chainId.toString() === networkOption.value)[0])
+      setNetwork(networks.filter((n) => n.name === networkOption.value)[0])
     },
     [networks]
   )
@@ -222,8 +222,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
             containerStyle={{ width: 260 }}
             options={networksOptions}
             value={
-              networksOptions.filter((opt) => opt.value === network?.chainId.toString())[0] ??
-              ALL_NETWORKS_OPTION
+              networksOptions.filter((opt) => opt.value === network?.name)[0] ?? ALL_NETWORKS_OPTION
             }
           />
         )}
