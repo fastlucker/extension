@@ -1,8 +1,6 @@
-<div align="center">
-  <div class="markdown-heading">
-    <h1 class="heading-element">Ambire Wallet</h1>
-  </div>
+# Ambire Wallet
 
+<div align="center">
   <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en">
     <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
   </a>
