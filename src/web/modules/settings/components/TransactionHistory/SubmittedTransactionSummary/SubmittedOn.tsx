@@ -8,6 +8,7 @@ import NetworkBadge from '@common/components/NetworkBadge'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 interface Props {
   timestamp: SubmittedAccountOp['timestamp']
@@ -16,6 +17,8 @@ interface Props {
   networkId: NetworkId
   numberOfLines?: 1 | 2
 }
+
+const { isPopup } = getUiType()
 
 const SubmittedOn = ({
   timestamp,
@@ -31,6 +34,7 @@ const SubmittedOn = ({
     <View
       style={[
         spacings.mrTy,
+        { flex: 1 },
         numberOfLines === 1 && flexbox.directionRow,
         numberOfLines === 1 && flexbox.alignCenter
       ]}
@@ -44,6 +48,12 @@ const SubmittedOn = ({
           weight="semiBold"
           style={{ ...spacings.pv0, paddingLeft: 0 }}
           iconSize={iconSize}
+          renderNetworkName={(networkName) => {
+            if (isPopup)
+              return networkName.length > 10 ? `${networkName.slice(0, 10)}...` : networkName
+
+            return networkName
+          }}
         />
       </Text>
 

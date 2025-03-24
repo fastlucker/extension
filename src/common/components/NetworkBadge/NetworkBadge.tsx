@@ -19,6 +19,7 @@ interface Props {
   fontSize?: number
   weight?: TextWeight
   iconSize?: number
+  renderNetworkName?: (networkName: string) => React.ReactNode
 }
 
 const NetworkBadge: FC<Props> = ({
@@ -27,15 +28,16 @@ const NetworkBadge: FC<Props> = ({
   style,
   fontSize = 16,
   weight,
-  iconSize = 32
+  iconSize = 32,
+  renderNetworkName
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
 
   const networkName = useMemo(() => {
-    return networks.find((network) => network.id === networkId)?.name
-  }, [networkId, networks])
+    return networks.find((network) => network.id === networkId)?.name || t('Unknown network')
+  }, [networkId, networks, t])
 
   if (!networkId) return null
 
@@ -58,7 +60,7 @@ const NetworkBadge: FC<Props> = ({
             on{' '}
           </Text>
         ) : null}
-        {networkName || t('Unknown network')}
+        {!renderNetworkName ? networkName : renderNetworkName(networkName)}
       </Text>
       <NetworkIcon style={{ backgroundColor: 'transparent' }} id={networkId} size={iconSize} />
     </View>
