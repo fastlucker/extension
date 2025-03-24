@@ -14,12 +14,12 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -36,7 +36,7 @@ import HotWalletCreateCards from '../../components/HotWalletCreateCards'
 import { showEmailVaultInterest } from '../../utils/emailVault'
 import getStyles from './styles'
 
-export const CARD_WIDTH = 488
+export const CARD_WIDTH = 400
 
 const GetStartedScreen = () => {
   const { theme } = useTheme(getStyles)
@@ -54,7 +54,6 @@ const GetStartedScreen = () => {
   } = useModalize()
   const wrapperRef: any = useRef(null)
   const animation = useRef(new Animated.Value(0)).current
-  const { width } = useWindowSize()
   const { authStatus } = useAuth()
   const { dispatch } = useBackgroundService()
 
@@ -140,19 +139,18 @@ const GetStartedScreen = () => {
 
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [`${Math.min((CARD_WIDTH / (width || 0)) * 100, 100)}%`, '100%'],
+    outputRange: [CARD_WIDTH * 0.25, CARD_WIDTH],
     extrapolate: 'clamp'
   })
 
   const opacityInterpolate = animation.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0, 0.3, 1],
+    inputRange: [0, 1],
+    outputRange: [0, 1],
     extrapolate: 'clamp'
   })
 
   return (
     <TabLayoutContainer
-      style={{ width: 400 }}
       backgroundColor={theme.secondaryBackground}
       header={
         <Animated.View style={{ opacity: opacityInterpolate }}>
@@ -181,47 +179,50 @@ const GetStartedScreen = () => {
           <Animated.View
             style={[
               panelStyles.container,
+              common.shadowPrimary,
               {
                 zIndex: -1,
-                position: 'absolute',
+                overflow: 'hidden',
                 alignSelf: 'center',
-                height: '100%',
                 width: panelWidthInterpolate
               }
             ]}
-          />
-          <Panel
-            isAnimated
-            style={{
-              backgroundColor: 'transparent',
-              opacity: opacityInterpolate as any,
-              borderWidth: 0,
-              ...spacings.ptXl,
-              ...spacings.phLg,
-              ...spacings.pb0
-            }}
           >
-            <View style={[flexbox.justifySpaceBetween]}>
-              <View
-                style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}
-              >
-                <AmbireLogo height={96} />
-                <Text style={[spacings.mtLg, { textAlign: 'center' }]} appearance="secondaryText">
-                  The Web3 wallet that makes self-custody easy and secure.
-                </Text>
+            <Panel
+              isAnimated
+              style={{
+                minWidth: CARD_WIDTH,
+                alignSelf: 'center',
+                backgroundColor: 'transparent',
+                opacity: opacityInterpolate as any,
+                borderWidth: 0,
+                ...spacings.ptXl,
+                ...spacings.phLg,
+                ...spacings.pb0
+              }}
+            >
+              <View style={[flexbox.justifySpaceBetween]}>
+                <View
+                  style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}
+                >
+                  <AmbireLogo height={96} />
+                  <Text style={[spacings.mtLg, { textAlign: 'center' }]} appearance="secondaryText">
+                    The Web3 wallet that makes self-custody easy and secure.
+                  </Text>
+                </View>
+                <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
+                  <Button type="primary" text={t('Create New Account')} />
+                  <Button type="secondary" text={t('Import Existing Account')} />
+                  <Button type="ghost" onPress={() => handleAuthButtonPress('view-only')}>
+                    <>
+                      <Text appearance="primary">{t('Watch an Address')}</Text>
+                      <ViewModeIcon color={theme.primary} height={16} />
+                    </>
+                  </Button>
+                </View>
               </View>
-              <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
-                <Button type="primary" text={t('Create New Account')} />
-                <Button type="secondary" text={t('Import Existing Account')} />
-                <Button type="ghost" onPress={() => handleAuthButtonPress('view-only')}>
-                  <>
-                    <Text appearance="primary">{t('Watch an Address')}</Text>
-                    <ViewModeIcon color={theme.primary} height={16} />
-                  </>
-                </Button>
-              </View>
-            </View>
-          </Panel>
+            </Panel>
+          </Animated.View>
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
