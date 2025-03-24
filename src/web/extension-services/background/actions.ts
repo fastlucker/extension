@@ -14,9 +14,9 @@ import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/k
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
 import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
 import {
-  SocketAPIToken,
   SwapAndBridgeActiveRoute,
-  SwapAndBridgeRoute
+  SwapAndBridgeRoute,
+  SwapAndBridgeToToken
 } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -473,7 +473,7 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
-    toSelectedToken?: SocketAPIToken | null
+    toSelectedToken?: SwapAndBridgeToToken | null
     routePriority?: 'output' | 'time'
   }
 }

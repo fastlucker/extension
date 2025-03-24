@@ -5,7 +5,7 @@ import { useModalize } from 'react-native-modalize'
 import { useSearchParams } from 'react-router-dom'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import {
   getIsNetworkSupported,
@@ -220,7 +220,7 @@ const useSwapAndBridgeForm = () => {
 
   const handleChangeToToken = useCallback(
     ({ value }: SelectValue) => {
-      const tokenToSelect = toTokenList.find((t: SocketAPIToken) => getTokenId(t) === value)
+      const tokenToSelect = toTokenList.find((t: SwapAndBridgeToToken) => getTokenId(t) === value)
 
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
