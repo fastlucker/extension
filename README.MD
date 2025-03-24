@@ -1,13 +1,13 @@
 # Ambire Wallet
 
 <div align="center">
-  <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en" target="_blank">
+  <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
     <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
   </a>
 
   <p>
     The secure & easy-to-use Web3 wallet. EIP-7702 ready.<br />
-    <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en" target="_blank">
+    <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
       <strong>Download Extension for Webkit Browsers 🔥</strong>
     </a>
     <br />
