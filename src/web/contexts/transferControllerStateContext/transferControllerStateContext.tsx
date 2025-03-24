@@ -157,7 +157,6 @@ const TransferControllerStateProvider = ({
   // and we need to select another token
   useEffect(() => {
     if (!state.selectedToken?.address || !transferCtrl) return
-
     const isSelectedTokenNetworkLoading =
       portfolio.pending[state.selectedToken.networkId]?.isLoading ||
       portfolio.latest[state.selectedToken.networkId]?.isLoading
