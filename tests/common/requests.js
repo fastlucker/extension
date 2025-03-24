@@ -1,28 +1,45 @@
 // eslint-disable-next-line import/no-unresolved
 import wait from '@ambire-common/utils/wait'
 
+const RELAYER_HOST = 'relayer.ambire.com'
+const CENA_HOST = 'cena.ambire.com'
+const INVICTUS_HOST = 'invictus.ambire.com'
+const EXTERNAL_SERVICE_HOSTS = ['api.pimlico.io']
+
 function getBackgroundRequestsByType(requests) {
   const nativeTokenPriceRequests = []
   const batchedErc20TokenPriceRequests = []
   const hintsRequests = []
   const rpcRequests = []
+  const externalServiceRequests = []
   const uncategorizedRequests = []
 
   requests.forEach((request) => {
-    if (request.includes('/simple/price')) {
-      nativeTokenPriceRequests.push(request)
+    const url = new URL(request)
+
+    if (url.hostname === RELAYER_HOST && request.includes('/multi-hints')) {
+      hintsRequests.push(request)
       return
     }
-    if (request.includes('/simple/token_price')) {
-      batchedErc20TokenPriceRequests.push(request)
-      return
+
+    if (url.hostname === CENA_HOST) {
+      if (request.includes('/simple/price')) {
+        nativeTokenPriceRequests.push(request)
+        return
+      }
+      if (request.includes('/simple/token_price')) {
+        batchedErc20TokenPriceRequests.push(request)
+        return
+      }
     }
-    if (request.includes('invictus')) {
+
+    if (url.hostname === INVICTUS_HOST) {
       rpcRequests.push(request)
       return
     }
-    if (request.includes('/multi-hints')) {
-      hintsRequests.push(request)
+
+    if (EXTERNAL_SERVICE_HOSTS.some((host) => url.hostname.includes(host))) {
+      externalServiceRequests.push(request)
       return
     }
     uncategorizedRequests.push(request)
@@ -33,7 +50,8 @@ function getBackgroundRequestsByType(requests) {
     batchedErc20TokenPriceRequests,
     hintsRequests,
     rpcRequests,
-    uncategorizedRequests
+    uncategorizedRequests,
+    externalServiceRequests
   }
 }
 

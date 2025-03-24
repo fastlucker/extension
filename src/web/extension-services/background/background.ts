@@ -25,7 +25,6 @@ import { Fetch } from '@ambire-common/interfaces/fetch'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -931,6 +930,15 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         initDefiPositionsContinuousUpdate()
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
+        // The selectedAccount portfolio is reset onLoad of the popup
+        // (from the background) while the portfolio update is triggered
+        // by a useEffect. If that useEffect doesn't trigger, the portfolio
+        // state will remain reset until an automatic update is triggered.
+        // Example: the user has the dashboard opened in tab, opens the popup
+        // and closes it immediately.
+        if (port.name === 'popup') {
+          mainCtrl.portfolio.forceEmitUpdate()
+        }
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           ledgerCtrl.cleanUp()
@@ -943,7 +951,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   initPortfolioContinuousUpdate()
   initDefiPositionsContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
-  await clearHumanizerMetaObjectFromStorage(storage)
 })()
 
 try {

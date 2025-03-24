@@ -345,11 +345,11 @@ const Tokens = ({
         ListHeaderComponent={<DashboardBanners />}
         data={[
           'header',
-          !portfolio?.isReadyToVisualize && !sortedTokens.length
+          !sortedTokens.length && !portfolio?.isAllReady
             ? 'skeleton'
             : 'keep-this-to-avoid-key-warning',
           ...(initTab?.tokens ? sortedTokens : []),
-          portfolio.isReadyToVisualize && !portfolio.isAllReady
+          sortedTokens.length && !portfolio?.isAllReady
             ? 'skeleton'
             : 'keep-this-to-avoid-key-warning-2',
           !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',
