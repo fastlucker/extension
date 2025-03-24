@@ -1,14 +1,25 @@
-# Ambire Wallet
+<div align="center">
+  <h1>Ambire Wallet</h1>
 
-![Mockup](./mockups/mockup-dashboard.png)
+  <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en">
+    <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
+  </a>
 
-The secure & easy-to-use Web3 wallet. EIP-7702 ready.
-
-Download extension: [For webkit browsers](https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en) (Chrome, Brave, Opera, Edge, Arc)
-
-Request invite code: [Discord](https://discord.com/invite/Ambire) | [Telegram](https://t.me/AmbireOfficial)
-
-[Report a bug](https://help.ambire.com/hc/en-us/requests/new) | [Request features](https://help.ambire.com/hc/en-us/requests/new)
+  <p>
+    The secure & easy-to-use Web3 wallet. EIP-7702 ready.<br />
+    <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en">
+      <strong>Download Extension for Webkit Browsers 🔥</strong>
+    </a>
+    <br /><br />
+    💌 Request Invite Code:
+    <a href="https://discord.com/invite/Ambire">Discord</a> |
+    <a href="https://t.me/AmbireOfficial">Telegram</a>
+    <br />
+    🐞
+    <a href="https://github.com/AmbireTech/extension/issues">Report a Bug</a> ·
+    <a href="https://forum.ambire.com/">Request Features</a>
+  </p>
+</div>
 
 ## Environment Setup
 
