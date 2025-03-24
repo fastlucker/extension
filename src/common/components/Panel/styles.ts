@@ -10,7 +10,8 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
-      ...common.borderRadiusPrimary,
+      // TODO: use constant here
+      borderRadius: 12,
       borderWidth: 1,
       borderColor: theme.secondaryBorder,
       backgroundColor: theme.primaryBackground

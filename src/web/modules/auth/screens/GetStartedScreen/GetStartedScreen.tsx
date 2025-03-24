@@ -2,14 +2,14 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { Animated, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
-import HWIcon from '@common/assets/svg/HWIcon'
-import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
-import Banner, { BannerButton } from '@common/components/Banner'
+import AmbireLogo from '@common/assets/svg/AmbireLogo'
+import ViewModeIcon from '@common/assets/svg/ViewModeIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
+import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
+import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -26,13 +26,11 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
-import Card from '@web/modules/auth/components/Card'
 import Stories from '@web/modules/auth/components/Stories'
 import { STORY_CARD_WIDTH } from '@web/modules/auth/components/Stories/styles'
 import { TERMS_VERSION } from '@web/modules/terms/screens/Terms'
@@ -175,7 +173,7 @@ const GetStartedScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="lg"
+      style={{ width: 400 }}
       backgroundColor={theme.secondaryBackground}
       header={
         <Animated.View style={{ opacity: opacityInterpolate }}>
@@ -217,83 +215,34 @@ const GetStartedScreen = () => {
             />
             <Panel
               isAnimated
-              title={t('Select an option')}
               style={{
                 backgroundColor: 'transparent',
                 opacity: opacityInterpolate as any,
-                borderWidth: 0
+                borderWidth: 0,
+                ...spacings.ptXl,
+                ...spacings.phLg,
+                ...spacings.pb0
               }}
             >
-              <View style={[flexbox.directionRow]}>
-                <Card
-                  testID="get-started-button-import"
-                  title={t('Create or import\nan existing wallet')}
-                  style={[flexbox.flex1, spacings.mh, spacings.ml0]}
-                  text={t(
-                    'Import your account(s) securely with a seed phrase or private key, or create account(s) from a newly-created seed phrase.'
-                  )}
-                  icon={CreateWalletIcon}
-                  iconProps={{
-                    width: 60,
-                    height: 60,
-                    strokeWidth: 1.1
-                  }}
-                  buttonText={t('Create')}
-                  onPress={() => handleAuthButtonPress('import-hot-wallet')}
-                />
-                <Card
-                  testID="get-started-button-connect-hw-wallet"
-                  title={t('Connect a\nhardware wallet')}
-                  text={t(
-                    'Import your account(s) secured by hardware wallets like Trezor, Ledger, or Grid+.'
-                  )}
-                  style={{ ...flexbox.flex1, ...spacings.mr }}
-                  icon={HWIcon}
-                  iconProps={{
-                    width: 60,
-                    height: 60,
-                    strokeWidth: 1.25
-                  }}
-                  buttonText={t('Connect')}
-                  onPress={() => handleAuthButtonPress('hw')}
-                />
-                <Card
-                  testID="get-started-button-add"
-                  title={t('Watch an\naddress')}
-                  text={t(
-                    'Add an address in view-only mode to see its balance and simulate transactions.'
-                  )}
-                  icon={ViewOnlyIcon}
-                  style={flexbox.flex1}
-                  onPress={() => handleAuthButtonPress('view-only')}
-                  buttonText={t('Add')}
-                  isSecondary
-                />
-              </View>
-              <View
-                style={[flexbox.directionRow, { margin: 'auto', width: '100%' }, spacings.mtXl]}
-              >
-                <Banner
-                  title="Ambire v1 accounts"
-                  text={t(
-                    'If you are looking to import accounts from the web app (Ambire v1), please read this.'
-                  )}
-                  type="info"
-                  // @ts-ignore
-                  style={[spacings.mb0, { width: '100%' }]}
-                  renderButtons={
-                    <BannerButton
-                      onPress={() =>
-                        openInTab(
-                          'https://help.ambire.com/hc/en-us/articles/15468208978332-How-to-add-your-v1-account-to-Ambire-Wallet-extension',
-                          false
-                        )
-                      }
-                      text={t('Read more')}
-                      type="secondary"
-                    />
-                  }
-                />
+              <View style={[flexbox.justifySpaceBetween]}>
+                <View
+                  style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}
+                >
+                  <AmbireLogo height={96} />
+                  <Text style={[spacings.mtLg, { textAlign: 'center' }]} appearance="secondaryText">
+                    The Web3 wallet that makes self-custody easy and secure.
+                  </Text>
+                </View>
+                <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
+                  <Button type="primary" text={t('Create New Account')} />
+                  <Button type="secondary" text={t('Import Existing Account')} />
+                  <Button type="ghost" onPress={() => handleAuthButtonPress('view-only')}>
+                    <>
+                      <Text appearance="primary">{t('Watch an Address')}</Text>
+                      <ViewModeIcon color={theme.primary} height={16} />
+                    </>
+                  </Button>
+                </View>
               </View>
             </Panel>
           </View>
