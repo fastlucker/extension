@@ -6,7 +6,6 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View, ViewStyle } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
 import { isValidURL } from '@ambire-common/services/validations'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -135,11 +134,11 @@ export const RpcSelectorItem = React.memo(
 )
 
 const NetworkForm = ({
-  selectedNetworkId = 'add-custom-network',
+  selectedChainId = 'add-custom-network',
   onCancel,
   onSaved
 }: {
-  selectedNetworkId?: NetworkId
+  selectedChainId?: bigint | string
   onCancel: () => void
   onSaved: () => void
 }) => {
@@ -151,8 +150,8 @@ const NetworkForm = ({
   const { styles } = useTheme(getStyles)
 
   const selectedNetwork = useMemo(
-    () => networks.find((network) => network.chainId.toString() === selectedNetworkId.toString()),
-    [networks, selectedNetworkId]
+    () => networks.find((network) => network.chainId.toString() === selectedChainId.toString()),
+    [networks, selectedChainId]
   )
 
   const isPredefinedNetwork = useMemo(
@@ -273,7 +272,7 @@ const NetworkForm = ({
 
         if (
           networks.find((n) => n.chainId === network.chainId) &&
-          selectedNetworkId === 'add-custom-network'
+          selectedChainId === 'add-custom-network'
         ) {
           setValidatingRPC(false)
           setError('rpcUrl', {
@@ -310,7 +309,7 @@ const NetworkForm = ({
       dispatch,
       setError,
       networks,
-      selectedNetworkId,
+      selectedChainId,
       selectedNetwork?.selectedRpcUrl,
       selectedNetwork?.chainId,
       selectedNetwork?.name,
@@ -334,7 +333,7 @@ const NetworkForm = ({
 
       if (name === 'name') {
         if (
-          selectedNetworkId === 'add-custom-network' &&
+          selectedChainId === 'add-custom-network' &&
           networks.some((n) => n.name.toLowerCase() === value.name?.toLowerCase())
         ) {
           setError('name', {
@@ -356,7 +355,7 @@ const NetworkForm = ({
 
       if (name === 'chainId') {
         if (
-          selectedNetworkId === 'add-custom-network' &&
+          selectedChainId === 'add-custom-network' &&
           networks.some((n) => Number(n.chainId) === Number(value.chainId))
         ) {
           setError('chainId', {
@@ -403,7 +402,7 @@ const NetworkForm = ({
       subscription?.unsubscribe()
     }
   }, [
-    selectedNetworkId,
+    selectedChainId,
     networks,
     touchedFields,
     validateRpcUrlAndRecalculateFeatures,
@@ -431,7 +430,7 @@ const NetworkForm = ({
     handleSubmit(async (formFields: any) => {
       let emptyFields: string[] = []
 
-      if (selectedNetworkId === 'add-custom-network') {
+      if (selectedChainId === 'add-custom-network') {
         emptyFields = Object.keys(formFields).filter(
           (key) =>
             !['rpcUrl', 'rpcUrls', 'coingeckoPlatformId', 'coingeckoNativeAssetId'].includes(key) &&
@@ -455,7 +454,7 @@ const NetworkForm = ({
 
       if (emptyFields.length || !rpcUrls.length || !selectedRpcUrl) return
 
-      if (selectedNetworkId === 'add-custom-network') {
+      if (selectedChainId === 'add-custom-network') {
         dispatch({
           type: 'MAIN_CONTROLLER_ADD_NETWORK',
           params: {
@@ -548,7 +547,7 @@ const NetworkForm = ({
   return (
     <>
       <View style={styles.modalHeader}>
-        {selectedNetworkId === 'add-custom-network' && (
+        {selectedChainId === 'add-custom-network' && (
           <Text
             fontSize={20}
             weight="medium"
@@ -558,10 +557,14 @@ const NetworkForm = ({
             {t('Add custom network')}
           </Text>
         )}
-        {selectedNetworkId !== 'add-custom-network' && !!selectedNetwork && (
+        {selectedChainId !== 'add-custom-network' && !!selectedNetwork && (
           <>
             <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-              <NetworkIcon id={selectedNetwork.id} style={spacings.mrTy} size={40} />
+              <NetworkIcon
+                id={selectedNetwork.chainId.toString()}
+                style={spacings.mrTy}
+                size={40}
+              />
               <Text appearance="secondaryText" weight="regular" style={spacings.mrMi} fontSize={16}>
                 {selectedNetwork.name || t('Unknown network')}
               </Text>
@@ -591,7 +594,7 @@ const NetworkForm = ({
                     inputStyle={{ height: 40 }}
                     containerStyle={{ ...spacings.mb, ...spacings.mrMi, flex: 1 }}
                     label={t('Network name')}
-                    disabled={selectedNetworkId !== 'add-custom-network'}
+                    disabled={selectedChainId !== 'add-custom-network'}
                     error={handleErrors(errors.name)}
                   />
                 )}
@@ -609,7 +612,7 @@ const NetworkForm = ({
                       inputStyle={{ height: 40 }}
                       containerStyle={{ ...spacings.mb, ...spacings.mlMi, flex: 1 }}
                       label={t('Currency Symbol')}
-                      disabled={selectedNetworkId !== 'add-custom-network'}
+                      disabled={selectedChainId !== 'add-custom-network'}
                       error={handleErrors(errors.nativeAssetSymbol)}
                     />
                   )}
@@ -626,7 +629,7 @@ const NetworkForm = ({
                       inputStyle={{ height: 40 }}
                       containerStyle={{ ...spacings.mb, ...spacings.mlMi, flex: 1 }}
                       label={t('Currency Name')}
-                      disabled={selectedNetworkId !== 'add-custom-network'}
+                      disabled={selectedChainId !== 'add-custom-network'}
                       error={handleErrors(errors.nativeAssetName)}
                     />
                   )}
@@ -727,7 +730,7 @@ const NetworkForm = ({
                       inputStyle={{ height: 40 }}
                       containerStyle={{ ...spacings.mrMi, flex: 1 }}
                       label={t('Chain ID')}
-                      disabled={selectedNetworkId !== 'add-custom-network'}
+                      disabled={selectedChainId !== 'add-custom-network'}
                       error={handleErrors(errors.chainId)}
                     />
                   )}
@@ -793,11 +796,11 @@ const NetworkForm = ({
           <View style={[flexbox.flex1, spacings.pl, spacings.ml]}>
             <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
               <View style={flexbox.flex1}>
-                <NetworkAvailableFeatures networkId={selectedNetwork?.id} features={features} />
+                <NetworkAvailableFeatures chainId={selectedNetwork?.chainId} features={features} />
               </View>
             </ScrollableWrapper>
             <View style={[flexbox.alignEnd, spacings.ptXl]}>
-              {selectedNetworkId === 'add-custom-network' ? (
+              {selectedChainId === 'add-custom-network' ? (
                 <Button
                   onPress={handleSubmitButtonPress}
                   text={t('Add network')}

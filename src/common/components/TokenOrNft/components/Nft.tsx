@@ -50,7 +50,7 @@ const Nft: FC<Props> = ({
         collectionData={{
           name: nftInfo?.name || 'Unknown NFT',
           address,
-          networkId: network.id
+          chainId: network.chainId
         }}
         openCollectibleModal={openCollectibleModal}
         networks={networks}
@@ -66,7 +66,7 @@ const Nft: FC<Props> = ({
           fontSize={textSize}
           address={address}
           highestPriorityAlias={`${nftInfo?.name || 'NFT'} #${tokenId}`}
-          explorerNetworkId={network.id}
+          explorerChainId={network.chainId}
         />
       </View>
     </View>

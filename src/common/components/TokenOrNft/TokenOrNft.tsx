@@ -1,7 +1,6 @@
 import { Contract, JsonRpcProvider } from 'ethers'
 import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { CollectionResult, TokenResult } from '@ambire-common/libs/portfolio'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
@@ -21,15 +20,13 @@ interface Props {
   value: bigint
   sizeMultiplierSize?: number
   textSize?: number
-  networkId?: NetworkId
-  chainId?: bigint
+  chainId: bigint
 }
 
 const TokenOrNft: FC<Props> = ({
   value,
   address,
   textSize = 16,
-  networkId,
   chainId,
   sizeMultiplierSize = 1
 }) => {
@@ -48,8 +45,8 @@ const TokenOrNft: FC<Props> = ({
   // Component used across Benzin and Extension, make sure to always set networks
   const networks = controllerNetworks ?? benzinNetworks
   const network = useMemo(
-    () => networks.find((n) => (chainId ? n.chainId === chainId : n.id === networkId)) || null,
-    [networks, chainId, networkId]
+    () => networks.find((n) => n.chainId === chainId) || null,
+    [networks, chainId]
   )
 
   const [fallbackName, setFallbackName] = useState()
@@ -88,10 +85,10 @@ const TokenOrNft: FC<Props> = ({
     }
     const tokenFromPortfolio = portfolio?.tokens?.find(
       (token) =>
-        token.address.toLowerCase() === address.toLowerCase() && token.networkId === network?.id
+        token.address.toLowerCase() === address.toLowerCase() && token.chainId === network?.chainId
     )
     const nftFromPortfolio = portfolio?.collections?.find(
-      (c) => c.address.toLowerCase() === address.toLowerCase() && c.networkId === network?.id
+      (c) => c.address.toLowerCase() === address.toLowerCase() && c.chainId === network?.chainId
     )
     if (tokenFromPortfolio || nftFromPortfolio)
       setAssetInfo({ tokenInfo: tokenFromPortfolio, nftInfo: nftFromPortfolio })

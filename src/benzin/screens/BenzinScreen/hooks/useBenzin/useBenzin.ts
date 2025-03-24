@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
 import { allBundlers, BUNDLER } from '@ambire-common/consts/bundlers'
-import { Network } from '@ambire-common/interfaces/network'
 import {
   AccountOpIdentifiedBy,
   SubmittedAccountOp
@@ -40,41 +39,19 @@ const getParams = (search?: string) => {
     relayerId: params.get('relayerId') ?? null,
     isRenderedInternally: typeof params.get('isInternal') === 'string',
     chainId: params.get('chainId'),
-    networkId: params.get('networkId'),
     bundler: params.get('bundler') ?? null
   }
-}
-
-const getChainId = (
-  networkId: string | null,
-  paramsChainId: string | null,
-  networks: Network[]
-) => {
-  if (paramsChainId) return paramsChainId
-
-  const chainIdDerivedFromNetworkId = networks.find((network) => network.id === networkId)?.chainId
-
-  if (!chainIdDerivedFromNetworkId) return null
-
-  return String(chainIdDerivedFromNetworkId)
 }
 
 const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
   const { addToast } = useToast()
   const route = useRoute()
-  const {
-    txnId,
-    userOpHash,
-    relayerId,
-    isRenderedInternally,
-    chainId: paramChainId,
-    networkId,
-    bundler
-  } = getParams(route?.search)
+  const { txnId, userOpHash, relayerId, isRenderedInternally, chainId, bundler } = getParams(
+    route?.search
+  )
 
   const { networks } = useNetworksControllerState()
   const { benzinNetworks, loadingBenzinNetworks = [], addNetwork } = useBenzinNetworksContext()
-  const chainId = getChainId(networkId, paramChainId, benzinNetworks)
   const bigintChainId = BigInt(chainId || '') || 0n
   const actualNetworks = networks ?? benzinNetworks
   const network = actualNetworks.find((n) => n.chainId === bigintChainId) || null
@@ -140,7 +117,7 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
 
     const link = stepsState.txnId
       ? `${network.explorerUrl}/tx/${stepsState.txnId}`
-      : `https://jiffyscan.xyz/userOpHash/${userOpHash}?network=${network.id}`
+      : `https://jiffyscan.xyz/userOpHash/${userOpHash}?network=${network.name.toLowerCase()}`
 
     try {
       await Linking.openURL(link)
@@ -148,7 +125,7 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
       addToast('Error opening explorer', { type: 'error' })
     }
     onOpenExplorer && onOpenExplorer()
-  }, [network?.explorerUrl, network?.id, userOpHash, stepsState.txnId, onOpenExplorer, addToast])
+  }, [network, userOpHash, stepsState.txnId, onOpenExplorer, addToast])
 
   const showCopyBtn = useMemo(() => {
     if (!network) return true

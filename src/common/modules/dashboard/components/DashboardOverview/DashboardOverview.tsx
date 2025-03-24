@@ -81,7 +81,7 @@ const DashboardOverview: FC<Props> = ({
 
     if (!account) return 0
 
-    return Number(portfolio?.latest?.[dashboardNetworkFilter]?.result?.total?.usd) || 0
+    return Number(portfolio?.latest?.[dashboardNetworkFilter.toString()]?.result?.total?.usd) || 0
   }, [portfolio, dashboardNetworkFilter, account])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
@@ -93,7 +93,7 @@ const DashboardOverview: FC<Props> = ({
     dispatch({
       type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT',
       params: {
-        networkId: dashboardNetworkFilter ?? undefined
+        chainId: dashboardNetworkFilter ?? undefined
       }
     })
   }, [dashboardNetworkFilter, dispatch])

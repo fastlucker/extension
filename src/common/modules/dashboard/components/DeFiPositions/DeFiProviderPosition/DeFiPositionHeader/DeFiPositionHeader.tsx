@@ -45,7 +45,7 @@ const HEALTH_RATE_LEVELS: {
 const DeFiPositionHeader: FC<Props> = ({
   providerName,
   toggleExpanded,
-  networkId,
+  chainId,
   positionInUSD,
   isExpanded,
   healthRate
@@ -85,7 +85,7 @@ const DeFiPositionHeader: FC<Props> = ({
       {...bindAnim}
     >
       <View style={styles.providerData}>
-        <ProtocolIcon providerName={providerName} networkId={networkId} />
+        <ProtocolIcon providerName={providerName} chainId={chainId} />
         <Text fontSize={16} weight="semiBold" style={spacings.mrMi}>
           {providerName}
         </Text>

@@ -589,7 +589,7 @@ const useSteps = ({
     // that was used to cover the gas feePaidWith
     if (feeCall) {
       try {
-        const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.id)
+        const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.chainId)
 
         address = addr
         amount = tokenAmount
@@ -673,7 +673,7 @@ const useSteps = ({
       } = userOp ? decodeUserOp(userOp) : reproduceCallsFromTxn(txn)
       const accountOp: AccountOp = {
         accountAddr: userOp?.sender || account || txnReceipt.originatedFrom || 'Loading...',
-        networkId: network.id,
+        chainId: network.chainId,
         signingKeyAddr: txnReceipt.originatedFrom, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
