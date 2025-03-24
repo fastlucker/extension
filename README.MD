@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Ambire Wallet</h1>
+  <h1 style="margin-top: 0;">Ambire Wallet</h1>
 
   <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en">
     <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
@@ -7,7 +7,7 @@
 
   <p>
     The secure & easy-to-use Web3 wallet. EIP-7702 ready.<br />
-    <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en">
+    <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en" target="_blank">
       <strong>Download Extension for Webkit Browsers 🔥</strong>
     </a>
     <br /><br />
