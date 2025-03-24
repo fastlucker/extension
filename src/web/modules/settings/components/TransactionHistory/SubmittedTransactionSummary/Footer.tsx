@@ -155,7 +155,7 @@ const Footer: FC<Props> = ({
           numberOfLines={isFooterExpanded ? 2 : 1}
         />
         {isFooterExpanded && isFooterExpandable && (
-          <View style={flexbox.alignEnd}>
+          <View style={[flexbox.alignEnd]}>
             <TouchableOpacity
               style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
               onPress={handleOpenBenzina}

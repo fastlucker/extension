@@ -94,6 +94,10 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     const portfolioAccountOpCalls = networkSimulatedAccountOp[network.id]?.calls
     const signAccountOpCalls = signAccountOpState?.accountOp.calls
 
+    // New calls are reflected immediately in the signAccountOpState,
+    // while the portfolio update takes some time to reflect the changes.
+    // The interval between the two updates is the time it takes for the
+    // simulation to reload.
     return portfolioAccountOpCalls?.length !== signAccountOpCalls?.length
   }, [
     initialSimulationLoaded,

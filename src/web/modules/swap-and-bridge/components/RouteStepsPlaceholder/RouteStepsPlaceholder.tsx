@@ -33,7 +33,7 @@ const RouteStepsPlaceholder = ({
       return (
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Spinner style={{ width: 16, height: 16, ...spacings.mrTy }} />
-          <Text weight="medium" fontSize={12}>
+          <Text weight="medium" fontSize={12} testID="route-loading-text-sab">
             {t('Fetching best route...')}
           </Text>
         </View>

@@ -19,6 +19,7 @@ import { Network } from '@ambire-common/interfaces/network'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import {
   AccountOpIdentifiedBy,
+  fetchFrontRanTxnId,
   fetchTxnId,
   isIdentifiedByTxn,
   SubmittedAccountOp
@@ -154,6 +155,7 @@ const useSteps = ({
   const [calls, setCalls] = useState<IrCall[]>([])
   const [feeCall, setFeeCall] = useState<Call | null>(null)
   const [from, setFrom] = useState<null | string>(null)
+  const [isFrontRan, setIsFrontRan] = useState<boolean>(false)
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
@@ -289,6 +291,13 @@ const useSteps = ({
         // as it will set incorrect data for sender (from)
         if (!txn) return
 
+        // if there's a receipt, the status is failure and it's an userOp,
+        // the txn might have been front ran. Try to find it
+        if (!receipt.status && userOpHash && !hasCheckedFrontRun) {
+          setIsFrontRan(true)
+          return
+        }
+
         setTxnReceipt({
           originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
@@ -334,13 +343,30 @@ const useSteps = ({
     txn,
     receiptAlreadyFetched,
     userOpHash,
-    refetchReceiptCounter
+    refetchReceiptCounter,
+    hasCheckedFrontRun
   ])
+
+  // fix: front running
+  useEffect(() => {
+    if (!isFrontRan || !foundTxnId || !network) return
+
+    fetchFrontRanTxnId(identifiedBy, foundTxnId, network)
+      .then((frontRanTxnId) => {
+        setFoundTxnId(frontRanTxnId)
+        setActiveStep('in-progress')
+        setUrlToTxnId(frontRanTxnId, userOpHash, relayerId, network.chainId, bundler)
+        setIsFrontRan(false)
+        setHasCheckedFrontRun(true)
+      })
+      .catch(() => null)
+  }, [isFrontRan, identifiedBy, foundTxnId, network, bundler, relayerId, userOpHash, setActiveStep])
 
   // check for error reason
   useEffect(() => {
     if (
       !txn ||
+      !txnReceipt ||
       (finalizedStatus && finalizedStatus.status !== 'failed') ||
       (finalizedStatus && finalizedStatus.reason) ||
       !provider
@@ -362,17 +388,6 @@ const useSteps = ({
       })
       .then(() => null)
       .catch((error: Error) => {
-        // when we get a failed status, it could be a front run.
-        // so we try to refetch the tx id one more time before
-        // declaring it a failure
-        if (userOpHash && !hasCheckedFrontRun) {
-          setFoundTxnId(null)
-          setTxn(null)
-          setTxnReceipt({ actualGasCost: null, originatedFrom: null, blockNumber: null })
-          setHasCheckedFrontRun(true)
-          return
-        }
-
         if (error.message.includes('missing revert data')) {
           setFinalizedStatus({
             status: 'failed',
@@ -389,7 +404,7 @@ const useSteps = ({
               : error.message
         })
       })
-  }, [provider, txn, finalizedStatus, hasCheckedFrontRun, userOpHash])
+  }, [provider, txn, finalizedStatus, userOpHash, txnReceipt])
 
   // calculate pending time
   useEffect(() => {
