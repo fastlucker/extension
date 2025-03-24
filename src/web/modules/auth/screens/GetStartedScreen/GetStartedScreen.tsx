@@ -2,14 +2,19 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { Animated, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
+import ViewModeIcon from '@common/assets/svg/ViewModeIcon'
 import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
+import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import Banner, { BannerButton } from '@common/components/Banner'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
+import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
+import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -175,7 +180,7 @@ const GetStartedScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="lg"
+      style={{ width: 400 }}
       backgroundColor={theme.secondaryBackground}
       header={
         <Animated.View style={{ opacity: opacityInterpolate }}>
@@ -217,15 +222,36 @@ const GetStartedScreen = () => {
             />
             <Panel
               isAnimated
-              title={t('Select an option')}
               style={{
                 backgroundColor: 'transparent',
                 opacity: opacityInterpolate as any,
-                borderWidth: 0
+                borderWidth: 0,
+                ...spacings.ptXl,
+                ...spacings.phLg,
+                ...spacings.pb0
               }}
             >
-              <View style={[flexbox.directionRow]}>
-                <Card
+              <View style={[flexbox.justifySpaceBetween]}>
+                <View
+                  style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}
+                >
+                  <AmbireLogo height={96} />
+                  <Text style={[spacings.mtLg, { textAlign: 'center' }]} appearance="secondaryText">
+                    The Web3 wallet that makes self-custody easy and secure.
+                  </Text>
+                </View>
+                <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
+                  <Button type="primary" text={t('Create New Account')} />
+                  <Button type="secondary" text={t('Import Existing Account')} />
+                  <Button type="ghost" onPress={() => handleAuthButtonPress('view-only')}>
+                    <>
+                      <Text appearance="primary">{t('Watch an Address')}</Text>
+                      <ViewModeIcon color={theme.primary} height={16} />
+                    </>
+                  </Button>
+                </View>
+
+                {/* <Card
                   testID="get-started-button-import"
                   title={t('Create or import\nan existing wallet')}
                   style={[flexbox.flex1, spacings.mh, spacings.ml0]}
@@ -293,7 +319,7 @@ const GetStartedScreen = () => {
                       type="secondary"
                     />
                   }
-                />
+                /> */}
               </View>
             </Panel>
           </View>
