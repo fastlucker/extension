@@ -24,7 +24,6 @@ import Warnings from '@web/modules/sign-account-op/components/Warnings'
 
 import AmountInfo from './components/AmountInfo'
 import EstimationSkeleton from './components/EstimationSkeleton'
-import EstimationWrapper from './components/EstimationWrapper'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
 import { Props } from './types'
@@ -219,7 +218,16 @@ const Estimation = ({
 
   const feeSpeedOptions = useMemo(() => {
     return feeSpeeds.map((speed) => ({
-      label: `${t(speed.type.charAt(0).toUpperCase() + speed.type.slice(1))}`,
+      label: (
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <Text weight="medium" fontSize={12} style={spacings.mrMi}>
+            {t(speed.type.charAt(0).toUpperCase() + speed.type.slice(1))}
+          </Text>
+          <Text fontSize={14} style={spacings.mlMi} weight="regular" appearance="secondaryText">
+            {formatDecimals(Number(speed.amountUsd), 'value')}
+          </Text>
+        </View>
+      ),
       value: speed.type
     }))
   }, [feeSpeeds, t])
@@ -319,7 +327,7 @@ const Estimation = ({
     !payValue
   ) {
     return (
-      <EstimationWrapper>
+      <>
         {!estimationFailed && <EstimationSkeleton />}
         <Warnings
           hasEstimation={hasEstimation}
@@ -329,12 +337,12 @@ const Estimation = ({
           rbfDetected={false}
           bundlerFailure={false}
         />
-      </EstimationWrapper>
+      </>
     )
   }
 
   return (
-    <EstimationWrapper>
+    <>
       <Warnings
         hasEstimation={hasEstimation}
         slowRequest={slowRequest}
@@ -426,7 +434,7 @@ const Estimation = ({
                 selectStyle={{ height: 32 }}
                 menuOptionHeight={32}
                 withSearch={false}
-                containerStyle={{ ...spacings.mb0, width: 120 }}
+                containerStyle={{ ...spacings.mb0, width: 160 }}
               />
             )}
           </View>
@@ -436,7 +444,7 @@ const Estimation = ({
             headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
             sections={feeOptionSelectSections}
             renderSectionHeader={renderFeeOptionSectionHeader}
-            containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}
+            containerStyle={spacings.mb0}
             value={payValue || NO_FEE_OPTIONS}
             disabled={
               disabled ||
@@ -478,19 +486,14 @@ const Estimation = ({
         />
       )} */}
       {!isSponsored && !isGaslessTransaction && !!signAccountOpState.gasSavedUSD && (
-        <AmountInfo.Wrapper>
+        <AmountInfo.Wrapper style={spacings.ptSm}>
           <AmountInfo.Label appearance="primary">{t('Gas Tank saves you')}</AmountInfo.Label>
           <AmountInfo.Text appearance="primary" selectable>
             {formatDecimals(signAccountOpState.gasSavedUSD, 'price')} USD
           </AmountInfo.Text>
         </AmountInfo.Wrapper>
       )}
-      {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
-      {/* <View style={styles.gasTankContainer}> */}
-      {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
-      {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
-      {/* </View> */}
-    </EstimationWrapper>
+    </>
   )
 }
 

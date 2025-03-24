@@ -1,15 +1,19 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
 import { Props as TextProps } from '@common/components/Text/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-const AmountInfoWrapper = ({ children }: { children: React.ReactNode | React.ReactNode[] }) => (
-  <View style={[flexbox.directionRow, flexbox.alignCenter]}>{children}</View>
-)
+const AmountInfoWrapper = ({
+  children,
+  style
+}: {
+  children: React.ReactNode | React.ReactNode[]
+  style?: ViewStyle
+}) => <View style={[flexbox.directionRow, flexbox.alignCenter, style]}>{children}</View>
 
 const AmountInfoText = ({
   children,

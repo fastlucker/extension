@@ -25,11 +25,16 @@ import getStyles from './styles'
 interface Props {
   withAmbireLogo?: boolean
   withOG?: boolean
+  backgroundColor?: string
 }
 
 // @TODO: Not renamed because this component will no longer exist in the near future
 // @TODO: refactor the header component @petromir.
-const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true, withOG = false }) => {
+const HeaderAccountAndNetworkInfo: FC<Props> = ({
+  withAmbireLogo = true,
+  withOG = false,
+  backgroundColor
+}) => {
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
@@ -46,6 +51,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true, withOG 
       mode="custom"
       withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}
       style={styles.container}
+      backgroundColor={backgroundColor}
     >
       <View
         style={[headerStyles.widthContainer, !isActionWindow && { maxWidth: tabLayoutWidths.xl }]}

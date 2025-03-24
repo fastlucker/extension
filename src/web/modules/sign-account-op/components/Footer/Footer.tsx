@@ -1,8 +1,6 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import CartIcon from '@common/assets/svg/CartIcon'
-import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -47,11 +45,8 @@ const Footer = ({
           hasBottomSpacing={false}
           size="large"
           disabled={isSignLoading}
-        >
-          <View style={spacings.plSm}>
-            <CloseIcon color={theme.errorDecorative} />
-          </View>
-        </Button>
+          style={{ width: 98 }}
+        />
       </View>
       <ActionsPagination />
       <View
@@ -62,17 +57,13 @@ const Footer = ({
             testID="queue-and-sign-later-button"
             type="outline"
             accentColor={theme.primary}
-            text={t('Queue and Sign Later')}
+            text={t('Add to Batch')}
             onPress={onAddToCart}
             disabled={isAddToCartDisabled}
             hasBottomSpacing={false}
-            style={spacings.mr}
+            style={{ width: 180, ...spacings.mr }}
             size="large"
-          >
-            <View style={spacings.plSm}>
-              <CartIcon color={theme.primary} />
-            </View>
-          </Button>
+          />
         )}
         <Button
           testID="transaction-button-sign"
@@ -81,6 +72,7 @@ const Footer = ({
           text={isSignLoading ? inProgressButtonText : t('Sign')}
           onPress={onSign}
           hasBottomSpacing={false}
+          style={{ width: 180 }}
           size="large"
         />
       </View>

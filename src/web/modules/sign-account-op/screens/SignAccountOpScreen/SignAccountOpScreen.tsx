@@ -10,6 +10,7 @@ import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
@@ -42,7 +43,7 @@ const SignAccountOpScreen = () => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
@@ -371,31 +372,51 @@ const SignAccountOpScreen = () => {
       />
       <TabLayoutContainer
         width="full"
-        header={<HeaderAccountAndNetworkInfo />}
-        footer={
-          <Footer
-            onReject={handleRejectAccountOp}
-            onAddToCart={handleAddToCart}
-            isAddToCartDisplayed={!!signAccountOpState && !!network}
-            isSignLoading={isSignLoading}
-            isSignDisabled={
-              isViewOnly ||
-              isSignLoading ||
-              notReadyToSignButAlsoNotDone ||
-              !signAccountOpState.readyToSign
-            }
-            // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
-            // because they can't sign it anyway
+        backgroundColor="#F7F8FC"
+        header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
+        renderDirectChildren={() => (
+          <View style={styles.footer}>
+            <Estimation
+              signAccountOpState={signAccountOpState}
+              disabled={isSignLoading}
+              hasEstimation={!!hasEstimation}
+              slowRequest={slowRequest}
+              slowPaymasterRequest={slowPaymasterRequest}
+              isViewOnly={isViewOnly}
+              isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
+              sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
+            />
+            <View
+              style={{
+                height: 1,
+                backgroundColor: theme.secondaryBorder,
+                ...spacings.mvLg
+              }}
+            />
+            <Footer
+              onReject={handleRejectAccountOp}
+              onAddToCart={handleAddToCart}
+              isAddToCartDisplayed={!!signAccountOpState && !!network}
+              isSignLoading={isSignLoading}
+              isSignDisabled={
+                isViewOnly ||
+                isSignLoading ||
+                notReadyToSignButAlsoNotDone ||
+                !signAccountOpState.readyToSign
+              }
+              // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
+              // because they can't sign it anyway
 
-            isAddToCartDisabled={isAddToCartDisabled}
-            onSign={onSignButtonClick}
-            inProgressButtonText={
-              signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
-                ? t('Sending...')
-                : t('Signing...')
-            }
-          />
-        }
+              isAddToCartDisabled={isAddToCartDisabled}
+              onSign={onSignButtonClick}
+              inProgressButtonText={
+                signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
+                  ? t('Sending...')
+                  : t('Signing...')
+              }
+            />
+          </View>
+        )}
       >
         {signAccountOpState ? (
           <SigningKeySelect
@@ -412,22 +433,10 @@ const SignAccountOpScreen = () => {
           {signAccountOpState?.errors && signAccountOpState.errors.length > 0 ? (
             <Errors isViewOnly={isViewOnly} />
           ) : (
-            <>
-              <Simulation
-                network={network}
-                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
-              />
-              <Estimation
-                signAccountOpState={signAccountOpState}
-                disabled={isSignLoading}
-                hasEstimation={!!hasEstimation}
-                slowRequest={slowRequest}
-                slowPaymasterRequest={slowPaymasterRequest}
-                isViewOnly={isViewOnly}
-                isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
-                sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
-              />
-            </>
+            <Simulation
+              network={network}
+              isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+            />
           )}
 
           {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
