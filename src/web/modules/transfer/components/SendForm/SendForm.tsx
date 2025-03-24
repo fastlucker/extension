@@ -25,6 +25,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 
+import TokenSelectBottomSheet from './TokenSelectBottomSheet'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -292,6 +293,15 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
+      <TokenSelectBottomSheet
+        setValue={({ value }) => handleChangeToken(value as string)}
+        label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
+        options={options}
+        value={tokenSelectValue}
+        disabled={disableForm}
+        containerStyle={styles.tokenSelect}
+        testID="tokens-select"
+      />
       {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
