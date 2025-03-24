@@ -1,4 +1,3 @@
-const path = require('path')
 require('dotenv').config()
 
 module.exports = {
@@ -8,7 +7,7 @@ module.exports = {
   roots: ['tests'],
   moduleFileExtensions: ['ts', 'js'],
   transformIgnorePatterns: [
-    '/node_modules/(?!@trezor/trezor-user-env-link).+\\.js$' 
+    '/node_modules/(?!@trezor/trezor-user-env-link).+\\.js$'
   ],
   // Longer timeout than the default one needed for heavier dapps, like https://myetherwallet.com,
   // otherwise, tests fail because the default timeout gets reached.
@@ -23,5 +22,8 @@ module.exports = {
     // DEFAULT: no paths should be ignored
     // path.join('<rootDir>', 'tests/smart_account')
     // path.join('<rootDir>', 'tests/basic_account')
+  ],
+  reporters: [
+    "default"
   ]
 }

@@ -39,7 +39,8 @@ const SelectContainer: FC<Props> = ({
   control,
   children,
   size = DEFAULT_SELECT_SIZE,
-  testID
+  testID,
+  renderSelectedOption
 }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
@@ -56,16 +57,20 @@ const SelectContainer: FC<Props> = ({
           {label}
         </Text>
       )}
-      <SelectedMenuOption
-        disabled={disabled}
-        isMenuOpen={isMenuOpen}
-        selectRef={selectRef}
-        toggleMenu={toggleMenu}
-        value={value}
-        placeholder={placeholder}
-        selectStyle={selectStyle}
-        size={size}
-      />
+      {renderSelectedOption ? (
+        renderSelectedOption({ toggleMenu, isMenuOpen, selectRef })
+      ) : (
+        <SelectedMenuOption
+          disabled={disabled}
+          isMenuOpen={isMenuOpen}
+          selectRef={selectRef}
+          toggleMenu={toggleMenu}
+          value={value}
+          placeholder={placeholder}
+          selectStyle={selectStyle}
+          size={size}
+        />
+      )}
       {!!isMenuOpen && (
         <MenuContainer
           menuRef={menuRef}
