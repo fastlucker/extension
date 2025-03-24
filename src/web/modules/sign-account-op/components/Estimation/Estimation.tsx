@@ -4,7 +4,6 @@ import { Image, View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import AssetIcon from '@common/assets/svg/AssetIcon'
@@ -17,7 +16,6 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Warnings from '@web/modules/sign-account-op/components/Warnings'
 
@@ -44,8 +42,6 @@ const Estimation = ({
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { minWidthSize } = useWindowSize()
-  const { accountStates } = useAccountsControllerState()
-  const isSmartAccount = getIsSmartAccount(signAccountOpState?.account)
 
   const feeTokenPriceUnavailableWarning = useMemo(() => {
     return signAccountOpState?.warnings.find((warning) => warning.id === 'feeTokenPriceUnavailable')
@@ -101,22 +97,6 @@ const Estimation = ({
     },
     [dispatch, signAccountOpState?.selectedFeeSpeed]
   )
-
-  const isSmartAccountAndNotDeployed = useMemo(() => {
-    if (!isSmartAccount || !signAccountOpState?.accountOp?.accountAddr) return false
-
-    const accountState =
-      accountStates[signAccountOpState?.accountOp.accountAddr][
-        signAccountOpState?.accountOp.networkId
-      ]
-
-    return !accountState?.isDeployed
-  }, [
-    accountStates,
-    isSmartAccount,
-    signAccountOpState?.accountOp.accountAddr,
-    signAccountOpState?.accountOp.networkId
-  ])
 
   useEffect(() => {
     if (!hasEstimation) return
@@ -325,20 +305,6 @@ const Estimation = ({
           )
         }
       />
-      {!isSponsored &&
-      isSmartAccountAndNotDeployed &&
-      !estimationFailed &&
-      !signAccountOpState.errors.length ? (
-        <Alert
-          type="info"
-          title={t('Note')}
-          size="sm"
-          style={{ ...spacings.mtTy, ...spacings.mb }}
-          text={t(
-            'This is your first transaction on this network, so a one-time Smart Account setup fee will increase the gas cost by around 32%. Future transactions will be cheaper.'
-          )}
-        />
-      ) : null}
       {isSponsored && (
         <View>
           {sponsor && (
