@@ -179,7 +179,7 @@ const GetStartedScreen = () => {
           <Animated.View
             style={[
               panelStyles.container,
-              common.shadowPrimary,
+              common.shadowTertiary,
               {
                 zIndex: -1,
                 overflow: 'hidden',
@@ -190,15 +190,13 @@ const GetStartedScreen = () => {
           >
             <Panel
               isAnimated
+              spacingsSize="small"
               style={{
                 minWidth: CARD_WIDTH,
                 alignSelf: 'center',
                 backgroundColor: 'transparent',
                 opacity: opacityInterpolate as any,
-                borderWidth: 0,
-                ...spacings.ptXl,
-                ...spacings.phLg,
-                ...spacings.pb0
+                borderWidth: 0
               }}
             >
               <View style={[flexbox.justifySpaceBetween]}>
@@ -213,7 +211,11 @@ const GetStartedScreen = () => {
                 <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
                   <Button type="primary" text={t('Create New Account')} />
                   <Button type="secondary" text={t('Import Existing Account')} />
-                  <Button type="ghost" onPress={() => handleAuthButtonPress('view-only')}>
+                  <Button
+                    type="ghost"
+                    hasBottomSpacing={false}
+                    onPress={() => handleAuthButtonPress('view-only')}
+                  >
                     <>
                       <Text appearance="primary">{t('Watch an Address')}</Text>
                       <ViewModeIcon color={theme.primary} height={16} />

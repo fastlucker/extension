@@ -13,7 +13,7 @@ const getStyles = (theme: ThemeProps) =>
       // TODO: use constant here
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: theme.secondaryBorder,
+      borderColor: theme.tertiaryBackground,
       backgroundColor: theme.primaryBackground
     }
   })

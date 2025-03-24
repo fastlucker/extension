@@ -114,7 +114,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
   }, [activeRoute.error, activeRoute.routeStatus, theme])
 
   return (
-    <Panel forceContainerSmallSpacings style={getPanelContainerStyle()}>
+    <Panel spacingsSize="small" style={getPanelContainerStyle()}>
       {activeRoute.routeStatus === 'completed' && (
         <Pressable style={styles.closeIcon} onPress={handleRejectActiveRoute}>
           <CloseIcon />

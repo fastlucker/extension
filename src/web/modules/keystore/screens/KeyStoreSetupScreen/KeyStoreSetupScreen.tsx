@@ -161,7 +161,7 @@ const KeyStoreSetupScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Create a Device Password')} forceContainerSmallSpacings>
+        <Panel title={t('Create a Device Password')} spacingsSize="small">
           <KeyStoreSetupForm onContinue={onKeyStoreCreation} {...keyStoreSetup}>
             <Checkbox
               value={agreedWithTerms}

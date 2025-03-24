@@ -5,6 +5,7 @@ import { isWeb } from '@common/config/env'
 interface Styles {
   shadowPrimary: ViewStyle
   shadowSecondary: ViewStyle
+  shadowTertiary: ViewStyle
   borderRadiusPrimary: ViewStyle
   borderRadiusSecondary: ViewStyle
   hidden: ViewStyle
@@ -34,6 +35,15 @@ const commonStyles: Styles = {
     },
     shadowOpacity: 0.29,
     shadowRadius: 4.65,
+    elevation: 7
+  },
+  shadowTertiary: {
+    shadowColor: '#767DAD4D',
+    shadowOffset: {
+      width: 0,
+      height: 12
+    },
+    shadowRadius: 24,
     elevation: 7
   },
   borderRadiusPrimary: {

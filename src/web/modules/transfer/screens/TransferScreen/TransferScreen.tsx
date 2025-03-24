@@ -344,7 +344,7 @@ const TransferScreen = () => {
         {state?.isInitialized ? (
           <Panel
             style={[styles.panel]}
-            forceContainerSmallSpacings
+            spacingsSize="small"
             title={state.isTopUp ? gasTankLabelWithInfo : 'Send'}
           >
             <SendForm

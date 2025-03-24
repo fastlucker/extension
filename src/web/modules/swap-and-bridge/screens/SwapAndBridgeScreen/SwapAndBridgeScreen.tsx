@@ -185,7 +185,7 @@ const SwapAndBridgeScreen = () => {
               </View>
             )}
 
-            <Panel forceContainerSmallSpacings>
+            <Panel spacingsSize="small">
               <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
                 <Text
                   fontSize={18}
@@ -311,7 +311,7 @@ const SwapAndBridgeScreen = () => {
               onPress={handleSwitchFromAndToTokens}
               disabled={!isSwitchFromAndToTokensEnabled}
             />
-            <Panel forceContainerSmallSpacings>
+            <Panel spacingsSize="small">
               <View style={spacings.mb}>
                 <Text
                   appearance="secondaryText"

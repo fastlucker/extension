@@ -11,26 +11,25 @@ import getStyles from './styles'
 
 interface Props extends ViewProps {
   title?: string | ReactNode
-  forceContainerSmallSpacings?: boolean
+  spacingsSize?: 'small' | 'large'
   isAnimated?: boolean
 }
 
 export const getPanelPaddings = (
   maxWidthSize: (size: WindowSizes) => boolean,
-  forceContainerSmallSpacings?: boolean
+  spacingsSize: 'small' | 'large' = 'large'
 ) => {
   return {
-    paddingHorizontal:
-      maxWidthSize('xl') && !forceContainerSmallSpacings ? SPACING_3XL : SPACING_XL,
-    paddingVertical: maxWidthSize('xl') && !forceContainerSmallSpacings ? SPACING_XL : SPACING_LG
+    paddingHorizontal: maxWidthSize('xl') && spacingsSize === 'large' ? SPACING_3XL : SPACING_LG,
+    paddingVertical: maxWidthSize('xl') && spacingsSize === 'large' ? SPACING_XL : SPACING_LG
   }
 }
 
 const Panel: React.FC<Props> = ({
   title,
   children,
-  forceContainerSmallSpacings,
   style,
+  spacingsSize = 'large',
   isAnimated,
   ...rest
 }) => {
@@ -41,7 +40,7 @@ const Panel: React.FC<Props> = ({
 
   return (
     <Container
-      style={[styles.container, getPanelPaddings(maxWidthSize, forceContainerSmallSpacings), style]}
+      style={[styles.container, getPanelPaddings(maxWidthSize, spacingsSize), style]}
       {...rest}
     >
       {!!title && (
@@ -60,4 +59,4 @@ const Panel: React.FC<Props> = ({
   )
 }
 
-export default Panel
+export default React.memo(Panel)
