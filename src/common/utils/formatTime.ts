@@ -33,7 +33,7 @@ function formatTime(seconds: number) {
     return remainingSeconds !== 0 ? `${minutes + 1} min` : `${minutes} min`
   }
 
-  return `${remainingSeconds} sec`
+  return '1 min'
 }
 
 export default formatTime
