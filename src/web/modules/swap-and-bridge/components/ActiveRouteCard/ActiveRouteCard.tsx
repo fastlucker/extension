@@ -2,8 +2,10 @@ import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import { ActiveRoute, SocketAPIBridgeUserTx } from '@ambire-common/interfaces/swapAndBridge'
-import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import {
+  SocketAPIBridgeUserTx,
+  SwapAndBridgeActiveRoute
+} from '@ambire-common/interfaces/swapAndBridge'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button, { ButtonProps } from '@common/components/Button'
 import Panel from '@common/components/Panel'
@@ -19,7 +21,7 @@ import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStep
 
 import getStyles from './styles'
 
-const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
+const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRoute }) => {
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -31,11 +33,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: ActiveRoute }) => {
     return activeRoute.route.userTxs[activeRoute.route.currentUserTxIndex]
   }, [activeRoute.route])
 
-  const steps = useMemo(() => {
-    // TODO: Migrate Socket to SwapAndBridgeStep
-    // return getQuoteRouteSteps(activeRoute.route.userTxs)
-    return activeRoute.route.steps
-  }, [activeRoute.route.steps])
+  const { steps } = activeRoute.route
 
   const handleRejectActiveRoute = useCallback(() => {
     dispatch({

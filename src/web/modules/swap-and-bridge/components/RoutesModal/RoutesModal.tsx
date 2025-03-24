@@ -1,12 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
-import {
-  SocketAPIRoute,
-  SwapAndBridgeRoute,
-  SwapAndBridgeStep
-} from '@ambire-common/interfaces/swapAndBridge'
-import { getQuoteRouteSteps } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { SwapAndBridgeRoute } from '@ambire-common/interfaces/swapAndBridge'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -40,10 +35,10 @@ const RoutesModal = ({
   const { dispatch } = useBackgroundService()
   const scrollRef: any = useRef(null)
 
-  const [selectedRoute, setSelectedRoute] = useState<SocketAPIRoute | null>(
+  const [selectedRoute, setSelectedRoute] = useState<SwapAndBridgeRoute | null>(
     quote?.selectedRoute || null
   )
-  const prevQuoteSelectedRoute: SocketAPIRoute | undefined = usePrevious(quote?.selectedRoute)
+  const prevQuoteSelectedRoute: SwapAndBridgeRoute | undefined = usePrevious(quote?.selectedRoute)
   const { height } = useWindowSize()
 
   useEffect(() => {
@@ -58,9 +53,7 @@ const RoutesModal = ({
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
     ({ item, index }: { item: SwapAndBridgeRoute; index: number }) => {
-      // TODO: Migrate Socket to SwapAndBridgeStep
-      // const steps = getQuoteRouteSteps(item.userTxs)
-      const steps = item.steps
+      const { steps } = item
 
       return (
         <Pressable
@@ -142,7 +135,7 @@ const RoutesModal = ({
       <ScrollableWrapper
         type={WRAPPER_TYPES.FLAT_LIST}
         data={quote.routes}
-        keyExtractor={(r: SocketAPIRoute) => r.routeId.toString()}
+        keyExtractor={(r: SwapAndBridgeRoute) => r.routeId.toString()}
         renderItem={renderItem}
         initialNumToRender={6}
         windowSize={6}

@@ -13,7 +13,11 @@ import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
 import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
-import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import {
+  SocketAPIToken,
+  SwapAndBridgeActiveRoute,
+  SwapAndBridgeRoute
+} from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { FullEstimation } from '@ambire-common/libs/estimate/interfaces'
@@ -482,21 +486,21 @@ type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
 }
 type SwapAndBridgeControllerSelectRouteAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE'
-  params: { route: SocketAPIRoute }
+  params: { route: SwapAndBridgeRoute }
 }
 type SwapAndBridgeControllerSubmitFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
-  params: { activeRouteId: number }
+  params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
 type SwapAndBridgeControllerUpdateQuoteAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE'
 }
 type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
-  params: { activeRouteId: number }
+  params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
 
 type ActionsControllerRemoveFromActionsQueue = {
