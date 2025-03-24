@@ -1,7 +1,7 @@
 # Ambire Wallet
 
 <div align="center">
-  <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en">
+  <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en" target="_blank">
     <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
   </a>
 
@@ -14,12 +14,12 @@
     <em>(Chrome, Brave, Opera, Edge, Arc)</em>
     <br /><br />
     💌 Request Invite Code:
-    <a href="https://discord.com/invite/Ambire">Discord</a> |
-    <a href="https://t.me/AmbireOfficial">Telegram</a>
+    <a href="https://discord.com/invite/Ambire" target="_blank">Discord</a> |
+    <a href="https://t.me/AmbireOfficial" target="_blank">Telegram</a>
     <br />
     🐞
     <a href="https://github.com/AmbireTech/extension/issues">Report a Bug</a> ·
-    <a href="https://forum.ambire.com/">Request Features</a>
+    <a href="https://forum.ambire.com/" target="_blank">Request Features</a>
   </p>
 </div>
 
