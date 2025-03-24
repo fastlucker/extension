@@ -1,11 +1,17 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
+import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Checkbox from '@common/components/Checkbox'
+import DualChoiceModal from '@common/components/DualChoiceModal'
 import Panel from '@common/components/Panel'
-import { useTranslation } from '@common/config/localization'
+import Text from '@common/components/Text'
+import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
@@ -14,6 +20,7 @@ import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -21,6 +28,8 @@ import {
 import storage from '@web/extension-services/background/webapi/storage'
 import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
 import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup'
+import TermsComponent from '@web/modules/terms/components'
+import { TERMS_VERSION } from '@web/modules/terms/components/TermsComponent'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
@@ -29,6 +38,8 @@ const KeyStoreSetupScreen = () => {
   const { updateStepperState } = useStepper()
   const { theme } = useTheme()
   const keyStoreSetup = useKeyStoreSetup()
+  const [agreedWithTerms, setAgreedWithTerms] = useState(true)
+  const { ref: termsModalRef, open: openTermsModal, close: closeTermsModal } = useModalize()
 
   const flow = useMemo(() => {
     if (params?.flow) return params.flow
@@ -98,7 +109,22 @@ const KeyStoreSetupScreen = () => {
         state: { backTo: WEB_ROUTES.importHotWallet }
       })
     }
+    if (flow === 'import-hot-wallet') {
+      navigate(WEB_ROUTES.importHotWallet, {
+        state: { backTo: WEB_ROUTES.getStarted }
+      })
+    }
+    if (flow === 'view-only') {
+      navigate(WEB_ROUTES.viewOnlyAccountAdder, {
+        state: { backTo: WEB_ROUTES.getStarted }
+      })
+    }
   }, [flow, navigate])
+
+  const handleCreateButtonPress = useCallback(async () => {
+    await storage.set('termsState', { version: TERMS_VERSION, acceptedAt: Date.now() })
+    await keyStoreSetup.handleKeystoreSetup()
+  }, [keyStoreSetup])
 
   return (
     <TabLayoutContainer
@@ -117,14 +143,15 @@ const KeyStoreSetupScreen = () => {
               keyStoreSetup.formState.isSubmitting ||
               keyStoreSetup.isKeystoreSetupLoading ||
               !keyStoreSetup.formState.isValid ||
-              keyStoreSetup.hasPasswordSecret
+              keyStoreSetup.hasPasswordSecret ||
+              !agreedWithTerms
             }
             text={
               keyStoreSetup.formState.isSubmitting || keyStoreSetup.isKeystoreSetupLoading
                 ? t('Creating...')
                 : t('Create')
             }
-            onPress={keyStoreSetup.handleKeystoreSetup}
+            onPress={handleCreateButtonPress}
           >
             <View style={spacings.pl}>
               <RightArrowIcon color={colors.titan} />
@@ -135,9 +162,46 @@ const KeyStoreSetupScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Create a Device Password')} forceContainerSmallSpacings>
-          <KeyStoreSetupForm onContinue={onKeyStoreCreation} {...keyStoreSetup} />
+          <KeyStoreSetupForm onContinue={onKeyStoreCreation} {...keyStoreSetup}>
+            <Checkbox
+              value={agreedWithTerms}
+              onValueChange={setAgreedWithTerms}
+              uncheckedBorderColor={theme.primaryText}
+              label={
+                <Trans>
+                  <Text fontSize={14}>I agree to the </Text>
+                  <TouchableOpacity onPress={() => openTermsModal()}>
+                    <Text fontSize={14} underline color={theme.infoDecorative}>
+                      Terms of Service
+                    </Text>
+                  </TouchableOpacity>
+                  .
+                </Trans>
+              }
+            />
+          </KeyStoreSetupForm>
         </Panel>
       </TabLayoutWrapperMainContent>
+      <BottomSheet
+        id="terms-modal"
+        style={{ maxWidth: 800 }}
+        closeBottomSheet={closeTermsModal}
+        backgroundColor="primaryBackground"
+        sheetRef={termsModalRef}
+      >
+        <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
+          <AmbireLogo style={[spacings.mbLg, flexbox.alignCenter]} width={185} height={92} />
+          <Text fontSize={32} weight="regular" style={[{ textAlign: 'center' }, spacings.mbXl]}>
+            {t('Terms Of Service')}
+          </Text>
+        </View>
+        <DualChoiceModal
+          hideHeader
+          description={<TermsComponent />}
+          primaryButtonText={t('Ok')}
+          onPrimaryButtonPress={closeTermsModal}
+        />
+      </BottomSheet>
     </TabLayoutContainer>
   )
 }

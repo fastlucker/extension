@@ -41,17 +41,6 @@ const routesConfig: RouteConfig = {
       web: i18n.t('Welcome to Ambire Wallet')
     })
   },
-  [ROUTES.terms]: {
-    route: ROUTES.terms,
-    title: Platform.select({
-      default: i18n.t('Terms of Service'),
-      web: i18n.t('Terms of Service')
-    }),
-    name: Platform.select({
-      default: i18n.t('Terms of Service'),
-      web: i18n.t('Terms of Service')
-    })
-  },
   [ROUTES.authEmailAccount]: {
     route: ROUTES.authEmailAccount,
     title: Platform.select({

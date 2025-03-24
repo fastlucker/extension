@@ -27,7 +27,6 @@ const WEB_ROUTES = {
   accounts: 'accounts',
   appCatalog: 'app-catalog',
   inviteVerify: 'invite-verify',
-  terms: 'terms',
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',

@@ -61,7 +61,6 @@ import TransactionHistorySettingsScreen from '@web/modules/settings/screens/Tran
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import SwapAndBridgeScreen from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen'
-import Terms from '@web/modules/terms/screens/Terms'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 
@@ -95,7 +94,6 @@ const MainRoutes = () => {
 
             <Route element={<KeystoreUnlockedRoute />}>
               <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
-              <Route path={WEB_ROUTES.terms} element={<Terms />} />
               <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
               <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
               <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
