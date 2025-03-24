@@ -44,22 +44,6 @@ export class WalletStateController extends EventEmitter {
   }
 
   async #init(): Promise<void> {
-    // We no longer need to check for isDefaultWallet, but we need to remove it from storage if it is set in storage
-    const isDefaultWalletStorageSet = await storage.get('isDefaultWallet', undefined)
-
-    // If isDefaultWallet is set, remove the key from storage
-    if (isDefaultWalletStorageSet !== undefined) {
-      await storage.remove('isDefaultWallet')
-    }
-
-    // We no longer need to check for onboardingState, but we need to remove it from storage if it is set in storage
-    const isOnboardingStateExists = await storage.get('onboardingState', undefined)
-
-    // If onboardingState is set, remove the key from storage
-    if (isOnboardingStateExists === undefined) {
-      await storage.remove('onboardingState')
-    }
-
     this.#isPinned = isSafari() || (await storage.get('isPinned', false))
     this.#initCheckIsPinned()
 
