@@ -10,6 +10,8 @@
     <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en" target="_blank">
       <strong>Download Extension for Webkit Browsers 🔥</strong>
     </a>
+    <br />
+    <em>(Chrome, Brave, Opera, Edge, Arc)</em>
     <br /><br />
     💌 Request Invite Code:
     <a href="https://discord.com/invite/Ambire">Discord</a> |
