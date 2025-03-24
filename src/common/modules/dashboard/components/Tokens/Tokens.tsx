@@ -326,13 +326,16 @@ const Tokens = ({
     ]
   )
 
-  const keyExtractor = useCallback((tokenOrElement: any) => {
-    if (typeof tokenOrElement === 'string') {
-      return tokenOrElement
-    }
+  const keyExtractor = useCallback(
+    (tokenOrElement: any) => {
+      if (typeof tokenOrElement === 'string') {
+        return tokenOrElement
+      }
 
-    return getTokenId(tokenOrElement)
-  }, [])
+      return getTokenId(tokenOrElement, networks)
+    },
+    [networks]
+  )
 
   useEffect(() => {
     setValue('search', '')

@@ -55,7 +55,7 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
       to: theme.secondaryBackground
     }
   })
-  const tokenId = getTokenId(token)
+  const tokenId = getTokenId(token, networks)
 
   const simulatedAccountOp = portfolio.networkSimulatedAccountOp[token.chainId.toString()]
 

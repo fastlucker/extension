@@ -78,7 +78,7 @@ const SendForm = ({
     amountSelectDisabled
   } = useGetTokenSelectProps({
     tokens,
-    token: selectedToken ? getTokenId(selectedToken) : '',
+    token: selectedToken ? getTokenId(selectedToken, networks) : '',
     networks,
     isToToken: false
   })
@@ -87,11 +87,13 @@ const SendForm = ({
 
   const handleChangeToken = useCallback(
     (value: string) => {
-      const tokenToSelect = tokens.find((tokenRes: TokenResult) => getTokenId(tokenRes) === value)
+      const tokenToSelect = tokens.find(
+        (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
+      )
 
       transferCtrl.update({ selectedToken: tokenToSelect, amount: '' })
     },
-    [tokens, transferCtrl]
+    [tokens, transferCtrl, networks]
   )
 
   const setAddressStateFieldValue = useCallback(

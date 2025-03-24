@@ -185,7 +185,7 @@ const useSwapAndBridgeForm = () => {
     amountSelectDisabled: fromTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
     tokens: portfolioTokenList,
-    token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
+    token: fromSelectedToken ? getTokenId(fromSelectedToken, networks) : '',
     isLoading: isTokenListLoading,
     networks,
     supportedChainIds
@@ -194,7 +194,7 @@ const useSwapAndBridgeForm = () => {
   const handleChangeFromToken = useCallback(
     ({ value }: SelectValue) => {
       const tokenToSelect = portfolioTokenList.find(
-        (tokenRes: TokenResult) => getTokenId(tokenRes) === value
+        (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
       )
 
       dispatch({
@@ -202,7 +202,7 @@ const useSwapAndBridgeForm = () => {
         params: { fromSelectedToken: tokenToSelect }
       })
     },
-    [dispatch, portfolioTokenList]
+    [dispatch, portfolioTokenList, networks]
   )
 
   const {
@@ -211,7 +211,7 @@ const useSwapAndBridgeForm = () => {
     amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
     tokens: toTokenList,
-    token: toSelectedToken ? getTokenId(toSelectedToken) : '',
+    token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
     networks,
     supportedChainIds,
     isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
@@ -220,14 +220,16 @@ const useSwapAndBridgeForm = () => {
 
   const handleChangeToToken = useCallback(
     ({ value }: SelectValue) => {
-      const tokenToSelect = toTokenList.find((t: SocketAPIToken) => getTokenId(t) === value)
+      const tokenToSelect = toTokenList.find(
+        (t: SocketAPIToken) => getTokenId(t, networks) === value
+      )
 
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: { toSelectedToken: tokenToSelect }
       })
     },
-    [dispatch, toTokenList]
+    [dispatch, toTokenList, networks]
   )
 
   const handleAddToTokenByAddress = useCallback(
