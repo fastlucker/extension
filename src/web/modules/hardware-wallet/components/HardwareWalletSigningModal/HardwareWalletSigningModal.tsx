@@ -22,7 +22,7 @@ import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 type Props = {
   keyType: ExternalKey['type']
   isVisible: boolean
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
 const iconByKeyType = {

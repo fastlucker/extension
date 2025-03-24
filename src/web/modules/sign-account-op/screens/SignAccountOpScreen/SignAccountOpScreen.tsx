@@ -438,6 +438,7 @@ const SignAccountOpScreen = () => {
                 feePayerKeyType={feePayerKeyType}
                 broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
                 signAccountOpStatusType={signAccountOpState?.status?.type}
+                shouldSignAuth={signAccountOpState && signAccountOpState.shouldSignAuth}
               />
             )}
 
