@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { BUNDLER } from '@ambire-common/consts/bundlers'
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { Network } from '@ambire-common/interfaces/network'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import {
   AccountOpIdentifiedBy,
@@ -49,6 +49,7 @@ export type FeePaidWith = {
   symbol: string
   usdValue: string
   isErc20: boolean
+  networkId: NetworkId
 }
 
 interface Props {
@@ -583,16 +584,21 @@ const useSteps = ({
     let isMounted = true
     let address: string | undefined
     let amount = 0n
-
+    let feeTokenNetwork = network
     // Smart account
     // Decode the fee call and get the token address and amount
     // that was used to cover the gas feePaidWith
     if (feeCall) {
       try {
-        const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.id)
+        const {
+          address: addr,
+          amount: tokenAmount,
+          network: tokenNetwork
+        } = decodeFeeCall(feeCall, network)
 
         address = addr
         amount = tokenAmount
+        feeTokenNetwork = tokenNetwork
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error decoding fee call', e)
@@ -609,7 +615,7 @@ const useSteps = ({
     if (!address || !amount) return
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    resolveAssetInfo(address, network, ({ tokenInfo }) => {
+    resolveAssetInfo(address, feeTokenNetwork, ({ tokenInfo }) => {
       if (!tokenInfo || !amount) return
       const { decimals, priceIn } = tokenInfo
       const price = priceIn.length ? priceIn[0].price : null
@@ -623,7 +629,8 @@ const useSteps = ({
         symbol: tokenInfo.symbol,
         usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
         isErc20: address !== ZeroAddress,
-        address: address as string
+        address: address as string,
+        networkId: feeTokenNetwork.id
       })
     }).catch(() => {
       if (!isMounted) return
@@ -632,7 +639,8 @@ const useSteps = ({
         symbol: address === ZeroAddress ? 'ETH' : '',
         usdValue: '-$',
         isErc20: false,
-        address: address as string
+        address: address as string,
+        networkId: feeTokenNetwork.id
       })
     })
 
