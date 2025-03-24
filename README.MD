@@ -1,5 +1,7 @@
 <div align="center">
-  <h1 style="margin-top: 0;">Ambire Wallet</h1>
+  <div class="markdown-heading">
+    <h1 class="heading-element">Ambire Wallet</h1>
+  </div>
 
   <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea?hl=en">
     <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
