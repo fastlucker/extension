@@ -96,8 +96,8 @@ const Header = ({
           {mode === 'title' && (
             <View style={styles.containerInner}>
               <Text
-                weight="medium"
-                fontSize={isTab ? 24 : 20}
+                weight="regular"
+                fontSize={isTab ? 32 : 24}
                 style={styles.title}
                 numberOfLines={2}
               >

@@ -70,13 +70,13 @@ const getStyles = (theme: ThemeProps) =>
       height: 56,
       ...spacings.pvMi,
       ...spacings.phXl,
-      ...spacings.mb
+      ...spacings.mbSm
     },
     buttonContainerStylesSizeRegular: {
       height: 56,
       ...spacings.pvMi,
       ...spacings.phSm,
-      ...spacings.mb
+      ...spacings.mbSm
     },
     buttonContainerStylesSizeSmall: {
       height: 36,

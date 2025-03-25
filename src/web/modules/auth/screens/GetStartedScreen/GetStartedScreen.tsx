@@ -21,6 +21,7 @@ import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -204,8 +205,12 @@ const GetStartedScreen = () => {
                   style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}
                 >
                   <AmbireLogo height={96} />
-                  <Text style={[spacings.mtLg, { textAlign: 'center' }]} appearance="secondaryText">
-                    The Web3 wallet that makes self-custody easy and secure.
+                  <Text
+                    style={[spacings.mtLg, text.center]}
+                    weight="medium"
+                    appearance="secondaryText"
+                  >
+                    {t('The Web3 wallet that makes self-custody easy and secure.')}
                   </Text>
                 </View>
                 <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>

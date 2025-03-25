@@ -8,13 +8,15 @@ interface Styles {
   shadowTertiary: ViewStyle
   borderRadiusPrimary: ViewStyle
   borderRadiusSecondary: ViewStyle
+  borderRadiusTertiary: ViewStyle
   hidden: ViewStyle
   fullWidth: ViewStyle
   visibilityHidden: ViewStyle
 }
 
 export const BORDER_RADIUS_PRIMARY = 6
-export const BORDER_RADIUS_SECONDARY = 2
+export const BORDER_RADIUS_SECONDARY = 12
+export const BORDER_RADIUS_TERTIARY = 2
 
 const commonStyles: Styles = {
   shadowPrimary: {
@@ -51,6 +53,9 @@ const commonStyles: Styles = {
   },
   borderRadiusSecondary: {
     borderRadius: BORDER_RADIUS_SECONDARY
+  },
+  borderRadiusTertiary: {
+    borderRadius: BORDER_RADIUS_TERTIARY
   },
   hidden: {
     overflow: 'hidden'

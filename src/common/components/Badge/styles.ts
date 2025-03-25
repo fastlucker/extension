@@ -26,7 +26,7 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...flexbox.directionRow,
-      ...common.borderRadiusSecondary
+      ...common.borderRadiusTertiary
     },
     infoBadge: {
       ...label,
