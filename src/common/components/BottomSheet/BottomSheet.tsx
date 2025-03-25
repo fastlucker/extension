@@ -35,6 +35,7 @@ interface Props {
   autoOpen?: boolean
   shouldBeClosableOnDrag?: boolean
   customZIndex?: number
+  withBackdropBlur?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
@@ -60,6 +61,7 @@ const BottomSheet: React.FC<Props> = ({
   autoWidth = false,
   autoOpen = false,
   shouldBeClosableOnDrag = true,
+  withBackdropBlur,
   customZIndex
 }) => {
   const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
@@ -132,6 +134,7 @@ const BottomSheet: React.FC<Props> = ({
             closeBottomSheet()
             !!onBackdropPress && onBackdropPress()
           }}
+          withBlur={withBackdropBlur}
         />
       )}
       <Modalize
