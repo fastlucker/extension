@@ -13,6 +13,7 @@ import Checkbox from '@common/components/Checkbox'
 import NumberInput from '@common/components/NumberInput'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useNavigation from '@common/hooks/useNavigation'
@@ -38,6 +39,7 @@ import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTo
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
@@ -125,11 +127,15 @@ const SwapAndBridgeScreen = () => {
   )
 
   useEffect(() => {
-    if (formStatus === SwapAndBridgeFormStatus.ReadyToSubmit && !signAccountOpController) {
+    if (formStatus === SwapAndBridgeFormStatus.ReadyToEstimate && !signAccountOpController) {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_SIGN_ACCOUNT_OP'
       })
-    } else if (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit && !!signAccountOpController) {
+    } else if (
+      formStatus !== SwapAndBridgeFormStatus.ReadyToEstimate &&
+      formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit &&
+      !!signAccountOpController
+    ) {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
       })
@@ -412,6 +418,7 @@ const SwapAndBridgeScreen = () => {
                 SwapAndBridgeFormStatus.FetchingRoutes,
                 SwapAndBridgeFormStatus.NoRoutesFound,
                 SwapAndBridgeFormStatus.InvalidRouteSelected,
+                SwapAndBridgeFormStatus.ReadyToEstimate,
                 SwapAndBridgeFormStatus.ReadyToSubmit
               ].includes(formStatus) && (
                 <View
@@ -481,6 +488,7 @@ const SwapAndBridgeScreen = () => {
                 </View>
               )}
               {(formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
+                formStatus === SwapAndBridgeFormStatus.ReadyToEstimate ||
                 formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) && (
                 <>
                   <View style={spacings.mb}>
@@ -554,23 +562,34 @@ const SwapAndBridgeScreen = () => {
                 </>
               )}
 
-              {formStatus === SwapAndBridgeFormStatus.ReadyToSubmit && signAccountOpController && (
-                <View style={[styles.secondaryContainer, spacings.mb]}>
-                  <Estimation
-                    updateType="Swap&Bridge"
-                    signAccountOpState={signAccountOpController}
-                    disabled={signAccountOpController.status?.type !== SigningStatus.ReadyToSign}
-                    hasEstimation={!!hasEstimation}
-                    // TODO<oneClickSwap>
-                    slowRequest={false}
-                    // TODO<oneClickSwap>
-                    slowPaymasterRequest={false}
-                    isViewOnly={isViewOnly}
-                    isSponsored={false}
-                    sponsor={undefined}
-                  />
-                </View>
-              )}
+              {/* TODO<oneClickSwap>: styling */}
+              {formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
+                (!signAccountOpController ||
+                  signAccountOpController.estimation.status === EstimationStatus.Loading) && (
+                  <View style={[styles.secondaryContainer, spacings.mb]}>
+                    <Spinner />
+                  </View>
+                )}
+
+              {(formStatus === SwapAndBridgeFormStatus.ReadyToEstimate ||
+                formStatus === SwapAndBridgeFormStatus.ReadyToSubmit) &&
+                signAccountOpController && (
+                  <View style={[styles.secondaryContainer, spacings.mb]}>
+                    <Estimation
+                      updateType="Swap&Bridge"
+                      signAccountOpState={signAccountOpController}
+                      disabled={signAccountOpController.status?.type !== SigningStatus.ReadyToSign}
+                      hasEstimation={!!hasEstimation}
+                      // TODO<oneClickSwap>
+                      slowRequest={false}
+                      // TODO<oneClickSwap>
+                      slowPaymasterRequest={false}
+                      isViewOnly={isViewOnly}
+                      isSponsored={false}
+                      sponsor={undefined}
+                    />
+                  </View>
+                )}
 
               <View
                 style={[spacings.pt, { borderTopWidth: 1, borderTopColor: theme.secondaryBorder }]}
