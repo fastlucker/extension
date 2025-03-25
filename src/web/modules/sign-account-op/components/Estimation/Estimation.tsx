@@ -18,6 +18,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
+import SectionHeading from '../SectionHeading'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
@@ -333,9 +334,7 @@ const Estimation = ({
             spacings.mbMi
           ]}
         >
-          <Text appearance="secondaryText" fontSize={14} weight="regular">
-            {t('Pay fee with')}
-          </Text>
+          <SectionHeading withMb={false}>{t('Pay fee with')}</SectionHeading>
           {selectedFee && (
             <Select
               value={selectedFee}
