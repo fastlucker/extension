@@ -85,7 +85,11 @@ const mapFeeOptions = (
   })
 
   if (!speedCoverage.includes(FeeSpeed.Slow)) {
-    disabledReason = 'Insufficient amount'
+    if (!feeOption.token.priceIn.length) {
+      disabledReason = 'No price data'
+    } else {
+      disabledReason = 'Insufficient amount'
+    }
   }
 
   return {

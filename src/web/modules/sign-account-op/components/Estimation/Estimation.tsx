@@ -31,7 +31,8 @@ const Estimation = ({
   disabled,
   hasEstimation,
   isSponsored,
-  sponsor
+  sponsor,
+  slowRequest
 }: Props) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
@@ -169,13 +170,17 @@ const Estimation = ({
             {t(speed.type.charAt(0).toUpperCase() + speed.type.slice(1))}
           </Text>
           <Text fontSize={14} style={spacings.mlMi} weight="regular" appearance="secondaryText">
-            {formatDecimals(Number(speed.amountUsd), 'value')}
+            {!feeTokenPriceUnavailableWarning
+              ? formatDecimals(Number(speed.amountUsd), 'value')
+              : `${formatDecimals(Number(speed.amountFormatted), 'precise')} ${
+                  payValue?.token.symbol
+                }`}
           </Text>
         </View>
       ),
       value: speed.type
     }))
-  }, [feeSpeeds, t])
+  }, [feeSpeeds, feeTokenPriceUnavailableWarning, payValue?.token.symbol, t])
 
   const selectedFee = useMemo(
     () =>
@@ -266,6 +271,17 @@ const Estimation = ({
     [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
+  if (!hasEstimation && !!slowRequest) {
+    return (
+      <View style={spacings.ptTy}>
+        <Alert
+          type="warning"
+          size="sm"
+          title="Estimating this transaction is taking an unexpectedly long time. We'll keep trying, but it is possible that there's an issue with this network or RPC - please change your RPC provider or contact Ambire support if this issue persists."
+        />
+      </View>
+    )
+  }
   if (
     !signAccountOpState ||
     (!hasEstimation && signAccountOpState.estimationRetryError) ||
@@ -344,7 +360,7 @@ const Estimation = ({
               selectStyle={{ height: 32 }}
               menuOptionHeight={32}
               withSearch={false}
-              containerStyle={{ ...spacings.mb0, width: 160 }}
+              containerStyle={{ ...spacings.mb0, minWidth: 160, width: 'fit-content' }}
             />
           )}
         </View>
@@ -366,15 +382,6 @@ const Estimation = ({
           stickySectionHeadersEnabled
         />
       </>
-      {feeSpeeds.length > 0 && !!feeTokenPriceUnavailableWarning && (
-        <Alert
-          size="sm"
-          type="warning"
-          text={feeTokenPriceUnavailableWarning.text}
-          title={feeTokenPriceUnavailableWarning.title}
-          style={{ ...spacings.mtSm, ...spacings.mbMd }}
-        />
-      )}
 
       {/* {!isSponsored && !isGaslessTransaction && !!selectedFee && !!payValue && (
         <AmountInfo
