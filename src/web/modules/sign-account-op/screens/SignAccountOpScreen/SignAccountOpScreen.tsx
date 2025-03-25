@@ -14,6 +14,7 @@ import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
@@ -50,13 +51,9 @@ const SignAccountOpScreen = () => {
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
-  const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(false)
+  const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(true)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
-  const {
-    ref: warningAgreementModalRef,
-    open: openWarningAgreementModal,
-    close: closeWarningAgreementModal
-  } = useModalize()
+  const { ref: warningModalRef, open: openWarningModal, close: closeWarningModal } = useModalize()
   const hasEstimation = useMemo(
     () =>
       signAccountOpState?.isInitialized &&
@@ -118,18 +115,20 @@ const SignAccountOpScreen = () => {
     const timeout = setTimeout(() => {
       if (signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster) {
         setSlowPaymasterRequest(true)
+        openWarningModal()
       }
     }, 3000)
 
     if (signAccountOpState?.status?.type !== SigningStatus.WaitingForPaymaster) {
       clearTimeout(timeout)
       setSlowPaymasterRequest(false)
+      closeWarningModal()
     }
 
     return () => {
       clearTimeout(timeout)
     }
-  }, [signAccountOpState?.status?.type])
+  }, [closeWarningModal, openWarningModal, signAccountOpState?.status?.type])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
@@ -210,7 +209,7 @@ const SignAccountOpScreen = () => {
     (_chosenSigningKeyType?: string, _warningAccepted?: boolean) => {
       // Prioritize warning(s) modals over all others
       if (warningToPromptBeforeSign && !_warningAccepted) {
-        openWarningAgreementModal()
+        openWarningModal()
         updateControllerSigningStatus(SigningStatus.UpdatesPaused)
         return
       }
@@ -232,7 +231,7 @@ const SignAccountOpScreen = () => {
       feePayerKeyType,
       isAtLeastOneOfTheKeysInvolvedLedger,
       isLedgerConnected,
-      openWarningAgreementModal,
+      openWarningModal,
       updateControllerSigningStatus,
       warningToPromptBeforeSign
     ]
@@ -270,9 +269,9 @@ const SignAccountOpScreen = () => {
     if (!warningToPromptBeforeSign) return
 
     setAcknowledgedWarnings((prev) => [...prev, warningToPromptBeforeSign.id])
-    closeWarningAgreementModal()
+    closeWarningModal()
     handleSign(undefined, true)
-  }, [warningToPromptBeforeSign, closeWarningAgreementModal, handleSign])
+  }, [warningToPromptBeforeSign, closeWarningModal, handleSign])
 
   useEffect(() => {
     if (shouldDisplayLedgerConnectModal && isLedgerConnected) {
@@ -283,8 +282,8 @@ const SignAccountOpScreen = () => {
   const dismissWarning = useCallback(() => {
     updateControllerSigningStatus(SigningStatus.ReadyToSign)
 
-    closeWarningAgreementModal()
-  }, [updateControllerSigningStatus, closeWarningAgreementModal])
+    closeWarningModal()
+  }, [updateControllerSigningStatus, closeWarningModal])
 
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
@@ -294,7 +293,11 @@ const SignAccountOpScreen = () => {
   const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
     useMemo(() => {
       // Prioritize warning(s) modals over all others
-      if (warningToPromptBeforeSign) return 'warnings'
+      if (
+        warningToPromptBeforeSign ||
+        signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
+      )
+        return 'warnings'
 
       if (shouldDisplayLedgerConnectModal) return 'ledger-connect'
 
@@ -308,6 +311,7 @@ const SignAccountOpScreen = () => {
     }, [
       feePayerKeyType,
       shouldDisplayLedgerConnectModal,
+      signAccountOpState?.status?.type,
       signingKeyType,
       warningToPromptBeforeSign
     ])
@@ -353,12 +357,13 @@ const SignAccountOpScreen = () => {
     <>
       {renderedButNotNecessarilyVisibleModal === 'warnings' && (
         <BottomSheet
-          id="dual-choice"
-          closeBottomSheet={dismissWarning}
-          sheetRef={warningAgreementModalRef}
+          id="warning-modal"
+          closeBottomSheet={!slowPaymasterRequest ? dismissWarning : undefined}
+          sheetRef={warningModalRef}
           style={styles.warningsModal}
           type="bottom-sheet"
           withBackdropBlur={false}
+          shouldBeClosableOnDrag={false}
         >
           {warningToPromptBeforeSign && (
             <DualChoiceWarningModal
@@ -369,6 +374,25 @@ const SignAccountOpScreen = () => {
               onPrimaryButtonPress={acknowledgeWarning}
               onSecondaryButtonPress={dismissWarning}
             />
+          )}
+          {slowPaymasterRequest && (
+            <DualChoiceWarningModal.Wrapper>
+              <DualChoiceWarningModal.ContentWrapper>
+                <DualChoiceWarningModal.TitleAndIcon
+                  title={t('Sending transaction is taking longer than expected')}
+                  style={spacings.mbTy}
+                />
+                <DualChoiceWarningModal.Text
+                  style={{ ...text.center, ...spacings.mbLg }}
+                  text={t('Please wait...')}
+                  weight="medium"
+                />
+                <DualChoiceWarningModal.Text
+                  style={{ ...text.center, fontSize: 14, ...spacings.mb }}
+                  text={t('(Reason: paymaster is taking longer than expected)')}
+                />
+              </DualChoiceWarningModal.ContentWrapper>
+            </DualChoiceWarningModal.Wrapper>
           )}
         </BottomSheet>
       )}
