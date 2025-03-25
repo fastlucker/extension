@@ -357,6 +357,8 @@ const SignAccountOpScreen = () => {
           closeBottomSheet={dismissWarning}
           sheetRef={warningAgreementModalRef}
           style={styles.warningsModal}
+          type="bottom-sheet"
+          withBackdropBlur={false}
         >
           {warningToPromptBeforeSign && (
             <DualChoiceWarningModal
@@ -388,7 +390,6 @@ const SignAccountOpScreen = () => {
                   disabled={isSignLoading}
                   hasEstimation={!!hasEstimation}
                   slowRequest={slowRequest}
-                  slowPaymasterRequest={slowPaymasterRequest}
                   isViewOnly={isViewOnly}
                   isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
                   sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}

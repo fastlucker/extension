@@ -90,6 +90,7 @@ const LedgerConnectModal = ({
       onClosed={handleClose}
       autoOpen={isVisible}
       type={displayMode}
+      withBackdropBlur={false}
     >
       <ModalHeader title={t('Connect Ledger')} />
       <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>

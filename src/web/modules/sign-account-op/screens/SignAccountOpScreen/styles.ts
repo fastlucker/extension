@@ -11,7 +11,6 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     warningsModal: {
-      width: 492,
       backgroundColor: theme.primaryBackground,
       paddingHorizontal: 0,
       paddingVertical: 0,

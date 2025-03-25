@@ -23,7 +23,7 @@ type Props = {
   keyType: ExternalKey['type']
   isVisible: boolean
   children?: React.ReactNode
-  displayMode?: 'modal' | 'bottom-sheet'
+  isSignAccountOp?: boolean
 }
 
 const iconByKeyType = {
@@ -32,7 +32,7 @@ const iconByKeyType = {
   lattice: LatticeMiniIcon
 }
 
-const HardwareWalletSigningModal = ({ keyType, displayMode, isVisible, children }: Props) => {
+const HardwareWalletSigningModal = ({ keyType, isSignAccountOp, isVisible, children }: Props) => {
   const { t } = useTranslation()
   const { ref, open, close } = useModalize()
 
@@ -52,11 +52,12 @@ const HardwareWalletSigningModal = ({ keyType, displayMode, isVisible, children 
     <BottomSheet
       id="hardware-wallet-signing-modal"
       backgroundColor="primaryBackground"
-      type={displayMode}
+      type={isSignAccountOp ? 'bottom-sheet' : 'modal'}
       autoWidth
       sheetRef={ref}
       shouldBeClosableOnDrag={false}
       autoOpen={isVisible}
+      withBackdropBlur={false}
     >
       <ModalHeader
         title={t('Sign with your {{deviceName}} device', {
@@ -65,7 +66,12 @@ const HardwareWalletSigningModal = ({ keyType, displayMode, isVisible, children 
         titleSuffix={titleSuffix}
       />
       <View
-        style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mv3Xl]}
+        style={[
+          flexbox.directionRow,
+          flexbox.alignSelfCenter,
+          flexbox.alignCenter,
+          isSignAccountOp ? spacings.mvXl : spacings.mv3Xl
+        ]}
       >
         <DriveIcon style={spacings.mrLg} />
         <View style={spacings.mrLg}>
@@ -77,7 +83,7 @@ const HardwareWalletSigningModal = ({ keyType, displayMode, isVisible, children 
         </View>
         <AmbireDevice />
       </View>
-      <View style={[flexbox.alignSelfCenter, spacings.mb3Xl]}>
+      <View style={[flexbox.alignSelfCenter, isSignAccountOp ? spacings.mbLg : spacings.mb3Xl]}>
         <Text weight="regular" style={spacings.mbTy} fontSize={20}>
           {t('Sending signing request...')}
         </Text>
