@@ -6,6 +6,7 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { WindowSizes } from '@common/hooks/useWindowSize/types'
 import spacings, { SPACING_3XL, SPACING_LG, SPACING_XL } from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
 
@@ -13,6 +14,9 @@ interface Props extends ViewProps {
   title?: string | ReactNode
   spacingsSize?: 'small' | 'large'
   isAnimated?: boolean
+  showProgress?: boolean
+  step?: number
+  totalSteps?: number
 }
 
 export const getPanelPaddings = (
@@ -31,9 +35,12 @@ const Panel: React.FC<Props> = ({
   style,
   spacingsSize = 'large',
   isAnimated,
+  showProgress = false,
+  step = 1,
+  totalSteps = 2,
   ...rest
 }) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
 
   const Container = isAnimated ? Animated.View : View
@@ -43,6 +50,22 @@ const Panel: React.FC<Props> = ({
       style={[styles.container, getPanelPaddings(maxWidthSize, spacingsSize), style]}
       {...rest}
     >
+      {showProgress && (
+        <View style={[flexbox.directionRow, spacings.mbSm]}>
+          {[...Array(totalSteps)].map((_, index) => (
+            <View
+              key={index}
+              style={{
+                flex: 1,
+                height: 4,
+                backgroundColor: index < step ? theme.successDecorative : theme.tertiaryBackground,
+                ...(index > 0 && { ...spacings.mlMi })
+              }}
+            />
+          ))}
+        </View>
+      )}
+
       {!!title && (
         <Text
           fontSize={maxWidthSize('xl') ? 20 : 18}

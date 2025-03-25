@@ -11,8 +11,6 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...common.borderRadiusSecondary,
-      borderWidth: 1,
-      borderColor: theme.tertiaryBackground,
       backgroundColor: theme.primaryBackground
     }
   })

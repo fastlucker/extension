@@ -159,6 +159,7 @@ const GetStartedScreen = () => {
         </Animated.View>
       }
     >
+      {/* TODO: Remove this bottom sheet */}
       <BottomSheet
         id="hot-wallet-modal"
         autoWidth
@@ -214,7 +215,11 @@ const GetStartedScreen = () => {
                   </Text>
                 </View>
                 <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
-                  <Button type="primary" text={t('Create New Account')} />
+                  <Button
+                    type="primary"
+                    text={t('Create New Account')}
+                    onPress={() => handleAuthButtonPress('create-seed')}
+                  />
                   <Button type="secondary" text={t('Import Existing Account')} />
                   <Button
                     type="ghost"
