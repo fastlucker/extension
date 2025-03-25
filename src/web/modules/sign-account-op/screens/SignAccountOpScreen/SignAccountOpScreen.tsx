@@ -441,21 +441,19 @@ const SignAccountOpScreen = () => {
         ) : null}
         <TabLayoutWrapperMainContent scrollEnabled={false}>
           <PendingTransactions network={network} />
-          {!isViewOnly && signAccountOpState?.errors && signAccountOpState.errors.length > 0 ? (
+          {isViewOnly ? (
+            <NoKeysToSignAlert style={spacings.ptTy} />
+          ) : signAccountOpState?.errors?.length ? (
             <AlertVertical
               type="warning"
               title={signAccountOpState.errors[0].title}
               text={signAccountOpState.errors[0].code}
             />
           ) : (
-            <>
-              <Simulation
-                network={network}
-                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
-              />
-
-              {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
-            </>
+            <Simulation
+              network={network}
+              isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+            />
           )}
 
           {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
