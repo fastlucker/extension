@@ -51,6 +51,7 @@ const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => 
     <BottomSheet
       id="hardware-wallet-signing-modal"
       backgroundColor="primaryBackground"
+      type="bottom-sheet"
       autoWidth
       sheetRef={ref}
       shouldBeClosableOnDrag={false}
