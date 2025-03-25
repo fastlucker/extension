@@ -33,12 +33,12 @@ const routesConfig: RouteConfig = {
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
-      default: i18n.t('Welcome to Ambire Wallet'),
-      web: i18n.t('Welcome to Ambire Wallet')
+      default: i18n.t('Welcome to your Ambire Wallet'),
+      web: i18n.t('Welcome to your Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Welcome to Ambire Wallet'),
-      web: i18n.t('Welcome to Ambire Wallet')
+      default: i18n.t('Welcome to your Ambire Wallet'),
+      web: i18n.t('Welcome to your Ambire Wallet')
     })
   },
   [ROUTES.authEmailAccount]: {
@@ -292,9 +292,9 @@ const routesConfig: RouteConfig = {
   [ROUTES.createSeedPhrasePrepare]: {
     route: ROUTES.createSeedPhrasePrepare,
     title: Platform.select({
-      default: i18n.t('Prepare Seed Phrase')
+      default: i18n.t('Welcome to your Ambire Wallet')
     }),
-    name: Platform.select({ default: i18n.t('Prepare Seed Phrase') })
+    name: Platform.select({ default: i18n.t('Welcome to your Ambire Wallet') })
   },
   [ROUTES.createSeedPhraseWrite]: {
     route: ROUTES.createSeedPhraseWrite,

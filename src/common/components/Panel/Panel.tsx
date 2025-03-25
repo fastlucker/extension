@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react'
-import { Animated, View, ViewProps } from 'react-native'
+import { Animated, TouchableOpacity, View, ViewProps } from 'react-native'
 
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -17,6 +18,9 @@ interface Props extends ViewProps {
   showProgress?: boolean
   step?: number
   totalSteps?: number
+  showBackButton?: boolean
+  onBackPress?: () => void
+  showHeader?: boolean // Controls whether the header should be shown
 }
 
 export const getPanelPaddings = (
@@ -38,6 +42,9 @@ const Panel: React.FC<Props> = ({
   showProgress = false,
   step = 1,
   totalSteps = 2,
+  showBackButton = false,
+  onBackPress,
+  showHeader = true,
   ...rest
 }) => {
   const { styles, theme } = useTheme(getStyles)
@@ -51,7 +58,7 @@ const Panel: React.FC<Props> = ({
       {...rest}
     >
       {showProgress && (
-        <View style={[flexbox.directionRow, spacings.mbSm]}>
+        <View style={[flexbox.directionRow, spacings.mbMd]}>
           {[...Array(totalSteps)].map((_, index) => (
             <View
               key={index}
@@ -65,18 +72,26 @@ const Panel: React.FC<Props> = ({
           ))}
         </View>
       )}
-
-      {!!title && (
-        <Text
-          fontSize={maxWidthSize('xl') ? 20 : 18}
-          weight="medium"
-          appearance="primaryText"
-          style={maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd}
-          numberOfLines={1}
-        >
-          {title}
-        </Text>
+      {showHeader && (showBackButton || title) && (
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm, spacings.phMd]}>
+          {showBackButton && (
+            <TouchableOpacity onPress={onBackPress} style={spacings.mrMd}>
+              <LeftArrowIcon width={24} color={theme.primaryText} />
+            </TouchableOpacity>
+          )}
+          {!!title && (
+            <Text
+              fontSize={maxWidthSize('xl') ? 20 : 18}
+              weight="medium"
+              appearance="primaryText"
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+          )}
+        </View>
       )}
+
       {children}
     </Container>
   )

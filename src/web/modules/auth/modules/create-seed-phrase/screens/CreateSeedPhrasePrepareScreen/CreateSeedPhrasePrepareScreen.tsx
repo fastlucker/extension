@@ -70,6 +70,12 @@ const CreateSeedPhrasePrepareScreen = () => {
     extrapolate: 'clamp'
   })
 
+  const opacityInterpolate = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+    extrapolate: 'clamp'
+  })
+
   const handleSubmit = useCallback(() => {
     const entropyGenerator = new EntropyGenerator()
     const seed = entropyGenerator.generateRandomMnemonic(12, getExtraEntropy()).phrase
@@ -110,33 +116,6 @@ const CreateSeedPhrasePrepareScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
-      footer={
-        <>
-          <BackButton
-            onPress={() => {
-              if (accounts.length) {
-                navigate(WEB_ROUTES.dashboard)
-                return
-              }
-              navigate(WEB_ROUTES.getStarted)
-            }}
-          />
-          <Button
-            testID="review-seed-phrase-btn"
-            disabled={!allCheckboxesChecked}
-            accessibilityRole="button"
-            size="large"
-            text={t('Review Seed Phrase')}
-            style={{ minWidth: 180 }}
-            hasBottomSpacing={false}
-            onPress={handleSubmit}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
     >
       <TabLayoutWrapperMainContent>
         <Animated.View
@@ -151,10 +130,34 @@ const CreateSeedPhrasePrepareScreen = () => {
             }
           ]}
         >
-          <Panel style={[spacings.ph0, spacings.pv0]} showProgress step={1} totalSteps={2}>
+          <Panel
+            isAnimated
+            spacingsSize="small"
+            style={{
+              ...spacings.ph0,
+              ...spacings.pv0,
+              minWidth: CARD_WIDTH,
+              alignSelf: 'center',
+              backgroundColor: 'transparent',
+              opacity: opacityInterpolate as any,
+              borderWidth: 0
+            }}
+            showProgress
+            step={1}
+            totalSteps={2}
+            title="Create New Recovery Phrase"
+            showBackButton
+            onBackPress={() => {
+              if (accounts.length) {
+                navigate(WEB_ROUTES.dashboard)
+                return
+              }
+              navigate(WEB_ROUTES.getStarted)
+            }}
+          >
             <View style={[panelPaddingStyle, spacings.pt]}>
-              <View>
-                <Text style={[spacings.mb2Xl, spacings.mtXl]}>
+              <View style={{ width: CARD_WIDTH - 48 }}>
+                <Text style={[spacings.mbXl]}>
                   {t('Before you begin, check these security tips.')}
                 </Text>
                 {CHECKBOXES.map(({ id, label }, index) => (
@@ -190,6 +193,16 @@ const CreateSeedPhrasePrepareScreen = () => {
                     </Pressable>
                   </View>
                 ))}
+                <Button
+                  testID="review-seed-phrase-btn"
+                  disabled={!allCheckboxesChecked}
+                  accessibilityRole="button"
+                  size="large"
+                  text={t('Show Recovery Phrase')}
+                  style={spacings.mt2Xl}
+                  hasBottomSpacing={false}
+                  onPress={handleSubmit}
+                />
               </View>
             </View>
           </Panel>
