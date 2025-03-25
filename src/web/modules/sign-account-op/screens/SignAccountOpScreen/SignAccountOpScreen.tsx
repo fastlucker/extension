@@ -113,6 +113,8 @@ const SignAccountOpScreen = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
+      if (slowPaymasterRequest) return
+
       if (signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster) {
         setSlowPaymasterRequest(true)
         openWarningModal()
@@ -122,13 +124,13 @@ const SignAccountOpScreen = () => {
     if (signAccountOpState?.status?.type !== SigningStatus.WaitingForPaymaster) {
       clearTimeout(timeout)
       setSlowPaymasterRequest(false)
-      closeWarningModal()
+      if (slowPaymasterRequest) closeWarningModal()
     }
 
     return () => {
       clearTimeout(timeout)
     }
-  }, [closeWarningModal, openWarningModal, signAccountOpState?.status?.type])
+  }, [closeWarningModal, openWarningModal, signAccountOpState?.status?.type, slowPaymasterRequest])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
