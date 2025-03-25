@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -8,6 +8,7 @@ import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
+import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
 import Select, { SectionedSelect } from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
@@ -16,6 +17,7 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import SectionHeading from '../SectionHeading'
@@ -294,34 +296,24 @@ const Estimation = ({
     return (
       <View>
         {sponsor && (
-          <View style={[flexbox.alignCenter, spacings.mbLg]}>
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {sponsor.icon && (
-              <Image
-                source={{ uri: sponsor.icon }}
-                resizeMode="contain"
-                style={[
-                  {
-                    height: 150,
-                    width: 150
-                  }
-                ]}
+              <ManifestImage
+                uri={sponsor.icon}
+                size={64}
+                fallback={() => <ManifestFallbackIcon width={64} height={64} />}
               />
             )}
-            <Text fontSize={16} color={theme.secondaryText} style={{ textAlign: 'center' }}>
-              <Text weight="number_black">{sponsor.name}</Text>
-              {'\n'}
-              <Text>is sponsoring this transaction</Text>
-            </Text>
+            <View style={spacings.ml}>
+              <Text fontSize={18} weight="semiBold" style={spacings.mbMi}>
+                {sponsor.name}
+              </Text>
+              <Text fontSize={16} appearance="secondaryText">
+                {t('is 🪄 sponsoring 🪄 this transaction')}
+              </Text>
+            </View>
           </View>
         )}
-        <Alert
-          type="success"
-          size="md"
-          text={t(
-            'This is a sponsored transaction with no gas fees. Please review the changes on the left before signing'
-          )}
-          style={spacings.mbSm}
-        />
       </View>
     )
   }
@@ -331,9 +323,7 @@ const Estimation = ({
       <Alert
         type="success"
         size="md"
-        text={t(
-          'This is a gasless (meta) transaction. Please review the changes on the left before signing.'
-        )}
+        text={t('No fee payment required- this is a gasless (meta) transaction.')}
         style={spacings.mbSm}
       />
     )
