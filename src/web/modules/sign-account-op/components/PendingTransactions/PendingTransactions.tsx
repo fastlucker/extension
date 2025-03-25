@@ -72,7 +72,7 @@ const PendingTransactions: FC<Props> = ({ network }) => {
             return (
               <TransactionSummary
                 key={call.id}
-                style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
+                style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
                 call={call}
                 networkId={network.id}
                 index={i}

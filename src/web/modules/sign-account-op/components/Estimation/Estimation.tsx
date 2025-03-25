@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
-import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import AssetIcon from '@common/assets/svg/AssetIcon'
@@ -17,9 +17,7 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import Warnings from '@web/modules/sign-account-op/components/Warnings'
 
-import AmountInfo from './components/AmountInfo'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
@@ -31,13 +29,9 @@ const Estimation = ({
   signAccountOpState,
   disabled,
   hasEstimation,
-  slowRequest,
-  slowPaymasterRequest,
-  isViewOnly,
   isSponsored,
   sponsor
 }: Props) => {
-  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -276,135 +270,113 @@ const Estimation = ({
     (!hasEstimation && signAccountOpState.estimationRetryError) ||
     !payValue
   ) {
+    return <EstimationSkeleton />
+  }
+
+  if (isSponsored) {
     return (
-      <>
-        {!estimationFailed && <EstimationSkeleton />}
-        <Warnings
-          hasEstimation={hasEstimation}
-          slowRequest={slowRequest}
-          slowPaymasterRequest={slowPaymasterRequest}
-          isViewOnly={isViewOnly}
-          rbfDetected={false}
-          bundlerFailure={false}
+      <View>
+        {sponsor && (
+          <View style={[flexbox.alignCenter, spacings.mbLg]}>
+            {sponsor.icon && (
+              <Image
+                source={{ uri: sponsor.icon }}
+                resizeMode="contain"
+                style={[
+                  {
+                    height: 150,
+                    width: 150
+                  }
+                ]}
+              />
+            )}
+            <Text fontSize={16} color={theme.secondaryText} style={{ textAlign: 'center' }}>
+              <Text weight="number_black">{sponsor.name}</Text>
+              {'\n'}
+              <Text>is sponsoring this transaction</Text>
+            </Text>
+          </View>
+        )}
+        <Alert
+          type="success"
+          size="md"
+          text={t(
+            'This is a sponsored transaction with no gas fees. Please review the changes on the left before signing'
+          )}
+          style={spacings.mbSm}
         />
-      </>
+      </View>
+    )
+  }
+
+  if (isGaslessTransaction) {
+    return (
+      <Alert
+        type="success"
+        size="md"
+        text={t(
+          'This is a gasless (meta) transaction. Please review the changes on the left before signing.'
+        )}
+        style={spacings.mbSm}
+      />
     )
   }
 
   return (
     <>
-      <Warnings
-        hasEstimation={hasEstimation}
-        slowRequest={slowRequest}
-        slowPaymasterRequest={slowPaymasterRequest}
-        isViewOnly={isViewOnly}
-        rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
-        bundlerFailure={
-          !!signAccountOpState.estimation?.bundlerEstimation?.nonFatalErrors?.find(
-            (err) => err.cause === '4337_ESTIMATION'
-          )
-        }
-      />
-      {isSponsored && (
-        <View>
-          {sponsor && (
-            <View style={[flexbox.alignCenter, spacings.mbLg]}>
-              {sponsor.icon && (
-                <Image
-                  source={{ uri: sponsor.icon }}
-                  resizeMode="contain"
-                  style={[
-                    {
-                      height: 150,
-                      width: 150
-                    }
-                  ]}
-                />
-              )}
-              <Text fontSize={16} color={theme.secondaryText} style={{ textAlign: 'center' }}>
-                <Text weight="number_black">{sponsor.name}</Text>
-                {'\n'}
-                <Text>is sponsoring this transaction</Text>
-              </Text>
-            </View>
+      <>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            flexbox.justifySpaceBetween,
+            spacings.mbMi
+          ]}
+        >
+          <Text appearance="secondaryText" fontSize={14} weight="regular">
+            {t('Pay fee with')}
+          </Text>
+          {selectedFee && (
+            <Select
+              value={selectedFee}
+              // @ts-ignore
+              setValue={onFeeSelect}
+              options={feeSpeedOptions}
+              selectStyle={{ height: 32 }}
+              menuOptionHeight={32}
+              withSearch={false}
+              containerStyle={{ ...spacings.mb0, width: 160 }}
+            />
           )}
-          <Alert
-            type="success"
-            size="md"
-            text={t(
-              'This is a sponsored transaction with no gas fees. Please review the changes on the left before signing'
-            )}
-            style={spacings.mbSm}
-          />
         </View>
-      )}
-      {isGaslessTransaction && (
+        <SectionedSelect
+          setValue={setFeeOption}
+          testID="fee-option-select"
+          headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
+          sections={feeOptionSelectSections}
+          renderSectionHeader={renderFeeOptionSectionHeader}
+          containerStyle={spacings.mb0}
+          value={payValue || NO_FEE_OPTIONS}
+          disabled={
+            disabled ||
+            (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
+            defaultFeeOption.label === NO_FEE_OPTIONS.label
+          }
+          defaultValue={payValue ?? undefined}
+          withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
+          stickySectionHeadersEnabled
+        />
+      </>
+      {feeSpeeds.length > 0 && !!feeTokenPriceUnavailableWarning && (
         <Alert
-          type="success"
-          size="md"
-          text={t(
-            'This is a gasless (meta) transaction. Please review the changes on the left before signing.'
-          )}
-          style={spacings.mbSm}
+          size="sm"
+          type="warning"
+          text={feeTokenPriceUnavailableWarning.text}
+          title={feeTokenPriceUnavailableWarning.title}
+          style={{ ...spacings.mtSm, ...spacings.mbMd }}
         />
       )}
-      {!isSponsored && !isGaslessTransaction && (
-        <>
-          <View
-            style={[
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              flexbox.justifySpaceBetween,
-              spacings.mbMi
-            ]}
-          >
-            <Text appearance="secondaryText" fontSize={14} weight="regular">
-              {t('Pay fee with')}
-            </Text>
-            {selectedFee && (
-              <Select
-                value={selectedFee}
-                // @ts-ignore
-                setValue={onFeeSelect}
-                options={feeSpeedOptions}
-                selectStyle={{ height: 32 }}
-                menuOptionHeight={32}
-                withSearch={false}
-                containerStyle={{ ...spacings.mb0, width: 160 }}
-              />
-            )}
-          </View>
-          <SectionedSelect
-            setValue={setFeeOption}
-            testID="fee-option-select"
-            headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
-            sections={feeOptionSelectSections}
-            renderSectionHeader={renderFeeOptionSectionHeader}
-            containerStyle={spacings.mb0}
-            value={payValue || NO_FEE_OPTIONS}
-            disabled={
-              disabled ||
-              (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
-              defaultFeeOption.label === NO_FEE_OPTIONS.label
-            }
-            defaultValue={payValue ?? undefined}
-            withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
-            stickySectionHeadersEnabled
-          />
-        </>
-      )}
-      {!isSponsored &&
-        !isGaslessTransaction &&
-        feeSpeeds.length > 0 &&
-        !!feeTokenPriceUnavailableWarning && (
-          <Alert
-            size="sm"
-            type="warning"
-            text={feeTokenPriceUnavailableWarning.text}
-            title={feeTokenPriceUnavailableWarning.title}
-            style={{ ...spacings.mtSm, ...spacings.mbMd }}
-          />
-        )}
+
       {/* {!isSponsored && !isGaslessTransaction && !!selectedFee && !!payValue && (
         <AmountInfo
           label="Fee"
@@ -412,14 +384,6 @@ const Estimation = ({
           symbol={payValue.token?.symbol}
         />
       )} */}
-      {!isSponsored && !isGaslessTransaction && !!signAccountOpState.gasSavedUSD && (
-        <AmountInfo.Wrapper style={spacings.ptSm}>
-          <AmountInfo.Label appearance="primary">{t('Gas Tank saves you')}</AmountInfo.Label>
-          <AmountInfo.Text appearance="primary" selectable>
-            {formatDecimals(signAccountOpState.gasSavedUSD, 'price')} USD
-          </AmountInfo.Text>
-        </AmountInfo.Wrapper>
-      )}
     </>
   )
 }

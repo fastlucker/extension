@@ -6,8 +6,10 @@ import { useModalize } from 'react-native-modalize'
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import Alert from '@common/components/Alert'
+import AlertVertical from '@common/components/AlertVertical'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
+import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -33,7 +35,6 @@ import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-o
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
-import Errors from '../../components/Errors'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
@@ -346,6 +347,8 @@ const SignAccountOpScreen = () => {
     return isSignLoading || (!readyToSign && !isViewOnly && !isInsufficientFundsForGas)
   }, [isInsufficientFundsForGas, isSignLoading, isViewOnly, signAccountOpState?.readyToSign])
 
+  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
+
   return (
     <>
       {renderedButNotNecessarilyVisibleModal === 'warnings' && (
@@ -373,26 +376,34 @@ const SignAccountOpScreen = () => {
       <TabLayoutContainer
         width="full"
         backgroundColor="#F7F8FC"
+        withHorizontalPadding={false}
+        style={spacings.phLg}
         header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
         renderDirectChildren={() => (
           <View style={styles.footer}>
-            <Estimation
-              signAccountOpState={signAccountOpState}
-              disabled={isSignLoading}
-              hasEstimation={!!hasEstimation}
-              slowRequest={slowRequest}
-              slowPaymasterRequest={slowPaymasterRequest}
-              isViewOnly={isViewOnly}
-              isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
-              sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
-            />
-            <View
-              style={{
-                height: 1,
-                backgroundColor: theme.secondaryBorder,
-                ...spacings.mvLg
-              }}
-            />
+            {!estimationFailed ? (
+              <>
+                <Estimation
+                  signAccountOpState={signAccountOpState}
+                  disabled={isSignLoading}
+                  hasEstimation={!!hasEstimation}
+                  slowRequest={slowRequest}
+                  slowPaymasterRequest={slowPaymasterRequest}
+                  isViewOnly={isViewOnly}
+                  isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
+                  sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
+                />
+
+                <View
+                  style={{
+                    height: 1,
+                    backgroundColor: theme.secondaryBorder,
+                    ...spacings.mvLg
+                  }}
+                />
+              </>
+            ) : null}
+
             <Footer
               onReject={handleRejectAccountOp}
               onAddToCart={handleAddToCart}
@@ -430,13 +441,21 @@ const SignAccountOpScreen = () => {
         ) : null}
         <TabLayoutWrapperMainContent scrollEnabled={false}>
           <PendingTransactions network={network} />
-          {signAccountOpState?.errors && signAccountOpState.errors.length > 0 ? (
-            <Errors isViewOnly={isViewOnly} />
-          ) : (
-            <Simulation
-              network={network}
-              isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+          {!isViewOnly && signAccountOpState?.errors && signAccountOpState.errors.length > 0 ? (
+            <AlertVertical
+              type="warning"
+              title={signAccountOpState.errors[0].title}
+              text={signAccountOpState.errors[0].code}
             />
+          ) : (
+            <>
+              <Simulation
+                network={network}
+                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+              />
+
+              {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
+            </>
           )}
 
           {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (

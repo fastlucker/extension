@@ -1,9 +1,8 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import Alert from '@common/components/Alert'
-import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
@@ -14,7 +13,6 @@ interface Props {
   hasEstimation: boolean
   slowRequest: boolean
   slowPaymasterRequest: boolean
-  isViewOnly: boolean
   rbfDetected: boolean
   bundlerFailure: boolean
 }
@@ -23,17 +21,12 @@ const Warnings: FC<Props> = ({
   hasEstimation,
   slowRequest,
   slowPaymasterRequest,
-  isViewOnly,
   rbfDetected,
   bundlerFailure
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const signAccountOpState = useSignAccountOpControllerState()
-
-  const warnings = useMemo(() => {
-    return signAccountOpState?.warnings.filter((warning) => warning.displayBeforeSign)
-  }, [signAccountOpState?.warnings])
 
   if (!signAccountOpState) return null
 
@@ -47,27 +40,6 @@ const Warnings: FC<Props> = ({
           />
         </View>
       )}
-
-      {!signAccountOpState?.errors.length &&
-        signAccountOpState.isInitialized &&
-        warnings &&
-        warnings
-          .filter(({ id }) => id !== 'feeTokenPriceUnavailable')
-          .map((warning, index) => {
-            const isLast = warnings.length - 1 === index
-            const isSingle = warnings.length === 1
-
-            return (
-              <Alert
-                key={warning.id}
-                type="warning"
-                size="sm"
-                text={warning.text}
-                title={warning.title}
-                style={!isSingle && !isLast ? spacings.mbSm : {}}
-              />
-            )
-          })}
 
       {!!hasEstimation && bundlerFailure && (
         <View style={spacings.ptTy}>
@@ -102,8 +74,6 @@ const Warnings: FC<Props> = ({
           />
         </View>
       )}
-
-      {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
     </View>
   )
 }

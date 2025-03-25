@@ -61,7 +61,7 @@ const Footer = ({
             onPress={onAddToCart}
             disabled={isAddToCartDisabled}
             hasBottomSpacing={false}
-            style={{ width: 180, ...spacings.mr }}
+            style={{ width: 160, ...spacings.ph, ...spacings.mr }}
             size="large"
           />
         )}
@@ -72,7 +72,7 @@ const Footer = ({
           text={isSignLoading ? inProgressButtonText : t('Sign')}
           onPress={onSign}
           hasBottomSpacing={false}
-          style={{ width: 180 }}
+          style={{ width: 160 }}
           size="large"
         />
       </View>
