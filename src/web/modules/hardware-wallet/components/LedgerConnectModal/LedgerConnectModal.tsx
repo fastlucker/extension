@@ -31,13 +31,15 @@ type Props = {
    * foreground and on a new tab (not in an action window).
    */
   displayOptionToAuthorize?: boolean
+  displayMode?: 'modal' | 'bottom-sheet'
 }
 
 const LedgerConnectModal = ({
   isVisible,
   handleClose = () => {},
   handleOnConnect,
-  displayOptionToAuthorize = true
+  displayOptionToAuthorize = true,
+  displayMode
 }: Props) => {
   const { ref, open, close } = useModalize()
   const mainCtrlState = useMainControllerState()
@@ -87,6 +89,7 @@ const LedgerConnectModal = ({
       closeBottomSheet={handleClose}
       onClosed={handleClose}
       autoOpen={isVisible}
+      type={displayMode}
     >
       <ModalHeader title={t('Connect Ledger')} />
       <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>

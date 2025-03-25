@@ -472,6 +472,7 @@ const SignAccountOpScreen = () => {
               isVisible={shouldDisplayLedgerConnectModal}
               handleClose={handleDismissLedgerConnectModal}
               displayOptionToAuthorize={false}
+              displayMode="bottom-sheet"
             />
           )}
         </TabLayoutWrapperMainContent>

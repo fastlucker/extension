@@ -22,7 +22,8 @@ import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 type Props = {
   keyType: ExternalKey['type']
   isVisible: boolean
-  children: React.ReactNode
+  children?: React.ReactNode
+  displayMode?: 'modal' | 'bottom-sheet'
 }
 
 const iconByKeyType = {
@@ -31,7 +32,7 @@ const iconByKeyType = {
   lattice: LatticeMiniIcon
 }
 
-const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => {
+const HardwareWalletSigningModal = ({ keyType, displayMode, isVisible, children }: Props) => {
   const { t } = useTranslation()
   const { ref, open, close } = useModalize()
 
@@ -51,7 +52,7 @@ const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => 
     <BottomSheet
       id="hardware-wallet-signing-modal"
       backgroundColor="primaryBackground"
-      type="bottom-sheet"
+      type={displayMode}
       autoWidth
       sheetRef={ref}
       shouldBeClosableOnDrag={false}
