@@ -23,6 +23,7 @@ interface Style {
   searchBorderWrapperStyle: ViewStyle
   topSearchInputWrapperStyle: ViewStyle
   bottomSearchInputWrapperStyle: ViewStyle
+  sheetContainer: ViewStyle
 }
 
 export const DEFAULT_SELECT_SIZE = 'md'
@@ -129,6 +130,9 @@ const getStyles = (theme: ThemeProps) =>
       borderBottomWidth: 1,
       borderRadius: 0,
       borderColor: theme.secondaryBorder
+    },
+    sheetContainer: {
+      backgroundColor: theme.primaryBackground
     }
   })
 

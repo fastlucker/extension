@@ -1,4 +1,4 @@
-import React, { memo, ReactNode, useCallback, useRef, useState } from 'react'
+import React, { memo, ReactNode, useEffect, useRef } from 'react'
 import { FlatList, TextStyle, View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 import BottomSheet from '@common/components/BottomSheet'
@@ -42,8 +42,7 @@ const TokenSelectBottomSheet = ({
   testID,
   emptyListPlaceholderText
 }: Props) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const { ref: sheetRef, open: openSheet, close: closeSheetRef } = useModalize()
+  const { ref: sheetRef, open: openSheet, close: closeSheet } = useModalize()
   const selectRef: React.MutableRefObject<any> = useRef(null)
   const { styles } = useTheme(getStyles)
 
@@ -64,15 +63,13 @@ const TokenSelectBottomSheet = ({
     handleScroll
   } = selectData
 
-  const handleOpenSheet = useCallback(() => {
-    openSheet()
-    setIsOpen(true)
-  }, [openSheet])
-
-  const handleCloseSheet = useCallback(() => {
-    closeSheetRef()
-    setIsOpen(false)
-  }, [openSheet])
+  useEffect(() => {
+    if (selectData.isMenuOpen) {
+      openSheet()
+    } else {
+      closeSheet()
+    }
+  }, [selectData.isMenuOpen, openSheet, closeSheet])
 
   return (
     <View>
@@ -87,16 +84,21 @@ const TokenSelectBottomSheet = ({
         </Text>
         <SelectedMenuOption
           disabled={disabled}
-          isMenuOpen={isOpen}
+          isMenuOpen={selectData.isMenuOpen}
           selectRef={selectRef}
-          toggleMenu={handleOpenSheet}
+          toggleMenu={selectData.toggleMenu}
           value={value}
           placeholder={placeholder}
           selectStyle={selectStyle}
           size={size}
         />
       </View>
-      <BottomSheet id="tokens-list" sheetRef={sheetRef} closeBottomSheet={handleCloseSheet}>
+      <BottomSheet
+        id="tokens-list"
+        sheetRef={sheetRef}
+        closeBottomSheet={selectData.toggleMenu}
+        style={{ backgroundColor: 'white' }}
+      >
         <View style={[{ maxHeight: 400 }]}>
           <br />
           <FlatList
