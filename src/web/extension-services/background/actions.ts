@@ -338,6 +338,21 @@ type MainControllerSignAccountOpUpdateAction = {
     gasUsedTooHighAgreed?: boolean
   }
 }
+type SignAccountOpUpdateAction = {
+  type: 'SIGN_ACCOUNT_OP_UPDATE'
+  params: {
+    updateType: 'Main' | 'Swap&Bridge'
+    accountOp?: AccountOp
+    gasPrices?: GasRecommendation[]
+    estimation?: FullEstimation
+    feeToken?: TokenResult
+    paidBy?: string
+    speed?: FeeSpeed
+    signingKeyAddr?: string
+    signingKeyType?: string
+    gasUsedTooHighAgreed?: boolean
+  }
+}
 type MainControllerSignAccountOpUpdateStatus = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
   params: {
@@ -500,6 +515,9 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
 }
 type SwapAndBridgeControllerInitSignAccountOp = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_SIGN_ACCOUNT_OP'
+}
+type SwapAndBridgeControllerDestorySignAccountOp = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
 }
 
 type ActionsControllerRemoveFromActionsQueue = {
@@ -716,3 +734,5 @@ export type Action =
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
   | SwapAndBridgeControllerInitSignAccountOp
+  | SignAccountOpUpdateAction
+  | SwapAndBridgeControllerDestorySignAccountOp

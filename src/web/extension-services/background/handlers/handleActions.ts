@@ -345,6 +345,10 @@ export const handleActions = async (
       return mainCtrl.initSignAccOp(params.actionId)
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
+    case 'SIGN_ACCOUNT_OP_UPDATE': {
+      if (params.updateType === 'Main') return mainCtrl?.signAccountOp?.update(params)
+      return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+    }
 
     case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
       mainCtrl.selectedAccount.setDashboardNetworkFilter(params.dashboardNetworkFilter)
@@ -377,6 +381,10 @@ export const handleActions = async (
     }
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_SIGN_ACCOUNT_OP': {
       await mainCtrl.swapAndBridge.initSignAccountOp()
+      break
+    }
+    case 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP': {
+      await mainCtrl.swapAndBridge.destroySignAccountOp()
       break
     }
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':

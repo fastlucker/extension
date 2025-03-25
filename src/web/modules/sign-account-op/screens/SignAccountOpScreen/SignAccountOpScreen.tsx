@@ -422,6 +422,7 @@ const SignAccountOpScreen = () => {
             </View>
             <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
             <Estimation
+              updateType="Main"
               signAccountOpState={signAccountOpState}
               disabled={isSignLoading}
               hasEstimation={!!hasEstimation}

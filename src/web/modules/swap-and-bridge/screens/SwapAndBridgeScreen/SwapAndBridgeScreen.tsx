@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
@@ -38,7 +38,9 @@ import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTo
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import getStyles from './styles'
 
 const SWAP_AND_BRIDGE_HC_URL = 'https://help.ambire.com/hc/en-us/articles/16748050198428'
@@ -98,27 +100,41 @@ const SwapAndBridgeScreen = () => {
     isHealthy,
     shouldEnableRoutesSelection,
     updateQuoteStatus,
-    statuses: swapAndBridgeCtrlStatuses
-    // signAccountOpController
+    statuses: swapAndBridgeCtrlStatuses,
+    signAccountOpController
   } = useSwapAndBridgeControllerState()
   const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { portfolio } = useSelectedAccountControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
+  const isViewOnly = useMemo(
+    () => signAccountOpController?.accountKeyStoreKeys.length === 0,
+    [signAccountOpController?.accountKeyStoreKeys]
+  )
+  const hasEstimation = useMemo(
+    () =>
+      signAccountOpController?.isInitialized &&
+      !!signAccountOpController?.gasPrices &&
+      !signAccountOpController.estimation.error,
+    [
+      signAccountOpController?.estimation?.error,
+      signAccountOpController?.gasPrices,
+      signAccountOpController?.isInitialized
+    ]
+  )
 
   useEffect(() => {
-    if (formStatus === SwapAndBridgeFormStatus.ReadyToSubmit) {
+    if (formStatus === SwapAndBridgeFormStatus.ReadyToSubmit && !signAccountOpController) {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_SIGN_ACCOUNT_OP'
       })
+    } else if (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit && !!signAccountOpController) {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
+      })
     }
-  }, [formStatus, dispatch])
-
-  // useEffect(() => {
-  //   if (!signAccountOpController) return
-  //   console.log(signAccountOpController.status)
-  // }, [signAccountOpController])
+  }, [formStatus, dispatch, signAccountOpController])
 
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
@@ -537,6 +553,25 @@ const SwapAndBridgeScreen = () => {
                   )}
                 </>
               )}
+
+              {formStatus === SwapAndBridgeFormStatus.ReadyToSubmit && signAccountOpController && (
+                <View style={[styles.secondaryContainer, spacings.mb]}>
+                  <Estimation
+                    updateType="Swap&Bridge"
+                    signAccountOpState={signAccountOpController}
+                    disabled={signAccountOpController.status?.type !== SigningStatus.ReadyToSign}
+                    hasEstimation={!!hasEstimation}
+                    // TODO<oneClickSwap>
+                    slowRequest={false}
+                    // TODO<oneClickSwap>
+                    slowPaymasterRequest={false}
+                    isViewOnly={isViewOnly}
+                    isSponsored={false}
+                    sponsor={undefined}
+                  />
+                </View>
+              )}
+
               <View
                 style={[spacings.pt, { borderTopWidth: 1, borderTopColor: theme.secondaryBorder }]}
               >

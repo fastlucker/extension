@@ -39,7 +39,8 @@ const Estimation = ({
   slowPaymasterRequest,
   isViewOnly,
   isSponsored,
-  sponsor
+  sponsor,
+  updateType
 }: Props) => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
@@ -112,8 +113,9 @@ const Estimation = ({
       setPayValue(localPayValue)
 
       dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        type: 'SIGN_ACCOUNT_OP_UPDATE',
         params: {
+          updateType,
           feeToken: localPayValue.token,
           paidBy: localPayValue.paidBy,
           speed: localPayValue.speedCoverage.includes(signAccountOpState.selectedFeeSpeed)
@@ -122,7 +124,7 @@ const Estimation = ({
         }
       })
     },
-    [dispatch, signAccountOpState?.selectedFeeSpeed]
+    [dispatch, signAccountOpState?.selectedFeeSpeed, updateType]
   )
 
   const isSmartAccountAndNotDeployed = useMemo(() => {
@@ -217,13 +219,14 @@ const Estimation = ({
   const onFeeSelect = useCallback(
     (speed: FeeSpeed) => {
       dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        type: 'SIGN_ACCOUNT_OP_UPDATE',
         params: {
+          updateType,
           speed
         }
       })
     },
-    [dispatch]
+    [dispatch, updateType]
   )
 
   const feeOptionSelectSections = useMemo(() => {
