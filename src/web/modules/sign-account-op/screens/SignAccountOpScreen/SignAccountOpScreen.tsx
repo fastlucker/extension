@@ -1,10 +1,13 @@
+import * as Clipboard from 'expo-clipboard'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { getErrorCodeStringFromReason } from '@ambire-common/libs/errorDecoder/helpers'
+import CopyIcon from '@common/assets/svg/CopyIcon'
 import Alert from '@common/components/Alert'
 import AlertVertical from '@common/components/AlertVertical'
 import BottomSheet from '@common/components/BottomSheet'
@@ -12,6 +15,7 @@ import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
@@ -45,6 +49,7 @@ const SignAccountOpScreen = () => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
+  const { addToast } = useToast()
   const { styles, theme } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
@@ -321,6 +326,17 @@ const SignAccountOpScreen = () => {
       warningToPromptBeforeSign
     ])
 
+  const copySignAccountOpError = useCallback(async () => {
+    if (!signAccountOpState?.errors?.length) return
+
+    const errorCode = signAccountOpState.errors[0].code
+
+    if (!errorCode) return
+
+    await Clipboard.setStringAsync(errorCode)
+    addToast(t('Error code copied to clipboard'))
+  }, [addToast, signAccountOpState?.errors, t])
+
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
   const notReadyToSignButAlsoNotDone =
@@ -477,7 +493,24 @@ const SignAccountOpScreen = () => {
             <AlertVertical
               type="warning"
               title={signAccountOpState.errors[0].title}
-              text={signAccountOpState.errors[0].code}
+              text={
+                getErrorCodeStringFromReason(signAccountOpState.errors[0].code) ? (
+                  <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}>
+                    <AlertVertical.Text type="warning" size="md">
+                      {getErrorCodeStringFromReason(signAccountOpState.errors[0].code || '')}
+                    </AlertVertical.Text>
+                    <Pressable onPress={copySignAccountOpError}>
+                      <CopyIcon
+                        strokeWidth={1.5}
+                        style={spacings.mlMi}
+                        width={20}
+                        height={20}
+                        color={theme.warningText}
+                      />
+                    </Pressable>
+                  </View>
+                ) : undefined
+              }
             />
           ) : (
             <Simulation

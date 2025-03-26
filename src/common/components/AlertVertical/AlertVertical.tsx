@@ -11,7 +11,6 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import CopyIcon from '@web/assets/svg/CopyIcon'
 import { getUiType } from '@web/utils/uiType'
 
 import Text, { TextWeight } from '../Text'
@@ -157,13 +156,6 @@ const AlertVertical = ({
           ) : (
             text
           ))}
-        <CopyIcon
-          strokeWidth={1.5}
-          style={spacings.mlMi}
-          width={20}
-          height={20}
-          color={theme[`${type}Text`]}
-        />
       </View>
       {buttonProps && (
         <Button
