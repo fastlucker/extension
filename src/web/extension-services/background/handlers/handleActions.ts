@@ -368,6 +368,8 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return mainCtrl.swapAndBridge.selectRoute(params.route)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
+      if (params.shouldBroadcast)
+        return await mainCtrl.swapAndBridge.signAccountOpController?.sign()
       return await mainCtrl.buildSwapAndBridgeUserRequest()
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
@@ -386,6 +388,10 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP': {
       await mainCtrl.swapAndBridge.destroySignAccountOp()
       break
+    }
+    case 'SWAP_AND_BRIDGE_CONTROLLER_BROADCAST': {
+      if (!mainCtrl.swapAndBridge.signAccountOpController) return
+      return mainCtrl.handleBroadcast(mainCtrl.swapAndBridge.signAccountOpController)
     }
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)

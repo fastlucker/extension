@@ -142,6 +142,14 @@ const SwapAndBridgeScreen = () => {
     }
   }, [formStatus, dispatch, signAccountOpController])
 
+  useEffect(() => {
+    if (signAccountOpController?.status?.type === SigningStatus.Done) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
+      })
+    }
+  }, [formStatus, dispatch, signAccountOpController?.status?.type])
+
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
   }, [navigate])
@@ -635,10 +643,10 @@ const SwapAndBridgeScreen = () => {
                 <Button
                   text={
                     mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-                      ? t('Building Transaction...')
+                      ? t('Signing...') // prev Building Transaction
                       : highPriceImpactInPercentage
                       ? t('Continue anyway')
-                      : t('Proceed')
+                      : t('Sign') // prev Proceed
                   }
                   disabled={
                     formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||

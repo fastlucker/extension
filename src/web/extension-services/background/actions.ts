@@ -501,6 +501,7 @@ type SwapAndBridgeControllerSelectRouteAction = {
 }
 type SwapAndBridgeControllerSubmitFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
+  params: { shouldBroadcast: boolean }
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
@@ -518,6 +519,9 @@ type SwapAndBridgeControllerInitSignAccountOp = {
 }
 type SwapAndBridgeControllerDestorySignAccountOp = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
+}
+type SwapAndBridgeControllerBroadcast = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_BROADCAST'
 }
 
 type ActionsControllerRemoveFromActionsQueue = {
@@ -736,3 +740,4 @@ export type Action =
   | SwapAndBridgeControllerInitSignAccountOp
   | SignAccountOpUpdateAction
   | SwapAndBridgeControllerDestorySignAccountOp
+  | SwapAndBridgeControllerBroadcast

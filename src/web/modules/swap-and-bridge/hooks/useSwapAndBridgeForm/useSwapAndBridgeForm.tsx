@@ -378,8 +378,13 @@ const useSwapAndBridgeForm = () => {
   }, [quote, formStatus, fromAmount, fromAmountInFiat, fromSelectedToken, updateQuoteStatus])
 
   const handleSubmitForm = useCallback(() => {
+    // TODO<oneClickSwap>: build the transaction if there's anything in the queue
+    // or if the user has clicked on the "start a batch" button
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM',
+      params: {
+        shouldBroadcast: true
+      }
     })
   }, [dispatch])
 
