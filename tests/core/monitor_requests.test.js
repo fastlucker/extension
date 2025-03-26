@@ -51,9 +51,7 @@ describe('Monitor network requests and make sure only necessary requests are mad
 
     // Expect no requests for prices. Portfolio should cache prices
     expect(nativeTokenPriceRequests.length).toBe(0)
-    // TODO: We are waiting this PR to be merged as a fix,
-    // and we can expect 0 calls again: https://github.com/AmbireTech/relayer/pull/1091
-    expect(batchedErc20TokenPriceRequests.length).toBe(1)
+    expect(batchedErc20TokenPriceRequests.length).toBe(0)
 
     expect(hintsRequests.length).toBe(networks.length)
     expect(rpcRequests.length).toBeLessThanOrEqual(20)
