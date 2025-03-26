@@ -331,55 +331,45 @@ const Estimation = ({
 
   return (
     <>
-      <>
-        <View
-          style={[
-            flexbox.directionRow,
-            flexbox.alignCenter,
-            flexbox.justifySpaceBetween,
-            spacings.mbMi
-          ]}
-        >
-          <SectionHeading withMb={false}>{t('Pay fee with')}</SectionHeading>
-          {selectedFee && (
-            <Select
-              value={selectedFee}
-              // @ts-ignore
-              setValue={onFeeSelect}
-              options={feeSpeedOptions}
-              selectStyle={{ height: 32 }}
-              menuOptionHeight={32}
-              withSearch={false}
-              containerStyle={{ ...spacings.mb0, minWidth: 160, width: 'fit-content' }}
-            />
-          )}
-        </View>
-        <SectionedSelect
-          setValue={setFeeOption}
-          testID="fee-option-select"
-          headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
-          sections={feeOptionSelectSections}
-          renderSectionHeader={renderFeeOptionSectionHeader}
-          containerStyle={spacings.mb0}
-          value={payValue || NO_FEE_OPTIONS}
-          disabled={
-            disabled ||
-            (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
-            defaultFeeOption.label === NO_FEE_OPTIONS.label
-          }
-          defaultValue={payValue ?? undefined}
-          withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
-          stickySectionHeadersEnabled
-        />
-      </>
-
-      {/* {!isSponsored && !isGaslessTransaction && !!selectedFee && !!payValue && (
-        <AmountInfo
-          label="Fee"
-          amountFormatted={formatDecimals(parseFloat(selectedFee.amountFormatted))}
-          symbol={payValue.token?.symbol}
-        />
-      )} */}
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.justifySpaceBetween,
+          spacings.mbMi
+        ]}
+      >
+        <SectionHeading withMb={false}>{t('Pay fee with')}</SectionHeading>
+        {selectedFee && (
+          <Select
+            value={selectedFee}
+            // @ts-ignore
+            setValue={onFeeSelect}
+            options={feeSpeedOptions}
+            selectStyle={{ height: 32 }}
+            menuOptionHeight={32}
+            withSearch={false}
+            containerStyle={{ ...spacings.mb0, minWidth: 160, width: 'fit-content' }}
+          />
+        )}
+      </View>
+      <SectionedSelect
+        setValue={setFeeOption}
+        testID="fee-option-select"
+        headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
+        sections={feeOptionSelectSections}
+        renderSectionHeader={renderFeeOptionSectionHeader}
+        containerStyle={spacings.mb0}
+        value={payValue || NO_FEE_OPTIONS}
+        disabled={
+          disabled ||
+          (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
+          defaultFeeOption.label === NO_FEE_OPTIONS.label
+        }
+        defaultValue={payValue ?? undefined}
+        withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
+        stickySectionHeadersEnabled
+      />
     </>
   )
 }
