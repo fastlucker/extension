@@ -82,9 +82,10 @@ const Panel: React.FC<Props> = ({
           {!!title && (
             <Text
               fontSize={maxWidthSize('xl') ? 20 : 18}
-              weight="medium"
+              weight="semiBold"
               appearance="primaryText"
               numberOfLines={1}
+              style={{ textAlign: 'center' }}
             >
               {title}
             </Text>

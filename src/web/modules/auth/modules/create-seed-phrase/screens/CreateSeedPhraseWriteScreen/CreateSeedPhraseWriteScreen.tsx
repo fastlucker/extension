@@ -1,27 +1,30 @@
-import React, { useEffect } from 'react'
-import { View } from 'react-native'
+import { setStringAsync } from 'expo-clipboard'
+import React, { useCallback, useEffect, useRef } from 'react'
+import { Animated, TouchableOpacity, View } from 'react-native'
 
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import BackButton from '@common/components/BackButton'
+import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
-import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
+import { getPanelPaddings } from '@common/components/Panel/Panel'
+import getPanelStyles from '@common/components/Panel/styles'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
+import useWindowSize from '@common/hooks/useWindowSize'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
+import { CARD_WIDTH } from '@web/modules/auth/screens/GetStartedScreen/GetStartedScreen'
 
 const generateConfirmationWords = (seed: string[]) => {
   // Split the input array into groups of three words
@@ -53,8 +56,24 @@ const CreateSeedPhraseWriteScreen = () => {
   } = useRoute()
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
+  const { styles: panelStyles, theme } = useTheme(getPanelStyles)
   const { navigate } = useNavigation()
-  const { theme } = useTheme()
+  const animation = useRef(new Animated.Value(0)).current
+  const { maxWidthSize } = useWindowSize()
+  const panelPaddingStyle = getPanelPaddings(maxWidthSize)
+  const { addToast } = useToast()
+
+  const panelWidthInterpolate = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [CARD_WIDTH * 0.25, CARD_WIDTH],
+    extrapolate: 'clamp'
+  })
+
+  const opacityInterpolate = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+    extrapolate: 'clamp'
+  })
 
   const handleSubmit = () => {
     navigate(WEB_ROUTES.createSeedPhraseConfirm, {
@@ -70,64 +89,146 @@ const CreateSeedPhraseWriteScreen = () => {
     updateStepperState('secure-seed', 'create-seed')
   }, [updateStepperState])
 
+  useEffect(() => {
+    Animated.timing(animation, {
+      toValue: 1,
+      duration: 480,
+      useNativeDriver: false
+    }).start()
+  }, [animation])
+
+  const handleCopyToClipboard = useCallback(async () => {
+    try {
+      const phrase = seed.join(' ')
+
+      await setStringAsync(phrase)
+      addToast(t('Recovery Phrase copied to clipboard'))
+    } catch {
+      addToast(t('Failed to copy Recovery Phrase'))
+    }
+  }, [addToast, seed, t])
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
-      footer={
-        <>
-          <BackButton
-            onPress={() => {
-              navigate(WEB_ROUTES.createSeedPhrasePrepare, { state: { seed } })
-            }}
-          />
-          <Button
-            testID="create-seed-phrase-write-continue-btn"
-            accessibilityRole="button"
-            text={t('Continue')}
-            size="large"
-            hasBottomSpacing={false}
-            onPress={handleSubmit}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title="Secure your seed phrase">
-          <Text appearance="infoText" fontSize={16} style={spacings.mbXl}>
-            {t('Write down the seed phrase and store it in a safe place')}
-          </Text>
-          <View style={[flexbox.directionRow, flexbox.wrap]}>
-            {(seed as string[]).map((word, index) => (
-              <View
-                key={`${word}-${seed.indexOf(word)}`}
-                style={[
-                  flexbox.directionRow,
-                  flexbox.alignCenter,
-                  (index + 1) % 4 !== 0 ? spacings.pr : {},
-                  spacings.mb,
-                  { width: '25%' }
-                ]}
-              >
-                <Text fontSize={14} weight="medium" style={[{ width: 24 }]}>
-                  {index + 1}.
+        <Animated.View
+          style={[
+            panelStyles.container,
+            common.shadowTertiary,
+            {
+              zIndex: -1,
+              overflow: 'hidden',
+              alignSelf: 'center',
+              width: panelWidthInterpolate
+            }
+          ]}
+        >
+          <Panel
+            isAnimated
+            spacingsSize="small"
+            style={{
+              ...spacings.ph0,
+              ...spacings.pv0,
+              minWidth: CARD_WIDTH,
+              alignSelf: 'center',
+              backgroundColor: 'transparent',
+              opacity: opacityInterpolate as any,
+              borderWidth: 0
+            }}
+            showProgress
+            step={1}
+            totalSteps={2}
+            title="Backup Recovery Phrase"
+            showBackButton
+            onBackPress={() => {
+              navigate(WEB_ROUTES.createSeedPhrasePrepare, { state: { seed } })
+            }}
+          >
+            <View style={[panelPaddingStyle, spacings.pt]}>
+              <View style={{ width: CARD_WIDTH - 48 }}>
+                <Text style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}>
+                  {t('Write down and secure the Recovery Phrase for your account.')}
                 </Text>
-                <Input
-                  testID={`recovery-with-seed-word-${index}`}
-                  value={word}
-                  numberOfLines={1}
-                  containerStyle={[spacings.mb0, flexbox.flex1]}
+                <View
+                  style={{
+                    ...flexbox.directionRow,
+                    ...flexbox.wrap,
+                    ...flexbox.justifyCenter,
+                    borderWidth: 1,
+                    borderColor: theme.secondaryBorder,
+                    ...common.borderRadiusPrimary,
+                    overflow: 'hidden'
+                  }}
+                >
+                  {(seed as string[]).map((word, index) => (
+                    <View
+                      key={`${word}-${seed.indexOf(word)}`}
+                      style={{
+                        width: '33.33%',
+                        borderRightWidth: (index + 1) % 3 === 0 ? 0 : 1,
+                        borderBottomWidth: index < 9 ? 1 : 0,
+                        borderColor: theme.secondaryBorder,
+                        ...spacings.ptMi,
+                        ...spacings.pbSm,
+                        ...spacings.phMi,
+                        ...flexbox.alignCenter,
+                        ...flexbox.justifyCenter
+                      }}
+                    >
+                      <View style={[flexbox.directionRow, flexbox.alignCenter, { width: '100%' }]}>
+                        <Text fontSize={12} appearance="secondaryText">
+                          {index + 1}.
+                        </Text>
+                      </View>
+                      <Text fontSize={14}>{word}</Text>
+                    </View>
+                  ))}
+                </View>
+                <View
+                  style={[
+                    flexbox.directionRow,
+                    flexbox.justifyCenter,
+                    flexbox.alignCenter,
+                    spacings.pvMi,
+                    common.borderRadiusPrimary,
+                    spacings.mtSm,
+                    spacings.mb2Xl
+                  ]}
+                >
+                  <TouchableOpacity
+                    onPress={handleCopyToClipboard}
+                    style={[
+                      flexbox.directionRow,
+                      flexbox.justifyCenter,
+                      flexbox.alignCenter,
+                      spacings.pvMi,
+                      common.borderRadiusPrimary,
+                      { backgroundColor: theme.secondaryBackground, width: '60%' }
+                    ]}
+                  >
+                    <Text fontSize={14} weight="medium" appearance="secondaryText">
+                      {t('Copy Recovery Phrase')}
+                    </Text>
+
+                    <CopyIcon style={{ marginLeft: 8 }} />
+                  </TouchableOpacity>
+                </View>
+                <Button
+                  testID="create-seed-phrase-write-continue-btn"
+                  accessibilityRole="button"
+                  text={t("I've Saved the Phrase")}
+                  size="large"
+                  hasBottomSpacing={false}
+                  onPress={handleSubmit}
                 />
               </View>
-            ))}
-          </View>
-        </Panel>
+            </View>
+          </Panel>
+        </Animated.View>
       </TabLayoutWrapperMainContent>
-      <CreateSeedPhraseSidebar currentStepId="write" />
     </TabLayoutContainer>
   )
 }
