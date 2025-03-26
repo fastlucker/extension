@@ -194,7 +194,7 @@ const CreateSeedPhraseWriteScreen = () => {
                     flexbox.alignCenter,
                     spacings.pvMi,
                     common.borderRadiusPrimary,
-                    spacings.mtSm,
+                    spacings.mtMd,
                     spacings.mb2Xl
                   ]}
                 >
