@@ -152,7 +152,7 @@ const AlertVertical = ({
         {!!text &&
           (typeof text === 'string' ? (
             <AlertVerticalText size={size} type={type}>
-              {'SWAP_FAILED'}{' '}
+              {text}{' '}
             </AlertVerticalText>
           ) : (
             text
