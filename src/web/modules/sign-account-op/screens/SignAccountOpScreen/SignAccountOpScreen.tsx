@@ -297,6 +297,9 @@ const SignAccountOpScreen = () => {
       // Prioritize warning(s) modals over all others
       if (
         warningToPromptBeforeSign ||
+        // We render the warning modal if the paymaster is loading, but
+        // don't display it to the user until the paymaster has been loading for too long.
+        // This is required because opening the modal isn't possible if it isn't rendered.
         signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
       )
         return 'warnings'
