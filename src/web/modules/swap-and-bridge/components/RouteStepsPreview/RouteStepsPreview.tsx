@@ -172,37 +172,27 @@ const RouteStepsPreview = ({
       </View>
       {(!!totalGasFeesInUsd || !!estimationInSeconds) && (
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Text fontSize={12} weight="medium">
-            {t('Total gas fees: {{fees}}', {
-              fees: formatDecimals(totalGasFeesInUsd, 'value')
-            })}
-          </Text>
           {!!estimationInSeconds && (
-            <>
-              <Text fontSize={12} weight="medium" appearance="secondaryText">
-                {'  |  '}
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              {!!shouldWarnForLongEstimation && (
+                <WarningIcon
+                  color={iconColors.warning}
+                  width={14}
+                  height={14}
+                  style={spacings.mrMi}
+                  strokeWidth={2.2}
+                />
+              )}
+              <Text
+                fontSize={12}
+                weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
+                appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
+              >
+                {t('Estimation: around {{time}}', {
+                  time: formatTime(estimationInSeconds)
+                })}
               </Text>
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                {!!shouldWarnForLongEstimation && (
-                  <WarningIcon
-                    color={iconColors.warning}
-                    width={14}
-                    height={14}
-                    style={spacings.mrMi}
-                    strokeWidth={2.2}
-                  />
-                )}
-                <Text
-                  fontSize={12}
-                  weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
-                  appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
-                >
-                  {t('Estimation: around {{time}}', {
-                    time: formatTime(estimationInSeconds)
-                  })}
-                </Text>
-              </View>
-            </>
+            </View>
           )}
         </View>
       )}

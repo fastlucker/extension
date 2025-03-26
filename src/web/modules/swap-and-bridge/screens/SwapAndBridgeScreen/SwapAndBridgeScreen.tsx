@@ -520,6 +520,38 @@ const SwapAndBridgeScreen = () => {
                       </View>
                     )}
                   </View>
+
+                  {/* TODO<oneClickSwap>: styling */}
+                  {formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
+                    (!signAccountOpController ||
+                      signAccountOpController.estimation.status === EstimationStatus.Loading) && (
+                      <View style={[styles.secondaryContainer, spacings.mb]}>
+                        <Spinner />
+                      </View>
+                    )}
+
+                  {(formStatus === SwapAndBridgeFormStatus.ReadyToEstimate ||
+                    formStatus === SwapAndBridgeFormStatus.ReadyToSubmit) &&
+                    signAccountOpController && (
+                      <View style={[styles.secondaryContainer, spacings.mb]}>
+                        <Estimation
+                          updateType="Swap&Bridge"
+                          signAccountOpState={signAccountOpController}
+                          disabled={
+                            signAccountOpController.status?.type !== SigningStatus.ReadyToSign
+                          }
+                          hasEstimation={!!hasEstimation}
+                          // TODO<oneClickSwap>
+                          slowRequest={false}
+                          // TODO<oneClickSwap>
+                          slowPaymasterRequest={false}
+                          isViewOnly={isViewOnly}
+                          isSponsored={false}
+                          sponsor={undefined}
+                        />
+                      </View>
+                    )}
+
                   {!!shouldConfirmFollowUpTransactions && (
                     <View style={spacings.mb}>
                       <Checkbox
@@ -561,35 +593,6 @@ const SwapAndBridgeScreen = () => {
                   )}
                 </>
               )}
-
-              {/* TODO<oneClickSwap>: styling */}
-              {formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
-                (!signAccountOpController ||
-                  signAccountOpController.estimation.status === EstimationStatus.Loading) && (
-                  <View style={[styles.secondaryContainer, spacings.mb]}>
-                    <Spinner />
-                  </View>
-                )}
-
-              {(formStatus === SwapAndBridgeFormStatus.ReadyToEstimate ||
-                formStatus === SwapAndBridgeFormStatus.ReadyToSubmit) &&
-                signAccountOpController && (
-                  <View style={[styles.secondaryContainer, spacings.mb]}>
-                    <Estimation
-                      updateType="Swap&Bridge"
-                      signAccountOpState={signAccountOpController}
-                      disabled={signAccountOpController.status?.type !== SigningStatus.ReadyToSign}
-                      hasEstimation={!!hasEstimation}
-                      // TODO<oneClickSwap>
-                      slowRequest={false}
-                      // TODO<oneClickSwap>
-                      slowPaymasterRequest={false}
-                      isViewOnly={isViewOnly}
-                      isSponsored={false}
-                      sponsor={undefined}
-                    />
-                  </View>
-                )}
 
               <View
                 style={[spacings.pt, { borderTopWidth: 1, borderTopColor: theme.secondaryBorder }]}
