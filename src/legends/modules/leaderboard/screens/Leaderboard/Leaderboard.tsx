@@ -1,5 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
+import InfoIcon from '@common/assets/svg/InfoIcon'
+import Tooltip from '@common/components/Tooltip'
 import Alert from '@legends/components/Alert'
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
@@ -85,6 +87,15 @@ const LeaderboardContainer: React.FC = () => {
                   <h5 className={styles.playerCell}>player</h5>
                 </div>
                 <h5 className={styles.cell}>Level</h5>
+                <div className={styles.cell}>
+                  <h5 className={styles.weightText}>Weight</h5>
+                  <InfoIcon width={10} height={10} data-tooltip-id="weight-info" />
+                  <Tooltip
+                    className={styles.tooltip}
+                    id="weight-info"
+                    content="Projected weight based on last week's balance snapshot. End results might vary."
+                  />
+                </div>
                 <h5 className={styles.cell}>XP</h5>
               </div>
               {leaderboardData.map((item) => (
