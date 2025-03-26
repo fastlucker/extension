@@ -1,5 +1,6 @@
 import { decodeError } from '@ambire-common/libs/errorDecoder'
 import { TRANSACTION_REJECTED_REASON } from '@ambire-common/libs/errorDecoder/handlers/userRejection'
+import { getErrorCodeStringFromReason } from '@ambire-common/libs/errorDecoder/helpers'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 
@@ -33,7 +34,9 @@ const humanizeError = (error: any, fallbackMessage: string): string => {
   }
 
   if (!message) {
-    return fallbackMessage
+    const reasonString = getErrorCodeStringFromReason(reason ?? '')
+
+    return `${fallbackMessage}${reasonString}`
   }
 
   return message
