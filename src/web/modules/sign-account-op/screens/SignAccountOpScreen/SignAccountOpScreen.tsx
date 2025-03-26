@@ -497,7 +497,7 @@ const SignAccountOpScreen = () => {
                 getErrorCodeStringFromReason(signAccountOpState.errors[0].code) ? (
                   <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}>
                     <AlertVertical.Text type="warning" size="md">
-                      {getErrorCodeStringFromReason(signAccountOpState.errors[0].code || '')}
+                      {getErrorCodeStringFromReason(signAccountOpState.errors[0].code || '', false)}
                     </AlertVertical.Text>
                     <Pressable onPress={copySignAccountOpError}>
                       <CopyIcon
