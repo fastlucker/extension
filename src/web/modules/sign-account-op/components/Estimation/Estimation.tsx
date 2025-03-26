@@ -351,6 +351,7 @@ const Estimation = ({
             menuOptionHeight={32}
             withSearch={false}
             containerStyle={{ ...spacings.mb0, minWidth: 160, width: 'fit-content' }}
+            testID="fee-speed-select"
           />
         )}
       </View>
