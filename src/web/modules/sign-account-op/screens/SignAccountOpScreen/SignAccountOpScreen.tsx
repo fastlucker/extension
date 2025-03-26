@@ -469,7 +469,7 @@ const SignAccountOpScreen = () => {
             account={signAccountOpState.account}
           />
         ) : null}
-        <TabLayoutWrapperMainContent scrollEnabled={false}>
+        <TabLayoutWrapperMainContent>
           <PendingTransactions network={network} />
           {isViewOnly ? (
             <NoKeysToSignAlert style={spacings.ptTy} />

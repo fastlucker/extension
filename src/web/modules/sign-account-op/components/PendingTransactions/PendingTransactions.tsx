@@ -56,7 +56,7 @@ const PendingTransactions: FC<Props> = ({ network }) => {
           flexbox.directionRow,
           flexbox.alignCenter,
           flexbox.justifySpaceBetween,
-          spacings.mb
+          spacings.mbSm
         ]}
       >
         <SectionHeading withMb={false}>

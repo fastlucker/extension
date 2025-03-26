@@ -20,7 +20,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-import SectionHeading from '../SectionHeading'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
@@ -339,7 +338,9 @@ const Estimation = ({
           spacings.mbMi
         ]}
       >
-        <SectionHeading withMb={false}>{t('Pay fee with')}</SectionHeading>
+        <Text fontSize={18} weight="medium">
+          {t('Pay fee with')}
+        </Text>
         {selectedFee && (
           <Select
             value={selectedFee}
