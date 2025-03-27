@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 import { browser, engine, getFirefoxVersion } from '@web/constants/browserapi'
 
 const handleRegisterScripts = async () => {
@@ -14,6 +16,7 @@ const handleRegisterScripts = async () => {
   }[] = []
 
   const registeredScripts = await browser.scripting.getRegisteredContentScripts()
+
   const registeredContentScriptMessengerBridge = registeredScripts.find(
     (s: any) => s.id === 'content-script-messenger-bridge'
   )
@@ -82,6 +85,7 @@ const handleRegisterScripts = async () => {
         matches: ['http://*/*', 'https://*/*'],
         excludeMatches: ['*://doInWebPack.lan/*'],
         js: ['content-script-ethereum-injection.js'],
+        persistAcrossSessions: false,
         runAt: 'document_start'
       })
     }
@@ -96,52 +100,48 @@ const handleRegisterScripts = async () => {
   }
 }
 
-const handleUnregisterAmbireInpageScript = async () => {
+let executeContentScriptForTabsFromPrevSessionPromise: Promise<void> | undefined
+
+const executeContentScriptForTabsFromPrevSession = async (tab: chrome.tabs.Tab) => {
+  if (!tab.id || !tab.url) return
+
+  if (!['http://', 'https://'].some((prefix) => tab.url!.startsWith(prefix))) return
+
+  await executeContentScriptForTabsFromPrevSessionPromise
+
   try {
-    const firefoxVersion = getFirefoxVersion()
-    const shouldUseWorldMain = engine === 'webkit' || (firefoxVersion && firefoxVersion >= 128)
-
-    const registeredScripts = await browser.scripting.getRegisteredContentScripts()
-
-    const registeredAmbireInpage = registeredScripts.find(
-      (s: any) =>
-        s.id === (shouldUseWorldMain ? 'ambire-inpage' : 'content-script-ambire-injection')
-    )
-    if (registeredAmbireInpage) {
-      await browser.scripting.unregisterContentScripts({
-        ids: shouldUseWorldMain ? ['ambire-inpage'] : ['content-script-ambire-injection']
-      })
-    }
-  } catch (err) {
-    console.warn(`Failed to unregister ambire-inpage: ${err}`)
+    await browser.scripting.executeScript({
+      target: { tabId: tab.id, allFrames: true },
+      files: ['browser-polyfill.min.js', 'content-script.js'],
+      injectImmediately: true
+    })
+  } catch (error) {
+    console.error(error)
+  } finally {
+    executeContentScriptForTabsFromPrevSessionPromise = undefined
   }
 }
 
-// mainly used to unregister injection of window.ethereum when Ambire is not the default wallet
-const handleUnregisterEthereumInpageScript = async () => {
-  try {
-    const firefoxVersion = getFirefoxVersion()
-    const shouldUseWorldMain = engine === 'webkit' || (firefoxVersion && firefoxVersion >= 128)
+// This mechanism keeps the content script used for communication between dApps and extension
+// up to date across the sessions of the extension and when the service worker/background script
+// goes inactive and then reactivates
+const handleKeepBridgeContentScriptAcrossSessions = () => {
+  browser.tabs.onActivated.addListener(async ({ tabId }: chrome.tabs.TabActiveInfo) => {
+    const tab = await browser.tabs.get(tabId)
+    executeContentScriptForTabsFromPrevSessionPromise =
+      executeContentScriptForTabsFromPrevSession(tab)
+    await executeContentScriptForTabsFromPrevSessionPromise
+  })
 
-    const registeredScripts = await browser.scripting.getRegisteredContentScripts()
-
-    const registeredEthereumInpage = registeredScripts.find(
-      (s: any) =>
-        s.id === (shouldUseWorldMain ? 'ethereum-inpage' : 'content-script-ethereum-injection')
-    )
-
-    if (registeredEthereumInpage) {
-      await browser.scripting.unregisterContentScripts({
-        ids: shouldUseWorldMain ? ['ethereum-inpage'] : ['content-script-ethereum-injection']
-      })
-    }
-  } catch (err) {
-    console.warn(`Failed to inject ethereum-inpage: ${err}`)
-  }
+  browser.tabs
+    .query({ active: true, currentWindow: true })
+    .then(async (tabs: chrome.tabs.Tab[]) => {
+      for (const tab of tabs) {
+        executeContentScriptForTabsFromPrevSessionPromise =
+          executeContentScriptForTabsFromPrevSession(tab)
+        await executeContentScriptForTabsFromPrevSessionPromise
+      }
+    })
 }
 
-export {
-  handleRegisterScripts,
-  handleUnregisterAmbireInpageScript,
-  handleUnregisterEthereumInpageScript
-}
+export { handleRegisterScripts, handleKeepBridgeContentScriptAcrossSessions }

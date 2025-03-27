@@ -42,13 +42,12 @@ type ActionModalProps = {
   Partial<CardActionComponentProps> &
   Pick<
     CardFromResponse,
-    'meta' | 'xp' | 'contentImage' | 'contentSteps' | 'contentVideo' | 'title' | 'flavor' | 'action'
+    'meta' | 'xp' | 'contentImage' | 'contentSteps' | 'contentVideo' | 'title' | 'action'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
   title,
-  flavor,
   xp,
   contentImage,
   buttonText,
@@ -91,16 +90,13 @@ const ActionModal: FC<ActionModalProps> = ({
         <div className={styles.modalHeadingTitle}>{title}</div>
         {xp && <Rewards xp={xp} size="lg" />}
       </Modal.Heading>
-      {![CARD_PREDEFINED_ID.linkAccount].includes(predefinedId || '') && (
-        <Modal.Text className={styles.modalText}>{flavor}</Modal.Text>
-      )}
 
       {contentSteps && (
         <HowTo
           steps={contentSteps}
           activeStep={activeStep}
           image={contentImage}
-          imageAlt={flavor}
+          imageAlt={title}
           video={contentVideo}
         >
           {(predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />) ||

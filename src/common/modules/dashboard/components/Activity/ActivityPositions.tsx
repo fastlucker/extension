@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 
@@ -15,7 +15,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import SubmittedTransactionSummary from '@web/modules/settings/components/TransactionHistory/SubmittedTransactionSummary'
 import { getUiType } from '@web/utils/uiType'
@@ -28,23 +27,31 @@ interface Props {
   initTab?: { [key: string]: boolean }
   sessionId: string
   onScroll: FlatListProps<any>['onScroll']
+  dashboardNetworkFilterName: string | null
 }
 
 const { isPopup } = getUiType()
 
 const ITEMS_PER_PAGE = 10
 
-const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab, onScroll }) => {
+const ActivityPositions: FC<Props> = ({
+  openTab,
+  sessionId,
+  setOpenTab,
+  initTab,
+  onScroll,
+  dashboardNetworkFilterName
+}) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
   const { dispatch } = useBackgroundService()
   const { accountsOps } = useActivityControllerState()
   const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
-  const { networks } = useNetworksControllerState()
 
   useEffect(() => {
-    if (!account?.addr) return
+    // Optimization: Don't apply filtration if we are not on Activity tab
+    if (!account?.addr || openTab !== 'activity') return
 
     dispatch({
       type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
@@ -52,7 +59,9 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
         sessionId,
         filters: {
           account: account.addr,
-          ...(dashboardNetworkFilter && { network: dashboardNetworkFilter })
+          ...(dashboardNetworkFilter && {
+            chainId: dashboardNetworkFilter ? BigInt(dashboardNetworkFilter) : undefined
+          })
         },
         pagination: {
           itemsPerPage: ITEMS_PER_PAGE,
@@ -61,10 +70,6 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
       }
     })
   }, [openTab, account?.addr, dispatch, dashboardNetworkFilter, sessionId])
-
-  const network = useMemo(() => {
-    return networks.find((n) => n.id === dashboardNetworkFilter)
-  }, [dashboardNetworkFilter, networks])
 
   const renderItem = useCallback(
     ({ item }: any) => {
@@ -82,8 +87,8 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
             {t('No transactions history for {{account}}', {
               account: `${account!.preferences.label} (${shortenAddress(account!.addr, 10)})`
             })}
-            {!!dashboardNetworkFilter && !!network && (
-              <> {t('on {{network}}', { network: network.name })}</>
+            {!!dashboardNetworkFilter && !!dashboardNetworkFilterName && (
+              <> {t('on {{network}}', { network: dashboardNetworkFilterName })}</>
             )}
           </Text>
         )
@@ -116,7 +121,9 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
                     sessionId,
                     filters: {
                       account: account!.addr,
-                      ...(dashboardNetworkFilter && { network: dashboardNetworkFilter })
+                      ...(dashboardNetworkFilter && {
+                        chainId: dashboardNetworkFilter ? BigInt(dashboardNetworkFilter) : undefined
+                      })
                     },
                     pagination: {
                       itemsPerPage: accountsOps[sessionId].pagination.itemsPerPage + ITEMS_PER_PAGE,
@@ -150,7 +157,7 @@ const ActivityPositions: FC<Props> = ({ openTab, sessionId, setOpenTab, initTab,
       t,
       account,
       dashboardNetworkFilter,
-      network,
+      dashboardNetworkFilterName,
       accountsOps,
       dispatch
     ]

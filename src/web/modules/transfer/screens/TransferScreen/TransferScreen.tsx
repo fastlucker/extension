@@ -81,15 +81,16 @@ const TransferScreen = () => {
 
   const transactionUserRequests = useMemo(() => {
     return userRequests.filter((r) => {
-      if (!state.amount || !state.selectedToken) return true
-
       const isSelectedAccountAccountOp =
         r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
-      const isMatchingSelectedTokenNetwork = r.meta.networkId === state.selectedToken?.networkId
 
-      return isSelectedAccountAccountOp && isMatchingSelectedTokenNetwork
+      if (!isSelectedAccountAccountOp) return false
+
+      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
+
+      return !state.selectedToken || isMatchingSelectedTokenNetwork
     })
-  }, [account?.addr, state.amount, state.selectedToken, userRequests])
+  }, [account?.addr, state.selectedToken, userRequests])
 
   const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
     return portfolio.totalBalance >= 10
@@ -135,7 +136,7 @@ const TransferScreen = () => {
   }, [transferCtrl.amount, transferCtrl.recipientAddress, transferCtrl.selectedToken])
 
   const submitButtonText = useMemo(() => {
-    if (hasFocusedActionWindow || !isSmartAccount) return isTopUp ? t('Top Up') : t('Send')
+    if (hasFocusedActionWindow) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
 
@@ -157,7 +158,6 @@ const TransferScreen = () => {
     addressInputState.validation.isError,
     isFormValid,
     isFormEmpty,
-    isSmartAccount,
     hasFocusedActionWindow,
     t
   ])
@@ -168,19 +168,11 @@ const TransferScreen = () => {
   )
 
   const isSendButtonDisabled = useMemo(() => {
-    if (!isSmartAccount) return !isTransferFormValid
-
     if (transactionUserRequests.length && !hasFocusedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
     return !isTransferFormValid
-  }, [
-    isFormEmpty,
-    isTransferFormValid,
-    isSmartAccount,
-    transactionUserRequests.length,
-    hasFocusedActionWindow
-  ])
+  }, [isFormEmpty, isTransferFormValid, transactionUserRequests.length, hasFocusedActionWindow])
 
   const onBack = useCallback(() => {
     navigate(ROUTES.dashboard)
@@ -285,30 +277,28 @@ const TransferScreen = () => {
           <View
             style={[flexbox.directionRow, !isSmartAccount && flexbox.flex1, flexbox.justifyEnd]}
           >
-            {!!isSmartAccount && (
-              <Button
-                testID="transfer-queue-and-add-more-button"
-                type="outline"
-                accentColor={theme.primary}
-                text={t('Queue and Add More')}
-                onPress={() => addTransaction('queue')}
-                disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
-                hasBottomSpacing={false}
-                style={spacings.mr}
-                size="large"
-              >
-                <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
-                  <CartIcon color={theme.primary} />
-                  {!!transactionUserRequests.length && !hasFocusedActionWindow && (
-                    <Text
-                      fontSize={16}
-                      weight="medium"
-                      color={theme.primary}
-                    >{` (${transactionUserRequests.length})`}</Text>
-                  )}
-                </View>
-              </Button>
-            )}
+            <Button
+              testID="transfer-queue-and-add-more-button"
+              type="outline"
+              accentColor={theme.primary}
+              text={t('Queue and Add More')}
+              onPress={() => addTransaction('queue')}
+              disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
+              hasBottomSpacing={false}
+              style={spacings.mr}
+              size="large"
+            >
+              <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
+                <CartIcon color={theme.primary} />
+                {!!transactionUserRequests.length && !hasFocusedActionWindow && (
+                  <Text
+                    fontSize={16}
+                    weight="medium"
+                    color={theme.primary}
+                  >{` (${transactionUserRequests.length})`}</Text>
+                )}
+              </View>
+            </Button>
             <Button
               testID="transfer-button-confirm"
               type="primary"

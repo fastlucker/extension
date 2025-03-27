@@ -51,7 +51,7 @@ export enum CardStatus {
   'completed'
 }
 
-export type Networks = 'ethereum' | 'optimism' | 'base' | 'scroll' | 'arbitrum'
+export type Networks = '1' | '10' | '8453' | '534352' | '42161'
 export interface CardXp {
   type: CardXpType
   from: number
@@ -63,7 +63,6 @@ export interface CardXp {
 export interface CardFromResponse {
   id: string
   title: string
-  flavor: string
   xp: CardXp[]
   action: CardAction
   card: {

@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import Alert from '@common/components/Alert/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
@@ -71,21 +70,21 @@ const WatchTokenRequestScreen = () => {
   const origin = userRequest?.session?.origin
   const network =
     networks.find((n) => n.explorerUrl === origin) ||
-    networks.find((n) => n.id === tokenData?.networkId)
+    networks.find((n) => n.chainId === tokenData?.chainId)
   const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
   const [tokenNetwork, setTokenNetwork] = useState(network)
   const [isTemporaryTokenRequested, setTemporaryTokenRequested] = useState(false)
 
   const isLoadingTemporaryToken = useMemo(
-    () => tokenNetwork?.id && temporaryTokens?.[tokenNetwork?.id]?.isLoading,
-    [tokenNetwork?.id, temporaryTokens]
+    () => tokenNetwork?.chainId && temporaryTokens?.[tokenNetwork?.chainId.toString()]?.isLoading,
+    [tokenNetwork?.chainId, temporaryTokens]
   )
 
   const networkWithFailedRPC =
-    tokenNetwork?.id &&
+    tokenNetwork?.chainId &&
     getNetworksWithFailedRPC({ providers }).filter(
-      (networkId: NetworkId) => tokenNetwork?.id === networkId
+      (chainId: string) => tokenNetwork?.chainId.toString() === chainId
     )
 
   const tokenTypeEligibility = useMemo(
@@ -105,7 +104,7 @@ const WatchTokenRequestScreen = () => {
   const isTokenCustom = !!customTokens.find(
     (token) =>
       token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
-      token.networkId === tokenNetwork?.id
+      token.chainId === tokenNetwork?.chainId
   )
 
   const temporaryToken = useMemo(
@@ -118,10 +117,10 @@ const WatchTokenRequestScreen = () => {
     [selectedAccountPortfolio, tokenNetwork, tokenData]
   )
 
-  const handleTokenType = (networkId: NetworkId) => {
+  const handleTokenType = (chainId: bigint) => {
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN',
-      params: { token: { address: tokenData?.address, networkId } }
+      params: { token: { address: tokenData?.address, chainId } }
     })
   }
 
@@ -169,7 +168,7 @@ const WatchTokenRequestScreen = () => {
         if (!temporaryToken) {
           // Check if token is eligible to add in portfolio
           if (tokenData && !tokenTypeEligibility) {
-            handleTokenType(tokenNetwork?.id)
+            handleTokenType(tokenNetwork?.chainId)
           }
 
           if (tokenTypeEligibility && !isTokenInHints && !isTemporaryTokenRequested) {
@@ -177,7 +176,7 @@ const WatchTokenRequestScreen = () => {
             dispatch({
               type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS',
               params: {
-                networkId: tokenNetwork?.id,
+                chainId: tokenNetwork?.chainId,
                 additionalHint: getAddress(tokenData?.address)
               }
             })
@@ -207,7 +206,7 @@ const WatchTokenRequestScreen = () => {
 
   const handleAddToken = useCallback(async () => {
     if (!dappAction) return
-    if (!tokenNetwork?.id) return
+    if (!tokenNetwork?.chainId) return
 
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_ADD_CUSTOM_TOKEN',
@@ -215,7 +214,7 @@ const WatchTokenRequestScreen = () => {
         token: {
           address: getAddress(tokenData.address),
           standard: 'ERC20',
-          networkId: tokenNetwork?.id
+          chainId: tokenNetwork?.chainId
         },
         shouldUpdatePortfolio: true
       }
@@ -258,7 +257,7 @@ const WatchTokenRequestScreen = () => {
           tokenTypeEligibility !== undefined &&
           !temporaryToken &&
           !isLoadingTemporaryToken) ||
-        (!tokenNetwork?.id && !isLoading) ? (
+        (!tokenNetwork?.chainId && !isLoading) ? (
           <Alert type="error" title={t('This token type is not supported.')} />
         ) : (
           <>
@@ -274,7 +273,7 @@ const WatchTokenRequestScreen = () => {
                   <Text weight="medium" fontSize={20} style={spacings.mrTy}>
                     {t('Add suggested token on')}
                   </Text>
-                  <NetworkBadge networkId={tokenNetwork?.id} />
+                  <NetworkBadge chainId={tokenNetwork?.chainId} />
                 </View>
                 <Text
                   weight="regular"

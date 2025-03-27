@@ -22,10 +22,8 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { clearHumanizerMetaObjectFromStorage } from '@ambire-common/libs/humanizer'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -50,10 +48,12 @@ import { BadgesController } from '@web/extension-services/background/controllers
 import ExtensionUpdateController from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { handleActions } from '@web/extension-services/background/handlers/handleActions'
-import { handleCleanDappSessions } from '@web/extension-services/background/handlers/handleCleanDappSessions'
 import { handleCleanUpOnPortDisconnect } from '@web/extension-services/background/handlers/handleCleanUpOnPortDisconnect'
 import { handleKeepAlive } from '@web/extension-services/background/handlers/handleKeepAlive'
-import { handleRegisterScripts } from '@web/extension-services/background/handlers/handleScripting'
+import {
+  handleKeepBridgeContentScriptAcrossSessions,
+  handleRegisterScripts
+} from '@web/extension-services/background/handlers/handleScripting'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
@@ -99,11 +99,53 @@ function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   logInfoWithPrefix(event, logData)
 }
 
+const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
 handleKeepAlive()
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+  // wait for mainCtrl to be initialized before handling dapp requests
+  while (!mainCtrl) await wait(200)
+
+  const tabId = meta.sender?.tab?.id
+  if (tabId === undefined || !meta.sender?.url) {
+    return
+  }
+
+  const origin = getOriginFromUrl(meta.sender.url)
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+
+  await mainCtrl.dapps.initialLoadPromise
+  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
+
+  try {
+    const res = await handleProviderRequests(
+      {
+        method,
+        params,
+        session,
+        origin
+      },
+      mainCtrl,
+      id
+    )
+    return { id, result: res }
+  } catch (error: any) {
+    let errorRes
+    try {
+      errorRes = error.serialize()
+    } catch (e) {
+      errorRes = error
+    }
+    return { id, error: errorRes }
+  }
+})
+
+handleKeepBridgeContentScriptAcrossSessions()
 
 function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
   // 5s + new Date().getTime() - timestamp of newest op / 10
@@ -164,6 +206,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
     accountStatePendingInterval?: ReturnType<typeof setTimeout>
     selectedAccountStateInterval?: number
+    networksLastUpdatedByIntervalAt: number
+    updateNetworksInterval?: ReturnType<typeof setTimeout>
   } = {
     /**
       ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
@@ -179,7 +223,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     activityRefreshInterval: ACTIVITY_REFRESH_INTERVAL,
     hasSignAccountOpCtrlInitialized: false,
     swapAndBridgeQuoteStatus: 'INITIAL',
-    portfolioLastUpdatedByIntervalAt: Date.now() // Because the first update is immediate
+    portfolioLastUpdatedByIntervalAt: Date.now(), // Because the first update is immediate
+    networksLastUpdatedByIntervalAt: Date.now()
   }
 
   const pm = new PortMessenger()
@@ -230,8 +275,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     return fetch(url, initWithCustomHeaders)
   }
 
-  await handleCleanDappSessions()
-
   mainCtrl = new MainController({
     storage,
     fetch: fetchWithAnalytics,
@@ -261,6 +304,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     },
     notificationManager
   })
+
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl)
@@ -279,6 +323,36 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     mainCtrl.keystore.lock()
   })
   const extensionUpdateCtrl = new ExtensionUpdateController()
+
+  /**
+   * Schedules periodic network synchronization.
+   *
+   * This function ensures that the `synchronizeNetworks` method runs every 8 hours
+   * to periodically refetch networks in case there are updates,
+   * since the extension relies on the config from relayer.
+   *
+   * Networks are also updated on NetworksController load and background process refresh,
+   * but this ensures they stay refreshed.
+   * Because of this, tt does **not** execute immediately at startup, only after the first interval.
+   */
+  function scheduleNetworkSync() {
+    if (backgroundState.updateNetworksInterval) {
+      clearTimeout(backgroundState.updateNetworksInterval)
+    }
+
+    backgroundState.updateNetworksInterval = setTimeout(async () => {
+      try {
+        await mainCtrl.networks.synchronizeNetworks()
+        backgroundState.networksLastUpdatedByIntervalAt = Date.now()
+      } catch (error) {
+        console.error('Failed to synchronize networks:', error)
+      }
+
+      scheduleNetworkSync()
+    }, 8 * 60 * 60 * 1000)
+  }
+
+  scheduleNetworkSync()
 
   async function initPortfolioContinuousUpdate() {
     if (backgroundState.updatePortfolioInterval)
@@ -443,12 +517,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         console.error('No selected account to latest state')
         return
       }
-      const failedNetworkIds = getNetworksWithFailedRPC({
+      const failedChainIds = getNetworksWithFailedRPC({
         providers: mainCtrl.providers.providers
       })
       const networksToUpdate = mainCtrl.networks.networks
-        .filter(({ id }) => !failedNetworkIds.includes(id))
-        .map(({ id }) => id)
+        .filter(({ chainId }) => !failedChainIds.includes(chainId.toString()))
+        .map(({ chainId }) => chainId)
 
       await mainCtrl.accounts.updateAccountState(
         mainCtrl.selectedAccount.account.addr,
@@ -472,15 +546,15 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       clearTimeout(backgroundState.accountStatePendingInterval)
 
     const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
-      .map((op) => op.networkId)
-      .filter((networkId, index, self) => self.indexOf(networkId) === index)
+      .map((op) => op.chainId)
+      .filter((chainId, index, self) => self.indexOf(chainId) === index)
     await mainCtrl.accounts.updateAccountState(
       mainCtrl.selectedAccount.account.addr,
       'pending',
       networksToUpdate
     )
 
-    const updateAccountState = async (networkIds: NetworkId[]) => {
+    const updateAccountState = async (chainIds: bigint[]) => {
       if (!mainCtrl.selectedAccount.account) {
         console.error('No selected account to update pending state')
         return
@@ -489,14 +563,14 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       await mainCtrl.accounts.updateAccountState(
         mainCtrl.selectedAccount.account.addr,
         'pending',
-        networkIds
+        chainIds
       )
 
       // if there are no more broadcastedButNotConfirmed ops for the network,
       // remove the timeout
       const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
-        .map((op) => op.networkId)
-        .filter((networkId, index, self) => self.indexOf(networkId) === index)
+        .map((op) => op.chainId)
+        .filter((chainId, index, self) => self.indexOf(chainId) === index)
       if (!networksToUpdate.length) {
         clearTimeout(backgroundState.accountStatePendingInterval)
       } else {
@@ -537,11 +611,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     if (!isExtensionActive) return
 
     const updateAccountState = async () => {
-      const failedNetworkIds = getNetworksWithFailedRPC({
+      const failedChainIds = getNetworksWithFailedRPC({
         providers: mainCtrl.providers.providers
       })
 
-      if (!failedNetworkIds.length) return
+      if (!failedChainIds.length) return
 
       const retriedFastAccountStateReFetchForNetworks =
         backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks
@@ -549,39 +623,42 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // Delete the network ids that have been successfully re-fetched so the logic can be re-applied
       // if the RPC goes down again
       if (retriedFastAccountStateReFetchForNetworks.length) {
-        retriedFastAccountStateReFetchForNetworks.forEach((networkId, index) => {
-          if (!failedNetworkIds.includes(networkId)) {
+        retriedFastAccountStateReFetchForNetworks.forEach((chainId, index) => {
+          if (!failedChainIds.includes(chainId)) {
             delete retriedFastAccountStateReFetchForNetworks[index]
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             mainCtrl.updateSelectedAccountPortfolio(
               false,
-              mainCtrl.networks.networks.find((n) => n.id === networkId)
+              mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
             )
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.defiPositions.updatePositions({ networkId })
+            mainCtrl.defiPositions.updatePositions({ chainId: BigInt(chainId) })
           }
         })
       }
 
       // Filter out the network ids that have already been retried
-      const recentlyFailedNetworks = failedNetworkIds.filter(
+      const recentlyFailedNetworks = failedChainIds.filter(
         (id) =>
           !backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks.find(
-            (networkId) => networkId === id
+            (chainId) => chainId === id
           )
       )
 
       const updateTime = recentlyFailedNetworks.length ? 8000 : 20000
 
-      await mainCtrl.accounts.updateAccountStates('latest', failedNetworkIds)
+      await mainCtrl.accounts.updateAccountStates(
+        'latest',
+        failedChainIds.map((id) => BigInt(id))
+      )
       // Add the network ids that have been retried to the list
-      failedNetworkIds.forEach((id) => {
+      failedChainIds.forEach((id) => {
         if (retriedFastAccountStateReFetchForNetworks.includes(id)) return
 
         retriedFastAccountStateReFetchForNetworks.push(id)
       })
 
-      if (!failedNetworkIds.length) return
+      if (!failedChainIds.length) return
 
       backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
         updateAccountState,
@@ -596,11 +673,16 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
-    const currentNetwork = mainCtrl.networks.networks.filter((n) => n.id === accountOp.networkId)[0]
+    const currentNetwork = mainCtrl.networks.networks.filter(
+      (n) => n.chainId === accountOp.chainId
+    )[0]
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
 
-    return createRecurringTimeout(() => mainCtrl.updateSignAccountOpGasPrice(), time)
+    return createRecurringTimeout(
+      () => mainCtrl.updateSignAccountOpGasPrice({ emitLevelOnFailure: 'major' }),
+      time
+    )
   }
 
   function createEstimateRecurringTimeout() {
@@ -717,9 +799,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             if (ctrlName === 'keystore') {
               if (controller.isReadyToStoreKeys) {
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
-                  mainCtrl.dapps.broadcastDappSessionEvent('lock')
+                  await mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
-                  mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
+                  await mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
                     mainCtrl.selectedAccount.account?.addr
                   ])
                 }
@@ -885,6 +967,15 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         initDefiPositionsContinuousUpdate()
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
+        // The selectedAccount portfolio is reset onLoad of the popup
+        // (from the background) while the portfolio update is triggered
+        // by a useEffect. If that useEffect doesn't trigger, the portfolio
+        // state will remain reset until an automatic update is triggered.
+        // Example: the user has the dashboard opened in tab, opens the popup
+        // and closes it immediately.
+        if (port.name === 'popup') {
+          mainCtrl.portfolio.forceEmitUpdate()
+        }
         if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           ledgerCtrl.cleanUp()
@@ -897,52 +988,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   initPortfolioContinuousUpdate()
   initDefiPositionsContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
-  await clearHumanizerMetaObjectFromStorage(storage)
 })()
-
-const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-providerRequestTransport.reply(async ({ method, id, params }, meta) => {
-  // wait for mainCtrl to be initialized before handling dapp requests
-  while (!mainCtrl) {
-    // eslint-disable-next-line no-await-in-loop
-    await wait(200)
-  }
-  const tabId = meta.sender?.tab?.id
-  if (tabId === undefined || !meta.sender?.url) {
-    return
-  }
-
-  const origin = getOriginFromUrl(meta.sender.url)
-  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
-  mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
-  // Temporarily resolves the subscription methods as successful
-  // but the rpc block subscription is actually not implemented because it causes app crashes
-  if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
-    return true
-  }
-
-  try {
-    const res = await handleProviderRequests(
-      {
-        method,
-        params,
-        session,
-        origin
-      },
-      mainCtrl
-    )
-    return { id, result: res }
-  } catch (error: any) {
-    let errorRes
-    try {
-      errorRes = error.serialize()
-    } catch (e) {
-      errorRes = error
-    }
-    return { id, error: errorRes }
-  }
-})
 
 try {
   browser.tabs.onRemoved.addListener(async (tabId: number) => {

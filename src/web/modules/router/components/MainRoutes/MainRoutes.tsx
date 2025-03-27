@@ -1,8 +1,10 @@
-import React from 'react'
-import { Outlet, Route, Routes } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Outlet, Route, Routes, useLocation } from 'react-router-dom'
 
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
+import routesConfig from '@common/modules/router/config/routesConfig'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
@@ -70,6 +72,17 @@ const stepperProvider = (
 )
 
 const MainRoutes = () => {
+  const location = useLocation()
+  const { t } = useTranslation()
+
+  useEffect(() => {
+    const trimmedPathName = location.pathname.replace(/^\/|\/$/g, '')
+    const routeConfig = routesConfig[trimmedPathName as keyof typeof routesConfig]
+    const title = `Ambire ${routeConfig?.name || t('Wallet')}`
+
+    document.title = title
+  }, [location.pathname, t])
+
   return (
     <Routes>
       <Route element={<InviteVerifiedRoute />}>

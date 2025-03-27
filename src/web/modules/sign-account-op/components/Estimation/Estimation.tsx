@@ -4,13 +4,9 @@ import { Image, View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import {
-  isSmartAccount as getIsSmartAccount,
-  isBasicAccount
-} from '@ambire-common/libs/account/account'
+import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
 import Alert from '@common/components/Alert'
@@ -30,7 +26,7 @@ import AmountInfo from './components/AmountInfo'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import EstimationWrapper from './components/EstimationWrapper'
 import { NO_FEE_OPTIONS } from './consts'
-import { getDefaultFeeOption, getDummyFeeOptions, mapFeeOptions, sortFeeOptions } from './helpers'
+import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
 import { FeeOption, Props } from './types'
 
 const FEE_SECTION_LIST_MENU_HEADER_HEIGHT = 34
@@ -61,27 +57,11 @@ const Estimation = ({
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
 
-    // No need to sort and filter if it's an EOA
-    if (
-      isBasicAccount(
-        signAccountOpState.account,
-        accountStates[signAccountOpState.account.addr][signAccountOpState.accountOp.networkId]
-      )
-    ) {
-      return [
-        signAccountOpState.availableFeeOptions[0],
-        ...getDummyFeeOptions(
-          signAccountOpState.accountOp.networkId,
-          signAccountOpState.account.addr
-        )
-      ].map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
-    }
-
     return signAccountOpState.availableFeeOptions
       .filter((feeOption) => feeOption.paidBy === signAccountOpState.accountOp.accountAddr)
       .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
-  }, [hasEstimation, accountStates, signAccountOpState])
+  }, [hasEstimation, signAccountOpState])
 
   const payOptionsPaidByEOA = useMemo(() => {
     if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
@@ -150,7 +130,7 @@ const Estimation = ({
 
     const accountState =
       accountStates[signAccountOpState?.accountOp.accountAddr][
-        signAccountOpState?.accountOp.networkId
+        signAccountOpState?.accountOp.chainId.toString()
       ]
 
     return !accountState?.isDeployed
@@ -158,7 +138,7 @@ const Estimation = ({
     accountStates,
     isSmartAccount,
     signAccountOpState?.accountOp.accountAddr,
-    signAccountOpState?.accountOp.networkId
+    signAccountOpState?.accountOp.chainId
   ])
 
   useEffect(() => {
@@ -311,16 +291,14 @@ const Estimation = ({
     [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
-  if (!signAccountOpState || !hasEstimation || !payValue) {
+  if (
+    !signAccountOpState ||
+    (!hasEstimation && signAccountOpState.estimationRetryError) ||
+    !payValue
+  ) {
     return (
       <EstimationWrapper>
         {!estimationFailed && <EstimationSkeleton />}
-        {estimationFailed && (
-          <Alert
-            type="info"
-            title={t('The estimation could not be completed because of the transaction problem.')}
-          />
-        )}
         <Warnings
           hasEstimation={hasEstimation}
           slowRequest={slowRequest}
@@ -474,7 +452,7 @@ const Estimation = ({
         isViewOnly={isViewOnly}
         rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
         bundlerFailure={
-          !!signAccountOpState.estimation?.nonFatalErrors?.find(
+          !!signAccountOpState.estimation?.bundlerEstimation?.nonFatalErrors?.find(
             (err) => err.cause === '4337_ESTIMATION'
           )
         }

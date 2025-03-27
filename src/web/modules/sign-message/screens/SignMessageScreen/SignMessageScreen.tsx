@@ -83,7 +83,7 @@ const SignMessageScreen = () => {
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
           ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
-          : n.id === signMessageState.messageToSign?.networkId
+          : n.chainId === signMessageState.messageToSign?.chainId
       }),
     [networks, signMessageState.messageToSign]
   )
@@ -121,7 +121,7 @@ const SignMessageScreen = () => {
         },
         messageToSign: {
           accountAddr: userRequest.meta.accountAddr,
-          networkId: userRequest.meta.networkId,
+          chainId: userRequest.meta.chainId,
           content: userRequest.action as PlainTextMessage | TypedMessage,
           fromActionId: signMessageAction.id,
           signature: null
@@ -143,10 +143,7 @@ const SignMessageScreen = () => {
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
       params: {
         err: t('User rejected the request.'),
-        id: userRequest.id,
-        opts: {
-          shouldDisable7702Asking: doNotAskMeAgain
-        }
+        id: userRequest.id
       }
     })
   }

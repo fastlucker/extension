@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
-  Action as ActionFromActionsQueue
+  Action as ActionFromActionsQueue,
+  ActionExecutionType
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -11,12 +11,12 @@ import { Account, AccountPreferences, AccountStates } from '@ambire-common/inter
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { AddNetworkRequestParams, ChainId, Network } from '@ambire-common/interfaces/network'
 import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
 import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
+import { FullEstimation } from '@ambire-common/libs/estimate/interfaces'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
@@ -120,7 +120,7 @@ type MainControllerAddNetwork = {
 
 type MainControllerRemoveNetwork = {
   type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: NetworkId
+  params: { chainId: ChainId }
 }
 
 type AccountsControllerUpdateAccountPreferences = {
@@ -130,7 +130,7 @@ type AccountsControllerUpdateAccountPreferences = {
 
 type AccountsControllerUpdateAccountState = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE'
-  params: { addr: string; networkIds: Network['id'][] }
+  params: { addr: string; chainIds: bigint[] }
 }
 
 type SettingsControllerSetNetworkToAddOrUpdate = {
@@ -138,7 +138,6 @@ type SettingsControllerSetNetworkToAddOrUpdate = {
   params: {
     chainId: Network['chainId']
     rpcUrl: string
-    force4337?: boolean
   }
 }
 
@@ -159,7 +158,7 @@ type MainControllerUpdateNetworkAction = {
   type: 'MAIN_CONTROLLER_UPDATE_NETWORK'
   params: {
     network: Partial<Network>
-    networkId: NetworkId
+    chainId: ChainId
   }
 }
 
@@ -196,15 +195,11 @@ type MainControllerResolveUserRequestAction = {
 }
 type MainControllerRejectUserRequestAction = {
   type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
-  params: { err: string; id: UserRequest['id']; opts?: { shouldDisable7702Asking?: boolean } }
+  params: { err: string; id: UserRequest['id'] }
 }
 type MainControllerRejectSignAccountOpCall = {
   type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
   params: { callId: string }
-}
-type MainControllerResolveAccountOpAction = {
-  type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
-  params: { data: any; actionId: AccountOpAction['id'] }
 }
 type MainControllerRejectAccountOpAction = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
@@ -250,9 +245,7 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
-  params?: {
-    networkId?: Network['id']
-  }
+  params?: { chainId?: bigint | string }
 }
 
 type MainControllerUpdateSelectedAccountPortfolio = {
@@ -265,14 +258,14 @@ type MainControllerUpdateSelectedAccountPortfolio = {
 
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
-  params: { dashboardNetworkFilter: NetworkId | null }
+  params: { dashboardNetworkFilter: bigint | string | null }
 }
 
 type PortfolioControllerGetTemporaryToken = {
   type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS'
   params: {
     additionalHint: TokenResult['address']
-    networkId: NetworkId
+    chainId: bigint
   }
 }
 
@@ -303,7 +296,7 @@ type PortfolioControllerToggleHideToken = {
 type PortfolioControllerCheckToken = {
   type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN'
   params: {
-    token: { address: TokenResult['address']; networkId: NetworkId }
+    token: { address: TokenResult['address']; chainId: bigint }
   }
 }
 
@@ -334,7 +327,7 @@ type MainControllerSignAccountOpUpdateAction = {
   params: {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
-    estimation?: EstimateResult
+    estimation?: FullEstimation
     feeToken?: TokenResult
     paidBy?: string
     speed?: FeeSpeed
@@ -560,10 +553,6 @@ type ChangeCurrentDappNetworkAction = {
   params: { chainId: number; origin: string }
 }
 
-type SetIsDefaultWalletAction = {
-  type: 'SET_IS_DEFAULT_WALLET'
-  params: { isDefaultWallet: boolean }
-}
 type SetOnboardingStateAction = {
   type: 'SET_ONBOARDING_STATE'
   params: { version: string; viewedAt: number }
@@ -592,11 +581,6 @@ type InviteControllerVerifyAction = {
 type InviteControllerBecomeOGAction = { type: 'INVITE_CONTROLLER_BECOME_OG' }
 type InviteControllerRevokeOGAction = { type: 'INVITE_CONTROLLER_REVOKE_OG' }
 
-type MainControllerTraceCallAction = {
-  type: 'MAIN_CONTROLLER_TRACE_CALL'
-  params: { estimation: EstimateResult }
-}
-
 type ImportSmartAccountJson = {
   type: 'IMPORT_SMART_ACCOUNT_JSON'
   params: { readyToAddAccount: Account; keys: ReadyToAddKeys['internal'] }
@@ -609,11 +593,6 @@ type PhishingControllerGetIsBlacklistedAndSendToUiAction = {
 
 type ExtensionUpdateControllerApplyUpdate = {
   type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
-}
-
-type AccountDisable7702Banner = {
-  type: 'ACCOUNT_DISABLE_7702_BANNER'
-  params: { accountAddr: string }
 }
 
 export type Action =
@@ -653,7 +632,6 @@ export type Action =
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
   | MainControllerRejectSignAccountOpCall
-  | MainControllerResolveAccountOpAction
   | MainControllerRejectAccountOpAction
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
@@ -717,7 +695,6 @@ export type Action =
   | AddressBookControllerRenameContact
   | AddressBookControllerRemoveContact
   | ChangeCurrentDappNetworkAction
-  | SetIsDefaultWalletAction
   | SetOnboardingStateAction
   | SetIsPinnedAction
   | SetIsSetupCompleteAction
@@ -726,7 +703,6 @@ export type Action =
   | InviteControllerVerifyAction
   | InviteControllerBecomeOGAction
   | InviteControllerRevokeOGAction
-  | MainControllerTraceCallAction
   | ImportSmartAccountJson
   | KeystoreControllerSendSeedOverChannel
   | MainControllerActivityHideBanner
@@ -734,4 +710,3 @@ export type Action =
   | KeystoreControllerMoveSeedFromTemp
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
-  | AccountDisable7702Banner
