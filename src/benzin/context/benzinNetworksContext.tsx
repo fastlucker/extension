@@ -3,7 +3,10 @@ import React, { createContext, FC, useCallback, useEffect, useMemo, useState } f
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { ChainlistNetwork, Network } from '@ambire-common/interfaces/network'
 import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
-import { convertToAmbireNetworkFormat } from '@ambire-common/utils/networks'
+import {
+  convertToAmbireNetworkFormat,
+  mapRelayerNetworkConfigToAmbireNetwork
+} from '@ambire-common/utils/networks'
 import { RELAYER_URL } from '@env'
 
 const fetch = window.fetch.bind(window) as any
@@ -47,7 +50,9 @@ const fetchNetworks = async () => {
       setTimeout(() => reject(new Error('Request timed out')), 20000)
     })
     const res = await Promise.race([callRelayer('/v2/config/networks'), timeout])
-    const networks = Object.values(res.data.extensionConfigNetworks)
+    const networks = Object.values(res.data.extensionConfigNetworks).map((net: any) => {
+      return mapRelayerNetworkConfigToAmbireNetwork(BigInt(net.chainId), net)
+    })
     return networks
   } catch (error) {
     console.error('Failed to fetch networks:', error)
@@ -104,4 +109,4 @@ const BenzinNetworksContextProvider: FC<Props> = ({ children }) => {
   return <benzinNetworksContext.Provider value={value}>{children}</benzinNetworksContext.Provider>
 }
 
-export { BenzinNetworksContextProvider, benzinNetworksContext }
+export { benzinNetworksContext, BenzinNetworksContextProvider }

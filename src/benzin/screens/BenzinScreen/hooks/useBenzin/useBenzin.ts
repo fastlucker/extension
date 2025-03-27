@@ -54,6 +54,7 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
   const { benzinNetworks, loadingBenzinNetworks = [], addNetwork } = useBenzinNetworksContext()
   const bigintChainId = BigInt(chainId || '') || 0n
   const actualNetworks = networks ?? benzinNetworks
+  const areRelayerNetworksLoaded = actualNetworks && actualNetworks.length
   const network = actualNetworks.find((n) => n.chainId === bigintChainId) || null
   const provider =
     network && chainId
@@ -61,7 +62,7 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
       : null
   const isNetworkLoading = loadingBenzinNetworks.includes(bigintChainId)
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
-  const isInitialized = !isNetworkLoading
+  const isInitialized = !isNetworkLoading && areRelayerNetworksLoaded
 
   const userOpBundler = useMemo(() => {
     if (bundler && allBundlers.includes(bundler)) return bundler as BUNDLER
@@ -88,10 +89,10 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
   }, [relayerId, userOpHash, txnId, userOpBundler])
 
   useEffect(() => {
-    if (!network && bigintChainId) {
+    if (areRelayerNetworksLoaded && !network && bigintChainId) {
       addNetwork(bigintChainId)
     }
-  }, [bigintChainId, network, isNetworkLoading, addNetwork])
+  }, [bigintChainId, network, isNetworkLoading, addNetwork, areRelayerNetworksLoaded])
 
   const handleCopyText = useCallback(async () => {
     try {
