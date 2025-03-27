@@ -40,7 +40,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
   const { maxWidthSize } = useWindowSize()
   const { account } = useSelectedAccountControllerState()
 
-  const { isLoading, ens, ud } = useReverseLookup({ address: account?.addr || '' })
+  const { isLoading, ens } = useReverseLookup({ address: account?.addr || '' })
 
   const isActionWindow = getUiType().isActionWindow
 
@@ -67,8 +67,8 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
               <AccountBadges accountData={account} />
             </View>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <DomainBadge ens={ens} ud={ud} />
-              <AccountAddress isLoading={isLoading} ens={ens} ud={ud} address={account.addr} />
+              <DomainBadge ens={ens} />
+              <AccountAddress isLoading={isLoading} ens={ens} address={account.addr} />
             </View>
           </View>
         </View>

@@ -26,7 +26,7 @@ const BenzinDomainsAddress: FC<Props> = ({ address, ...rest }) => {
 
   return (
     <BaseAddress address={address} {...rest}>
-      {resolvedDomain.ens || resolvedDomain.ud || address}
+      {resolvedDomain.ens || address}
     </BaseAddress>
   )
 }

@@ -34,7 +34,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
-import { SUBMENU_OPTIONS, SUBMENU_OPTION_7702 } from './submenuOptions'
+import { SUBMENU_OPTION_7702, SUBMENU_OPTIONS } from './submenuOptions'
 
 const { isTab } = getUiType()
 
@@ -65,7 +65,7 @@ const Account = ({
   const { account: selectedAccount } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
   const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
-  const { ens, ud, isLoading } = useReverseLookup({ address: addr })
+  const { ens, isLoading } = useReverseLookup({ address: addr })
   const { keys } = useKeystoreControllerState()
   const { navigate } = useNavigation()
   const [bindAnim, animStyle, isHovered] = useCustomHover({
@@ -208,11 +208,10 @@ const Account = ({
               <AccountBadges accountData={account} />
             </View>
             <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-              <DomainBadge ens={ens} ud={ud} />
+              <DomainBadge ens={ens} />
               <AccountAddress
                 isLoading={isLoading}
                 ens={ens}
-                ud={ud}
                 address={addr}
                 plainAddressMaxLength={maxAccountAddrLength}
                 skeletonAppearance={isHovered ? 'primaryBackground' : 'secondaryBackground'}
