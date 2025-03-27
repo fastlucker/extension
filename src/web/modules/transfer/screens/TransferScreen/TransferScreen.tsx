@@ -81,15 +81,16 @@ const TransferScreen = () => {
 
   const transactionUserRequests = useMemo(() => {
     return userRequests.filter((r) => {
-      if (!state.amount || !state.selectedToken) return true
-
       const isSelectedAccountAccountOp =
         r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
-      const isMatchingSelectedTokenNetwork = r.meta.networkId === state.selectedToken?.networkId
 
-      return isSelectedAccountAccountOp && isMatchingSelectedTokenNetwork
+      if (!isSelectedAccountAccountOp) return false
+
+      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
+
+      return !state.selectedToken || isMatchingSelectedTokenNetwork
     })
-  }, [account?.addr, state.amount, state.selectedToken, userRequests])
+  }, [account?.addr, state.selectedToken, userRequests])
 
   const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
     return portfolio.totalBalance >= 10

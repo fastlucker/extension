@@ -4,7 +4,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { Network } from '@ambire-common/interfaces/network'
 import { SubmittedAccountOp } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
@@ -62,18 +62,16 @@ const Footer: FC<Props> = ({
     status !== AccountOpStatus.BroadcastButStuck &&
     status !== AccountOpStatus.UnknownButPastNonce
   const [isFooterExpanded, setIsFooterExpanded] = useState(defaultType === 'full-info')
-  const networkId = network.id
+  const { chainId } = network
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
 
   const handleOpenBenzina = useCallback(async () => {
-    const chainId = Number(network?.chainId)
-
     if (!chainId || !txnId) throw new Error('Invalid chainId or txnId')
 
     const link = `https://benzin.ambire.com/${getBenzinUrlParams({
       txnId,
-      chainId,
+      chainId: Number(chainId),
       identifiedBy
     })}`
 
@@ -94,17 +92,17 @@ const Footer: FC<Props> = ({
 
   useEffect((): void => {
     const feeTokenAddress = gasFeePayment?.inToken
-    const nId: NetworkId =
-      gasFeePayment?.feeTokenNetworkId ||
-      // the rest is support for legacy data (no networkId recorded for the fee)
-      (feeTokenAddress === ZeroAddress && networkId) ||
+    const nChainId =
+      gasFeePayment?.feeTokenChainId ||
+      // the rest is support for legacy data (no chainId recorded for the fee)
+      (feeTokenAddress === ZeroAddress && chainId) ||
       gasTankFeeTokens.find((constFeeToken: any) => constFeeToken.address === feeTokenAddress)
-        ?.networkId ||
-      networkId
+        ?.chainId ||
+      chainId
 
     // did is used to avoid tokenNetwork being Network | undefined
     // the assumption is that we cant pay the fee with token on network that is not present
-    const tokenNetwork = networks.filter((n: Network) => n.id === nId)[0]
+    const tokenNetwork = networks.filter((n: Network) => n.chainId === nChainId)[0]
 
     const feeTokenAmount = gasFeePayment?.amount
     if (!feeTokenAddress || !tokenNetwork || !feeTokenAmount) return
@@ -121,8 +119,8 @@ const Footer: FC<Props> = ({
     })
   }, [
     networks,
-    networkId,
-    gasFeePayment?.feeTokenNetworkId,
+    chainId,
+    gasFeePayment?.feeTokenChainId,
     gasFeePayment?.amount,
     gasFeePayment?.inToken,
     addToast
@@ -152,12 +150,12 @@ const Footer: FC<Props> = ({
         <SubmittedOn
           fontSize={textSize}
           iconSize={iconSize}
-          networkId={network.id}
+          chainId={network.chainId}
           timestamp={timestamp}
           numberOfLines={isFooterExpanded ? 2 : 1}
         />
         {isFooterExpanded && isFooterExpandable && (
-          <View style={flexbox.alignEnd}>
+          <View style={[flexbox.alignEnd]}>
             <TouchableOpacity
               style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
               onPress={handleOpenBenzina}
@@ -213,7 +211,7 @@ const Footer: FC<Props> = ({
           {rawCalls?.length ? (
             <RepeatTransaction
               accountAddr={accountAddr}
-              networkId={network.id}
+              chainId={network.chainId}
               rawCalls={rawCalls}
               textSize={textSize}
             />

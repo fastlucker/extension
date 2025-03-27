@@ -19,10 +19,10 @@ import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import Authorization7702 from '@web/modules/sign-message/screens/SignMessageScreen/Contents/authorization7702'
 
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const BasicToSmartSettingsScreen = () => {
@@ -52,7 +52,7 @@ const BasicToSmartSettingsScreen = () => {
     if (!selectedNet || !account) return
 
     const accountState = accountStates[account.addr]
-      ? accountStates[account.addr][selectedNet.id]
+      ? accountStates[account.addr][selectedNet.chainId.toString()]
       : undefined
     if (!accountState) return
 
@@ -66,7 +66,7 @@ const BasicToSmartSettingsScreen = () => {
         id: new Date().getTime(),
         meta: {
           isSignAction: true,
-          networkId: selectedNet.id,
+          chainId: selectedNet.chainId,
           accountAddr: account.addr
         },
         action: {
@@ -85,7 +85,7 @@ const BasicToSmartSettingsScreen = () => {
     if (!selectedNet || !account) return false
 
     const accountState = accountStates[account.addr]
-      ? accountStates[account.addr][selectedNet.id]
+      ? accountStates[account.addr][selectedNet.chainId.toString()]
       : undefined
     if (!accountState) return false
 
@@ -98,7 +98,7 @@ const BasicToSmartSettingsScreen = () => {
       if (!account) return true
 
       const accountState = accountStates[account.addr]
-        ? accountStates[account.addr][net.id]
+        ? accountStates[account.addr][net.chainId.toString()]
         : undefined
       if (!accountState) return true
 
@@ -117,7 +117,7 @@ const BasicToSmartSettingsScreen = () => {
       type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE',
       params: {
         addr: account.addr,
-        networkIds: availableNetworks.map((net) => net.id)
+        chainIds: availableNetworks.map((n) => n.chainId)
       }
     })
   }
@@ -165,7 +165,7 @@ const BasicToSmartSettingsScreen = () => {
             </View>
             {availableNetworks.map((net) => (
               <View
-                key={net.id}
+                key={net.chainId.toString()}
                 style={[
                   {
                     borderBottomWidth: 1,
@@ -179,7 +179,7 @@ const BasicToSmartSettingsScreen = () => {
               >
                 <View style={[flexbox.flex1]}>
                   <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                    <NetworkIcon id={net.id} />
+                    <NetworkIcon id={net.chainId.toString()} />
                     <Text style={spacings.mlTy}>{net.name}</Text>
                   </View>
                 </View>

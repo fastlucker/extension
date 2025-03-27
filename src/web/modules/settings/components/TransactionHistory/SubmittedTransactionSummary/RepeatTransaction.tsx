@@ -2,7 +2,6 @@ import React, { FC, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { SubmittedAccountOp } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import RepeatIcon from '@common/assets/svg/RepeatIcon'
@@ -14,13 +13,13 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 
 type Props = {
   accountAddr: string
-  networkId: Network['id']
+  chainId: bigint
   rawCalls: SubmittedAccountOp['calls']
   textSize: number
   text?: string
 }
 
-const RepeatTransaction: FC<Props> = ({ text, accountAddr, networkId, rawCalls, textSize }) => {
+const RepeatTransaction: FC<Props> = ({ text, accountAddr, chainId, rawCalls, textSize }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
@@ -37,7 +36,7 @@ const RepeatTransaction: FC<Props> = ({ text, accountAddr, networkId, rawCalls, 
       action: userTx,
       meta: {
         isSignAction: true,
-        networkId,
+        chainId,
         accountAddr
       }
     }
@@ -46,7 +45,7 @@ const RepeatTransaction: FC<Props> = ({ text, accountAddr, networkId, rawCalls, 
       type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
       params: userRequest
     })
-  }, [accountAddr, dispatch, networkId, rawCalls])
+  }, [accountAddr, dispatch, chainId, rawCalls])
 
   return (
     <TouchableOpacity
