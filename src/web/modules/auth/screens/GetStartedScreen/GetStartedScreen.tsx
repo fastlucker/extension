@@ -36,7 +36,7 @@ const GetStartedScreen = () => {
   const { styles: panelStyles } = useTheme(getPanelStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { setFlowType } = useOnboardingNavigation()
+  const { goToNextRoute } = useOnboardingNavigation()
 
   const accountAdderCtrlState = useAccountAdderControllerState()
   const wrapperRef: any = useRef(null)
@@ -92,18 +92,18 @@ const GetStartedScreen = () => {
   const handleAuthButtonPress = useCallback(
     async (flow: 'create-new-account' | 'import-existing-account' | 'view-only') => {
       if (flow === 'create-new-account') {
-        setFlowType('createNewAccount')
+        goToNextRoute('createNewAccount')
         return
       }
       if (flow === 'import-existing-account') {
-        setFlowType('importExistingAccount')
+        goToNextRoute('importExistingAccount')
         return
       }
       if (flow === 'view-only') {
-        setFlowType('watchAddress')
+        goToNextRoute('watchAddress')
       }
     },
-    [setFlowType]
+    [goToNextRoute]
   )
 
   const panelWidthInterpolate = animation.interpolate({

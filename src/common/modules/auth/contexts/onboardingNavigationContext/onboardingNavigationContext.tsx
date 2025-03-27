@@ -1,18 +1,17 @@
 /* eslint-disable no-restricted-syntax */
-import React, { createContext, useCallback, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
+import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
+import useAuth from '@common/modules/auth/hooks/useAuth'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
-import { AUTH_STATUS } from '../../constants/authStatus'
-import useAuth from '../../hooks/useAuth'
-
 const OnboardingNavigationContext = createContext<{
   currentFlowType: keyof typeof flows | null
-  goToNextRoute: (flowType: keyof typeof flows) => void
-  goToPrevRoute: (flowType: keyof typeof flows) => void
+  goToNextRoute: (flowKey?: keyof typeof flows) => void
+  goToPrevRoute: (flowKey?: keyof typeof flows) => void
 }>({
   currentFlowType: null,
   goToNextRoute: () => {},
@@ -22,7 +21,7 @@ const OnboardingNavigationContext = createContext<{
 const flows = {
   getStarted: WEB_ROUTES.getStarted,
   createNewAccount: 'createNewAccount',
-  importExistingAccount: [WEB_ROUTES.importExistingAccount],
+  importExistingAccount: WEB_ROUTES.importExistingAccount,
   importExistingFromPrivateKey: 'importExistingFromPrivateKey',
   importExistingFromLedger: 'importExistingFromLedger',
   importExistingFromTrezor: 'importExistingFromTrezor',
@@ -37,7 +36,14 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
 
-  const [currentFlowType, setCurrentFlowType] = useState<keyof typeof flows>('getStarted')
+  // Retrieve from sessionStorage or default to 'getStarted'
+  const [currentFlowType, setCurrentFlowType] = useState<keyof typeof flows>(() => {
+    return (sessionStorage.getItem('currentFlowType') as keyof typeof flows) || 'getStarted'
+  })
+
+  useEffect(() => {
+    sessionStorage.setItem('currentFlowType', currentFlowType)
+  }, [currentFlowType])
 
   const onboardingFlowBranches = useMemo(() => {
     const currentRoute = path?.substring(1)
@@ -103,58 +109,51 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     return branches
   }, [hasPasswordSecret, path, authStatus])
 
-  const updateFlowIfNeeded = (nextRoute: string, flow?: keyof typeof flows) => {
-    if (!nextRoute) return
-
-    const nextFlow = Object.keys(flows).find((flowKey) => flowKey === nextRoute) as
-      | keyof typeof flows
-      | undefined
-
-    if (nextFlow) setCurrentFlowType(nextFlow)
-  }
-
   const goToNextRoute = useCallback(
-    (flowType?: keyof typeof flows) => {
-      setCurrentFlowType(flowType)
-
+    (flowKey?: keyof typeof flows) => {
+      const flowType = flowKey && flows[flowKey] ? flowKey : currentFlowType
       const currentRoute = path?.substring(1) as string
-      const flow = onboardingFlowBranches[flowType]
+      const flow = onboardingFlowBranches[flows[flowType]]
       const currentIndex = flow.indexOf(currentRoute)
       const nextRoute = flow[currentIndex + 1]
 
       if (nextRoute) {
         navigate(nextRoute)
-        updateFlowIfNeeded(nextRoute)
+        !!flowKey && !!flows[flowKey] && setCurrentFlowType(flowKey)
       }
     },
-    [navigate, onboardingFlowBranches, path]
+    [navigate, onboardingFlowBranches, path, currentFlowType]
   )
 
   const goToPrevRoute = useCallback(
-    (flowType: keyof typeof flows) => {
-      if (!flows[flowType]) return
-
-      setCurrentFlowType(flowType)
-
+    (flowKey?: keyof typeof flows) => {
+      const flowType = flowKey && flows[flowKey] ? flowKey : currentFlowType
       const currentRoute = path?.substring(1) as string
-      const flow = onboardingFlowBranches[flowType]
-
+      const flow = onboardingFlowBranches[flows[flowType]]
       const currentIndex = flow.indexOf(currentRoute)
-
       const nextRoute = flow[currentIndex - 1]
+
       if (nextRoute) {
         navigate(nextRoute)
-        updateFlowIfNeeded(nextRoute)
+        !!flowKey && !!flows[flowKey] && setCurrentFlowType(flowKey)
       }
     },
-    [navigate, onboardingFlowBranches, path]
+    [navigate, onboardingFlowBranches, path, currentFlowType]
   )
+
+  useEffect(() => {
+    const currentRoute = path?.substring(1) as string
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const flowKey = Object.entries(flows).find(([key, value]) => value === currentRoute)?.[0]
+    if (flowKey && flowKey !== currentFlowType) {
+      setCurrentFlowType(flowKey as keyof typeof flows)
+    }
+  }, [currentFlowType, path])
 
   const value = useMemo(
     () => ({ currentFlowType, goToNextRoute, goToPrevRoute }),
     [currentFlowType, goToPrevRoute, goToNextRoute]
   )
-
   return (
     <OnboardingNavigationContext.Provider value={value}>
       {children}
