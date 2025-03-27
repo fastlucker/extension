@@ -106,7 +106,7 @@ async function processTnxSpeedSteps(page, selectors, delayTimeInMs) {
   // eslint-disable-next-line no-restricted-syntax
   for (const selector of selectors) {
     // eslint-disable-next-line no-await-in-loop
-    await clickOnElement(page, 'fee-speed-select', true, delayTimeInMs)
+    await clickOnElement(page, '[data-testid="fee-speed-select"]', true, delayTimeInMs)
     // eslint-disable-next-line no-await-in-loop
     await clickOnElement(page, selector, true, delayTimeInMs)
     // eslint-disable-next-line no-await-in-loop
