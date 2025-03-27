@@ -1,15 +1,20 @@
 import React, { ReactNode } from 'react'
-import { Animated, View, ViewProps } from 'react-native'
+import { Animated, Pressable, View, ViewProps } from 'react-native'
 
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { WindowSizes } from '@common/hooks/useWindowSize/types'
 import spacings, { SPACING_3XL, SPACING_LG, SPACING_XL } from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 
 import getStyles from './styles'
 
 interface Props extends ViewProps {
+  withBackButton?: boolean
+  onBackButtonPress?: () => void
   title?: string | ReactNode
   spacingsSize?: 'small' | 'large'
   isAnimated?: boolean
@@ -26,6 +31,8 @@ export const getPanelPaddings = (
 }
 
 const Panel: React.FC<Props> = ({
+  withBackButton,
+  onBackButtonPress = () => {},
   title,
   children,
   style,
@@ -43,17 +50,31 @@ const Panel: React.FC<Props> = ({
       style={[styles.container, getPanelPaddings(maxWidthSize, spacingsSize), style]}
       {...rest}
     >
-      {!!title && (
-        <Text
-          fontSize={maxWidthSize('xl') ? 20 : 18}
-          weight="medium"
-          appearance="primaryText"
-          style={maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd}
-          numberOfLines={1}
-        >
-          {title}
-        </Text>
-      )}
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd
+        ]}
+      >
+        {!!withBackButton && (
+          <Pressable onPress={onBackButtonPress} style={[spacings.prSm, spacings.pvTy]}>
+            <LeftArrowIcon />
+          </Pressable>
+        )}
+        {!!title && (
+          <Text
+            fontSize={maxWidthSize('xl') ? 20 : 18}
+            weight="medium"
+            appearance="primaryText"
+            numberOfLines={1}
+            style={[text.center, flexbox.flex1]}
+          >
+            {title}
+          </Text>
+        )}
+        <View style={{ width: 20 }} />
+      </View>
       {children}
     </Container>
   )

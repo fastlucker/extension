@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, Route, Routes, useLocation } from 'react-router-dom'
 
-import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
+import { OnboardingNavigationProvider } from '@common/modules/auth/contexts/onboardingNavigationContext'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -17,15 +17,14 @@ import DappConnectScreen from '@web/modules/action-requests/screens/DappConnectS
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/action-requests/screens/GetEncryptionPublicKeyRequestScreen'
 import SwitchAccountScreen from '@web/modules/action-requests/screens/SwitchAccountScreen'
 import WatchTokenRequestScreen from '@web/modules/action-requests/screens/WatchTokenRequestScreen'
-import CreateSeedPhraseConfirmScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhraseConfirmScreen'
 import CreateSeedPhrasePrepareScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhrasePrepareScreen'
 import CreateSeedPhraseWriteScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhraseWriteScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
-import HotWalletCreateSelectorScreen from '@web/modules/auth/screens/HotWalletCreateSelectorScreen'
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
+import ImportExistingAccountSelectorScreen from '@web/modules/auth/screens/ImportExistingAccountSelectorScreen'
 import ImportSmartAccountJsonScreen from '@web/modules/auth/screens/ImportSmartAccountJson'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SaveImportedSeedScreen from '@web/modules/auth/screens/SaveImportedSeedScreen'
@@ -64,10 +63,10 @@ import SwapAndBridgeScreen from '@web/modules/swap-and-bridge/screens/SwapAndBri
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 
-const stepperProvider = (
-  <StepperProvider>
+const onboardingNavigationProvider = (
+  <OnboardingNavigationProvider>
     <Outlet />
-  </StepperProvider>
+  </OnboardingNavigationProvider>
 )
 
 const MainRoutes = () => {
@@ -85,7 +84,7 @@ const MainRoutes = () => {
   return (
     <Routes>
       <Route element={<InviteVerifiedRoute />}>
-        <Route element={stepperProvider}>
+        <Route element={onboardingNavigationProvider}>
           <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
 
           <Route element={<TabOnlyRoute />}>
@@ -115,16 +114,16 @@ const MainRoutes = () => {
                 element={<ViewOnlyAccountAdderScreen />}
               />
 
+              <Route
+                path={WEB_ROUTES.importExistingAccount}
+                element={<ImportExistingAccountSelectorScreen />}
+              />
+
               <Route path={WEB_ROUTES.importPrivateKey} element={<PrivateKeyImportScreen />} />
               <Route path={WEB_ROUTES.importSeedPhrase} element={<SeedPhraseImportScreen />} />
               <Route
                 path={WEB_ROUTES.importSmartAccountJson}
                 element={<ImportSmartAccountJsonScreen />}
-              />
-
-              <Route
-                path={WEB_ROUTES.createHotWallet}
-                element={<HotWalletCreateSelectorScreen />}
               />
 
               <Route
@@ -134,10 +133,6 @@ const MainRoutes = () => {
               <Route
                 path={WEB_ROUTES.createSeedPhraseWrite}
                 element={<CreateSeedPhraseWriteScreen />}
-              />
-              <Route
-                path={WEB_ROUTES.createSeedPhraseConfirm}
-                element={<CreateSeedPhraseConfirmScreen />}
               />
 
               <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
