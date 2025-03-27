@@ -86,7 +86,7 @@ const TransferScreen = () => {
 
       if (!isSelectedAccountAccountOp) return false
 
-      const isMatchingSelectedTokenNetwork = r.meta.networkId === state.selectedToken?.networkId
+      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
 
       return !state.selectedToken || isMatchingSelectedTokenNetwork
     })

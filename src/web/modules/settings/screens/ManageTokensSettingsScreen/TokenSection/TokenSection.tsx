@@ -6,6 +6,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getTokenId } from '@web/utils/token'
 
 import Skeletons from './Skeletons'
@@ -30,7 +31,7 @@ const TokenSection: FC<Props> = ({
   search
 }) => {
   const { t } = useTranslation()
-
+  const { networks } = useNetworksControllerState()
   const emptyText = useMemo(() => {
     const prefix = `${variant} `
     const hasNetworkFilter = networkFilter !== 'all'
@@ -73,7 +74,7 @@ const TokenSection: FC<Props> = ({
       {!isLoading &&
         data.map((token) => (
           <Token
-            key={getTokenId(token)}
+            key={getTokenId(token, networks)}
             onTokenPreferenceOrCustomTokenChange={onTokenPreferenceOrCustomTokenChange}
             {...token}
           />

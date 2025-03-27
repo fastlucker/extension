@@ -75,7 +75,7 @@ const Info: FC<Props> = () => {
               fontSize={maxWidthSize('xl') ? 14 : 12}
               style={{ maxWidth: '100%' }}
               address={messageToSign.content.domain.verifyingContract}
-              explorerNetworkId={messageToSign.networkId}
+              explorerChainId={messageToSign.chainId}
             />
             <Text fontSize={12} appearance="secondaryText">
               {t('Will verify this signature')}
@@ -93,7 +93,7 @@ const Info: FC<Props> = () => {
           >
             {t('Entry point authorization')}
           </Text>
-          <NetworkBadge withOnPrefix style={spacings.mbMd} networkId={messageToSign?.networkId} />
+          <NetworkBadge withOnPrefix style={spacings.mbMd} chainId={messageToSign?.chainId} />
           <Trans t={t}>
             <Text
               appearance="secondaryText"

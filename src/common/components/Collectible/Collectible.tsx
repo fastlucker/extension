@@ -19,7 +19,7 @@ type Props = {
   collectionData: {
     name?: string
     address: string
-    networkId: string
+    chainId: bigint
     priceIn?: {
       baseCurrency: string
       price: number
@@ -47,7 +47,7 @@ const Collectible: FC<Props> = ({
     }
   })
 
-  const network = networks.find((n) => n.id === collectionData.networkId)
+  const network = networks.find((n) => n.chainId === collectionData.chainId)
 
   const imageUrl = `${NFT_CDN_URL}/proxy?rpc=${network?.rpcUrls[0]}&contract=${collectionData.address}&id=${id}&chain_id=${network?.chainId}`
 
@@ -66,7 +66,7 @@ const Collectible: FC<Props> = ({
           address: collectionData.address,
           name: `${collectionData.name} #${id}`,
           id,
-          networkId: collectionData.networkId,
+          chainId: collectionData.chainId,
           lastPrice: collectionData.priceIn ? formatCollectiblePrice(collectionData.priceIn) : '',
           image: imageUrl,
           collectionName: collectionData.name
