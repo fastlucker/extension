@@ -42,17 +42,13 @@ const NetworkIcon = ({
 }: Props) => {
   const { networks } = useNetworksControllerState()
 
-  const networkName = useMemo(
-    () =>
-      benzinNetwork
-        ? benzinNetwork.name.toLowerCase()
-        : (networks.find((n) => n.chainId.toString() === id)?.name || id).toLowerCase(),
-    [id, networks, benzinNetwork]
-  )
-
   const network = useMemo(() => {
-    return benzinNetwork ?? networks.find((n) => n.name.toLowerCase() === networkName)
-  }, [networkName, networks, benzinNetwork])
+    return benzinNetwork ?? networks.find((n) => n.chainId.toString() === id)
+  }, [benzinNetwork, networks, id])
+
+  const networkName = useMemo(() => {
+    return network?.name || `Chain with id ${id}`
+  }, [id, network])
 
   const iconUrls = useMemo(
     () => [
