@@ -567,6 +567,13 @@ const SwapAndBridgeScreen = () => {
                       ? t('Continue anyway')
                       : t('Proceed')
                   }
+                  testID={
+                    mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                      ? 'building-transaction-btn'
+                      : highPriceImpactInPercentage
+                      ? 'continue-anyway-btn'
+                      : 'proceed-btn'
+                  }
                   disabled={
                     formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
                     shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||

@@ -1,7 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import { baParams, saParams } from '../../config/constants'
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
-import { clickOnElement } from '../../common-helpers/clickOnElement'
 
 import {
   selectButton,
