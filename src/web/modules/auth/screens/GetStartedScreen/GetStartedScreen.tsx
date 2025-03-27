@@ -26,7 +26,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+// import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -45,9 +45,9 @@ const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { addToast } = useToast()
-  const { isReadyToStoreKeys, keyStoreUid } = useKeystoreControllerState()
+  const { keyStoreUid } = useKeystoreControllerState()
   const { accounts } = useAccountsControllerState()
-  const accountAdderCtrlState = useAccountAdderControllerState()
+  // const accountAdderCtrlState = useAccountAdderControllerState()
   const {
     ref: hotWalletModalRef,
     open: openHotWalletModal,
@@ -88,29 +88,29 @@ const GetStartedScreen = () => {
   // 2. Close account adder without adding any new accounts
   // 3. If you open get started, you have loads of options - you should not
   // as you've already created a seed and have to finish that
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      accountAdderCtrlState.type === 'internal' &&
-      accountAdderCtrlState.subType === 'seed'
-    ) {
-      navigate(WEB_ROUTES.accountAdder, { state: { hideBack: true } })
-    }
-  }, [
-    accountAdderCtrlState.isInitialized,
-    accountAdderCtrlState.subType,
-    accountAdderCtrlState.type,
-    navigate
-  ])
+  // useEffect(() => {
+  //   if (
+  //     accountAdderCtrlState.isInitialized &&
+  //     accountAdderCtrlState.type === 'internal' &&
+  //     accountAdderCtrlState.subType === 'seed'
+  //   ) {
+  //     navigate(WEB_ROUTES.accountAdder, { state: { hideBack: true } })
+  //   }
+  // }, [
+  //   accountAdderCtrlState.isInitialized,
+  //   accountAdderCtrlState.subType,
+  //   accountAdderCtrlState.type,
+  //   navigate
+  // ])
 
   const handleAuthButtonPress = useCallback(
     async (
       flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-seed' | 'create-hot-wallet' | 'view-only'
     ) => {
-      if (!isReadyToStoreKeys) {
-        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
-        return
-      }
+      // if (!isReadyToStoreKeys) {
+      //   navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
+      //   return
+      // }
       if (flow === 'create-hot-wallet') {
         openHotWalletModal()
         return
@@ -135,7 +135,7 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
-    [accounts.length, addToast, isReadyToStoreKeys, keyStoreUid, navigate, openHotWalletModal]
+    [accounts.length, addToast, keyStoreUid, navigate, openHotWalletModal]
   )
 
   const panelWidthInterpolate = animation.interpolate({

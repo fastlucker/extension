@@ -5,7 +5,6 @@ import { EntropyGenerator } from '@ambire-common/libs/entropyGenerator/entropyGe
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Panel from '@common/components/Panel'
-import { getPanelPaddings } from '@common/components/Panel/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -13,7 +12,6 @@ import useExtraEntropy from '@common/hooks/useExtraEntropy'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -50,10 +48,8 @@ const CreateSeedPhrasePrepareScreen = () => {
   const { t } = useTranslation()
   const { navigate, goBack } = useNavigation()
   const { theme } = useTheme()
-  const { maxWidthSize } = useWindowSize()
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
-  const panelPaddingStyle = getPanelPaddings(maxWidthSize)
   const keystoreState = useKeystoreControllerState()
   const { styles: panelStyles } = useTheme(getPanelStyles)
   const animation = useRef(new Animated.Value(0)).current
@@ -151,8 +147,8 @@ const CreateSeedPhrasePrepareScreen = () => {
               navigate(WEB_ROUTES.getStarted)
             }}
           >
-            <View style={[panelPaddingStyle, spacings.pt]}>
-              <View style={{ width: CARD_WIDTH - 48 }}>
+            <View style={[spacings.phLg, spacings.pvLg, spacings.pt]}>
+              <View>
                 <Text style={[spacings.mbXl]}>
                   {t('Before you begin, check these security tips.')}
                 </Text>

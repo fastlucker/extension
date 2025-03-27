@@ -5,7 +5,6 @@ import { Animated, TouchableOpacity, View } from 'react-native'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import { getPanelPaddings } from '@common/components/Panel/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -13,7 +12,6 @@ import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -24,31 +22,34 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { CARD_WIDTH } from '@web/modules/auth/screens/GetStartedScreen/GetStartedScreen'
 
-const generateConfirmationWords = (seed: string[]) => {
-  // Split the input array into groups of three words
-  const wordGroups = []
-  for (let i = 0; i < 12; i += 3) {
-    wordGroups.push(seed.slice(i, i + 3))
-  }
+// const generateConfirmationWords = (seed: string[]) => {
+//   // Split the input array into groups of three words
+//   const wordGroups = []
+//   for (let i = 0; i < 12; i += 3) {
+//     wordGroups.push(seed.slice(i, i + 3))
+//   }
 
-  // Initialize an array to store the randomly selected words
-  const confirmationWords: { numberInSeed: number; word: string }[] = []
+//   // Initialize an array to store the randomly selected words
+//   const confirmationWords: { numberInSeed: number; word: string }[] = []
 
-  // Select one random word from each group
-  wordGroups.forEach((group, groupIndex) => {
-    const randomIndex = Math.floor(Math.random() * (group.length - 1))
-    const indexOfWord = groupIndex * 3 + randomIndex
+//   // Select one random word from each group
+//   wordGroups.forEach((group, groupIndex) => {
+//     const randomIndex = Math.floor(Math.random() * (group.length - 1))
+//     const indexOfWord = groupIndex * 3 + randomIndex
 
-    confirmationWords.push({
-      numberInSeed: indexOfWord + 1,
-      word: group[randomIndex]
-    })
-  })
+//     confirmationWords.push({
+//       numberInSeed: indexOfWord + 1,
+//       word: group[randomIndex]
+//     })
+//   })
 
-  return confirmationWords
-}
+//   return confirmationWords
+// }
 
 const CreateSeedPhraseWriteScreen = () => {
   const {
@@ -59,9 +60,10 @@ const CreateSeedPhraseWriteScreen = () => {
   const { styles: panelStyles, theme } = useTheme(getPanelStyles)
   const { navigate } = useNavigation()
   const animation = useRef(new Animated.Value(0)).current
-  const { maxWidthSize } = useWindowSize()
-  const panelPaddingStyle = getPanelPaddings(maxWidthSize)
   const { addToast } = useToast()
+  const { dispatch } = useBackgroundService()
+  const keystoreState = useKeystoreControllerState()
+  const accountAdderState = useAccountAdderControllerState()
 
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],
@@ -75,15 +77,40 @@ const CreateSeedPhraseWriteScreen = () => {
     extrapolate: 'clamp'
   })
 
+  // const handleSubmit = () => {
+  //   navigate(WEB_ROUTES.createSeedPhraseConfirm, {
+  //     state: {
+  //       // Try to use the same confirmation words if the user navigates back
+  //       confirmationWords: confirmationWords || generateConfirmationWords(seed),
+  //       seed
+  //     }
+  //   })
+  // }
+
   const handleSubmit = () => {
-    navigate(WEB_ROUTES.createSeedPhraseConfirm, {
-      state: {
-        // Try to use the same confirmation words if the user navigates back
-        confirmationWords: confirmationWords || generateConfirmationWords(seed),
-        seed
-      }
+    const seedPhrase = seed.join(' ') || ''
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+      params: { privKeyOrSeed: seedPhrase, shouldPersist: !keystoreState.hasKeystoreSavedSeed }
     })
+
+    navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'create-seed' } })
   }
+
+  // useEffect(() => {
+  //   console.count('HERE')
+  //   if (
+  //     accountAdderState.isInitialized &&
+  //     // The AccountAdder could have been already initialized with the same or a
+  //     // different type. Navigate immediately only if the types match.
+  //     accountAdderState.type === 'internal' &&
+  //     accountAdderState.subType === 'seed'
+  //   ) {
+  //     // TODO: This should leads to set device password
+  //     navigate(WEB_ROUTES.keyStoreSetup, { state: { hideBack: true } })
+  //   }
+  // }, [accountAdderState.isInitialized, accountAdderState.subType, accountAdderState.type, navigate])
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
@@ -147,8 +174,8 @@ const CreateSeedPhraseWriteScreen = () => {
               navigate(WEB_ROUTES.createSeedPhrasePrepare, { state: { seed } })
             }}
           >
-            <View style={[panelPaddingStyle, spacings.pt]}>
-              <View style={{ width: CARD_WIDTH - 48 }}>
+            <View style={[spacings.phLg, spacings.pvLg, spacings.pt]}>
+              <View>
                 <Text style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}>
                   {t('Write down and secure the Recovery Phrase for your account.')}
                 </Text>

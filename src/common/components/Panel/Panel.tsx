@@ -20,7 +20,7 @@ interface Props extends ViewProps {
   totalSteps?: number
   showBackButton?: boolean
   onBackPress?: () => void
-  showHeader?: boolean // Controls whether the header should be shown
+  showHeader?: boolean
 }
 
 export const getPanelPaddings = (
@@ -61,7 +61,7 @@ const Panel: React.FC<Props> = ({
         <View style={[flexbox.directionRow, spacings.mbMd]}>
           {[...Array(totalSteps)].map((_, index) => (
             <View
-              key={index}
+              key={`step-${index}`}
               style={{
                 flex: 1,
                 height: 4,
@@ -73,22 +73,27 @@ const Panel: React.FC<Props> = ({
         </View>
       )}
       {showHeader && (showBackButton || title) && (
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm, spacings.phMd]}>
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mvSm]}>
           {showBackButton && (
-            <TouchableOpacity onPress={onBackPress} style={spacings.mrMd}>
+            <TouchableOpacity
+              onPress={onBackPress}
+              style={{ position: 'absolute', left: 0, zIndex: 1, ...spacings.mlMd }}
+            >
               <LeftArrowIcon width={24} color={theme.primaryText} />
             </TouchableOpacity>
           )}
           {!!title && (
-            <Text
-              fontSize={maxWidthSize('xl') ? 20 : 18}
-              weight="semiBold"
-              appearance="primaryText"
-              numberOfLines={1}
-              style={{ textAlign: 'center' }}
-            >
-              {title}
-            </Text>
+            <View style={{ position: 'absolute', left: 0, right: 0, alignItems: 'center' }}>
+              <Text
+                fontSize={maxWidthSize('xl') ? 20 : 18}
+                weight="semiBold"
+                appearance="primaryText"
+                numberOfLines={1}
+                style={{ textAlign: 'center' }}
+              >
+                {title}
+              </Text>
+            </View>
           )}
         </View>
       )}
