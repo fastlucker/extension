@@ -17,7 +17,7 @@ export async function triggerTransaction(
   )
   const actionWindowPage = await newTarget.page()
   actionWindowPage.setDefaultTimeout(120000)
-  actionWindowPage.setViewport({ width: 1300, height: 700 })
+  actionWindowPage.setViewport({ width: 800, height: 800 })
 
   // Start the screen recorder
   const transactionRecorder = new PuppeteerScreenRecorder(actionWindowPage, { followNewTab: true })
