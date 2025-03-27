@@ -71,7 +71,7 @@ const TransferScreen = () => {
     open: openGasTankInfoBottomSheet,
     close: closeGasTankInfoBottomSheet
   } = useModalize()
-  const { userRequests, isOffline } = useMainControllerState()
+  const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
   const hasFocusedActionWindow = useMemo(
@@ -86,7 +86,7 @@ const TransferScreen = () => {
 
       if (!isSelectedAccountAccountOp) return false
 
-      const isMatchingSelectedTokenNetwork = r.meta.networkId === state.selectedToken?.networkId
+      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
 
       return !state.selectedToken || isMatchingSelectedTokenNetwork
     })
@@ -104,7 +104,7 @@ const TransferScreen = () => {
   )
 
   const handleCacheResolvedDomain = useCallback(
-    (address: string, domain: string, type: 'ens' | 'ud') => {
+    (address: string, domain: string, type: 'ens') => {
       dispatch({
         type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
         params: {
@@ -136,8 +136,6 @@ const TransferScreen = () => {
   }, [transferCtrl.amount, transferCtrl.recipientAddress, transferCtrl.selectedToken])
 
   const submitButtonText = useMemo(() => {
-    if (isOffline) return t("You're offline")
-
     if (hasFocusedActionWindow) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
@@ -155,7 +153,6 @@ const TransferScreen = () => {
 
     return isTopUp ? t('Top Up') : t('Send')
   }, [
-    isOffline,
     isTopUp,
     transactionUserRequests,
     addressInputState.validation.isError,
@@ -171,19 +168,11 @@ const TransferScreen = () => {
   )
 
   const isSendButtonDisabled = useMemo(() => {
-    if (isOffline) return true
-
     if (transactionUserRequests.length && !hasFocusedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
     return !isTransferFormValid
-  }, [
-    isFormEmpty,
-    isTransferFormValid,
-    isOffline,
-    transactionUserRequests.length,
-    hasFocusedActionWindow
-  ])
+  }, [isFormEmpty, isTransferFormValid, transactionUserRequests.length, hasFocusedActionWindow])
 
   const onBack = useCallback(() => {
     navigate(ROUTES.dashboard)
@@ -294,9 +283,7 @@ const TransferScreen = () => {
               accentColor={theme.primary}
               text={t('Queue and Add More')}
               onPress={() => addTransaction('queue')}
-              disabled={
-                !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
-              }
+              disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
               hasBottomSpacing={false}
               style={spacings.mr}
               size="large"
@@ -321,20 +308,18 @@ const TransferScreen = () => {
               size="large"
               disabled={isSendButtonDisabled}
             >
-              {!isOffline && (
-                <View style={spacings.plTy}>
-                  {isTopUp ? (
-                    <TopUpIcon
-                      strokeWidth={1}
-                      width={24}
-                      height={24}
-                      color={theme.primaryBackground}
-                    />
-                  ) : (
-                    <SendIcon width={24} height={24} color={theme.primaryBackground} />
-                  )}
-                </View>
-              )}
+              <View style={spacings.plTy}>
+                {isTopUp ? (
+                  <TopUpIcon
+                    strokeWidth={1}
+                    width={24}
+                    height={24}
+                    color={theme.primaryBackground}
+                  />
+                ) : (
+                  <SendIcon width={24} height={24} color={theme.primaryBackground} />
+                )}
+              </View>
             </Button>
           </View>
         </>
