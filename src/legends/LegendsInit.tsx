@@ -1,7 +1,9 @@
 import React from 'react'
 import ErrorBoundary from 'react-native-error-boundary'
 
+import { SENTRY_DSN_LEGENDS } from '@env'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
+import * as Sentry from '@sentry/react-native'
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
 
 import ErrorPage from './components/ErrorPage'
@@ -15,6 +17,12 @@ declare global {
     ambire: EthereumProvider
   }
 }
+
+Sentry.init({
+  dsn: SENTRY_DSN_LEGENDS,
+  release: 'legends@1.0.0',
+  sendDefaultPii: true
+})
 
 const LegendsInit = () => {
   return (
@@ -33,4 +41,4 @@ const LegendsInit = () => {
   )
 }
 
-export default LegendsInit
+export default Sentry.wrap(LegendsInit)

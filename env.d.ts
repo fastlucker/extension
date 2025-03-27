@@ -14,6 +14,7 @@ declare module '@env' {
     DEFAULT_KEYSTORE_PASSWORD_DEV: string
     NFT_CDN_URL: string
     LEGENDS_NFT_ADDRESS: string
+    SENTRY_DSN_LEGENDS?: string
   }
 
   /**
@@ -100,4 +101,7 @@ declare module '@env' {
    * The address of the Legends NFT contract (same on PROD and STAGING)
    */
   export const LEGENDS_NFT_ADDRESS: EnvTypes['LEGENDS_NFT_ADDRESS']
+
+
+  export const SENTRY_DSN_LEGENDS: EnvTypes['SENTRY_DSN_LEGENDS']
 }
