@@ -21,7 +21,7 @@ describe('keystore', () => {
     await browser.close()
   })
 
-  it.only('adding network manually', async () => {
+  it('adding network manually', async () => {
     await addNetworkManually(page, 'FLR')
     await editNetwork(page, 'FLR')
     await deletNetwork(page, 'FLR')
