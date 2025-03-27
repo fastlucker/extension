@@ -1,5 +1,6 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 
+import { getRecordingName } from '../common-helpers/utils'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { selectUSDCTokenOnBase } from '../common-helpers/selectUSDCTokenOnBase'
@@ -405,7 +406,7 @@ export async function makeSwap(
   const actionWindowDapReqRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
     followNewTab: true
   })
-  await actionWindowDapReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
+  await actionWindowDapReqRecorder.start(getRecordingName('action_window_dap_req'))
   actionWindowPage.setDefaultTimeout(120000)
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
   await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
@@ -562,7 +563,7 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
   const actionWindowDappReqRecorder = new PuppeteerScreenRecorder(newPage, {
     followNewTab: true
   })
-  await actionWindowDappReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
+  await actionWindowDappReqRecorder.start(getRecordingName('action_window_dap_req'))
 
   await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
 
@@ -584,7 +585,7 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
   const actionWindowSignMsgRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
     followNewTab: true
   })
-  await actionWindowSignMsgRecorder.start(`./recorder/action_window_sign_msg_${Date.now()}.mp4`)
+  await actionWindowSignMsgRecorder.start(getRecordingName('action_window_sign_msg'))
 
   actionWindowPage.setDefaultTimeout(120000)
 
