@@ -13,8 +13,7 @@ const useStandaloneAddressInput = () => {
   const [addressState, setAddressState] = useState<AddressState>({
     isDomainResolving: false,
     fieldValue: '',
-    ensAddress: '',
-    udAddress: ''
+    ensAddress: ''
   })
   const setAddressStateKeyValue = useCallback((newState: AddressStateOptional) => {
     Object.keys(newState).forEach((key) => {
@@ -23,7 +22,7 @@ const useStandaloneAddressInput = () => {
     })
   }, [])
   const handleCacheResolvedDomain = useCallback(
-    (address: string, domain: string, type: 'ens' | 'ud') => {
+    (address: string, domain: string, type: 'ens') => {
       domainsCtrl.saveResolvedReverseLookup({ address, name: domain, type })
     },
     [domainsCtrl]
@@ -34,7 +33,7 @@ const useStandaloneAddressInput = () => {
     setAddressState,
     setAddressStateKeyValue,
     handleCacheResolvedDomain,
-    address: addressState.ensAddress || addressState.udAddress || addressState.fieldValue
+    address: addressState.ensAddress || addressState.fieldValue
   }
 }
 

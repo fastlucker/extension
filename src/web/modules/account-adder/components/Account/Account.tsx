@@ -57,8 +57,8 @@ const Account = ({
   importStatus: ImportStatus
   displayTypeBadge?: boolean
 }) => {
-  const { isLoading: isDomainResolving, ens, ud } = useReverseLookup({ address: account.addr })
-  const domainName = ens || ud
+  const { isLoading: isDomainResolving, ens } = useReverseLookup({ address: account.addr })
+  const domainName = ens
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { setShowIntroSteps } = useContext(AccountAdderIntroStepsContext)
@@ -229,11 +229,11 @@ const Account = ({
                         styles.networkIcon,
                         { marginLeft: index ? -5 : 0, zIndex: arr.length - index }
                       ]}
-                      key={n.id}
+                      key={n.chainId.toString()}
                     >
                       <NetworkIcon
                         style={{ backgroundColor: theme.primaryBackground }}
-                        id={n.id}
+                        id={n.chainId.toString()}
                         size={18}
                       />
                     </View>

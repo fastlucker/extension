@@ -5,9 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
 import { getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
-import { networks as constantNetworks } from '@ambire-common/consts/networks'
-import { NetworkId } from '@ambire-common/interfaces/network'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
+import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 // import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -27,18 +26,21 @@ import Option from './BaseAddressOption'
 
 interface Props extends TextProps {
   address: string
-  explorerNetworkId?: NetworkId
+  explorerChainId?: bigint
 }
 
 const { isActionWindow } = getUiType()
 
-const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest }) => {
+const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
+  const { benzinNetworks } = useBenzinNetworksContext()
   // Standalone Benzin doesn't have access to controllers
-  const { networks = constantNetworks } = useNetworksControllerState()
-  const network = networks?.find((n) => n.id === explorerNetworkId)
+  const { networks } = useNetworksControllerState()
+
+  const actualNetworks = networks ?? benzinNetworks
+  const network = actualNetworks?.find((n) => n.chainId === explorerChainId)
 
   const handleCopyAddress = useCallback(async () => {
     try {

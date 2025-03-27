@@ -101,7 +101,7 @@ const CharacterSection = () => {
 
           <div className={styles.logoAndBalanceWrapper}>
             <div className={styles.logoWrapper}>
-              <Stacked chains={['ethereum', 'base', 'arbitrum', 'scroll', 'optimism']} />
+              <Stacked chains={['1', '8453', '42161', '534352', '10']} />
             </div>
             <div className={styles.characterItemWrapper}>
               <Diamond className={`${styles.icon} ${styles.iconDiamond}`} width={64} height={64} />
