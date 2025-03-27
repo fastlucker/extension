@@ -43,8 +43,11 @@ const NetworkIcon = ({
   const { networks } = useNetworksControllerState()
 
   const networkName = useMemo(
-    () => (networks.find((n) => n.chainId.toString() === id)?.name || id).toLowerCase(),
-    [id, networks]
+    () =>
+      benzinNetwork
+        ? benzinNetwork.name.toLowerCase()
+        : (networks.find((n) => n.chainId.toString() === id)?.name || id).toLowerCase(),
+    [id, networks, benzinNetwork]
   )
 
   const network = useMemo(() => {
