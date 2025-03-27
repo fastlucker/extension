@@ -34,7 +34,7 @@ const PendingTransactions: FC<Props> = ({ network }) => {
     if (!accountOp) return
     const actualDependencyArrayAsString = stringify([
       accountOp.calls,
-      accountOp.networkId,
+      accountOp.chainId,
       accountOp.accountAddr
     ])
     const newAccountOpRelevantInfoHash = keccak256(toUtf8Bytes(actualDependencyArrayAsString))
@@ -64,7 +64,7 @@ const PendingTransactions: FC<Props> = ({ network }) => {
             noun: callsToVisualize.length > 1 ? t('actions') : t('action')
           })}
         </SectionHeading>
-        <NetworkBadge networkId={network?.id} withOnPrefix />
+        <NetworkBadge chainId={network?.chainId} withOnPrefix />
       </View>
       <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
         {network && callsToVisualize.length ? (
@@ -74,7 +74,7 @@ const PendingTransactions: FC<Props> = ({ network }) => {
                 key={call.id}
                 style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
                 call={call}
-                networkId={network.id}
+                chainId={network.chainId}
                 index={i}
               />
             )

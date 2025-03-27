@@ -53,8 +53,8 @@ const PayOption = ({
       return 'Gas Tank'
     }
 
-    return networks.find((n) => n.id === feeOption.token.networkId)?.name || ''
-  }, [feeOption.token.flags.onGasTank, feeOption.token.networkId, networks])
+    return networks.find((n) => n.chainId === feeOption.token.chainId)?.name || ''
+  }, [feeOption.token.flags.onGasTank, feeOption.token.chainId, networks])
 
   const warning = useMemo(() => {
     if (!signAccountOpState) return
@@ -93,7 +93,7 @@ const PayOption = ({
           height={iconSize}
           networkSize={12}
           address={feeOption.token.address}
-          networkId={feeOption.token.networkId}
+          chainId={feeOption.token.chainId}
           onGasTank={feeOption.token.flags.onGasTank}
           skeletonAppearance="secondaryBackground"
         />

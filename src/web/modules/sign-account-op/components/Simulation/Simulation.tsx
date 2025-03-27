@@ -41,44 +41,44 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
-      const pendingData = pending[network.id]
+      const pendingData = pending[network.chainId.toString()]
 
       if (!pendingData || !pendingData.isReady || !pendingData.result) return []
 
-      return tokens.filter((token) => token.networkId === network.id && !!token.simulationAmount)
+      return tokens.filter((token) => token.chainId === network.chainId && !!token.simulationAmount)
     }
     return []
   }, [network, pending, signAccountOpState?.accountOp, tokens])
 
   const portfolioStatePending = useMemo(() => {
-    if (!signAccountOpState?.accountOp || !network?.id) return null
+    if (!signAccountOpState?.accountOp || !network?.chainId) return null
 
-    return pending[network.id]
-  }, [network?.id, pending, signAccountOpState?.accountOp])
+    return pending[network.chainId.toString()]
+  }, [network?.chainId, pending, signAccountOpState?.accountOp])
 
   const pendingSendTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! < 0),
     [pendingTokens]
   )
   const pendingSendCollection = useMemo(() => {
-    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+    if (signAccountOpState?.accountOp?.accountAddr && network?.chainId)
       return (
         collections?.filter(
           (i) => i.postSimulation?.sending && i.postSimulation.sending.length > 0
         ) || []
       )
     return []
-  }, [collections, network?.id, signAccountOpState?.accountOp?.accountAddr])
+  }, [collections, network?.chainId, signAccountOpState?.accountOp?.accountAddr])
 
   const pendingReceiveCollection = useMemo(() => {
-    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+    if (signAccountOpState?.accountOp?.accountAddr && network?.chainId)
       return (
         collections?.filter(
           (i) => i.postSimulation?.receiving && i.postSimulation.receiving.length > 0
         ) || []
       )
     return []
-  }, [signAccountOpState?.accountOp?.accountAddr, network?.id, collections])
+  }, [signAccountOpState?.accountOp?.accountAddr, network?.chainId, collections])
 
   const pendingReceiveTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! > 0),
@@ -86,11 +86,11 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   )
 
   const isReloading = useMemo(() => {
-    if (!network?.id || !initialSimulationLoaded) return false
+    if (!network?.chainId || !initialSimulationLoaded) return false
 
     if (!isEstimationComplete) return true
 
-    const portfolioAccountOpCalls = networkSimulatedAccountOp[network.id]?.calls
+    const portfolioAccountOpCalls = networkSimulatedAccountOp[String(network.chainId)]?.calls
     const signAccountOpCalls = signAccountOpState?.accountOp.calls
 
     // New calls are reflected immediately in the signAccountOpState,
@@ -101,7 +101,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   }, [
     initialSimulationLoaded,
     isEstimationComplete,
-    network?.id,
+    network?.chainId,
     networkSimulatedAccountOp,
     signAccountOpState?.accountOp.calls
   ])
@@ -209,7 +209,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network?.id || ''}
+                      chainId={network?.chainId}
                       hasBottomSpacing={i < pendingTokens.length - 1}
                     />
                   )
@@ -255,7 +255,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network?.id || ''}
+                      chainId={network?.chainId}
                       hasBottomSpacing={i < pendingTokens.length - 1}
                     />
                   )

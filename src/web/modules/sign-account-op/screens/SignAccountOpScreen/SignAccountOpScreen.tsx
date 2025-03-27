@@ -152,8 +152,8 @@ const SignAccountOpScreen = () => {
   }, [accountOpAction?.id, dispatch])
 
   const network = useMemo(() => {
-    return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
-  }, [networks, signAccountOpState?.accountOp?.networkId])
+    return networks.find((n) => n.chainId === signAccountOpState?.accountOp?.chainId)
+  }, [networks, signAccountOpState?.accountOp?.chainId])
 
   const handleRejectAccountOp = useCallback(() => {
     if (!accountOpAction) return

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { Network } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -26,23 +25,18 @@ export const NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP = i18n.t(
 
 interface Props {
   sheetRef: ReturnType<typeof useModalize>['ref']
-  networkId: Network['id'] | null
+  chainId: bigint | string | null
   closeBottomSheet: () => void
   openBlockExplorer: (url?: string) => void
 }
 
-const NetworkBottomSheet = ({
-  sheetRef,
-  networkId,
-  closeBottomSheet,
-  openBlockExplorer
-}: Props) => {
+const NetworkBottomSheet = ({ sheetRef, chainId, closeBottomSheet, openBlockExplorer }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
-  const networkData = networks.find((network) => network.id === networkId)
+  const networkData = networks.find((network) => network.chainId === chainId)
 
   const handleOpenBlockExplorer = useCallback(
     () => openBlockExplorer(networkData?.explorerUrl),
@@ -58,7 +52,7 @@ const NetworkBottomSheet = ({
       closeBottomSheet={closeBottomSheet}
     >
       <View style={[styles.item, spacings.pvSm, spacings.mb3Xl]}>
-        {!!networkId && <NetworkIcon size={32} id={networkId} />}
+        {!!chainId && <NetworkIcon size={32} id={chainId.toString()} />}
         <Text fontSize={16} weight="medium" style={spacings.mlMi}>
           {networkData?.name || t('Unknown Network')}
         </Text>
@@ -68,7 +62,7 @@ const NetworkBottomSheet = ({
         title={t('Go to Network Settings')}
         onPress={() => {
           try {
-            navigate(`${WEB_ROUTES.networksSettings}?networkId=${networkId}`)
+            navigate(`${WEB_ROUTES.networksSettings}?chainId=${chainId}`)
           } catch {
             addToast(t('Failed to open network settings.'), { type: 'error' })
           }
