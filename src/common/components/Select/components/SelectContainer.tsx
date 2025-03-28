@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { FC, useEffect } from 'react'
+import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -8,19 +8,13 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 
-import { useModalize } from 'react-native-modalize'
-import BottomSheet from '@common/components/BottomSheet'
-import flexbox from '@common/styles/utils/flexbox'
-import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import CloseIcon from '@common/assets/svg/CloseIcon'
-import { getUiType } from '@web/utils/uiType'
+import BottomSheetHeader from '@common/components/Select/components/BottomSheetHeader'
+import BottomSheetContainer from './BottomSheetContainer'
 import getStyles, { DEFAULT_SELECT_SIZE } from '../styles'
 import { CommonSelectProps } from '../types'
 import useSelectInternal from '../useSelectInternal'
 import MenuContainer from './MenuContainer'
 import SelectedMenuOption from './SelectedMenuOption'
-
-const { isPopup } = getUiType()
 
 type Props = CommonSelectProps &
   ReturnType<typeof useSelectInternal> & {
@@ -52,17 +46,7 @@ const SelectContainer: FC<Props> = ({
   renderSelectedOption
 }) => {
   const { t } = useTranslation()
-  const { styles, theme } = useTheme(getStyles)
-  const { ref: sheetRef, open: openSheet, close: closeSheet } = useModalize()
-  const [bindCloseBtnAnim, closeBtnAnimStyle] = useHover({ preset: 'opacityInverted' })
-
-  useEffect(() => {
-    if (isMenuOpen) {
-      openSheet()
-    } else {
-      closeSheet()
-    }
-  }, [isMenuOpen, openSheet, closeSheet])
+  const { styles } = useTheme(getStyles)
 
   return (
     <View style={[styles.selectContainer, containerStyle]} testID={testID}>
@@ -125,51 +109,8 @@ const SelectContainer: FC<Props> = ({
           </MenuContainer>
         )
       ) : (
-        <BottomSheet
-          id="tokens-list"
-          sheetRef={sheetRef}
-          closeBottomSheet={toggleMenu}
-          containerInnerWrapperStyles={{
-            flex: 1
-          }}
-          style={{
-            backgroundColor: 'white',
-            width: isPopup ? '100%' : 450,
-            overflow: 'hidden',
-            ...spacings.pv0,
-            ...spacings.ph0
-          }}
-          isScrollEnabled={false}
-        >
-          <View
-            style={[
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              flexbox.justifySpaceBetween,
-              spacings.pvLg,
-              spacings.phLg,
-              spacings.mbMd,
-              { backgroundColor: theme.secondaryBackground }
-            ]}
-          >
-            <Text fontSize={20} weight="medium">
-              {label}
-            </Text>
-            <AnimatedPressable
-              style={[
-                closeBtnAnimStyle,
-                flexbox.center,
-                {
-                  width: 40,
-                  height: 40
-                }
-              ]}
-              {...bindCloseBtnAnim}
-              onPress={toggleMenu}
-            >
-              <CloseIcon />
-            </AnimatedPressable>
-          </View>
+        <BottomSheetContainer isMenuOpen={isMenuOpen} toggleMenu={toggleMenu}>
+          <BottomSheetHeader label={label} toggleMenu={toggleMenu} />
           <View style={[spacings.phMd, { height: 600 }]}>
             <Search
               placeholder={searchPlaceholder || t('Search...')}
@@ -182,7 +123,7 @@ const SelectContainer: FC<Props> = ({
             />
             {children}
           </View>
-        </BottomSheet>
+        </BottomSheetContainer>
       )}
     </View>
   )
