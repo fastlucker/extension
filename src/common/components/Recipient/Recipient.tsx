@@ -48,6 +48,7 @@ interface Props extends InputProps {
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
   selectedTokenSymbol?: TokenResult['symbol']
+  menuPosition?: 'top' | 'bottom'
 }
 
 const ADDRESS_BOOK_VISIBLE_VALIDATION = {
@@ -70,7 +71,8 @@ const Recipient: React.FC<Props> = ({
   disabled,
   isSWWarningVisible,
   isSWWarningAgreed,
-  selectedTokenSymbol
+  selectedTokenSymbol,
+  menuPosition
 }) => {
   const { account } = useSelectedAccountControllerState()
   const actualAddress = ensAddress || uDAddress || address
@@ -293,6 +295,7 @@ const Recipient: React.FC<Props> = ({
         renderSectionHeader={renderSectionHeader}
         renderSelectedOption={renderSelectedOption}
         emptyListPlaceholderText={t('No contacts found')}
+        menuPosition={menuPosition}
       />
       <View style={styles.inputBottom}>
         <Text

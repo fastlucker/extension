@@ -24,11 +24,13 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
+import { getUiType } from '@web/utils/uiType'
 
-import TokenSelectBottomSheet from './TokenSelectBottomSheet'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
+
+const { isPopup } = getUiType()
 
 const SendForm = ({
   addressInputState,
@@ -293,15 +295,6 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
-      <TokenSelectBottomSheet
-        setValue={({ value }) => handleChangeToken(value as string)}
-        label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
-        options={options}
-        value={tokenSelectValue}
-        disabled={disableForm}
-        containerStyle={styles.tokenSelect}
-        testID="tokens-select"
-      />
       {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
@@ -320,6 +313,7 @@ const SendForm = ({
           disabled={disableForm}
           containerStyle={styles.tokenSelect}
           testID="tokens-select"
+          mode="bottomSheet"
         />
       )}
       <InputSendToken
@@ -357,6 +351,7 @@ const SendForm = ({
             isSWWarningVisible={isSWWarningVisible}
             isSWWarningAgreed={isSWWarningAgreed}
             selectedTokenSymbol={selectedToken?.symbol}
+            menuPosition={isPopup ? 'top' : undefined}
           />
         )}
       </View>
