@@ -19,7 +19,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
-import useStepper from '@common/modules/auth/hooks/useOnboardingNavigation'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
@@ -98,7 +98,7 @@ const getPropsFromValue = (
 }
 
 const SeedPhraseImportScreen = () => {
-  const { updateStepperState } = useStepper()
+  const {} = useOnboardingNavigation()
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
@@ -130,13 +130,6 @@ const SeedPhraseImportScreen = () => {
   const [seedPhraseStatus, setSeedPhraseStatus] = useState<'incomplete' | 'valid' | 'invalid'>(
     'incomplete'
   )
-
-  useEffect(() => {
-    updateStepperState(
-      WEB_ROUTES.importSeedPhrase,
-      keystoreState.hasKeystoreSavedSeed ? 'seed' : 'seed-with-option-to-save'
-    )
-  }, [updateStepperState, keystoreState.hasKeystoreSavedSeed])
 
   useEffect(() => {
     const { unsubscribe } = watch((value) => {

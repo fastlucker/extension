@@ -87,16 +87,16 @@ const AppInit = () => {
                                                                   <StorageProvider>
                                                                     <KeyboardProvider>
                                                                       <NetInfoProvider>
-                                                                        <OnboardingNavigationProvider>
-                                                                          <AuthProvider>
+                                                                        <AuthProvider>
+                                                                          <OnboardingNavigationProvider>
                                                                             <BiometricsProvider>
                                                                               <PrivateModeProvider>
                                                                                 <AppRouter />
                                                                               </PrivateModeProvider>
                                                                               <PortalHost name="global" />
                                                                             </BiometricsProvider>
-                                                                          </AuthProvider>
-                                                                        </OnboardingNavigationProvider>
+                                                                          </OnboardingNavigationProvider>
+                                                                        </AuthProvider>
                                                                       </NetInfoProvider>
                                                                     </KeyboardProvider>
                                                                   </StorageProvider>
