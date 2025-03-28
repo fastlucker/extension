@@ -21,7 +21,6 @@ interface Props extends ViewProps {
   showProgress?: boolean
   step?: number
   totalSteps?: number
-  onBackPress?: () => void
 }
 
 export const getPanelPaddings = (
@@ -45,7 +44,6 @@ const Panel: React.FC<Props> = ({
   showProgress = false,
   step = 1,
   totalSteps = 2,
-  onBackPress,
   ...rest
 }) => {
   const { styles, theme } = useTheme(getStyles)
