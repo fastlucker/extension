@@ -32,6 +32,18 @@ const onboardingRoutes = [
   WEB_ROUTES.accountAdder
 ]
 
+// These routes are accessible only through internal navigation, preventing direct access via the URL bar.
+const protectedOnboardingRoutes = [
+  WEB_ROUTES.createSeedPhraseWrite,
+  WEB_ROUTES.importPrivateKey,
+  WEB_ROUTES.importSeedPhrase,
+  WEB_ROUTES.importSmartAccountJson,
+  WEB_ROUTES.viewOnlyAccountAdder,
+  WEB_ROUTES.keyStoreSetup,
+  WEB_ROUTES.accountPersonalize,
+  WEB_ROUTES.accountAdder
+]
+
 const flows = {
   getStarted: WEB_ROUTES.getStarted,
   createNewAccount: 'createNewAccount',
@@ -182,7 +194,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
 
     if (!currentRoute) return
 
-    if (!onboardingRoutes.includes(currentRoute)) return
+    if (!protectedOnboardingRoutes.includes(currentRoute)) return
 
     if (!params?.internal) navigate('/', { state: { internal: true } })
   }, [path, params, navigate])
