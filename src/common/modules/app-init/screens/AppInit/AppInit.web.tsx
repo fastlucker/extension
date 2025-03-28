@@ -17,6 +17,7 @@ import { ToastProvider } from '@common/contexts/toastContext'
 import useFonts from '@common/hooks/useFonts'
 import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
+import { OnboardingNavigationProvider } from '@common/modules/auth/contexts/onboardingNavigationContext'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
 import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderControllerStateContext'
@@ -86,14 +87,16 @@ const AppInit = () => {
                                                                   <StorageProvider>
                                                                     <KeyboardProvider>
                                                                       <NetInfoProvider>
-                                                                        <AuthProvider>
-                                                                          <BiometricsProvider>
-                                                                            <PrivateModeProvider>
-                                                                              <AppRouter />
-                                                                            </PrivateModeProvider>
-                                                                            <PortalHost name="global" />
-                                                                          </BiometricsProvider>
-                                                                        </AuthProvider>
+                                                                        <OnboardingNavigationProvider>
+                                                                          <AuthProvider>
+                                                                            <BiometricsProvider>
+                                                                              <PrivateModeProvider>
+                                                                                <AppRouter />
+                                                                              </PrivateModeProvider>
+                                                                              <PortalHost name="global" />
+                                                                            </BiometricsProvider>
+                                                                          </AuthProvider>
+                                                                        </OnboardingNavigationProvider>
                                                                       </NetInfoProvider>
                                                                     </KeyboardProvider>
                                                                   </StorageProvider>

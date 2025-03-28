@@ -41,6 +41,17 @@ const routesConfig: RouteConfig = {
       web: i18n.t('Welcome to Ambire Wallet')
     })
   },
+  [ROUTES.importExistingAccount]: {
+    route: ROUTES.importExistingAccount,
+    title: Platform.select({
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
+    }),
+    name: Platform.select({
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
+    })
+  },
   [ROUTES.authEmailAccount]: {
     route: ROUTES.authEmailAccount,
     title: Platform.select({
@@ -282,13 +293,6 @@ const routesConfig: RouteConfig = {
     }),
     name: Platform.select({ default: i18n.t('Import Smart Account JSON') })
   },
-  [ROUTES.createHotWallet]: {
-    route: ROUTES.createHotWallet,
-    title: Platform.select({
-      default: i18n.t('Create Hot Wallet')
-    }),
-    name: Platform.select({ default: i18n.t('Create Hot Wallet') })
-  },
   [ROUTES.createSeedPhrasePrepare]: {
     route: ROUTES.createSeedPhrasePrepare,
     title: Platform.select({
@@ -302,13 +306,6 @@ const routesConfig: RouteConfig = {
       default: i18n.t('Write Seed Phrase')
     }),
     name: Platform.select({ default: i18n.t('Write Seed Phrase') })
-  },
-  [ROUTES.createSeedPhraseConfirm]: {
-    route: ROUTES.createSeedPhraseConfirm,
-    title: Platform.select({
-      default: i18n.t('Confirm Seed Phrase')
-    }),
-    name: Platform.select({ default: i18n.t('Confirm Seed Phrase') })
   },
   [ROUTES.saveImportedSeed]: {
     route: ROUTES.saveImportedSeed,

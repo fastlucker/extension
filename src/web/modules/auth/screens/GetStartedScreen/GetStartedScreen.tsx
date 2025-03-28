@@ -1,11 +1,8 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { Animated, View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import ViewModeIcon from '@common/assets/svg/ViewModeIcon'
-import BottomSheet from '@common/components/BottomSheet'
-import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
@@ -13,9 +10,9 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -27,14 +24,9 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
-import { getExtensionInstanceId } from '@web/utils/analytics'
 
-import HotWalletCreateCards from '../../components/HotWalletCreateCards'
-import { showEmailVaultInterest } from '../../utils/emailVault'
 import getStyles from './styles'
 
 export const CARD_WIDTH = 400
@@ -44,16 +36,9 @@ const GetStartedScreen = () => {
   const { styles: panelStyles } = useTheme(getPanelStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { addToast } = useToast()
-  const { isReadyToStoreKeys, keyStoreUid } = useKeystoreControllerState()
-  const { accounts } = useAccountsControllerState()
+  const { goToNextRoute } = useOnboardingNavigation()
+
   const accountAdderCtrlState = useAccountAdderControllerState()
-  const {
-    ref: hotWalletModalRef,
-    open: openHotWalletModal,
-    close: closeHotWalletModal
-  } = useModalize()
-  const wrapperRef: any = useRef(null)
   const animation = useRef(new Animated.Value(0)).current
   const { authStatus } = useAuth()
   const { dispatch } = useBackgroundService()
@@ -104,38 +89,20 @@ const GetStartedScreen = () => {
   ])
 
   const handleAuthButtonPress = useCallback(
-    async (
-      flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-seed' | 'create-hot-wallet' | 'view-only'
-    ) => {
-      if (!isReadyToStoreKeys) {
-        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
+    async (flow: 'create-new-account' | 'import-existing-account' | 'view-only') => {
+      if (flow === 'create-new-account') {
+        goToNextRoute('createNewAccount')
         return
       }
-      if (flow === 'create-hot-wallet') {
-        openHotWalletModal()
+      if (flow === 'import-existing-account') {
+        goToNextRoute('importExistingAccount')
         return
       }
       if (flow === 'view-only') {
-        navigate(WEB_ROUTES.viewOnlyAccountAdder)
-        return
-      }
-      if (flow === 'import-hot-wallet') {
-        navigate(WEB_ROUTES.importHotWallet)
-        return
-      }
-      if (flow === 'email') {
-        await showEmailVaultInterest(getExtensionInstanceId(keyStoreUid), accounts.length, addToast)
-        return
-      }
-      if (flow === 'hw') {
-        navigate(WEB_ROUTES.hardwareWalletSelect)
-        return
-      }
-      if (flow === 'create-seed') {
-        navigate(WEB_ROUTES.createSeedPhrasePrepare)
+        goToNextRoute('watchAddress')
       }
     },
-    [accounts.length, addToast, isReadyToStoreKeys, keyStoreUid, navigate, openHotWalletModal]
+    [goToNextRoute]
   )
 
   const panelWidthInterpolate = animation.interpolate({
@@ -159,23 +126,7 @@ const GetStartedScreen = () => {
         </Animated.View>
       }
     >
-      <BottomSheet
-        id="hot-wallet-modal"
-        autoWidth
-        closeBottomSheet={closeHotWalletModal}
-        backgroundColor="primaryBackground"
-        sheetRef={hotWalletModalRef}
-      >
-        <ModalHeader
-          hideLeftSideContainer
-          title={t('Select the recovery option of your new wallet')}
-        />
-        <HotWalletCreateCards
-          handleEmailPress={() => handleAuthButtonPress('email')}
-          handleSeedPress={() => handleAuthButtonPress('create-seed')}
-        />
-      </BottomSheet>
-      <TabLayoutWrapperMainContent wrapperRef={wrapperRef} contentContainerStyle={spacings.mbLg}>
+      <TabLayoutWrapperMainContent>
         <View>
           <Animated.View
             style={[
@@ -214,8 +165,16 @@ const GetStartedScreen = () => {
                   </Text>
                 </View>
                 <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
-                  <Button type="primary" text={t('Create New Account')} />
-                  <Button type="secondary" text={t('Import Existing Account')} />
+                  <Button
+                    type="primary"
+                    text={t('Create New Account')}
+                    onPress={() => handleAuthButtonPress('create-new-account')}
+                  />
+                  <Button
+                    type="secondary"
+                    text={t('Import Existing Account')}
+                    onPress={() => handleAuthButtonPress('import-existing-account')}
+                  />
                   <Button
                     type="ghost"
                     hasBottomSpacing={false}

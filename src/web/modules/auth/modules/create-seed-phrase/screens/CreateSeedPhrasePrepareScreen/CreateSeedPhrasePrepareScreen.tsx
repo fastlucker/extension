@@ -16,7 +16,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
@@ -48,7 +48,7 @@ const CHECKBOXES = [
 ]
 
 const CreateSeedPhrasePrepareScreen = () => {
-  const { updateStepperState } = useStepper()
+  const {} = useOnboardingNavigation()
   const { accounts } = useAccountsControllerState()
   const { addToast } = useToast()
   const { t } = useTranslation()
@@ -77,10 +77,6 @@ const CreateSeedPhrasePrepareScreen = () => {
   useEffect(() => {
     if (keystoreState.hasKeystoreSavedSeed) goBack()
   }, [goBack, keystoreState.hasKeystoreSavedSeed])
-
-  useEffect(() => {
-    updateStepperState('secure-seed', 'create-seed')
-  }, [updateStepperState])
 
   const handleCheckboxPress = (id: number) => {
     setCheckboxesState((prevState) => {

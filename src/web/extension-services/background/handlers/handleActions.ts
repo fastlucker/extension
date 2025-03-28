@@ -266,12 +266,31 @@ export const handleActions = async (
     }
     // This flow interacts manually with the AccountAdder controller so that it can
     // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
-    case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-      await mainCtrl.importSmartAccountFromSavedSeed(params.seed)
-      break
+    case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_ACCOUNT': {
+      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
+      const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
+      const keyIterator = new KeyIterator(params.seed)
+
+      await mainCtrl.keystore.addSeed({ seed: params.seed, hdPathTemplate })
+      await mainCtrl.accountAdder.init({ keyIterator, pageSize: 5, hdPathTemplate })
+
+      return await mainCtrl.accountAdder.setPage({ page: 1 })
     }
-    case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
-      await mainCtrl.importSmartAccountFromSavedSeed()
+    case 'ADD_NEXT_ACCOUNT_FROM_SEED_OR_PRIVATE_KEY': {
+      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
+      const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
+      const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
+
+      await mainCtrl.accountAdder.init({
+        keyIterator,
+        pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
+        hdPathTemplate
+      })
+
+      await mainCtrl.accountAdder.setPage({ page: 1 })
+      await mainCtrl.accountAdder.addNextAvailableAccount()
       break
     }
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {

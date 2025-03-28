@@ -1,28 +1,24 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { View } from 'react-native'
 
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
-import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+
+export const CARD_WIDTH = 400
 
 const PrivateKeyImportScreen = () => {
   const {
@@ -35,32 +31,11 @@ const PrivateKeyImportScreen = () => {
       privateKey: ''
     }
   })
-  const { updateStepperState } = useStepper()
+  const { goToPrevRoute, goToNextRoute } = useOnboardingNavigation()
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
+
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
-  const accountAdderCtrlState = useAccountAdderControllerState()
-
-  useEffect(() => {
-    updateStepperState(WEB_ROUTES.importPrivateKey, 'private-key')
-  }, [updateStepperState])
-
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      // The AccountAdder could have been already initialized with the same or a
-      // different type. Navigate immediately only if the types match.
-      accountAdderCtrlState.type === 'internal' &&
-      accountAdderCtrlState.subType === 'private-key'
-    )
-      navigate(WEB_ROUTES.accountAdder)
-  }, [
-    accountAdderCtrlState.isInitialized,
-    accountAdderCtrlState.subType,
-    accountAdderCtrlState.type,
-    navigate
-  ])
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ privateKey }) => {
@@ -69,11 +44,12 @@ const PrivateKeyImportScreen = () => {
         trimmedPrivateKey.slice(0, 2) === '0x' ? trimmedPrivateKey.slice(2) : trimmedPrivateKey
 
       dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        type: 'ADD_NEXT_ACCOUNT_FROM_SEED_OR_PRIVATE_KEY',
         params: { privKeyOrSeed: noPrefixPrivateKey }
       })
+      goToNextRoute()
     })()
-  }, [dispatch, handleSubmit])
+  }, [dispatch, handleSubmit, goToNextRoute])
 
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
@@ -90,28 +66,20 @@ const PrivateKeyImportScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="md"
       header={<Header withAmbireLogo />}
-      footer={
-        <>
-          <BackButton fallbackBackRoute={ROUTES.dashboard} />
-          <Button
-            testID="import-button"
-            size="large"
-            text={t('Import')}
-            hasBottomSpacing={false}
-            onPress={handleFormSubmit}
-            disabled={!isValid}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Enter your private key')}>
+        <Panel
+          spacingsSize="small"
+          withBackButton
+          onBackButtonPress={goToPrevRoute}
+          style={{
+            width: CARD_WIDTH,
+            alignSelf: 'center',
+            ...common.shadowTertiary
+          }}
+          title={t('Enter Private Key')}
+        >
           <Controller
             control={control}
             rules={{ validate: (value) => handleValidation(value), required: true }}
@@ -126,7 +94,7 @@ const PrivateKeyImportScreen = () => {
                   numberOfLines={3}
                   autoFocus
                   containerStyle={spacings.mb0}
-                  placeholder={t('Enter a private key')}
+                  placeholder={t('Write or paste your Private Key')}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   isValid={!handleValidation(value) && !!value.length}
@@ -139,8 +107,19 @@ const PrivateKeyImportScreen = () => {
           />
           <Alert
             title="Basic Accounts (EOAs) only"
-            text="You can import only Basic Accounts (EOAs) with private keys. To import Smart Accounts, you must create or import a seed phrase or connect a hardware wallet."
+            text="You can import only EOAs with private keys. To import Smart Accounts, use a seed phrase or hardware wallet."
             type="warning"
+            size="sm"
+            style={spacings.mbMd}
+          />
+
+          <Button
+            testID="import-button"
+            size="large"
+            text={t('Confirm')}
+            hasBottomSpacing={false}
+            onPress={handleFormSubmit}
+            disabled={!isValid}
           />
         </Panel>
       </TabLayoutWrapperMainContent>
