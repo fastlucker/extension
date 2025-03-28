@@ -27,7 +27,7 @@ type Props = {
 
 const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = true }: Props) => {
   const { addr: address, preferences } = account
-  const { ens, ud, isLoading } = useReverseLookup({ address })
+  const { ens, isLoading } = useReverseLookup({ address })
   const { styles } = useTheme(getStyles)
 
   return (
@@ -56,8 +56,8 @@ const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = tr
               <AccountBadges accountData={account} />
             </View>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <DomainBadge ens={ens} ud={ud} />
-              <AccountAddress ens={ens} ud={ud} isLoading={isLoading} address={address} />
+              <DomainBadge ens={ens} />
+              <AccountAddress ens={ens} isLoading={isLoading} address={address} />
             </View>
           </View>
         </View>

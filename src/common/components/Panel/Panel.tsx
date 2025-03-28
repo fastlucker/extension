@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { Animated, TouchableOpacity, View, ViewProps } from 'react-native'
+import { Animated, Pressable, View, ViewProps } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import Text from '@common/components/Text'
@@ -8,19 +8,20 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import { WindowSizes } from '@common/hooks/useWindowSize/types'
 import spacings, { SPACING_3XL, SPACING_LG, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 
 import getStyles from './styles'
 
 interface Props extends ViewProps {
+  withBackButton?: boolean
+  onBackButtonPress?: () => void
   title?: string | ReactNode
   spacingsSize?: 'small' | 'large'
   isAnimated?: boolean
   showProgress?: boolean
   step?: number
   totalSteps?: number
-  showBackButton?: boolean
   onBackPress?: () => void
-  showHeader?: boolean
 }
 
 export const getPanelPaddings = (
@@ -34,6 +35,8 @@ export const getPanelPaddings = (
 }
 
 const Panel: React.FC<Props> = ({
+  withBackButton,
+  onBackButtonPress = () => {},
   title,
   children,
   style,
@@ -42,9 +45,7 @@ const Panel: React.FC<Props> = ({
   showProgress = false,
   step = 1,
   totalSteps = 2,
-  showBackButton = false,
   onBackPress,
-  showHeader = true,
   ...rest
 }) => {
   const { styles, theme } = useTheme(getStyles)
@@ -61,7 +62,7 @@ const Panel: React.FC<Props> = ({
         <View style={[flexbox.directionRow, spacings.mbMd]}>
           {[...Array(totalSteps)].map((_, index) => (
             <View
-              key={`step-${index}`}
+              key={`step-${index}`} // TODO: Remove index as key
               style={{
                 flex: 1,
                 height: 4,
@@ -72,32 +73,34 @@ const Panel: React.FC<Props> = ({
           ))}
         </View>
       )}
-      {showHeader && (showBackButton || title) && (
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mvSm]}>
-          {showBackButton && (
-            <TouchableOpacity
-              onPress={onBackPress}
-              style={{ position: 'absolute', left: 0, zIndex: 1, ...spacings.mlMd }}
-            >
-              <LeftArrowIcon width={24} color={theme.primaryText} />
-            </TouchableOpacity>
+
+      {(!!title || !!withBackButton) && (
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd
+          ]}
+        >
+          {!!withBackButton && (
+            <Pressable onPress={onBackButtonPress} style={[spacings.prSm, spacings.pvTy]}>
+              <LeftArrowIcon />
+            </Pressable>
           )}
           {!!title && (
-            <View style={{ position: 'absolute', left: 0, right: 0, alignItems: 'center' }}>
-              <Text
-                fontSize={maxWidthSize('xl') ? 20 : 18}
-                weight="semiBold"
-                appearance="primaryText"
-                numberOfLines={1}
-                style={{ textAlign: 'center' }}
-              >
-                {title}
-              </Text>
-            </View>
+            <Text
+              fontSize={maxWidthSize('xl') ? 20 : 18}
+              weight="medium"
+              appearance="primaryText"
+              numberOfLines={1}
+              style={[text.center, flexbox.flex1]}
+            >
+              {title}
+            </Text>
           )}
+          <View style={{ width: 20 }} />
         </View>
       )}
-
       {children}
     </Container>
   )

@@ -12,7 +12,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import useStepper from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -77,16 +77,6 @@ const CreateSeedPhraseWriteScreen = () => {
     extrapolate: 'clamp'
   })
 
-  // const handleSubmit = () => {
-  //   navigate(WEB_ROUTES.createSeedPhraseConfirm, {
-  //     state: {
-  //       // Try to use the same confirmation words if the user navigates back
-  //       confirmationWords: confirmationWords || generateConfirmationWords(seed),
-  //       seed
-  //     }
-  //   })
-  // }
-
   const handleSubmit = () => {
     const seedPhrase = seed.join(' ') || ''
 
@@ -95,6 +85,7 @@ const CreateSeedPhraseWriteScreen = () => {
       params: { privKeyOrSeed: seedPhrase, shouldPersist: !keystoreState.hasKeystoreSavedSeed }
     })
 
+    // TODO: Use new navigation
     navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'create-seed' } })
   }
 
@@ -169,8 +160,9 @@ const CreateSeedPhraseWriteScreen = () => {
             step={1}
             totalSteps={2}
             title="Backup Recovery Phrase"
-            showBackButton
-            onBackPress={() => {
+            withBackButton
+            onBackButtonPress={() => {
+              // TODO: use new navigation
               navigate(WEB_ROUTES.createSeedPhrasePrepare, { state: { seed } })
             }}
           >

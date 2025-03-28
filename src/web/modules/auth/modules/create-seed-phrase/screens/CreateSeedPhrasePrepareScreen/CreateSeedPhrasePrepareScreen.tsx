@@ -12,7 +12,7 @@ import useExtraEntropy from '@common/hooks/useExtraEntropy'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -42,7 +42,7 @@ const CHECKBOXES = [
 ]
 
 const CreateSeedPhrasePrepareScreen = () => {
-  const { updateStepperState } = useStepper()
+  const {} = useOnboardingNavigation()
   const { accounts } = useAccountsControllerState()
   const { addToast } = useToast()
   const { t } = useTranslation()
@@ -76,6 +76,7 @@ const CreateSeedPhrasePrepareScreen = () => {
       addToast('Failed to generate seed phrase', { type: 'error' })
       return
     }
+    // TODO: use new navigation
     navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
   }, [addToast, navigate, getExtraEntropy])
 
@@ -83,10 +84,6 @@ const CreateSeedPhrasePrepareScreen = () => {
   useEffect(() => {
     if (keystoreState.hasKeystoreSavedSeed) goBack()
   }, [goBack, keystoreState.hasKeystoreSavedSeed])
-
-  useEffect(() => {
-    updateStepperState('secure-seed', 'create-seed')
-  }, [updateStepperState])
 
   const handleCheckboxPress = (id: number) => {
     setCheckboxesState((prevState) => {
@@ -138,8 +135,9 @@ const CreateSeedPhrasePrepareScreen = () => {
             step={1}
             totalSteps={2}
             title="Create New Recovery Phrase"
-            showBackButton
-            onBackPress={() => {
+            withBackButton
+            onBackButtonPress={() => {
+              // TODO: use new navigation
               if (accounts.length) {
                 navigate(WEB_ROUTES.dashboard)
                 return

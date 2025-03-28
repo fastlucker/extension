@@ -145,13 +145,13 @@ export const handleActions = async (
       return await mainCtrl.addNetwork(params)
     }
     case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
-      return await mainCtrl.removeNetwork(params)
+      return await mainCtrl.removeNetwork(params.chainId)
     }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
       return await mainCtrl.accounts.updateAccountPreferences(params)
     }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE': {
-      return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.networkIds)
+      return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.chainIds)
     }
     case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
       return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
@@ -163,7 +163,7 @@ export const handleActions = async (
       return await mainCtrl.keystore.updateKeyPreferences(params)
     }
     case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
-      return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
+      return await mainCtrl.networks.updateNetwork(params.network, params.chainId)
     }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
       return await mainCtrl.selectAccount(params.accountAddr)
@@ -266,12 +266,31 @@ export const handleActions = async (
     }
     // This flow interacts manually with the AccountAdder controller so that it can
     // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
-    case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-      await mainCtrl.importSmartAccountFromSavedSeed(params.seed)
-      break
+    case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_ACCOUNT': {
+      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
+      const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
+      const keyIterator = new KeyIterator(params.seed)
+
+      await mainCtrl.keystore.addSeed({ seed: params.seed, hdPathTemplate })
+      await mainCtrl.accountAdder.init({ keyIterator, pageSize: 5, hdPathTemplate })
+
+      return await mainCtrl.accountAdder.setPage({ page: 1 })
     }
-    case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
-      await mainCtrl.importSmartAccountFromSavedSeed()
+    case 'ADD_NEXT_ACCOUNT_FROM_SEED_OR_PRIVATE_KEY': {
+      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
+      const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
+      const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
+
+      await mainCtrl.accountAdder.init({
+        keyIterator,
+        pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
+        hdPathTemplate
+      })
+
+      await mainCtrl.accountAdder.setPage({ page: 1 })
+      await mainCtrl.accountAdder.addNextAvailableAccount()
       break
     }
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
@@ -391,7 +410,7 @@ export const handleActions = async (
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({
-        networkId: params?.networkId
+        chainId: params?.chainId ? BigInt(params?.chainId) : undefined
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
@@ -403,7 +422,7 @@ export const handleActions = async (
 
       return await mainCtrl.portfolio.getTemporaryTokens(
         mainCtrl.selectedAccount.account.addr,
-        params.networkId,
+        params.chainId,
         params.additionalHint
       )
     }
