@@ -43,9 +43,10 @@ const ManageTokensSettingsScreen = () => {
 
   const filteredTokens = useMemo(() => {
     return tokens.filter((token) => {
-      const { flags, networkId } = token
+      const { flags, chainId } = token
       if (flags.onGasTank || !!flags.rewardsType) return false
-      if (networkFilter !== 'all' && networkId !== networkFilter) return false
+      const network = networks.find((n) => n.chainId === chainId)
+      if (networkFilter !== 'all' && network?.name !== networkFilter) return false
 
       return tokenSearch({ search, token, networks })
     })
@@ -53,11 +54,11 @@ const ManageTokensSettingsScreen = () => {
 
   const customTokens = useMemo(() => {
     return filteredTokens
-      .filter(({ flags, address, networkId }) => {
+      .filter(({ flags, address, chainId }) => {
         const isTokenHidden =
           tokenPreferences.some(
-            ({ address: addr, networkId: nId, isHidden }) =>
-              addr === address && nId === networkId && isHidden
+            ({ address: addr, chainId: nId, isHidden }) =>
+              addr === address && nId === chainId && isHidden
           ) && flags.isHidden
 
         const isCustom = flags.isCustom && !isTokenHidden
@@ -65,14 +66,14 @@ const ManageTokensSettingsScreen = () => {
         if (!isCustom) return false
 
         const isRemovedOptimistically = !portfolioCustomTokens.some(
-          ({ address: addr, networkId: nId }) => addr === address && nId === networkId
+          ({ address: addr, chainId: nId }) => addr === address && nId === chainId
         )
 
         return !isRemovedOptimistically
       })
       .sort((a, b) => {
-        const aNetwork = networks.find(({ id }) => id === a.networkId)
-        const bNetwork = networks.find(({ id }) => id === b.networkId)
+        const aNetwork = networks.find(({ chainId }) => chainId === a.chainId)
+        const bNetwork = networks.find(({ chainId }) => chainId === b.chainId)
 
         if (!aNetwork || !bNetwork) return 0
 
@@ -82,17 +83,17 @@ const ManageTokensSettingsScreen = () => {
 
   const hiddenTokens = useMemo(() => {
     return filteredTokens
-      .filter(({ flags, address, networkId }) => {
+      .filter(({ flags, address, chainId }) => {
         return (
           tokenPreferences.some(
-            ({ address: addr, networkId: nId, isHidden }) =>
-              addr === address && nId === networkId && isHidden
+            ({ address: addr, chainId: nId, isHidden }) =>
+              addr === address && nId === chainId && isHidden
           ) && flags.isHidden
         )
       })
       .sort((a, b) => {
-        const aNetwork = networks.find(({ id }) => id === a.networkId)
-        const bNetwork = networks.find(({ id }) => id === b.networkId)
+        const aNetwork = networks.find(({ chainId }) => chainId === a.chainId)
+        const bNetwork = networks.find(({ chainId }) => chainId === b.chainId)
 
         if (!aNetwork || !bNetwork) return 0
 
@@ -102,7 +103,6 @@ const ManageTokensSettingsScreen = () => {
 
   const setNetworkFilterValue = useCallback(({ value }: SelectValue) => {
     if (typeof value !== 'string') return
-
     setNetworkFilter(value)
   }, [])
 

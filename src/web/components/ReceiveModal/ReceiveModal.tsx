@@ -107,10 +107,10 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             {t('Following networks supported on this address:')}
           </Text>
           <View style={styles.supportedNetworks}>
-            {networks.map(({ id, name }: any) => (
-              <View key={id} style={styles.supportedNetwork}>
+            {networks.map(({ chainId, name }: any) => (
+              <View key={chainId.toString()} style={styles.supportedNetwork}>
                 <View style={spacings.mbMi}>
-                  <NetworkIcon id={id} size={22} scale={0.6} />
+                  <NetworkIcon id={chainId.toString()} size={22} scale={0.6} />
                 </View>
                 <Text
                   style={spacings.plMi}

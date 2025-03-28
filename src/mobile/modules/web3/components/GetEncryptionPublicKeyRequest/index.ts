@@ -1,3 +1,0 @@
-import GetEncryptionPublicKeyRequest from './GetEncryptionPublicKeyRequest'
-
-export default GetEncryptionPublicKeyRequest

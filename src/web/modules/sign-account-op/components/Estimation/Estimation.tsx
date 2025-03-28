@@ -130,7 +130,7 @@ const Estimation = ({
 
     const accountState =
       accountStates[signAccountOpState?.accountOp.accountAddr][
-        signAccountOpState?.accountOp.networkId
+        signAccountOpState?.accountOp.chainId.toString()
       ]
 
     return !accountState?.isDeployed
@@ -138,7 +138,7 @@ const Estimation = ({
     accountStates,
     isSmartAccount,
     signAccountOpState?.accountOp.accountAddr,
-    signAccountOpState?.accountOp.networkId
+    signAccountOpState?.accountOp.chainId
   ])
 
   useEffect(() => {

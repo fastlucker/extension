@@ -21,7 +21,6 @@ interface Props extends ReturnType<typeof useReverseLookup> {
 const AccountAddress: FC<Props> = ({
   isLoading,
   ens,
-  ud,
   address,
   plainAddressMaxLength = 42,
   withCopy = true,
@@ -33,10 +32,10 @@ const AccountAddress: FC<Props> = ({
 
   return (
     <View style={{ height: 18 }} testID="address">
-      {ens || ud ? (
+      {ens ? (
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text fontSize={12} weight="semiBold" appearance="primary">
-            {ens || ud}
+            {ens}
           </Text>
           {withCopy ? (
             <PlainAddressWithCopy maxLength={18} address={address} style={spacings.mlMi} />
