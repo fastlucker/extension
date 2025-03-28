@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { NavigateOptions } from 'react-router-dom'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -144,18 +145,24 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   }, [hasPasswordSecret, path, authStatus])
 
   const goToNextRoute = useCallback(
-    (flowKey?: keyof typeof flows) => {
+    (
+      flowKey?: keyof typeof flows,
+      customNavigate?: (to: string, options?: NavigateOptions | undefined) => void
+    ) => {
       const flowType = flowKey && flows[flowKey] ? flowKey : currentFlowType
       const currentRoute = path?.substring(1) as string
       const flow = onboardingFlowBranches[flows[flowType]]
       const currentIndex = flow.indexOf(currentRoute)
 
       let nextRoute = flow[currentIndex + 1] || flow[0]
-
       if (nextRoute === currentRoute) nextRoute = '/'
 
       if (nextRoute) {
-        navigate(nextRoute, { state: { internal: true } })
+        if (customNavigate) {
+          customNavigate(nextRoute, { state: { internal: true } })
+        } else {
+          navigate(nextRoute, { state: { internal: true } })
+        }
         !!flowKey && !!flows[flowKey] && setCurrentFlowType(flowKey)
       }
     },
@@ -163,7 +170,10 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   )
 
   const goToPrevRoute = useCallback(
-    (flowKey?: keyof typeof flows) => {
+    (
+      flowKey?: keyof typeof flows,
+      customNavigate?: (to: string, options?: NavigateOptions | undefined) => void
+    ) => {
       const flowType = flowKey && flows[flowKey] ? flowKey : currentFlowType
       const currentRoute = path?.substring(1) as string
       const flow = onboardingFlowBranches[flows[flowType]]
@@ -173,7 +183,11 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       if (nextRoute === currentRoute) nextRoute = '/'
 
       if (nextRoute) {
-        navigate(nextRoute, { state: { internal: true } })
+        if (customNavigate) {
+          customNavigate(nextRoute, { state: { internal: true } })
+        } else {
+          navigate(nextRoute, { state: { internal: true } })
+        }
         !!flowKey && !!flows[flowKey] && setCurrentFlowType(flowKey)
       }
     },

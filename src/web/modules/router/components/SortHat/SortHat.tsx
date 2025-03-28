@@ -42,7 +42,8 @@ const SortHat = () => {
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return goToNextRoute('getStarted')
+      // @ts-ignore
+      return goToNextRoute('getStarted', navigate)
     }
 
     if (isActionWindow && actionsState.currentAction) {
