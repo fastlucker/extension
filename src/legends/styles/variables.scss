@@ -6,15 +6,26 @@
   ... React code
 */
 // Make sure you update the hardcoded values in the React code as well.
-$primaryText: #292116;
-$secondaryText: #524634;
-$tertiaryText: #93897a;
+$primaryText: #F4F4F7;
+$secondaryText: #8D93AC;
+$tertiaryText: #6A6F86;
+$quaternaryText: #7D84A4;
+
+$primaryBackground: #101114;
+$secondaryBackground: #191A1F;
+$primaryBackground200: #6A6F8633;
+$primaryBackground300: #26272C;
+
+
+// #848486
+$purpleText: #6735FF;
+$whiteText: #FFFFFF;
+$greyText: #848486;
+
 $alternativeText: #efefef;
 $primaryBorder: #ebdeca;
 $secondaryBorder: #c9c5be;
 $tertiaryBorder: #706048;
-$primaryBackground: #faf6f0;
-$secondaryBackground: #f5ede2;
 $tertiaryBackground: #efe3d3;
 $accent: #e75132;
 $secondaryAccent: #1c510b;
@@ -29,6 +40,7 @@ $goldBackground: #f8e3b7;
 $goldDecorative: #e7aa27;
 $goldText: #b67d02;
 $yellowText: #F7BA2F;
+
 $blackText: #000000;
 $backdrop: rgba($primaryText, 0.75);
 $primaryBadgeBackground: #2c567d;
@@ -71,8 +83,8 @@ $primaryGradient: linear-gradient(
 $secondaryGradient: linear-gradient(90deg, #fee852 0%, #f6b92e 64%, #d19a3a 100%);
 
 // Typography
-$primaryFont: 'Sentient', serif;
-$secondaryFont: 'Sentient', serif;
+$primaryFont: 'FunnelDisplay', serif;
+$secondaryFont: 'FunnelDisplay', serif;
 
 // Other
 $primaryBorderRadius: 0.375rem;
