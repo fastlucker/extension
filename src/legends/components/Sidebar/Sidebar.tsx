@@ -6,6 +6,7 @@ import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft'
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons/faCircleUser'
 import { faFileLines } from '@fortawesome/free-solid-svg-icons/faFileLines'
 import { faMedal } from '@fortawesome/free-solid-svg-icons/faMedal'
+import { faPiggyBank } from '@fortawesome/free-solid-svg-icons/faPiggyBank'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
@@ -18,6 +19,7 @@ import TreasureChestComponentModal from '@legends/modules/legends/components/Tre
 import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
+import AccountDropdown from '../AccountDropdown'
 import chestBackgroundImage from './assets/chest-background.png'
 import streakBanner from './assets/streak-banner.png'
 import wheelBackgroundImage from './assets/wheel-background.png'
@@ -32,9 +34,11 @@ type Props = {
 }
 
 const NAVIGATION_LINKS = [
-  { to: LEGENDS_ROUTES.character, text: 'Character', icon: faCircleUser },
-  { to: LEGENDS_ROUTES.legends, text: 'Legends', icon: faMedal },
+  { to: LEGENDS_ROUTES.character, text: 'Home', icon: faCircleUser },
+  { to: LEGENDS_ROUTES.legends, text: 'Quests', icon: faMedal },
   { to: LEGENDS_ROUTES.leaderboard, text: 'Leaderboard', icon: faTrophy },
+  { to: LEGENDS_ROUTES.leaderboard, text: 'Staking', icon: faPiggyBank },
+
   {
     to: 'https://codex.ambire.com/',
     text: 'Guide',
@@ -99,7 +103,8 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
 
   const wheelText = useMemo(() => {
     if (isLoading) return <span className={styles.wheelText}>Loading...</span>
-    if (wheelSpinOfTheDay) return <MidnightTimer type="hoursAndMinutes" className={styles.bannerText} />
+    if (wheelSpinOfTheDay)
+      return <MidnightTimer type="hoursAndMinutes" className={styles.bannerText} />
 
     return <span className={styles.bannerText}>Available Now</span>
   }, [isLoading, wheelSpinOfTheDay])
@@ -119,37 +124,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           <FontAwesomeIcon icon={faChevronLeft} />
         </button>
         <img className={styles.logo} src="/images/logo.png" alt="Ambire Legends" />
-
-        <DailyQuestBanner
-          isDisabled={wheelSpinOfTheDay}
-          tooltipId="wheel-tooltip"
-          backgroundImage={wheelBackgroundImage}
-          title="Daily Legend"
-          text={wheelText}
-          handleClick={handleWheelOpen}
-          buttonText="Spin the Wheel"
-          wrapperStyles={styles.wheelBanner}
-        />
-        <DailyQuestBanner
-          isDisabled={treasureChestOpenedForToday}
-          tooltipId="daily-quest-tooltip"
-          backgroundImage={chestBackgroundImage}
-          title="Daily Chest"
-          text={chestText}
-          handleClick={handleTreasureOpen}
-          buttonText="Open Now"
-          reversed
-          streakBanner={streakBanner}
-          streakNumber={treasureChestStreak}
-        />
-
+        <AccountDropdown />
         <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />
-        <WheelComponent isOpen={isFortuneWheelModalOpen} handleClose={handleWheelClose} />
 
-        <TreasureChestComponentModal
-          isOpen={isTreasureChestModalOpen}
-          handleClose={handleTreasureClose}
-        />
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
             <Link
@@ -198,7 +175,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
                   <>
                     {legendLeader?.meta?.invitationKey}{' '}
                     <button type="button" onClick={copyInvitationKey}>
-                      <CopyIcon color="#706048" className={styles.leaderCopyButton} />
+                      <CopyIcon color="#6A6F86" className={styles.leaderCopyButton} />
                     </button>
                   </>
                 )}

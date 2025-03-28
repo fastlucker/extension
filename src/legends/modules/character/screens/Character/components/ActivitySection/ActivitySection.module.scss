@@ -27,7 +27,7 @@
 
   td {
     padding: 2rem 0 2rem;
-    border-bottom: 0.0938rem solid $primaryBorder;
+    border-bottom: .0938rem solid $tertiaryBackground;
   }
   tr {
     display: flex;
@@ -36,6 +36,8 @@
   thead {
     font-weight: 700;
     font-size: 1.25rem;
+    color:rgb($secondaryText, 0.4);
+    font-weight: 500;
   }
 
   tbody:before {
@@ -87,10 +89,10 @@
     padding: 0.5rem;
     display: flex;
     align-items: center;
+    color: $quinaryText;
     border-radius: $secondaryBorderRadius;
-    background-color: $secondaryBackground;
-    border: 0.0625rem solid $primaryBorder;
-    font-size: 1rem;
+    background-color: $tertiaryBackground;
+    font-size: .875rem;
     font-weight: 500;
   }
 

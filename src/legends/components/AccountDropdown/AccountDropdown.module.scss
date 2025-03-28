@@ -5,18 +5,10 @@
   margin-left: auto;
   z-index: 999;
 
-  .button,
-  .dropdown {
-    border-radius: $primaryBorderRadius;
-    background-color: $secondaryBackground;
-    border: 1px solid $primaryBorder;
-  }
-
+  
   .button {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0.75rem;
-    // pointer-events: auto;
     cursor: default;
 
     &:hover {
@@ -37,8 +29,8 @@
     // }
 
     .avatarWrapper {
-      width: 2.5rem;
-      height: 2.5rem;
+      width: 3rem;
+      height: 3rem;
       border-radius: $primaryBorderRadius;
       background-color: $tertiaryBackground;
       margin-right: 0.5rem;
@@ -53,11 +45,18 @@
       transition: 0.2s opacity ease-in-out;
       margin-right: 1rem;
 
+      .accountAndArrowWrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.125rem;
+      }
+
       .address {
         text-align: left;
         font-family: $primaryFont;
-        color: $primaryText;
-        font-size: 1rem;
+        color: $whiteText;
+        font-size: 1.25rem;
         line-height: 1.4;
         font-weight: 500;
       }
@@ -67,8 +66,8 @@
       }
       .levelAndRank {
         text-align: left;
-        font-size: 0.75rem;
-        font-family: $secondaryFont;
+        font-size: .8125rem;
+        font-family: $greyText;
       }
     }
 

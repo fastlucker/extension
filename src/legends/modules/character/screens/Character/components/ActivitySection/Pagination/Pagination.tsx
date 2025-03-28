@@ -31,15 +31,19 @@ const getVisibleTransactionsText = (
 const PaginationItem = ({
   page,
   setPage,
-  isActive
+  isActive,
+  noNumber
 }: {
   page?: number
   isActive?: boolean
   setPage?: (page: number) => void
+  noNumber?: boolean
 }) => (
   <button
     type="button"
-    className={`${styles.pageButton} ${isActive ? styles.active : ''}`}
+    className={`${styles.pageButton} ${isActive ? styles.active : ''} ${
+      noNumber ? styles.dots : ''
+    }`}
     onClick={() => {
       if (isActive) return // No need to change page if it's already active
       if (page !== undefined && setPage) {
@@ -68,12 +72,12 @@ const Pagination: FC<Props> = ({ activity, page, setPage }) => {
           disabled={page === 0}
           onClick={() => setPage(page - 1)}
         >
-          <LeftArrowIcon />
+          <LeftArrowIcon color="#E8E6E3" width={8} height={14} />
         </button>
         <div className={styles.pages}>
           {paginationRange.map((pageNumber) => {
             if (typeof pageNumber !== 'number' || String(pageNumber).includes(DOTS)) {
-              return <PaginationItem key={pageNumber} />
+              return <PaginationItem key={pageNumber} noNumber />
             }
 
             return (
@@ -92,7 +96,7 @@ const Pagination: FC<Props> = ({ activity, page, setPage }) => {
           disabled={page + 1 === totalPages}
           onClick={() => setPage(page + 1)}
         >
-          <RightArrowIcon />
+          <RightArrowIcon color="#E8E6E3" width={8} height={14} />
         </button>
       </div>
       <p className={styles.visibleTransactionsText}>

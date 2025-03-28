@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import AccountDropdown from '@legends/components/AccountDropdown'
 import Sidebar from '@legends/components/Sidebar'
 
 import styles from './Page.module.scss'
@@ -28,7 +27,6 @@ const Page = ({
             <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
               <FontAwesomeIcon icon={faBars} />
             </button>
-            <AccountDropdown />
           </div>
           <div className={styles.content}>{children}</div>
         </div>

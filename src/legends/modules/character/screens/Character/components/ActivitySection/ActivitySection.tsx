@@ -3,8 +3,6 @@ import React from 'react'
 import { networks } from '@ambire-common/consts/networks'
 import LinkIcon from '@common/assets/svg/LinkIcon'
 import spacings from '@common/styles/spacings'
-import CoinIcon from '@legends/common/assets/svg/CoinIcon'
-import SwordIcon from '@legends/common/assets/svg/SwordIcon'
 import Alert from '@legends/components/Alert'
 import ArbitrumLogo from '@legends/components/NetworkIcons/ArbitrumLogo'
 import BaseLogo from '@legends/components/NetworkIcons/BaseLogo'
@@ -33,7 +31,7 @@ const ActivitySection = () => {
 
   return (
     <div className={styles.wrapper}>
-      <SectionHeading>Activity</SectionHeading>
+      <SectionHeading>Your Activity</SectionHeading>
       {isLoading && (
         <div className={styles.spinnerWrapper}>
           <Spinner />
@@ -47,7 +45,7 @@ const ActivitySection = () => {
               <th>Transaction</th>
               <th>Network</th>
               <th>Total XP</th>
-              <th>Legends</th>
+              <th>Quests</th>
             </tr>
           </thead>
           <tbody>
@@ -101,22 +99,15 @@ const ActivitySection = () => {
                     </td>
                     <td>
                       <span className={styles.xp}>{legends.totalXp}</span>
-                      <CoinIcon width={24} height={24} className={styles.coin} />
                     </td>
                     <td className={styles.legendsWrapper}>
                       {legends.activities?.map((legendActivity, i) => (
-                        <React.Fragment
-                          key={`${txId}-${legendActivity.action}-${legendActivity.xp}-${i}`}
+                        <div
+                          className={styles.badge}
+                          key={legendActivity.action + legendActivity.xp}
                         >
-                          <div
-                            className={styles.badge}
-                            key={legendActivity.action + legendActivity.xp}
-                            data-tooltip-id={`tooltip-${txId}-${i}`}
-                          >
-                            <SwordIcon width={24} height={24} className={styles.sword} />
-                            {legendActivity.labelText} (+{legendActivity.xp} XP)
-                          </div>
-                        </React.Fragment>
+                          {legendActivity.labelText} (+{legendActivity.xp} XP)
+                        </div>
                       ))}
                     </td>
                   </tr>

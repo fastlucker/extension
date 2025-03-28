@@ -12,26 +12,33 @@
     margin-bottom: 1rem;
 
     .button {
-      @include secondary-button;
+      @include button;
       width: 2rem;
-      height: 2rem;
+      height: 2rem
+      
+     
     }
 
     .pages {
       display: flex;
-      gap: 0.25rem;
+      gap: .5rem;
       padding: 0 0.5rem;
 
       .pageButton {
-        width: 2rem;
-        height: 2rem;
-        border: 1px solid $primaryBorder;
+        width: 2.625rem;
+        height: 2.375rem;
+        @include primary-button;
         border-radius: $primaryBorderRadius;
+        background-color: $tertiaryBackground;
 
+        &.dots {
+          background: none;
+        }
+        
         &.active {
-          @include secondary-button;
-          width: 2rem;
-          height: 2rem;
+          border: none;
+          color: $whiteText;
+          background: #30343E;
         }
       }
     }
