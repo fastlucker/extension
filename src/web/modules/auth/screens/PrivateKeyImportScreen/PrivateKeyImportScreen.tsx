@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { View } from 'react-native'
 
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import Alert from '@common/components/Alert'
@@ -80,31 +81,33 @@ const PrivateKeyImportScreen = () => {
           }}
           title={t('Enter Private Key')}
         >
-          <Controller
-            control={control}
-            rules={{ validate: (value) => handleValidation(value), required: true }}
-            name="privateKey"
-            render={({ field: { onChange, onBlur, value } }) => {
-              return (
-                <TextArea
-                  testID="enter-seed-phrase-field"
-                  value={value}
-                  editable
-                  multiline
-                  numberOfLines={3}
-                  autoFocus
-                  containerStyle={spacings.mb0}
-                  placeholder={t('Write or paste your Private Key')}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  isValid={!handleValidation(value) && !!value.length}
-                  error={errors?.privateKey?.message || ' '}
-                  placeholderTextColor={theme.secondaryText}
-                  onSubmitEditing={handleFormSubmit}
-                />
-              )
-            }}
-          />
+          <View style={spacings.mbMd}>
+            <Controller
+              control={control}
+              rules={{ validate: (value) => handleValidation(value), required: true }}
+              name="privateKey"
+              render={({ field: { onChange, onBlur, value } }) => {
+                return (
+                  <TextArea
+                    testID="enter-seed-phrase-field"
+                    value={value}
+                    editable
+                    multiline
+                    numberOfLines={3}
+                    autoFocus
+                    containerStyle={spacings.mb0}
+                    placeholder={t('Write or paste your Private Key')}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    isValid={!handleValidation(value) && !!value.length}
+                    error={value.length ? errors?.privateKey?.message : ''}
+                    placeholderTextColor={theme.secondaryText}
+                    onSubmitEditing={handleFormSubmit}
+                  />
+                )
+              }}
+            />
+          </View>
           <Alert
             title="Basic Accounts (EOAs) only"
             text="You can import only EOAs with private keys. To import Smart Accounts, use a seed phrase or hardware wallet."

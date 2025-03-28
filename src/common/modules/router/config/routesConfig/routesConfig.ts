@@ -87,8 +87,8 @@ const routesConfig: RouteConfig = {
   },
   [ROUTES.keyStoreSetup]: {
     route: ROUTES.keyStoreSetup,
-    title: i18n.t('Ambire Key Store'),
-    name: i18n.t('Key Store')
+    title: i18n.t('Welcome to Ambire Wallet'),
+    name: i18n.t('Device Password Setup')
   },
   [ROUTES.keyStoreReset]: {
     route: ROUTES.keyStoreReset,
@@ -275,16 +275,16 @@ const routesConfig: RouteConfig = {
   [ROUTES.importPrivateKey]: {
     route: ROUTES.importPrivateKey,
     title: Platform.select({
-      default: i18n.t('Import Private Key')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({ default: i18n.t('Import Private Key') })
   },
   [ROUTES.importSeedPhrase]: {
     route: ROUTES.importSeedPhrase,
     title: Platform.select({
-      default: i18n.t('Import Seed Phrase')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
-    name: Platform.select({ default: i18n.t('Import Seed Phrase') })
+    name: Platform.select({ default: i18n.t('Import Recovery Phrase') })
   },
   [ROUTES.importSmartAccountJson]: {
     route: ROUTES.importSmartAccountJson,
