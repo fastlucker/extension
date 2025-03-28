@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react'
-import { Control, Controller, FormState } from 'react-hook-form'
+import React, { useCallback, useEffect } from 'react'
+import { Controller } from 'react-hook-form'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { isValidPassword } from '@ambire-common/services/validations'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -17,45 +16,42 @@ import colors from '@common/styles/colors'
 import spacings, { SPACING_3XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-
-import KeyStoreLogo from '../KeyStoreLogo'
-
-type FormFields = {
-  password: string
-  confirmPassword: string
-}
+import storage from '@web/extension-services/background/webapi/storage'
+import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
+import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup'
+import { TERMS_VERSION } from '@web/modules/terms/components/TermsComponent'
 
 type Props = {
-  showSubmitButton?: boolean
-  isKeystoreReady: boolean
-  isKeystoreSetupLoading: boolean
   onContinue: () => void
-  handleKeystoreSetup: () => void
-  control: Control<FormFields>
-  password: string
-  formState: FormState<FormFields>
   children?: React.ReactNode
 }
 
 const KeyStoreSetupForm = ({
-  showSubmitButton,
   onContinue,
-  control,
-  handleKeystoreSetup,
-  password,
-  isKeystoreSetupLoading,
-  isKeystoreReady,
-  formState,
+
   children
 }: Props) => {
   const { t } = useTranslation()
   const { ref: devicePasswordSetModalRef, open: openDevicePasswordSetModal } = useModalize()
+  const {
+    control,
+    handleKeystoreSetup,
+    password,
+    isKeystoreSetupLoading,
+    isKeystoreReady,
+    formState
+  } = useKeyStoreSetup()
 
   useEffect(() => {
     if (isKeystoreReady) {
       openDevicePasswordSetModal()
     }
   }, [isKeystoreReady, openDevicePasswordSetModal])
+
+  const handleCreateButtonPress = useCallback(async () => {
+    await storage.set('termsState', { version: TERMS_VERSION, acceptedAt: Date.now() })
+    await handleKeystoreSetup()
+  }, [handleKeystoreSetup])
 
   return (
     <>
@@ -77,7 +73,7 @@ const KeyStoreSetupForm = ({
                 (t('Your password must be unique and at least 8 characters long.') as string)
               }
               containerStyle={spacings.mbTy}
-              onSubmitEditing={handleKeystoreSetup}
+              onSubmitEditing={handleCreateButtonPress}
             />
           )}
           name="password"
@@ -104,28 +100,14 @@ const KeyStoreSetupForm = ({
           )}
           name="confirmPassword"
         />
-        {showSubmitButton && (
-          <Button
-            testID="create-keystore-pass-btn"
-            textStyle={{ fontSize: 14 }}
-            size="large"
-            disabled={formState.isSubmitting || isKeystoreSetupLoading || !formState.isValid}
-            text={formState.isSubmitting || isKeystoreSetupLoading ? t('Creating...') : t('Create')}
-            onPress={handleKeystoreSetup}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        )}
         {children}
-        <Alert
-          type="info"
-          isTypeLabelHidden
-          title={t('Password requirements:')}
-          titleWeight="semiBold"
-          text={t('Your password must be unique and at least 8 characters long.')}
-          style={!showSubmitButton ? (children ? spacings.mtXl : spacings.mt3Xl) : {}}
+        <Button
+          testID="create-keystore-pass-btn"
+          textStyle={{ fontSize: 14 }}
+          size="large"
+          disabled={formState.isSubmitting || isKeystoreSetupLoading || !formState.isValid}
+          text={formState.isSubmitting || isKeystoreSetupLoading ? t('Loading...') : t('Confirm')}
+          onPress={handleKeystoreSetup}
         />
       </View>
       <BottomSheet

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
@@ -7,18 +7,15 @@ import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 export const CARD_WIDTH = 400
@@ -34,28 +31,11 @@ const PrivateKeyImportScreen = () => {
       privateKey: ''
     }
   })
-  const { goToPrevRoute } = useOnboardingNavigation()
+  const { goToPrevRoute, goToNextRoute } = useOnboardingNavigation()
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
+
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
-  const accountAdderCtrlState = useAccountAdderControllerState()
-
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      // The AccountAdder could have been already initialized with the same or a
-      // different type. Navigate immediately only if the types match.
-      accountAdderCtrlState.type === 'internal' &&
-      accountAdderCtrlState.subType === 'private-key'
-    )
-      navigate(WEB_ROUTES.accountAdder)
-  }, [
-    accountAdderCtrlState.isInitialized,
-    accountAdderCtrlState.subType,
-    accountAdderCtrlState.type,
-    navigate
-  ])
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ privateKey }) => {
@@ -64,11 +44,12 @@ const PrivateKeyImportScreen = () => {
         trimmedPrivateKey.slice(0, 2) === '0x' ? trimmedPrivateKey.slice(2) : trimmedPrivateKey
 
       dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        type: 'ADD_NEXT_ACCOUNT_FROM_SEED_OR_PRIVATE_KEY',
         params: { privKeyOrSeed: noPrefixPrivateKey }
       })
+      goToNextRoute()
     })()
-  }, [dispatch, handleSubmit])
+  }, [dispatch, handleSubmit, goToNextRoute])
 
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
@@ -85,7 +66,6 @@ const PrivateKeyImportScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="md"
       header={<Header withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>

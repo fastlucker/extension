@@ -50,31 +50,33 @@ const Panel: React.FC<Props> = ({
       style={[styles.container, getPanelPaddings(maxWidthSize, spacingsSize), style]}
       {...rest}
     >
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.alignCenter,
-          maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd
-        ]}
-      >
-        {!!withBackButton && (
-          <Pressable onPress={onBackButtonPress} style={[spacings.prSm, spacings.pvTy]}>
-            <LeftArrowIcon />
-          </Pressable>
-        )}
-        {!!title && (
-          <Text
-            fontSize={maxWidthSize('xl') ? 20 : 18}
-            weight="medium"
-            appearance="primaryText"
-            numberOfLines={1}
-            style={[text.center, flexbox.flex1]}
-          >
-            {title}
-          </Text>
-        )}
-        <View style={{ width: 20 }} />
-      </View>
+      {(!!title || !!withBackButton) && (
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd
+          ]}
+        >
+          {!!withBackButton && (
+            <Pressable onPress={onBackButtonPress} style={[spacings.prSm, spacings.pvTy]}>
+              <LeftArrowIcon />
+            </Pressable>
+          )}
+          {!!title && (
+            <Text
+              fontSize={maxWidthSize('xl') ? 20 : 18}
+              weight="medium"
+              appearance="primaryText"
+              numberOfLines={1}
+              style={[text.center, flexbox.flex1]}
+            >
+              {title}
+            </Text>
+          )}
+          <View style={{ width: 20 }} />
+        </View>
+      )}
       {children}
     </Container>
   )

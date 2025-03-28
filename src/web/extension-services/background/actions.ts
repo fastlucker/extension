@@ -97,12 +97,13 @@ type MainControllerAddAccounts = {
     })[]
   }
 }
-type CreateNewSeedPhraseAndAddFirstSmartAccount = {
-  type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT'
+type CreateNewSeedPhraseAndAddFirstAccount = {
+  type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_ACCOUNT'
   params: { seed: string }
 }
-type AddNextSmartAccountFromSavedSeedPhraseAction = {
-  type: 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE'
+type AddNextAccountFromSeedOrPrivateKey = {
+  type: 'ADD_NEXT_ACCOUNT_FROM_SEED_OR_PRIVATE_KEY'
+  params: { privKeyOrSeed: string; seedPassphrase?: string | null }
 }
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
@@ -615,8 +616,8 @@ export type Action =
   | MainControllerAccountAdderSetHdPathTemplateAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
-  | CreateNewSeedPhraseAndAddFirstSmartAccount
-  | AddNextSmartAccountFromSavedSeedPhraseAction
+  | CreateNewSeedPhraseAndAddFirstAccount
+  | AddNextAccountFromSeedOrPrivateKey
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction

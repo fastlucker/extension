@@ -48,12 +48,12 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const onboardingFlowBranches = useMemo(() => {
     const currentRoute = path?.substring(1)
 
-    const common = [WEB_ROUTES.accountPersonalize, WEB_ROUTES.accountAdder]
+    const common = [WEB_ROUTES.accountPersonalize, '/']
     if (currentRoute === WEB_ROUTES.accountAdder) common.splice(1, 0, WEB_ROUTES.accountAdder)
 
     const dynamic = []
 
-    if (!hasPasswordSecret) {
+    if (!hasPasswordSecret || currentRoute === WEB_ROUTES.keyStoreSetup) {
       dynamic.push(WEB_ROUTES.keyStoreSetup)
     }
 

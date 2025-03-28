@@ -39,7 +39,6 @@ const GetStartedScreen = () => {
   const { goToNextRoute } = useOnboardingNavigation()
 
   const accountAdderCtrlState = useAccountAdderControllerState()
-  const wrapperRef: any = useRef(null)
   const animation = useRef(new Animated.Value(0)).current
   const { authStatus } = useAuth()
   const { dispatch } = useBackgroundService()
@@ -127,7 +126,7 @@ const GetStartedScreen = () => {
         </Animated.View>
       }
     >
-      <TabLayoutWrapperMainContent wrapperRef={wrapperRef} contentContainerStyle={spacings.mbLg}>
+      <TabLayoutWrapperMainContent>
         <View>
           <Animated.View
             style={[

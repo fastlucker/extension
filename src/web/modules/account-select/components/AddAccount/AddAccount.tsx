@@ -10,8 +10,7 @@ import spacings from '@common/styles/spacings'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-
-import { useGetAddAccountOptions } from './helpers/useGetAddAccountOptions'
+import { useGetAddAccountOptions } from '@web/modules/account-select/components/AddAccount/helpers/useGetAddAccountOptions'
 
 const AddAccount = () => {
   const { t } = useTranslation()
@@ -63,10 +62,7 @@ const AddAccount = () => {
           onPress={option.onPress}
           hasLargerBottomSpace={option.hasLargerBottomSpace}
           testID={option.testID}
-          disabled={
-            mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL' ||
-            mainControllerState.statuses.importSmartAccountFromSavedSeed !== 'INITIAL'
-          }
+          disabled={mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL'}
         />
       ))}
     </View>
