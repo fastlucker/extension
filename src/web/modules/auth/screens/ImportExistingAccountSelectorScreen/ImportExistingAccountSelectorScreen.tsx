@@ -50,7 +50,11 @@ const ImportExistingAccountSelectorScreen = () => {
               text={t('Private Key')}
               onPress={() => goToNextRoute('importExistingFromPrivateKey')}
             />
-            <Button type="secondary" text={t('sdfsfs')} />
+            <Button
+              type="secondary"
+              text={t('Recovery Phrase')}
+              onPress={() => goToNextRoute('importExistingFromSeedPhrase')}
+            />
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
