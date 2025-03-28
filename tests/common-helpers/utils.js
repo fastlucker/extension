@@ -3,8 +3,12 @@ import fs from 'fs'
 const getRecordingName = (windowType) => {
   const testPath = expect.getState().testPath.split('/tests/')[1]
   const testName = expect.getState().currentTestName
+  // Clean testName by removing invalid characters
+  // Invalid characters include:
+  // Double quote ", Colon :, Less than <, Greater than >, Vertical bar |, Asterisk *, Question mark ?, Carriage return \r, Line feed \n
+  const sanitizedTestName = testName.replace(/[":<>|*?\r\n]/g, '')
 
-  const name = `./recorder/${testPath}/${testName}/${windowType}.mp4`
+  const name = `./recorder/${testPath}/${sanitizedTestName}/${windowType}.mp4`
 
   // Check for duplicate names
   if (fs.existsSync(name)) {
