@@ -2,12 +2,9 @@ import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import {
-  SocketAPIBridgeUserTx,
-  SwapAndBridgeActiveRoute
-} from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import CloseIcon from '@common/assets/svg/CloseIcon'
-import Button, { ButtonProps } from '@common/components/Button'
+import Button, { Props as ButtonProps } from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -28,12 +25,19 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
   const { statuses } = useMainControllerState()
 
   const activeTransaction = useMemo(() => {
-    if (!activeRoute.route) return
+    const isInProgress = activeRoute.routeStatus === 'in-progress'
 
-    return activeRoute.route.userTxs[activeRoute.route.currentUserTxIndex]
-  }, [activeRoute.route])
+    // If the transaction is in progress we need to mark the bridge request as active
+    if (isInProgress) {
+      const bridgeRequest = activeRoute.route?.userTxs.find((tx) => tx.userTxType === 'fund-movr')
 
-  const { steps } = activeRoute.route
+      return bridgeRequest || activeRoute.route?.userTxs[activeRoute.route.currentUserTxIndex]
+    }
+
+    return activeRoute.route?.userTxs[activeRoute.route.currentUserTxIndex]
+  }, [activeRoute.route?.currentUserTxIndex, activeRoute.route?.userTxs, activeRoute.routeStatus])
+
+  const { steps } = activeRoute.route || {}
 
   const handleRejectActiveRoute = useCallback(() => {
     dispatch({
@@ -50,12 +54,6 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
   }, [activeRoute.activeRouteId, dispatch])
 
   const rejectBtn = useMemo<{ text: string; type: ButtonProps['type'] }>(() => {
-    const isLastTxn = activeRoute.route.totalUserTx === activeRoute.route.currentUserTxIndex + 1
-
-    // If the transaction is in the middle of the process, you can cancel the next step
-    const isInTheMiddle = !isLastTxn && activeRoute.routeStatus === 'in-progress'
-    if (isInTheMiddle) return { text: t('Cancel Next Step'), type: 'danger' }
-
     // You can't really cancel ongoing txn, only closing it (it might got stuck)
     if (
       activeRoute.routeStatus === 'in-progress' ||
@@ -65,17 +63,12 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
 
     // In all other scenarios, you can cancel the process
     return { text: t('Cancel'), type: 'danger' }
-  }, [
-    activeRoute.route.currentUserTxIndex,
-    activeRoute.routeStatus,
-    activeRoute.route.totalUserTx,
-    t
-  ])
+  }, [activeRoute.routeStatus, t])
 
   const proceedBtnText = useMemo(() => {
     if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') return t('Building Transaction...')
 
-    const isFirstTxn = activeRoute.route.currentUserTxIndex === 0
+    const isFirstTxn = activeRoute.route?.currentUserTxIndex === 0
     if (
       isFirstTxn &&
       activeRoute.routeStatus !== 'in-progress' &&
@@ -83,13 +76,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
     )
       return t('Proceed')
 
-    const isLastTxn = activeRoute.route.totalUserTx === activeRoute.route.currentUserTxIndex + 1
-    if (isLastTxn && activeRoute.routeStatus === 'in-progress') return t('Pending...')
+    if (activeRoute.routeStatus === 'in-progress') return t('Pending...')
 
     return t('Proceed to Next Step')
   }, [
-    activeRoute.route.currentUserTxIndex,
-    activeRoute.route.totalUserTx,
+    activeRoute.route?.currentUserTxIndex,
     activeRoute.routeStatus,
     statuses.buildSwapAndBridgeUserRequest,
     t
@@ -130,12 +121,8 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
         ]}
       >
         <RouteStepsPreview
-          steps={steps}
-          currentStep={
-            activeRoute.routeStatus === 'completed'
-              ? activeRoute.route.totalUserTx
-              : activeRoute.route.currentUserTxIndex
-          }
+          steps={steps || []}
+          currentStep={activeRoute.route?.currentUserTxIndex}
           loadingEnabled={
             !!activeRoute.userTxHash &&
             (activeRoute.routeStatus === 'in-progress' ||
@@ -167,8 +154,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
                         appearance="primary"
                         style={spacings.mrTy}
                       >
-                        {t('around')}{' '}
-                        {formatTime((activeTransaction as SocketAPIBridgeUserTx)?.serviceTime)}
+                        {t('around')} {formatTime(activeTransaction?.serviceTime || 0)}
                       </Text>
                       <Spinner style={{ width: 16, height: 16 }} />
                     </View>
