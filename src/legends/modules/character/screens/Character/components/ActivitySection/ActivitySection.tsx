@@ -20,11 +20,11 @@ import styles from './ActivitySection.module.scss'
 import Pagination from './Pagination'
 
 const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
-  ethereum: <EthereumLogo width={24} height={24} />,
-  base: <BaseLogo width={24} height={24} />,
-  arbitrum: <ArbitrumLogo width={24} height={24} />,
-  optimism: <OptimismLogo width={24} height={24} />,
-  scroll: <ScrollLogo width={24} height={24} />
+  '1': <EthereumLogo width={24} height={24} />,
+  '8453': <BaseLogo width={24} height={24} />,
+  '42161': <ArbitrumLogo width={24} height={24} />,
+  '10': <OptimismLogo width={24} height={24} />,
+  '534352': <ScrollLogo width={24} height={24} />
 }
 
 const ActivitySection = () => {
@@ -51,74 +51,78 @@ const ActivitySection = () => {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((act) => {
-              const network = networks.find(({ id }) => id === act.network)
+            {transactions.map(
+              ({ chainId, legends, submittedAt, userOpHash, txId, network: txNetwork }) => {
+                const network = networks.find(
+                  ({ chainId: nChainId }) => chainId.toString() === nChainId.toString()
+                )
 
-              return (
-                <tr key={act.txId}>
-                  <td>
-                    <div className={styles.linksWrapper}>
-                      {new Date(act.submittedAt).toLocaleString([], {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                return (
+                  <tr key={txId}>
+                    <td>
+                      <div className={styles.linksWrapper}>
+                        {new Date(submittedAt).toLocaleString([], {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
 
-                      {!!network && (
-                        <>
-                          <a
-                            href={`https://benzin.ambire.com/?chainId=${String(
-                              network.chainId
-                            )}&txnId=${act.txId}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={styles.link}
-                          >
-                            View transaction
-                            <LinkIcon style={spacings.phTy} />
-                          </a>
-                          <a
-                            href={`${network.explorerUrl}/tx/${act.txId}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={styles.link}
-                          >
-                            View in block explorer
-                            <LinkIcon style={spacings.phTy} />
-                          </a>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                  <td>
-                    {NETWORK_ICONS[act.network as Networks]}
-                    <span className={styles.network}>{act.network}</span>
-                  </td>
-                  <td>
-                    <span className={styles.xp}>{act.legends.totalXp}</span>
-                    <CoinIcon width={24} height={24} className={styles.coin} />
-                  </td>
-                  <td className={styles.legendsWrapper}>
-                    {act.legends.activities?.map((legendActivity, i) => (
-                      <React.Fragment
-                        key={`${act.txId}-${legendActivity.action}-${legendActivity.xp}-${i}`}
-                      >
-                        <div
-                          className={styles.badge}
-                          key={legendActivity.action + legendActivity.xp}
-                          data-tooltip-id={`tooltip-${act.txId}-${i}`}
+                        {!!network && (
+                          <>
+                            <a
+                              href={`https://benzin.ambire.com/?chainId=${
+                                network.chainId
+                              }&txnId=${txId}${userOpHash ? `&userOpHash=${userOpHash}` : ''}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={styles.link}
+                            >
+                              View transaction
+                              <LinkIcon style={spacings.phTy} />
+                            </a>
+                            <a
+                              href={`${network.explorerUrl}/tx/${txId}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={styles.link}
+                            >
+                              View in block explorer
+                              <LinkIcon style={spacings.phTy} />
+                            </a>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      {NETWORK_ICONS[chainId.toString() as Networks]}
+                      <span className={styles.network}>{network?.name || txNetwork}</span>
+                    </td>
+                    <td>
+                      <span className={styles.xp}>{legends.totalXp}</span>
+                      <CoinIcon width={24} height={24} className={styles.coin} />
+                    </td>
+                    <td className={styles.legendsWrapper}>
+                      {legends.activities?.map((legendActivity, i) => (
+                        <React.Fragment
+                          key={`${txId}-${legendActivity.action}-${legendActivity.xp}-${i}`}
                         >
-                          <SwordIcon width={24} height={24} className={styles.sword} />
-                          {legendActivity.labelText} (+{legendActivity.xp} XP)
-                        </div>
-                      </React.Fragment>
-                    ))}
-                  </td>
-                </tr>
-              )
-            })}
+                          <div
+                            className={styles.badge}
+                            key={legendActivity.action + legendActivity.xp}
+                            data-tooltip-id={`tooltip-${txId}-${i}`}
+                          >
+                            <SwordIcon width={24} height={24} className={styles.sword} />
+                            {legendActivity.labelText} (+{legendActivity.xp} XP)
+                          </div>
+                        </React.Fragment>
+                      ))}
+                    </td>
+                  </tr>
+                )
+              }
+            )}
           </tbody>
         </table>
       ) : null}

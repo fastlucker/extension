@@ -79,7 +79,10 @@ const DashboardPages = ({ onScroll }: Props) => {
       // in the port.onDisconnect callback in the background.
       dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS', params: { sessionId } })
     }
-  }, [dispatch, sessionId, setSearchParams])
+    // setSearchParams must not be in the dependency array
+    // as it changes on call and kills the session prematurely
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, sessionId])
 
   return (
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
@@ -116,6 +119,7 @@ const DashboardPages = ({ onScroll }: Props) => {
         setOpenTab={setOpenTab}
         onScroll={onScroll}
         initTab={initTab}
+        dashboardNetworkFilterName={dashboardNetworkFilterName}
       />
     </View>
   )

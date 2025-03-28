@@ -15,7 +15,12 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 
 import DashboardBannerBottomSheet from '../DashboardBannerBottomSheet'
 
-const ERROR_ACTIONS = ['reject-accountOp', 'reject-bridge', 'dismiss-email-vault']
+const ERROR_ACTIONS = [
+  'reject-accountOp',
+  'reject-bridge',
+  'dismiss-email-vault',
+  'dismiss-7702-banner'
+]
 
 const DashboardBanner = ({ banner }: { banner: BannerType }) => {
   const { type, category, title, text, actions = [] } = banner
@@ -68,15 +73,6 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           break
         }
 
-        case 'switch-default-wallet': {
-          dispatch({
-            type: 'SET_IS_DEFAULT_WALLET',
-            params: { isDefaultWallet: true }
-          })
-          addToast('Ambire is your default wallet.', { timeout: 2000 })
-          break
-        }
-
         case 'sync-keys': {
           if (type !== 'info') break
           dispatch({
@@ -96,9 +92,11 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
 
         case 'reject-bridge':
         case 'close-bridge':
-          dispatch({
-            type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
-            params: { activeRouteId: action.meta.activeRouteId }
+          action.meta.activeRouteIds.forEach((activeRouteId) => {
+            dispatch({
+              type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE',
+              params: { activeRouteId }
+            })
           })
           break
 
@@ -151,7 +149,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           })
           break
 
-        case 'dismiss-email-vault': {
+        case 'dismiss-email-vault':
           dispatch({
             type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
           })
@@ -162,7 +160,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
             }
           )
           break
-        }
+
         default:
           break
       }

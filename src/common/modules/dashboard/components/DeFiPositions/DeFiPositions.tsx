@@ -51,12 +51,12 @@ const DeFiPositions: FC<Props> = ({
 
   const filteredPositions = useMemo(
     () =>
-      defiPositions.filter(({ networkId, providerName }) => {
+      defiPositions.filter(({ chainId, providerName }) => {
         let isMatchingNetwork = true
         let isMatchingSearch = true
 
         if (dashboardNetworkFilter) {
-          isMatchingNetwork = networkId === dashboardNetworkFilter
+          isMatchingNetwork = chainId === dashboardNetworkFilter
         }
 
         if (searchValue) {
@@ -65,7 +65,7 @@ const DeFiPositions: FC<Props> = ({
             providerName.toLowerCase().includes(lowercaseSearch) ||
             getDoesNetworkMatch({
               networks,
-              itemNetworkId: networkId,
+              itemChainId: chainId,
               lowercaseSearch
             })
         }
@@ -119,21 +119,21 @@ const DeFiPositions: FC<Props> = ({
     },
     [
       control,
-      dashboardNetworkFilter,
       initTab?.defi,
       openTab,
       searchValue,
       setOpenTab,
       t,
       theme,
-      sessionId
+      sessionId,
+      dashboardNetworkFilterName
     ]
   )
 
   const keyExtractor = useCallback((positionOrElement: any) => {
     if (typeof positionOrElement === 'string') return positionOrElement
 
-    return `${positionOrElement.providerName}-${positionOrElement.networkId}`
+    return `${positionOrElement.providerName}-${positionOrElement.chainId}`
   }, [])
 
   return (

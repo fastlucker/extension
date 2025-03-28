@@ -1,5 +1,8 @@
+import * as sigUtil from 'eth-sig-util'
+
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { ledgerUSBVendorId } from '@ledgerhq/devices'
@@ -244,6 +247,58 @@ class LedgerController implements ExternalSignerController {
 
       return keys
     })
+  }
+
+  /**
+   * Attempts to sign an EIP-712 message using the Ledger device. If the device
+   * does not support direct (clear) EIP-712 signing, it falls back to signing
+   * hashes of the message (that works across all Ledger devices).
+   */
+  signEIP712MessageWithHashFallback = async ({
+    path,
+    signTypedData: { domain, types, message, primaryType }
+  }: {
+    path: string
+    signTypedData: TypedMessage
+  }) => {
+    let res: { v: number; s: string; r: string }
+    try {
+      res = await this.walletSDK!.signEIP712Message(path, {
+        domain,
+        types,
+        message,
+        primaryType
+      })
+    } catch {
+      // NOT all Ledger devices support clear signing EIP-721 message (via
+      // `signEIP712Message`), example: Ledger Nano S. The alternative is signing
+      // hashes - that works across all Ledger devices.
+      const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
+        'EIP712Domain',
+        domain,
+        types,
+        true
+      ).toString('hex')
+      const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
+        primaryType,
+        message,
+        types,
+        true
+      ).toString('hex')
+
+      res = await this.walletSDK!.signEIP712HashedMessage(
+        path,
+        domainSeparatorHex,
+        hashStructMessageHex
+      )
+    }
+
+    if (!res)
+      throw new ExternalSignerError(
+        'Your Ledger device returned an empty signature, which is unexpected. Please try signing again.'
+      )
+
+    return res
   }
 
   cleanUp = async () => {

@@ -1,6 +1,5 @@
 import logger from 'loglevel'
 
-import colors from '@common/styles/colors'
 import {
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
@@ -15,7 +14,7 @@ logger.setDefaultLevel(
 export const logInfoWithPrefix = (event: any, ...args: any) => {
   logger.info(
     `%c [Ambire] (${new Date().toLocaleTimeString()}) ${event}`,
-    `font-weight: bold; background-color: ${colors.heliotrope}; color: white;`,
+    `font-weight: bold; background-color: ${'#A36AF8'}; color: white;`,
     ...args
   )
 }
@@ -23,7 +22,7 @@ export const logInfoWithPrefix = (event: any, ...args: any) => {
 export const logWarnWithPrefix = (event: any, ...args: any) => {
   logger.warn(
     `%c [Ambire] (${new Date().toLocaleTimeString()}) ${event}`,
-    `font-weight: bold; background-color: ${colors.mustard}; color: white;`,
+    `font-weight: bold; background-color: ${'#A36AF8'}; color: white;`,
     ...args
   )
 }

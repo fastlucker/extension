@@ -10,8 +10,8 @@ import { RequestRes } from '@web/extension-services/background/provider/types'
 import PromiseFlow from '@web/utils/promiseFlow'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
 
-const lockedOrigins = new Set<string>()
-const connectOrigins = new Set<string>()
+const lockedOrigins: { [key: string]: Promise<any> } = {}
+const connectOrigins: { [key: string]: Promise<any> } = {}
 
 const flow = new PromiseFlow<{
   request: DappProviderRequest
@@ -47,24 +47,21 @@ const flowContext = flow
     const providerCtrl = new ProviderController(mainCtrl)
 
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
-      const isUnlock = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
+      const isUnlocked = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
 
-      if (!isUnlock && mainCtrl.dapps.hasPermission(origin)) {
-        if (lockedOrigins.has(origin)) {
-          throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
-        }
-        lockedOrigins.add(origin)
+      if (!isUnlocked && mainCtrl.dapps.hasPermission(origin)) {
         try {
-          await new Promise((resolve, reject) => {
-            mainCtrl.buildUserRequestFromDAppRequest(
-              { ...request, method: 'unlock', params: {} },
-              { resolve, reject, session: request.session }
-            )
-          })
-          lockedOrigins.delete(origin)
-        } catch (e) {
-          lockedOrigins.delete(origin)
-          throw e
+          if (lockedOrigins[origin] === undefined) {
+            lockedOrigins[origin] = await new Promise((resolve: (value: any) => void, reject) => {
+              mainCtrl.buildUserRequestFromDAppRequest(
+                { ...request, method: 'unlock', params: {} },
+                { resolve, reject, session: request.session }
+              )
+            })
+          }
+          await lockedOrigins[origin]
+        } finally {
+          delete lockedOrigins[origin]
         }
       }
     }
@@ -79,18 +76,17 @@ const flowContext = flow
     const providerCtrl = new ProviderController(mainCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       if (!mainCtrl.dapps.hasPermission(origin)) {
-        if (connectOrigins.has(origin)) {
-          throw ethErrors.rpc.resourceNotFound('Already processing connect. Please wait.')
-        }
         try {
-          connectOrigins.add(origin)
-          await new Promise((resolve, reject) => {
-            mainCtrl.buildUserRequestFromDAppRequest(
-              { ...request, method: 'dapp_connect', params: {} },
-              { resolve, reject, session: request.session }
-            )
-          })
-          connectOrigins.delete(origin)
+          if (connectOrigins[origin] === undefined) {
+            connectOrigins[origin] = new Promise((resolve: (value: any) => void, reject) => {
+              mainCtrl.buildUserRequestFromDAppRequest(
+                { ...request, method: 'dapp_connect', params: {} },
+                { resolve, reject, session: request.session }
+              )
+            })
+          }
+          await connectOrigins[origin]
+
           const isBlacklisted = await mainCtrl.phishing.getIsBlacklisted(origin)
           mainCtrl.dapps.addDapp({
             name,
@@ -102,14 +98,13 @@ const flowContext = flow
             isConnected: true,
             blacklisted: isBlacklisted
           } as Dapp)
-          mainCtrl.dapps.broadcastDappSessionEvent(
+          await mainCtrl.dapps.broadcastDappSessionEvent(
             'chainChanged',
             { chain: '0x1', networkVersion: '1' },
             origin
           )
-        } catch (e) {
-          connectOrigins.delete(origin)
-          throw e
+        } finally {
+          delete connectOrigins[origin]
         }
       }
     }

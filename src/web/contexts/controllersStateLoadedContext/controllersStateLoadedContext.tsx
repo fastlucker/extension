@@ -10,6 +10,7 @@ import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useExtensionUpdateControllerState from '@web/hooks/useExtensionUpdateControllerState'
+import useFeatureFlagsControllerState from '@web/hooks/useFeatureFlagsControllerState'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
@@ -57,6 +58,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const inviteControllerState = useInviteControllerState()
   const swapAndBridgeControllerState = useSwapAndBridgeControllerState()
   const extensionUpdateControllerState = useExtensionUpdateControllerState()
+  const featureFlagsControllerState = useFeatureFlagsControllerState()
 
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
@@ -135,6 +137,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(extensionUpdateControllerState).length,
     [extensionUpdateControllerState]
   )
+  const hasFeatureFlagsControllerState: boolean = useMemo(
+    () => !!Object.keys(featureFlagsControllerState).length,
+    [featureFlagsControllerState]
+  )
 
   useEffect(() => {
     if (areControllerStatesLoaded) return
@@ -164,7 +170,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasAddressBookState &&
       hasInviteState &&
       hasSwapAndBridgeState &&
-      hasExtensionUpdateState
+      hasExtensionUpdateState &&
+      hasFeatureFlagsControllerState
     ) {
       clearTimeout(timeout)
       if (isPopup) dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
@@ -194,6 +201,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasInviteState,
     hasSwapAndBridgeState,
     hasExtensionUpdateState,
+    hasFeatureFlagsControllerState,
     dispatch
   ])
 
