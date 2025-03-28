@@ -15,7 +15,7 @@ import getStyles from './styles'
 
 interface Props extends Partial<ImageProps> {
   /* supports network id or chain id */
-  networkId?: string | number
+  chainId?: bigint
   address?: string
   containerStyle?: ViewStyle
   withContainer?: boolean
@@ -37,7 +37,7 @@ enum UriStatus {
 }
 
 const TokenIcon: React.FC<Props> = ({
-  networkId: networkIdOrChainId,
+  chainId,
   address = '',
   uri: fallbackUri,
   withContainer = false,
@@ -60,14 +60,7 @@ const TokenIcon: React.FC<Props> = ({
   // Component used across Benzin and Extension, make sure to always set networks
   const networks = controllerNetworks ?? benzinNetworks
 
-  const network = useMemo(
-    () =>
-      networks.find((n) => {
-        const isNetworkId = typeof networkIdOrChainId === 'string'
-        return isNetworkId ? n.id === networkIdOrChainId : Number(n.chainId) === networkIdOrChainId
-      }),
-    [networkIdOrChainId, networks]
-  )
+  const network = useMemo(() => networks.find((n) => n.chainId === chainId), [chainId, networks])
 
   const handleImageLoaded = useCallback(() => setUriStatus(UriStatus.IMAGE_EXISTS), [])
   const attemptToLoadFallbackImage = useCallback(async () => {
@@ -161,7 +154,7 @@ const TokenIcon: React.FC<Props> = ({
           ]}
         >
           <NetworkIcon
-            id={!onGasTank ? network.id : 'gasTank'}
+            id={!onGasTank ? network.chainId.toString() : 'gasTank'}
             size={networkSize}
             style={styles.networkIcon}
             benzinNetwork={network}

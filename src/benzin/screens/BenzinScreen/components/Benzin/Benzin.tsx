@@ -28,14 +28,14 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
 
   const summary = useMemo(() => {
     const calls = state?.stepsState?.calls
-    if (!calls || !state.network?.id) return []
+    if (!calls || !state.network?.chainId) return []
 
     return calls.map((call, i) => (
       <TransactionSummary
         key={call.data + randomBytes(6)}
         style={i !== calls.length! - 1 ? spacings.mbSm : {}}
         call={call}
-        networkId={state.network!.id}
+        chainId={state.network!.chainId}
         rightIcon={
           <OpenIcon
             width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
@@ -49,7 +49,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
     ))
     // Prevents unnecessary re-renders of the humanizer
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state?.handleOpenExplorer, state?.network?.id, state?.stepsState?.calls?.length])
+  }, [state?.handleOpenExplorer, state?.network?.chainId, state?.stepsState?.calls?.length])
 
   if (state && !state?.isInitialized)
     return (
@@ -102,7 +102,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
             userOpHash={userOpHash}
             stepsState={stepsState}
             summary={summary}
-            networkId={network.id}
+            chainId={network.chainId}
           />
           {!isRenderedInternally && (
             <Buttons

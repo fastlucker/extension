@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
@@ -32,12 +31,12 @@ type Props = {
   iconUrls?: string[]
   selectedRpcUrl: string
   rpcUrls: string[]
-  chainId: string
+  chainId: bigint | string
   explorerUrl: string
   nativeAssetSymbol: string
   nativeAssetName: string
-  networkId?: string
   allowRemoveNetwork?: boolean
+  predefined?: boolean
 }
 
 const NetworkDetails = ({
@@ -50,7 +49,7 @@ const NetworkDetails = ({
   nativeAssetSymbol,
   nativeAssetName,
   allowRemoveNetwork,
-  networkId
+  predefined
 }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -73,25 +72,24 @@ const NetworkDetails = ({
 
   const shouldDisplayRemoveButton = useMemo(
     () =>
-      pathname?.includes(ROUTES.networksSettings) &&
-      !isEmpty &&
-      !predefinedNetworks.find((n) => Number(n.chainId) === Number(chainId)) &&
-      allowRemoveNetwork,
-    [pathname, chainId, isEmpty, allowRemoveNetwork]
+      pathname?.includes(ROUTES.networksSettings) && !isEmpty && !predefined && allowRemoveNetwork,
+    [pathname, isEmpty, allowRemoveNetwork, predefined]
   )
-
   const promptRemoveCustomNetwork = useCallback(() => {
     openDialog()
   }, [openDialog])
 
   const removeCustomNetwork = useCallback(() => {
-    if (networkId) {
-      dispatch({ type: 'MAIN_CONTROLLER_REMOVE_NETWORK', params: networkId })
+    if (chainId) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_REMOVE_NETWORK',
+        params: { chainId: chainId as bigint }
+      })
       closeDialog()
     } else {
       addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
     }
-  }, [networkId, dispatch, closeDialog, addToast, chainId])
+  }, [dispatch, closeDialog, addToast, chainId])
 
   const renderInfoItem = useCallback(
     (title: string, value: string, withBottomSpacing = true) => {
@@ -109,7 +107,7 @@ const NetworkDetails = ({
               <View style={spacings.mrMi}>
                 <NetworkIcon
                   key={name.toLowerCase() as any}
-                  id={name.toLowerCase() as any}
+                  id={name.toLowerCase()}
                   uris={iconUrls.length ? iconUrls : undefined}
                   size={32}
                 />
@@ -127,7 +125,7 @@ const NetworkDetails = ({
         </View>
       )
     },
-    [name, iconUrls]
+    [name, iconUrls, chainId]
   )
 
   const renderRpcUrlsItem = useCallback(() => {
@@ -226,7 +224,7 @@ const NetworkDetails = ({
               text={t('Remove')}
               type="danger"
               onPress={() => {
-                if (!networkId || !allowRemoveNetwork) return
+                if (!chainId || !allowRemoveNetwork) return
                 promptRemoveCustomNetwork()
               }}
               hasBottomSpacing={false}
@@ -240,7 +238,7 @@ const NetworkDetails = ({
         <View style={flexbox.flex1}>
           {renderInfoItem(t('Network Name'), name)}
           {renderRpcUrlsItem()}
-          {renderInfoItem(t('Chain ID'), chainId)}
+          {renderInfoItem(t('Chain ID'), chainId.toString())}
           {renderInfoItem(t('Currency Symbol'), nativeAssetSymbol)}
           {renderInfoItem(t('Currency Name'), nativeAssetName)}
           {renderInfoItem(t('Block Explorer URL'), explorerUrl, false)}
@@ -278,7 +276,7 @@ const NetworkDetails = ({
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
         <NetworkForm
-          selectedNetworkId={name.toLowerCase()}
+          selectedChainId={chainId.toString()}
           onCancel={closeBottomSheet}
           onSaved={closeBottomSheet}
         />

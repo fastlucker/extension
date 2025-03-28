@@ -113,19 +113,19 @@ describe("The extension works properly when crucial APIs aren't working from lau
         // -- DAI on Arbitrum
         await checkBalanceOfToken(
           page,
-          buildSelector('token-0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1-arbitrum'),
+          buildSelector('token-0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1-42161'),
           0
         )
         // -- USDC on Optimism
         await checkBalanceOfToken(
           page,
-          buildSelector('token-0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85-optimism'),
+          buildSelector('token-0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85-10'),
           0
         )
         // -- WALLET on Ethereum
         await checkBalanceOfToken(
           page,
-          buildSelector('token-0x88800092fF476844f74dC2FC427974BBee2794Ae-ethereum'),
+          buildSelector('token-0x88800092fF476844f74dC2FC427974BBee2794Ae-1'),
           0
         )
 

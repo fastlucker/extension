@@ -2,7 +2,6 @@ import React, { FC } from 'react'
 
 import { AddressState } from '@ambire-common/interfaces/domains'
 import EnsIcon from '@common/assets/svg/EnsIcon'
-import UnstoppableDomainIcon from '@common/assets/svg/UnstoppableDomainIcon'
 
 import Input, { InputProps } from '../Input/Input'
 import styles from './AddressInput.module.scss'
@@ -22,7 +21,7 @@ const AddressInput: FC<Props> = ({
   setAddressState,
   disabled
 }) => {
-  const { fieldValue, ensAddress, udAddress } = addressState
+  const { fieldValue, ensAddress } = addressState
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddressState((prev) => ({
@@ -41,17 +40,12 @@ const AddressInput: FC<Props> = ({
         <Input.Field
           value={fieldValue}
           onChange={onChange}
-          placeholder="Address / ENS / UD"
+          placeholder="Address / ENS"
           className={styles.input}
           disabled={disabled}
         />
         <div className={styles.domainsIcons}>
           <EnsIcon color="currentColor" isActive={!!ensAddress} className={styles.ensIcon} />
-          <UnstoppableDomainIcon
-            color="currentColor"
-            isActive={!!udAddress}
-            className={styles.udIcon}
-          />
         </div>
       </div>
       <Input.ValidationAndInfo validation={validation} infoLabel={infoLabel} />
