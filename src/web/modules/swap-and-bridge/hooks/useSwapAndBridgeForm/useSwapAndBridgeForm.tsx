@@ -252,7 +252,8 @@ const useSwapAndBridgeForm = () => {
         const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
 
         return {
-          value: n.name,
+          value: String(n.chainId),
+          extraSearchProps: [n.name],
           disabled: !isNetworkSupported,
           label: (
             <>
@@ -281,7 +282,7 @@ const useSwapAndBridgeForm = () => {
     const network = networks.find((n) => Number(n.chainId) === toChainId)
     if (!network) return toNetworksOptions[0]
 
-    return toNetworksOptions.filter((opt) => opt.value === network.name)[0]
+    return toNetworksOptions.filter((opt) => opt.value === String(network.chainId))[0]
   }, [networks, toChainId, toNetworksOptions])
 
   const handleSetToNetworkValue = useCallback(
@@ -289,7 +290,7 @@ const useSwapAndBridgeForm = () => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: {
-          toChainId: networks.filter((n) => n.name === networkOption.value)[0].chainId
+          toChainId: networks.filter((n) => String(n.chainId) === networkOption.value)[0].chainId
         }
       })
     },
