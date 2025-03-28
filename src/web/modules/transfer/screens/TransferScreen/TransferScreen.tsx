@@ -306,9 +306,7 @@ const TransferScreen = () => {
       footer={
         <>
           {!isPopup && <BackButton onPress={onBack} />}
-          <View
-            style={[flexbox.directionRow, !isSmartAccount && flexbox.flex1, flexbox.justifyEnd]}
-          >
+          <View style={[flexbox.directionRow, flexbox.flex1, flexbox.justifyEnd]}>
             <Button
               testID="transfer-queue-and-add-more-button"
               type="outline"
