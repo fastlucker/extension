@@ -18,11 +18,26 @@ const OnboardingNavigationContext = createContext<{
   goToPrevRoute: () => {}
 })
 
+const onboardingRoutes = [
+  WEB_ROUTES.getStarted,
+  WEB_ROUTES.createSeedPhrasePrepare,
+  WEB_ROUTES.createSeedPhraseWrite,
+  WEB_ROUTES.importExistingAccount,
+  WEB_ROUTES.importPrivateKey,
+  WEB_ROUTES.importSeedPhrase,
+  WEB_ROUTES.importSmartAccountJson,
+  WEB_ROUTES.viewOnlyAccountAdder,
+  WEB_ROUTES.keyStoreSetup,
+  WEB_ROUTES.accountPersonalize,
+  WEB_ROUTES.accountAdder
+]
+
 const flows = {
   getStarted: WEB_ROUTES.getStarted,
   createNewAccount: 'createNewAccount',
   importExistingAccount: WEB_ROUTES.importExistingAccount,
   importExistingFromPrivateKey: 'importExistingFromPrivateKey',
+  importExistingFromSeedPhrase: 'importExistingFromSeedPhrase',
   importExistingFromLedger: 'importExistingFromLedger',
   importExistingFromTrezor: 'importExistingFromTrezor',
   importExistingFromGrid: 'importExistingFromGrid',
@@ -31,7 +46,7 @@ const flows = {
 }
 
 const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode }) => {
-  const { path } = useRoute()
+  const { path, params } = useRoute()
   const { hasPasswordSecret } = useKeystoreControllerState()
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
@@ -75,6 +90,13 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
         ...dynamic,
         ...common
       ],
+      [flows.importExistingFromSeedPhrase]: [
+        ...initial,
+        WEB_ROUTES.importExistingAccount,
+        WEB_ROUTES.importSeedPhrase,
+        ...dynamic,
+        ...common
+      ],
       [flows.importExistingFromLedger]: [
         ...initial,
         WEB_ROUTES.importExistingAccount,
@@ -115,10 +137,13 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       const currentRoute = path?.substring(1) as string
       const flow = onboardingFlowBranches[flows[flowType]]
       const currentIndex = flow.indexOf(currentRoute)
-      const nextRoute = flow[currentIndex + 1]
+
+      let nextRoute = flow[currentIndex + 1] || flow[0]
+
+      if (nextRoute === currentRoute) nextRoute = '/'
 
       if (nextRoute) {
-        navigate(nextRoute)
+        navigate(nextRoute, { state: { internal: true } })
         !!flowKey && !!flows[flowKey] && setCurrentFlowType(flowKey)
       }
     },
@@ -131,10 +156,12 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       const currentRoute = path?.substring(1) as string
       const flow = onboardingFlowBranches[flows[flowType]]
       const currentIndex = flow.indexOf(currentRoute)
-      const nextRoute = flow[currentIndex - 1]
+      let nextRoute = flow[currentIndex - 1] || flow[0]
+
+      if (nextRoute === currentRoute) nextRoute = '/'
 
       if (nextRoute) {
-        navigate(nextRoute)
+        navigate(nextRoute, { state: { internal: true } })
         !!flowKey && !!flows[flowKey] && setCurrentFlowType(flowKey)
       }
     },
@@ -149,6 +176,16 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       setCurrentFlowType(flowKey as keyof typeof flows)
     }
   }, [currentFlowType, path])
+
+  useEffect(() => {
+    const currentRoute = path?.substring(1) as string
+
+    if (!currentRoute) return
+
+    if (!onboardingRoutes.includes(currentRoute)) return
+
+    if (!params?.internal) navigate('/', { state: { internal: true } })
+  }, [path, params, navigate])
 
   const value = useMemo(
     () => ({ currentFlowType, goToNextRoute, goToPrevRoute }),
