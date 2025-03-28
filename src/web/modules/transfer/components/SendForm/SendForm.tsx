@@ -66,7 +66,7 @@ const SendForm = ({
   const [isEstimationLoading, setIsEstimationLoading] = useState(true)
   const [estimation, setEstimation] = useState<null | {
     totalGasWei: bigint
-    networkId: string
+    chainId: bigint
     updatedAt: number
   }>(null)
 
@@ -78,7 +78,7 @@ const SendForm = ({
     amountSelectDisabled
   } = useGetTokenSelectProps({
     tokens,
-    token: selectedToken ? getTokenId(selectedToken) : '',
+    token: selectedToken ? getTokenId(selectedToken, networks) : '',
     networks,
     isToToken: false
   })
@@ -87,11 +87,13 @@ const SendForm = ({
 
   const handleChangeToken = useCallback(
     (value: string) => {
-      const tokenToSelect = tokens.find((tokenRes: TokenResult) => getTokenId(tokenRes) === value)
+      const tokenToSelect = tokens.find(
+        (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
+      )
 
       transferCtrl.update({ selectedToken: tokenToSelect, amount: '' })
     },
-    [tokens, transferCtrl]
+    [tokens, transferCtrl, networks]
   )
 
   const setAddressStateFieldValue = useCallback(
@@ -103,7 +105,7 @@ const SendForm = ({
 
   const setMaxAmount = useCallback(() => {
     const shouldDeductGas = selectedToken?.address === ZeroAddress && !isSmartAccount
-    const canDeductGas = estimation && estimation.networkId === selectedToken?.networkId
+    const canDeductGas = estimation && estimation.chainId === selectedToken?.chainId
 
     if (!shouldDeductGas || !canDeductGas) {
       transferCtrl.update({
@@ -186,7 +188,7 @@ const SendForm = ({
         const correspondingToken = tokens.find(
           (token) =>
             token.address === selectedTokenFromUrl.addr &&
-            token.networkId === selectedTokenFromUrl.networkId &&
+            token.chainId.toString() === selectedTokenFromUrl.chainId &&
             token.flags.onGasTank === false
         )
 
@@ -204,17 +206,17 @@ const SendForm = ({
   useEffect(() => {
     if (
       estimation &&
-      estimation.networkId === selectedToken?.networkId &&
+      estimation.chainId === selectedToken?.chainId &&
       estimation.updatedAt > Date.now() - ONE_MINUTE
     )
       return
-    const networkData = networks.find((network) => network.id === selectedToken?.networkId)
+    const networkData = networks.find((n) => n.chainId === selectedToken?.chainId)
 
-    if (!networkData || isSmartAccount || !account || !selectedToken?.networkId) return
+    if (!networkData || isSmartAccount || !account || !selectedToken?.chainId) return
 
     const rpcUrl = networkData.selectedRpcUrl
     const provider = new JsonRpcProvider(rpcUrl)
-    const nonce = accountStates?.[account.addr]?.[selectedToken.networkId]?.nonce
+    const nonce = accountStates?.[account.addr]?.[selectedToken.chainId.toString()]?.nonce
 
     if (typeof nonce !== 'bigint') return
 
@@ -226,7 +228,7 @@ const SendForm = ({
         account,
         {
           accountAddr: account.addr,
-          networkId: selectedToken.networkId,
+          chainId: selectedToken.chainId,
           signingKeyAddr: null,
           signingKeyType: null,
           nonce,
@@ -270,7 +272,7 @@ const SendForm = ({
 
         setEstimation({
           totalGasWei,
-          networkId: selectedToken.networkId,
+          chainId: selectedToken.chainId,
           updatedAt: Date.now()
         })
       })
@@ -334,7 +336,6 @@ const SendForm = ({
             address={addressState.fieldValue}
             setAddress={setAddressStateFieldValue}
             validation={validation}
-            uDAddress={addressState.udAddress}
             ensAddress={addressState.ensAddress}
             addressValidationMsg={validation.message}
             isRecipientHumanizerKnownTokenOrSmartContract={

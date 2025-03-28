@@ -6,7 +6,6 @@ import { Animated, Pressable, View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import { GasTankTokenResult } from '@ambire-common/libs/portfolio'
 import { PortfolioGasTankResult } from '@ambire-common/libs/portfolio/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -186,7 +185,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                   <TokenIcon
                     withContainer
                     address={token?.address || ''}
-                    networkId={token?.networkId || ''}
+                    chainId={token?.chainId}
                     onGasTank={token?.flags.onGasTank || false}
                     containerHeight={40}
                     containerWidth={40}

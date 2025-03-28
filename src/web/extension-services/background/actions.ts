@@ -11,7 +11,7 @@ import { Account, AccountPreferences, AccountStates } from '@ambire-common/inter
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { AddNetworkRequestParams, ChainId, Network } from '@ambire-common/interfaces/network'
 import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
 import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
@@ -120,7 +120,7 @@ type MainControllerAddNetwork = {
 
 type MainControllerRemoveNetwork = {
   type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: NetworkId
+  params: { chainId: ChainId }
 }
 
 type AccountsControllerUpdateAccountPreferences = {
@@ -130,7 +130,7 @@ type AccountsControllerUpdateAccountPreferences = {
 
 type AccountsControllerUpdateAccountState = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE'
-  params: { addr: string; networkIds: Network['id'][] }
+  params: { addr: string; chainIds: bigint[] }
 }
 
 type SettingsControllerSetNetworkToAddOrUpdate = {
@@ -158,7 +158,7 @@ type MainControllerUpdateNetworkAction = {
   type: 'MAIN_CONTROLLER_UPDATE_NETWORK'
   params: {
     network: Partial<Network>
-    networkId: NetworkId
+    chainId: ChainId
   }
 }
 
@@ -245,9 +245,7 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
-  params?: {
-    networkId?: Network['id']
-  }
+  params?: { chainId?: bigint | string }
 }
 
 type MainControllerUpdateSelectedAccountPortfolio = {
@@ -260,14 +258,14 @@ type MainControllerUpdateSelectedAccountPortfolio = {
 
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
-  params: { dashboardNetworkFilter: NetworkId | null }
+  params: { dashboardNetworkFilter: bigint | string | null }
 }
 
 type PortfolioControllerGetTemporaryToken = {
   type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS'
   params: {
     additionalHint: TokenResult['address']
-    networkId: NetworkId
+    chainId: bigint
   }
 }
 
@@ -298,7 +296,7 @@ type PortfolioControllerToggleHideToken = {
 type PortfolioControllerCheckToken = {
   type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN'
   params: {
-    token: { address: TokenResult['address']; networkId: NetworkId }
+    token: { address: TokenResult['address']; chainId: bigint }
   }
 }
 
@@ -431,7 +429,7 @@ type DomainsControllerSaveResolvedReverseLookupAction = {
   params: {
     address: string
     name: string
-    type: 'ens' | 'ud'
+    type: 'ens'
   }
 }
 

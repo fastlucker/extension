@@ -145,13 +145,13 @@ export const handleActions = async (
       return await mainCtrl.addNetwork(params)
     }
     case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
-      return await mainCtrl.removeNetwork(params)
+      return await mainCtrl.removeNetwork(params.chainId)
     }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
       return await mainCtrl.accounts.updateAccountPreferences(params)
     }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE': {
-      return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.networkIds)
+      return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.chainIds)
     }
     case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
       return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
@@ -163,7 +163,7 @@ export const handleActions = async (
       return await mainCtrl.keystore.updateKeyPreferences(params)
     }
     case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
-      return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
+      return await mainCtrl.networks.updateNetwork(params.network, params.chainId)
     }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
       return await mainCtrl.selectAccount(params.accountAddr)
@@ -391,7 +391,7 @@ export const handleActions = async (
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({
-        networkId: params?.networkId
+        chainId: params?.chainId ? BigInt(params?.chainId) : undefined
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
@@ -403,7 +403,7 @@ export const handleActions = async (
 
       return await mainCtrl.portfolio.getTemporaryTokens(
         mainCtrl.selectedAccount.account.addr,
-        params.networkId,
+        params.chainId,
         params.additionalHint
       )
     }
