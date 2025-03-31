@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -9,7 +9,6 @@ import DualChoiceModal from '@common/components/DualChoiceModal'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
@@ -20,7 +19,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import storage from '@web/extension-services/background/webapi/storage'
 import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
 import TermsComponent from '@web/modules/terms/components'
 
@@ -28,22 +26,11 @@ export const CARD_WIDTH = 400
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
-  const { goBack } = useNavigation()
 
   const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { theme } = useTheme()
   const [agreedWithTerms, setAgreedWithTerms] = useState(true)
   const { ref: termsModalRef, open: openTermsModal, close: closeTermsModal } = useModalize()
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      const secrets = await storage.get('keystoreSecrets', [])
-      if (secrets.some((s: any) => s.id === 'password')) {
-        goBack()
-      }
-    })()
-  }, [goBack])
 
   return (
     <TabLayoutContainer
@@ -62,7 +49,7 @@ const KeyStoreSetupScreen = () => {
           }}
           title={t('Set a Device Password')}
         >
-          <KeyStoreSetupForm onContinue={goToNextRoute}>
+          <KeyStoreSetupForm onContinue={() => goToNextRoute()}>
             <Checkbox
               value={agreedWithTerms}
               onValueChange={setAgreedWithTerms}

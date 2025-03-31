@@ -9,18 +9,15 @@ import InputPassword from '@common/components/InputPassword'
 import Panel from '@common/components/Panel'
 import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import getStyles from './styles'
@@ -30,10 +27,10 @@ export const CARD_WIDTH = 400
 const SeedPhraseImportScreen = () => {
   const { goToPrevRoute, goToNextRoute } = useOnboardingNavigation()
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
+
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const accountAdderCtrlState = useAccountAdderControllerState()
+
   const {
     watch,
     control,
@@ -67,23 +64,6 @@ const SeedPhraseImportScreen = () => {
     })
     return () => unsubscribe()
   }, [watch, t])
-
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      // The AccountAdder could have been already initialized with the same or a
-      // different type. Navigate immediately only if the types match.
-      accountAdderCtrlState.type === 'internal' &&
-      accountAdderCtrlState.subType === 'seed'
-    ) {
-      navigate(WEB_ROUTES.accountAdder)
-    }
-  }, [
-    accountAdderCtrlState.isInitialized,
-    accountAdderCtrlState.subType,
-    accountAdderCtrlState.type,
-    navigate
-  ])
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ seed, passphrase }) => {

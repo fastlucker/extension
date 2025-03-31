@@ -4,7 +4,6 @@ import { ScrollView, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import CheckIcon from '@common/assets/svg/CheckIcon'
-import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -12,6 +11,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -19,6 +19,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
@@ -32,6 +33,7 @@ const AccountPersonalizeScreen = () => {
   const { dispatch } = useBackgroundService()
 
   const accountsState = useAccountsControllerState()
+  const accountAdderState = useAccountAdderControllerState()
 
   const newAccounts: Account[] = useMemo(
     () => accountsState.accounts.filter((a) => a.newlyAdded),
@@ -133,6 +135,23 @@ const AccountPersonalizeScreen = () => {
             hasBottomSpacing={false}
             text={t('Get Started')}
           />
+          {accountAdderState.subType === 'seed' && (
+            <View style={spacings.ptLg}>
+              <Button
+                type="ghost"
+                text={t('Add more accounts from this Recovery Phrase')}
+                onPress={() => goToNextRoute(WEB_ROUTES.accountAdder)}
+                textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}
+                style={{ ...spacings.ph0, height: 22 }}
+                hasBottomSpacing={false}
+                childrenPosition="left"
+              >
+                <Text fontSize={24} weight="light" style={spacings.mrTy} color={theme.primary}>
+                  +
+                </Text>
+              </Button>
+            </View>
+          )}
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

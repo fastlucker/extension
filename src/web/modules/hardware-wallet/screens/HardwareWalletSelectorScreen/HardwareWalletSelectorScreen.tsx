@@ -1,15 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useStepper from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
@@ -17,7 +15,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { isSafari } from '@web/constants/browserapi'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
@@ -27,28 +24,13 @@ import getOptions from './options'
 
 const HardwareWalletSelectorScreen = () => {
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
-  const { updateStepperState } = useStepper()
+
   const mainCtrlState = useMainControllerState()
-  const accountAdderCtrlState = useAccountAdderControllerState()
+
   const { dispatch } = useBackgroundService()
   const { theme } = useTheme()
   const [isLedgerConnectModalVisible, setIsLedgerConnectModalVisible] = useState(false)
   const { addToast } = useToast()
-  useEffect(() => {
-    updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
-  }, [updateStepperState])
-
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      // The AccountAdder could have been already initialized with the same or a
-      // different type. Navigate immediately only if the types match.
-      ['ledger', 'trezor', 'lattice'].includes(accountAdderCtrlState.type)
-    ) {
-      navigate(WEB_ROUTES.accountAdder)
-    }
-  }, [accountAdderCtrlState.isInitialized, accountAdderCtrlState.type, navigate])
 
   const onTrezorPress = useCallback(() => {
     if (isSafari()) {

@@ -23,7 +23,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
@@ -38,7 +37,6 @@ const GetStartedScreen = () => {
   const { navigate } = useNavigation()
   const { goToNextRoute } = useOnboardingNavigation()
 
-  const accountAdderCtrlState = useAccountAdderControllerState()
   const animation = useRef(new Animated.Value(0)).current
   const { authStatus } = useAuth()
   const { dispatch } = useBackgroundService()
@@ -68,38 +66,18 @@ const GetStartedScreen = () => {
     }).start()
   }, [animation])
 
-  // here's the bug for the code below:
-  // 1. Go through get started and create a seed
-  // 2. Close account adder without adding any new accounts
-  // 3. If you open get started, you have loads of options - you should not
-  // as you've already created a seed and have to finish that
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      accountAdderCtrlState.type === 'internal' &&
-      accountAdderCtrlState.subType === 'seed'
-    ) {
-      navigate(WEB_ROUTES.accountAdder, { state: { hideBack: true } })
-    }
-  }, [
-    accountAdderCtrlState.isInitialized,
-    accountAdderCtrlState.subType,
-    accountAdderCtrlState.type,
-    navigate
-  ])
-
   const handleAuthButtonPress = useCallback(
     async (flow: 'create-new-account' | 'import-existing-account' | 'view-only') => {
       if (flow === 'create-new-account') {
-        goToNextRoute('createNewAccount')
+        goToNextRoute(WEB_ROUTES.createSeedPhrasePrepare)
         return
       }
       if (flow === 'import-existing-account') {
-        goToNextRoute('importExistingAccount')
+        goToNextRoute(WEB_ROUTES.importExistingAccount)
         return
       }
       if (flow === 'view-only') {
-        goToNextRoute('watchAddress')
+        goToNextRoute(WEB_ROUTES.viewOnlyAccountAdder)
       }
     },
     [goToNextRoute]

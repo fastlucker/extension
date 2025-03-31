@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next'
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 import ViewModeIcon from '@common/assets/svg/ViewModeIcon'
-import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
+import useNavigation from '@common/hooks/useNavigation'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 const useGetAddAccountOptions = () => {
-  const { goToNextRoute } = useOnboardingNavigation()
+  const { navigate } = useNavigation()
   const { t } = useTranslation()
 
   return [
@@ -14,21 +15,21 @@ const useGetAddAccountOptions = () => {
       key: 'create-new-hot-wallet',
       text: t('Create new hot wallets'),
       icon: CreateWalletIcon,
-      onPress: () => goToNextRoute('createNewAccount'),
+      onPress: () => navigate(WEB_ROUTES.createSeedPhrasePrepare),
       testID: 'create-new-hot-wallet'
     },
     {
       key: 'hot-wallet',
       text: t('Import existing accounts'),
       icon: ImportAccountIcon,
-      onPress: () => goToNextRoute('importExistingAccount'),
+      onPress: () => navigate(WEB_ROUTES.importExistingAccount),
       testID: 'import-existing-wallet'
     },
     {
       key: 'view-only',
       text: t('Watch an address'),
       icon: ViewModeIcon,
-      onPress: () => goToNextRoute('watchAddress'),
+      onPress: () => navigate(WEB_ROUTES.viewOnlyAccountAdder),
       testID: 'watch-address'
     }
   ]

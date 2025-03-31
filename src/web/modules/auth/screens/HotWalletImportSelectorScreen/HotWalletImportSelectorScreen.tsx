@@ -27,7 +27,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
@@ -49,26 +48,8 @@ const HotWalletImportSelectorScreen = () => {
     close: closePrivateKeyBottomSheet
   } = useModalize()
   const { accounts } = useAccountsControllerState()
-  const accountAdderCtrlState = useAccountAdderControllerState()
   const [isWarning1Checked, setIsWarning1Checked] = useState(false)
   const [isWarning2Checked, setIsWarning2Checked] = useState(false)
-
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      // The AccountAdder could have been already initialized with the same or a
-      // different type. Navigate immediately only if the types match.
-      accountAdderCtrlState.type === 'internal' &&
-      accountAdderCtrlState.subType === 'seed'
-    ) {
-      navigate(WEB_ROUTES.accountAdder)
-    }
-  }, [
-    accountAdderCtrlState.isInitialized,
-    accountAdderCtrlState.subType,
-    accountAdderCtrlState.type,
-    navigate
-  ])
 
   const handleImportFromExternalSeed = useCallback(() => {
     navigate(WEB_ROUTES.importSeedPhrase)

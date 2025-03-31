@@ -7,6 +7,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -48,12 +49,12 @@ const ImportExistingAccountSelectorScreen = () => {
             <Button
               type="primary"
               text={t('Private Key')}
-              onPress={() => goToNextRoute('importExistingFromPrivateKey')}
+              onPress={() => goToNextRoute(WEB_ROUTES.importPrivateKey)}
             />
             <Button
               type="secondary"
               text={t('Recovery Phrase')}
-              onPress={() => goToNextRoute('importExistingFromSeedPhrase')}
+              onPress={() => goToNextRoute(WEB_ROUTES.importSeedPhrase)}
             />
           </View>
         </Panel>
