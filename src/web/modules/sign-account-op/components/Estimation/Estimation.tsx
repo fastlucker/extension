@@ -42,12 +42,25 @@ const FeeSpeedLabel = ({
   const { t } = useTranslation()
 
   return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+    <View
+      style={[
+        flexbox.flex1,
+        flexbox.directionRow,
+        flexbox.alignCenter,
+        flexbox.justifySpaceBetween
+      ]}
+    >
       <Text weight="medium" fontSize={12} style={spacings.mrMi}>
         {t(speed.type.charAt(0).toUpperCase() + speed.type.slice(1))}
       </Text>
       {!isValue && (
-        <Text fontSize={14} style={spacings.mlMi} weight="regular" appearance="secondaryText">
+        <Text
+          fontSize={!feeTokenPriceUnavailableWarning ? 14 : 12}
+          style={spacings.mlMi}
+          numberOfLines={1}
+          weight={!feeTokenPriceUnavailableWarning ? 'regular' : 'medium'}
+          appearance="secondaryText"
+        >
           {!feeTokenPriceUnavailableWarning
             ? formatDecimals(Number(speed.amountUsd), 'value')
             : `${formatDecimals(Number(speed.amountFormatted), 'precise')} ${
@@ -393,8 +406,12 @@ const Estimation = ({
             options={feeSpeedOptions}
             selectStyle={{ height: 32 }}
             menuOptionHeight={32}
+            // Display a wider menu if the fee token price is unavailable
+            // as the native amount takes up more space
+            menuLeftHorizontalOffset={feeTokenPriceUnavailableWarning ? 100 : 48}
+            menuStyle={{ minWidth: feeTokenPriceUnavailableWarning ? 200 : 148 }}
             withSearch={false}
-            containerStyle={{ ...spacings.mb0, minWidth: 160, width: 'fit-content' }}
+            containerStyle={{ ...spacings.mb0, width: 100 }}
             testID="fee-speed-select"
           />
         )}
