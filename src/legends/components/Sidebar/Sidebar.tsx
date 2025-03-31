@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useRef, useState } from 'react'
+import React, { FC, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -10,20 +10,13 @@ import { faPiggyBank } from '@fortawesome/free-solid-svg-icons/faPiggyBank'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
-import MidnightTimer from '@legends/components/MidnightTimer'
 import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
-import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
-import WheelComponent from '@legends/modules/legends/components/WheelComponentModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import AccountDropdown from '../AccountDropdown'
-import chestBackgroundImage from './assets/chest-background.png'
-import streakBanner from './assets/streak-banner.png'
-import wheelBackgroundImage from './assets/wheel-background.png'
-import DailyQuestBanner from './components/DailyQuestBanner'
 import Link from './components/Link'
 import Socials from './components/Socials'
 import styles from './Sidebar.module.scss'
@@ -51,28 +44,11 @@ const NAVIGATION_LINKS = [
 const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { addToast } = useToast()
   const { pathname } = useLocation()
-  const [isFortuneWheelModalOpen, setIsFortuneWheelModalOpen] = useState(false)
-  const {
-    wheelSpinOfTheDay,
-    treasureChestStreak,
-    treasureChestOpenedForToday,
-    legends,
-    isLoading
-  } = useLegendsContext()
-  const [isTreasureChestModalOpen, setIsTreasureChestModalOpen] = useState(false)
+  const { legends } = useLegendsContext()
   const containerRef = useRef(null)
   const legendLeader = legends.find((legend) => legend.id === 'referral')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
   const { startPolling, stopPolling } = useDataPollingContext()
-
-  const handleWheelOpen = () => {
-    stopPolling()
-    setIsFortuneWheelModalOpen(true)
-  }
-  const handleWheelClose = () => {
-    startPolling()
-    setIsFortuneWheelModalOpen(false)
-  }
 
   const handleLeaderOpen = () => {
     stopPolling()
@@ -83,15 +59,6 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
     setIsLeaderModalOpen(false)
   }
 
-  const handleTreasureOpen = () => {
-    stopPolling()
-    setIsTreasureChestModalOpen(true)
-  }
-  const handleTreasureClose = () => {
-    startPolling()
-    setIsTreasureChestModalOpen(false)
-  }
-
   const copyInvitationKey = () => {
     if (!legendLeader?.meta?.invitationKey) {
       addToast('No invitation key to copy', { type: 'error' })
@@ -100,22 +67,6 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
     navigator.clipboard.writeText(legendLeader?.meta?.invitationKey)
     addToast('Copied to clipboard')
   }
-
-  const wheelText = useMemo(() => {
-    if (isLoading) return <span className={styles.wheelText}>Loading...</span>
-    if (wheelSpinOfTheDay)
-      return <MidnightTimer type="hoursAndMinutes" className={styles.bannerText} />
-
-    return <span className={styles.bannerText}>Available Now</span>
-  }, [isLoading, wheelSpinOfTheDay])
-
-  const chestText = useMemo(() => {
-    if (isLoading) return <span className={styles.bannerText}>Loading...</span>
-    if (treasureChestOpenedForToday)
-      return <MidnightTimer type="hoursAndMinutes" className={styles.bannerText} />
-
-    return <span className={styles.bannerText}>Available Now</span>
-  }, [isLoading, treasureChestOpenedForToday])
 
   return (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
@@ -162,24 +113,22 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
                 ))}
               </div>
             </div>
-            <div className={styles.gradientBorder}>
-              <div
-                className={`${styles.leaderInvitationKey} ${
-                  legendLeader?.meta?.timesUsed === legendLeader?.meta?.maxHits &&
-                  styles.gradientBorderInner
-                }`}
-              >
-                {legendLeader?.meta?.timesUsed === legendLeader?.meta?.maxHits ? (
-                  'You are a Leader'
-                ) : (
-                  <>
-                    {legendLeader?.meta?.invitationKey}{' '}
-                    <button type="button" onClick={copyInvitationKey}>
-                      <CopyIcon color="#6A6F86" className={styles.leaderCopyButton} />
-                    </button>
-                  </>
-                )}
-              </div>
+            <div
+              className={`${styles.leaderInvitationKey} ${
+                legendLeader?.meta?.timesUsed === legendLeader?.meta?.maxHits &&
+                styles.gradientBorderInner
+              }`}
+            >
+              {legendLeader?.meta?.timesUsed === legendLeader?.meta?.maxHits ? (
+                'You are a Leader'
+              ) : (
+                <>
+                  {legendLeader?.meta?.invitationKey}{' '}
+                  <button type="button" onClick={copyInvitationKey}>
+                    <CopyIcon color="#6A6F86" className={styles.leaderCopyButton} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}
