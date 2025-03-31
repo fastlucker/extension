@@ -193,6 +193,7 @@ async function verifyNetwork(page, network_name, assert = true) {
 
 async function selectNetwork(page, network_name) {
   const xpath = `//div[.//div[text()="Network details"]]//div[text()="${network_name}"]`
+  await page.waitForXPath(xpath, { visible: true, timeout: 3000 })
   const [element] = await page.$x(xpath)
   expect(element).not.toBeNull()
   element.click()

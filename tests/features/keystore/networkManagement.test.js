@@ -3,7 +3,7 @@ import { saParams } from '../../config/constants'
 
 import { addNetworkManually, editNetwork, deletNetwork } from './functions'
 
-describe('keystore', () => {
+describe('networkManagement', () => {
   let browser
   let page
   let extensionURL
