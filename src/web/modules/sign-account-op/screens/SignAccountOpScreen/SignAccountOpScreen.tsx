@@ -375,7 +375,13 @@ const SignAccountOpScreen = () => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
   return (
-    <>
+    <View
+      style={{
+        flex: 1,
+        width: 720,
+        marginHorizontal: 'auto'
+      }}
+    >
       {renderedButNotNecessarilyVisibleModal === 'warnings' && (
         <BottomSheet
           id="warning-modal"
@@ -549,7 +555,7 @@ const SignAccountOpScreen = () => {
           )}
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>
-    </>
+    </View>
   )
 }
 
