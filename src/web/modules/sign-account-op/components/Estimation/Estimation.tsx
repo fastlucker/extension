@@ -185,13 +185,7 @@ const Estimation = ({
       signAccountOpState.accountOp.accountAddr,
       signAccountOpState.rbfAccountOps[signAccountOpState.selectedOption.paidBy]
     )
-    return signAccountOpState.feeSpeeds[identifier].map((speed) => ({
-      ...speed,
-      disabled: !!(
-        signAccountOpState.selectedOption &&
-        signAccountOpState.selectedOption.availableAmount < speed.amount
-      )
-    }))
+    return signAccountOpState.feeSpeeds[identifier]
   }, [
     signAccountOpState?.feeSpeeds,
     signAccountOpState?.selectedOption,
@@ -218,7 +212,8 @@ const Estimation = ({
         />
       ),
       value: speed.type,
-      speed
+      speed,
+      disabled: speed.disabled
     }))
   }, [feeSpeeds, feeTokenPriceUnavailableWarning, payValue])
 
