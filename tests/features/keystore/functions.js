@@ -120,8 +120,8 @@ export async function openSettingsPage(page) {
 async function selectSetting(page, text, assert_text = null) {
   await clickOnElement(page, `text=${text}`)
   expect(page.url()).toContain(URL_SETTINGS_PAGE + text.toLowerCase())
-  if (!assert_text) {
-    await expect(page).toMatchElement(`div', { text: '${assert_text}' }`)
+  if (assert_text) {
+    await expect(page).toMatchElement('div', { text: `${assert_text}`, timeout: 3000 })
   }
 }
 
