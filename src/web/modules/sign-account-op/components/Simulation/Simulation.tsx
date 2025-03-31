@@ -27,9 +27,10 @@ interface Props {
   // marks whether the estimation has been done regardless
   // of whether the estimation returned an error or not
   isEstimationComplete: boolean
+  isViewOnly: boolean
 }
 
-const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
+const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
@@ -85,27 +86,6 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     [pendingTokens]
   )
 
-  const isReloading = useMemo(() => {
-    if (!network?.chainId || !initialSimulationLoaded) return false
-
-    if (!isEstimationComplete) return true
-
-    const portfolioAccountOpCalls = networkSimulatedAccountOp[String(network.chainId)]?.calls
-    const signAccountOpCalls = signAccountOpState?.accountOp.calls
-
-    // New calls are reflected immediately in the signAccountOpState,
-    // while the portfolio update takes some time to reflect the changes.
-    // The interval between the two updates is the time it takes for the
-    // simulation to reload.
-    return portfolioAccountOpCalls?.length !== signAccountOpCalls?.length
-  }, [
-    initialSimulationLoaded,
-    isEstimationComplete,
-    network?.chainId,
-    networkSimulatedAccountOp,
-    signAccountOpState?.accountOp.calls
-  ])
-
   const simulationErrorMsg = useMemo(() => {
     if (portfolioStatePending?.isLoading && !initialSimulationLoaded) return ''
 
@@ -113,8 +93,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
       if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
         return `Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
       }
-
-      return portfolioStatePending?.criticalError.simulationErrorMsg
+      return portfolioStatePending?.criticalError.simulationErrorMsg || 'Unknown error'
     }
 
     const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
@@ -131,6 +110,32 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     portfolioStatePending?.criticalError,
     portfolioStatePending?.errors,
     portfolioStatePending?.isLoading
+  ])
+
+  const isReloading = useMemo(() => {
+    if (!network?.chainId || !initialSimulationLoaded) return false
+
+    if (!isEstimationComplete) return true
+
+    const portfolioAccountOpCalls = networkSimulatedAccountOp[String(network.chainId)]?.calls
+    const signAccountOpCalls = signAccountOpState?.accountOp.calls
+
+    // If the portfolio state has no calls and there is a simulation error,
+    // it means that the simulation is not reloading
+    if (!portfolioAccountOpCalls && simulationErrorMsg) return false
+
+    // New calls are reflected immediately in the signAccountOpState,
+    // while the portfolio update takes some time to reflect the changes.
+    // The interval between the two updates is the time it takes for the
+    // simulation to reload.
+    return portfolioAccountOpCalls?.length !== signAccountOpCalls?.length
+  }, [
+    initialSimulationLoaded,
+    isEstimationComplete,
+    network?.chainId,
+    networkSimulatedAccountOp,
+    signAccountOpState?.accountOp.calls,
+    simulationErrorMsg
   ])
 
   const shouldShowLoader = useMemo(
@@ -155,7 +160,9 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     | null = useMemo(() => {
     if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
-    if (signAccountOpState.status?.type === SigningStatus.EstimationError)
+    // If the user is view only we are not displaying the error elsewhere
+    // thus we have to show it in the Simulation
+    if (signAccountOpState.status?.type === SigningStatus.EstimationError && !isViewOnly)
       return 'error-handled-elsewhere'
 
     if (simulationErrorMsg) return 'error'
@@ -171,13 +178,14 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   }, [
     shouldShowLoader,
     signAccountOpState?.isInitialized,
-    signAccountOpState?.status,
+    signAccountOpState?.status?.type,
+    signAccountOpState?.account,
+    isViewOnly,
     simulationErrorMsg,
     pendingSendCollection.length,
     pendingReceiveCollection.length,
     pendingTokens.length,
-    network?.rpcNoStateOverride,
-    signAccountOpState?.account
+    network?.rpcNoStateOverride
   ])
 
   useEffect(() => {

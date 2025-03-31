@@ -493,9 +493,8 @@ const SignAccountOpScreen = () => {
         ) : null}
         <TabLayoutWrapperMainContent>
           <PendingTransactions network={network} />
-          {isViewOnly ? (
-            <NoKeysToSignAlert style={spacings.ptTy} />
-          ) : signAccountOpState?.errors?.length ? (
+          {/* Display errors only if the user is not in view-only mode */}
+          {signAccountOpState?.errors?.length && !isViewOnly ? (
             <AlertVertical
               type="warning"
               title={signAccountOpState.errors[0].title}
@@ -532,9 +531,11 @@ const SignAccountOpScreen = () => {
           ) : (
             <Simulation
               network={network}
+              isViewOnly={isViewOnly}
               isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
             />
           )}
+          {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
 
           {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
             <SignAccountOpHardwareWalletSigningModal
