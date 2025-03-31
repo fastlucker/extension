@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
-import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { FeeSpeed, SpeedCalc } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Warning } from '@ambire-common/interfaces/signAccountOp'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import AssetIcon from '@common/assets/svg/AssetIcon'
@@ -26,6 +27,37 @@ import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
 import { Props } from './types'
 
 const FEE_SECTION_LIST_MENU_HEADER_HEIGHT = 34
+
+const FeeSpeedLabel = ({
+  speed,
+  feeTokenPriceUnavailableWarning,
+  payValue,
+  isValue
+}: {
+  speed: SpeedCalc
+  feeTokenPriceUnavailableWarning?: Warning
+  payValue?: SelectValue
+  isValue?: boolean
+}) => {
+  const { t } = useTranslation()
+
+  return (
+    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+      <Text weight="medium" fontSize={12} style={spacings.mrMi}>
+        {t(speed.type.charAt(0).toUpperCase() + speed.type.slice(1))}
+      </Text>
+      {!isValue && (
+        <Text fontSize={14} style={spacings.mlMi} weight="regular" appearance="secondaryText">
+          {!feeTokenPriceUnavailableWarning
+            ? formatDecimals(Number(speed.amountUsd), 'value')
+            : `${formatDecimals(Number(speed.amountFormatted), 'precise')} ${
+                payValue?.token.symbol
+              }`}
+        </Text>
+      )}
+    </View>
+  )
+}
 
 const Estimation = ({
   signAccountOpState,
@@ -166,29 +198,41 @@ const Estimation = ({
   const feeSpeedOptions = useMemo(() => {
     return feeSpeeds.map((speed) => ({
       label: (
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Text weight="medium" fontSize={12} style={spacings.mrMi}>
-            {t(speed.type.charAt(0).toUpperCase() + speed.type.slice(1))}
-          </Text>
-          <Text fontSize={14} style={spacings.mlMi} weight="regular" appearance="secondaryText">
-            {!feeTokenPriceUnavailableWarning
-              ? formatDecimals(Number(speed.amountUsd), 'value')
-              : `${formatDecimals(Number(speed.amountFormatted), 'precise')} ${
-                  payValue?.token.symbol
-                }`}
-          </Text>
-        </View>
+        <FeeSpeedLabel
+          speed={speed}
+          feeTokenPriceUnavailableWarning={feeTokenPriceUnavailableWarning}
+          payValue={payValue}
+        />
       ),
-      value: speed.type
+      value: speed.type,
+      speed
     }))
-  }, [feeSpeeds, feeTokenPriceUnavailableWarning, payValue?.token.symbol, t])
+  }, [feeSpeeds, feeTokenPriceUnavailableWarning, payValue])
 
-  const selectedFee = useMemo(
-    () =>
+  const selectedFee = useMemo(() => {
+    const selectedOption =
       feeSpeedOptions.find(({ value }) => value === signAccountOpState?.selectedFeeSpeed) ||
-      feeSpeedOptions[0],
-    [feeSpeedOptions, signAccountOpState?.selectedFeeSpeed]
-  )
+      feeSpeedOptions[0]
+
+    if (!selectedOption) return null
+
+    return {
+      ...selectedOption,
+      label: (
+        <FeeSpeedLabel
+          speed={selectedOption.speed}
+          feeTokenPriceUnavailableWarning={feeTokenPriceUnavailableWarning}
+          payValue={payValue}
+          isValue
+        />
+      )
+    }
+  }, [
+    feeSpeedOptions,
+    feeTokenPriceUnavailableWarning,
+    payValue,
+    signAccountOpState?.selectedFeeSpeed
+  ])
 
   const onFeeSelect = useCallback(
     ({ value }: { value: string }) => {
