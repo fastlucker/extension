@@ -411,7 +411,7 @@ const Estimation = ({
             menuLeftHorizontalOffset={feeTokenPriceUnavailableWarning ? 100 : 48}
             menuStyle={{ minWidth: feeTokenPriceUnavailableWarning ? 200 : 148 }}
             withSearch={false}
-            containerStyle={{ ...spacings.mb0, width: 100 }}
+            containerStyle={{ ...spacings.mb0, width: 116 }}
             testID="fee-speed-select"
           />
         )}
