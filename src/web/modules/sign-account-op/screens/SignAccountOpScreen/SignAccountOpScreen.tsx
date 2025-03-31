@@ -495,20 +495,31 @@ const SignAccountOpScreen = () => {
               title={signAccountOpState.errors[0].title}
               text={
                 getErrorCodeStringFromReason(signAccountOpState.errors[0].code) ? (
-                  <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}>
-                    <AlertVertical.Text type="warning" size="md">
-                      {getErrorCodeStringFromReason(signAccountOpState.errors[0].code || '', false)}
-                    </AlertVertical.Text>
-                    <Pressable onPress={copySignAccountOpError}>
+                  <AlertVertical.Text
+                    type="warning"
+                    size="md"
+                    style={{
+                      ...flexbox.flex1,
+                      ...flexbox.directionRow,
+                      ...flexbox.alignCenter,
+                      ...flexbox.wrap,
+                      maxWidth: '100%'
+                    }}
+                  >
+                    {getErrorCodeStringFromReason(signAccountOpState.errors[0].code || '', false)}
+                    <Pressable
+                      // @ts-ignore web style
+                      style={{ verticalAlign: 'middle', ...spacings.mlMi, ...spacings.mbMi }}
+                      onPress={copySignAccountOpError}
+                    >
                       <CopyIcon
                         strokeWidth={1.5}
-                        style={spacings.mlMi}
                         width={20}
                         height={20}
                         color={theme.warningText}
                       />
                     </Pressable>
-                  </View>
+                  </AlertVertical.Text>
                 ) : undefined
               }
             />

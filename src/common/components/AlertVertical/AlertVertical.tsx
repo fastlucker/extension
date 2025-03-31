@@ -147,7 +147,16 @@ const AlertVertical = ({
           </Text>
         </Text>
       )}
-      <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}>
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.justifyCenter,
+          {
+            maxWidth: '100%'
+          }
+        ]}
+      >
         {!!text &&
           (typeof text === 'string' ? (
             <AlertVerticalText size={size} type={type}>
