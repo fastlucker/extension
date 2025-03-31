@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { ScrollView, View } from 'react-native'
 
@@ -20,7 +20,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
@@ -32,35 +31,33 @@ const AccountPersonalizeScreen = () => {
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
 
-  const accountsState = useAccountsControllerState()
   const accountAdderState = useAccountAdderControllerState()
 
-  const newAccounts: Account[] = useMemo(
-    () => accountsState.accounts.filter((a) => a.newlyAdded),
-    [accountsState.accounts]
-  )
-
-  const { handleSubmit, control, setValue } = useForm({
-    defaultValues: { accounts: newAccounts }
+  const { handleSubmit, control, setValue, getValues } = useForm({
+    defaultValues: { accounts: accountAdderState.readyToAddAccounts }
   })
 
   useEffect(() => {
-    setValue('accounts', newAccounts)
-  }, [newAccounts, setValue])
+    setValue('accounts', accountAdderState.readyToAddAccounts)
+  }, [accountAdderState.readyToAddAccounts, setValue])
 
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
   const handleSave = useCallback(
-    (data: { accounts: Account[] }) => {
+    (data?: { accounts: Account[] }) => {
+      const newAccounts = data?.accounts || getValues('accounts')
       dispatch({
         type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES',
-        params: data.accounts.map((a) => ({ addr: a.addr, preferences: a.preferences }))
+        params: newAccounts.map((a) => ({ addr: a.addr, preferences: a.preferences }))
       })
-
-      goToNextRoute()
     },
-    [goToNextRoute, dispatch]
+    [dispatch, getValues]
   )
+
+  const handleGetStarted = useCallback(async () => {
+    await handleSubmit(handleSave)()
+    goToNextRoute()
+  }, [goToNextRoute, handleSave, handleSubmit])
 
   return (
     <TabLayoutContainer
@@ -125,13 +122,14 @@ const AccountPersonalizeScreen = () => {
                 index={index}
                 account={field}
                 hasBottomSpacing={index !== fields.length - 1}
+                onSave={handleSave as any}
               />
             ))}
           </ScrollView>
           <Button
             testID="button-save-and-continue"
             size="large"
-            onPress={handleSubmit(handleSave)}
+            onPress={handleGetStarted}
             hasBottomSpacing={false}
             text={t('Get Started')}
           />

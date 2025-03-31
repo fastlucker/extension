@@ -23,9 +23,16 @@ type Props = {
     accounts: Account[]
   }>
   hasBottomSpacing?: boolean
+  onSave: (value: string) => void
 }
 
-const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = true }: Props) => {
+const AccountPersonalizeCard = ({
+  account,
+  index,
+  control,
+  hasBottomSpacing = true,
+  onSave
+}: Props) => {
   const { addr: address, preferences } = account
   const { ens, isLoading } = useReverseLookup({ address })
   const { styles } = useTheme(getStyles)
@@ -50,6 +57,7 @@ const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = tr
                     textProps={{
                       weight: 'medium'
                     }}
+                    onSave={onSave}
                   />
                 )}
               />
