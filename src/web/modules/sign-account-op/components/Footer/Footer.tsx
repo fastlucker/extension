@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
 import Button from '@common/components/Button'
@@ -6,6 +6,8 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import ActionsPagination from '@web/modules/action-requests/components/ActionsPagination'
 
 import getStyles from './styles'
@@ -33,6 +35,14 @@ const Footer = ({
 }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
+  const { userRequests } = useMainControllerState()
+  const { account } = useSelectedAccountControllerState()
+
+  const batchCount = useMemo(() => {
+    return userRequests.filter((r) => {
+      return r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
+    }).length
+  }, [account?.addr, userRequests])
 
   return (
     <View style={styles.container}>
@@ -57,11 +67,17 @@ const Footer = ({
             testID="queue-and-sign-later-button"
             type="outline"
             accentColor={theme.primary}
-            text={t('Add to Batch')}
+            text={
+              batchCount > 1
+                ? t('Add to Batch ({{batchCount}})', {
+                    batchCount
+                  })
+                : t('Start a Batch')
+            }
             onPress={onAddToCart}
             disabled={isAddToCartDisabled}
             hasBottomSpacing={false}
-            style={{ width: 160, ...spacings.ph, ...spacings.mr }}
+            style={{ minWidth: 160, ...spacings.ph, ...spacings.mr }}
             size="large"
           />
         )}
