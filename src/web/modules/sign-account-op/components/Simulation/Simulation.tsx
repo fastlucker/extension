@@ -17,8 +17,8 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
-import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 
+import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import SimulationSkeleton from './SimulationSkeleton'
 import getStyles from './styles'
 
@@ -32,7 +32,7 @@ interface Props {
 
 const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
   const {
     portfolio: { tokens, collections, pending, networkSimulatedAccountOp }
@@ -196,7 +196,6 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
 
   return (
     <View style={styles.simulationSection}>
-      <SectionHeading>{t('Transaction simulation')}</SectionHeading>
       {simulationView === 'changes' && (
         <View style={[flexbox.directionRow, flexbox.flex1]}>
           {(!!pendingSendTokens.length || !!pendingSendCollection.length) && (
@@ -310,11 +309,18 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
         />
       )}
       {simulationView === 'no-changes' && (
-        <Alert
-          type="info"
-          isTypeLabelHidden
-          title={<Trans>No token balance changes detected.</Trans>}
-        />
+        <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
+          <SuccessIcon color={theme.successDecorative} />
+          <Text
+            color={theme.successDecorative}
+            style={spacings.mlSm}
+            fontSize={16}
+            appearance="secondaryText"
+            numberOfLines={1}
+          >
+            {t('No token balance changes detected')}
+          </Text>
+        </View>
       )}
       {simulationView === 'simulation-not-supported' && (
         <Alert
