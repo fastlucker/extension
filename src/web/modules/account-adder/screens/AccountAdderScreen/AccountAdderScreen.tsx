@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -8,6 +8,7 @@ import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -37,10 +38,12 @@ const AccountAdderScreen = () => {
   const { params } = useRoute()
   const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
-  const { onImportReady, setPage, handleGoBack } = useAccountAdder({
-    keySubType: accountAdderState.subType
-  })
+  const { onImportReady, setPage } = useAccountAdder()
+  const { goToPrevRoute } = useOnboardingNavigation()
 
+  useEffect(() => {
+    console.log('!!!!!!!AccountAdderScreen!!!!!!!!')
+  }, [])
   const isLoading = useMemo(
     () =>
       accountAdderState.addAccountsStatus !== 'INITIAL' ||
@@ -65,7 +68,7 @@ const AccountAdderScreen = () => {
       header={<Header withAmbireLogo />}
       footer={
         <>
-          {showBackButton && <BackButton onPress={handleGoBack} />}
+          {showBackButton && <BackButton onPress={() => goToPrevRoute()} />}
           <Button
             testID="button-import-account"
             hasBottomSpacing={false}

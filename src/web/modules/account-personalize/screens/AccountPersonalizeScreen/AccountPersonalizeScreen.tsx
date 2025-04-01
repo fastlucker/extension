@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { ScrollView, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import CheckIcon from '@common/assets/svg/CheckIcon'
-import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -12,6 +11,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -19,7 +19,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
@@ -31,34 +31,33 @@ const AccountPersonalizeScreen = () => {
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
 
-  const accountsState = useAccountsControllerState()
+  const accountAdderState = useAccountAdderControllerState()
 
-  const newAccounts: Account[] = useMemo(
-    () => accountsState.accounts.filter((a) => a.newlyAdded),
-    [accountsState.accounts]
-  )
-
-  const { handleSubmit, control, setValue } = useForm({
-    defaultValues: { accounts: newAccounts }
+  const { handleSubmit, control, setValue, getValues } = useForm({
+    defaultValues: { accounts: accountAdderState.readyToAddAccounts }
   })
 
   useEffect(() => {
-    setValue('accounts', newAccounts)
-  }, [newAccounts, setValue])
+    setValue('accounts', accountAdderState.readyToAddAccounts)
+  }, [accountAdderState.readyToAddAccounts, setValue])
 
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
   const handleSave = useCallback(
-    (data: { accounts: Account[] }) => {
+    (data?: { accounts: Account[] }) => {
+      const newAccounts = data?.accounts || getValues('accounts')
       dispatch({
         type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES',
-        params: data.accounts.map((a) => ({ addr: a.addr, preferences: a.preferences }))
+        params: newAccounts.map((a) => ({ addr: a.addr, preferences: a.preferences }))
       })
-
-      goToNextRoute()
     },
-    [goToNextRoute, dispatch]
+    [dispatch, getValues]
   )
+
+  const handleGetStarted = useCallback(async () => {
+    await handleSubmit(handleSave)()
+    goToNextRoute()
+  }, [goToNextRoute, handleSave, handleSubmit])
 
   return (
     <TabLayoutContainer
@@ -123,16 +122,34 @@ const AccountPersonalizeScreen = () => {
                 index={index}
                 account={field}
                 hasBottomSpacing={index !== fields.length - 1}
+                onSave={handleSave as any}
               />
             ))}
           </ScrollView>
           <Button
             testID="button-save-and-continue"
             size="large"
-            onPress={handleSubmit(handleSave)}
+            onPress={handleGetStarted}
             hasBottomSpacing={false}
             text={t('Get Started')}
           />
+          {accountAdderState.subType === 'seed' && (
+            <View style={spacings.ptLg}>
+              <Button
+                type="ghost"
+                text={t('Add more accounts from this Recovery Phrase')}
+                onPress={() => goToNextRoute(WEB_ROUTES.accountAdder)}
+                textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}
+                style={{ ...spacings.ph0, height: 22 }}
+                hasBottomSpacing={false}
+                childrenPosition="left"
+              >
+                <Text fontSize={24} weight="light" style={spacings.mrTy} color={theme.primary}>
+                  +
+                </Text>
+              </Button>
+            </View>
+          )}
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

@@ -21,35 +21,19 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import storage from '@web/extension-services/background/webapi/storage'
 import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
 import TermsComponent from '@web/modules/terms/components'
 
 export const CARD_WIDTH = 400
 
 const KeyStoreSetupScreen = () => {
-  const { params } = useRoute()
+  // const { params } = useRoute()
   const { t } = useTranslation()
-  const { goBack } = useNavigation()
 
   const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { theme } = useTheme()
   const [agreedWithTerms, setAgreedWithTerms] = useState(true)
   const { ref: termsModalRef, open: openTermsModal, close: closeTermsModal } = useModalize()
-
-  const showBackButton = useMemo(() => {
-    return !params || !params.state?.hideBack
-  }, [params])
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      const secrets = await storage.get('keystoreSecrets', [])
-      if (secrets.some((s: any) => s.id === 'password')) {
-        goBack()
-      }
-    })()
-  }, [goBack])
 
   return (
     <TabLayoutContainer
@@ -59,7 +43,7 @@ const KeyStoreSetupScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel
           spacingsSize="small"
-          withBackButton={showBackButton}
+          withBackButton
           onBackButtonPress={goToPrevRoute}
           style={{
             width: CARD_WIDTH,
@@ -68,7 +52,7 @@ const KeyStoreSetupScreen = () => {
           }}
           title={t('Set a Device Password')}
         >
-          <KeyStoreSetupForm onContinue={goToNextRoute}>
+          <KeyStoreSetupForm onContinue={() => goToNextRoute()}>
             <Checkbox
               value={agreedWithTerms}
               onValueChange={setAgreedWithTerms}
