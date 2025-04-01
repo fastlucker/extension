@@ -91,11 +91,7 @@ const Main = ({
             </Text>
           </View>
         </View>
-        <NetworkBadge
-          style={{ ...spacings.pv0 }}
-          chainId={signMessageState.messageToSign?.chainId}
-          withOnPrefix
-        />
+        <NetworkBadge chainId={signMessageState.messageToSign?.chainId} withOnPrefix />
         {/* @TODO: Replace with Badge; add size prop to badge; add tooltip  */}
       </View>
       <View style={styles.container}>
