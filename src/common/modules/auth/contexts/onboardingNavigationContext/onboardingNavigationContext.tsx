@@ -24,9 +24,11 @@ const onboardingRoutes = [
 type OnboardingRoute = typeof onboardingRoutes[number]
 
 const OnboardingNavigationContext = createContext<{
+  current: RouteNode | null
   goToNextRoute: (routeName?: OnboardingRoute) => void
   goToPrevRoute: () => void
 }>({
+  current: null,
   goToNextRoute: () => {},
   goToPrevRoute: () => {}
 })
@@ -38,10 +40,21 @@ class RouteNode {
 
   disabled: boolean = false
 
+  state?: { [key: string]: any }
+
   constructor(name: string, children: RouteNode[] = [], disabled = false) {
     this.name = name
     if (children) this.children = children
     this.disabled = disabled
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      children: this.children,
+      disabled: this.disabled
+      // skip the state because we store the RouteNode in the session storage
+    }
   }
 }
 
@@ -161,15 +174,12 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   }, [current, path])
 
   useEffect(() => {
-    console.log('1')
     if (current) return
     const currentRoute = path?.substring(1)
-    console.log('2')
     if (!currentRoute) return
     if (!onboardingRoutes.includes(currentRoute)) return
-    console.log('3')
     const node: RouteNode | null = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
-    console.log('4', onboardingRoutesTree, currentRoute, node)
+
     if (node) {
       setCurrent(node)
       setHistory([node.name])
@@ -202,11 +212,12 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   }, [current])
 
   const goToNextRoute = useCallback(
-    (routeName?: OnboardingRoute) => {
+    (routeName?: OnboardingRoute, params?: any) => {
       const nodes = current ? current.children : [onboardingRoutesTree]
       const nextRoute = findNextEnabledRoute(nodes, routeName)
 
       if (nextRoute) {
+        nextRoute.state = params
         setCurrent(nextRoute)
         setHistory((prevHistory) => [...prevHistory, nextRoute.name])
       }
@@ -236,7 +247,11 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     }
   }, [history, deepSearchRouteNode, onboardingRoutesTree])
 
-  const value = useMemo(() => ({ goToNextRoute, goToPrevRoute }), [goToPrevRoute, goToNextRoute])
+  console.log(current)
+  const value = useMemo(
+    () => ({ current, goToNextRoute, goToPrevRoute }),
+    [current, goToPrevRoute, goToNextRoute]
+  )
   return (
     <OnboardingNavigationContext.Provider value={value}>
       {children}

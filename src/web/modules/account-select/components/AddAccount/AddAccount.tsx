@@ -5,14 +5,14 @@ import { View } from 'react-native'
 import Option from '@common/components/Option'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import { useGetAddAccountOptions } from '@web/modules/account-select/components/AddAccount/helpers/useGetAddAccountOptions'
 
 const AddAccount = () => {
   const { t } = useTranslation()
 
   const options = useGetAddAccountOptions()
-  const mainControllerState = useMainControllerState()
+  const accountAdderState = useAccountAdderControllerState()
 
   return (
     <View style={spacings.ptSm}>
@@ -26,7 +26,7 @@ const AddAccount = () => {
           icon={option.icon}
           onPress={option.onPress}
           testID={option.testID}
-          disabled={mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL'}
+          disabled={accountAdderState.addAccountsStatus !== 'INITIAL'}
         />
       ))}
     </View>

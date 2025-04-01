@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -18,7 +18,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
 
@@ -36,19 +35,13 @@ const AccountAdderScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { params } = useRoute()
-  const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
   const { onImportReady, setPage } = useAccountAdder()
   const { goToPrevRoute } = useOnboardingNavigation()
 
-  useEffect(() => {
-    console.log('!!!!!!!AccountAdderScreen!!!!!!!!')
-  }, [])
   const isLoading = useMemo(
-    () =>
-      accountAdderState.addAccountsStatus !== 'INITIAL' ||
-      mainControllerState.statuses.onAccountAdderSuccess !== 'INITIAL',
-    [accountAdderState.addAccountsStatus, mainControllerState.statuses.onAccountAdderSuccess]
+    () => accountAdderState.addAccountsStatus !== 'INITIAL',
+    [accountAdderState.addAccountsStatus]
   )
 
   const isImportDisabled = useMemo(
