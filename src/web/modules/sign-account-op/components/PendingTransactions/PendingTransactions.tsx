@@ -59,11 +59,7 @@ const PendingTransactions: FC<Props> = ({ network }) => {
           spacings.mbSm
         ]}
       >
-        <SectionHeading withMb={false}>
-          {t('Pending {{noun}}', {
-            noun: callsToVisualize.length > 1 ? t('actions') : t('action')
-          })}
-        </SectionHeading>
+        <SectionHeading withMb={false}>{t('Overview')}</SectionHeading>
         <NetworkBadge chainId={network?.chainId} withOnPrefix />
       </View>
       <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
