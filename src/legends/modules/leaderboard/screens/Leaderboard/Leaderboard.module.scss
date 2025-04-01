@@ -8,6 +8,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  
 
   .heading {
     display: flex;
@@ -18,16 +19,15 @@
   }
 
   .title {
-    color: $primaryText;
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 500;
     line-height: 2.6375rem;
-    padding-bottom: 0.75rem;
+    padding-bottom: 1rem;
   }
 
   .subtitle {
-    color: $secondaryText;
-    font-size: 1rem;
+    color: $whiteText;
+    font-size: 1.125rem;
     font-weight: 400;
     line-height: 1.3931rem;
     max-width: 44.5rem;
@@ -39,6 +39,9 @@
     align-items: center;
     max-width: 47rem;
     width: 100%;
+    background-color: $secondaryBackground;
+    padding: 2.1875rem .9375rem;
+    border-radius: 1rem;
   }
 
   .header,
@@ -49,18 +52,18 @@
     font-size: 0.875rem;
     font-weight: 400;
     line-height: 1.25rem;
-    padding: 0.75rem 1.3125rem;
+    padding: 0.75rem 1rem;
     margin-bottom: 0.375rem;
     width: calc(100% - 2rem);
+
     .cell {
-      color: $secondaryText;
       display: flex;
       align-content: center;
-
+      
       &:first-child {
         flex: 5;
       }
-
+      
       &:nth-child(2),
       &:nth-child(3) {
         flex: 1.5;
@@ -79,6 +82,14 @@
     .cell {
       text-transform: uppercase;
       font-size: 0.875rem;
+      font-weight: 700;
+      color: rgba($tertiaryText, 0.64);
+
+      h5 {
+        font-weight: 700;
+
+        color: rgba($tertiaryText, 0.64);
+      }
     }
 
     .playerCell {
@@ -87,25 +98,19 @@
   }
 
   .row {
-    color: $secondaryText;
+    color: $whiteText;
     border-radius: $secondaryBorderRadius;
-    border: 0.0625rem solid $primaryBorder;
-    background-color: $secondaryBackground;
 
     .cell:first-child {
       display: flex;
       align-items: center;
-      color: $primaryText;
     }
 
     .cell:last-child {
-      color: $primaryText;
       justify-content: flex-end;
       font-weight: 500;
     }
-    .cell.weight {
-      color: $secondaryText;
-    }
+    
   }
 
   .rankWrapper {
@@ -119,69 +124,43 @@
     height: 1.25rem;
     width: 1.25rem;
     text-align: center;
-    color: $primaryText;
-  }
-
-  .rankedRow1,
-  .rankedRow2,
-  .rankedRow3 {
-    .cell,
-    .cell:first-child,
-    .cell:last-child {
-      color: inherit;
-    }
   }
 
   .rankedRow1 {
-    background-color: $goldBackground;
-    border-color: $goldDecorative;
-    color: $goldText;
-
+    .cell:last-child, .trophy {
+      color: $goldDecorative;
+    }
     .addressSkeleton {
       background-color: $secondaryBackground;
-    }
-    .address {
-      color: $goldText;
     }
   }
 
   .currentUserRow {
-    background-color: $tertiaryBackground;
-    border-color: $tertiaryBorder;
-    border-width: 0.1rem;
-    border-bottom-width: 0.1875rem;
+    border-color: $accent;
+    border-width: .0625rem;
     border-style: solid;
+    background-color: rgba($tertiaryText, 0.1);
+    z-index: 2;
     width: 100%;
 
-    .avatar {
-      background-color: $secondaryBackground;
-    }
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
+   
     .addressSkeleton {
       background-color: $secondaryBackground;
     }
 
-    .address {
-      color: $secondaryText;
-    }
   }
 
   .rankedRow2 {
-    background-color: $silverBackground;
-    border-color: $silverDecorative;
-    color: $silverText;
-
-    .address {
-      color: $silverText;
+    .cell:last-child, .trophy {
+      color: $silverDecorative;
     }
   }
 
   .rankedRow3 {
-    background-color: $bronzeBackground;
-    border-color: $bronzeDecorative;
-    color: $bronzeText;
-
-    .address {
-      color: $bronzeText;
+    .cell:last-child, .trophy {
+      color: $bronzeDecorative;
     }
   }
 

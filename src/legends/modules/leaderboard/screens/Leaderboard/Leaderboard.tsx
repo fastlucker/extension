@@ -10,6 +10,7 @@ import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import Podium from './components/Podium'
 import Row from './components/Row'
 import styles from './Leaderboard.module.scss'
+import smokeAndLights from './Smoke-and-lights.png'
 
 const LeaderboardContainer: React.FC = () => {
   const {
@@ -66,7 +67,7 @@ const LeaderboardContainer: React.FC = () => {
   }, [updateLeaderboard])
 
   return (
-    <Page pageRef={pageRef}>
+    <Page pageRef={pageRef} style={{ backgroundImage: `url(${smokeAndLights})` }}>
       <div className={styles.wrapper}>
         <div className={styles.heading}>
           <h1 className={styles.title}>Leaderboard</h1>

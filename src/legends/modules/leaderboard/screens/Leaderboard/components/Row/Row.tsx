@@ -1,5 +1,7 @@
 import React, { FC } from 'react'
 
+import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import BronzeTrophy from '@legends/modules/leaderboard/screens/Leaderboard/BronzeTrophy'
@@ -27,11 +29,12 @@ const calculateRowStyle = (isConnectedAccountRow: boolean, stickyPosition: strin
 const getBadge = (rank: number) => {
   switch (rank) {
     case 1:
-      return <GoldTrophy className={styles.trophy} />
+      return <FontAwesomeIcon icon={faTrophy} className={styles.trophy} />
+
     case 2:
-      return <SilverTrophy className={styles.trophy} />
+      return <FontAwesomeIcon icon={faTrophy} className={styles.trophy} />
     case 3:
-      return <BronzeTrophy className={styles.trophy} />
+      return <FontAwesomeIcon icon={faTrophy} className={styles.trophy} />
     default:
       return null
   }

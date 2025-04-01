@@ -2,9 +2,6 @@ import React from 'react'
 
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import BronzeTrophy from '@legends/modules/leaderboard/screens/Leaderboard/BronzeTrophy'
-import GoldTrophy from '@legends/modules/leaderboard/screens/Leaderboard/GoldTrophy'
-import SilverTrophy from '@legends/modules/leaderboard/screens/Leaderboard/SilverTrophy'
 import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
 import styles from './Podium.module.scss'
@@ -36,10 +33,6 @@ const Podium: React.FC<PodiumProps> = ({ data }) => {
               <Address address={item.account} className={styles.name} maxAddressLength={11} />
             )}
             <h4 className={styles.xp}>{item.xp}</h4>
-
-            {index === 0 && <GoldTrophy width={32} height={29} />}
-            {index === 1 && <SilverTrophy />}
-            {index === 2 && <BronzeTrophy />}
           </div>
         </div>
       ))}
