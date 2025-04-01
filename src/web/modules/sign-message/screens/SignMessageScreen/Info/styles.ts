@@ -30,6 +30,8 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phSm,
       ...spacings.pvSm,
       ...flexbox.flex1,
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
       ...common.fullWidth
     }
   })

@@ -71,12 +71,12 @@ const Info: FC<Props> = () => {
         typeof messageToSign?.content?.domain?.verifyingContract === 'string' && (
           <View style={styles.verifyingContract}>
             <HumanizerAddress
-              fontSize={maxWidthSize('xl') ? 14 : 12}
+              fontSize={14}
               style={{ maxWidth: '100%' }}
               address={messageToSign.content.domain.verifyingContract}
               explorerChainId={messageToSign.chainId}
             />
-            <Text fontSize={12} appearance="secondaryText">
+            <Text fontSize={14} appearance="secondaryText" style={spacings.mlTy}>
               {t('Will verify this signature')}
             </Text>
           </View>
