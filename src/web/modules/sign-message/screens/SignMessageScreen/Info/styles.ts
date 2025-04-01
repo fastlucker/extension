@@ -6,7 +6,6 @@ import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  container: ViewStyle
   image: ImageStyle
   fallbackIcon: ImageStyle
   verifyingContract: ViewStyle
@@ -14,7 +13,6 @@ interface Style {
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    container: { ...flexbox.alignStart, width: '100%' },
     image: { width: 48, height: 48, ...spacings.mrSm, alignSelf: 'flex-start' },
     fallbackIcon: {
       width: 48,

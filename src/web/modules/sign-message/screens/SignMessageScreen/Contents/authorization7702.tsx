@@ -25,7 +25,12 @@ interface Props {
   children?: React.ReactNode
 }
 
-const Authorization7702 = ({ onDoNotAskMeAgainChange, doNotAskMeAgain, displayFullInformation, children }: Props) => {
+const Authorization7702 = ({
+  onDoNotAskMeAgainChange,
+  doNotAskMeAgain,
+  displayFullInformation,
+  children
+}: Props) => {
   const { t } = useTranslation()
   const { maxWidthSize } = useWindowSize()
 
@@ -120,21 +125,22 @@ const Authorization7702 = ({ onDoNotAskMeAgainChange, doNotAskMeAgain, displayFu
             </Text>
           </Text>
         </View>
-        {displayFullInformation && 
-        (<View style={[flexbox.directionRow, flexbox.alignCenter, { minHeight: '47px' }]}>
-          <Checkbox
-            value={doNotAskMeAgain}
-            style={spacings.mb0}
-            onValueChange={onDoNotAskMeAgainChange}
-          >
-            <Text fontSize={14}>{t('Do not ask me again')}</Text>
-          </Checkbox>
-          {doNotAskMeAgain && (
-            <Alert type="info" style={spacings.ml} size="sm">
-              <Text fontSize={14}>You can always change this from account settings</Text>
-            </Alert>
-          )}
-        </View>)}
+        {displayFullInformation && onDoNotAskMeAgainChange && (
+          <View style={[flexbox.directionRow, flexbox.alignCenter, { minHeight: '47px' }]}>
+            <Checkbox
+              value={!!doNotAskMeAgain}
+              style={spacings.mb0}
+              onValueChange={onDoNotAskMeAgainChange}
+            >
+              <Text fontSize={14}>{t('Do not ask me again')}</Text>
+            </Checkbox>
+            {doNotAskMeAgain && (
+              <Alert type="info" style={spacings.ml} size="sm">
+                <Text fontSize={14}>You can always change this from account settings</Text>
+              </Alert>
+            )}
+          </View>
+        )}
       </View>
       {children}
     </TabLayoutWrapperMainContent>

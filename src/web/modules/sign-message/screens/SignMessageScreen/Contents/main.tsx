@@ -74,32 +74,32 @@ const Main = ({
           flexbox.directionRow,
           flexbox.alignCenter,
           flexbox.justifySpaceBetween,
-          spacings.mbLg
+          spacings.mbXl
         ]}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text weight="medium" fontSize={24} style={[spacings.mrSm]}>
             {t('Sign message')}
           </Text>
-          <NetworkBadge
-            style={{ borderRadius: 25, ...spacings.pv0 }}
-            chainId={signMessageState.messageToSign?.chainId}
-            withOnPrefix
-          />
+          <View style={styles.kindOfMessage}>
+            <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
+              {signMessageState.messageToSign?.content.kind === 'typedMessage' && t('EIP-712')}
+              {signMessageState.messageToSign?.content.kind === 'message' && t('Standard')}
+              {signMessageState.messageToSign?.content.kind === 'authorization-7702' &&
+                t('EIP-7702')}{' '}
+              {t('Type')}
+            </Text>
+          </View>
         </View>
+        <NetworkBadge
+          style={{ ...spacings.pv0 }}
+          chainId={signMessageState.messageToSign?.chainId}
+          withOnPrefix
+        />
         {/* @TODO: Replace with Badge; add size prop to badge; add tooltip  */}
-        <View style={styles.kindOfMessage}>
-          <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
-            {signMessageState.messageToSign?.content.kind === 'typedMessage' && t('EIP-712')}
-            {signMessageState.messageToSign?.content.kind === 'message' && t('Standard')}
-            {signMessageState.messageToSign?.content.kind === 'authorization-7702' &&
-              t('EIP-7702')}{' '}
-            {t('Type')}
-          </Text>
-        </View>
       </View>
       <View style={styles.container}>
-        <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
+        <View style={spacings.mbLg}>
           <Info />
           {shouldDisplayEIP1271Warning && (
             <Alert
@@ -109,7 +109,6 @@ const Main = ({
             />
           )}
         </View>
-        <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
         <View style={flexbox.flex1}>
           <ExpandableCard
             enableToggleExpand={!!visualizeHumanized}
