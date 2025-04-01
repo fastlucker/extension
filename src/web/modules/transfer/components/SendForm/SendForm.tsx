@@ -35,7 +35,8 @@ const SendForm = ({
   amountErrorMessage,
   isRecipientAddressUnknown,
   isSWWarningVisible,
-  isRecipientHumanizerKnownTokenOrSmartContract
+  isRecipientHumanizerKnownTokenOrSmartContract,
+  recipientMenuClosedAutomaticallyRef
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
@@ -43,6 +44,7 @@ const SendForm = ({
   isRecipientAddressUnknown: boolean
   isSWWarningVisible: boolean
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
 }) => {
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
@@ -348,6 +350,7 @@ const SendForm = ({
             isSWWarningVisible={isSWWarningVisible}
             isSWWarningAgreed={isSWWarningAgreed}
             selectedTokenSymbol={selectedToken?.symbol}
+            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
           />
         )}
       </View>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -47,6 +47,7 @@ interface Props extends InputProps {
   isRecipientDomainResolving: boolean
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
   selectedTokenSymbol?: TokenResult['symbol']
 }
 
@@ -67,6 +68,7 @@ const SelectedMenuOption: React.FC<{
   toggleMenu: () => void
   isAddressInAddressBook: boolean
   filteredContacts: Contact[]
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
 }> = ({
   selectRef,
   filteredContacts,
@@ -78,17 +80,18 @@ const SelectedMenuOption: React.FC<{
   setAddress,
   disabled,
   toggleMenu,
-  isAddressInAddressBook
+  isAddressInAddressBook,
+  recipientMenuClosedAutomaticallyRef
 }) => {
   const { theme } = useTheme()
-  const menuClosedAutomatically = useRef(false)
 
   useEffect(() => {
     if (isMenuOpen && !filteredContacts.length) {
       toggleMenu()
-      menuClosedAutomatically.current = true
+      // eslint-disable-next-line no-param-reassign
+      recipientMenuClosedAutomaticallyRef.current = true
     } else if (
-      menuClosedAutomatically.current &&
+      recipientMenuClosedAutomaticallyRef.current &&
       !isMenuOpen &&
       filteredContacts.length &&
       // Reopen the menu only if the address is invalid
@@ -97,9 +100,17 @@ const SelectedMenuOption: React.FC<{
       validation.isError
     ) {
       toggleMenu()
-      menuClosedAutomatically.current = false
+      // eslint-disable-next-line no-param-reassign
+      recipientMenuClosedAutomaticallyRef.current = false
     }
-  }, [filteredContacts.length, isMenuOpen, toggleMenu, validation.isError])
+  }, [
+    address,
+    filteredContacts.length,
+    isMenuOpen,
+    recipientMenuClosedAutomaticallyRef,
+    toggleMenu,
+    validation.isError
+  ])
 
   return (
     <AddressInput
@@ -145,7 +156,8 @@ const Recipient: React.FC<Props> = ({
   disabled,
   isSWWarningVisible,
   isSWWarningAgreed,
-  selectedTokenSymbol
+  selectedTokenSymbol,
+  recipientMenuClosedAutomaticallyRef
 }) => {
   const { account } = useSelectedAccountControllerState()
   const actualAddress = ensAddress || address
@@ -308,6 +320,7 @@ const Recipient: React.FC<Props> = ({
           setAddress={setAddress}
           disabled={disabled}
           isAddressInAddressBook={isAddressInAddressBook}
+          recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
         />
       )
     },
@@ -319,7 +332,8 @@ const Recipient: React.FC<Props> = ({
       address,
       setAddress,
       disabled,
-      isAddressInAddressBook
+      isAddressInAddressBook,
+      recipientMenuClosedAutomaticallyRef
     ]
   )
 

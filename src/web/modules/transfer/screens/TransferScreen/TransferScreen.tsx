@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -73,6 +73,7 @@ const TransferScreen = () => {
   } = useModalize()
   const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
+  const recipientMenuClosedAutomatically = useRef(false)
 
   const hasFocusedActionWindow = useMemo(
     () => actionsState.actionWindow.windowProps?.focused,
@@ -178,6 +179,11 @@ const TransferScreen = () => {
     navigate(ROUTES.dashboard)
   }, [navigate])
 
+  const resetTransferForm = useCallback(() => {
+    transferCtrl.resetForm()
+    recipientMenuClosedAutomatically.current = false
+  }, [transferCtrl])
+
   const addTransaction = useCallback(
     (actionExecutionType: ActionExecutionType) => {
       if (isFormValid && state.selectedToken) {
@@ -195,7 +201,7 @@ const TransferScreen = () => {
           }
         })
 
-        transferCtrl.resetForm()
+        resetTransferForm()
         return
       }
 
@@ -341,6 +347,7 @@ const TransferScreen = () => {
                 isRecipientHumanizerKnownTokenOrSmartContract
               }
               isSWWarningVisible={isSWWarningVisible}
+              recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
             />
             {isTopUp && !isSmartAccount && (
               <View style={spacings.ptLg}>
