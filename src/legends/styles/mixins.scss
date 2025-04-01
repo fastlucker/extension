@@ -4,7 +4,6 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  text-transform: uppercase;
   background-color: $primaryBackground200;
   font-size: 1rem;
   font-weight: 700;
@@ -23,7 +22,7 @@
 @mixin primary-button {
   @include button;
   padding: 1rem;
-
+  text-transform: uppercase;
  
   &:not(:disabled) {
     &:hover {
@@ -38,16 +37,11 @@
 @mixin secondary-button {
   @include button;
   padding: 1rem;
-
   gap: .625rem;
-
-
   border-radius: $primaryBorderRadius;
   background-color: transparent;
   border: 0.125rem solid $primaryText;
   color: $primaryText;
-
-  text-transform: uppercase;
 
   svg {
     font-size: 0.875rem;

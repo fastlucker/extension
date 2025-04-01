@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
-import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons/faArrowRightFromBracket'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import DisconnectIcon from '@legends/common/assets/svg/DisconnectIcon'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
@@ -55,10 +54,7 @@ const AccountDropdown = () => {
               address={connectedAccount!}
               maxAddressLength={12}
             />
-            <FontAwesomeIcon
-              className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}
-              icon={faArrowRightFromBracket}
-            />
+            <DisconnectIcon />
           </div>
           <p className={`${styles.levelAndRank} ${styles.activityDot}`}>Level {character!.level}</p>
         </div>
