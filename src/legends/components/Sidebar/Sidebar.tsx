@@ -113,12 +113,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
                 ))}
               </div>
             </div>
-            <div
-              className={`${styles.leaderInvitationKey} ${
-                legendLeader?.meta?.timesUsed === legendLeader?.meta?.maxHits &&
-                styles.gradientBorderInner
-              }`}
-            >
+            <div className={styles.leaderInvitationKey}>
               {legendLeader?.meta?.timesUsed === legendLeader?.meta?.maxHits ? (
                 'You are a Leader'
               ) : (

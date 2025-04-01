@@ -95,34 +95,10 @@
 
     .links {
       padding-top: 2rem;
+      padding-left: 1rem;
     }
   }
 
-  .treasureChestWrapper {
-    position: relative;
-    margin: 0 auto;
-    padding: none;
-    padding-top: 1.875rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    
-    button:hover {
-      opacity: 1;
-    }
-
-    .chestAvailableLabel {
-      position: absolute;
-      border: 1px solid $primaryBorder;
-      background-color: $primaryBackground;
-      padding: .5rem;
-      border-radius: .5rem;
-      font-size: .875rem;
-      font-weight: 500;
-      color: $secondaryText; 
-    }
-  }
 
   .leaderSection {
     padding-top: 1rem;
@@ -161,26 +137,6 @@
       font-weight: 500;
       line-height: 2.0625rem;
 
-    }
-
-    .gradientBorder {
-      position: relative;
-      border-radius: 10px;
-      height: 100%;
-      width: 100%;
-      
-      .gradientBorderInner {
-        border: none;
-        &::after {
-          position: absolute;
-          top: -4px; bottom: -4px;
-          left: -4px; right: -4px;
-          background: linear-gradient(90deg, #D8B98C 0%, #FFE8C6 27%, #FFFFFF 46%, #F7D7A7 65%, #7F643D 100%);
-          content: '';
-          z-index: -1;
-          border-radius: .625rem;
-        }
-      }
     }
 
   }
