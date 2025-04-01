@@ -8,13 +8,11 @@ import Panel from '@common/components/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useStepper from '@common/modules/auth/hooks/useOnboardingNavigation'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -22,9 +20,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { CARD_WIDTH } from '@web/modules/auth/screens/GetStartedScreen/GetStartedScreen'
 
 // const generateConfirmationWords = (seed: string[]) => {
@@ -53,17 +49,16 @@ import { CARD_WIDTH } from '@web/modules/auth/screens/GetStartedScreen/GetStarte
 
 const CreateSeedPhraseWriteScreen = () => {
   const {
-    state: { seed, confirmationWords }
+    state: { seed }
   } = useRoute()
-  const { updateStepperState } = useStepper()
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { t } = useTranslation()
   const { styles: panelStyles, theme } = useTheme(getPanelStyles)
-  const { navigate } = useNavigation()
   const animation = useRef(new Animated.Value(0)).current
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
-  const keystoreState = useKeystoreControllerState()
-  const accountAdderState = useAccountAdderControllerState()
+  // const keystoreState = useKeystoreControllerState()
+  // const accountAdderState = useAccountAdderControllerState()
 
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],
@@ -81,16 +76,14 @@ const CreateSeedPhraseWriteScreen = () => {
     const seedPhrase = seed.join(' ') || ''
 
     dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-      params: { privKeyOrSeed: seedPhrase, shouldPersist: !keystoreState.hasKeystoreSavedSeed }
+      type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_ACCOUNT',
+      params: { seed: seedPhrase }
     })
 
-    // TODO: Use new navigation
-    navigate(WEB_ROUTES.keyStoreSetup, { state: { flow: 'create-seed' } })
+    goToNextRoute('createNewAccount', { state: { hideBack: true } })
   }
 
   // useEffect(() => {
-  //   console.count('HERE')
   //   if (
   //     accountAdderState.isInitialized &&
   //     // The AccountAdder could have been already initialized with the same or a
@@ -103,9 +96,9 @@ const CreateSeedPhraseWriteScreen = () => {
   //   }
   // }, [accountAdderState.isInitialized, accountAdderState.subType, accountAdderState.type, navigate])
 
-  useEffect(() => {
-    updateStepperState('secure-seed', 'create-seed')
-  }, [updateStepperState])
+  // useEffect(() => {
+  //   updateStepperState('secure-seed', 'create-seed')
+  // }, [updateStepperState])
 
   useEffect(() => {
     Animated.timing(animation, {
@@ -162,8 +155,7 @@ const CreateSeedPhraseWriteScreen = () => {
             title="Backup Recovery Phrase"
             withBackButton
             onBackButtonPress={() => {
-              // TODO: use new navigation
-              navigate(WEB_ROUTES.createSeedPhrasePrepare, { state: { seed } })
+              goToPrevRoute('createNewAccount', { state: { seed } })
             }}
           >
             <View style={[spacings.phLg, spacings.pvLg, spacings.pt]}>

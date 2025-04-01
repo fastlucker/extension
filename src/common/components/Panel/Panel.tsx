@@ -81,7 +81,10 @@ const Panel: React.FC<Props> = ({
           ]}
         >
           {!!withBackButton && (
-            <Pressable onPress={onBackButtonPress} style={[spacings.prSm, spacings.pvTy]}>
+            <Pressable
+              onPress={onBackButtonPress}
+              style={[spacings.prSm, spacings.pvTy, spacings.plMd]}
+            >
               <LeftArrowIcon />
             </Pressable>
           )}

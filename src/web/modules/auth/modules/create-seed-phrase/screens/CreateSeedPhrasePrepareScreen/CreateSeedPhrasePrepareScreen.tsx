@@ -42,11 +42,11 @@ const CHECKBOXES = [
 ]
 
 const CreateSeedPhrasePrepareScreen = () => {
-  const {} = useOnboardingNavigation()
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { accounts } = useAccountsControllerState()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { theme } = useTheme()
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
@@ -76,14 +76,14 @@ const CreateSeedPhrasePrepareScreen = () => {
       addToast('Failed to generate seed phrase', { type: 'error' })
       return
     }
-    // TODO: use new navigation
-    navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
-  }, [addToast, navigate, getExtraEntropy])
+
+    goToNextRoute('createNewAccount', { seed: seed.split(' ') })
+  }, [addToast, getExtraEntropy, goToNextRoute])
 
   // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
   useEffect(() => {
-    if (keystoreState.hasKeystoreSavedSeed) goBack()
-  }, [goBack, keystoreState.hasKeystoreSavedSeed])
+    if (keystoreState.hasKeystoreSavedSeed) goToPrevRoute()
+  }, [goToPrevRoute, keystoreState.hasKeystoreSavedSeed])
 
   const handleCheckboxPress = (id: number) => {
     setCheckboxesState((prevState) => {
@@ -142,7 +142,7 @@ const CreateSeedPhrasePrepareScreen = () => {
                 navigate(WEB_ROUTES.dashboard)
                 return
               }
-              navigate(WEB_ROUTES.getStarted)
+              goToPrevRoute()
             }}
           >
             <View style={[spacings.phLg, spacings.pvLg, spacings.pt]}>

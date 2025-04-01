@@ -10,8 +10,8 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 const OnboardingNavigationContext = createContext<{
   currentFlowType: keyof typeof flows | null
-  goToNextRoute: (flowKey?: keyof typeof flows) => void
-  goToPrevRoute: (flowKey?: keyof typeof flows) => void
+  goToNextRoute: (flowKey?: keyof typeof flows, stateParams?: any) => void
+  goToPrevRoute: (flowKey?: keyof typeof flows, stateParams?: any) => void
 }>({
   currentFlowType: null,
   goToNextRoute: () => {},
@@ -84,7 +84,8 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       dynamic.push(WEB_ROUTES.keyStoreSetup)
     }
 
-    const initial = authStatus === AUTH_STATUS.NOT_AUTHENTICATED ? [WEB_ROUTES.getStarted] : []
+    const initial =
+      authStatus === AUTH_STATUS.NOT_AUTHENTICATED ? [WEB_ROUTES.getStarted] : ['get-started']
     const branches = {
       [flows.getStarted]: [...initial],
       [flows.createNewAccount]: [
@@ -144,7 +145,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   }, [hasPasswordSecret, path, authStatus])
 
   const goToNextRoute = useCallback(
-    (flowKey?: keyof typeof flows) => {
+    (flowKey?: keyof typeof flows, stateParams?: any) => {
       const flowType = flowKey && flows[flowKey] ? flowKey : currentFlowType
       const currentRoute = path?.substring(1) as string
       const flow = onboardingFlowBranches[flows[flowType]]
@@ -155,7 +156,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       if (nextRoute === currentRoute) nextRoute = '/'
 
       if (nextRoute) {
-        navigate(nextRoute, { state: { internal: true } })
+        navigate(nextRoute, { state: { internal: true, ...stateParams } })
         !!flowKey && !!flows[flowKey] && setCurrentFlowType(flowKey)
       }
     },
@@ -163,7 +164,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   )
 
   const goToPrevRoute = useCallback(
-    (flowKey?: keyof typeof flows) => {
+    (flowKey?: keyof typeof flows, stateParams?: any) => {
       const flowType = flowKey && flows[flowKey] ? flowKey : currentFlowType
       const currentRoute = path?.substring(1) as string
       const flow = onboardingFlowBranches[flows[flowType]]
@@ -173,7 +174,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       if (nextRoute === currentRoute) nextRoute = '/'
 
       if (nextRoute) {
-        navigate(nextRoute, { state: { internal: true } })
+        navigate(nextRoute, { state: { internal: true, ...stateParams } })
         !!flowKey && !!flows[flowKey] && setCurrentFlowType(flowKey)
       }
     },

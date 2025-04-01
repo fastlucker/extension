@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -10,6 +10,7 @@ import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
@@ -27,6 +28,7 @@ import TermsComponent from '@web/modules/terms/components'
 export const CARD_WIDTH = 400
 
 const KeyStoreSetupScreen = () => {
+  const { params } = useRoute()
   const { t } = useTranslation()
   const { goBack } = useNavigation()
 
@@ -34,6 +36,10 @@ const KeyStoreSetupScreen = () => {
   const { theme } = useTheme()
   const [agreedWithTerms, setAgreedWithTerms] = useState(true)
   const { ref: termsModalRef, open: openTermsModal, close: closeTermsModal } = useModalize()
+
+  const showBackButton = useMemo(() => {
+    return !params || !params.state?.hideBack
+  }, [params])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -53,7 +59,7 @@ const KeyStoreSetupScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel
           spacingsSize="small"
-          withBackButton
+          withBackButton={showBackButton}
           onBackButtonPress={goToPrevRoute}
           style={{
             width: CARD_WIDTH,
