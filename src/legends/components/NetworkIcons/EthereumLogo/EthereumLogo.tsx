@@ -8,7 +8,7 @@ interface Props extends SvgProps {
 
 const EthereumLogo: React.FC<Props> = ({ width = 32, height = 32, ...rest }) => (
   <Svg width={width} height={height} viewBox="0 0 32 32" fill="none" {...rest}>
-    <Rect x="1.25" y="1.25" width="29.5" height="29.5" rx="14.75" fill="white" />
+    <Rect x="1.25" y="1.25" width="29.5" height="29.5" rx="14.75" fill="#191A1F" />
     <Rect x="1.25" y="1.25" width="29.5" height="29.5" rx="14.75" stroke="#F5EDE2" />
     <Path
       fillRule="evenodd"
