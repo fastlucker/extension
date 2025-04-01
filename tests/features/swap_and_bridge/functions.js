@@ -129,6 +129,7 @@ export async function roundAmount(amount, place = 2) {
 
 async function selectSendTokenOnNetwork(page, send_token, send_network) {
   await clickOnElement(page, SELECTORS.sendTokenSab)
+  await page.waitForSelector(SELECTORS.searchInput, { visible: true, timeout: 3000 })
   await typeText(page, SELECTORS.searchInput, send_token)
   await clickOnElement(
     page,
