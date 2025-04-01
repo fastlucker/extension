@@ -1,5 +1,5 @@
 import { setStringAsync } from 'expo-clipboard'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Animated, TouchableOpacity, View } from 'react-native'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -8,11 +8,11 @@ import Panel from '@common/components/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -49,9 +49,10 @@ import { CARD_WIDTH } from '@web/modules/auth/screens/GetStartedScreen/GetStarte
 
 const CreateSeedPhraseWriteScreen = () => {
   const {
-    state: { seed }
-  } = useRoute()
-  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
+    goToNextRoute,
+    goToPrevRoute,
+    current: { state: { seed } = { seed: [] } } = {}
+  } = useOnboardingNavigation()
   const { t } = useTranslation()
   const { styles: panelStyles, theme } = useTheme(getPanelStyles)
   const animation = useRef(new Animated.Value(0)).current
@@ -80,7 +81,7 @@ const CreateSeedPhraseWriteScreen = () => {
       params: { seed: seedPhrase }
     })
 
-    goToNextRoute('createNewAccount', { state: { hideBack: true } })
+    goToNextRoute(WEB_ROUTES.keyStoreSetup, { state: { hideBack: true } })
   }
 
   // useEffect(() => {
@@ -245,3 +246,6 @@ const CreateSeedPhraseWriteScreen = () => {
 }
 
 export default CreateSeedPhraseWriteScreen
+function getExtraEntropy(): string {
+  throw new Error('Function not implemented.')
+}

@@ -25,7 +25,7 @@ type OnboardingRoute = typeof onboardingRoutes[number]
 
 const OnboardingNavigationContext = createContext<{
   current: RouteNode | null
-  goToNextRoute: (routeName?: OnboardingRoute) => void
+  goToNextRoute: (routeName?: OnboardingRoute, params?: any) => void
   goToPrevRoute: () => void
 }>({
   current: null,

@@ -77,7 +77,7 @@ const CreateSeedPhrasePrepareScreen = () => {
       return
     }
 
-    goToNextRoute('createNewAccount', { seed: seed.split(' ') })
+    goToNextRoute(WEB_ROUTES.createSeedPhraseWrite, { seed: seed.split(' ') })
   }, [addToast, getExtraEntropy, goToNextRoute])
 
   // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
