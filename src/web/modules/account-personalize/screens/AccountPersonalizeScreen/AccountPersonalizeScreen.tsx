@@ -34,12 +34,12 @@ const AccountPersonalizeScreen = () => {
   const accountAdderState = useAccountAdderControllerState()
 
   const { handleSubmit, control, setValue, getValues } = useForm({
-    defaultValues: { accounts: accountAdderState.readyToAddAccounts }
+    defaultValues: { accounts: accountAdderState.addedAccountsFromCurrentSession }
   })
 
   useEffect(() => {
-    setValue('accounts', accountAdderState.readyToAddAccounts)
-  }, [accountAdderState.readyToAddAccounts, setValue])
+    setValue('accounts', accountAdderState.addedAccountsFromCurrentSession)
+  }, [accountAdderState.addedAccountsFromCurrentSession, setValue])
 
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
