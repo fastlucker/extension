@@ -79,16 +79,17 @@ const TransferControllerStateProvider = ({
 
   useEffect(() => {
     // Don't reinit the controller if it already exists. Only update its properties
-    if (transferCtrl || !account) return
+    if (transferCtrl || !account || !portfolio) return
 
     transferCtrlRef.current = new TransferController(
       storage,
       humanizerInfo as HumanizerMeta,
       account,
-      networks
+      networks,
+      portfolio
     )
     forceUpdate()
-  }, [forceUpdate, account, networks, transferCtrl])
+  }, [forceUpdate, account, networks, transferCtrl, portfolio])
 
   useEffect(() => {
     if (!transferCtrl) return
