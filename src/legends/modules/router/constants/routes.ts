@@ -1,9 +1,10 @@
 const LEGENDS_ROUTES = {
   landing: '/',
-  legends: '/legends',
-  character: '/character',
+  quests: '/quests',
+  home: '/home',
   characterSelect: '/character-select',
-  leaderboard: '/leaderboard'
+  leaderboard: '/leaderboard',
+  staking: '/staking'
 }
 
 export { LEGENDS_ROUTES }

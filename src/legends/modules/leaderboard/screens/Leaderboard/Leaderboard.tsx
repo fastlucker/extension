@@ -69,7 +69,12 @@ const LeaderboardContainer: React.FC = () => {
   return (
     <Page
       pageRef={pageRef}
-      style={{ backgroundImage: `url(${smokeAndLights})`, backgroundPosition: 'center' }}
+      style={{
+        backgroundImage: `url(${smokeAndLights})`,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover'
+      }}
     >
       <div className={styles.wrapper}>
         <div className={styles.heading}>

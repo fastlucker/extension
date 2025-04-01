@@ -27,14 +27,13 @@ type Props = {
 }
 
 const NAVIGATION_LINKS = [
-  { to: LEGENDS_ROUTES.character, text: 'Home', icon: faCircleUser },
-  { to: LEGENDS_ROUTES.legends, text: 'Quests', icon: faMedal },
+  { to: LEGENDS_ROUTES.home, text: 'Home', icon: faCircleUser },
+  { to: LEGENDS_ROUTES.quests, text: 'Quests', icon: faMedal },
   { to: LEGENDS_ROUTES.leaderboard, text: 'Leaderboard', icon: faTrophy },
-  { to: LEGENDS_ROUTES.leaderboard, text: 'Staking', icon: faPiggyBank },
-
+  { to: LEGENDS_ROUTES.staking, text: 'Staking', icon: faPiggyBank },
   {
     to: 'https://codex.ambire.com/',
-    text: 'Guide',
+    text: 'FAQ',
     icon: faFileLines,
     newTab: true,
     isExternalLink: true

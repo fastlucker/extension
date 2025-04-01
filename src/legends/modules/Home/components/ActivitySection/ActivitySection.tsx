@@ -104,7 +104,8 @@ const ActivitySection = () => {
                       {legends.activities?.map((legendActivity, i) => (
                         <div
                           className={styles.badge}
-                          key={legendActivity.action + legendActivity.xp}
+                          // eslint-disable-next-line react/no-array-index-key
+                          key={legendActivity.action + legendActivity.xp + i}
                         >
                           {legendActivity.labelText} (+{legendActivity.xp} XP)
                         </div>

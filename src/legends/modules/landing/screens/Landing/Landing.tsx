@@ -16,7 +16,7 @@ const Landing = () => {
 
   useEffect(() => {
     if (connectedAccount) {
-      navigate(LEGENDS_ROUTES.character, {
+      navigate(LEGENDS_ROUTES.home, {
         replace: true
       })
     } else if (nonV2Account) {
