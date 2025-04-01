@@ -234,55 +234,63 @@ const SignMessageScreen = () => {
   }
 
   return (
-    <TabLayoutContainer
-      width="full"
-      header={<HeaderAccountAndNetworkInfo />}
-      footer={
-        <ActionFooter
-          onReject={handleReject}
-          onResolve={handleSign}
-          resolveButtonText={resolveButtonText}
-          resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
-          resolveButtonTestID="button-sign"
-          rejectButtonText={rejectButtonText}
-        />
-      }
+    <View
+      style={{
+        flex: 1,
+        width: 720,
+        marginHorizontal: 'auto'
+      }}
     >
-      <SigningKeySelect
-        isVisible={isChooseSignerShown}
-        isSigning={signStatus === 'LOADING'}
-        selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
-        handleChooseSigningKey={handleSign}
-        handleClose={() => setIsChooseSignerShown(false)}
-        account={account}
-      />
-      {isViewOnly && (
-        <View style={styles.noKeysToSignAlert}>
-          <NoKeysToSignAlert
-            style={{
-              width: 640
-            }}
-            isTransaction={false}
+      <TabLayoutContainer
+        width="full"
+        header={<HeaderAccountAndNetworkInfo />}
+        footer={
+          <ActionFooter
+            onReject={handleReject}
+            onResolve={handleSign}
+            resolveButtonText={resolveButtonText}
+            resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
+            resolveButtonTestID="button-sign"
+            rejectButtonText={rejectButtonText}
           />
-        </View>
-      )}
-      {isAuthorization && !makeItSmartConfirmed ? (
-        <Authorization7702
-          onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
-          doNotAskMeAgain={doNotAskMeAgain}
-          displayFullInformation
+        }
+      >
+        <SigningKeySelect
+          isVisible={isChooseSignerShown}
+          isSigning={signStatus === 'LOADING'}
+          selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+          handleChooseSigningKey={handleSign}
+          handleClose={() => setIsChooseSignerShown(false)}
+          account={account}
         />
-      ) : (
-        <Main
-          shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
-          isLedgerConnected={isLedgerConnected}
-          handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
-          hasReachedBottom={hasReachedBottom}
-          setHasReachedBottom={setHasReachedBottom}
-          shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
-        />
-      )}
-    </TabLayoutContainer>
+        {isViewOnly && (
+          <View style={styles.noKeysToSignAlert}>
+            <NoKeysToSignAlert
+              style={{
+                width: 640
+              }}
+              isTransaction={false}
+            />
+          </View>
+        )}
+        {isAuthorization && !makeItSmartConfirmed ? (
+          <Authorization7702
+            onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
+            doNotAskMeAgain={doNotAskMeAgain}
+            displayFullInformation
+          />
+        ) : (
+          <Main
+            shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
+            isLedgerConnected={isLedgerConnected}
+            handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
+            hasReachedBottom={hasReachedBottom}
+            setHasReachedBottom={setHasReachedBottom}
+            shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
+          />
+        )}
+      </TabLayoutContainer>
+    </View>
   )
 }
 
