@@ -23,7 +23,6 @@ type Props = {
   keyType: ExternalKey['type']
   isVisible: boolean
   children?: React.ReactNode
-  isSignAccountOp?: boolean
 }
 
 const iconByKeyType = {
@@ -32,7 +31,7 @@ const iconByKeyType = {
   lattice: LatticeMiniIcon
 }
 
-const HardwareWalletSigningModal = ({ keyType, isSignAccountOp, isVisible, children }: Props) => {
+const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => {
   const { t } = useTranslation()
   const { ref, open, close } = useModalize()
 
@@ -52,7 +51,7 @@ const HardwareWalletSigningModal = ({ keyType, isSignAccountOp, isVisible, child
     <BottomSheet
       id="hardware-wallet-signing-modal"
       backgroundColor="primaryBackground"
-      type={isSignAccountOp ? 'bottom-sheet' : 'modal'}
+      type="bottom-sheet"
       autoWidth
       sheetRef={ref}
       shouldBeClosableOnDrag={false}
@@ -66,12 +65,7 @@ const HardwareWalletSigningModal = ({ keyType, isSignAccountOp, isVisible, child
         titleSuffix={titleSuffix}
       />
       <View
-        style={[
-          flexbox.directionRow,
-          flexbox.alignSelfCenter,
-          flexbox.alignCenter,
-          isSignAccountOp ? spacings.mvXl : spacings.mv3Xl
-        ]}
+        style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mvXl]}
       >
         <DriveIcon style={spacings.mrLg} />
         <View style={spacings.mrLg}>
@@ -83,7 +77,7 @@ const HardwareWalletSigningModal = ({ keyType, isSignAccountOp, isVisible, child
         </View>
         <AmbireDevice />
       </View>
-      <View style={[flexbox.alignSelfCenter, isSignAccountOp ? spacings.mbLg : spacings.mb3Xl]}>
+      <View style={[flexbox.alignSelfCenter, spacings.mbLg]}>
         <Text weight="regular" style={spacings.mbTy} fontSize={20}>
           {t('Sending signing request...')}
         </Text>

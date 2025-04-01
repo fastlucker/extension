@@ -76,7 +76,6 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
     <HardwareWalletSigningModal
       isVisible={shouldBeVisible}
       keyType={currentlyInvolvedSignOrBroadcastKeyType}
-      isSignAccountOp
     >
       {typeof signedTransactionsCount === 'number' ? (
         <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.ptLg]}>
