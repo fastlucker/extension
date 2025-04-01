@@ -51,7 +51,7 @@ const Info: FC<Props> = () => {
               <DAppsIcon style={{ width: '100%', height: '100%' }} />
             </View>
           )}
-          <View style={[flexbox.flex1, spacings.plTy]}>
+          <View style={[flexbox.flex1, spacings.mlSm]}>
             <Text
               fontSize={maxWidthSize('xl') ? 20 : 16}
               appearance="secondaryText"

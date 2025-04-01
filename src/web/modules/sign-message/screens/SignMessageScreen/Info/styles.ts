@@ -13,11 +13,14 @@ interface Style {
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    image: { width: 48, height: 48, ...spacings.mrSm, alignSelf: 'flex-start' },
+    image: {
+      width: 48,
+      height: 48,
+      alignSelf: 'flex-start'
+    },
     fallbackIcon: {
       width: 48,
       height: 48,
-      ...spacings.mrSm,
       backgroundColor: theme.secondaryBackground,
       alignSelf: 'flex-start',
       borderRadius: 4,
