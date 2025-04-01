@@ -67,13 +67,16 @@ const LeaderboardContainer: React.FC = () => {
   }, [updateLeaderboard])
 
   return (
-    <Page pageRef={pageRef} style={{ backgroundImage: `url(${smokeAndLights})` }}>
+    <Page
+      pageRef={pageRef}
+      style={{ backgroundImage: `url(${smokeAndLights})`, backgroundPosition: 'center' }}
+    >
       <div className={styles.wrapper}>
         <div className={styles.heading}>
           <h1 className={styles.title}>Leaderboard</h1>
           <p className={styles.subtitle}>
-            Compete legends, earn XP and climb the leaderboard to secure your name among the
-            greatest. Will you rise to the top and become a true onchain champion?
+            This is where your earned XP showcases your legacy in the world of Web3. Compete, rise
+            through the ranks, and level your mark among the top Legends!
           </p>
         </div>
         {loading && <Spinner />}
