@@ -263,7 +263,9 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
                       key={token.address}
                       token={token}
                       chainId={network?.chainId}
-                      hasBottomSpacing={i < pendingTokens.length - 1}
+                      hasBottomSpacing={
+                        i < pendingTokens.length - 1 || pendingReceiveCollection.length > 0
+                      }
                     />
                   )
                 })}

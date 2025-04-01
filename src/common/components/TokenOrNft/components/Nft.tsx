@@ -45,7 +45,7 @@ const Nft: FC<Props> = ({
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.wrap, style]}>
       <Collectible
         style={spacings.mhTy}
-        size={36}
+        size={20}
         id={tokenId}
         collectionData={{
           name: nftInfo?.name || 'Unknown NFT',
