@@ -107,7 +107,7 @@ const NetworkDetails = ({
               <View style={spacings.mrMi}>
                 <NetworkIcon
                   key={name.toLowerCase() as any}
-                  id={name.toLowerCase()}
+                  id={chainId.toString()}
                   uris={iconUrls.length ? iconUrls : undefined}
                   size={32}
                 />
