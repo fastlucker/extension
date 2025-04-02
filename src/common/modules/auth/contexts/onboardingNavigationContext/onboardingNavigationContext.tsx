@@ -70,17 +70,17 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   )
 
   const onboardingRoutesTree = useMemo(() => {
-    const onboardingCompleted = isSetupComplete
-      ? new RouteNode('/')
-      : new RouteNode(WEB_ROUTES.onboardingCompleted)
-
     const common = [
       new RouteNode(
         WEB_ROUTES.keyStoreSetup,
         [
           new RouteNode(
             WEB_ROUTES.accountPersonalize,
-            [onboardingCompleted, new RouteNode(WEB_ROUTES.accountAdder, [], !isInitialized)],
+            [
+              new RouteNode(WEB_ROUTES.onboardingCompleted, [new RouteNode('/')], isSetupComplete),
+              new RouteNode('/'),
+              new RouteNode(WEB_ROUTES.accountAdder, [], !isInitialized)
+            ],
             !isInitialized
           )
         ],
@@ -115,7 +115,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
       false
     )
-  }, [hasPasswordSecret, authStatus, isSetupComplete])
+  }, [hasPasswordSecret, authStatus, isSetupComplete, isInitialized])
 
   const loadHistory = () => {
     try {
