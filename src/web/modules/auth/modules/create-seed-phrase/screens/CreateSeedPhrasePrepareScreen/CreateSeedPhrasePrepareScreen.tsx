@@ -85,10 +85,7 @@ const CreateSeedPhrasePrepareScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel
           spacingsSize="small"
-          style={{
-            ...spacings.ph0,
-            ...spacings.pv0
-          }}
+          style={[spacings.ph0, spacings.pv0]}
           step={1}
           totalSteps={2}
           title="Create New Recovery Phrase"

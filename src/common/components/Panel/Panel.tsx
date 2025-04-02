@@ -20,7 +20,7 @@ interface Props extends ViewProps {
   isAnimated?: boolean
   step?: number
   totalSteps?: number
-  cardWidth?: number
+  panelWidth?: number
 }
 
 export const getPanelPaddings = (
@@ -43,7 +43,7 @@ const Panel: React.FC<Props> = ({
   isAnimated,
   step = 0,
   totalSteps = 2,
-  cardWidth = 400,
+  panelWidth = 400,
   ...rest
 }) => {
   const { styles, theme } = useTheme(getStyles)
@@ -62,7 +62,7 @@ const Panel: React.FC<Props> = ({
 
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [100, cardWidth],
+    outputRange: [100, panelWidth],
     extrapolate: 'clamp'
   })
 
@@ -91,7 +91,7 @@ const Panel: React.FC<Props> = ({
 
   return (
     <Animated.View
-      style={[styles.container, { width: isAnimated ? panelWidthInterpolate : cardWidth }]}
+      style={[styles.container, { width: isAnimated ? panelWidthInterpolate : panelWidth }]}
     >
       <Animated.View
         style={[
@@ -99,9 +99,9 @@ const Panel: React.FC<Props> = ({
           getPanelPaddings(maxWidthSize, spacingsSize),
           style,
           {
-            width: isAnimated ? panelWidthInterpolate : cardWidth,
+            width: isAnimated ? panelWidthInterpolate : panelWidth,
             opacity: isAnimated ? opacityInterpolate : 1,
-            minWidth: cardWidth
+            minWidth: panelWidth
           }
         ]}
         {...rest}

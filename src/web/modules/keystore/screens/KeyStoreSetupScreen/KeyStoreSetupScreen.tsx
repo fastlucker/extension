@@ -52,10 +52,7 @@ const KeyStoreSetupScreen = () => {
           spacingsSize="small"
           withBackButton={!hideBack}
           onBackButtonPress={goToPrevRoute}
-          style={{
-            ...spacings.ph0,
-            ...spacings.pv0
-          }}
+          style={[spacings.ph0, spacings.pv0]}
           step={2}
           totalSteps={2}
         >
