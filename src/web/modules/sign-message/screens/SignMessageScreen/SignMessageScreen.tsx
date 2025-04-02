@@ -14,6 +14,7 @@ import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
+import SmallNotificationWindowWrapper from '@web/components/SmallNotificationWindowWrapper'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -234,13 +235,7 @@ const SignMessageScreen = () => {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        width: 720,
-        marginHorizontal: 'auto'
-      }}
-    >
+    <SmallNotificationWindowWrapper>
       <TabLayoutContainer
         width="full"
         header={<HeaderAccountAndNetworkInfo />}
@@ -290,7 +285,7 @@ const SignMessageScreen = () => {
           />
         )}
       </TabLayoutContainer>
-    </View>
+    </SmallNotificationWindowWrapper>
   )
 }
 
