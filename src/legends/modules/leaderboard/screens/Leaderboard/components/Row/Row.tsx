@@ -4,10 +4,7 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import BronzeTrophy from '@legends/modules/leaderboard/screens/Leaderboard/BronzeTrophy'
-import GoldTrophy from '@legends/modules/leaderboard/screens/Leaderboard/GoldTrophy'
 import styles from '@legends/modules/leaderboard/screens/Leaderboard/Leaderboard.module.scss'
-import SilverTrophy from '@legends/modules/leaderboard/screens/Leaderboard/SilverTrophy'
 import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
 type Props = LeaderboardEntry & {
@@ -30,7 +27,6 @@ const getBadge = (rank: number) => {
   switch (rank) {
     case 1:
       return <FontAwesomeIcon icon={faTrophy} className={styles.trophy} />
-
     case 2:
       return <FontAwesomeIcon icon={faTrophy} className={styles.trophy} />
     case 3:
