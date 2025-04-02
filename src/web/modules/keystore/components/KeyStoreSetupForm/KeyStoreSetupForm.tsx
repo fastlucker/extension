@@ -106,6 +106,7 @@ const KeyStoreSetupForm = ({ onContinue, children }: Props) => {
           disabled={formState.isSubmitting || isKeystoreSetupLoading || !formState.isValid}
           text={formState.isSubmitting || isKeystoreSetupLoading ? t('Loading...') : t('Confirm')}
           onPress={handleKeystoreSetup}
+          hasBottomSpacing={false}
         />
       </View>
       <BottomSheet
