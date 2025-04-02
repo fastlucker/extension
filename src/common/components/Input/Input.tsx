@@ -10,7 +10,6 @@ import {
   ViewStyle
 } from 'react-native'
 
-import CheckIcon from '@common/assets/svg/CheckIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
@@ -102,7 +101,7 @@ const Input = ({
   const borderWrapperStyles = [
     styles.borderWrapper,
     isFocused && { borderColor: theme.infoBackground },
-    // isValid && { borderColor: theme.successBackground },
+    isValid && { borderColor: theme.successBackground },
     !!error && { borderColor: theme.errorBackground },
     borderless && { borderColor: 'transparent', borderWidth: 0 },
     borderWrapperStyle
@@ -115,7 +114,7 @@ const Input = ({
       borderColor: theme.secondaryBorder
     },
     isFocused && { borderColor: theme.primary },
-    // isValid && { borderColor: theme.successDecorative },
+    isValid && { borderColor: theme.successDecorative },
     !!error && { borderColor: theme.errorDecorative },
     disabled && styles.disabled,
     borderless && { borderColor: 'transparent', borderWidth: 0 },
@@ -163,18 +162,6 @@ const Input = ({
               />
             </View>
             {childrenBeforeButtons || null}
-            {!!isValid && (
-              <View
-                style={{
-                  position: 'absolute',
-                  right: 10,
-                  top: '50%',
-                  transform: [{ translateY: -10 }]
-                }}
-              >
-                <CheckIcon width={20} height={20} color={theme.successText} />
-              </View>
-            )}
             {!!hasButton && (
               <AnimatedPressable
                 // The `focusable` prop determines whether a component is user-focusable

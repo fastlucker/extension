@@ -68,6 +68,7 @@ const KeyStoreSetupScreen = () => {
                 value={agreedWithTerms}
                 onValueChange={setAgreedWithTerms}
                 uncheckedBorderColor={theme.primaryText}
+                style={[spacings.mlSm, spacings.pt2Xl]}
                 label={
                   <Trans>
                     <Text fontSize={14}>I agree to the </Text>

@@ -7,7 +7,6 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { WindowSizes } from '@common/hooks/useWindowSize/types'
 import spacings, { SPACING_3XL, SPACING_LG, SPACING_XL } from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 
@@ -19,7 +18,6 @@ interface Props extends ViewProps {
   title?: string | ReactNode
   spacingsSize?: 'small' | 'large'
   isAnimated?: boolean
-  // showProgress?: boolean
   step?: number
   totalSteps?: number
   cardWidth?: number
@@ -43,7 +41,6 @@ const Panel: React.FC<Props> = ({
   style,
   spacingsSize = 'large',
   isAnimated,
-  // showProgress = false,
   step = 0,
   totalSteps = 2,
   cardWidth = 400,
@@ -79,13 +76,14 @@ const Panel: React.FC<Props> = ({
     <View style={[flexbox.directionRow, spacings.mbMd]}>
       {[...Array(totalSteps)].map((_, index) => (
         <View
-          key={`step-${index}`} // TODO: Remove index as key
-          style={{
-            flex: 1,
-            height: 4,
-            backgroundColor: index < step ? theme.successDecorative : theme.tertiaryBackground,
-            ...(index > 0 && { ...spacings.mlMi })
-          }}
+          key={`step-${_}`} // TODO: Remove index as key
+          style={[
+            styles.progress,
+            index > 0 ? spacings.mlMi : undefined,
+            {
+              backgroundColor: index < step ? theme.successDecorative : theme.tertiaryBackground
+            }
+          ]}
         />
       ))}
     </View>
@@ -93,15 +91,7 @@ const Panel: React.FC<Props> = ({
 
   return (
     <Animated.View
-      style={[
-        styles.container,
-        common.shadowTertiary,
-        {
-          alignSelf: 'center',
-          width: isAnimated ? panelWidthInterpolate : cardWidth,
-          overflow: 'hidden'
-        }
-      ]}
+      style={[styles.container, { width: isAnimated ? panelWidthInterpolate : cardWidth }]}
     >
       <Animated.View
         style={[
@@ -111,15 +101,12 @@ const Panel: React.FC<Props> = ({
           {
             width: isAnimated ? panelWidthInterpolate : cardWidth,
             opacity: isAnimated ? opacityInterpolate : 1,
-            minWidth: cardWidth,
-            alignSelf: 'center',
-            backgroundColor: 'transparent',
-            borderWidth: 0
+            minWidth: cardWidth
           }
         ]}
         {...rest}
       >
-        {step && renderProgress()}
+        {step > 0 && renderProgress()}
 
         {(!!title || !!withBackButton) && (
           <View
