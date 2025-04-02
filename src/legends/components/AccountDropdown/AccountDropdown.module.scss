@@ -1,16 +1,14 @@
 @import '@legends/styles/base.scss';
 
 .wrapper {
-  position: relative;
-  margin-left: auto;
-  z-index: 999;
+  position: static;
 
   
   .button {
     display: flex;
     align-items: center;
     cursor: default;
-    padding-left: .5625rem;
+    padding: .5rem 1rem;
 
     &:hover {
       opacity: 1;

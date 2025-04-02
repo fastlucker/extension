@@ -1,7 +1,7 @@
 @import '@legends/styles/base.scss';
 
 .wrapper {
-  position: relative;
+  position: static;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -25,11 +25,13 @@
   }
 
   &.active {
+    padding-left: .75rem;
     &::before {
       content: '';
-      margin-left: -2.3rem;
+      position: absolute;
+      left: 0;
       width: 2rem;
-      height: 1.5px;
+      height: .1875rem;
       background-color: $primaryText;
     }
     span,

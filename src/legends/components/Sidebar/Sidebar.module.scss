@@ -13,11 +13,11 @@
 }
 
 .wrapper {
-  position: absolute;
+  position: relative;
   z-index: 3;
   background-color: $secondaryBackground;
-  width: 18.875rem;
-  padding: .875rem 1.25rem;
+  width: 20rem;
+  padding: .8125rem 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -41,7 +41,7 @@
   }
 
   .top {
-    position: relative;
+    position: static;
     .bannerText {
       font-size: .75rem;
       margin-bottom: 0.75rem;
@@ -88,7 +88,7 @@
     .logo {
       display: block;
       margin: 0 auto;
-      margin-bottom: 2rem;
+      margin-bottom: 3.125rem;
       width: 12.5rem;
       height: auto;
     }
@@ -165,19 +165,13 @@
       .links {
         padding-top: 1rem;
       }
-      .treasureChestWrapper {
-        padding-top: 0.5rem;
-      }
     }
   }
 
   @media screen and (max-height: 900px) {
     .top {
       .links {
-        padding-top: 1rem;
-      }
-      .treasureChestWrapper {
-        padding-top: 1rem;
+        padding-top: 2.9375rem;
       }
     }
 
