@@ -21,10 +21,12 @@ import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControll
 
 const PayOption = ({
   feeOption,
+  amountUsd,
   disabledReason,
   amount
 }: {
   feeOption: FeePaymentOption
+  amountUsd: string
   amount: bigint
   disabledReason?: string
 }) => {
@@ -44,10 +46,6 @@ const PayOption = ({
 
   const formattedAmount = useMemo(() => {
     return formatDecimals(Number(formatUnits(amount, feeOption.token.decimals)), 'amount')
-  }, [amount, feeOption.token.decimals])
-
-  const formattedAmountUsd = useMemo(() => {
-    return formatDecimals(Number(formatUnits(amount, feeOption.token.decimals)), 'value')
   }, [amount, feeOption.token.decimals])
 
   const feeTokenNetworkName = useMemo(() => {
@@ -113,7 +111,7 @@ const PayOption = ({
             </Text>
           ) : (
             <Text appearance="secondaryText" weight="medium" fontSize={10}>
-              {formattedAmountUsd}
+              {formatDecimals(Number(amountUsd), 'value')}
             </Text>
           )}
         </View>
