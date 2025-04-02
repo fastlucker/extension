@@ -15,6 +15,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { getUiType } from '@web/utils/uiType'
+import { storage } from '@web/extension-services/background/webapi/storage'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
@@ -88,7 +89,16 @@ const SortHat = () => {
     } else if (!isActionWindow) {
       // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
-      navigate(ROUTES.dashboard)
+      const transferState = await storage.get('transferState-v1')
+      console.log({ transferState })
+      // navigate(ROUTES.dashboard)
+      if (transferState) {
+        navigate(ROUTES.transfer, {
+          state: { backTo: WEB_ROUTES.dashboard }
+        })
+      } else {
+        navigate(ROUTES.dashboard)
+      }
     }
   }, [
     isActionWindow,

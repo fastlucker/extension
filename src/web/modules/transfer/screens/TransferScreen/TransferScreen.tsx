@@ -190,6 +190,7 @@ const TransferScreen = () => {
   ])
 
   const onBack = useCallback(() => {
+    transferCtrl.resetForm()
     navigate(ROUTES.dashboard)
   }, [navigate])
 
@@ -289,7 +290,16 @@ const TransferScreen = () => {
   const header = useMemo(
     () =>
       isPopup ? (
-        <Header customTitle={title} withAmbireLogo withOG />
+        <Header
+          customTitle={title}
+          withAmbireLogo
+          withOG
+          forceBack
+          onGoBackPress={() => {
+            transferCtrl.resetForm()
+            navigate(ROUTES.dashboard)
+          }}
+        />
       ) : (
         <HeaderAccountAndNetworkInfo withOG />
       ),
