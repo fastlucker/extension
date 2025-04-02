@@ -9,6 +9,7 @@ import InputPassword from '@common/components/InputPassword'
 import Panel from '@common/components/Panel'
 import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
@@ -18,6 +19,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import getStyles from './styles'
@@ -30,11 +32,13 @@ const SeedPhraseImportScreen = () => {
 
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-
+  const { isInitialized, subType } = useAccountAdderControllerState()
+  const prevIsInitialized = usePrevious(isInitialized)
   const {
     watch,
     control,
     handleSubmit,
+    getValues,
     formState: { isValid }
   } = useForm({
     mode: 'all',
@@ -70,15 +74,19 @@ const SeedPhraseImportScreen = () => {
       const formattedSeed = seed.trim().split(/\s+/).join(' ')
 
       dispatch({
-        type: 'ADD_NEXT_ACCOUNT_FROM_SEED_OR_PRIVATE_KEY',
-        params: {
-          privKeyOrSeed: formattedSeed,
-          seedPassphrase: passphrase || null
-        }
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        params: { privKeyOrSeed: formattedSeed, seedPassphrase: passphrase || null }
       })
-      goToNextRoute()
     })()
-  }, [dispatch, handleSubmit, goToNextRoute])
+  }, [dispatch, handleSubmit])
+
+  useEffect(() => {
+    if (!getValues('seed')) return
+    if (!prevIsInitialized && isInitialized && subType === 'seed') {
+      dispatch({ type: 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT' })
+      goToNextRoute()
+    }
+  }, [goToNextRoute, dispatch, getValues, isInitialized, prevIsInitialized, subType])
 
   const validateSeedPhraseWord = useCallback(
     (value: string) => {

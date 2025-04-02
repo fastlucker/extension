@@ -103,28 +103,22 @@ export const handleActions = async (
       return await mainCtrl.handleAccountAdderInitLattice(LatticeKeyIterator)
     }
     case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
-      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
       const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
       const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
 
       // if it enters here, it's from the default seed. We can init the account adder like so
-      if (keyIterator.subType === 'seed' && params.shouldPersist) {
-        await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
-      }
-      if (keyIterator.subType === 'seed' && params.shouldAddToTemp) {
-        await mainCtrl.keystore.addSeedToTemp({
-          seed: params.privKeyOrSeed,
-          seedPassphrase: params.seedPassphrase,
-          hdPathTemplate
-        })
-      }
+      // if (keyIterator.subType === 'seed' && params.shouldPersist) {
+      //   await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
+      // }
+      // if (keyIterator.subType === 'seed' && params.shouldAddToTemp) {
+      //   await mainCtrl.keystore.addSeedToTemp({
+      //     seed: params.privKeyOrSeed,
+      //     seedPassphrase: params.seedPassphrase,
+      //     hdPathTemplate
+      //   })
+      // }
 
-      await mainCtrl.accountAdder.init({
-        keyIterator,
-        pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
-        hdPathTemplate
-      })
+      await mainCtrl.accountAdder.init({ keyIterator, hdPathTemplate })
 
       return await mainCtrl.accountAdder.setPage({ page: 1 })
     }
@@ -135,7 +129,6 @@ export const handleActions = async (
       const keyIterator = new KeyIterator(keystoreSavedSeed.seed, keystoreSavedSeed.seedPassphrase)
       await mainCtrl.accountAdder.init({
         keyIterator,
-        pageSize: 5,
         hdPathTemplate: keystoreSavedSeed.hdPathTemplate
       })
 
@@ -273,24 +266,12 @@ export const handleActions = async (
       const keyIterator = new KeyIterator(params.seed)
 
       await mainCtrl.keystore.addSeed({ seed: params.seed, hdPathTemplate })
-      await mainCtrl.accountAdder.init({ keyIterator, pageSize: 5, hdPathTemplate })
+      await mainCtrl.accountAdder.init({ keyIterator, hdPathTemplate })
 
       return await mainCtrl.accountAdder.setPage({ page: 1 })
     }
-    case 'ADD_NEXT_ACCOUNT_FROM_SEED_OR_PRIVATE_KEY': {
-      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-      const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
-      const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
-
-      await mainCtrl.accountAdder.init({
-        keyIterator,
-        pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
-        hdPathTemplate
-      })
-
-      await mainCtrl.accountAdder.setPage({ page: 1 })
-      await mainCtrl.accountAdder.addNextAvailableAccount()
+    case 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT': {
+      await mainCtrl.accountAdder.selectNextAccount()
       break
     }
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {

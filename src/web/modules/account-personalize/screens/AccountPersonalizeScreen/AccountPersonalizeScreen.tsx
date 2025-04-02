@@ -43,6 +43,12 @@ const AccountPersonalizeScreen = () => {
 
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
+  useEffect(() => {
+    if (accountAdderState.selectNextAccountStatus === 'INITIAL') {
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS' })
+    }
+  }, [dispatch, accountAdderState.selectNextAccountStatus])
+
   const handleSave = useCallback(
     (data?: { accounts: Account[] }) => {
       const newAccounts = data?.accounts || getValues('accounts')

@@ -101,9 +101,8 @@ type CreateNewSeedPhraseAndAddFirstAccount = {
   type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_ACCOUNT'
   params: { seed: string }
 }
-type AddNextAccountFromSeedOrPrivateKey = {
-  type: 'ADD_NEXT_ACCOUNT_FROM_SEED_OR_PRIVATE_KEY'
-  params: { privKeyOrSeed: string; seedPassphrase?: string | null }
+type AccountAdderControllerSelectNextAccount = {
+  type: 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT'
 }
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
@@ -617,7 +616,7 @@ export type Action =
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | CreateNewSeedPhraseAndAddFirstAccount
-  | AddNextAccountFromSeedOrPrivateKey
+  | AccountAdderControllerSelectNextAccount
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction

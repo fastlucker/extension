@@ -65,7 +65,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
         [
           new RouteNode(WEB_ROUTES.accountPersonalize, [
             new RouteNode('/'),
-            new RouteNode(WEB_ROUTES.accountAdder, [new RouteNode('/')])
+            new RouteNode(WEB_ROUTES.accountAdder)
           ])
         ],
         hasPasswordSecret
@@ -177,12 +177,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     if (node.isProtected) {
       if (!params || !params.internal) {
         !!prevRoute && navigate(prevRoute, { state: { internal: true } })
-        return
       }
-    }
-
-    if (!history || !history.length) {
-      setHistory([node.name])
     }
   }, [path, prevPath, params, deepSearchRouteNode, navigate, onboardingRoutesTree, history])
 
@@ -191,17 +186,21 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       const currentRoute = path?.substring(1)
       if (!currentRoute) return
 
-      const currentNode = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
-      if (!currentNode) return
-
-      const nextRoute = findNextEnabledRoute(currentNode.children, routeName)
+      let nextRoute: RouteNode | null = null
+      if (routeName && onboardingRoutes.includes(routeName)) {
+        nextRoute = deepSearchRouteNode(onboardingRoutesTree, routeName)
+      } else {
+        const currentNode = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
+        if (!currentNode) return
+        nextRoute = findNextEnabledRoute(currentNode.children, routeName)
+      }
 
       if (nextRoute) {
         navigate(nextRoute.name, {
           state: { ...routeParams, internal: true }
         })
-        if (!history.includes(nextRoute.name)) {
-          setHistory((prevHistory) => [...prevHistory, nextRoute.name])
+        if (!history.includes(currentRoute)) {
+          setHistory((prevHistory) => [...prevHistory, currentRoute])
         }
       }
     },
@@ -209,24 +208,18 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   )
 
   const goToPrevRoute = useCallback(() => {
-    if (history.length <= 1) {
-      console.warn('No previous routes to go back to.')
-      return
-    }
-
     const newHistory = [...history]
-    newHistory.pop()
-    const prevRouteName = newHistory[newHistory.length - 1]
-    let prevRoute = deepSearchRouteNode(onboardingRoutesTree, prevRouteName)
 
-    while (prevRoute && prevRoute.disabled && newHistory.length > 1) {
+    while (newHistory.length > 0) {
+      const prevRouteName = newHistory[newHistory.length - 1]
+      const prevRoute = deepSearchRouteNode(onboardingRoutesTree, prevRouteName)
       newHistory.pop()
-      prevRoute = deepSearchRouteNode(onboardingRoutesTree, newHistory[newHistory.length - 1])
-    }
-
-    if (prevRoute) {
-      navigate(prevRoute.name, { state: { internal: true } })
-      setHistory(newHistory)
+      if (!prevRoute) return
+      if (!prevRoute.disabled) {
+        navigate(prevRoute.name, { state: { internal: true } })
+        setHistory(newHistory)
+        return
+      }
     }
   }, [history, deepSearchRouteNode, onboardingRoutesTree, navigate])
 
@@ -248,7 +241,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       window.removeEventListener('hashchange', handleBackButton)
     }
   }, [goToPrevRoute, history, deepSearchRouteNode, onboardingRoutesTree])
-
+  console.log(history)
   const value = useMemo(() => ({ goToNextRoute, goToPrevRoute }), [goToPrevRoute, goToNextRoute])
   return (
     <OnboardingNavigationContext.Provider value={value}>
