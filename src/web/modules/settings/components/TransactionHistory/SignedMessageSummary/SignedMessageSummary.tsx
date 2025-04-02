@@ -57,6 +57,16 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
     return signedMessage.dapp?.name || 'Unknown App'
   }, [signedMessage.dapp?.name, signedMessage.fromActionId, signedMessage.content.kind])
 
+  const dAppNameTooltipId = useMemo(() => {
+    // Filter out spaces and special characters
+    const encodedDAppName = dAppName
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .replace(/\s+/g, '')
+      .toLowerCase()
+
+    return `${encodedDAppName}-tooltip`
+  }, [dAppName])
+
   return (
     <ExpandableCard
       arrowPosition="right"
@@ -78,12 +88,12 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
               weight="semiBold"
               numberOfLines={2}
               dataSet={{
-                tooltipId: `${dAppName}-tooltip`
+                tooltipId: dAppNameTooltipId
               }}
             >
               {dAppName}
             </Text>
-            <Tooltip content={dAppName} id={`${dAppName}-tooltip`} />
+            <Tooltip content={dAppName} id={dAppNameTooltipId} />
           </View>
           <View style={flexbox.flex1}>
             {new Date(signedMessage.timestamp).toString() !== 'Invalid Date' && (
