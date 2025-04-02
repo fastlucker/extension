@@ -72,7 +72,7 @@ const Pagination: FC<Props> = ({ activity, page, setPage }) => {
           disabled={page === 0}
           onClick={() => setPage(page - 1)}
         >
-          <LeftArrowIcon color="#E8E6E3" width={8} height={14} />
+          <LeftArrowIcon color="currentColor" width={8} height={14} className={styles.icon} />
         </button>
         <div className={styles.pages}>
           {paginationRange.map((pageNumber) => {
@@ -96,7 +96,7 @@ const Pagination: FC<Props> = ({ activity, page, setPage }) => {
           disabled={page + 1 === totalPages}
           onClick={() => setPage(page + 1)}
         >
-          <RightArrowIcon color="#E8E6E3" width={8} height={14} />
+          <RightArrowIcon color="currentColor" width={8} height={14} className={styles.icon} />
         </button>
       </div>
       <p className={styles.visibleTransactionsText}>

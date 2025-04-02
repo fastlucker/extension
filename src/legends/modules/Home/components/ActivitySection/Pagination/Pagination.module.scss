@@ -12,6 +12,10 @@
     margin-bottom: 1rem;
 
     .button {
+      .icon {
+        color: $silverBackground;
+      }
+      
       @include button;
       width: 2rem;
       height: 2rem

@@ -119,7 +119,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
                 <>
                   {legendLeader?.meta?.invitationKey}{' '}
                   <button type="button" onClick={copyInvitationKey}>
-                    <CopyIcon color="#6A6F86" className={styles.leaderCopyButton} />
+                    <CopyIcon color="currentColor" className={styles.leaderCopyButton} />
                   </button>
                 </>
               )}

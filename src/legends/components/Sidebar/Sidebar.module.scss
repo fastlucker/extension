@@ -120,6 +120,7 @@
 
     .leaderCopyButton {
       cursor: pointer;
+      color: $neutral-600;
     }
 
     .leaderInvitationKey {
@@ -184,11 +185,5 @@
     }
   }
 
-  @media screen and (min-height: 1100px) {
-   .top {
-    .logo {
-      margin-bottom: 10rem;
-    }
-   }
-  }
+ 
 }
