@@ -20,6 +20,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
+import SmallNotificationWindowWrapper from '@web/components/SmallNotificationWindowWrapper'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -375,13 +376,7 @@ const SignAccountOpScreen = () => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
   return (
-    <View
-      style={{
-        flex: 1,
-        width: 720,
-        marginHorizontal: 'auto'
-      }}
-    >
+    <SmallNotificationWindowWrapper>
       {renderedButNotNecessarilyVisibleModal === 'warnings' && (
         <BottomSheet
           id="warning-modal"
@@ -555,7 +550,7 @@ const SignAccountOpScreen = () => {
           )}
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>
-    </View>
+    </SmallNotificationWindowWrapper>
   )
 }
 
