@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useRef } from 'react'
-import { Animated, View } from 'react-native'
+import React, { useCallback, useEffect } from 'react'
+import { View } from 'react-native'
 
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import ViewModeIcon from '@common/assets/svg/ViewModeIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import getPanelStyles from '@common/components/Panel/styles'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -16,7 +15,6 @@ import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNav
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import {
@@ -32,12 +30,10 @@ export const CARD_WIDTH = 400
 
 const GetStartedScreen = () => {
   const { theme } = useTheme(getStyles)
-  const { styles: panelStyles } = useTheme(getPanelStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { goToNextRoute } = useOnboardingNavigation()
 
-  const animation = useRef(new Animated.Value(0)).current
   const { authStatus } = useAuth()
   const { dispatch } = useBackgroundService()
 
@@ -58,14 +54,6 @@ const GetStartedScreen = () => {
     resetIsSetupCompleteIfNeeded()
   }, [authStatus, navigate, resetIsSetupCompleteIfNeeded])
 
-  useEffect(() => {
-    Animated.timing(animation, {
-      toValue: 1,
-      duration: 480,
-      useNativeDriver: false
-    }).start()
-  }, [animation])
-
   const handleAuthButtonPress = useCallback(
     async (flow: 'create-new-account' | 'import-existing-account' | 'view-only') => {
       if (flow === 'create-new-account') {
@@ -83,91 +71,50 @@ const GetStartedScreen = () => {
     [goToNextRoute]
   )
 
-  const panelWidthInterpolate = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [CARD_WIDTH * 0.25, CARD_WIDTH],
-    extrapolate: 'clamp'
-  })
-
-  const opacityInterpolate = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-    extrapolate: 'clamp'
-  })
-
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={
-        <Animated.View style={{ opacity: opacityInterpolate }}>
+        <View>
           <Header withAmbireLogo />
-        </Animated.View>
+        </View>
       }
     >
       <TabLayoutWrapperMainContent>
-        <View>
-          <Animated.View
-            style={[
-              panelStyles.container,
-              common.shadowTertiary,
-              {
-                zIndex: -1,
-                overflow: 'hidden',
-                alignSelf: 'center',
-                width: panelWidthInterpolate
-              }
-            ]}
-          >
-            <Panel
-              isAnimated
-              spacingsSize="small"
-              style={{
-                minWidth: CARD_WIDTH,
-                alignSelf: 'center',
-                backgroundColor: 'transparent',
-                opacity: opacityInterpolate as any,
-                borderWidth: 0
-              }}
+        <Panel isAnimated spacingsSize="small" cardWidth={CARD_WIDTH}>
+          <View style={[flexbox.justifySpaceBetween]}>
+            <View
+              style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}
             >
-              <View style={[flexbox.justifySpaceBetween]}>
-                <View
-                  style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}
-                >
-                  <AmbireLogo height={96} />
-                  <Text
-                    style={[spacings.mtLg, text.center]}
-                    weight="medium"
-                    appearance="secondaryText"
-                  >
-                    {t('The Web3 wallet that makes self-custody easy and secure.')}
-                  </Text>
-                </View>
-                <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
-                  <Button
-                    type="primary"
-                    text={t('Create New Account')}
-                    onPress={() => handleAuthButtonPress('create-new-account')}
-                  />
-                  <Button
-                    type="secondary"
-                    text={t('Import Existing Account')}
-                    onPress={() => handleAuthButtonPress('import-existing-account')}
-                  />
-                  <Button
-                    type="ghost"
-                    hasBottomSpacing={false}
-                    onPress={() => handleAuthButtonPress('view-only')}
-                  >
-                    <>
-                      <Text appearance="primary">{t('Watch an Address')}</Text>
-                      <ViewModeIcon color={theme.primary} height={16} />
-                    </>
-                  </Button>
-                </View>
-              </View>
-            </Panel>
-          </Animated.View>
-        </View>
+              <AmbireLogo height={96} />
+              <Text style={[spacings.mtLg, text.center]} weight="medium" appearance="secondaryText">
+                {t('The Web3 wallet that makes self-custody easy and secure.')}
+              </Text>
+            </View>
+            <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
+              <Button
+                type="primary"
+                text={t('Create New Account')}
+                onPress={() => handleAuthButtonPress('create-new-account')}
+              />
+              <Button
+                type="secondary"
+                text={t('Import Existing Account')}
+                onPress={() => handleAuthButtonPress('import-existing-account')}
+              />
+              <Button
+                type="ghost"
+                hasBottomSpacing={false}
+                onPress={() => handleAuthButtonPress('view-only')}
+              >
+                <>
+                  <Text appearance="primary">{t('Watch an Address')}</Text>
+                  <ViewModeIcon color={theme.primary} height={16} />
+                </>
+              </Button>
+            </View>
+          </View>
+        </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )
