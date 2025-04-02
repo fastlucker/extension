@@ -59,10 +59,7 @@ export class WalletStateController extends EventEmitter {
     // @ts-ignore
     const userSettings = await browser.action.getUserSettings()
     if (userSettings.isOnToolbar) this.isPinned = true
-
-    if (!this.#isSetupComplete) {
-      this.#isPinnedInterval = setTimeout(this.#initCheckIsPinned.bind(this), 500)
-    }
+    this.#isPinnedInterval = setTimeout(this.#initCheckIsPinned.bind(this), 500)
   }
 
   toJSON() {

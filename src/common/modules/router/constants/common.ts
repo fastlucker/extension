@@ -67,7 +67,8 @@ const WEB_ROUTES = {
   swapAndBridge: 'swap-and-bridge',
   savedSeed: 'saved-seed',
   securityAndPrivacy: 'settings/security-and-privacy',
-  saveImportedSeed: 'save-imported-seed'
+  saveImportedSeed: 'save-imported-seed',
+  onboardingCompleted: 'onboarding-completed'
 }
 
 const ROUTES = { ...MOBILE_ROUTES, ...WEB_ROUTES }
