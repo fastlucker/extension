@@ -1,6 +1,9 @@
 /* eslint-disable no-restricted-syntax */
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { NavigateOptions } from 'react-router-dom'
 
+import useNavigation from '@common/hooks/useNavigation'
+import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
@@ -24,11 +27,9 @@ const onboardingRoutes = [
 type OnboardingRoute = typeof onboardingRoutes[number]
 
 const OnboardingNavigationContext = createContext<{
-  current: RouteNode | null
-  goToNextRoute: (routeName?: OnboardingRoute, params?: any) => void
+  goToNextRoute: (routeName?: OnboardingRoute) => void
   goToPrevRoute: () => void
 }>({
-  current: null,
   goToNextRoute: () => {},
   goToPrevRoute: () => {}
 })
@@ -40,27 +41,21 @@ class RouteNode {
 
   disabled: boolean = false
 
-  state?: { [key: string]: any }
+  isProtected: boolean = true
 
-  constructor(name: string, children: RouteNode[] = [], disabled = false) {
+  constructor(name: string, children: RouteNode[] = [], disabled = false, isProtected = true) {
     this.name = name
     if (children) this.children = children
     this.disabled = disabled
-  }
-
-  toJSON() {
-    return {
-      name: this.name,
-      children: this.children,
-      disabled: this.disabled
-      // skip the state because we store the RouteNode in the session storage
-    }
+    this.isProtected = isProtected
   }
 }
 
 const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode }) => {
   const { hasPasswordSecret } = useKeystoreControllerState()
-  const { path } = useRoute()
+  const { path, params } = useRoute()
+  const prevPath: string | undefined = usePrevious(path)
+  const { navigate } = useNavigation()
   const { authStatus } = useAuth()
 
   const onboardingRoutesTree = useMemo(() => {
@@ -80,42 +75,47 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     return new RouteNode(
       WEB_ROUTES.getStarted,
       [
-        new RouteNode(WEB_ROUTES.createSeedPhrasePrepare, [
-          new RouteNode(WEB_ROUTES.createSeedPhraseWrite, common)
-        ]),
-        new RouteNode(WEB_ROUTES.importExistingAccount, [
-          new RouteNode(WEB_ROUTES.importPrivateKey, common),
-          new RouteNode(WEB_ROUTES.importSeedPhrase, common),
-          new RouteNode('ledger', common),
-          new RouteNode('trezor', common),
-          new RouteNode('grid', common),
-          new RouteNode(WEB_ROUTES.importSmartAccountJson, common)
-        ]),
-        new RouteNode(WEB_ROUTES.viewOnlyAccountAdder, common)
+        new RouteNode(
+          WEB_ROUTES.createSeedPhrasePrepare,
+          [new RouteNode(WEB_ROUTES.createSeedPhraseWrite, common)],
+          false,
+          false
+        ),
+        new RouteNode(
+          WEB_ROUTES.importExistingAccount,
+          [
+            new RouteNode(WEB_ROUTES.importPrivateKey, common),
+            new RouteNode(WEB_ROUTES.importSeedPhrase, common),
+            new RouteNode('ledger', common),
+            new RouteNode('trezor', common),
+            new RouteNode('grid', common),
+            new RouteNode(WEB_ROUTES.importSmartAccountJson, common)
+          ],
+          false,
+          false
+        ),
+        new RouteNode(WEB_ROUTES.viewOnlyAccountAdder, common, false, false)
       ],
-      authStatus !== AUTH_STATUS.NOT_AUTHENTICATED
+      authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
+      false
     )
   }, [hasPasswordSecret, authStatus])
 
-  const loadState = () => {
+  const loadHistory = () => {
     try {
-      const savedCurrent = sessionStorage.getItem('onboarding_current')
       const savedHistory = sessionStorage.getItem('onboarding_history')
-      if (savedCurrent && savedHistory)
-        return { current: JSON.parse(savedCurrent), history: JSON.parse(savedHistory) }
+      if (savedHistory) return JSON.parse(savedHistory)
     } catch (error) {
       console.error('Failed to load navigation state:', error)
     }
-    return { current: null, history: [] }
+    return []
   }
 
-  const [current, setCurrent] = useState<RouteNode | null>(loadState().current)
-  const [history, setHistory] = useState<string[]>(loadState().history)
+  const [history, setHistory] = useState<string[]>(loadHistory())
 
   useEffect(() => {
-    sessionStorage.setItem('onboarding_current', JSON.stringify(current))
     sessionStorage.setItem('onboarding_history', JSON.stringify(history))
-  }, [current, history])
+  }, [history])
 
   const deepSearchRouteNode = useCallback(
     (node: RouteNode, routeName: string): RouteNode | null => {
@@ -162,67 +162,50 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     []
   )
 
-  // reset onboarding navigation if needed
   useEffect(() => {
     const currentRoute = path?.substring(1)
-    if (!current || !currentRoute) return
-
-    if (!onboardingRoutes.includes(currentRoute)) {
-      setCurrent(null)
-      setHistory([])
-    }
-  }, [current, path])
-
-  useEffect(() => {
-    if (current) return
-    const currentRoute = path?.substring(1)
+    const prevRoute = prevPath?.substring(1)
     if (!currentRoute) return
     if (!onboardingRoutes.includes(currentRoute)) return
-    const node: RouteNode | null = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
+    const node = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
 
-    if (node) {
-      setCurrent(node)
+    if (!node) {
+      !!prevRoute && navigate(prevRoute, { state: { internal: true } })
+      return
+    }
+
+    if (node.isProtected) {
+      if (!params || !params.internal) {
+        !!prevRoute && navigate(prevRoute, { state: { internal: true } })
+        return
+      }
+    }
+
+    if (!history || !history.length) {
       setHistory([node.name])
     }
-  }, [onboardingRoutesTree, current, path, deepSearchRouteNode])
-
-  // Navigate when current route (RouteNode) changes
-  useEffect(() => {
-    if (!current) return
-
-    const newHash = `#/${current.name}`
-    if (window.location.hash !== newHash) window.location.hash = newHash
-  }, [current])
-
-  useEffect(() => {
-    const enforceNavigation = () => {
-      if (!current) return
-
-      const urlRoute = window.location.hash.replace('#/', '') // Extract hash route
-      if (!onboardingRoutes.includes(urlRoute)) return
-
-      if (urlRoute !== current.name) {
-        window.location.hash = `#/${current.name}` // Force user back to the correct step
-      }
-    }
-
-    enforceNavigation()
-    window.addEventListener('hashchange', enforceNavigation)
-    return () => window.removeEventListener('hashchange', enforceNavigation)
-  }, [current])
+  }, [path, prevPath, params, deepSearchRouteNode, navigate, onboardingRoutesTree, history])
 
   const goToNextRoute = useCallback(
-    (routeName?: OnboardingRoute, params?: any) => {
-      const nodes = current ? current.children : [onboardingRoutesTree]
-      const nextRoute = findNextEnabledRoute(nodes, routeName)
+    (routeName?: OnboardingRoute, routeParams?: NavigateOptions) => {
+      const currentRoute = path?.substring(1)
+      if (!currentRoute) return
+
+      const currentNode = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
+      if (!currentNode) return
+
+      const nextRoute = findNextEnabledRoute(currentNode.children, routeName)
 
       if (nextRoute) {
-        nextRoute.state = params
-        setCurrent(nextRoute)
-        setHistory((prevHistory) => [...prevHistory, nextRoute.name])
+        navigate(nextRoute.name, {
+          state: { ...routeParams, internal: true }
+        })
+        if (!history.includes(nextRoute.name)) {
+          setHistory((prevHistory) => [...prevHistory, nextRoute.name])
+        }
       }
     },
-    [current, onboardingRoutesTree, findNextEnabledRoute]
+    [onboardingRoutesTree, findNextEnabledRoute, navigate, deepSearchRouteNode, path, history]
   )
 
   const goToPrevRoute = useCallback(() => {
@@ -242,16 +225,31 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     }
 
     if (prevRoute) {
-      setCurrent(prevRoute)
+      navigate(prevRoute.name, { state: { internal: true } })
       setHistory(newHistory)
     }
-  }, [history, deepSearchRouteNode, onboardingRoutesTree])
+  }, [history, deepSearchRouteNode, onboardingRoutesTree, navigate])
 
-  console.log(current)
-  const value = useMemo(
-    () => ({ current, goToNextRoute, goToPrevRoute }),
-    [current, goToPrevRoute, goToNextRoute]
-  )
+  useEffect(() => {
+    const handleBackButton = () => {
+      const changedRoute = window.location.hash.replace('#/', '')
+      if (!history.length) return
+      if (!onboardingRoutes.includes(changedRoute)) return
+
+      const node = deepSearchRouteNode(onboardingRoutesTree, changedRoute)
+      if (!node?.disabled) return
+
+      goToPrevRoute()
+    }
+
+    window.addEventListener('hashchange', handleBackButton)
+
+    return () => {
+      window.removeEventListener('hashchange', handleBackButton)
+    }
+  }, [goToPrevRoute, history, deepSearchRouteNode, onboardingRoutesTree])
+
+  const value = useMemo(() => ({ goToNextRoute, goToPrevRoute }), [goToPrevRoute, goToNextRoute])
   return (
     <OnboardingNavigationContext.Provider value={value}>
       {children}
