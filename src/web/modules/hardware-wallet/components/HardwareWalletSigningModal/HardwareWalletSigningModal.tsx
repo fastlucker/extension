@@ -51,10 +51,12 @@ const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => 
     <BottomSheet
       id="hardware-wallet-signing-modal"
       backgroundColor="primaryBackground"
+      type="bottom-sheet"
       autoWidth
       sheetRef={ref}
       shouldBeClosableOnDrag={false}
       autoOpen={isVisible}
+      withBackdropBlur={false}
     >
       <ModalHeader
         title={t('Sign with your {{deviceName}} device', {
@@ -63,7 +65,7 @@ const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => 
         titleSuffix={titleSuffix}
       />
       <View
-        style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mv3Xl]}
+        style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mvXl]}
       >
         <DriveIcon style={spacings.mrLg} />
         <View style={spacings.mrLg}>
@@ -75,7 +77,7 @@ const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => 
         </View>
         <AmbireDevice />
       </View>
-      <View style={[flexbox.alignSelfCenter, spacings.mb3Xl]}>
+      <View style={[flexbox.alignSelfCenter, spacings.mbLg]}>
         <Text weight="regular" style={spacings.mbTy} fontSize={20}>
           {t('Sending signing request...')}
         </Text>

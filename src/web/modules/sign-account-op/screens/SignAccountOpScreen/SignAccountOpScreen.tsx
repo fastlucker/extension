@@ -1,19 +1,26 @@
+import * as Clipboard from 'expo-clipboard'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { getErrorCodeStringFromReason } from '@ambire-common/libs/errorDecoder/helpers'
+import CopyIcon from '@common/assets/svg/CopyIcon'
 import Alert from '@common/components/Alert'
+import AlertVertical from '@common/components/AlertVertical'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
+import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
+import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
+import SmallNotificationWindowWrapper from '@web/components/SmallNotificationWindowWrapper'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -43,20 +50,16 @@ const SignAccountOpScreen = () => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
-  const { styles } = useTheme(getStyles)
+  const { addToast } = useToast()
+  const { styles, theme } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
-  const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(false)
+  const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(true)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
-  const {
-    ref: warningAgreementModalRef,
-    open: openWarningAgreementModal,
-    close: closeWarningAgreementModal
-  } = useModalize()
-  const { maxWidthSize } = useWindowSize()
+  const { ref: warningModalRef, open: openWarningModal, close: closeWarningModal } = useModalize()
   const hasEstimation = useMemo(
     () =>
       signAccountOpState?.isInitialized &&
@@ -116,20 +119,24 @@ const SignAccountOpScreen = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
+      if (slowPaymasterRequest) return
+
       if (signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster) {
         setSlowPaymasterRequest(true)
+        openWarningModal()
       }
     }, 3000)
 
     if (signAccountOpState?.status?.type !== SigningStatus.WaitingForPaymaster) {
       clearTimeout(timeout)
       setSlowPaymasterRequest(false)
+      if (slowPaymasterRequest) closeWarningModal()
     }
 
     return () => {
       clearTimeout(timeout)
     }
-  }, [signAccountOpState?.status?.type])
+  }, [closeWarningModal, openWarningModal, signAccountOpState?.status?.type, slowPaymasterRequest])
 
   const accountOpAction = useMemo(() => {
     if (actionsState.currentAction?.type !== 'accountOp') return undefined
@@ -210,7 +217,7 @@ const SignAccountOpScreen = () => {
     (_chosenSigningKeyType?: string, _warningAccepted?: boolean) => {
       // Prioritize warning(s) modals over all others
       if (warningToPromptBeforeSign && !_warningAccepted) {
-        openWarningAgreementModal()
+        openWarningModal()
         updateControllerSigningStatus(SigningStatus.UpdatesPaused)
         return
       }
@@ -232,7 +239,7 @@ const SignAccountOpScreen = () => {
       feePayerKeyType,
       isAtLeastOneOfTheKeysInvolvedLedger,
       isLedgerConnected,
-      openWarningAgreementModal,
+      openWarningModal,
       updateControllerSigningStatus,
       warningToPromptBeforeSign
     ]
@@ -270,9 +277,9 @@ const SignAccountOpScreen = () => {
     if (!warningToPromptBeforeSign) return
 
     setAcknowledgedWarnings((prev) => [...prev, warningToPromptBeforeSign.id])
-    closeWarningAgreementModal()
+    closeWarningModal()
     handleSign(undefined, true)
-  }, [warningToPromptBeforeSign, closeWarningAgreementModal, handleSign])
+  }, [warningToPromptBeforeSign, closeWarningModal, handleSign])
 
   useEffect(() => {
     if (shouldDisplayLedgerConnectModal && isLedgerConnected) {
@@ -283,8 +290,8 @@ const SignAccountOpScreen = () => {
   const dismissWarning = useCallback(() => {
     updateControllerSigningStatus(SigningStatus.ReadyToSign)
 
-    closeWarningAgreementModal()
-  }, [updateControllerSigningStatus, closeWarningAgreementModal])
+    closeWarningModal()
+  }, [updateControllerSigningStatus, closeWarningModal])
 
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
@@ -294,7 +301,14 @@ const SignAccountOpScreen = () => {
   const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
     useMemo(() => {
       // Prioritize warning(s) modals over all others
-      if (warningToPromptBeforeSign) return 'warnings'
+      if (
+        warningToPromptBeforeSign ||
+        // We render the warning modal if the paymaster is loading, but
+        // don't display it to the user until the paymaster has been loading for too long.
+        // This is required because opening the modal isn't possible if it isn't rendered.
+        signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
+      )
+        return 'warnings'
 
       if (shouldDisplayLedgerConnectModal) return 'ledger-connect'
 
@@ -308,9 +322,21 @@ const SignAccountOpScreen = () => {
     }, [
       feePayerKeyType,
       shouldDisplayLedgerConnectModal,
+      signAccountOpState?.status?.type,
       signingKeyType,
       warningToPromptBeforeSign
     ])
+
+  const copySignAccountOpError = useCallback(async () => {
+    if (!signAccountOpState?.errors?.length) return
+
+    const errorCode = signAccountOpState.errors[0].code
+
+    if (!errorCode) return
+
+    await Clipboard.setStringAsync(errorCode)
+    addToast(t('Error code copied to clipboard'))
+  }, [addToast, signAccountOpState?.errors, t])
 
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
@@ -347,14 +373,19 @@ const SignAccountOpScreen = () => {
     return isSignLoading || (!readyToSign && !isViewOnly && !isInsufficientFundsForGas)
   }, [isInsufficientFundsForGas, isSignLoading, isViewOnly, signAccountOpState?.readyToSign])
 
+  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
+
   return (
-    <>
+    <SmallNotificationWindowWrapper>
       {renderedButNotNecessarilyVisibleModal === 'warnings' && (
         <BottomSheet
-          id="dual-choice"
-          closeBottomSheet={dismissWarning}
-          sheetRef={warningAgreementModalRef}
+          id="warning-modal"
+          closeBottomSheet={!slowPaymasterRequest ? dismissWarning : undefined}
+          sheetRef={warningModalRef}
           style={styles.warningsModal}
+          type="bottom-sheet"
+          withBackdropBlur={false}
+          shouldBeClosableOnDrag={false}
         >
           {warningToPromptBeforeSign && (
             <DualChoiceWarningModal
@@ -366,6 +397,25 @@ const SignAccountOpScreen = () => {
               onSecondaryButtonPress={dismissWarning}
             />
           )}
+          {slowPaymasterRequest && (
+            <DualChoiceWarningModal.Wrapper>
+              <DualChoiceWarningModal.ContentWrapper>
+                <DualChoiceWarningModal.TitleAndIcon
+                  title={t('Sending transaction is taking longer than expected')}
+                  style={spacings.mbTy}
+                />
+                <DualChoiceWarningModal.Text
+                  style={{ ...text.center, ...spacings.mbLg }}
+                  text={t('Please wait...')}
+                  weight="medium"
+                />
+                <DualChoiceWarningModal.Text
+                  style={{ ...text.center, fontSize: 14, ...spacings.mb }}
+                  text={t('(Reason: paymaster is taking longer than expected)')}
+                />
+              </DualChoiceWarningModal.ContentWrapper>
+            </DualChoiceWarningModal.Wrapper>
+          )}
         </BottomSheet>
       )}
       <SafetyChecksOverlay
@@ -375,31 +425,58 @@ const SignAccountOpScreen = () => {
       />
       <TabLayoutContainer
         width="full"
-        header={<HeaderAccountAndNetworkInfo />}
-        footer={
-          <Footer
-            onReject={handleRejectAccountOp}
-            onAddToCart={handleAddToCart}
-            isAddToCartDisplayed={!!signAccountOpState && !!network}
-            isSignLoading={isSignLoading}
-            isSignDisabled={
-              isViewOnly ||
-              isSignLoading ||
-              notReadyToSignButAlsoNotDone ||
-              !signAccountOpState.readyToSign
-            }
-            // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
-            // because they can't sign it anyway
+        backgroundColor="#F7F8FC"
+        withHorizontalPadding={false}
+        style={spacings.phLg}
+        header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
+        renderDirectChildren={() => (
+          <View style={styles.footer}>
+            {!estimationFailed ? (
+              <>
+                <Estimation
+                  signAccountOpState={signAccountOpState}
+                  disabled={isSignLoading}
+                  hasEstimation={!!hasEstimation}
+                  slowRequest={slowRequest}
+                  isViewOnly={isViewOnly}
+                  isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
+                  sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
+                />
 
-            isAddToCartDisabled={isAddToCartDisabled}
-            onSign={onSignButtonClick}
-            inProgressButtonText={
-              signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
-                ? t('Sending...')
-                : t('Signing...')
-            }
-          />
-        }
+                <View
+                  style={{
+                    height: 1,
+                    backgroundColor: theme.secondaryBorder,
+                    ...spacings.mvLg
+                  }}
+                />
+              </>
+            ) : null}
+
+            <Footer
+              onReject={handleRejectAccountOp}
+              onAddToCart={handleAddToCart}
+              isAddToCartDisplayed={!!signAccountOpState && !!network}
+              isSignLoading={isSignLoading}
+              isSignDisabled={
+                isViewOnly ||
+                isSignLoading ||
+                notReadyToSignButAlsoNotDone ||
+                !signAccountOpState.readyToSign
+              }
+              // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
+              // because they can't sign it anyway
+
+              isAddToCartDisabled={isAddToCartDisabled}
+              onSign={onSignButtonClick}
+              inProgressButtonText={
+                signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster
+                  ? t('Sending...')
+                  : t('Signing...')
+              }
+            />
+          </View>
+        )}
       >
         {signAccountOpState ? (
           <SigningKeySelect
@@ -411,48 +488,72 @@ const SignAccountOpScreen = () => {
             account={signAccountOpState.account}
           />
         ) : null}
-        <TabLayoutWrapperMainContent scrollEnabled={false}>
-          <View style={styles.container}>
-            <View style={styles.leftSideContainer}>
-              <Simulation
-                network={network}
-                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
-              />
-              <PendingTransactions network={network} />
-            </View>
-            <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
-            <Estimation
-              signAccountOpState={signAccountOpState}
-              disabled={isSignLoading}
-              hasEstimation={!!hasEstimation}
-              slowRequest={slowRequest}
-              slowPaymasterRequest={slowPaymasterRequest}
-              isViewOnly={isViewOnly}
-              isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
-              sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
+        <TabLayoutWrapperMainContent>
+          <PendingTransactions network={network} />
+          {/* Display errors only if the user is not in view-only mode */}
+          {signAccountOpState?.errors?.length && !isViewOnly ? (
+            <AlertVertical
+              type="warning"
+              title={signAccountOpState.errors[0].title}
+              text={
+                getErrorCodeStringFromReason(signAccountOpState.errors[0].code) ? (
+                  <AlertVertical.Text
+                    type="warning"
+                    size="md"
+                    style={{
+                      ...flexbox.flex1,
+                      ...flexbox.directionRow,
+                      ...flexbox.alignCenter,
+                      ...flexbox.wrap,
+                      maxWidth: '100%'
+                    }}
+                  >
+                    {getErrorCodeStringFromReason(signAccountOpState.errors[0].code || '', false)}
+                    <Pressable
+                      // @ts-ignore web style
+                      style={{ verticalAlign: 'middle', ...spacings.mlMi, ...spacings.mbMi }}
+                      onPress={copySignAccountOpError}
+                    >
+                      <CopyIcon
+                        strokeWidth={1.5}
+                        width={20}
+                        height={20}
+                        color={theme.warningText}
+                      />
+                    </Pressable>
+                  </AlertVertical.Text>
+                ) : undefined
+              }
             />
+          ) : (
+            <Simulation
+              network={network}
+              isViewOnly={isViewOnly}
+              isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+            />
+          )}
+          {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
 
-            {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
-              <SignAccountOpHardwareWalletSigningModal
-                signingKeyType={signingKeyType}
-                feePayerKeyType={feePayerKeyType}
-                broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
-                signAccountOpStatusType={signAccountOpState?.status?.type}
-                shouldSignAuth={signAccountOpState && signAccountOpState.shouldSignAuth}
-              />
-            )}
+          {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
+            <SignAccountOpHardwareWalletSigningModal
+              signingKeyType={signingKeyType}
+              feePayerKeyType={feePayerKeyType}
+              broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
+              signAccountOpStatusType={signAccountOpState?.status?.type}
+              shouldSignAuth={signAccountOpState && signAccountOpState.shouldSignAuth}
+            />
+          )}
 
-            {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
-              <LedgerConnectModal
-                isVisible={shouldDisplayLedgerConnectModal}
-                handleClose={handleDismissLedgerConnectModal}
-                displayOptionToAuthorize={false}
-              />
-            )}
-          </View>
+          {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
+            <LedgerConnectModal
+              isVisible={shouldDisplayLedgerConnectModal}
+              handleClose={handleDismissLedgerConnectModal}
+              displayOptionToAuthorize={false}
+            />
+          )}
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>
-    </>
+    </SmallNotificationWindowWrapper>
   )
 }
 
