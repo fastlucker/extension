@@ -7,6 +7,13 @@
 */
 
 // Theme Colors
+$mainText:#f4f4f7;
+$secondaryText: #8d93ac;
+$icons: #6a6f86;
+$hover: #393C48;
+$interactiveElement: #292B34;
+$cardBg: #848486;
+$mainBg: #101114;
 
 // Neutrals
 $neutral-100: #F4F4F7;
@@ -89,17 +96,16 @@ $primaryBackground: $neutral-800;
 $primaryBackground200: rgba($neutral-600, 0.2);
 $primaryBackground300: #26272C;
 $secondaryBackground: $neutral-700;
-$tertiaryBackground:#191B20;
+$tertiaryBackground:$neutral-700;
 
 $whiteText: #FFFFFF;
-$greyText: #848486;
 
 $accent: $purple-600;
 $secondaryAccent: $green-500;
 
-$bronzeDecorative: #AA8768;
+$bronzeDecorative: $yellow-700;
 $silverDecorative: $neutral-400;
-$goldDecorative: #FFD67A;
+$goldDecorative: $yellow-300;
 
 
 // Old colors
