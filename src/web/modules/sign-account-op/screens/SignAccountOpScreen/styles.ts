@@ -1,36 +1,33 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  container: ViewStyle
-  leftSideContainer: ViewStyle
-  separator: ViewStyle
   warningsModal: ViewStyle
+  footer: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    container: {
-      ...flexbox.flex1,
-      ...flexbox.directionRow
-    },
-    leftSideContainer: {
-      flexBasis: '60%',
-      justifyContent: 'flex-start',
-      height: '100%'
-    },
-    separator: {
-      width: 1,
-      backgroundColor: theme.secondaryBorder
-    },
     warningsModal: {
-      width: 492,
       backgroundColor: theme.primaryBackground,
       paddingHorizontal: 0,
       paddingVertical: 0,
       overflow: 'hidden'
+    },
+    footer: {
+      ...spacings.pvLg,
+      ...spacings.phLg,
+      backgroundColor: theme.primaryBackground,
+      shadowColor: '#B8BDE080',
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.64,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: theme.primary,
+      borderRadius: 12
     }
   })
 
