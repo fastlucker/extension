@@ -8,6 +8,7 @@ import Panel from '@common/components/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
@@ -23,43 +24,15 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { CARD_WIDTH } from '@web/modules/auth/screens/GetStartedScreen/GetStartedScreen'
 
-// const generateConfirmationWords = (seed: string[]) => {
-//   // Split the input array into groups of three words
-//   const wordGroups = []
-//   for (let i = 0; i < 12; i += 3) {
-//     wordGroups.push(seed.slice(i, i + 3))
-//   }
-
-//   // Initialize an array to store the randomly selected words
-//   const confirmationWords: { numberInSeed: number; word: string }[] = []
-
-//   // Select one random word from each group
-//   wordGroups.forEach((group, groupIndex) => {
-//     const randomIndex = Math.floor(Math.random() * (group.length - 1))
-//     const indexOfWord = groupIndex * 3 + randomIndex
-
-//     confirmationWords.push({
-//       numberInSeed: indexOfWord + 1,
-//       word: group[randomIndex]
-//     })
-//   })
-
-//   return confirmationWords
-// }
-
 const CreateSeedPhraseWriteScreen = () => {
-  const {
-    goToNextRoute,
-    goToPrevRoute,
-    current: { state: { seed } = { seed: [] } } = {}
-  } = useOnboardingNavigation()
+  const { params } = useRoute()
+  const seed = useMemo(() => params?.state?.seed || [], [params])
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { t } = useTranslation()
   const { styles: panelStyles, theme } = useTheme(getPanelStyles)
   const animation = useRef(new Animated.Value(0)).current
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
-  // const keystoreState = useKeystoreControllerState()
-  // const accountAdderState = useAccountAdderControllerState()
 
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],

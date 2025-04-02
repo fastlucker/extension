@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -9,7 +9,6 @@ import DualChoiceModal from '@common/components/DualChoiceModal'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
@@ -27,7 +26,8 @@ import TermsComponent from '@web/modules/terms/components'
 export const CARD_WIDTH = 400
 
 const KeyStoreSetupScreen = () => {
-  // const { params } = useRoute()
+  const { params } = useRoute()
+  const hideBack = useMemo(() => params?.state?.hideBack || [], [params])
   const { t } = useTranslation()
 
   const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
@@ -43,7 +43,7 @@ const KeyStoreSetupScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel
           spacingsSize="small"
-          withBackButton
+          withBackButton={!hideBack}
           onBackButtonPress={goToPrevRoute}
           style={{
             width: CARD_WIDTH,
