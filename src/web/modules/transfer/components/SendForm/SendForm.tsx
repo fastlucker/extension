@@ -199,7 +199,7 @@ const SendForm = ({
       }
 
       if (tokenToSelect && getTokenAmount(tokenToSelect) > 0) {
-        transferCtrl.update({ selectedToken: tokenToSelect })
+        transferCtrl.update({ selectedToken: tokenToSelect }, { shouldPersist: false })
       }
     }
   }, [tokens, selectedTokenFromUrl, state.selectedToken, transferCtrl])

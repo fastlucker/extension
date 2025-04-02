@@ -86,10 +86,11 @@ const TransferControllerStateProvider = ({
       humanizerInfo as HumanizerMeta,
       account,
       networks,
-      portfolio
+      portfolio,
+      !isTopUp // Hydrate and persist in case of Transfer, if it's PopUp don't
     )
     forceUpdate()
-  }, [forceUpdate, account, networks, transferCtrl, portfolio])
+  }, [forceUpdate, account, networks, transferCtrl, portfolio, isTopUp])
 
   useEffect(() => {
     if (!transferCtrl) return
@@ -143,9 +144,12 @@ const TransferControllerStateProvider = ({
     // It has a scenario where no token is provided view URL parameters but only isTopUp and the selectedToken will be undefined
     // In that case we do not update the selected token
     if (selectedToken) {
-      transferCtrl.update({
-        selectedToken
-      })
+      transferCtrl.update(
+        {
+          selectedToken
+        },
+        { shouldPersist: false }
+      )
     }
   }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.networkId, tokens, transferCtrl])
 
@@ -173,9 +177,12 @@ const TransferControllerStateProvider = ({
 
     if (isSelectedTokenInTokens) return
 
-    transferCtrl.update({
-      selectedToken: tokens[0]
-    })
+    transferCtrl.update(
+      {
+        selectedToken: tokens[0]
+      },
+      { shouldPersist: false }
+    )
   }, [
     portfolio.latest,
     portfolio.pending,
