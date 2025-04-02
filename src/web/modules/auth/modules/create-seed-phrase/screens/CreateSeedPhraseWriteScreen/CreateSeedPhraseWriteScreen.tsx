@@ -65,7 +65,6 @@ const CreateSeedPhraseWriteScreen = () => {
             ...spacings.ph0,
             ...spacings.pv0
           }}
-          showProgress
           step={1}
           totalSteps={2}
           title="Backup Recovery Phrase"

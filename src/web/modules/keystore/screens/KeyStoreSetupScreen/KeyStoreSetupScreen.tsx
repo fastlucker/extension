@@ -56,7 +56,6 @@ const KeyStoreSetupScreen = () => {
             ...spacings.ph0,
             ...spacings.pv0
           }}
-          showProgress
           step={2}
           totalSteps={2}
         >

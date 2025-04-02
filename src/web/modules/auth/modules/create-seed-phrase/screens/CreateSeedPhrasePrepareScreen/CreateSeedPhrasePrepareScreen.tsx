@@ -89,7 +89,6 @@ const CreateSeedPhrasePrepareScreen = () => {
             ...spacings.ph0,
             ...spacings.pv0
           }}
-          showProgress
           step={1}
           totalSteps={2}
           title="Create New Recovery Phrase"

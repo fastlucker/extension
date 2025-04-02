@@ -19,7 +19,7 @@ interface Props extends ViewProps {
   title?: string | ReactNode
   spacingsSize?: 'small' | 'large'
   isAnimated?: boolean
-  showProgress?: boolean
+  // showProgress?: boolean
   step?: number
   totalSteps?: number
   cardWidth?: number
@@ -43,8 +43,8 @@ const Panel: React.FC<Props> = ({
   style,
   spacingsSize = 'large',
   isAnimated,
-  showProgress = false,
-  step = 1,
+  // showProgress = false,
+  step = 0,
   totalSteps = 2,
   cardWidth = 400,
   ...rest
@@ -119,7 +119,7 @@ const Panel: React.FC<Props> = ({
         ]}
         {...rest}
       >
-        {showProgress && renderProgress()}
+        {step && renderProgress()}
 
         {(!!title || !!withBackButton) && (
           <View
