@@ -17,13 +17,13 @@ const InputPassword: React.FC<Props> = ({ onChangeText, ...rest }) => {
     <Input
       secureTextEntry={secureTextEntry}
       autoCorrect={false}
-      button={
-        secureTextEntry ? (
-          <VisibilityIcon color={theme.secondaryText} />
-        ) : (
-          <InvisibilityIcon color={theme.secondaryText} />
-        )
-      }
+      // button={
+      //   secureTextEntry ? (
+      //     <VisibilityIcon color={theme.secondaryText} />
+      //   ) : (
+      //     <InvisibilityIcon color={theme.secondaryText} />
+      //   )
+      // }
       onButtonPress={handleToggleSecureTextEntry}
       onChangeText={onChangeText}
       {...rest}

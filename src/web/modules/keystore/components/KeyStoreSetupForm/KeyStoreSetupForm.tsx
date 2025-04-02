@@ -61,9 +61,10 @@ const KeyStoreSetupForm = ({
           rules={{ validate: isValidPassword }}
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
+              label={t('Password')}
               testID="enter-pass-field"
               onBlur={onBlur}
-              placeholder={t('Enter Password')}
+              placeholder={t('8 characters minimum')}
               onChangeText={onChange}
               isValid={isValidPassword(value)}
               autoFocus={isWeb}
@@ -85,13 +86,14 @@ const KeyStoreSetupForm = ({
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
+              label={t('Repeat Password')}
               testID="repeat-pass-field"
               onBlur={onBlur}
-              placeholder={t('Repeat Password')}
+              placeholder={t('Password')}
               onChangeText={onChange}
               value={value}
               isValid={!!value && !formState.errors.password && password === value}
-              validLabel={t('✅ Passwords match')}
+              // validLabel={t('✅ Passwords match')}
               secureTextEntry
               error={formState.errors.confirmPassword && (t("Passwords don't match.") as string)}
               autoCorrect={false}

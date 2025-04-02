@@ -133,83 +133,83 @@ const CreateSeedPhraseWriteScreen = () => {
             }}
           >
             <View style={[spacings.phLg, spacings.pvLg, spacings.pt]}>
-              <View>
-                <Text style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}>
-                  {t('Write down and secure the Recovery Phrase for your account.')}
-                </Text>
-                <View
-                  style={{
-                    ...flexbox.directionRow,
-                    ...flexbox.wrap,
-                    ...flexbox.justifyCenter,
-                    borderWidth: 1,
-                    borderColor: theme.secondaryBorder,
-                    ...common.borderRadiusPrimary,
-                    overflow: 'hidden'
-                  }}
-                >
-                  {(seed as string[]).map((word, index) => (
-                    <View
-                      key={`${word}-${seed.indexOf(word)}`}
-                      style={{
-                        width: '33.33%',
-                        borderRightWidth: (index + 1) % 3 === 0 ? 0 : 1,
-                        borderBottomWidth: index < 9 ? 1 : 0,
-                        borderColor: theme.secondaryBorder,
-                        ...spacings.ptMi,
-                        ...spacings.pbSm,
-                        ...spacings.phMi,
-                        ...flexbox.alignCenter,
-                        ...flexbox.justifyCenter
-                      }}
-                    >
-                      <View style={[flexbox.directionRow, flexbox.alignCenter, { width: '100%' }]}>
-                        <Text fontSize={12} appearance="secondaryText">
-                          {index + 1}.
-                        </Text>
-                      </View>
-                      <Text fontSize={14}>{word}</Text>
+              {/* <View> */}
+              <Text style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}>
+                {t('Write down and secure the Recovery Phrase for your account.')}
+              </Text>
+              <View
+                style={{
+                  ...flexbox.directionRow,
+                  ...flexbox.wrap,
+                  ...flexbox.justifyCenter,
+                  borderWidth: 1,
+                  borderColor: theme.secondaryBorder,
+                  ...common.borderRadiusPrimary,
+                  overflow: 'hidden'
+                }}
+              >
+                {(seed as string[]).map((word, index) => (
+                  <View
+                    key={`${word}-${seed.indexOf(word)}`}
+                    style={{
+                      width: '33.33%',
+                      borderRightWidth: (index + 1) % 3 === 0 ? 0 : 1,
+                      borderBottomWidth: index < 9 ? 1 : 0,
+                      borderColor: theme.secondaryBorder,
+                      ...spacings.ptMi,
+                      ...spacings.pbSm,
+                      ...spacings.phMi,
+                      ...flexbox.alignCenter,
+                      ...flexbox.justifyCenter
+                    }}
+                  >
+                    <View style={[flexbox.directionRow, flexbox.alignCenter, { width: '100%' }]}>
+                      <Text fontSize={12} appearance="secondaryText">
+                        {index + 1}.
+                      </Text>
                     </View>
-                  ))}
-                </View>
-                <View
+                    <Text fontSize={14}>{word}</Text>
+                  </View>
+                ))}
+              </View>
+              <View
+                style={[
+                  flexbox.directionRow,
+                  flexbox.justifyCenter,
+                  flexbox.alignCenter,
+                  spacings.pvMi,
+                  common.borderRadiusPrimary,
+                  spacings.mtMd,
+                  spacings.mb2Xl
+                ]}
+              >
+                <TouchableOpacity
+                  onPress={handleCopyToClipboard}
                   style={[
                     flexbox.directionRow,
                     flexbox.justifyCenter,
                     flexbox.alignCenter,
                     spacings.pvMi,
                     common.borderRadiusPrimary,
-                    spacings.mtMd,
-                    spacings.mb2Xl
+                    { backgroundColor: theme.secondaryBackground, width: '60%' }
                   ]}
                 >
-                  <TouchableOpacity
-                    onPress={handleCopyToClipboard}
-                    style={[
-                      flexbox.directionRow,
-                      flexbox.justifyCenter,
-                      flexbox.alignCenter,
-                      spacings.pvMi,
-                      common.borderRadiusPrimary,
-                      { backgroundColor: theme.secondaryBackground, width: '60%' }
-                    ]}
-                  >
-                    <Text fontSize={14} weight="medium" appearance="secondaryText">
-                      {t('Copy Recovery Phrase')}
-                    </Text>
+                  <Text fontSize={14} weight="medium" appearance="secondaryText">
+                    {t('Copy Recovery Phrase')}
+                  </Text>
 
-                    <CopyIcon style={{ marginLeft: 8 }} />
-                  </TouchableOpacity>
-                </View>
-                <Button
-                  testID="create-seed-phrase-write-continue-btn"
-                  accessibilityRole="button"
-                  text={t("I've Saved the Phrase")}
-                  size="large"
-                  hasBottomSpacing={false}
-                  onPress={handleSubmit}
-                />
+                  <CopyIcon style={{ marginLeft: 8 }} />
+                </TouchableOpacity>
               </View>
+              <Button
+                testID="create-seed-phrase-write-continue-btn"
+                accessibilityRole="button"
+                text={t("I've Saved the Phrase")}
+                size="large"
+                hasBottomSpacing={false}
+                onPress={handleSubmit}
+              />
+              {/* </View> */}
             </View>
           </Panel>
         </Animated.View>
