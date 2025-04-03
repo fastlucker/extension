@@ -19,7 +19,7 @@ const Legends = () => {
   }
 
   return (
-    <Page>
+    <Page containerSize="lg">
       <Topbar
         filters={MOCK_FILTERS}
         selectedFilter={selectedFilter}

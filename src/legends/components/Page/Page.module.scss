@@ -35,6 +35,10 @@
         padding-top: 2.5rem;
       }
     }
+
+    .containerlg {
+      @include containerLg;
+    }
   }
 
   @include breakpoint-from(large-tablet) {

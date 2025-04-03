@@ -9,11 +9,13 @@ import styles from './Page.module.scss'
 const Page = ({
   children,
   pageRef,
-  style
+  style,
+  containerSize = 'md'
 }: {
   children: React.ReactNode | React.ReactNode[]
   pageRef?: React.RefObject<HTMLDivElement>
   style?: React.CSSProperties
+  containerSize?: 'md' | 'lg'
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
@@ -24,7 +26,7 @@ const Page = ({
     <div className={styles.wrapper}>
       <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
       <div ref={pageRef} className={styles.scroll} style={style}>
-        <div className={styles.container}>
+        <div className={`${styles.container} ${styles[`container${containerSize}`]}`}>
           <div className={styles.header}>
             <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
               <FontAwesomeIcon icon={faBars} />
