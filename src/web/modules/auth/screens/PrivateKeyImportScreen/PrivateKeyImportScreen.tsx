@@ -5,15 +5,15 @@ import { View } from 'react-native'
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
+import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
-import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -83,57 +83,43 @@ const PrivateKeyImportScreen = () => {
         <Panel
           spacingsSize="small"
           withBackButton
+          style={[spacings.ph0, spacings.pv0]}
           onBackButtonPress={goToPrevRoute}
-          style={{
-            width: CARD_WIDTH,
-            alignSelf: 'center',
-            ...common.shadowTertiary
-          }}
-          title={t('Enter Private Key')}
+          title={t('Import Private Key')}
+          step={1}
+          totalSteps={2}
         >
-          <View style={spacings.mbMd}>
+          <View style={[flexbox.justifySpaceBetween, flexbox.flex1, spacings.phLg, spacings.pvLg]}>
             <Controller
               control={control}
               rules={{ validate: (value) => handleValidation(value), required: true }}
               name="privateKey"
-              render={({ field: { onChange, onBlur, value } }) => {
-                return (
-                  <TextArea
-                    testID="enter-seed-phrase-field"
-                    value={value}
-                    editable
-                    multiline
-                    numberOfLines={3}
-                    autoFocus
-                    containerStyle={spacings.mb0}
-                    placeholder={t('Write or paste your Private Key')}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    isValid={!handleValidation(value) && !!value.length}
-                    error={value.length ? errors?.privateKey?.message : ''}
-                    placeholderTextColor={theme.secondaryText}
-                    onSubmitEditing={handleFormSubmit}
-                  />
-                )
-              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  testID="enter-seed-phrase-field"
+                  onBlur={onBlur}
+                  autoFocus
+                  placeholder={t('Input Private Key')}
+                  onChangeText={onChange}
+                  value={value}
+                  isValid={!handleValidation(value) && !!value.length}
+                  validLabel={t('✅ Valid private key')}
+                  secureTextEntry
+                  error={value.length ? errors?.privateKey?.message : ''}
+                  autoCorrect={false}
+                  onSubmitEditing={handleFormSubmit}
+                />
+              )}
+            />
+            <Button
+              testID="import-button"
+              size="large"
+              text={t('Confirm')}
+              hasBottomSpacing={false}
+              onPress={handleFormSubmit}
+              disabled={!isValid}
             />
           </View>
-          <Alert
-            title="Basic Accounts (EOAs) only"
-            text="You can import only EOAs with private keys. To import Smart Accounts, use a seed phrase or hardware wallet."
-            type="warning"
-            size="sm"
-            style={spacings.mbMd}
-          />
-
-          <Button
-            testID="import-button"
-            size="large"
-            text={t('Confirm')}
-            hasBottomSpacing={false}
-            onPress={handleFormSubmit}
-            disabled={!isValid}
-          />
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

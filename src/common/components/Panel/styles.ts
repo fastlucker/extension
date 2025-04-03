@@ -15,7 +15,9 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.primaryBackground,
       ...common.shadowTertiary,
       alignSelf: 'center',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      // TODO: fix it
+      minHeight: 468
     },
     progress: {
       flex: 1,

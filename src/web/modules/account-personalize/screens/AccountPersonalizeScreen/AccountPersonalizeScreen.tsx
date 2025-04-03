@@ -13,7 +13,6 @@ import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNav
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -23,12 +22,14 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
+import getStyles from './styles'
+
 export const CARD_WIDTH = 400
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { goToNextRoute } = useOnboardingNavigation()
-  const { theme } = useTheme()
+  const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
 
   const accountAdderState = useAccountAdderControllerState()
@@ -72,36 +73,10 @@ const AccountPersonalizeScreen = () => {
       header={<Header withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel
-          spacingsSize="small"
-          style={{
-            width: CARD_WIDTH,
-            alignSelf: 'center',
-            ...common.shadowTertiary
-          }}
-        >
-          <View style={[flexbox.alignCenter, spacings.mbXl]}>
-            <View
-              style={{
-                width: 64,
-                height: 64,
-                backgroundColor: '#01864926',
-                borderRadius: 50,
-                alignItems: 'center',
-                justifyContent: 'center',
-                ...spacings.mb
-              }}
-            >
-              <View
-                style={{
-                  width: 48,
-                  height: 48,
-                  backgroundColor: theme.successDecorative,
-                  borderRadius: 50,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
+        <Panel spacingsSize="small" style={spacings.ptXl}>
+          <View style={[flexbox.alignCenter, spacings.mb2Xl]}>
+            <View style={styles.checkIconOuterWrapper}>
+              <View style={styles.checkIconInnerWrapper}>
                 <CheckIcon color={theme.successDecorative} width={28} height={28} />
               </View>
             </View>

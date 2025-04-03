@@ -63,7 +63,13 @@ const AccountPersonalizeCard = ({
             </View>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               <DomainBadge ens={ens} />
-              <AccountAddress ens={ens} isLoading={isLoading} address={address} />
+              <AccountAddress
+                ens={ens}
+                isLoading={isLoading}
+                address={address}
+                plainAddressMaxLength={18}
+                withCopy={false}
+              />
             </View>
           </View>
         </View>
