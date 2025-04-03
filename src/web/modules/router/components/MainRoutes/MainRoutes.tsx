@@ -27,7 +27,6 @@ import ImportExistingAccountSelectorScreen from '@web/modules/auth/screens/Impor
 import ImportSmartAccountJsonScreen from '@web/modules/auth/screens/ImportSmartAccountJson'
 import OnboardingCompletedScreen from '@web/modules/auth/screens/OnboardingCompletedScreen'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
-import SaveImportedSeedScreen from '@web/modules/auth/screens/SaveImportedSeedScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
 import HardwareWalletReconnectScreen from '@web/modules/hardware-wallet/screens/HardwareWalletReconnectScreen'
@@ -127,7 +126,6 @@ const MainRoutes = () => {
 
             <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
             <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
-            <Route path={WEB_ROUTES.saveImportedSeed} element={<SaveImportedSeedScreen />} />
             <Route path={WEB_ROUTES.onboardingCompleted} element={<OnboardingCompletedScreen />} />
 
             <Route element={<AuthenticatedRoute />}>

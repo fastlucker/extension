@@ -76,7 +76,7 @@ const Panel: React.FC<Props> = ({
     <View style={[flexbox.directionRow, spacings.mbMd]}>
       {[...Array(totalSteps)].map((_, index) => (
         <View
-          key={`step-${_}`} // TODO: Remove index as key
+          key={`step-${index.toString()}`}
           style={[
             styles.progress,
             index > 0 ? spacings.mlMi : undefined,
@@ -127,7 +127,7 @@ const Panel: React.FC<Props> = ({
             {!!title && (
               <Text
                 fontSize={maxWidthSize('xl') ? 20 : 18}
-                weight="medium"
+                weight="semiBold"
                 appearance="primaryText"
                 numberOfLines={1}
                 style={[text.center, flexbox.flex1]}

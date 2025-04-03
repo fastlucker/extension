@@ -307,13 +307,6 @@ const routesConfig: RouteConfig = {
     }),
     name: Platform.select({ default: i18n.t('Write Seed Phrase') })
   },
-  [ROUTES.saveImportedSeed]: {
-    route: ROUTES.saveImportedSeed,
-    title: Platform.select({
-      default: i18n.t('Save Imported Seed')
-    }),
-    name: Platform.select({ default: i18n.t('Save Imported Seed') })
-  },
   [ROUTES.onboardingCompleted]: {
     route: ROUTES.onboardingCompleted,
     title: Platform.select({

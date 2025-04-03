@@ -258,19 +258,6 @@ export const handleActions = async (
       await mainCtrl.accounts.addAccounts(params.accounts)
       break
     }
-    // This flow interacts manually with the AccountAdder controller so that it can
-    // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
-    case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_ACCOUNT': {
-      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-      const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
-      const keyIterator = new KeyIterator(params.seed)
-
-      await mainCtrl.keystore.addSeed({ seed: params.seed, hdPathTemplate })
-      await mainCtrl.accountAdder.init({ keyIterator, hdPathTemplate })
-
-      return await mainCtrl.accountAdder.setPage({ page: 1 })
-    }
     case 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT': {
       await mainCtrl.accountAdder.selectNextAccount()
       break
@@ -446,6 +433,8 @@ export const handleActions = async (
         params.extraEntropy,
         params.leaveUnlocked
       )
+    case 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED':
+      return await mainCtrl.keystore.addTempSeed(params)
     case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
       return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
@@ -466,16 +455,12 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
-    case 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL':
+    case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
       return await mainCtrl.keystore.sendSeedToUi()
+    case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':
+      return await mainCtrl.keystore.sendTempSeedToUi()
     case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':
       return await mainCtrl.keystore.deleteSavedSeed()
-    case 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP': {
-      if (params.action === 'save') {
-        return await mainCtrl.keystore.moveTempSeedToKeystoreSeeds()
-      }
-      return mainCtrl.keystore.deleteTempSeed()
-    }
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
       return await mainCtrl.emailVault.getEmailVaultInfo(params.email)

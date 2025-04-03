@@ -85,7 +85,11 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
         value: n.name,
         label: <Text weight="medium">{t(n.name)}</Text>,
         icon: (
-          <NetworkIcon key={n.chainId.toString()} id={n.name} name={n.name as NetworkIconIdType} />
+          <NetworkIcon
+            key={n.chainId.toString()}
+            id={n.chainId.toString()}
+            name={n.name as NetworkIconIdType}
+          />
         )
       })),
     [t, networks]

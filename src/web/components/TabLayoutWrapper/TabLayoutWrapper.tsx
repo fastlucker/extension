@@ -35,7 +35,7 @@ type TabLayoutContainerProps = {
   hideFooterInPopup?: boolean
   width?: Width
   children: ReactElement | ReactElement[] | ReactNode | ReactNode[]
-  renderDirectChildren?: React.ReactNode
+  renderDirectChildren?: () => React.ReactNode
   style?: ViewStyle
   withHorizontalPadding?: boolean
 }
@@ -104,7 +104,7 @@ export const TabLayoutContainer = ({
           </View>
         </View>
       )}
-      {renderDirectChildren}
+      {renderDirectChildren && renderDirectChildren()}
     </View>
   )
 }
