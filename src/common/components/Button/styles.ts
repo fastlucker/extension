@@ -23,6 +23,7 @@ interface Style {
   buttonTextDanger: TextStyle
   buttonTextOutline: TextStyle
   buttonTextGhost: TextStyle
+  buttonTextGray: TextStyle
 
   buttonTextStylesSizeLarge: TextStyle
   buttonTextStylesSizeRegular: TextStyle
@@ -106,6 +107,9 @@ const getStyles = (theme: ThemeProps) =>
     },
     buttonTextGhost: {
       color: theme.secondaryText
+    },
+    buttonTextGray: {
+      color: theme.primaryText
     },
 
     // Button text sizes (regular/small)

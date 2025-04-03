@@ -27,7 +27,7 @@ const onboardingRoutes = [
   WEB_ROUTES.onboardingCompleted
 ] as const
 
-type OnboardingRoute = typeof onboardingRoutes[number]
+export type OnboardingRoute = typeof onboardingRoutes[number]
 
 const OnboardingNavigationContext = createContext<{
   isOnboardingRoute: boolean
