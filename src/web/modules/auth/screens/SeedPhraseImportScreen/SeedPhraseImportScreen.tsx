@@ -19,7 +19,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import getStyles from './styles'
@@ -32,7 +32,7 @@ const SeedPhraseImportScreen = () => {
 
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const { isInitialized, subType } = useAccountAdderControllerState()
+  const { isInitialized, subType } = useAccountPickerControllerState()
   const prevIsInitialized = usePrevious(isInitialized)
   const {
     watch,
@@ -74,7 +74,7 @@ const SeedPhraseImportScreen = () => {
       const formattedSeed = seed.trim().split(/\s+/).join(' ')
 
       dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
         params: { privKeyOrSeed: formattedSeed, seedPassphrase: passphrase || null }
       })
     })()
@@ -83,7 +83,7 @@ const SeedPhraseImportScreen = () => {
   useEffect(() => {
     if (!getValues('seed')) return
     if (!prevIsInitialized && isInitialized && subType === 'seed') {
-      dispatch({ type: 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT' })
+      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_SELECT_NEXT_ACCOUNT' })
       goToNextRoute()
     }
   }, [goToNextRoute, dispatch, getValues, isInitialized, prevIsInitialized, subType])

@@ -7,8 +7,8 @@ import routesConfig from '@common/modules/router/config/routesConfig'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
-import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
+import AccountPickerScreen from '@web/modules/account-picker/screens/AccountPickerScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
 import AddChainScreen from '@web/modules/action-requests/screens/AddChainScreen'
 import BenzinScreen from '@web/modules/action-requests/screens/BenzinScreen'
@@ -124,7 +124,7 @@ const MainRoutes = () => {
               element={<CreateSeedPhraseWriteScreen />}
             />
 
-            <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
+            <Route path={WEB_ROUTES.accountPicker} element={<AccountPickerScreen />} />
             <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
             <Route path={WEB_ROUTES.onboardingCompleted} element={<OnboardingCompletedScreen />} />
 

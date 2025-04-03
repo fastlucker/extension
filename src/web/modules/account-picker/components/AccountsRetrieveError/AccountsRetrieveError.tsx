@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import Alert from '@common/components/Alert'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
@@ -10,8 +10,8 @@ import text from '@common/styles/utils/text'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 
 interface Props {
-  pageError: AccountAdderController['pageError']
-  page: AccountAdderController['page']
+  pageError: AccountPickerController['pageError']
+  page: AccountPickerController['page']
   setPage: (page: number) => void
 }
 

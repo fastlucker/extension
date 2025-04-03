@@ -17,9 +17,9 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
-import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
-import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
+import AccountsOnPageList from '@web/modules/account-picker/components/AccountsOnPageList'
+import useAccountPicker from '@web/modules/account-picker/hooks/useAccountPicker/useAccountPicker'
 
 export interface Account {
   type: string
@@ -31,23 +31,25 @@ export interface Account {
   balance?: number
 }
 
-const AccountAdderScreen = () => {
+const AccountPickerScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { params } = useRoute()
-  const accountAdderState = useAccountAdderControllerState()
-  const { onImportReady, setPage } = useAccountAdder()
+  const accountPickerState = useAccountPickerControllerState()
+  const { onImportReady, setPage } = useAccountPicker()
   const { goToPrevRoute } = useOnboardingNavigation()
 
   const isLoading = useMemo(
-    () => accountAdderState.addAccountsStatus !== 'INITIAL',
-    [accountAdderState.addAccountsStatus]
+    () => accountPickerState.addAccountsStatus !== 'INITIAL',
+    [accountPickerState.addAccountsStatus]
   )
 
   const isImportDisabled = useMemo(
     () =>
-      isLoading || accountAdderState.accountsLoading || !accountAdderState.selectedAccounts.length,
-    [isLoading, accountAdderState.accountsLoading, accountAdderState.selectedAccounts.length]
+      isLoading ||
+      accountPickerState.accountsLoading ||
+      !accountPickerState.selectedAccounts.length,
+    [isLoading, accountPickerState.accountsLoading, accountPickerState.selectedAccounts.length]
   )
 
   const showBackButton = useMemo(() => {
@@ -72,7 +74,7 @@ const AccountAdderScreen = () => {
             text={
               isLoading
                 ? t('Importing...')
-                : !accountAdderState.selectedAccounts.length
+                : !accountPickerState.selectedAccounts.length
                 ? t('Continue')
                 : t('Import Accounts')
             }
@@ -88,11 +90,11 @@ const AccountAdderScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel style={{ maxHeight: '100%', ...spacings.ph3Xl }}>
           <AccountsOnPageList
-            state={accountAdderState}
+            state={accountPickerState}
             setPage={setPage}
-            keyType={accountAdderState.type}
-            subType={accountAdderState.subType}
-            lookingForLinkedAccounts={accountAdderState.linkedAccountsLoading}
+            keyType={accountPickerState.type}
+            subType={accountPickerState.subType}
+            lookingForLinkedAccounts={accountPickerState.linkedAccountsLoading}
           />
         </Panel>
       </TabLayoutWrapperMainContent>
@@ -100,4 +102,4 @@ const AccountAdderScreen = () => {
   )
 }
 
-export default React.memo(AccountAdderScreen)
+export default React.memo(AccountPickerScreen)

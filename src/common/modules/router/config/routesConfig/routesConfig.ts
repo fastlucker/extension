@@ -113,8 +113,8 @@ const routesConfig: RouteConfig = {
       default: i18n.t('Login with Hardware Wallet')
     })
   },
-  [ROUTES.accountAdder]: {
-    route: ROUTES.accountAdder,
+  [ROUTES.accountPicker]: {
+    route: ROUTES.accountPicker,
     title: Platform.select({
       default: i18n.t('Add Account')
     }),

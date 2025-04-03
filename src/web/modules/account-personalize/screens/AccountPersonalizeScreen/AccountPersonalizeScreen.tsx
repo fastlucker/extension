@@ -19,7 +19,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
@@ -31,23 +31,23 @@ const AccountPersonalizeScreen = () => {
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
 
-  const accountAdderState = useAccountAdderControllerState()
+  const accountPickerState = useAccountPickerControllerState()
 
   const { handleSubmit, control, setValue, getValues } = useForm({
-    defaultValues: { accounts: accountAdderState.addedAccountsFromCurrentSession }
+    defaultValues: { accounts: accountPickerState.addedAccountsFromCurrentSession }
   })
 
   useEffect(() => {
-    setValue('accounts', accountAdderState.addedAccountsFromCurrentSession)
-  }, [accountAdderState.addedAccountsFromCurrentSession, setValue])
+    setValue('accounts', accountPickerState.addedAccountsFromCurrentSession)
+  }, [accountPickerState.addedAccountsFromCurrentSession, setValue])
 
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
   useEffect(() => {
-    if (accountAdderState.selectNextAccountStatus === 'INITIAL') {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS' })
+    if (accountPickerState.selectNextAccountStatus === 'INITIAL') {
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_ADD_ACCOUNTS' })
     }
-  }, [dispatch, accountAdderState.selectNextAccountStatus])
+  }, [dispatch, accountPickerState.selectNextAccountStatus])
 
   const handleSave = useCallback(
     (data?: { accounts: Account[] }) => {
@@ -121,7 +121,7 @@ const AccountPersonalizeScreen = () => {
             </Alert> */}
           </View>
           <ScrollView style={spacings.mbLg}>
-            {accountAdderState.addedAccountsFromCurrentSession.map((acc, index) => (
+            {accountPickerState.addedAccountsFromCurrentSession.map((acc, index) => (
               <AccountPersonalizeCard
                 key={acc.addr}
                 control={control}
@@ -139,12 +139,12 @@ const AccountPersonalizeScreen = () => {
             hasBottomSpacing={false}
             text={t('Get Started')}
           />
-          {accountAdderState.subType === 'seed' && (
+          {accountPickerState.subType === 'seed' && (
             <View style={spacings.ptLg}>
               <Button
                 type="ghost"
                 text={t('Add more accounts from this Recovery Phrase')}
-                onPress={() => goToNextRoute(WEB_ROUTES.accountAdder)}
+                onPress={() => goToNextRoute(WEB_ROUTES.accountPicker)}
                 textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}
                 style={{ ...spacings.ph0, height: 22 }}
                 hasBottomSpacing={false}
