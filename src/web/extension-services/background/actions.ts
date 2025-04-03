@@ -10,7 +10,12 @@ import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountO
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
-import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
+import {
+  Key,
+  KeyPreferences,
+  KeystoreSeed,
+  ReadyToAddKeys
+} from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, ChainId, Network } from '@ambire-common/interfaces/network'
 import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
 import {
@@ -53,9 +58,8 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: {
     privKeyOrSeed: string
-    shouldPersist?: boolean
-    shouldAddToTemp?: boolean
     seedPassphrase?: string | null
+    hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
   }
 }
 type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
@@ -100,10 +104,6 @@ type MainControllerAddAccounts = {
       domainName: string | null
     })[]
   }
-}
-type CreateNewSeedPhraseAndAddFirstAccount = {
-  type: 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_ACCOUNT'
-  params: { seed: string }
 }
 type AccountAdderControllerSelectNextAccount = {
   type: 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT'
@@ -362,6 +362,10 @@ type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
 }
+type KeystoreControllerAddTempSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED'
+  params: KeystoreSeed
+}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
@@ -384,12 +388,11 @@ type KeystoreControllerSendPrivateKeyOverChannel = {
 type KeystoreControllerDeleteSavedSeed = {
   type: 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED'
 }
-type KeystoreControllerMoveSeedFromTemp = {
-  type: 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP'
-  params: { action: 'save' | 'delete' }
+type KeystoreControllerSendSeedToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI'
 }
-type KeystoreControllerSendSeedOverChannel = {
-  type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
+type KeystoreControllerSendTempSeedToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI'
 }
 
 type EmailVaultControllerGetInfoAction = {
@@ -623,7 +626,6 @@ export type Action =
   | MainControllerAccountAdderSetHdPathTemplateAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
-  | CreateNewSeedPhraseAndAddFirstAccount
   | AccountAdderControllerSelectNextAccount
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
@@ -660,6 +662,7 @@ export type Action =
   | PortfolioControllerCheckToken
   | PortfolioControllerUpdateConfettiToShown
   | KeystoreControllerAddSecretAction
+  | KeystoreControllerAddTempSeedAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
@@ -707,10 +710,10 @@ export type Action =
   | InviteControllerBecomeOGAction
   | InviteControllerRevokeOGAction
   | ImportSmartAccountJson
-  | KeystoreControllerSendSeedOverChannel
+  | KeystoreControllerSendSeedToUiAction
+  | KeystoreControllerSendTempSeedToUiAction
   | MainControllerActivityHideBanner
   | KeystoreControllerDeleteSavedSeed
-  | KeystoreControllerMoveSeedFromTemp
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
   | OpenExtensionPopupAction

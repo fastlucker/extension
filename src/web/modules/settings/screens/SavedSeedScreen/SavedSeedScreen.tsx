@@ -46,9 +46,7 @@ const SavedSeedScreen = () => {
 
   const onPasswordConfirmed = () => {
     setPasswordConfirmed(true)
-    dispatch({
-      type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
-    })
+    dispatch({ type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI' })
   }
 
   useEffect(() => {

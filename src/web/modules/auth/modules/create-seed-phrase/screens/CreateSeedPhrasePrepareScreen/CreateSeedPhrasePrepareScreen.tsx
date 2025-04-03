@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
+import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { EntropyGenerator } from '@ambire-common/libs/entropyGenerator/entropyGenerator'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
@@ -10,7 +11,6 @@ import { useTranslation } from '@common/config/localization'
 import useExtraEntropy from '@common/hooks/useExtraEntropy'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -22,6 +22,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 const CHECKBOXES = [
@@ -42,27 +43,32 @@ const CHECKBOXES = [
 const CreateSeedPhrasePrepareScreen = () => {
   const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { accounts } = useAccountsControllerState()
-  const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
   const keystoreState = useKeystoreControllerState()
+  const { dispatch } = useBackgroundService()
 
   const { getExtraEntropy } = useExtraEntropy()
 
   const handleSubmit = useCallback(() => {
-    const entropyGenerator = new EntropyGenerator()
-    const seed = entropyGenerator.generateRandomMnemonic(12, getExtraEntropy()).phrase
-
-    if (!seed) {
-      addToast('Failed to generate seed phrase', { type: 'error' })
+    if (keystoreState.hasTempSeed) {
+      goToNextRoute(WEB_ROUTES.createSeedPhraseWrite)
       return
     }
 
-    goToNextRoute(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
-  }, [addToast, getExtraEntropy, goToNextRoute])
+    const entropyGenerator = new EntropyGenerator()
+    const seed = entropyGenerator.generateRandomMnemonic(12, getExtraEntropy()).phrase
+
+    dispatch({
+      type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED',
+      params: { seed, hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE }
+    })
+
+    goToNextRoute(WEB_ROUTES.createSeedPhraseWrite)
+  }, [getExtraEntropy, goToNextRoute, dispatch, keystoreState.hasTempSeed])
 
   // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
   useEffect(() => {

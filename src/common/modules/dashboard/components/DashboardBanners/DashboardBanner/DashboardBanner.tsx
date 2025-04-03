@@ -123,10 +123,6 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           })
           break
 
-        case 'confirm-temp-seed':
-          navigate(ROUTES.saveImportedSeed)
-          break
-
         case 'update-extension-version': {
           const shouldPrompt =
             actionsQueue.filter(({ type: actionType }) => actionType !== 'benzin').length > 0

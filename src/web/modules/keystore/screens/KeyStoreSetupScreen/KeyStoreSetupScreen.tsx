@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Animated, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -9,7 +9,6 @@ import DualChoiceModal from '@common/components/DualChoiceModal'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
@@ -23,8 +22,6 @@ import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupFor
 import TermsComponent from '@web/modules/terms/components'
 
 const KeyStoreSetupScreen = () => {
-  const { params } = useRoute()
-  const hideBack = useMemo(() => params?.state?.hideBack || [], [params])
   const { t } = useTranslation()
 
   const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
@@ -50,7 +47,7 @@ const KeyStoreSetupScreen = () => {
         <Panel
           title={t('Set a Device Password')}
           spacingsSize="small"
-          withBackButton={!hideBack}
+          withBackButton
           onBackButtonPress={goToPrevRoute}
           style={[spacings.ph0, spacings.pv0]}
           step={2}
