@@ -37,7 +37,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 47rem;
+    max-width: 43.75rem;
     width: 100%;
     background-color: $secondaryBackground;
     padding: 1rem;
@@ -75,20 +75,27 @@
       }
       .weightText {
         margin-right: 0.25rem;
+        color: rgba($neutral-600, 0.639);
       }
     }
   }
   .header {
+    // padding: 0.75rem 0;
+    // padding-left: 1.375rem;
+    padding-bottom: 0;
     .cell {
       text-transform: uppercase;
       font-size: 0.875rem;
       font-weight: 700;
       color: rgba($tertiaryText, 0.64);
-
       h5 {
         font-weight: 700;
-
         color: rgba($tertiaryText, 0.64);
+      }
+
+      &:first-child {
+        margin-left: .375rem;
+        flex: 4.8;
       }
     }
 

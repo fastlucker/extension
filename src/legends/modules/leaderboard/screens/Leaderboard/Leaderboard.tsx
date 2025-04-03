@@ -98,7 +98,13 @@ const LeaderboardContainer: React.FC = () => {
                 <h5 className={styles.cell}>Level</h5>
                 <div className={styles.cell}>
                   <h5 className={styles.weightText}>Weight</h5>
-                  <InfoIcon width={10} height={10} data-tooltip-id="weight-info" />
+                  <InfoIcon
+                    width={10}
+                    height={10}
+                    color="currentColor"
+                    className={styles.infoIcon}
+                    data-tooltip-id="weight-info"
+                  />
                   <Tooltip
                     className={styles.tooltip}
                     id="weight-info"
