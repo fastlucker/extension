@@ -89,69 +89,73 @@ const ImportExistingAccountSelectorScreen = () => {
             ...common.shadowTertiary
           }}
         >
-          <View style={[flexbox.justifySpaceBetween]}>
-            {buttons
-              .slice(0, VISIBLE_BUTTONS_COUNT)
-              .map(({ title, route, icon: IconComponent }) => (
-                <Button key={title} type="gray" onPress={() => goToNextRoute(route)}>
-                  <View
-                    style={[
-                      flexbox.directionRow,
-                      flexbox.alignCenter,
-                      flexbox.justifySpaceBetween,
-                      flexbox.flex1,
-                      spacings.phSm
-                    ]}
-                  >
-                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <IconComponent width={24} />
-                      <Text style={spacings.mlSm} fontSize={14} weight="medium">
-                        {t(title)}
-                      </Text>
+          <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
+            <View style={[flexbox.justifySpaceBetween]}>
+              {buttons
+                .slice(0, VISIBLE_BUTTONS_COUNT)
+                .map(({ title, route, icon: IconComponent }) => (
+                  <Button key={title} type="gray" onPress={() => goToNextRoute(route)}>
+                    <View
+                      style={[
+                        flexbox.directionRow,
+                        flexbox.alignCenter,
+                        flexbox.justifySpaceBetween,
+                        flexbox.flex1,
+                        spacings.phSm
+                      ]}
+                    >
+                      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                        <IconComponent width={24} />
+                        <Text style={spacings.mlSm} fontSize={14} weight="medium">
+                          {t(title)}
+                        </Text>
+                      </View>
+                      <RightArrowIcon />
                     </View>
-                    <RightArrowIcon />
-                  </View>
-                </Button>
-              ))}
-            <Animated.View
-              style={{ height: animatedHeight, opacity: animatedOpacity, overflow: 'hidden' }}
-            >
-              {buttons.slice(VISIBLE_BUTTONS_COUNT).map(({ title, route, icon: IconComponent }) => (
-                <Button key={title} type="gray" onPress={() => goToNextRoute(route)}>
-                  <View
-                    style={[
-                      flexbox.directionRow,
-                      flexbox.alignCenter,
-                      flexbox.justifySpaceBetween,
-                      flexbox.flex1,
-                      spacings.phSm
-                    ]}
-                  >
-                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <IconComponent width={24} />
-                      <Text style={spacings.mlSm} fontSize={14} weight="medium">
-                        {t(title)}
-                      </Text>
-                    </View>
-                    <RightArrowIcon />
-                  </View>
-                </Button>
-              ))}
-            </Animated.View>
+                  </Button>
+                ))}
+              <Animated.View
+                style={{ height: animatedHeight, opacity: animatedOpacity, overflow: 'hidden' }}
+              >
+                {buttons
+                  .slice(VISIBLE_BUTTONS_COUNT)
+                  .map(({ title, route, icon: IconComponent }) => (
+                    <Button key={title} type="gray" onPress={() => goToNextRoute(route)}>
+                      <View
+                        style={[
+                          flexbox.directionRow,
+                          flexbox.alignCenter,
+                          flexbox.justifySpaceBetween,
+                          flexbox.flex1,
+                          spacings.phSm
+                        ]}
+                      >
+                        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                          <IconComponent width={24} />
+                          <Text style={spacings.mlSm} fontSize={14} weight="medium">
+                            {t(title)}
+                          </Text>
+                        </View>
+                        <RightArrowIcon />
+                      </View>
+                    </Button>
+                  ))}
+              </Animated.View>
+            </View>
+            {buttons.length > VISIBLE_BUTTONS_COUNT && (
+              <Button hasBottomSpacing={false} type="ghost" onPress={() => setShowMore(!showMore)}>
+                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <Text appearance="primary">{t(showMore ? 'Less' : 'More')}</Text>
+                  {/* TODO: Add animation on hover */}
+                  <DiagonalRightArrowIcon
+                    color={theme.primary}
+                    style={[{ transform: [{ rotate: !showMore ? '90deg' : '0deg' }] }]}
+                    height={16}
+                  />
+                </View>
+              </Button>
+            )}
           </View>
-          {buttons.length > VISIBLE_BUTTONS_COUNT && (
-            <Button hasBottomSpacing={false} type="ghost" onPress={() => setShowMore(!showMore)}>
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                <Text appearance="primary">{t(showMore ? 'Less' : 'More')}</Text>
-                {/* TODO: Add animation on hover */}
-                <DiagonalRightArrowIcon
-                  color={theme.primary}
-                  style={[{ transform: [{ rotate: !showMore ? '90deg' : '0deg' }] }]}
-                  height={16}
-                />
-              </View>
-            </Button>
-          )}
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
