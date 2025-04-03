@@ -25,7 +25,7 @@ import flexbox from '@common/styles/utils/flexbox'
 export const SmartAccountIntroId = 'smart-account-badge'
 export const BasicAccountIntroId = 'basic-account-badge'
 
-const AccountAdderIntroStepsContext = createContext<{
+const AccountPickerIntroStepsContext = createContext<{
   showIntroSteps: boolean
   setShowIntroSteps: (show: boolean) => void
 }>({
@@ -99,7 +99,7 @@ const STEPS = [
   }
 ]
 
-const AccountAdderIntroStepsProvider: React.FC<{
+const AccountPickerIntroStepsProvider: React.FC<{
   children: ReactNode | ReactNode[]
   forceCompleted?: boolean
 }> = ({ children, forceCompleted }) => {
@@ -141,7 +141,7 @@ const AccountAdderIntroStepsProvider: React.FC<{
       window.dispatchEvent(new Event('resize'))
     })
 
-    const el = document.getElementById('account-adder-page-list')
+    const el = document.getElementById('account-picker-page-list')
     if (el) observer.observe(el, { childList: true, subtree: true })
     return () => {
       observer.disconnect()
@@ -149,7 +149,7 @@ const AccountAdderIntroStepsProvider: React.FC<{
   }, [])
 
   return (
-    <AccountAdderIntroStepsContext.Provider
+    <AccountPickerIntroStepsContext.Provider
       value={useMemo(
         () => ({
           showIntroSteps,
@@ -176,8 +176,8 @@ const AccountAdderIntroStepsProvider: React.FC<{
         />
       )}
       {children}
-    </AccountAdderIntroStepsContext.Provider>
+    </AccountPickerIntroStepsContext.Provider>
   )
 }
 
-export { AccountAdderIntroStepsProvider, AccountAdderIntroStepsContext }
+export { AccountPickerIntroStepsProvider, AccountPickerIntroStepsContext }

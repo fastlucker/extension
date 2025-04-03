@@ -18,7 +18,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 export const CARD_WIDTH = 400
@@ -38,7 +38,7 @@ const PrivateKeyImportScreen = () => {
 
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
-  const { isInitialized, subType } = useAccountAdderControllerState()
+  const { isInitialized, subType } = useAccountPickerControllerState()
   const prevIsInitialized = usePrevious(isInitialized)
 
   const handleFormSubmit = useCallback(async () => {
@@ -48,7 +48,7 @@ const PrivateKeyImportScreen = () => {
         trimmedPrivateKey.slice(0, 2) === '0x' ? trimmedPrivateKey.slice(2) : trimmedPrivateKey
 
       dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
         params: { privKeyOrSeed: noPrefixPrivateKey }
       })
     })()
@@ -57,7 +57,7 @@ const PrivateKeyImportScreen = () => {
   useEffect(() => {
     if (!getValues('privateKey')) return
     if (!prevIsInitialized && isInitialized && subType === 'private-key') {
-      dispatch({ type: 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT' })
+      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_SELECT_NEXT_ACCOUNT' })
       goToNextRoute()
     }
   }, [goToNextRoute, dispatch, getValues, isInitialized, prevIsInitialized, subType])

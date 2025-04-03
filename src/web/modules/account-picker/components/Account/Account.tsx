@@ -25,10 +25,10 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import {
-  AccountAdderIntroStepsContext,
+  AccountPickerIntroStepsContext,
   BasicAccountIntroId,
   SmartAccountIntroId
-} from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
+} from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
 
 import getStyles from './styles'
 
@@ -61,7 +61,7 @@ const Account = ({
   const domainName = ens
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
-  const { setShowIntroSteps } = useContext(AccountAdderIntroStepsContext)
+  const { setShowIntroSteps } = useContext(AccountPickerIntroStepsContext)
   const { minWidthSize, maxWidthSize } = useWindowSize()
   const { addToast } = useToast()
   const isAccountImported = importStatus !== ImportStatus.NotImported

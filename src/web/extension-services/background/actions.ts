@@ -45,25 +45,25 @@ type InitControllerStateAction = {
   }
 }
 
-type MainControllerAccountAdderInitLedgerAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
+type MainControllerAccountPickerInitLedgerAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER'
 }
-type MainControllerAccountAdderInitTrezorAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR'
+type MainControllerAccountPickerInitTrezorAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR'
 }
-type MainControllerAccountAdderInitLatticeAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE'
+type MainControllerAccountPickerInitLatticeAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE'
 }
-type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
+type MainControllerAccountPickerInitPrivateKeyOrSeedPhraseAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: {
     privKeyOrSeed: string
     seedPassphrase?: string | null
     hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
   }
 }
-type MainControllerAccountAdderInitFromSavedSeedPhraseAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE'
+type MainControllerAccountPickerInitFromSavedSeedPhraseAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE'
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -71,31 +71,31 @@ type MainControllerSelectAccountAction = {
     accountAddr: Account['addr']
   }
 }
-type MainControllerAccountAdderSelectAccountAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT'
+type MainControllerAccountPickerSelectAccountAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SELECT_ACCOUNT'
   params: {
     account: Account
   }
 }
-type MainControllerAccountAdderDeselectAccountAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT'
+type MainControllerAccountPickerDeselectAccountAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_DESELECT_ACCOUNT'
   params: {
     account: Account
   }
 }
 
-type MainControllerAccountAdderSetPageAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE'
+type MainControllerAccountPickerSetPageAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE'
   params: {
     page: number
   }
 }
-type MainControllerAccountAdderSetHdPathTemplateAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE'
+type MainControllerAccountPickerSetHdPathTemplateAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE'
   params: { hdPathTemplate: HD_PATH_TEMPLATE_TYPE }
 }
-type MainControllerAccountAdderAddAccounts = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
+type MainControllerAccountPickerAddAccounts = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_ADD_ACCOUNTS'
 }
 type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
@@ -105,8 +105,8 @@ type MainControllerAddAccounts = {
     })[]
   }
 }
-type AccountAdderControllerSelectNextAccount = {
-  type: 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT'
+type AccountPickerControllerSelectNextAccount = {
+  type: 'ACCOUNT_PICKER_CONTROLLER_SELECT_NEXT_ACCOUNT'
 }
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
@@ -114,8 +114,8 @@ type MainControllerRemoveAccount = {
     accountAddr: Account['addr']
   }
 }
-type MainControllerAccountAdderResetIfNeeded = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
+type MainControllerAccountPickerResetIfNeeded = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_IF_NEEDED'
 }
 type MainControllerAddNetwork = {
   type: 'MAIN_CONTROLLER_ADD_NETWORK'
@@ -605,15 +605,15 @@ type OpenExtensionPopupAction = {
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
-  | MainControllerAccountAdderInitLatticeAction
-  | MainControllerAccountAdderInitTrezorAction
-  | MainControllerAccountAdderInitLedgerAction
-  | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
-  | MainControllerAccountAdderInitFromSavedSeedPhraseAction
+  | MainControllerAccountPickerInitLatticeAction
+  | MainControllerAccountPickerInitTrezorAction
+  | MainControllerAccountPickerInitLedgerAction
+  | MainControllerAccountPickerInitPrivateKeyOrSeedPhraseAction
+  | MainControllerAccountPickerInitFromSavedSeedPhraseAction
   | MainControllerSelectAccountAction
-  | MainControllerAccountAdderSelectAccountAction
-  | MainControllerAccountAdderDeselectAccountAction
-  | MainControllerAccountAdderResetIfNeeded
+  | MainControllerAccountPickerSelectAccountAction
+  | MainControllerAccountPickerDeselectAccountAction
+  | MainControllerAccountPickerResetIfNeeded
   | AccountsControllerUpdateAccountPreferences
   | AccountsControllerUpdateAccountState
   | SettingsControllerSetNetworkToAddOrUpdate
@@ -622,11 +622,11 @@ export type Action =
   | MainControllerRemoveNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
-  | MainControllerAccountAdderSetPageAction
-  | MainControllerAccountAdderSetHdPathTemplateAction
-  | MainControllerAccountAdderAddAccounts
+  | MainControllerAccountPickerSetPageAction
+  | MainControllerAccountPickerSetHdPathTemplateAction
+  | MainControllerAccountPickerAddAccounts
   | MainControllerAddAccounts
-  | AccountAdderControllerSelectNextAccount
+  | AccountPickerControllerSelectNextAccount
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction

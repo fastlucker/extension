@@ -76,7 +76,7 @@ const LedgerConnectModal = ({
   )
 
   const isLoading =
-    isGrantingPermission || mainCtrlState.statuses.handleAccountAdderInitLedger === 'LOADING'
+    isGrantingPermission || mainCtrlState.statuses.handleAccountPickerInitLedger === 'LOADING'
 
   return (
     <BottomSheet

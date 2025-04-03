@@ -86,54 +86,40 @@ export const handleActions = async (
       return mainCtrl.onPopupOpen()
     case 'MAIN_CONTROLLER_LOCK':
       return mainCtrl.lock()
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-      return await mainCtrl.handleAccountAdderInitLedger(LedgerKeyIterator)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER': {
+      return await mainCtrl.handleAccountPickerInitLedger(LedgerKeyIterator)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
-      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR': {
+      if (mainCtrl.accountPicker.isInitialized) mainCtrl.accountPicker.reset()
 
       const { walletSDK } = trezorCtrl
-      await mainCtrl.accountAdder.init({
+      await mainCtrl.accountPicker.init({
         keyIterator: new TrezorKeyIterator({ walletSDK }),
         hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
       })
 
-      return await mainCtrl.accountAdder.setPage({ page: 1 })
+      return await mainCtrl.accountPicker.setPage({ page: 1 })
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
-      return await mainCtrl.handleAccountAdderInitLattice(LatticeKeyIterator)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE': {
+      return await mainCtrl.handleAccountPickerInitLattice(LatticeKeyIterator)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
       const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
       const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
-
-      // if it enters here, it's from the default seed. We can init the account adder like so
-      // if (keyIterator.subType === 'seed' && params.shouldPersist) {
-      //   await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
-      // }
-      // if (keyIterator.subType === 'seed' && params.shouldAddToTemp) {
-      //   await mainCtrl.keystore.addSeedToTemp({
-      //     seed: params.privKeyOrSeed,
-      //     seedPassphrase: params.seedPassphrase,
-      //     hdPathTemplate
-      //   })
-      // }
-
-      await mainCtrl.accountAdder.init({ keyIterator, hdPathTemplate })
-
-      return await mainCtrl.accountAdder.setPage({ page: 1 })
+      await mainCtrl.accountPicker.init({ keyIterator, hdPathTemplate })
+      return await mainCtrl.accountPicker.setPage({ page: 1 })
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE': {
-      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE': {
+      if (mainCtrl.accountPicker.isInitialized) mainCtrl.accountPicker.reset()
       const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
       if (!keystoreSavedSeed) return
       const keyIterator = new KeyIterator(keystoreSavedSeed.seed, keystoreSavedSeed.seedPassphrase)
-      await mainCtrl.accountAdder.init({
+      await mainCtrl.accountPicker.init({
         keyIterator,
         hdPathTemplate: keystoreSavedSeed.hdPathTemplate
       })
 
-      return await mainCtrl.accountAdder.setPage({ page: 1 })
+      return await mainCtrl.accountPicker.setPage({ page: 1 })
     }
     case 'MAIN_CONTROLLER_ADD_NETWORK': {
       return await mainCtrl.addNetwork(params)
@@ -162,34 +148,34 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
       return await mainCtrl.selectAccount(params.accountAddr)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
-      return mainCtrl.accountAdder.selectAccount(params.account)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SELECT_ACCOUNT': {
+      return mainCtrl.accountPicker.selectAccount(params.account)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
-      return mainCtrl.accountAdder.deselectAccount(params.account)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_DESELECT_ACCOUNT': {
+      return mainCtrl.accountPicker.deselectAccount(params.account)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED': {
-      if (mainCtrl.accountAdder.isInitialized) {
-        mainCtrl.accountAdder.reset()
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_IF_NEEDED': {
+      if (mainCtrl.accountPicker.isInitialized) {
+        mainCtrl.accountPicker.reset()
       }
       break
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
-      return await mainCtrl.accountAdder.setPage(params)
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
-      return await mainCtrl.accountAdder.setHDPathTemplate(params)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE':
+      return await mainCtrl.accountPicker.setPage(params)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE': {
+      return await mainCtrl.accountPicker.setHDPathTemplate(params)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_ADD_ACCOUNTS': {
       const readyToAddKeys: ReadyToAddKeys = {
         internal: [],
         external: []
       }
 
-      if (mainCtrl.accountAdder.type === 'internal') {
-        readyToAddKeys.internal = mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
+      if (mainCtrl.accountPicker.type === 'internal') {
+        readyToAddKeys.internal = mainCtrl.accountPicker.retrieveInternalKeysOfSelectedAccounts()
       } else {
         // External keys flow
-        const keyType = mainCtrl.accountAdder.type as ExternalKey['type']
+        const keyType = mainCtrl.accountPicker.type as ExternalKey['type']
 
         const deviceIds: { [key in ExternalKey['type']]: string } = {
           ledger: ledgerCtrl.deviceId,
@@ -203,16 +189,16 @@ export const handleActions = async (
           lattice: latticeCtrl.deviceModel
         }
 
-        const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
+        const readyToAddExternalKeys = mainCtrl.accountPicker.selectedAccounts.flatMap(
           ({ account, accountKeys }) =>
             accountKeys.map(({ addr, index }, i) => ({
               addr,
               type: keyType,
-              label: `${HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountAdder.type as Key['type']]} ${
+              label: `${HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountPicker.type as Key['type']]} ${
                 getExistingKeyLabel(
                   mainCtrl.keystore.keys,
                   addr,
-                  mainCtrl.accountAdder.type as Key['type']
+                  mainCtrl.accountPicker.type as Key['type']
                 ) ||
                 getDefaultKeyLabel(
                   mainCtrl.keystore.keys.filter((key) => account.associatedKeys.includes(key.addr)),
@@ -224,7 +210,7 @@ export const handleActions = async (
                 deviceId: deviceIds[keyType],
                 deviceModel: deviceModels[keyType],
                 // always defined in the case of external keys
-                hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
+                hdPathTemplate: mainCtrl.accountPicker.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
                 index,
                 createdAt: new Date().getTime()
               }
@@ -234,8 +220,8 @@ export const handleActions = async (
         readyToAddKeys.external = readyToAddExternalKeys
       }
 
-      return await mainCtrl.accountAdder.addAccounts(
-        mainCtrl.accountAdder.selectedAccounts,
+      return await mainCtrl.accountPicker.addAccounts(
+        mainCtrl.accountPicker.selectedAccounts,
         readyToAddKeys
       )
     }
@@ -254,12 +240,12 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
       // Since these accounts are view-only, directly add them in the
-      // MainController, bypassing the AccountAdder flow.
+      // MainController, bypassing the AccountPicker flow.
       await mainCtrl.accounts.addAccounts(params.accounts)
       break
     }
-    case 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT': {
-      await mainCtrl.accountAdder.selectNextAccount()
+    case 'ACCOUNT_PICKER_CONTROLLER_SELECT_NEXT_ACCOUNT': {
+      await mainCtrl.accountPicker.selectNextAccount()
       break
     }
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {

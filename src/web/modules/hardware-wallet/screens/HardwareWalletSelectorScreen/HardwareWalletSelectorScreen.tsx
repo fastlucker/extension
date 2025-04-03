@@ -41,23 +41,23 @@ const HardwareWalletSelectorScreen = () => {
         { type: 'error' }
       )
     } else {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' })
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
     }
   }, [dispatch, addToast, t])
 
   const onGridPlusPress = useCallback(
-    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' }),
+    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' }),
     [dispatch]
   )
 
   const onLedgerPress = useCallback(() => setIsLedgerConnectModalVisible(true), [])
   const onLedgerModalClose = useCallback(() => setIsLedgerConnectModalVisible(false), [])
   const onLedgerConnect = useCallback(
-    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' }),
+    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER' }),
     [dispatch]
   )
 
-  const isLatticeLoading = mainCtrlState.statuses.handleAccountAdderInitLattice !== 'INITIAL'
+  const isLatticeLoading = mainCtrlState.statuses.handleAccountPickerInitLattice !== 'INITIAL'
 
   const options = useMemo(
     () => getOptions({ onGridPlusPress, onLedgerPress, onTrezorPress }),

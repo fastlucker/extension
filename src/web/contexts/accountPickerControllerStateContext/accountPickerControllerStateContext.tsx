@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect } from 'react'
 
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
-const AccountAdderControllerStateContext = createContext<AccountAdderController>(
-  {} as AccountAdderController
+const AccountPickerControllerStateContext = createContext<AccountPickerController>(
+  {} as AccountPickerController
 )
 
-const AccountAdderControllerStateProvider: React.FC<any> = ({ children }) => {
-  const controller = 'accountAdder'
+const AccountPickerControllerStateProvider: React.FC<any> = ({ children }) => {
+  const controller = 'accountPicker'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
@@ -26,10 +26,10 @@ const AccountAdderControllerStateProvider: React.FC<any> = ({ children }) => {
   const memoizedState = useDeepMemo(state, controller)
 
   return (
-    <AccountAdderControllerStateContext.Provider value={memoizedState}>
+    <AccountPickerControllerStateContext.Provider value={memoizedState}>
       {children}
-    </AccountAdderControllerStateContext.Provider>
+    </AccountPickerControllerStateContext.Provider>
   )
 }
 
-export { AccountAdderControllerStateProvider, AccountAdderControllerStateContext }
+export { AccountPickerControllerStateProvider, AccountPickerControllerStateContext }

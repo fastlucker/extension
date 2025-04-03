@@ -22,7 +22,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import eventBus from '@web/extension-services/event/eventBus'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
@@ -34,7 +34,7 @@ const CreateSeedPhraseWriteScreen = () => {
   const { dispatch } = useBackgroundService()
   const { hasTempSeed } = useKeystoreControllerState()
   const [tempSeed, setTempSeed] = useState<KeystoreSeed | null>(null)
-  const { isInitialized, subType } = useAccountAdderControllerState()
+  const { isInitialized, subType } = useAccountPickerControllerState()
   const prevIsInitialized = usePrevious(isInitialized)
   const isSubmitButtonPressed = useRef(false)
 
@@ -61,7 +61,7 @@ const CreateSeedPhraseWriteScreen = () => {
 
     isSubmitButtonPressed.current = true
     dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+      type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
       params: { privKeyOrSeed: tempSeed.seed, hdPathTemplate: tempSeed.hdPathTemplate }
     })
   }, [dispatch, tempSeed])
@@ -70,7 +70,7 @@ const CreateSeedPhraseWriteScreen = () => {
     if (!tempSeed) return
     if (!prevIsInitialized && isInitialized && subType === 'seed') {
       if (!isSubmitButtonPressed.current) return
-      dispatch({ type: 'ACCOUNT_ADDER_CONTROLLER_SELECT_NEXT_ACCOUNT' })
+      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_SELECT_NEXT_ACCOUNT' })
       goToNextRoute()
     }
   }, [goToNextRoute, dispatch, tempSeed, isInitialized, prevIsInitialized, subType])

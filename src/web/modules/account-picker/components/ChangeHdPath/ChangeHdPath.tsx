@@ -10,7 +10,7 @@ import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import styles from './styles'
@@ -20,7 +20,7 @@ interface Props {}
 const ChangeHdPath: React.FC<Props> = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { hdPathTemplate, isPageLocked, pageError } = useAccountAdderControllerState()
+  const { hdPathTemplate, isPageLocked, pageError } = useAccountPickerControllerState()
 
   const value = useMemo(
     () => DERIVATION_OPTIONS.find((o) => o.value === hdPathTemplate),
@@ -30,7 +30,7 @@ const ChangeHdPath: React.FC<Props> = () => {
   const handleChangeHdPath = useCallback(
     (s: SelectValue) => {
       dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE',
+        type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE',
         params: { hdPathTemplate: s.value as HD_PATH_TEMPLATE_TYPE }
       })
     },

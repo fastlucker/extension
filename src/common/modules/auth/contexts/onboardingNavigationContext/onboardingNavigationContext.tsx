@@ -8,7 +8,7 @@ import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
@@ -23,7 +23,7 @@ const onboardingRoutes = [
   WEB_ROUTES.viewOnlyAccountAdder,
   WEB_ROUTES.keyStoreSetup,
   WEB_ROUTES.accountPersonalize,
-  WEB_ROUTES.accountAdder,
+  WEB_ROUTES.accountPicker,
   WEB_ROUTES.onboardingCompleted
 ] as const
 
@@ -63,7 +63,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const { navigate } = useNavigation()
   const { authStatus } = useAuth()
   const { isSetupComplete } = useWalletStateController()
-  const { isInitialized } = useAccountAdderControllerState()
+  const { isInitialized } = useAccountPickerControllerState()
   const isOnboardingRoute = useMemo(
     () => onboardingRoutes.includes((path || '').substring(1)),
     [path]
@@ -79,7 +79,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
             [
               new RouteNode(WEB_ROUTES.onboardingCompleted, [new RouteNode('/')], isSetupComplete),
               new RouteNode('/'),
-              new RouteNode(WEB_ROUTES.accountAdder, [], !isInitialized)
+              new RouteNode(WEB_ROUTES.accountPicker, [], !isInitialized)
             ],
             !isInitialized
           )
@@ -226,11 +226,22 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const goToPrevRoute = useCallback(() => {
     const newHistory = [...history]
 
+    if (!history.length) {
+      navigate('/')
+      setHistory([])
+      return
+    }
+
     while (newHistory.length > 0) {
       const prevRouteName = newHistory[newHistory.length - 1]
       const prevRoute = deepSearchRouteNode(onboardingRoutesTree, prevRouteName)
       newHistory.pop()
-      if (!prevRoute) return
+      if (!prevRoute) {
+        navigate('/')
+        setHistory([])
+        return
+      }
+
       if (!prevRoute.disabled) {
         navigate(prevRoute.name, { state: { internal: true } })
         setHistory(newHistory)

@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Dimensions, NativeScrollEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import {
   Account as AccountInterface,
   AccountOnPage,
@@ -24,18 +24,18 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import Account from '@web/modules/account-adder/components/Account'
-import AccountsRetrieveError from '@web/modules/account-adder/components/AccountsRetrieveError'
-import ChangeHdPath from '@web/modules/account-adder/components/ChangeHdPath'
+import Account from '@web/modules/account-picker/components/Account'
+import AccountsRetrieveError from '@web/modules/account-picker/components/AccountsRetrieveError'
+import ChangeHdPath from '@web/modules/account-picker/components/ChangeHdPath'
 import {
-  AccountAdderIntroStepsProvider,
+  AccountPickerIntroStepsProvider,
   BasicAccountIntroId
-} from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
+} from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 import AnimatedDownArrow from './AnimatedDownArrow/AnimatedDownArrow'
@@ -53,10 +53,10 @@ const AccountsOnPageList = ({
   subType,
   lookingForLinkedAccounts
 }: {
-  state: AccountAdderController
+  state: AccountPickerController
   setPage: (page: number) => void
-  keyType: AccountAdderController['type']
-  subType: AccountAdderController['subType']
+  keyType: AccountPickerController['type']
+  subType: AccountPickerController['subType']
   lookingForLinkedAccounts: boolean
 }) => {
   const { t } = useTranslation()
@@ -64,7 +64,7 @@ const AccountsOnPageList = ({
   const accountsState = useAccountsControllerState()
   const keystoreState = useKeystoreControllerState()
   const { networks } = useNetworksControllerState()
-  const accountAdderState = useAccountAdderControllerState()
+  const accountPickerState = useAccountPickerControllerState()
   const [onlySmartAccountsVisible, setOnlySmartAccountsVisible] = useState(!!subType)
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
   const [containerHeight, setContainerHeight] = useState(0)
@@ -80,7 +80,7 @@ const AccountsOnPageList = ({
   const handleSelectAccount = useCallback(
     (account: AccountInterface) => {
       dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT',
+        type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SELECT_ACCOUNT',
         params: { account }
       })
     },
@@ -90,7 +90,7 @@ const AccountsOnPageList = ({
   const handleDeselectAccount = useCallback(
     (account: AccountInterface) => {
       dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT',
+        type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_DESELECT_ACCOUNT',
         params: { account }
       })
     },
@@ -205,7 +205,7 @@ const AccountsOnPageList = ({
     }
 
     if (subType === 'seed') {
-      return accountAdderState.isInitializedWithSavedSeed
+      return accountPickerState.isInitializedWithSavedSeed
         ? t('Import accounts from saved seed phrase')
         : t('Import accounts from seed phrase')
     }
@@ -215,18 +215,18 @@ const AccountsOnPageList = ({
     }
 
     return t('Select accounts to import')
-  }, [accountAdderState.isInitializedWithSavedSeed, keyType, subType, t])
+  }, [accountPickerState.isInitializedWithSavedSeed, keyType, subType, t])
 
   const networkNamesWithAccountStateError = useMemo(() => {
-    return accountAdderState.networksWithAccountStateError.map((chainId) => {
+    return accountPickerState.networksWithAccountStateError.map((chainId) => {
       return networks.find((n) => n.chainId === chainId)?.name
     })
-  }, [accountAdderState.networksWithAccountStateError, networks])
+  }, [accountPickerState.networksWithAccountStateError, networks])
 
   // Empty means it's not loading and no accounts on the current page are derived.
   // Should rarely happen - if the deriving request gets cancelled on the device
   // or if something goes wrong with deriving in general.
-  const isAccountAdderEmpty = useMemo(
+  const isAccountPickerEmpty = useMemo(
     () => !state.accountsLoading && state.accountsOnPage.length === 0,
     [state.accountsLoading, state.accountsOnPage]
   )
@@ -253,7 +253,7 @@ const AccountsOnPageList = ({
     slots
   ])
   const disableHideEmptyAccountsToggle =
-    state.accountsLoading || !!state.pageError || isAccountAdderEmpty
+    state.accountsLoading || !!state.pageError || isAccountPickerEmpty
   const shouldDisplayChangeHdPath = !!(
     subType === 'seed' ||
     // TODO: Disabled for Trezor, because the flow that retrieves accounts
@@ -271,16 +271,16 @@ const AccountsOnPageList = ({
     typeof hasReachedBottom === 'boolean' &&
     !hasReachedBottom &&
     !state.accountsLoading &&
-    !isAccountAdderEmpty &&
+    !isAccountPickerEmpty &&
     !state.pageError
 
   // Prevents the user from temporarily seeing (flashing) empty (error) states
-  // while being navigated back (resetting the Account Adder state).
+  // while being navigated back (resetting the Account Picker state).
   if (!state.isInitialized) return null
 
   return (
-    <AccountAdderIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
-      <View style={flexbox.flex1} nativeID="account-adder-page-list">
+    <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
+      <View style={flexbox.flex1} nativeID="account-picker-page-list">
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
           <Text
             fontSize={maxWidthSize('xl') ? 20 : 18}
@@ -428,10 +428,10 @@ const AccountsOnPageList = ({
             }}
             scrollEventThrottle={400}
           >
-            {(isAccountAdderEmpty || accountAdderState.pageError) && (
+            {(isAccountPickerEmpty || accountPickerState.pageError) && (
               <AccountsRetrieveError
-                pageError={accountAdderState.pageError}
-                page={accountAdderState.page}
+                pageError={accountPickerState.pageError}
+                page={accountPickerState.page}
                 setPage={setPage}
               />
             )}
@@ -481,7 +481,7 @@ const AccountsOnPageList = ({
           )}
         </View>
       </View>
-    </AccountAdderIntroStepsProvider>
+    </AccountPickerIntroStepsProvider>
   )
 }
 
