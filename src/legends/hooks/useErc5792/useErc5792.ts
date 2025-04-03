@@ -3,9 +3,6 @@ import { RELAYER_URL } from '@env'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 
-const ENTRY_POINT_BEFORE_EXECUTION_LOG_TOPIC =
-  '0xbb47ee3e183a558b1a2ff0874b079f3fc5478b7454eacf2bfc5af2ff5878f972'
-
 export const ERRORS = {
   txFailed: 'tx-failed',
   not4337: 'not-4337'
@@ -97,9 +94,7 @@ const useErc5792 = () => {
         }
       )
 
-    const { logs } = receipt
-
-    const is4337 = logs.some((log: any) => log.topics[0] === ENTRY_POINT_BEFORE_EXECUTION_LOG_TOPIC)
+    const is4337 = callsId.includes('UserOperation')
 
     if (!is4337 && is4337Required)
       throw new HumanReadableError(ERROR_MESSAGES.transactionCostsCoveredWithEOA, {
