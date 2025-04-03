@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  margin: 3rem 0 2rem;
+  margin: 3rem 0 2.875rem;
   gap: .75rem;
 
   .step {
@@ -45,7 +45,6 @@
 
   .currentUserWrapper {
     display: flex;
-    // align-items: center;
     margin-bottom: 0.25rem;
     font-size: 0.75rem;
     flex-wrap: wrap;
