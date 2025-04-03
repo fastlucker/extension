@@ -591,6 +591,10 @@ type ExtensionUpdateControllerApplyUpdate = {
   type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
 }
 
+type OpenExtensionPopupAction = {
+  type: 'OPEN_EXTENSION_POPUP'
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -705,3 +709,4 @@ export type Action =
   | KeystoreControllerMoveSeedFromTemp
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
+  | OpenExtensionPopupAction

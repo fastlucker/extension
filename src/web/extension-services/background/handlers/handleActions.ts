@@ -9,6 +9,7 @@ import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keys
 import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
+import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
@@ -582,6 +583,11 @@ export const handleActions = async (
     }
     case 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE': {
       extensionUpdateCtrl.applyUpdate()
+      break
+    }
+
+    case 'OPEN_EXTENSION_POPUP': {
+      await browser.action.openPopup()
       break
     }
 

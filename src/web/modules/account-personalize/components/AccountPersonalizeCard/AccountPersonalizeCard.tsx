@@ -54,9 +54,7 @@ const AccountPersonalizeCard = ({
                     initialValue={preferences.label}
                     testID={`edit-name-field-${index}`}
                     height={24}
-                    textProps={{
-                      weight: 'medium'
-                    }}
+                    textProps={{ weight: 'medium' }}
                     onSave={onSave}
                   />
                 )}

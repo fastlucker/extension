@@ -8,7 +8,9 @@ import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useWalletStateController from '@web/hooks/useWalletStateController'
 
 const onboardingRoutes = [
   WEB_ROUTES.getStarted,
@@ -21,15 +23,18 @@ const onboardingRoutes = [
   WEB_ROUTES.viewOnlyAccountAdder,
   WEB_ROUTES.keyStoreSetup,
   WEB_ROUTES.accountPersonalize,
-  WEB_ROUTES.accountAdder
+  WEB_ROUTES.accountAdder,
+  WEB_ROUTES.onboardingCompleted
 ] as const
 
 type OnboardingRoute = typeof onboardingRoutes[number]
 
 const OnboardingNavigationContext = createContext<{
+  isOnboardingRoute: boolean
   goToNextRoute: (routeName?: OnboardingRoute, routeParams?: NavigateOptions) => void
   goToPrevRoute: () => void
 }>({
+  isOnboardingRoute: false,
   goToNextRoute: () => {},
   goToPrevRoute: () => {}
 })
@@ -57,16 +62,27 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const prevPath: string | undefined = usePrevious(path)
   const { navigate } = useNavigation()
   const { authStatus } = useAuth()
+  const { isSetupComplete } = useWalletStateController()
+  const { isInitialized } = useAccountAdderControllerState()
+  const isOnboardingRoute = useMemo(
+    () => onboardingRoutes.includes((path || '').substring(1)),
+    [path]
+  )
 
   const onboardingRoutesTree = useMemo(() => {
     const common = [
       new RouteNode(
         WEB_ROUTES.keyStoreSetup,
         [
-          new RouteNode(WEB_ROUTES.accountPersonalize, [
-            new RouteNode('/'),
-            new RouteNode(WEB_ROUTES.accountAdder)
-          ])
+          new RouteNode(
+            WEB_ROUTES.accountPersonalize,
+            [
+              new RouteNode(WEB_ROUTES.onboardingCompleted, [new RouteNode('/')], isSetupComplete),
+              new RouteNode('/'),
+              new RouteNode(WEB_ROUTES.accountAdder, [], !isInitialized)
+            ],
+            !isInitialized
+          )
         ],
         hasPasswordSecret
       )
@@ -99,7 +115,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
       false
     )
-  }, [hasPasswordSecret, authStatus])
+  }, [hasPasswordSecret, authStatus, isSetupComplete, isInitialized])
 
   const loadHistory = () => {
     try {
@@ -241,8 +257,11 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       window.removeEventListener('hashchange', handleBackButton)
     }
   }, [goToPrevRoute, history, deepSearchRouteNode, onboardingRoutesTree])
-  console.log(history)
-  const value = useMemo(() => ({ goToNextRoute, goToPrevRoute }), [goToPrevRoute, goToNextRoute])
+
+  const value = useMemo(
+    () => ({ isOnboardingRoute, goToNextRoute, goToPrevRoute }),
+    [isOnboardingRoute, goToPrevRoute, goToNextRoute]
+  )
   return (
     <OnboardingNavigationContext.Provider value={value}>
       {children}

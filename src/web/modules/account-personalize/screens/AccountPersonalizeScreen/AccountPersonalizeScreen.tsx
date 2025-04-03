@@ -121,12 +121,12 @@ const AccountPersonalizeScreen = () => {
             </Alert> */}
           </View>
           <ScrollView style={spacings.mbLg}>
-            {fields.map((field, index) => (
+            {accountAdderState.addedAccountsFromCurrentSession.map((acc, index) => (
               <AccountPersonalizeCard
-                key={field.id} // important to include key with field's id
+                key={acc.addr}
                 control={control}
                 index={index}
-                account={field}
+                account={acc}
                 hasBottomSpacing={index !== fields.length - 1}
                 onSave={handleSave as any}
               />

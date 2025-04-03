@@ -25,6 +25,7 @@ import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
 import ImportExistingAccountSelectorScreen from '@web/modules/auth/screens/ImportExistingAccountSelectorScreen'
 import ImportSmartAccountJsonScreen from '@web/modules/auth/screens/ImportSmartAccountJson'
+import OnboardingCompletedScreen from '@web/modules/auth/screens/OnboardingCompletedScreen'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SaveImportedSeedScreen from '@web/modules/auth/screens/SaveImportedSeedScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
@@ -127,6 +128,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
             <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
             <Route path={WEB_ROUTES.saveImportedSeed} element={<SaveImportedSeedScreen />} />
+            <Route path={WEB_ROUTES.onboardingCompleted} element={<OnboardingCompletedScreen />} />
 
             <Route element={<AuthenticatedRoute />}>
               <Route
