@@ -75,21 +75,21 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     )
     await signActionPage(actionPage)
 
-    // Reverese the above batch to recover tokens balances
-    actionPage.close() // To be able to run the reverse below
-    const reverseAmount1 = 0.000324
-    const reverseAmount2 = 0.000010453
+    // ToDo: redo reverese the above batch to recover tokens balances considering a changes of new release
+    // actionPage.close() // To be able to run the reverse below
+    // const reverseAmount1 = 0.000324
+    // const reverseAmount2 = 0.000010453
 
-    text = await prepareSwapAndBridge(page, reverseAmount1, 'USDC', '8453', 'WALLET')
-    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectButton(callback_page, text)
-    )
-    await batchActionPage(actionPage)
-    text = await prepareSwapAndBridge(page, reverseAmount2, 'ETH', '8453', 'USDC')
-    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectButton(callback_page, text)
-    )
-    await signActionPage(actionPage)
+    // text = await prepareSwapAndBridge(page, reverseAmount1, 'USDC', '8453', 'WALLET')
+    // actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+    //   selectButton(callback_page, text)
+    // )
+    // await batchActionPage(actionPage)
+    // text = await prepareSwapAndBridge(page, reverseAmount2, 'ETH', '8453', 'USDC')
+    // actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
+    //   selectButton(callback_page, text)
+    // )
+    // await signActionPage(actionPage)
   })
 
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async () => {
@@ -163,15 +163,12 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     // POL: await verifySendMaxTokenAmount(page, 'POL', 'polygon')
   })
 
-  // @TODO: Fix this test and remove the skip
-  it.skip('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
+  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'USDC.E', '10', 0.34)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', '10', 0.02)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', '8453', 0.012)
-    // POL: await switchUSDValueOnSwapAndBridge(page, 'POL', 'polygon', 0.3)
     await switchUSDValueOnSwapAndBridge(page, 'ETH', '1', 0.0004)
     await switchUSDValueOnSwapAndBridge(page, 'xWALLET', '1', 1)
-    // POL: await switchUSDValueOnSwapAndBridge(page, 'POL', 'polygon', 0.24)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', '10', 0.51)
     await switchUSDValueOnSwapAndBridge(page, 'xWALLET', '1', 0.9)
   })

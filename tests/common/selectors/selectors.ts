@@ -116,6 +116,8 @@ export const TEST_IDS = {
   routePrioritySab: 'route-priority-sab',
   highPriceImpactSab: 'high-price-impact-sab',
   signButtonSab: 'button-sign',
+  processButtonSab: 'proceed-btn',
+  continueAnywayButtonSab: 'continue-anyway-btn',
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',

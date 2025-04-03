@@ -1,4 +1,3 @@
-import { timeout } from 'rxjs'
 import { clickOnElement } from '../../common-helpers/clickOnElement'
 import { typeText } from '../../common-helpers/typeText'
 import { SELECTORS } from '../../common/selectors/selectors'
@@ -6,18 +5,11 @@ import { SELECTORS } from '../../common/selectors/selectors'
 import { TOKEN_ADDRESS } from './constants'
 
 export async function selectButton(page, text) {
+  // await page.waitForTimeout(500)
   if (text === 'Proceed') {
-    // Get all elements that contain the text "Proceed"
-    const elements = await page.$x(`//div[contains(text(), "${text}")]`)
-
-    if (elements.length > 1) {
-      // Click the 2nd matching element (index 1)
-      await elements[1].click()
-    } else {
-      await elements[0].click()
-    }
+    await clickOnElement(page, SELECTORS.processButtonSab)
   } else {
-    await clickOnElement(page, `text=${text}`)
+    await clickOnElement(page, SELECTORS.continueAnywayButtonSab)
   }
 }
 
@@ -103,6 +95,7 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
 }
 
 async function getUSDTextContent(page) {
+  await page.waitForTimeout(500)
   const selector = SELECTORS.switchCurrencySab
   const element = await page.$(selector)
   expect(element).not.toBeNull()
@@ -278,16 +271,27 @@ export async function verifyDefaultReceiveToken(page, send_token, recieve_networ
   await selectButton(page, 'Back')
 }
 
+export async function changeRoutePriority(page, route_type) {
+  await openSwapAndBridge(page)
+  await clickOnElement(page, SELECTORS.routePrioritySab)
+  await page.waitForTimeout(500)
+  await selectButton(page, route_type)
+  await selectButton(page, 'Back')
+}
+
 async function verifyRouteFound(page) {
   let attempts = 0
   let isTextPresent = true
 
   while (attempts < 2 && isTextPresent) {
     // Wait for Proceed to be enabled (Wait for "Fetching best route..." to appear and disappear)
+    // eslint-disable-next-line no-await-in-loop
     await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true }).catch(() => null)
+    // eslint-disable-next-line no-await-in-loop
     await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
 
     // Check if "No Route Found!" is displayed
+    // eslint-disable-next-line no-await-in-loop
     isTextPresent = await page
       .waitForSelector('body:has-text("No Route Found!")', { timeout: 1000 })
       .catch(() => null)
@@ -295,8 +299,10 @@ async function verifyRouteFound(page) {
     if (isTextPresent) {
       console.log(`⚠️ Attempt ${attempts + 1}: 'No Route Found!' detected, retrying...`)
       // Pause for 5 seconds before retrying
+      // eslint-disable-next-line no-await-in-loop
       await page.waitForTimeout(5000)
       // Change route priority and retry; this is one way of retrying it
+      // eslint-disable-next-line no-await-in-loop
       await changeRoutePriority(page, 'Highest Return')
       attempts++
     } else {
@@ -425,14 +431,6 @@ export async function clickOnSecondRoute(page) {
     await page.waitForSelector('text=No route found!', { visible: true })
     console.error('[ERROR] No route found!')
   }
-}
-
-export async function changeRoutePriority(page, route_type) {
-  await openSwapAndBridge(page)
-  await clickOnElement(page, SELECTORS.routePrioritySab)
-  await page.waitForTimeout(500)
-  await selectButton(page, route_type)
-  await selectButton(page, 'Back')
 }
 
 async function extractMaxBalance(page) {
