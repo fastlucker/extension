@@ -44,7 +44,9 @@ const Token: FC<Props> = ({
   )?.isHidden
 
   const toggleHideToken = useCallback(async () => {
-    addToast(t('Token is now visible. You can hide it again from the dashboard.'))
+    addToast(t('Token is now visible. You can hide it again from the dashboard.'), {
+      timeout: 2000
+    })
 
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
@@ -54,7 +56,9 @@ const Token: FC<Props> = ({
   }, [addToast, t, dispatch, address, chainId, onTokenPreferenceOrCustomTokenChange])
 
   const removeCustomToken = useCallback(() => {
-    addToast(t('Token removed'))
+    addToast(t('Token removed'), {
+      timeout: 2000
+    })
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN',
       params: { token: { address, chainId } }

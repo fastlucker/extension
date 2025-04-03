@@ -1,0 +1,3 @@
+import SmallNotificationWindowWrapper from './SmallNotificationWindowWrapper'
+
+export default SmallNotificationWindowWrapper

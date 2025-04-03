@@ -1,54 +1,89 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
-import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
+import { FeeSpeed, SpeedCalc } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Warning } from '@ambire-common/interfaces/signAccountOp'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
+import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
-import { SectionedSelect } from '@common/components/Select'
+import Select, { SectionedSelect } from '@common/components/Select'
+import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import Fee from '@web/modules/sign-account-op/components/Fee'
-import Warnings from '@web/modules/sign-account-op/components/Warnings'
 
-import AmountInfo from './components/AmountInfo'
 import EstimationSkeleton from './components/EstimationSkeleton'
-import EstimationWrapper from './components/EstimationWrapper'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
-import { FeeOption, Props } from './types'
+import { Props } from './types'
 
 const FEE_SECTION_LIST_MENU_HEADER_HEIGHT = 34
+
+const FeeSpeedLabel = ({
+  speed,
+  feeTokenPriceUnavailableWarning,
+  payValue,
+  isValue
+}: {
+  speed: SpeedCalc
+  feeTokenPriceUnavailableWarning?: Warning
+  payValue?: SelectValue
+  isValue?: boolean
+}) => {
+  const { t } = useTranslation()
+
+  return (
+    <View
+      style={[
+        flexbox.flex1,
+        flexbox.directionRow,
+        flexbox.alignCenter,
+        flexbox.justifySpaceBetween
+      ]}
+    >
+      <Text weight="medium" fontSize={12} style={spacings.mrMi}>
+        {t(speed.type.charAt(0).toUpperCase() + speed.type.slice(1))}
+      </Text>
+      {!isValue && (
+        <Text
+          fontSize={!feeTokenPriceUnavailableWarning ? 14 : 12}
+          style={spacings.mlMi}
+          numberOfLines={1}
+          weight={!feeTokenPriceUnavailableWarning ? 'regular' : 'medium'}
+          appearance="secondaryText"
+        >
+          {!feeTokenPriceUnavailableWarning
+            ? formatDecimals(Number(speed.amountUsd), 'value')
+            : `${formatDecimals(Number(speed.amountFormatted), 'precise')} ${
+                payValue?.token.symbol
+              }`}
+        </Text>
+      )}
+    </View>
+  )
+}
 
 const Estimation = ({
   signAccountOpState,
   disabled,
   hasEstimation,
-  slowRequest,
-  slowPaymasterRequest,
-  isViewOnly,
   isSponsored,
-  sponsor
+  sponsor,
+  slowRequest
 }: Props) => {
-  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { minWidthSize } = useWindowSize()
-  const { keys } = useKeystoreControllerState()
-  const { accountStates, accounts } = useAccountsControllerState()
-  const isSmartAccount = getIsSmartAccount(signAccountOpState?.account)
 
   const feeTokenPriceUnavailableWarning = useMemo(() => {
     return signAccountOpState?.warnings.find((warning) => warning.id === 'feeTokenPriceUnavailable')
@@ -77,39 +112,19 @@ const Estimation = ({
     [payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank]
   )
 
-  const [payValue, setPayValue] = useState<FeeOption | null>(null)
+  const [selectedFeeOption, setSelectedFeeOption] = useState<SelectValue['value'] | null>(null)
 
-  // Only Hardware Wallet signatures are needed manually as the keys of
-  // hot wallets are stored in the extension
-  const areTwoHWSignaturesRequired = useMemo(() => {
-    const paidBy = payValue?.paidBy
-
-    if (!paidBy || paidBy === signAccountOpState?.accountOp.accountAddr) return false
-
-    const paidByAccountData = accounts.find((account) => account.addr === paidBy)
-    const selectedAccountData = accounts.find(
-      (account) => account.addr === signAccountOpState?.accountOp.accountAddr
+  const payValue = useMemo(() => {
+    return (
+      payOptionsPaidByUsOrGasTank.find(({ value }) => value === selectedFeeOption) ||
+      payOptionsPaidByEOA.find(({ value }) => value === selectedFeeOption)
     )
-    if (!paidByAccountData || !selectedAccountData) return false
-
-    const selectedAccountAssociatedKeys = selectedAccountData?.associatedKeys || []
-    const paidByAssociatedKeys = paidByAccountData.associatedKeys || []
-    const selectedAccountImportedKeys = Array.from(
-      new Set(keys.filter(({ addr }) => selectedAccountAssociatedKeys.includes(addr)))
-    )
-    const paidByImportedKeys = Array.from(
-      new Set(keys.filter(({ addr }) => paidByAssociatedKeys.includes(addr)))
-    )
-    const isSelectedAccountHW = selectedAccountImportedKeys.some(({ type }) => type !== 'internal')
-    const isPaidByHW = paidByImportedKeys.some(({ type }) => type !== 'internal')
-
-    return isSelectedAccountHW && isPaidByHW
-  }, [accounts, keys, payValue?.paidBy, signAccountOpState?.accountOp.accountAddr])
+  }, [payOptionsPaidByUsOrGasTank, payOptionsPaidByEOA, selectedFeeOption])
 
   const setFeeOption = useCallback(
     (localPayValue: any) => {
       if (!signAccountOpState?.selectedFeeSpeed) return
-      setPayValue(localPayValue)
+      setSelectedFeeOption(localPayValue.value)
 
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
@@ -118,28 +133,12 @@ const Estimation = ({
           paidBy: localPayValue.paidBy,
           speed: localPayValue.speedCoverage.includes(signAccountOpState.selectedFeeSpeed)
             ? signAccountOpState.selectedFeeSpeed
-            : FeeSpeed.Slow
+            : FeeSpeed.Fast
         }
       })
     },
     [dispatch, signAccountOpState?.selectedFeeSpeed]
   )
-
-  const isSmartAccountAndNotDeployed = useMemo(() => {
-    if (!isSmartAccount || !signAccountOpState?.accountOp?.accountAddr) return false
-
-    const accountState =
-      accountStates[signAccountOpState?.accountOp.accountAddr][
-        signAccountOpState?.accountOp.chainId.toString()
-      ]
-
-    return !accountState?.isDeployed
-  }, [
-    accountStates,
-    isSmartAccount,
-    signAccountOpState?.accountOp.accountAddr,
-    signAccountOpState?.accountOp.chainId
-  ])
 
   useEffect(() => {
     if (!hasEstimation) return
@@ -186,13 +185,7 @@ const Estimation = ({
       signAccountOpState.accountOp.accountAddr,
       signAccountOpState.rbfAccountOps[signAccountOpState.selectedOption.paidBy]
     )
-    return signAccountOpState.feeSpeeds[identifier].map((speed) => ({
-      ...speed,
-      disabled: !!(
-        signAccountOpState.selectedOption &&
-        signAccountOpState.selectedOption.availableAmount < speed.amount
-      )
-    }))
+    return signAccountOpState.feeSpeeds[identifier]
   }, [
     signAccountOpState?.feeSpeeds,
     signAccountOpState?.selectedOption,
@@ -209,17 +202,57 @@ const Estimation = ({
     )
   }, [feeSpeeds, signAccountOpState?.errors.length, signAccountOpState?.estimation?.error])
 
-  const selectedFee = useMemo(
-    () => feeSpeeds.find((speed) => speed.type === signAccountOpState?.selectedFeeSpeed),
-    [signAccountOpState?.selectedFeeSpeed, feeSpeeds]
-  )
+  const feeSpeedOptions = useMemo(() => {
+    return feeSpeeds.map((speed) => ({
+      label: (
+        <FeeSpeedLabel
+          speed={speed}
+          feeTokenPriceUnavailableWarning={feeTokenPriceUnavailableWarning}
+          payValue={payValue}
+        />
+      ),
+      value: speed.type,
+      speed,
+      disabled: speed.disabled
+    }))
+  }, [feeSpeeds, feeTokenPriceUnavailableWarning, payValue])
+
+  const selectedFee = useMemo(() => {
+    const selectedOption =
+      feeSpeedOptions.find(({ value }) => value === signAccountOpState?.selectedFeeSpeed) ||
+      feeSpeedOptions[0]
+
+    if (!selectedOption) return null
+
+    return {
+      ...selectedOption,
+      label: (
+        <FeeSpeedLabel
+          speed={selectedOption.speed}
+          feeTokenPriceUnavailableWarning={feeTokenPriceUnavailableWarning}
+          payValue={payValue}
+          isValue
+        />
+      )
+    }
+  }, [
+    feeSpeedOptions,
+    feeTokenPriceUnavailableWarning,
+    payValue,
+    signAccountOpState?.selectedFeeSpeed
+  ])
 
   const onFeeSelect = useCallback(
-    (speed: FeeSpeed) => {
+    ({ value }: { value: string }) => {
+      if (!Object.values(FeeSpeed).includes(value as FeeSpeed)) {
+        console.error('Invalid fee speed')
+        return
+      }
+
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params: {
-          speed
+          speed: value as FeeSpeed
         }
       })
     },
@@ -291,186 +324,111 @@ const Estimation = ({
     [minWidthSize, theme.primaryBackground, theme.secondaryBorder]
   )
 
+  if (!hasEstimation && !!slowRequest) {
+    return (
+      <View style={spacings.ptTy}>
+        <Alert
+          type="warning"
+          size="sm"
+          title="Estimating this transaction is taking an unexpectedly long time. We'll keep trying, but it is possible that there's an issue with this network or RPC - please change your RPC provider or contact Ambire support if this issue persists."
+        />
+      </View>
+    )
+  }
   if (
     !signAccountOpState ||
     (!hasEstimation && signAccountOpState.estimationRetryError) ||
     !payValue
   ) {
+    return <EstimationSkeleton />
+  }
+
+  if (isSponsored) {
     return (
-      <EstimationWrapper>
-        {!estimationFailed && <EstimationSkeleton />}
-        <Warnings
-          hasEstimation={hasEstimation}
-          slowRequest={slowRequest}
-          slowPaymasterRequest={slowPaymasterRequest}
-          isViewOnly={isViewOnly}
-          rbfDetected={false}
-          bundlerFailure={false}
-        />
-      </EstimationWrapper>
+      <View>
+        {sponsor && (
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            {sponsor.icon && (
+              <ManifestImage
+                uri={sponsor.icon}
+                size={64}
+                fallback={() => <ManifestFallbackIcon width={64} height={64} />}
+              />
+            )}
+            <View style={spacings.ml}>
+              <Text fontSize={18} weight="semiBold" style={spacings.mbMi}>
+                {sponsor.name}
+              </Text>
+              <Text fontSize={16} appearance="secondaryText">
+                {t('is 🪄 sponsoring 🪄 this transaction')}
+              </Text>
+            </View>
+          </View>
+        )}
+      </View>
+    )
+  }
+
+  if (isGaslessTransaction) {
+    return (
+      <Alert
+        type="success"
+        size="md"
+        text={t('No fee payment required- this is a gasless (meta) transaction.')}
+        style={spacings.mbSm}
+      />
     )
   }
 
   return (
-    <EstimationWrapper>
-      {isSponsored && (
-        <View>
-          {sponsor && (
-            <View style={[flexbox.alignCenter, spacings.mbLg]}>
-              {sponsor.icon && (
-                <Image
-                  source={{ uri: sponsor.icon }}
-                  resizeMode="contain"
-                  style={[
-                    {
-                      height: 150,
-                      width: 150
-                    }
-                  ]}
-                />
-              )}
-              <Text fontSize={16} color={theme.secondaryText} style={{ textAlign: 'center' }}>
-                <Text weight="number_black">{sponsor.name}</Text>
-                {'\n'}
-                <Text>is sponsoring this transaction</Text>
-              </Text>
-            </View>
-          )}
-          <Alert
-            type="success"
-            size="md"
-            text={t(
-              'This is a sponsored transaction with no gas fees. Please review the changes on the left before signing'
-            )}
-            style={spacings.mbSm}
+    <>
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.justifySpaceBetween,
+          spacings.mbMi
+        ]}
+      >
+        <Text fontSize={18} weight="medium">
+          {t('Pay fee with')}
+        </Text>
+        {selectedFee && (
+          <Select
+            value={selectedFee}
+            // @ts-ignore
+            setValue={onFeeSelect}
+            options={feeSpeedOptions}
+            selectStyle={{ height: 32 }}
+            menuOptionHeight={32}
+            // Display a wider menu if the fee token price is unavailable
+            // as the native amount takes up more space
+            menuLeftHorizontalOffset={feeTokenPriceUnavailableWarning ? 100 : 48}
+            menuStyle={{ minWidth: feeTokenPriceUnavailableWarning ? 200 : 148 }}
+            withSearch={false}
+            containerStyle={{ ...spacings.mb0, width: 116 }}
+            testID="fee-speed-select"
           />
-        </View>
-      )}
-      {isGaslessTransaction && (
-        <Alert
-          type="success"
-          size="md"
-          text={t(
-            'This is a gasless (meta) transaction. Please review the changes on the left before signing.'
-          )}
-          style={spacings.mbSm}
-        />
-      )}
-      {!isSponsored && !isGaslessTransaction && (
-        <SectionedSelect
-          setValue={setFeeOption}
-          testID="fee-option-select"
-          label={t('Pay fee with')}
-          headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
-          sections={feeOptionSelectSections}
-          renderSectionHeader={renderFeeOptionSectionHeader}
-          containerStyle={areTwoHWSignaturesRequired ? spacings.mbTy : spacings.mb}
-          value={payValue || NO_FEE_OPTIONS}
-          disabled={
-            disabled ||
-            (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
-            defaultFeeOption.label === NO_FEE_OPTIONS.label
-          }
-          defaultValue={payValue ?? undefined}
-          withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
-          stickySectionHeadersEnabled
-        />
-      )}
-      {!isSponsored && !isGaslessTransaction && areTwoHWSignaturesRequired && (
-        <Alert
-          size="sm"
-          text={t(
-            "You've opt in to pay the transaction with Basic account, controlled by a Hardware Wallet, the signing process would require 2 signatures - one by the smart account and one by the Basic account, that would broadcast the transaction."
-          )}
-          style={spacings.mbSm}
-        />
-      )}
-      {!isSponsored && !isGaslessTransaction && feeSpeeds.length > 0 && (
-        <View style={[spacings.mbMd]}>
-          <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
-            {t('Transaction speed')}
-          </Text>
-          <View
-            style={[
-              flexbox.wrap,
-              flexbox.flex1,
-              flexbox.directionRow,
-              disabled && { opacity: 0.6 },
-              minWidthSize('xxl') && { margin: -SPACING_MI }
-            ]}
-          >
-            {feeSpeeds.map((fee) => (
-              <Fee
-                disabled={disabled || fee.disabled}
-                key={fee.amount + fee.type}
-                label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
-                type={fee.type}
-                symbol={payValue.token?.symbol}
-                amountUsd={parseFloat(fee.amountUsd)}
-                amountFormatted={fee.amountFormatted}
-                onPress={onFeeSelect}
-                isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
-              />
-            ))}
-            {/* TODO: <CustomFee onPress={() => {}} /> */}
-          </View>
-          {feeTokenPriceUnavailableWarning && (
-            <Alert
-              size="sm"
-              type="warning"
-              text={feeTokenPriceUnavailableWarning.text}
-              title={feeTokenPriceUnavailableWarning.title}
-              style={spacings.mtSm}
-            />
-          )}
-        </View>
-      )}
-      {!isSponsored && !isGaslessTransaction && !!selectedFee && !!payValue && (
-        <AmountInfo
-          label="Fee"
-          amountFormatted={formatDecimals(parseFloat(selectedFee.amountFormatted))}
-          symbol={payValue.token?.symbol}
-        />
-      )}
-      {!isSponsored && !isGaslessTransaction && !!signAccountOpState.gasSavedUSD && (
-        <AmountInfo.Wrapper>
-          <AmountInfo.Label appearance="primary">{t('Gas Tank saves you')}</AmountInfo.Label>
-          <AmountInfo.Text appearance="primary" selectable>
-            {formatDecimals(signAccountOpState.gasSavedUSD, 'price')} USD
-          </AmountInfo.Text>
-        </AmountInfo.Wrapper>
-      )}
-      {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
-      {/* <View style={styles.gasTankContainer}> */}
-      {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
-      {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
-      {/* </View> */}
-      <Warnings
-        hasEstimation={hasEstimation}
-        slowRequest={slowRequest}
-        slowPaymasterRequest={slowPaymasterRequest}
-        isViewOnly={isViewOnly}
-        rbfDetected={payValue?.paidBy ? !!signAccountOpState.rbfAccountOps[payValue.paidBy] : false}
-        bundlerFailure={
-          !!signAccountOpState.estimation?.bundlerEstimation?.nonFatalErrors?.find(
-            (err) => err.cause === '4337_ESTIMATION'
-          )
+        )}
+      </View>
+      <SectionedSelect
+        setValue={setFeeOption}
+        testID="fee-option-select"
+        headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
+        sections={feeOptionSelectSections}
+        renderSectionHeader={renderFeeOptionSectionHeader}
+        containerStyle={spacings.mb0}
+        value={payValue || NO_FEE_OPTIONS}
+        disabled={
+          disabled ||
+          (!payOptionsPaidByUsOrGasTank.length && !payOptionsPaidByEOA.length) ||
+          defaultFeeOption.label === NO_FEE_OPTIONS.label
         }
+        defaultValue={payValue ?? undefined}
+        withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
+        stickySectionHeadersEnabled
       />
-      {!isSponsored &&
-      isSmartAccountAndNotDeployed &&
-      !estimationFailed &&
-      !signAccountOpState.errors.length ? (
-        <Alert
-          type="info"
-          title={t('Note')}
-          style={spacings.mtTy}
-          text={t(
-            'This is your first transaction on this network, so a one-time Smart Account setup fee will increase the gas cost by around 32%. Future transactions will be cheaper.'
-          )}
-        />
-      ) : null}
-    </EstimationWrapper>
+    </>
   )
 }
 
