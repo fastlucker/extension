@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Animated, View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
+import DiagonalRightArrowIcon from '@common/assets/svg/DiagonalRightArrowIcon'
 import ImportJsonIcon from '@common/assets/svg/ImportJsonIcon'
 import LatticeWithBorderIcon from '@common/assets/svg/LatticeWithBorderIcon'
 import LedgerIcon from '@common/assets/svg/LedgerIcon'
@@ -140,7 +141,15 @@ const ImportExistingAccountSelectorScreen = () => {
           </View>
           {buttons.length > VISIBLE_BUTTONS_COUNT && (
             <Button hasBottomSpacing={false} type="ghost" onPress={() => setShowMore(!showMore)}>
-              <Text appearance="primary">{t(showMore ? 'Less' : 'More')}</Text>
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <Text appearance="primary">{t(showMore ? 'Less' : 'More')}</Text>
+                {/* TODO: Add animation on hover */}
+                <DiagonalRightArrowIcon
+                  color={theme.primary}
+                  style={[{ transform: [{ rotate: !showMore ? '90deg' : '0deg' }] }]}
+                  height={16}
+                />
+              </View>
             </Button>
           )}
         </Panel>
