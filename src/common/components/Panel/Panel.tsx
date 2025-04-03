@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect, useRef } from 'react'
 import { Animated, Pressable, View, ViewProps } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
@@ -18,6 +18,9 @@ interface Props extends ViewProps {
   title?: string | ReactNode
   spacingsSize?: 'small' | 'large'
   isAnimated?: boolean
+  step?: number
+  totalSteps?: number
+  panelWidth?: number
 }
 
 export const getPanelPaddings = (
@@ -38,47 +41,106 @@ const Panel: React.FC<Props> = ({
   style,
   spacingsSize = 'large',
   isAnimated,
+  step = 0,
+  totalSteps = 2,
+  panelWidth = 400,
   ...rest
 }) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
+  const animation = useRef(new Animated.Value(0)).current
 
-  const Container = isAnimated ? Animated.View : View
+  useEffect(() => {
+    if (isAnimated) {
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 480,
+        useNativeDriver: false
+      }).start()
+    }
+  }, [animation, isAnimated])
+
+  const panelWidthInterpolate = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [100, panelWidth],
+    extrapolate: 'clamp'
+  })
+
+  const opacityInterpolate = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+    extrapolate: 'clamp'
+  })
+
+  const renderProgress = () => (
+    <View style={[flexbox.directionRow, spacings.mbMd]}>
+      {[...Array(totalSteps)].map((_, index) => (
+        <View
+          key={`step-${_}`} // TODO: Remove index as key
+          style={[
+            styles.progress,
+            index > 0 ? spacings.mlMi : undefined,
+            {
+              backgroundColor: index < step ? theme.successDecorative : theme.tertiaryBackground
+            }
+          ]}
+        />
+      ))}
+    </View>
+  )
 
   return (
-    <Container
-      style={[styles.container, getPanelPaddings(maxWidthSize, spacingsSize), style]}
-      {...rest}
+    <Animated.View
+      style={[styles.container, { width: isAnimated ? panelWidthInterpolate : panelWidth }]}
     >
-      {(!!title || !!withBackButton) && (
-        <View
-          style={[
-            flexbox.directionRow,
-            flexbox.alignCenter,
-            maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd
-          ]}
-        >
-          {!!withBackButton && (
-            <Pressable onPress={onBackButtonPress} style={[spacings.prSm, spacings.pvTy]}>
-              <LeftArrowIcon />
-            </Pressable>
-          )}
-          {!!title && (
-            <Text
-              fontSize={maxWidthSize('xl') ? 20 : 18}
-              weight="medium"
-              appearance="primaryText"
-              numberOfLines={1}
-              style={[text.center, flexbox.flex1]}
-            >
-              {title}
-            </Text>
-          )}
-          <View style={{ width: 20 }} />
-        </View>
-      )}
-      {children}
-    </Container>
+      <Animated.View
+        style={[
+          styles.container,
+          getPanelPaddings(maxWidthSize, spacingsSize),
+          style,
+          {
+            width: isAnimated ? panelWidthInterpolate : panelWidth,
+            opacity: isAnimated ? opacityInterpolate : 1,
+            minWidth: panelWidth
+          }
+        ]}
+        {...rest}
+      >
+        {step > 0 && renderProgress()}
+
+        {(!!title || !!withBackButton) && (
+          <View
+            style={[
+              flexbox.directionRow,
+              flexbox.alignCenter,
+              maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd
+            ]}
+          >
+            {!!withBackButton && (
+              <Pressable
+                onPress={onBackButtonPress}
+                style={[spacings.prSm, spacings.pvTy, spacings.plMd]}
+              >
+                <LeftArrowIcon />
+              </Pressable>
+            )}
+            {!!title && (
+              <Text
+                fontSize={maxWidthSize('xl') ? 20 : 18}
+                weight="medium"
+                appearance="primaryText"
+                numberOfLines={1}
+                style={[text.center, flexbox.flex1]}
+              >
+                {title}
+              </Text>
+            )}
+            <View style={{ width: 20 }} />
+          </View>
+        )}
+        {children}
+      </Animated.View>
+    </Animated.View>
   )
 }
 

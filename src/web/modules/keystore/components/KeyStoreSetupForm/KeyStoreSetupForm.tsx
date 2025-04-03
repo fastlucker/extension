@@ -26,11 +26,7 @@ type Props = {
   children?: React.ReactNode
 }
 
-const KeyStoreSetupForm = ({
-  onContinue,
-
-  children
-}: Props) => {
+const KeyStoreSetupForm = ({ onContinue, children }: Props) => {
   const { t } = useTranslation()
   const { ref: devicePasswordSetModalRef, open: openDevicePasswordSetModal } = useModalize()
   const {
@@ -61,6 +57,7 @@ const KeyStoreSetupForm = ({
           rules={{ validate: isValidPassword }}
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
+              label={t('Password')}
               testID="enter-pass-field"
               onBlur={onBlur}
               placeholder={t('Enter Password')}
@@ -85,9 +82,10 @@ const KeyStoreSetupForm = ({
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
+              label={t('Repeat Password')}
               testID="repeat-pass-field"
               onBlur={onBlur}
-              placeholder={t('Repeat Password')}
+              placeholder={t('Enter Password')}
               onChangeText={onChange}
               value={value}
               isValid={!!value && !formState.errors.password && password === value}
@@ -108,6 +106,7 @@ const KeyStoreSetupForm = ({
           disabled={formState.isSubmitting || isKeystoreSetupLoading || !formState.isValid}
           text={formState.isSubmitting || isKeystoreSetupLoading ? t('Loading...') : t('Confirm')}
           onPress={handleKeystoreSetup}
+          hasBottomSpacing={false}
         />
       </View>
       <BottomSheet

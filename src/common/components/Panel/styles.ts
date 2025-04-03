@@ -5,15 +5,21 @@ import common from '@common/styles/utils/common'
 
 interface Style {
   container: ViewStyle
+  progress: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...common.borderRadiusSecondary,
-      borderWidth: 1,
-      borderColor: theme.tertiaryBackground,
-      backgroundColor: theme.primaryBackground
+      backgroundColor: theme.primaryBackground,
+      ...common.shadowTertiary,
+      alignSelf: 'center',
+      overflow: 'hidden'
+    },
+    progress: {
+      flex: 1,
+      height: 4
     }
   })
 

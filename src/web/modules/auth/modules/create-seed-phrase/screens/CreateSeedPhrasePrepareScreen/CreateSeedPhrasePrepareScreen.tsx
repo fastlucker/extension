@@ -2,24 +2,18 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { EntropyGenerator } from '@ambire-common/libs/entropyGenerator/entropyGenerator'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import WarningIcon from '@common/assets/svg/WarningIcon'
-import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Panel from '@common/components/Panel'
-import { getPanelPaddings } from '@common/components/Panel/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useExtraEntropy from '@common/hooks/useExtraEntropy'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -29,35 +23,31 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 
 const CHECKBOXES = [
   {
     id: 0,
-    label:
-      'It is crucial to keep your seed phrase in a safe place and never share it with anyone, no matter the reason.'
+    label: 'Your recovery phrase is private. Keep it safe and never share it.'
   },
   {
     id: 1,
-    label: 'If your seed phrase is compromised, your account security is at risk.'
+    label: 'If your recovery phrase is at risk, so is your account.'
   },
   {
     id: 2,
-    label: 'Use your wallet’s seed phrase only to access or recover your account.'
+    label: 'Use your recovery phrase only to access or recover your smart wallet.'
   }
 ]
 
 const CreateSeedPhrasePrepareScreen = () => {
-  const {} = useOnboardingNavigation()
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { accounts } = useAccountsControllerState()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { theme } = useTheme()
-  const { maxWidthSize } = useWindowSize()
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
-  const panelPaddingStyle = getPanelPaddings(maxWidthSize)
   const keystoreState = useKeystoreControllerState()
 
   const { getExtraEntropy } = useExtraEntropy()
@@ -70,13 +60,14 @@ const CreateSeedPhrasePrepareScreen = () => {
       addToast('Failed to generate seed phrase', { type: 'error' })
       return
     }
-    navigate(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
-  }, [addToast, navigate, getExtraEntropy])
+
+    goToNextRoute(WEB_ROUTES.createSeedPhraseWrite, { state: { seed: seed.split(' ') } })
+  }, [addToast, getExtraEntropy, goToNextRoute])
 
   // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
   useEffect(() => {
-    if (keystoreState.hasKeystoreSavedSeed) goBack()
-  }, [goBack, keystoreState.hasKeystoreSavedSeed])
+    if (keystoreState.hasKeystoreSavedSeed) goToPrevRoute()
+  }, [goToPrevRoute, keystoreState.hasKeystoreSavedSeed])
 
   const handleCheckboxPress = (id: number) => {
     setCheckboxesState((prevState) => {
@@ -90,57 +81,28 @@ const CreateSeedPhrasePrepareScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
-      footer={
-        <>
-          <BackButton
-            onPress={() => {
-              if (accounts.length) {
-                navigate(WEB_ROUTES.dashboard)
-                return
-              }
-              navigate(WEB_ROUTES.getStarted)
-            }}
-          />
-          <Button
-            testID="review-seed-phrase-btn"
-            disabled={!allCheckboxesChecked}
-            accessibilityRole="button"
-            size="large"
-            text={t('Review Seed Phrase')}
-            style={{ minWidth: 180 }}
-            hasBottomSpacing={false}
-            onPress={handleSubmit}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
     >
       <TabLayoutWrapperMainContent>
-        <Panel style={[spacings.ph0, spacings.pv0]}>
-          <View
-            style={[
-              panelPaddingStyle,
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              {
-                backgroundColor: theme.warningBackground
-              }
-            ]}
-          >
-            <WarningIcon color={theme.warningDecorative} width={32} height={32} />
-            <Text weight="medium" style={[spacings.mlSm]} fontSize={20}>
-              {t('Important information about the seed phrase')}
-            </Text>
-          </View>
-          <View style={[panelPaddingStyle, spacings.pt]}>
-            <View style={{ maxWidth: 560 }}>
-              <Text weight="semiBold" fontSize={16} style={spacings.mbLg}>
-                {t(
-                  'The seed phrase is a unique set of 12 or 24 words used to access and recover your account.'
-                )}
+        <Panel
+          spacingsSize="small"
+          style={[spacings.ph0, spacings.pv0]}
+          step={1}
+          totalSteps={2}
+          title="Create New Recovery Phrase"
+          withBackButton
+          onBackButtonPress={() => {
+            // TODO: use new navigation
+            if (accounts.length) {
+              navigate(WEB_ROUTES.dashboard)
+              return
+            }
+            goToPrevRoute()
+          }}
+        >
+          <View style={[spacings.phLg, spacings.pvLg, spacings.pt]}>
+            <View>
+              <Text style={[spacings.mbXl]}>
+                {t('Before you begin, check these security tips.')}
               </Text>
               {CHECKBOXES.map(({ id, label }, index) => (
                 <View
@@ -169,34 +131,28 @@ const CreateSeedPhrasePrepareScreen = () => {
                     style={flexbox.flex1}
                     onPress={() => handleCheckboxPress(id)}
                   >
-                    <Text appearance="secondaryText" fontSize={16}>
+                    <Text appearance="secondaryText" fontSize={14}>
                       {t(label)}
                     </Text>
                   </Pressable>
                 </View>
               ))}
-              <View
-                style={[
-                  spacings.phSm,
-                  spacings.pvSm,
-                  spacings.mbMd,
-                  {
-                    backgroundColor: theme.infoBackground,
-                    borderRadius: BORDER_RADIUS_PRIMARY
-                  }
-                ]}
-              >
-                <Text fontSize={16} weight="semiBold" color={theme.infoText}>
-                  {t(
-                    'Grab a pen and a piece of paper, and get ready to write down your seed phrase.'
-                  )}
-                </Text>
-              </View>
+              <Button
+                testID="review-seed-phrase-btn"
+                disabled={!allCheckboxesChecked}
+                accessibilityRole="button"
+                size="large"
+                text={t('Show Recovery Phrase')}
+                style={spacings.mt2Xl}
+                hasBottomSpacing={false}
+                onPress={handleSubmit}
+              />
             </View>
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
-      <CreateSeedPhraseSidebar currentStepId="prepare" />
+      {/* TODO: Delete it */}
+      {/* <CreateSeedPhraseSidebar currentStepId="prepare" /> */}
     </TabLayoutContainer>
   )
 }

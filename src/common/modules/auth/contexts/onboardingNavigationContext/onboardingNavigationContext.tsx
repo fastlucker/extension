@@ -31,7 +31,7 @@ type OnboardingRoute = typeof onboardingRoutes[number]
 
 const OnboardingNavigationContext = createContext<{
   isOnboardingRoute: boolean
-  goToNextRoute: (routeName?: OnboardingRoute) => void
+  goToNextRoute: (routeName?: OnboardingRoute, routeParams?: NavigateOptions) => void
   goToPrevRoute: () => void
 }>({
   isOnboardingRoute: false,
