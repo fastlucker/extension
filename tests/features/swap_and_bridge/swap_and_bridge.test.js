@@ -135,7 +135,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     )
     actionPage.close()
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
-    await selectButton(page, 'Cancel')
+    await selectFirstButton(page, 'Cancel')
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
@@ -191,8 +191,8 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
-    await selectButton(actionPage, 'Reject')
-    await selectButton(page, 'Back')
+    await selectFirstButton(actionPage, 'Reject')
+    await selectFirstButton(page, 'Back')
 
     // Use Highest Return route
     await changeRoutePriority(page, 'Highest Return')
@@ -200,7 +200,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
-    await selectButton(actionPage, 'Reject')
-    await selectButton(page, 'Back')
+    await selectFirstButton(actionPage, 'Reject')
+    await selectFirstButton(page, 'Back')
   })
 })
