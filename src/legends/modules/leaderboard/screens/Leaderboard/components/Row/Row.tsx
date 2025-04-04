@@ -1,11 +1,10 @@
 import React, { FC } from 'react'
 
+import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import BronzeTrophy from '@legends/modules/leaderboard/screens/Leaderboard/BronzeTrophy'
-import GoldTrophy from '@legends/modules/leaderboard/screens/Leaderboard/GoldTrophy'
 import styles from '@legends/modules/leaderboard/screens/Leaderboard/Leaderboard.module.scss'
-import SilverTrophy from '@legends/modules/leaderboard/screens/Leaderboard/SilverTrophy'
 import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
 type Props = LeaderboardEntry & {
@@ -27,11 +26,11 @@ const calculateRowStyle = (isConnectedAccountRow: boolean, stickyPosition: strin
 const getBadge = (rank: number) => {
   switch (rank) {
     case 1:
-      return <GoldTrophy className={styles.trophy} />
+      return <FontAwesomeIcon icon={faTrophy} className={styles.trophy} />
     case 2:
-      return <SilverTrophy className={styles.trophy} />
+      return <FontAwesomeIcon icon={faTrophy} className={styles.trophy} />
     case 3:
-      return <BronzeTrophy className={styles.trophy} />
+      return <FontAwesomeIcon icon={faTrophy} className={styles.trophy} />
     default:
       return null
   }
@@ -57,6 +56,12 @@ const Row: FC<Props> = ({
   const { connectedAccount } = useAccountContext()
   const isConnectedAccountRow = account === connectedAccount
 
+  const formatXp = (xp: number) => {
+    const str = xp.toString()
+    return `${str.slice(0, 2)} ${str.slice(2)}`
+  }
+
+  const formattedXp = formatXp(xp)
   return (
     <div
       key={account}
@@ -91,7 +96,7 @@ const Row: FC<Props> = ({
       </div>
       <h5 className={styles.cell}>{level}</h5>
       <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(weight || 0)}</h5>
-      <h5 className={styles.cell}>{xp}</h5>
+      <h5 className={styles.cell}>{formattedXp}</h5>
     </div>
   )
 }

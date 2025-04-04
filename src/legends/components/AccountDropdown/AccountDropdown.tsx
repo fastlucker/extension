@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
-// import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown'
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import DisconnectIcon from '@legends/common/assets/svg/DisconnectIcon'
 import Address from '@legends/components/Address'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
@@ -10,6 +9,7 @@ import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 
 import styles from './AccountDropdown.module.scss'
 
+// TODO: Add logic to handle account switching from the dropdown and implement proper disconnect functionality
 const AccountDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { connectedAccount, disconnectAccount, chainId } = useAccountContext()
@@ -47,18 +47,17 @@ const AccountDropdown = () => {
           <img alt="avatar" className={styles.avatar} src={character!.image_avatar} />
         </div>
         <div className={styles.account}>
-          <Address
-            skeletonClassName={styles.addressSkeleton}
-            className={styles.address}
-            address={connectedAccount!}
-            maxAddressLength={12}
-          />
+          <div className={styles.accountAndArrowWrapper}>
+            <Address
+              skeletonClassName={styles.addressSkeleton}
+              className={styles.address}
+              address={connectedAccount!}
+              maxAddressLength={12}
+            />
+            <DisconnectIcon />
+          </div>
           <p className={`${styles.levelAndRank} ${styles.activityDot}`}>Level {character!.level}</p>
         </div>
-        {/* <FontAwesomeIcon
-          className={`${styles.chevronIcon} ${isOpen ? styles.open : ''}`}
-          icon={faChevronDown}
-        /> */}
       </button>
       <div className={`${styles.dropdown} ${isOpen ? styles.open : ''}`}>
         <p className={styles.network}>

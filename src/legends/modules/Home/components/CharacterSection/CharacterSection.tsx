@@ -1,10 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-import CoinIcon from '@legends/common/assets/svg/CoinIcon/CoinIcon'
-import Crown from '@legends/common/assets/svg/CrownIcon/CrownIcon'
-import Diamond from '@legends/common/assets/svg/DiamondIcon/DiamondIcon'
 import Alert from '@legends/components/Alert'
-import Modal from '@legends/components/Modal'
 import Stacked from '@legends/components/Stacked'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
@@ -12,10 +8,7 @@ import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerSt
 
 import styles from './CharacterSection.module.scss'
 
-const LONG_NAME_THRESHOLD = 10
-
 const CharacterSection = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const { character } = useCharacterContext()
   const { accountPortfolio } = usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
@@ -35,52 +28,22 @@ const CharacterSection = () => {
 
   const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
 
-  const openDescriptionModal = () => {
-    setIsModalOpen(true)
-  }
-
-  const closeDescriptionModal = () => {
-    setIsModalOpen(false)
-  }
-
   return (
     <section className={styles.wrapper}>
-      <Modal isOpen={isModalOpen} handleClose={closeDescriptionModal} className={styles.modal}>
-        <Modal.Heading className={styles.modalTitle}>Description</Modal.Heading>
-        <Modal.Text className={styles.modalText}>{character?.description}</Modal.Text>
-      </Modal>
       <div className={styles.characterInfo}>
-        <span className={styles.kicker}>YOUR CHARACTER</span>
-        <div className={styles.characterNameWrapper}>
-          <h1
-            className={`${styles.characterName} ${
-              character?.characterName.length > LONG_NAME_THRESHOLD ? styles.small : ''
-            }`}
-          >
-            {character?.characterName}
-          </h1>
-
-          <button
-            type="button"
-            className={styles.infoIcon}
-            onClick={openDescriptionModal}
-            tabIndex={0}
-          >
-            i
-          </button>
-        </div>
-
+        <h2 className={styles.kicker}>Stats</h2>
         <div className={styles.characterLevelInfoWrapper}>
           <div className={styles.characterItemWrapper}>
-            <CoinIcon className={`${styles.icon} ${styles.iconCoin}`} width={64} height={64} />
             <div className={styles.levelWrapper}>
               <div className={`${styles.levelInfo} ${styles.levelInfoTop}`}>
-                <span className={styles.level}>Lvl. {character.level}</span>
-                <span className={styles.level}>Lvl. {character.level + 1}</span>
+                <span className={styles.startXp}>Lvl. {character.level}</span>
+                <span className={styles.endXp}>Lvl. {character.level + 1}</span>
               </div>
               <div className={styles.levelProgress}>
-                <span className={styles.xp}>{character.xp} XP</span>
-
+                <div className={styles.levelProgressBarWrapper}>
+                  <span className={styles.level}>{startXpForCurrentLevel}</span>
+                  <span className={styles.level}>{xpForNextLevel}</span>
+                </div>
                 <div
                   className={styles.levelProgressBar}
                   style={{
@@ -92,9 +55,10 @@ const CharacterSection = () => {
                   }}
                 />
               </div>
-              <div className={styles.levelInfo}>
-                <span className={styles.level}>{startXpForCurrentLevel}</span>
-                <span className={styles.level}>{xpForNextLevel}</span>
+
+              <div className={styles.xp}>
+                {character.xp}
+                XP
               </div>
             </div>
           </div>
@@ -104,7 +68,6 @@ const CharacterSection = () => {
               <Stacked chains={['1', '8453', '42161', '534352', '10']} />
             </div>
             <div className={styles.characterItemWrapper}>
-              <Diamond className={`${styles.icon} ${styles.iconDiamond}`} width={64} height={64} />
               <div className={styles.characterItem}>
                 <span className={styles.item}>{isReady ? amountFormatted : 'Loading...'}</span>
                 Wallet Balance
@@ -113,7 +76,6 @@ const CharacterSection = () => {
           </div>
 
           <div className={styles.characterItemWrapper}>
-            <Crown className={`${styles.icon} ${styles.iconDiamond}`} width={64} height={64} />
             <div className={styles.characterItem}>
               <span className={styles.item}>
                 {userLeaderboardData?.rank ? userLeaderboardData?.rank : 'Loading...'}
@@ -123,6 +85,11 @@ const CharacterSection = () => {
           </div>
         </div>
       </div>
+      <div
+        className={styles.characterBlurEffect}
+        style={{ backgroundImage: `url(${character.image})` }}
+      />
+
       <div className={styles.character}>
         <div className={styles.characterRelativeWrapper}>
           <img className={styles.characterImage} src={character.image} alt="" />

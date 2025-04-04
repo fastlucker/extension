@@ -4,42 +4,22 @@
   margin-bottom: 1.5rem;
 }
 
-.modal {
-  min-width: 50rem;
-  .modalTitle {
-    font-size: 2.5rem;
-    font-weight: 500;
-  }
-  .modalText {
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-style: italic;
-    color: $secondaryText;
-    border-radius: $primaryBorderRadius;
-    border: 1px solid $tertiaryBorder;
-    padding: 0.75rem 0.625rem;
-
-    &::first-letter {
-      font-size: 2.5rem;
-      text-transform: uppercase;
-    }
-  }
-}
 
 .wrapper {
   display: flex;
   position: relative;
   margin-bottom: 3rem;
-  padding-top: 2rem;
+  background: linear-gradient(147.96deg, $secondaryBackground 43.03%, rgba(19, 43, 37, 0.988) 87.21%);
+  border-radius: 1rem;
+  padding: 2.75rem 2.5rem 1.25rem 2.375rem;
+  margin-bottom: 8.5rem;
+
 
   .logoAndBalanceWrapper {
     display: inline-block;
     position: relative;
   }
 
-  .iconDiamond {
-    align-self: baseline;
-  }
   .logoWrapper {
     display: flex;
     justify-content: end;
@@ -69,9 +49,10 @@
       cursor: pointer;
     }
     .kicker {
-      font-size: 1rem;
-      font-weight: 600;
-      color: $tertiaryText;
+      font-size: 2.5rem;
+      font-weight: 500;
+      color: $whiteText;
+      margin-bottom: 6.5625rem;
     }
 
     .characterName {
@@ -88,9 +69,11 @@
     }
 
     .characterLevelInfoWrapper {
+      display: flex;
+      gap: 2.1875rem;
+      align-items: flex-start;
       .characterItemWrapper {
         display: flex;
-        margin-bottom: 2.5rem;
 
         .icon {
           margin-right: 1.5625rem;
@@ -102,8 +85,8 @@
         .characterItem {
           display: flex;
           flex-direction: column;
-          font-size: 1rem;
-          font-weight: 500;
+          font-size: .875rem;
+          font-weight: 400;
           line-height: 1.5rem;
           color: $secondaryText;
           align-self: end;
@@ -112,10 +95,9 @@
         .levelWrapper {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
 
           .levelInfoTop {
-            margin-bottom: 0.5rem;
+            margin-bottom: .125rem;
           }
 
           .levelInfo {
@@ -132,27 +114,32 @@
             }
           }
 
+          .xp {
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 2.75rem;
+            z-index: 2;
+            color: $primaryText;
+          }
+
           .levelProgress {
             flex: 1;
-            padding: 0.75rem 1.5rem;
+            padding: .125rem .3125rem;
             border-radius: $secondaryBorderRadius;
-            background-color: $secondaryBackground;
-            border: 0.0625rem solid $primaryBorder;
+            background-color: rgba($tertiaryText, 0.3);
             overflow: hidden;
             position: relative;
             min-width: 11.25rem;
-            color: $primaryText;
-            margin-bottom: 0.5rem;
             text-align: center;
+            font-size: 1rem;
 
-            .xp {
-              position: relative;
-              font-size: 2rem;
-              font-weight: 500;
-              line-height: 2.75rem;
-              text-align: center;
-              z-index: 2;
-              color: $primaryText;
+            .levelProgressBarWrapper {
+              display: flex;
+              justify-content: space-between;
+              .level {
+                color: $whiteText;
+                z-index: 3;
+              }
             }
 
             .levelProgressBar {
@@ -161,7 +148,7 @@
               left: 0;
               z-index: 1;
               height: 100%;
-              background-color: $secondaryAccent200;
+              background-color: $secondaryAccent;
               display: flex;
               align-items: center;
               justify-content: flex-end;
@@ -173,17 +160,17 @@
       }
 
       .item {
-        min-width: 11.25rem;
-        padding: 0.75rem 1.5rem;
+        min-width: 8.75rem;
+        padding: .5rem 1.5rem;
         border-radius: $secondaryBorderRadius;
         background-color: $secondaryBackground;
-        border: 1px solid $primaryBorder;
+        background-color: rgba($tertiaryText, 0.3);
+
         font-size: 1.5rem;
         font-weight: 500;
         line-height: 2.75rem;
         text-align: center;
         color: $primaryText;
-        margin-bottom: 0.5rem;
 
         .itemTitleRow {
           display: flex;
@@ -218,8 +205,8 @@
   .character {
     position: absolute;
     z-index: 0;
-    right: 5rem;
-    top: 2rem;
+    right: 0rem;
+    top: -4rem;
 
     .characterRelativeWrapper {
       position: relative;
@@ -227,11 +214,33 @@
       .characterImage {
         position: relative;
         z-index: 2;
-        width: 29.0625rem;
-        height: 34.4375rem;
+        // width: 29.0625rem;
+        // height: 34.4375rem;
+
+        width: 18.75rem;
+        height: 25.9375rem;
+
+
+        width: 21.75rem;
+        height: 28.9375rem;
         object-fit: contain;
       }
     }
+  }
+
+
+  .characterBlurEffect {
+    position: absolute;
+    width: 40.1875rem;
+    height: 19.0625rem;
+    top: 0;
+    filter: blur(13.2px);
+    background-position: 2rem -19rem;
+    opacity: 0.1;
+    background-size: 35.3125rem;
+    background-repeat: no-repeat;
+    right: 0;
+    transform: scaleX(-1);
   }
 
   @include breakpoint-down-from(small-desktop) {

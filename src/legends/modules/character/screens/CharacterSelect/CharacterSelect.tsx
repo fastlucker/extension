@@ -28,7 +28,7 @@ const CharacterSelect = () => {
 
   useEffect(() => {
     if (character && !isMinting && !mintedAt) {
-      navigate(LEGENDS_ROUTES.character)
+      navigate(LEGENDS_ROUTES.home)
       return
     }
 
@@ -44,7 +44,7 @@ const CharacterSelect = () => {
   }
 
   const redirectToCharacterPage = () => {
-    navigate(LEGENDS_ROUTES.character)
+    navigate(LEGENDS_ROUTES.home)
   }
 
   useEffect(() => {
