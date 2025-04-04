@@ -33,10 +33,7 @@ const CongratsModal: React.FC<CongratsModalProps> = ({
         <Modal.Heading className={styles.title}>Congrats!</Modal.Heading>
         <Modal.Text className={styles.text}>You Collected +{prizeNumber} XP today!</Modal.Text>
         <div className={styles.openedChestWrapper}>
-          <div className={styles.prize}>
-            +{prizeNumber}
-            <CoinIcon width={32} height={32} />{' '}
-          </div>
+          <div className={styles.prize}>+234</div>
           <img src={starImage} alt="star" className={styles.star} />
           <img src={chestImageOpened} alt="chest-opened" className={styles.chestOpenedImage} />
         </div>

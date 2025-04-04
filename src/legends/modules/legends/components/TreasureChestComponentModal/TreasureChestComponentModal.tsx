@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom'
 
 import { preloadImages } from '@common/utils/images'
 import CheckIcon from '@legends/common/assets/svg/CheckIcon'
-import CoinIcon from '@legends/common/assets/svg/CoinIcon'
 import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
@@ -14,6 +13,7 @@ import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smoke-and-lights.png'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
@@ -40,7 +40,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
-  
+
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
 
@@ -227,6 +227,14 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     <div>
       <div className={styles.backdrop}>
         <div className={styles.wrapper}>
+          <div
+            className={styles.backgroundEffect}
+            style={{
+              backgroundImage: `url(${smokeAndLights})`,
+              backgroundSize: 'contain'
+            }}
+          />
+
           {!!treasureLegend.meta.streak && (
             <div className={styles.streak} style={{ backgroundImage: `url(${streakImage})` }}>
               <p className={styles.streakNumber}>{treasureLegend.meta.streak}</p>
@@ -271,7 +279,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
                       <CheckIcon width={20} height={20} />
                     ) : (
                       <>
-                        +{point} <CoinIcon width={20} height={20} />
+                        +{point}
+                        <span className={styles.xpText}>XP</span>
                       </>
                     )}
                   </div>
@@ -281,7 +290,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             })}
           </div>
           <div className={styles.chestWrapper}>
-            <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />
             <img src={chestImage} alt="spinner" className={styles.chest} />
           </div>
           <button
@@ -298,7 +306,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       </div>
 
       <CongratsModal
-        isOpen={isCongratsModalOpen}
+        isOpen
         setIsOpen={setCongratsModalOpen}
         prizeNumber={prizeNumber}
         onButtonClick={onCongratsModalButtonClick}

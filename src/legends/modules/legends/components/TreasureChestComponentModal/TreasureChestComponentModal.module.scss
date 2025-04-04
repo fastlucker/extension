@@ -18,18 +18,40 @@
 
 .wrapper {
   position: relative;
-  width: 47.5rem;
-  height: 50rem;
+  width: 46.5625rem;
+  height: 42.1875rem;
   transform: scale(0.85);
 
-
-  background-color: $secondaryBackground;
-  border: 1px solid $primaryBorder;
-  border-radius: 1.25rem;
+  background-color: $neutral-700;
+  border-radius: $tertiaryBorderRadius;
+  border: 0.25rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
+                    linear-gradient(152.35deg, rgba(207, 162, 255, 0.6) 9.38%, rgba(78, 25, 168, 0.6) 96.89%);
   padding: 2rem;
   display: flex;
   flex-direction: column;
 
+
+  .backgroundEffect {
+    position: absolute;
+    top: 0;
+    left: 10rem;
+  
+    width: 486px;
+    height: 461px;
+    // opacity: 0.5;
+    z-index: 2;
+    transform: rotate(180deg);
+
+    top: 77px;
+    left: 9rem;
+    width: 486px;
+    height: 461px;
+    z-index: 0;
+    transform: rotate(180deg);
+  }
   .streak {
     position: absolute;
     display: flex;
@@ -78,8 +100,7 @@
       font-size: 4rem;
       font-weight: 500;
       line-height: 5.44rem;
-      margin: 0 auto 2.5rem auto;
-    
+      margin: 0 auto 1rem auto;
     }
 
     .closeButton {
@@ -100,12 +121,13 @@
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 2.25rem;
+    margin-bottom: 4.25rem;
 
     .day {
         border-radius: $secondaryBorderRadius;
-        background-color: $primaryBackground;
-        border: .0625rem solid $primaryBorder;
+        background-color: rgba($neutral-600, 0.08);
+        // TODO: add variable
+        border: .0625rem solid #9298B44D;
 
         padding: .75rem;
         border-radius: .375rem;
@@ -116,16 +138,23 @@
           justify-content: center;
           gap: 0.25rem;
           font-size: 1.25rem;
-          color: $blackText;
+          color: $whiteText;
           margin-bottom: .75rem;
           font-weight: 500;
         }
 
         .dayText {
-          color: $secondaryText;
+          color: $whiteText;
           font-size: .75rem;
           font-weight: 400;
           text-align: center;
+        }
+
+        .xpText {
+          color: rgba($whiteText, 0.5);
+          font-size: .75rem;
+          vertical-align: text-top;
+          font-weight: 400;
         }
     }
 
@@ -134,14 +163,18 @@
       border: .0625rem solid rgba(28, 81, 11, 1);
 
       .dayText {
-        color: $secondaryAccent;
+        color: $whiteText;
       }
     }
 
     .current {
-      border: .125rem solid $secondaryAccent;
-      .icon, .dayText {
-        color: $secondaryAccent;
+      border: .125rem solid $purpleText;
+      .icon {
+        color: $purpleText;
+      }
+
+      .dayText {
+        font-weight: 700;
       }
     }
   }
@@ -149,10 +182,11 @@
   .chestWrapper {
     display: flex;
     position: relative;
-    margin-bottom: 2rem;
+    margin-bottom: 3.4375rem;
+    justify-content: center;
 
     .chest {
-      height: 24.72rem;
+      height: 14.6875rem;
     }
 
     .chain {
@@ -177,7 +211,6 @@
   .button {
     @include primary-button;
     font-size: 1rem;
-    color: $secondaryAccent;
     align-self: center;
     max-width: 18.75rem;
   }
