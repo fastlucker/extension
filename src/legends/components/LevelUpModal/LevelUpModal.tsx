@@ -7,7 +7,6 @@ import useCharacterContext from '@legends/hooks/useCharacterContext'
 import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smoke-and-lights.png'
 
 import badgeImage from './assets/badge.png'
-import cardImage from './assets/card.png'
 import styles from './LevelUpModal.module.scss'
 
 const LevelUpModal = () => {
@@ -20,12 +19,7 @@ const LevelUpModal = () => {
   useEffect(() => {
     if (!levelUpData) return
 
-    preloadImages([
-      badgeImage,
-      cardImage,
-      levelUpData.oldCharacterImage,
-      levelUpData.newCharacterImage
-    ])
+    preloadImages([badgeImage, levelUpData.oldCharacterImage, levelUpData.newCharacterImage])
     const timeout = setTimeout(() => {
       setIsVisible(true)
     }, 1000)
