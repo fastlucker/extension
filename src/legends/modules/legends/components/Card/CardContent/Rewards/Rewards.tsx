@@ -5,7 +5,6 @@ import BaseLogo from '@legends/components/NetworkIcons/BaseLogo'
 import EthereumLogo from '@legends/components/NetworkIcons/EthereumLogo'
 import OptimismLogo from '@legends/components/NetworkIcons/OptimismLogo'
 import ScrollLogo from '@legends/components/NetworkIcons/ScrollLogo'
-import GoldCoin from '@legends/modules/legends/components/GoldCoin'
 import { CardFromResponse, Networks } from '@legends/modules/legends/types'
 
 import styles from './Rewards.module.scss'
@@ -39,7 +38,6 @@ const Rewards: FC<Props> = ({ xp, size = 'lg', reverse }) => {
             {from}
             {to !== from ? `-${to}` : ''} XP
           </div>
-          <GoldCoin />
         </div>
       ))}
     </div>

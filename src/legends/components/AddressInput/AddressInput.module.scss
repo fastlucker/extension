@@ -4,18 +4,21 @@
   .leftLabel {
     margin-left: auto;
   }
+
+  .label {
+    color: $whiteText;
+  }
   .inputWrapper {
-    background-color: $tertiaryBackground;
+    background-color: $charcoal;
     display: flex;
     align-items: stretch;
-    border-radius: $primaryBorderRadius;
-    border: 0.0625rem solid $primaryBorder;
+    border-radius: .5rem;
+    border: 0.0625rem solid $hover-dark;
 
     .input {
-      background-color: transparent;
       flex: 1;
       border: none;
-      border-radius: $primaryBorderRadius 0 0 $primaryBorderRadius;
+      border-radius: .5rem;
     }
 
     .domainsIcons {
@@ -25,7 +28,7 @@
       padding-right: 1rem;
 
       .ensIcon {
-        color: $tertiaryBorder;
+        color: $secondaryText;
         margin-right: 0.5rem;
       }
     }

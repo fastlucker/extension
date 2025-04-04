@@ -22,7 +22,6 @@
 @mixin primary-button {
   @include button;
   padding: 1rem;
-  text-transform: uppercase;
  
   &:not(:disabled) {
     &:hover {
