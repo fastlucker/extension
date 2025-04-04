@@ -14,12 +14,13 @@ const SmallNotificationWindowWrapper: FC<Props> = ({ children }) => {
     <View
       style={{
         flex: 1,
-        // For some reason, notification windows on some devices
-        // are not created with the exact width of 720px.
-        // That's why we've increased the tolerance of small notification windows
-        // to 820px. If the window is larger than that size the
-        // content will be centered.
-        width: maxWidthSize(820) ? 720 : '100%',
+        // Even the the action window is created with a width of 720px
+        // it is not guaranteed that the page will be 720px wide
+        // as the user may have zoomed in or out.
+        // That's why we increase the threshold to 1280px
+        // < 1280px the window will be full width
+        // > 1280px the window will be 720px wide
+        width: maxWidthSize(1280) ? 720 : '100%',
         marginHorizontal: 'auto'
       }}
     >
