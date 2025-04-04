@@ -127,18 +127,16 @@ const TransferControllerStateProvider = ({
   }, [transferCtrl])
 
   useEffect(() => {
-    if (!transferCtrl) return
+    if (!state.selectedToken?.address || !transferCtrl) return
 
     // If a token is already selected, we should retrieve its latest value from tokens.
     // This is important because the token amount is likely to change,
     // especially when initiating a transfer or adding a new one to the queue.
     // As a result, the token `amountPostSimulation` may differ, and we need to update the available token balance accordingly.
-    const selectedToken = tokens.find((token) =>
-      transferCtrl.selectedToken
-        ? token.address === transferCtrl.selectedToken?.address &&
-          token.networkId === transferCtrl.selectedToken?.networkId
-        : token.address === selectedTokenFromUrl?.addr &&
-          token.networkId === selectedTokenFromUrl?.networkId
+    const selectedToken = tokens.find(
+      (token) =>
+        token.address === transferCtrl.selectedToken?.address &&
+        token.networkId === transferCtrl.selectedToken?.networkId
     )
 
     // It has a scenario where no token is provided view URL parameters but only isTopUp and the selectedToken will be undefined
