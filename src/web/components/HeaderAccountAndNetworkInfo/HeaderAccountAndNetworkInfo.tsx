@@ -72,7 +72,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
             </View>
           </View>
         </View>
-        {!!withAmbireLogo && maxWidthSize(700) && (
+        {!!withAmbireLogo && (maxWidthSize(700) || isActionWindow) && (
           <View style={spacings.pl}>
             {withOG ? <AmbireLogoHorizontalWithOG /> : <AmbireLogoHorizontal />}
           </View>
