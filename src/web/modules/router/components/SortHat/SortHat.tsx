@@ -87,12 +87,10 @@ const SortHat = () => {
 
       if (actionType === 'switchAccount') return navigate(WEB_ROUTES.switchAccount)
     } else if (!isActionWindow) {
-      // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
-      // for other scenarios, ideally, it should be the last route before the keystore got locked.
-      const transferState = await storage.get('transferState-v1')
-      console.log({ transferState })
-      // navigate(ROUTES.dashboard)
-      if (transferState) {
+      const transferState = await storage.get('transferState-v1', {})
+      const hasPersistedState = !!Object.keys(transferState).length
+
+      if (hasPersistedState) {
         navigate(ROUTES.transfer, {
           state: { backTo: WEB_ROUTES.dashboard }
         })
