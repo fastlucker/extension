@@ -56,6 +56,12 @@ const Row: FC<Props> = ({
   const { connectedAccount } = useAccountContext()
   const isConnectedAccountRow = account === connectedAccount
 
+  const formatXp = (xp: number) => {
+    const str = xp.toString()
+    return `${str.slice(0, 2)} ${str.slice(2)}`
+  }
+
+  const formattedXp = formatXp(xp)
   return (
     <div
       key={account}
@@ -90,7 +96,7 @@ const Row: FC<Props> = ({
       </div>
       <h5 className={styles.cell}>{level}</h5>
       <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(weight || 0)}</h5>
-      <h5 className={styles.cell}>{xp}</h5>
+      <h5 className={styles.cell}>{formattedXp}</h5>
     </div>
   )
 }

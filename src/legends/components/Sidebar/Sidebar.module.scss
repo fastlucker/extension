@@ -13,11 +13,11 @@
 }
 
 .wrapper {
-  position: relative;
+  position: absolute;
   z-index: 3;
   background-color: $secondaryBackground;
   width: 20rem;
-  padding: .8125rem 1.25rem;
+  padding: 2rem 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
