@@ -1,7 +1,7 @@
 @import '@legends/styles/base.scss';
 
 .link {
-  color: $success;
+  color: $accent;
   text-decoration: none;
   cursor: pointer;
   &:hover {
@@ -13,14 +13,15 @@
   font-size: 1rem;
 }
 .copyField {
-  background-color: $primaryBackground;
-  border: 1px solid $primaryBorder;
+  background-color: $charcoal;
+  border: .0625rem solid $primaryBorder;
   border-radius: 0.5rem;
   padding: 0.5rem;
 }
 
 .copyIcon {
   cursor: pointer;
+  color: $whiteText;
 }
 
 .copyHeader {

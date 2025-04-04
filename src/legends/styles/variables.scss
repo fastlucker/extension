@@ -102,21 +102,22 @@ $whiteText: #FFFFFF;
 
 $accent: $purple-600;
 $secondaryAccent: $green-500;
-
 $bronzeDecorative: $yellow-700;
 $silverDecorative: $neutral-400;
 $goldDecorative: $yellow-300;
-
 $backdrop: rgba($neutral-700, 0.75);
-
 
 // One time used colors
 $hover-dark: #373B43;
 $charcoal: #1E1F24;
 
+$primaryBorder: $hover-dark;
+
+
+
 // Old colors
 $alternativeText: #efefef;
-$primaryBorder: #ebdeca;
+// $primaryBorder: #ebdeca;
 $secondaryBorder: #c9c5be;
 $tertiaryBorder: #706048;
 // $tertiaryBackground: #efe3d3;
