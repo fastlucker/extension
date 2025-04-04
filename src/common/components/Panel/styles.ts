@@ -27,6 +27,7 @@ const getStyles = (theme: ThemeProps) =>
     innerContainer: {
       alignSelf: 'center',
       overflow: 'hidden',
+      // TODO: fix it
       minHeight: 486
     }
   })

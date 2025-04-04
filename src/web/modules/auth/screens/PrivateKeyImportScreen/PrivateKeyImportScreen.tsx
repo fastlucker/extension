@@ -3,7 +3,6 @@ import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
-import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
@@ -12,7 +11,6 @@ import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
