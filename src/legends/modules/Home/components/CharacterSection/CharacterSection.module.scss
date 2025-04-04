@@ -9,10 +9,9 @@
   display: flex;
   position: relative;
   margin-bottom: 3rem;
-  padding-top: 2rem;
   background: linear-gradient(147.96deg, $secondaryBackground 43.03%, rgba(19, 43, 37, 0.988) 87.21%);
   border-radius: 1rem;
-  padding: 1.875rem;
+  padding: 2.75rem 2.5rem 1.25rem 2.375rem;
   margin-bottom: 8.5rem;
 
 
@@ -53,7 +52,7 @@
       font-size: 2.5rem;
       font-weight: 500;
       color: $whiteText;
-      margin-bottom: 6.25rem;
+      margin-bottom: 6.5625rem;
     }
 
     .characterName {
@@ -72,7 +71,7 @@
     .characterLevelInfoWrapper {
       display: flex;
       gap: 2.1875rem;
-      align-items: end;
+      align-items: flex-start;
       .characterItemWrapper {
         display: flex;
 

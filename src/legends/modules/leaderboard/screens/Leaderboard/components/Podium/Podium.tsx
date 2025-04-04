@@ -12,6 +12,12 @@ interface PodiumProps {
 
 const Podium: React.FC<PodiumProps> = ({ data }) => {
   const { connectedAccount } = useAccountContext()
+
+  const formatXp = (xp: number) => {
+    const str = xp.toString()
+    return `${str.slice(0, 2)} ${str.slice(2)}`
+  }
+
   return (
     <div className={styles.podium}>
       {data.map((item, index) => (
@@ -32,7 +38,7 @@ const Podium: React.FC<PodiumProps> = ({ data }) => {
             ) : (
               <Address address={item.account} className={styles.name} maxAddressLength={11} />
             )}
-            <h4 className={styles.xp}>{item.xp}</h4>
+            <h4 className={styles.xp}>{formatXp(item.xp)}</h4>
           </div>
         </div>
       ))}

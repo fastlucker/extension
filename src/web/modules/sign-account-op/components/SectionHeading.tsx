@@ -10,7 +10,7 @@ interface Props {
 
 const SectionHeading: FC<Props> = ({ children, withMb = true }) => {
   return (
-    <Text fontSize={20} weight="medium" style={withMb ? spacings.mbLg : spacings.mb0}>
+    <Text fontSize={20} weight="medium" style={withMb ? spacings.mb : spacings.mb0}>
       {children}
     </Text>
   )

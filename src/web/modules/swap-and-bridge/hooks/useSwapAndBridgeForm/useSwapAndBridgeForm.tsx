@@ -5,7 +5,7 @@ import { useModalize } from 'react-native-modalize'
 import { useSearchParams } from 'react-router-dom'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import {
   getIsNetworkSupported,
@@ -221,7 +221,7 @@ const useSwapAndBridgeForm = () => {
   const handleChangeToToken = useCallback(
     ({ value }: SelectValue) => {
       const tokenToSelect = toTokenList.find(
-        (t: SocketAPIToken) => getTokenId(t, networks) === value
+        (t: SwapAndBridgeToToken) => getTokenId(t, networks) === value
       )
 
       dispatch({
@@ -252,7 +252,8 @@ const useSwapAndBridgeForm = () => {
         const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
 
         return {
-          value: n.chainId.toString(),
+          value: String(n.chainId),
+          extraSearchProps: [n.name],
           disabled: !isNetworkSupported,
           label: (
             <>
@@ -281,7 +282,7 @@ const useSwapAndBridgeForm = () => {
     const network = networks.find((n) => Number(n.chainId) === toChainId)
     if (!network) return toNetworksOptions[0]
 
-    return toNetworksOptions.filter((opt) => opt.value === network.chainId.toString())[0]
+    return toNetworksOptions.filter((opt) => opt.value === String(network.chainId))[0]
   }, [networks, toChainId, toNetworksOptions])
 
   const handleSetToNetworkValue = useCallback(
@@ -289,7 +290,7 @@ const useSwapAndBridgeForm = () => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: {
-          toChainId: networks.filter((n) => n.chainId.toString() === networkOption.value)[0].chainId
+          toChainId: networks.filter((n) => String(n.chainId) === networkOption.value)[0].chainId
         }
       })
     },
@@ -335,7 +336,7 @@ const useSwapAndBridgeForm = () => {
     const stepTypes = quote.selectedRouteSteps.map((s) => s.type)
 
     return (
-      stepTypes.includes('bridge') &&
+      stepTypes.includes('middleware') &&
       stepTypes.includes('swap') &&
       formStatus === SwapAndBridgeFormStatus.ReadyToSubmit
     )
@@ -392,7 +393,7 @@ const useSwapAndBridgeForm = () => {
   const pendingRoutes = useMemo(() => {
     return (
       (activeRoutes || [])
-        .filter((r) => getAddress(r.route.userAddress) === account?.addr)
+        .filter((r) => r.route && getAddress(r.route.userAddress) === account?.addr)
         .reverse() || []
     )
   }, [activeRoutes, account])
