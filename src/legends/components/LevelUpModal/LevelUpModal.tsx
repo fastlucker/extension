@@ -4,11 +4,11 @@ import { createPortal } from 'react-dom'
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import { preloadImages } from '@common/utils/images'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smoke-and-lights.png'
 
 import badgeImage from './assets/badge.png'
 import cardImage from './assets/card.png'
 import styles from './LevelUpModal.module.scss'
-import smokeAndLights from './Smoke-and-lights.png'
 
 const LevelUpModal = () => {
   const { levelUpData, setLevelUpData } = useCharacterContext()
@@ -65,6 +65,15 @@ const LevelUpModal = () => {
       <div className={styles.modal}>
         <h2 className={styles.title}>You’ve Reached Level {newLevel}!</h2>
         <div className={`${styles.card} ${didEvolve ? styles.evolution : ''}`}>
+          <div
+            className={styles.background}
+            style={{
+              backgroundImage: `url(${smokeAndLights})`,
+              backgroundPosition: 'right 0 bottom 102px',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '396px'
+            }}
+          />
           <img
             className={`${styles.characterImage} ${styles.oldCharacterImage}`}
             src={oldCharacterImage}

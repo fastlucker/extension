@@ -127,7 +127,10 @@
     background-origin: padding-box, border-box;
     background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
                       linear-gradient(152.35deg, rgba(207, 162, 255, 0.6) 9.38%, rgba(78, 25, 168, 0.6) 96.89%);
-  
+    
+    .background {
+      height: 100%;
+    }
 
     .characterImage {
       display: block;
