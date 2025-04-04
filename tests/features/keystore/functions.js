@@ -231,7 +231,7 @@ export async function deletNetwork(page, network_symbol) {
   await verifyNetworkField(page, 'Network Name', network.networkName)
   await clickOnElement(page, SELECTORS.removeNetworkButton)
   await page.waitForSelector(SELECTORS.removeNetworkConfirmButton, { visible: true, timeout: 3000 })
-  await clickOnElement(page, SELECTORS.removeNetworkConfirmButton, 1000)
-
+  await page.waitForTimeout(1500)
+  await clickOnElement(page, SELECTORS.removeNetworkConfirmButton)
   await verifyNetwork(page, network.networkName, false)
 }
