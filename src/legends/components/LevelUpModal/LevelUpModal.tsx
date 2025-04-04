@@ -8,6 +8,7 @@ import useCharacterContext from '@legends/hooks/useCharacterContext'
 import badgeImage from './assets/badge.png'
 import cardImage from './assets/card.png'
 import styles from './LevelUpModal.module.scss'
+import smokeAndLights from './Smoke-and-lights.png'
 
 const LevelUpModal = () => {
   const { levelUpData, setLevelUpData } = useCharacterContext()
@@ -63,12 +64,7 @@ const LevelUpModal = () => {
       )}
       <div className={styles.modal}>
         <h2 className={styles.title}>You’ve Reached Level {newLevel}!</h2>
-        <div
-          className={`${styles.card} ${didEvolve ? styles.evolution : ''}`}
-          style={{
-            backgroundImage: `url(${cardImage})`
-          }}
-        >
+        <div className={`${styles.card} ${didEvolve ? styles.evolution : ''}`}>
           <img
             className={`${styles.characterImage} ${styles.oldCharacterImage}`}
             src={oldCharacterImage}
