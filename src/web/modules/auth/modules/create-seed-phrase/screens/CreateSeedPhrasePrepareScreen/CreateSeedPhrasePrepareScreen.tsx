@@ -91,7 +91,6 @@ const CreateSeedPhrasePrepareScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel
           spacingsSize="small"
-          style={[spacings.ph0, spacings.pv0]}
           step={1}
           totalSteps={2}
           title="Create New Recovery Phrase"
@@ -105,55 +104,51 @@ const CreateSeedPhrasePrepareScreen = () => {
             goToPrevRoute()
           }}
         >
-          <View style={[spacings.phLg, spacings.pvLg, spacings.pt]}>
-            <View>
-              <Text style={[spacings.mbXl]}>
-                {t('Before you begin, check these security tips.')}
-              </Text>
-              {CHECKBOXES.map(({ id, label }, index) => (
-                <View
-                  key={id}
-                  style={[
-                    spacings.pvSm,
-                    spacings.phSm,
-                    flexbox.directionRow,
-                    flexbox.alignCenter,
-                    spacings.mbSm,
-                    {
-                      backgroundColor: theme.secondaryBackground,
-                      borderRadius: BORDER_RADIUS_PRIMARY
-                    }
-                  ]}
+          <View>
+            <Text style={[spacings.mbXl]}>{t('Before you begin, check these security tips.')}</Text>
+            {CHECKBOXES.map(({ id, label }, index) => (
+              <View
+                key={id}
+                style={[
+                  spacings.pvSm,
+                  spacings.phSm,
+                  flexbox.directionRow,
+                  flexbox.alignCenter,
+                  spacings.mbSm,
+                  {
+                    backgroundColor: theme.secondaryBackground,
+                    borderRadius: BORDER_RADIUS_PRIMARY
+                  }
+                ]}
+              >
+                <Checkbox
+                  style={spacings.mb0}
+                  value={checkboxesState[id]}
+                  onValueChange={() => {
+                    handleCheckboxPress(id)
+                  }}
+                />
+                <Pressable
+                  testID={`create-seed-prepare-checkbox-${index}`}
+                  style={flexbox.flex1}
+                  onPress={() => handleCheckboxPress(id)}
                 >
-                  <Checkbox
-                    style={spacings.mb0}
-                    value={checkboxesState[id]}
-                    onValueChange={() => {
-                      handleCheckboxPress(id)
-                    }}
-                  />
-                  <Pressable
-                    testID={`create-seed-prepare-checkbox-${index}`}
-                    style={flexbox.flex1}
-                    onPress={() => handleCheckboxPress(id)}
-                  >
-                    <Text appearance="secondaryText" fontSize={14}>
-                      {t(label)}
-                    </Text>
-                  </Pressable>
-                </View>
-              ))}
-              <Button
-                testID="review-seed-phrase-btn"
-                disabled={!allCheckboxesChecked}
-                accessibilityRole="button"
-                size="large"
-                text={t('Show Recovery Phrase')}
-                style={spacings.mt2Xl}
-                hasBottomSpacing={false}
-                onPress={handleSubmit}
-              />
-            </View>
+                  <Text appearance="secondaryText" fontSize={14}>
+                    {t(label)}
+                  </Text>
+                </Pressable>
+              </View>
+            ))}
+            <Button
+              testID="review-seed-phrase-btn"
+              disabled={!allCheckboxesChecked}
+              accessibilityRole="button"
+              size="large"
+              text={t('Show Recovery Phrase')}
+              style={spacings.mt2Xl}
+              hasBottomSpacing={false}
+              onPress={handleSubmit}
+            />
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>

@@ -6,6 +6,7 @@ import common from '@common/styles/utils/common'
 interface Style {
   container: ViewStyle
   progress: ViewStyle
+  innerContainer: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -22,6 +23,11 @@ const getStyles = (theme: ThemeProps) =>
     progress: {
       flex: 1,
       height: 4
+    },
+    innerContainer: {
+      alignSelf: 'center',
+      overflow: 'hidden',
+      minHeight: 486
     }
   })
 

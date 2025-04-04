@@ -83,13 +83,12 @@ const PrivateKeyImportScreen = () => {
         <Panel
           spacingsSize="small"
           withBackButton
-          style={[spacings.ph0, spacings.pv0]}
           onBackButtonPress={goToPrevRoute}
           title={t('Import Private Key')}
           step={1}
           totalSteps={2}
         >
-          <View style={[flexbox.justifySpaceBetween, flexbox.flex1, spacings.phLg, spacings.pvLg]}>
+          <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
             <Controller
               control={control}
               rules={{ validate: (value) => handleValidation(value), required: true }}

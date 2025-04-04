@@ -49,11 +49,10 @@ const KeyStoreSetupScreen = () => {
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}
-          style={[spacings.ph0, spacings.pv0]}
           step={2}
           totalSteps={2}
         >
-          <View style={[spacings.phLg, spacings.pvLg, spacings.pt]}>
+          <View>
             <Text style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}>
               {t('Used to access your wallet and encrypt your data.')}
             </Text>

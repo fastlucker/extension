@@ -73,7 +73,7 @@ const Panel: React.FC<Props> = ({
   })
 
   const renderProgress = () => (
-    <View style={[flexbox.directionRow, spacings.mbMd]}>
+    <View style={[flexbox.directionRow]}>
       {[...Array(totalSteps)].map((_, index) => (
         <View
           key={`step-${index.toString()}`}
@@ -93,9 +93,10 @@ const Panel: React.FC<Props> = ({
     <Animated.View
       style={[styles.container, { width: isAnimated ? panelWidthInterpolate : panelWidth }]}
     >
+      {step > 0 && renderProgress()}
       <Animated.View
         style={[
-          styles.container,
+          styles.innerContainer,
           getPanelPaddings(maxWidthSize, spacingsSize),
           style,
           {
@@ -106,21 +107,10 @@ const Panel: React.FC<Props> = ({
         ]}
         {...rest}
       >
-        {step > 0 && renderProgress()}
-
         {(!!title || !!withBackButton) && (
-          <View
-            style={[
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd
-            ]}
-          >
+          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
             {!!withBackButton && (
-              <Pressable
-                onPress={onBackButtonPress}
-                style={[spacings.prSm, spacings.pvTy, spacings.plMd]}
-              >
+              <Pressable onPress={onBackButtonPress} style={[spacings.pvTy]}>
                 <LeftArrowIcon />
               </Pressable>
             )}
