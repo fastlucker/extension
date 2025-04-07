@@ -1,8 +1,8 @@
 @import '@legends/styles/base.scss';
 
 .historyWrapper {
-  background-color: $charcoal;
-  border: .0625rem solid $hover-dark;
+  background: rgba($interactiveElement, 0.6);
+
   border-radius: 0.5rem;
   padding-top: 1.5rem;
   padding-left: 1.5rem;
@@ -38,15 +38,15 @@
 }
 
 .accepted {
-  color: #62804d;
+  color: #54D1B6;
 }
 
 .expired {
-  color: #991e1e;
+  color: #E65A90;
 }
 
 .pending {
-  color: #b38824;
+  color: #FAD174;
 }
 
 .invitationStatus {
