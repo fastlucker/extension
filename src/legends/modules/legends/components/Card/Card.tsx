@@ -28,7 +28,7 @@ const Card: FC<Props> = ({ cardData }) => {
   const { connectedAccount } = useAccountContext()
   const { addToast } = useToast()
   const { startPolling, stopPolling } = useDataPollingContext()
-  console.log('treasureChestStreak', treasureChestStreak)
+
   const openActionModal = () => {
     stopPolling()
     setIsActionModalOpen(true)
