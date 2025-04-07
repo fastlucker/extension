@@ -16,6 +16,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.1s;
+  backdrop-filter: blur(0.5rem);
 
   &.open {
     visibility: visible;

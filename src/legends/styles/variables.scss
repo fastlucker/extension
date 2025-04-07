@@ -99,13 +99,14 @@ $secondaryBackground: $neutral-700;
 $tertiaryBackground:$neutral-700;
 
 $whiteText: #FFFFFF;
+$blackText: #000000;
 
 $accent: $purple-600;
 $secondaryAccent: $green-500;
 $bronzeDecorative: $yellow-700;
 $silverDecorative: $neutral-400;
 $goldDecorative: $yellow-300;
-$backdrop: rgba($neutral-700, 0.75);
+$backdrop: rgba($blackText, 0.5);
 
 // One time used colors
 $hover-dark: #373B43;
@@ -130,7 +131,6 @@ $goldBackground: #f8e3b7;
 $goldText: #b67d02;
 $yellowText: #F7BA2F;
 
-$blackText: #000000;
 $primaryBadgeBackground: #2c567d;
 $primaryBadgeDecorative: #113a60;
 $secondaryBadgeBackground: #7d2c2d;
