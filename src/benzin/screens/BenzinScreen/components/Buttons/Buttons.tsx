@@ -8,6 +8,7 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { isExtension } from '@web/constants/browserapi'
 
 import getStyles from './styles'
 
@@ -51,9 +52,9 @@ const Buttons: FC<Props> = ({
       {showCopyBtn && (
         <Button
           style={{
-            width: IS_MOBILE_UP_BENZIN_BREAKPOINT ? 200 : '100%',
-            ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mlLg : {}),
-            ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb0 : spacings.mbMd)
+            width: IS_MOBILE_UP_BENZIN_BREAKPOINT || isExtension ? 200 : '100%',
+            ...(IS_MOBILE_UP_BENZIN_BREAKPOINT || isExtension ? spacings.mlLg : {}),
+            ...(IS_MOBILE_UP_BENZIN_BREAKPOINT || isExtension ? spacings.mb0 : spacings.mbMd)
           }}
           onPress={handleCopyText}
         >
