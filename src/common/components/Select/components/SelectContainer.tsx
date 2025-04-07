@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
-import React, { FC } from 'react'
+import React, { FC, useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { TextInput, View } from 'react-native'
 
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
@@ -49,6 +49,23 @@ const SelectContainer: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
+  const searchInputRef = useRef<TextInput | null>(null)
+
+  const setInputRef = useCallback((ref: TextInput | null) => {
+    if (ref) searchInputRef.current = ref
+  }, [])
+
+  // Workaround for auto-focusing the Search input when it's rendered inside the BottomSheet.
+  // If we try to enable it via the <Search autoFocus /> prop, a layout shift occurs beneath the BottomSheet.
+  // This is most likely due to the BottomSheet's absolute positioning - when it starts opening,
+  // it's positioned outside of the viewport along with the Search input.
+  useEffect(() => {
+    if (isMenuOpen && mode === 'bottomSheet') {
+      setTimeout(() => {
+        searchInputRef.current?.focus()
+      }, 300)
+    }
+  }, [isMenuOpen, mode])
 
   return (
     <View style={[styles.selectContainer, containerStyle]} testID={testID}>
@@ -116,8 +133,10 @@ const SelectContainer: FC<Props> = ({
           <View style={[spacings.phMd, flexbox.flex1, { height: 600 }]}>
             <Search
               placeholder={searchPlaceholder || t('Search...')}
-              // TODO: when autoFocus is enabled, BottomSheet animation is broken
+              // When autoFocus is enabled, the BottomSheet animation breaks.
+              // See the useEffect above for more details — it manually focuses the Search input.
               autoFocus={false}
+              setInputRef={setInputRef}
               control={control}
               containerStyle={spacings.mb}
               leftIconStyle={spacings.pl}
