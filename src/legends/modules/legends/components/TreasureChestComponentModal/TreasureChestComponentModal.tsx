@@ -13,7 +13,6 @@ import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
-import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smoke-and-lights.png'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
@@ -23,6 +22,7 @@ import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeErr
 import chainImage from './assets/chain-treasure-chest.png'
 import chestImageOpened from './assets/chest-opened.png'
 import chestImage from './assets/chest.png'
+import smokeAndLights from './assets/smoke-and-lights-background.png'
 import starImage from './assets/star.png'
 import streakImage from './assets/streak-modal.png'
 import CongratsModal from './components/CongratsModal'
@@ -230,8 +230,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           <div
             className={styles.backgroundEffect}
             style={{
-              backgroundImage: `url(${smokeAndLights})`,
-              backgroundSize: 'contain'
+              backgroundImage: `url(${smokeAndLights})`
             }}
           />
 
@@ -306,7 +305,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       </div>
 
       <CongratsModal
-        isOpen
+        isOpen={isCongratsModalOpen}
         setIsOpen={setCongratsModalOpen}
         prizeNumber={prizeNumber}
         onButtonClick={onCongratsModalButtonClick}

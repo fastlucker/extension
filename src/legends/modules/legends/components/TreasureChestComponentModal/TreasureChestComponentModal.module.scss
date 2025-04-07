@@ -36,21 +36,14 @@
 
   .backgroundEffect {
     position: absolute;
-    top: 0;
-    left: 10rem;
-  
-    width: 486px;
-    height: 461px;
-    // opacity: 0.5;
-    z-index: 2;
-    transform: rotate(180deg);
-
-    top: 77px;
-    left: 9rem;
-    width: 486px;
-    height: 461px;
+    opacity: 0.5;
+    left: 0rem;
+    top: 6rem;
     z-index: 0;
-    transform: rotate(180deg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 30.375rem;
+    height: 28.8125rem;
   }
   .streak {
     position: absolute;
