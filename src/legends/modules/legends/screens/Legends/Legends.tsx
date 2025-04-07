@@ -5,10 +5,20 @@ import Spinner from '@legends/components/Spinner'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import Card from '@legends/modules/legends/components/Card'
 import Topbar from '@legends/modules/legends/components/Topbar'
-import { Filter } from '@legends/modules/legends/types'
+import { CardFromResponse, Filter } from '@legends/modules/legends/types'
 
 import styles from './Legends.module.scss'
 import { MOCK_FILTERS } from './mockData'
+
+enum CardGroup {
+  'show' = 'Show',
+  'swap-and-bridge' = 'Swap And Bridge',
+  'supporter' = 'Supporter',
+  'gas-tank' = 'Gas Tank',
+  'transactions' = 'Transactions',
+  'seasonal' = 'Seasonal',
+  'mini-game' = 'Mini Game'
+}
 
 const Legends = () => {
   const [selectedFilter, setSelectedFilter] = useState<Filter['value']>(MOCK_FILTERS[0].value)
@@ -18,19 +28,28 @@ const Legends = () => {
     setSelectedFilter(filter.value)
   }
 
+  const groupedLegends = legends.reduce((groups, card) => {
+    const group = card.group || 'Ungrouped'
+    if (!groups[group]) {
+      groups[group] = []
+    }
+    groups[group].push(card)
+    return groups
+  }, {} as Record<string, typeof legends>)
+
   return (
     <Page containerSize="lg">
-      <Topbar
-        filters={MOCK_FILTERS}
-        selectedFilter={selectedFilter}
-        selectFilter={selectFilter}
-        completedCount={completedCount}
-        legendsCount={legends.length}
-      />
       {!isLoading ? (
-        <div className={styles.cards}>
-          {legends.map((card) => (
-            <Card key={card.title + card.card.type} cardData={card} />
+        <div>
+          {Object.entries(groupedLegends).map(([groupName, cards]) => (
+            <div key={groupName} className={styles.group}>
+              <h2 className={styles.groupName}>{CardGroup[groupName as keyof typeof CardGroup]}</h2>
+              <div className={styles.cards}>
+                {cards.map((card) => (
+                  <Card key={card.title + card.card.type} cardData={card} />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       ) : (

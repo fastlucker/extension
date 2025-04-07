@@ -1,5 +1,15 @@
 @import '@legends/styles/base.scss';
 
+
+.group {
+  margin-bottom: 2.75rem;
+}
+.groupName {
+  color: $secondaryText;
+  font-size: 2rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+}
 .cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

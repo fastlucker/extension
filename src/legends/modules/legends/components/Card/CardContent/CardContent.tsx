@@ -14,7 +14,7 @@ type Props = Pick<
 > & {
   openActionModal: () => void
   disabled: boolean
-  buttonText: string
+  treasureChestStreak: number | undefined
 }
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -28,14 +28,13 @@ const CardContent: FC<Props> = ({
   title,
   xp,
   image,
-  timesCollectedToday,
   card,
-  action,
   openActionModal,
   disabled,
-  buttonText
+  treasureChestStreak
 }) => {
   const isCompleted = card.status === CardStatus.completed
+  // TODO: apply the treasure chest streak badge
 
   return (
     <div
@@ -68,7 +67,6 @@ const CardContent: FC<Props> = ({
       {disabled && (
         <div className={styles.overlay}>
           <LockIcon className={styles.overlayIcon} />
-          {/* <div className={styles.overlayTitle}>Coming soon</div> */}
         </div>
       )}
       <div className={styles.contentAndAction}>
