@@ -105,8 +105,8 @@ type MainControllerAddAccounts = {
     })[]
   }
 }
-type AccountPickerControllerSelectNextAccount = {
-  type: 'ACCOUNT_PICKER_CONTROLLER_SELECT_NEXT_ACCOUNT'
+type AccountPickerControllerAddNextAccount = {
+  type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT'
 }
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
@@ -117,6 +117,10 @@ type MainControllerRemoveAccount = {
 type MainControllerAccountPickerResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_IF_NEEDED'
 }
+type MainControllerAccountPickerResetAccountsSelectionAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_ACCOUNTS_SELECTION'
+}
+
 type MainControllerAddNetwork = {
   type: 'MAIN_CONTROLLER_ADD_NETWORK'
   params: AddNetworkRequestParams
@@ -135,6 +139,9 @@ type AccountsControllerUpdateAccountPreferences = {
 type AccountsControllerUpdateAccountState = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE'
   params: { addr: string; chainIds: bigint[] }
+}
+type AccountsControllerResetAccountsNewlyAddedStateAction = {
+  type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE'
 }
 
 type SettingsControllerSetNetworkToAddOrUpdate = {
@@ -244,7 +251,7 @@ type MainControllerActivityResetSignedMessagesAction = {
 }
 type MainControllerActivityHideBanner = {
   type: 'ACTIVITY_CONTROLLER_HIDE_BANNER'
-  params: { addr: string; network: string; timestamp: number }
+  params: { addr: string; chainId: bigint; timestamp: number }
 }
 
 type MainControllerReloadSelectedAccount = {
@@ -614,8 +621,10 @@ export type Action =
   | MainControllerAccountPickerSelectAccountAction
   | MainControllerAccountPickerDeselectAccountAction
   | MainControllerAccountPickerResetIfNeeded
+  | MainControllerAccountPickerResetAccountsSelectionAction
   | AccountsControllerUpdateAccountPreferences
   | AccountsControllerUpdateAccountState
+  | AccountsControllerResetAccountsNewlyAddedStateAction
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork
@@ -626,7 +635,7 @@ export type Action =
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
   | MainControllerAddAccounts
-  | AccountPickerControllerSelectNextAccount
+  | AccountPickerControllerAddNextAccount
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction

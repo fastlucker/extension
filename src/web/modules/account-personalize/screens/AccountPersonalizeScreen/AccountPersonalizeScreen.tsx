@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { ScrollView, View } from 'react-native'
 
@@ -19,6 +19,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
@@ -31,24 +32,34 @@ const AccountPersonalizeScreen = () => {
   const { goToNextRoute } = useOnboardingNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-
   const accountPickerState = useAccountPickerControllerState()
-
+  const { accounts } = useAccountsControllerState()
   const { handleSubmit, control, setValue, getValues } = useForm({
-    defaultValues: { accounts: accountPickerState.addedAccountsFromCurrentSession }
+    defaultValues: {
+      accounts:
+        accountPickerState.addedAccountsFromCurrentSession || accounts.filter((a) => a.newlyAdded)
+    }
   })
 
+  const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>([])
+
   useEffect(() => {
-    setValue('accounts', accountPickerState.addedAccountsFromCurrentSession)
-  }, [accountPickerState.addedAccountsFromCurrentSession, setValue])
+    if (accountPickerState.isInitialized) {
+      setAccountsToPersonalize(accountPickerState.addedAccountsFromCurrentSession)
+    } else {
+      setAccountsToPersonalize(accounts.filter((a) => a.newlyAdded))
+    }
+  }, [
+    accountPickerState.isInitialized,
+    accountPickerState.addedAccountsFromCurrentSession,
+    accounts
+  ])
+
+  useEffect(() => {
+    setValue('accounts', accountsToPersonalize)
+  }, [accountsToPersonalize, setValue])
 
   const { fields } = useFieldArray({ control, name: 'accounts' })
-
-  useEffect(() => {
-    if (accountPickerState.selectNextAccountStatus === 'INITIAL') {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_ADD_ACCOUNTS' })
-    }
-  }, [dispatch, accountPickerState.selectNextAccountStatus])
 
   const handleSave = useCallback(
     (data?: { accounts: Account[] }) => {
@@ -63,8 +74,16 @@ const AccountPersonalizeScreen = () => {
 
   const handleGetStarted = useCallback(async () => {
     await handleSubmit(handleSave)()
-    goToNextRoute()
-  }, [goToNextRoute, handleSave, handleSubmit])
+    if (accounts.some((a) => a.newlyAdded)) {
+      dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
+    }
+  }, [accounts, dispatch, handleSave, handleSubmit])
+
+  useEffect(() => {
+    if (accounts.length && accounts.every((a) => !a.newlyAdded)) {
+      goToNextRoute()
+    }
+  }, [goToNextRoute, accounts])
 
   return (
     <TabLayoutContainer
@@ -96,7 +115,7 @@ const AccountPersonalizeScreen = () => {
             </Alert> */}
           </View>
           <ScrollView style={spacings.mbLg}>
-            {accountPickerState.addedAccountsFromCurrentSession.map((acc, index) => (
+            {accountsToPersonalize.map((acc, index) => (
               <AccountPersonalizeCard
                 key={acc.addr}
                 control={control}
