@@ -21,6 +21,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
@@ -90,18 +91,18 @@ const Estimation = ({
   }, [signAccountOpState?.warnings])
 
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
-    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
+    if (!signAccountOpState?.estimation.availableFeeOptions.length || !hasEstimation) return []
 
-    return signAccountOpState.availableFeeOptions
+    return signAccountOpState.estimation.availableFeeOptions
       .filter((feeOption) => feeOption.paidBy === signAccountOpState.accountOp.accountAddr)
       .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
   }, [hasEstimation, signAccountOpState])
 
   const payOptionsPaidByEOA = useMemo(() => {
-    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation) return []
+    if (!signAccountOpState?.estimation.availableFeeOptions.length || !hasEstimation) return []
 
-    return signAccountOpState.availableFeeOptions
+    return signAccountOpState.estimation.availableFeeOptions
       .filter((feeOption) => feeOption.paidBy !== signAccountOpState.accountOp.accountAddr)
       .sort((a: FeePaymentOption, b: FeePaymentOption) => sortFeeOptions(a, b, signAccountOpState))
       .map((feeOption) => mapFeeOptions(feeOption, signAccountOpState))
@@ -196,11 +197,11 @@ const Estimation = ({
   const isGaslessTransaction = useMemo(() => {
     return (
       feeSpeeds.every((speed) => !speed.amount) &&
-      !signAccountOpState?.estimation?.error &&
+      !signAccountOpState?.estimation.error &&
       !signAccountOpState?.errors.length &&
       !!feeSpeeds.length
     )
-  }, [feeSpeeds, signAccountOpState?.errors.length, signAccountOpState?.estimation?.error])
+  }, [feeSpeeds, signAccountOpState?.errors.length, signAccountOpState?.estimation.error])
 
   const feeSpeedOptions = useMemo(() => {
     return feeSpeeds.map((speed) => ({
@@ -337,7 +338,10 @@ const Estimation = ({
   }
   if (
     !signAccountOpState ||
-    (!hasEstimation && signAccountOpState.estimationRetryError) ||
+    // <Bobby>: the line below may be incorrect and may cause
+    // estimation flashing
+    signAccountOpState.estimation.status === EstimationStatus.Error ||
+    (!hasEstimation && signAccountOpState.estimation.estimationRetryError) ||
     !payValue
   ) {
     return <EstimationSkeleton />
