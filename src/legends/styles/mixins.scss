@@ -22,10 +22,15 @@
 @mixin primary-button {
   @include button;
   padding: 1rem;
+  transition: background 0.3s ease;
+  background-blend-mode: overlay;
+  background: linear-gradient(100.29deg, #00BB92 7.82%, #1B709B 49.79%, #350586 92.28%);
+
+
  
   &:not(:disabled) {
     &:hover {
-      // background-color: $secondaryBackground;
+      background: linear-gradient(100.29deg, #00BB92 7.82%, #1B709B 49.79%, #350586 92.28%), linear-gradient(0deg, rgba(244, 244, 247, 0.1), rgba(244, 244, 247, 0.1));
     }
     &:active {
       transform: translateY(0.125rem);

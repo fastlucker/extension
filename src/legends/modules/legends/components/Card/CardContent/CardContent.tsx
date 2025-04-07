@@ -1,11 +1,8 @@
 import React, { FC } from 'react'
 
 import LockIcon from '@legends/common/assets/svg/LockIcon'
-import MidnightTimer from '@legends/components/MidnightTimer'
 import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smoke-and-lights.png'
-import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
-import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
 import styles from './CardContent.module.scss'
 import cardImage from './cardImage.png'
@@ -23,7 +20,7 @@ type Props = Pick<
 const CARD_FREQUENCY: { [key in CardType]: string } = {
   [CardType.daily]: 'Daily',
   [CardType.oneTime]: 'One-time',
-  [CardType.recurring]: 'Ongoing',
+  [CardType.recurring]: 'Recurring',
   [CardType.weekly]: 'Weekly'
 }
 
@@ -39,17 +36,16 @@ const CardContent: FC<Props> = ({
   buttonText
 }) => {
   const isCompleted = card.status === CardStatus.completed
-  console.log(
-    'CARD_FREQUENCY[card.type]}',
-    CARD_FREQUENCY[card.type],
-    card.type,
-    `rewardFrequency${CARD_FREQUENCY[card.type]}`
-  )
+
   return (
     <div
       className={`${styles.wrapper} ${(disabled || isCompleted) && styles.disabled}`}
       role="button"
-      onClick={!!disabled || (!isCompleted && openActionModal)}
+      onClick={() => {
+        if (!disabled && !isCompleted) {
+          openActionModal()
+        }
+      }}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           openActionModal()

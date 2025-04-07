@@ -34,7 +34,7 @@
   position: relative;
   background-color: $secondaryBackground;
   border-radius: $tertiaryBorderRadius;
-
+  padding: 2.75rem;
   border: 0.25rem solid transparent;
   background-clip: padding-box, border-box;
   background-origin: padding-box, border-box;
@@ -67,15 +67,11 @@
     }
   }
   
-  .background {
-    padding: 3rem;
-  }
+ 
   
   @include breakpoint-down-from(medium-desktop) {
-    .background {
-      padding: 2rem;
-      padding-top: 2.5rem;
-    }
+    padding: 2rem;
+    padding-top: 2.5rem;
 
     .closeButton {
       right: 0.75rem;

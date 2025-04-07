@@ -27,18 +27,18 @@
             border-color: $success;
           }
           .stepTitle {
-            color: $primaryText;
+            color: $mainText;
           }
         }
 
         &.active {
           .stepNumber {
             background-color: $tertiaryBackground;
-            color: $primaryText;
+            color: $mainText;
             border-color: $success;
           }
           .stepTitle {
-            color: $primaryText;
+            color: $mainText;
           }
         }
 
@@ -52,7 +52,7 @@
           width: 3.4375rem;
           height: 3.4375rem;
           background: $hover-dark;
-          color: $whiteText;
+          color: $mainText;
           border-radius: 50%;
           position: relative;
 
@@ -81,7 +81,7 @@
           align-items: center;
           font-size: 1.125rem;
           font-weight: 400;
-          color: $whiteText;
+          color: $mainText;
         }
       }
     }

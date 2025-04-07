@@ -116,21 +116,22 @@
           font-weight: 500;
           color: $neutral-300;
           margin-bottom: 0.5rem;
-          background-color: $hover;
           border-radius: 3.125rem;
           padding: .6875rem .5rem;
           width: fit-content;
+          background-color: $purple-850;
         }
         .rewardFrequencyDaily {
           background-color: $purple-700;
         }
 
         .rewardFrequencyWeekly {
-          background-color: $purple-700;
+          background-color: $blue-800;
         }
 
         .rewardFrequencyOne-time {
-          background-color: $purple-700;
+          background-color: $blue-700;
+
         }
 
        
@@ -146,7 +147,6 @@
         margin-bottom: 0.25rem;
         padding-top: 1.5rem;
         width: 10.9375rem;
-        // Always take three lines of text, since some headings are 3 lines
         line-height: 1.5rem;
         height: 7.875rem;
         z-index: 2;
