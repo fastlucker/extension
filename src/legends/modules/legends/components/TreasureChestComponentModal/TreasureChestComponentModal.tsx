@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 
 import { preloadImages } from '@common/utils/images'
 import CheckIcon from '@legends/common/assets/svg/CheckIcon'
+import ZapIcon from '@legends/common/assets/svg/ZapIcon'
 import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
@@ -19,12 +20,10 @@ import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
-import chainImage from './assets/chain-treasure-chest.png'
 import chestImageOpened from './assets/chest-opened.png'
 import chestImage from './assets/chest.png'
 import smokeAndLights from './assets/smoke-and-lights-background.png'
 import starImage from './assets/star.png'
-import streakImage from './assets/streak-modal.png'
 import CongratsModal from './components/CongratsModal'
 import styles from './TreasureChestComponentModal.module.scss'
 
@@ -50,7 +49,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   // Load the modal in the dom but don't show it immediately
   // This is done to preload all images
   useEffect(() => {
-    preloadImages([chestImage, chainImage, chestImageOpened, starImage])
+    preloadImages([chestImage, chestImageOpened, starImage])
   }, [])
 
   const unlockChainAnimation = useCallback(() => {
@@ -235,9 +234,10 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           />
 
           {!!treasureLegend.meta.streak && (
-            <div className={styles.streak} style={{ backgroundImage: `url(${streakImage})` }}>
+            <div className={styles.streak}>
               <p className={styles.streakNumber}>{treasureLegend.meta.streak}</p>
               <p className={styles.streakLabel}>
+                <ZapIcon />
                 {treasureLegend.meta.streak === 1 ? 'Day' : 'Days'} Streak
               </p>
             </div>

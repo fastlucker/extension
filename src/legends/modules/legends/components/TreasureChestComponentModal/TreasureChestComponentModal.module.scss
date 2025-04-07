@@ -49,40 +49,50 @@
     position: absolute;
     display: flex;
     align-items: center;
-    width: 5.3125rem;
-    height: 8rem;
-    top: -5.5625rem;
-    right: 45%;
+    width: 7rem;
+    height: 4.375rem;
+// top: 105px;
+// left: 829px;
+
+    top: -3.5625rem;
+    right: 42%;
     z-index: 10;
     background-size: cover;
 
     .streakNumber {
       text-align: center;
       position: absolute;
-      left: 24%;
-      top: 52%;
+      left: 30%;
+      top: 20%;
       width: 2.75rem;
       z-index: 11;
-      font-size: 1.5rem;
-      line-height: 2.04rem;
+      font-size: 2rem;
+      line-height: 1rem;
       font-weight: 500;
       color: $yellowText;
-      text-shadow: -0.0625rem -0.0625rem 
-        $tertiaryBadgeBackground;
+      text-shadow: 0.0925rem 0.225rem $purple-600;
+      display: flex;
+
     }
 
     .streakLabel {
       position: absolute;
       bottom: .1875rem;
       right: .25rem;
+      width: 7rem;
+      height: 1.5625rem;
       z-index: 11;
       font-size: .8125rem;
       font-weight: 500;
-      line-height: 1.105rem;
+      line-height: 1rem;
       text-align: center;
-      color: $primaryText;
-      text-shadow: -0.0625rem -0.0625rem 
-      $secondaryBackground;
+      color: $neutral-300;
+      background-color: $purple-600;
+      display: flex;
+      align-items: center;
+      gap: .1875rem;
+      padding: .5rem;
+      border-radius: 3.125rem;
     }
   }
   
