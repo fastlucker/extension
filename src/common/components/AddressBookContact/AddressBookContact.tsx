@@ -48,7 +48,7 @@ const AddressBookContact: FC<Props> = ({
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const { accounts } = useAccountsControllerState()
-  const { ens, ud, isLoading } = useReverseLookup({ address })
+  const { ens, isLoading } = useReverseLookup({ address })
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -138,8 +138,8 @@ const AddressBookContact: FC<Props> = ({
             </Text>
           )}
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <DomainBadge ens={ens} ud={ud} />
-            <AccountAddress isLoading={isLoading} ens={ens} ud={ud} address={address} />
+            <DomainBadge ens={ens} />
+            <AccountAddress isLoading={isLoading} ens={ens} address={address} />
           </View>
         </View>
       </View>

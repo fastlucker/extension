@@ -31,7 +31,7 @@ export const getInfoFromSearch = (search: string | undefined) => {
 
   return {
     addr: params.get('address'),
-    networkId: params.get('networkId')
+    chainId: params.get('chainId')
   }
 }
 
@@ -62,7 +62,7 @@ const TransferControllerStateProvider = ({
           const hasAmount = Number(getTokenAmount(token)) > 0
 
           if (isTopUp) {
-            const tokenNetwork = networks.find((network) => network.id === token.networkId)
+            const tokenNetwork = networks.find((network) => network.chainId === token.chainId)
 
             return (
               hasAmount &&
@@ -138,7 +138,7 @@ const TransferControllerStateProvider = ({
     const selectedToken = tokens.find(
       (token) =>
         token.address === transferCtrl.selectedToken?.address &&
-        token.networkId === transferCtrl.selectedToken?.networkId
+        token.chainId === transferCtrl.selectedToken?.chainId
     )
 
     // It has a scenario where no token is provided view URL parameters but only isTopUp and the selectedToken will be undefined
@@ -151,7 +151,7 @@ const TransferControllerStateProvider = ({
         { shouldPersist: false }
       )
     }
-  }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.networkId, tokens, transferCtrl])
+  }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.chainId, tokens, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return
@@ -163,15 +163,15 @@ const TransferControllerStateProvider = ({
   useEffect(() => {
     if (!state.selectedToken?.address || !transferCtrl) return
     const isSelectedTokenNetworkLoading =
-      portfolio.pending[state.selectedToken.networkId]?.isLoading ||
-      portfolio.latest[state.selectedToken.networkId]?.isLoading
+      portfolio.pending[state.selectedToken.chainId.toString()]?.isLoading ||
+      portfolio.latest[state.selectedToken.chainId.toString()]?.isLoading
 
     if (isSelectedTokenNetworkLoading) return
 
     const isSelectedTokenInTokens = tokens.find(
       (token) =>
         token.address === state.selectedToken?.address &&
-        token.networkId === state.selectedToken?.networkId &&
+        token.chainId === state.selectedToken?.chainId &&
         token.flags.rewardsType === state.selectedToken?.flags.rewardsType
     )
 
@@ -188,7 +188,7 @@ const TransferControllerStateProvider = ({
     portfolio.pending,
     state.selectedToken?.address,
     state.selectedToken?.flags.rewardsType,
-    state.selectedToken?.networkId,
+    state.selectedToken?.chainId,
     tokens,
     transferCtrl
   ])

@@ -6,7 +6,6 @@ import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAcco
 import { Network } from '@ambire-common/interfaces/network'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
-import NetworkBadge from '@common/components/NetworkBadge'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import Nft from '@common/components/TokenOrNft/components/Nft'
@@ -18,8 +17,8 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
-import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 
+import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import SimulationSkeleton from './SimulationSkeleton'
 import getStyles from './styles'
 
@@ -28,80 +27,65 @@ interface Props {
   // marks whether the estimation has been done regardless
   // of whether the estimation returned an error or not
   isEstimationComplete: boolean
+  isViewOnly: boolean
 }
 
-const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
+const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
   const {
     portfolio: { tokens, collections, pending, networkSimulatedAccountOp }
   } = useSelectedAccountControllerState()
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
+  const [shouldRespectIsLoading, setShouldRespectIsLoading] = useState(true)
   const { networks } = useNetworksControllerState()
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
-      const pendingData = pending[network.id]
+      const pendingData = pending[network.chainId.toString()]
 
       if (!pendingData || !pendingData.isReady || !pendingData.result) return []
 
-      return tokens.filter((token) => token.networkId === network.id && !!token.simulationAmount)
+      return tokens.filter((token) => token.chainId === network.chainId && !!token.simulationAmount)
     }
     return []
   }, [network, pending, signAccountOpState?.accountOp, tokens])
 
   const portfolioStatePending = useMemo(() => {
-    if (!signAccountOpState?.accountOp || !network?.id) return null
+    if (!signAccountOpState?.accountOp || !network?.chainId) return null
 
-    return pending[network.id]
-  }, [network?.id, pending, signAccountOpState?.accountOp])
+    return pending[network.chainId.toString()]
+  }, [network?.chainId, pending, signAccountOpState?.accountOp])
 
   const pendingSendTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! < 0),
     [pendingTokens]
   )
   const pendingSendCollection = useMemo(() => {
-    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+    if (signAccountOpState?.accountOp?.accountAddr && network?.chainId)
       return (
         collections?.filter(
           (i) => i.postSimulation?.sending && i.postSimulation.sending.length > 0
         ) || []
       )
     return []
-  }, [collections, network?.id, signAccountOpState?.accountOp?.accountAddr])
+  }, [collections, network?.chainId, signAccountOpState?.accountOp?.accountAddr])
 
   const pendingReceiveCollection = useMemo(() => {
-    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+    if (signAccountOpState?.accountOp?.accountAddr && network?.chainId)
       return (
         collections?.filter(
           (i) => i.postSimulation?.receiving && i.postSimulation.receiving.length > 0
         ) || []
       )
     return []
-  }, [signAccountOpState?.accountOp?.accountAddr, network?.id, collections])
+  }, [signAccountOpState?.accountOp?.accountAddr, network?.chainId, collections])
 
   const pendingReceiveTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! > 0),
     [pendingTokens]
   )
-
-  const isReloading = useMemo(() => {
-    if (!network?.id || !initialSimulationLoaded) return false
-
-    if (!isEstimationComplete) return true
-
-    const portfolioAccountOpCalls = networkSimulatedAccountOp[network.id]?.calls
-    const signAccountOpCalls = signAccountOpState?.accountOp.calls
-
-    return portfolioAccountOpCalls?.length !== signAccountOpCalls?.length
-  }, [
-    initialSimulationLoaded,
-    isEstimationComplete,
-    network?.id,
-    networkSimulatedAccountOp,
-    signAccountOpState?.accountOp.calls
-  ])
 
   const simulationErrorMsg = useMemo(() => {
     if (portfolioStatePending?.isLoading && !initialSimulationLoaded) return ''
@@ -110,8 +94,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
       if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
         return `Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
       }
-
-      return portfolioStatePending?.criticalError.simulationErrorMsg
+      return portfolioStatePending?.criticalError.simulationErrorMsg || 'Unknown error'
     }
 
     const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
@@ -130,13 +113,51 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     portfolioStatePending?.isLoading
   ])
 
+  const haveCallsChanged = useMemo(() => {
+    if (!network?.chainId || !initialSimulationLoaded) return false
+
+    const portfolioAccountOpCalls = networkSimulatedAccountOp[String(network.chainId)]?.calls
+    const signAccountOpCalls = signAccountOpState?.accountOp.calls
+
+    // If the portfolio state has no calls and there is a simulation error,
+    // it means that the simulation is not reloading
+    if (!portfolioAccountOpCalls && simulationErrorMsg) return false
+
+    // New calls are reflected immediately in the signAccountOpState,
+    // while the portfolio update takes some time to reflect the changes.
+    // The interval between the two updates is the time it takes for the
+    // simulation to reload.
+    return portfolioAccountOpCalls?.length !== signAccountOpCalls?.length
+  }, [
+    initialSimulationLoaded,
+    network?.chainId,
+    networkSimulatedAccountOp,
+    signAccountOpState?.accountOp.calls,
+    simulationErrorMsg
+  ])
+
+  useEffect(() => {
+    if (haveCallsChanged) setShouldRespectIsLoading(true)
+  }, [haveCallsChanged])
+
+  useEffect(() => {
+    if (!portfolioStatePending) return
+    if (!portfolioStatePending.isLoading) setShouldRespectIsLoading(false)
+  }, [portfolioStatePending])
+
+  const isReloading = useMemo(() => {
+    if (!network?.chainId || !initialSimulationLoaded) return false
+    if (!isEstimationComplete) return true
+    return false
+  }, [initialSimulationLoaded, isEstimationComplete, network?.chainId])
+
   const shouldShowLoader = useMemo(
     () =>
-      (!!portfolioStatePending?.isLoading && !initialSimulationLoaded) ||
+      (!!portfolioStatePending?.isLoading && shouldRespectIsLoading) ||
       isReloading ||
       !signAccountOpState?.isInitialized,
     [
-      initialSimulationLoaded,
+      shouldRespectIsLoading,
       isReloading,
       portfolioStatePending?.isLoading,
       signAccountOpState?.isInitialized
@@ -152,7 +173,9 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
     | null = useMemo(() => {
     if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
-    if (signAccountOpState.status?.type === SigningStatus.EstimationError)
+    // If the user is view only we are not displaying the error elsewhere
+    // thus we have to show it in the Simulation
+    if (signAccountOpState.status?.type === SigningStatus.EstimationError && !isViewOnly)
       return 'error-handled-elsewhere'
 
     if (simulationErrorMsg) return 'error'
@@ -168,13 +191,14 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   }, [
     shouldShowLoader,
     signAccountOpState?.isInitialized,
-    signAccountOpState?.status,
+    signAccountOpState?.status?.type,
+    signAccountOpState?.account,
+    isViewOnly,
     simulationErrorMsg,
     pendingSendCollection.length,
     pendingReceiveCollection.length,
     pendingTokens.length,
-    network?.rpcNoStateOverride,
-    signAccountOpState?.account
+    network?.rpcNoStateOverride
   ])
 
   useEffect(() => {
@@ -185,17 +209,6 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
 
   return (
     <View style={styles.simulationSection}>
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.alignCenter,
-          flexbox.justifySpaceBetween,
-          spacings.mbLg
-        ]}
-      >
-        <SectionHeading withMb={false}>{t('Transaction simulation')}</SectionHeading>
-        <NetworkBadge networkId={network?.id} withOnPrefix />
-      </View>
       {simulationView === 'changes' && (
         <View style={[flexbox.directionRow, flexbox.flex1]}>
           {(!!pendingSendTokens.length || !!pendingSendCollection.length) && (
@@ -216,7 +229,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network?.id || ''}
+                      chainId={network?.chainId}
                       hasBottomSpacing={i < pendingTokens.length - 1}
                     />
                   )
@@ -262,8 +275,10 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network?.id || ''}
-                      hasBottomSpacing={i < pendingTokens.length - 1}
+                      chainId={network?.chainId}
+                      hasBottomSpacing={
+                        i < pendingTokens.length - 1 || pendingReceiveCollection.length > 0
+                      }
                     />
                   )
                 })}
@@ -309,19 +324,18 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
         />
       )}
       {simulationView === 'no-changes' && (
-        <Alert
-          type="info"
-          isTypeLabelHidden
-          title={
-            <Trans>
-              No token balance changes detected. Please{' '}
-              <Text appearance="infoText" weight="semiBold">
-                carefully
-              </Text>{' '}
-              review the transaction preview below.
-            </Trans>
-          }
-        />
+        <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
+          <SuccessIcon color={theme.successDecorative} />
+          <Text
+            color={theme.successDecorative}
+            style={spacings.mlSm}
+            fontSize={16}
+            appearance="secondaryText"
+            numberOfLines={1}
+          >
+            {t('No token balance changes detected')}
+          </Text>
+        </View>
       )}
       {simulationView === 'simulation-not-supported' && (
         <Alert

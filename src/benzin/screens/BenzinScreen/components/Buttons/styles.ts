@@ -3,6 +3,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { isExtension } from '@web/constants/browserapi'
 
 interface Style {
   buttons: ViewStyle
@@ -23,7 +24,7 @@ const getStyles = () =>
     openExplorer: {
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
-      ...(!IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mbXl : {})
+      ...(!IS_MOBILE_UP_BENZIN_BREAKPOINT && !isExtension ? spacings.mbXl : {})
     },
     openExplorerText: {
       ...spacings.mlSm,

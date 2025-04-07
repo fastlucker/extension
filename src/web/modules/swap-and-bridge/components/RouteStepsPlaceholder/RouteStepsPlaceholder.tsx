@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Spinner from '@common/components/Spinner'
@@ -22,7 +22,7 @@ const RouteStepsPlaceholder = ({
   withBadge
 }: {
   fromSelectedToken: TokenResult
-  toSelectedToken: SocketAPIToken
+  toSelectedToken: SwapAndBridgeToToken
   withBadge?: 'loading' | 'no-route-found'
 }) => {
   const { theme } = useTheme()
@@ -69,7 +69,7 @@ const RouteStepsPlaceholder = ({
       <View style={[styles.container, spacings.mb]}>
         <RouteStepsToken
           address={fromSelectedToken.address}
-          networkIdOrChainId={fromSelectedToken.networkId}
+          chainId={fromSelectedToken.chainId}
           symbol={fromSelectedToken.symbol}
         />
         <RouteStepsArrow
@@ -81,7 +81,7 @@ const RouteStepsPlaceholder = ({
         <RouteStepsToken
           address={toSelectedToken.address}
           uri={toSelectedToken.icon}
-          networkIdOrChainId={toSelectedToken.chainId}
+          chainId={BigInt(toSelectedToken.chainId)}
           symbol={toSelectedToken.symbol}
           isLast
         />

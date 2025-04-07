@@ -1,3 +1,7 @@
+import React, { Dispatch, SetStateAction, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
+
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import Alert from '@common/components/Alert'
@@ -17,9 +21,6 @@ import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerCo
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
 import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
 import getStyles from '@web/modules/sign-message/screens/SignMessageScreen/styles'
-import React, { Dispatch, SetStateAction, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
 
 interface Props {
   shouldDisplayLedgerConnectModal: boolean
@@ -49,8 +50,9 @@ const Main = ({
       networks.find((n) => {
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
-          ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
-          : n.id === signMessageState.messageToSign?.networkId
+          ? n.chainId.toString() ===
+              signMessageState.messageToSign?.content.domain.chainId.toString()
+          : n.chainId === signMessageState.messageToSign?.chainId
       }),
     [networks, signMessageState.messageToSign]
   )
@@ -73,32 +75,28 @@ const Main = ({
           flexbox.directionRow,
           flexbox.alignCenter,
           flexbox.justifySpaceBetween,
-          spacings.mbLg
+          spacings.mbXl
         ]}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text weight="medium" fontSize={24} style={[spacings.mrSm]}>
             {t('Sign message')}
           </Text>
-          <NetworkBadge
-            style={{ borderRadius: 25, ...spacings.pv0 }}
-            networkId={signMessageState.messageToSign?.networkId}
-            withOnPrefix
-          />
+          <View style={styles.kindOfMessage}>
+            <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
+              {signMessageState.messageToSign?.content.kind === 'typedMessage' && t('EIP-712')}
+              {signMessageState.messageToSign?.content.kind === 'message' && t('Standard')}
+              {signMessageState.messageToSign?.content.kind === 'authorization-7702' &&
+                t('EIP-7702')}{' '}
+              {t('Type')}
+            </Text>
+          </View>
         </View>
+        <NetworkBadge chainId={signMessageState.messageToSign?.chainId} withOnPrefix />
         {/* @TODO: Replace with Badge; add size prop to badge; add tooltip  */}
-        <View style={styles.kindOfMessage}>
-          <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
-            {signMessageState.messageToSign?.content.kind === 'typedMessage' && t('EIP-712')}
-            {signMessageState.messageToSign?.content.kind === 'message' && t('Standard')}
-            {signMessageState.messageToSign?.content.kind === 'authorization-7702' &&
-              t('EIP-7702')}{' '}
-            {t('Type')}
-          </Text>
-        </View>
       </View>
       <View style={styles.container}>
-        <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
+        <View style={spacings.mbLg}>
           <Info />
           {shouldDisplayEIP1271Warning && (
             <Alert
@@ -108,7 +106,6 @@ const Main = ({
             />
           )}
         </View>
-        <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
         <View style={flexbox.flex1}>
           <ExpandableCard
             enableToggleExpand={!!visualizeHumanized}
@@ -122,7 +119,7 @@ const Main = ({
               signMessageState.messageToSign?.content.kind ? (
                 <HumanizedVisualization
                   data={humanizedMessage.fullVisualization}
-                  networkId={network?.id || 'ethereum'}
+                  chainId={network?.chainId || 1n}
                 />
               ) : (
                 <>

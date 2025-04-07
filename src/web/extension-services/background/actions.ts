@@ -11,9 +11,13 @@ import { Account, AccountPreferences, AccountStates } from '@ambire-common/inter
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import { Key, KeyPreferences, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { AddNetworkRequestParams, ChainId, Network } from '@ambire-common/interfaces/network'
 import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
-import { SocketAPIRoute, SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import {
+  SwapAndBridgeActiveRoute,
+  SwapAndBridgeRoute,
+  SwapAndBridgeToToken
+} from '@ambire-common/interfaces/swapAndBridge'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { FullEstimation } from '@ambire-common/libs/estimate/interfaces'
@@ -120,7 +124,7 @@ type MainControllerAddNetwork = {
 
 type MainControllerRemoveNetwork = {
   type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: NetworkId
+  params: { chainId: ChainId }
 }
 
 type AccountsControllerUpdateAccountPreferences = {
@@ -130,7 +134,7 @@ type AccountsControllerUpdateAccountPreferences = {
 
 type AccountsControllerUpdateAccountState = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE'
-  params: { addr: string; networkIds: Network['id'][] }
+  params: { addr: string; chainIds: bigint[] }
 }
 
 type SettingsControllerSetNetworkToAddOrUpdate = {
@@ -158,7 +162,7 @@ type MainControllerUpdateNetworkAction = {
   type: 'MAIN_CONTROLLER_UPDATE_NETWORK'
   params: {
     network: Partial<Network>
-    networkId: NetworkId
+    chainId: ChainId
   }
 }
 
@@ -245,9 +249,7 @@ type MainControllerActivityHideBanner = {
 
 type MainControllerReloadSelectedAccount = {
   type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
-  params?: {
-    networkId?: Network['id']
-  }
+  params?: { chainId?: bigint | string }
 }
 
 type MainControllerUpdateSelectedAccountPortfolio = {
@@ -260,14 +262,14 @@ type MainControllerUpdateSelectedAccountPortfolio = {
 
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
-  params: { dashboardNetworkFilter: NetworkId | null }
+  params: { dashboardNetworkFilter: bigint | string | null }
 }
 
 type PortfolioControllerGetTemporaryToken = {
   type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS'
   params: {
     additionalHint: TokenResult['address']
-    networkId: NetworkId
+    chainId: bigint
   }
 }
 
@@ -298,7 +300,7 @@ type PortfolioControllerToggleHideToken = {
 type PortfolioControllerCheckToken = {
   type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN'
   params: {
-    token: { address: TokenResult['address']; networkId: NetworkId }
+    token: { address: TokenResult['address']; chainId: bigint }
   }
 }
 
@@ -431,7 +433,7 @@ type DomainsControllerSaveResolvedReverseLookupAction = {
   params: {
     address: string
     name: string
-    type: 'ens' | 'ud'
+    type: 'ens'
   }
 }
 
@@ -469,7 +471,7 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
-    toSelectedToken?: SocketAPIToken | null
+    toSelectedToken?: SwapAndBridgeToToken | null
     routePriority?: 'output' | 'time'
   }
 }
@@ -482,21 +484,21 @@ type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
 }
 type SwapAndBridgeControllerSelectRouteAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE'
-  params: { route: SocketAPIRoute }
+  params: { route: SwapAndBridgeRoute }
 }
 type SwapAndBridgeControllerSubmitFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
-  params: { activeRouteId: number }
+  params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
 type SwapAndBridgeControllerUpdateQuoteAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE'
 }
 type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
-  params: { activeRouteId: number }
+  params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
 
 type ActionsControllerRemoveFromActionsQueue = {

@@ -54,7 +54,12 @@ const InnerToken: FC<Props> = ({
   return (
     <>
       {BigInt(amount) > BigInt(0) ? (
-        <Text fontSize={textSize} weight="medium" appearance="primaryText">
+        <Text
+          fontSize={textSize}
+          weight="medium"
+          appearance="primaryText"
+          style={{ maxWidth: '100%' }}
+        >
           {shouldDisplayUnlimitedAmount ? (
             <Text style={spacings.mrTy} appearance="warningText">
               {t('unlimited')}
@@ -83,7 +88,7 @@ const InnerToken: FC<Props> = ({
         <TokenIcon
           width={24 * sizeMultiplierSize}
           height={24 * sizeMultiplierSize}
-          networkId={network?.id}
+          chainId={network?.chainId}
           address={address}
           withNetworkIcon={false}
         />

@@ -45,12 +45,12 @@ const Nft: FC<Props> = ({
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.wrap, style]}>
       <Collectible
         style={spacings.mhTy}
-        size={36}
+        size={20}
         id={tokenId}
         collectionData={{
           name: nftInfo?.name || 'Unknown NFT',
           address,
-          networkId: network.id
+          chainId: network.chainId
         }}
         openCollectibleModal={openCollectibleModal}
         networks={networks}
@@ -66,7 +66,7 @@ const Nft: FC<Props> = ({
           fontSize={textSize}
           address={address}
           highestPriorityAlias={`${nftInfo?.name || 'NFT'} #${tokenId}`}
-          explorerNetworkId={network.id}
+          explorerChainId={network.chainId}
         />
       </View>
     </View>

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import spacings from '@common/styles/spacings'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -14,10 +13,10 @@ const Networks = ({
   search,
   onPress
 }: {
-  openSettingsBottomSheet: (networkId: NetworkId) => void
+  openSettingsBottomSheet: (chainId: bigint | string) => void
   openBlockExplorer: (url?: string) => void
   search: string
-  onPress: (networkId: NetworkId) => void
+  onPress: (chainId: bigint | string) => void
 }) => {
   const { networks } = useNetworksControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
@@ -30,8 +29,9 @@ const Networks = ({
   const filteredAndSortedPortfolio = useMemo(
     () =>
       Object.keys(portfolioByNetworks || [])
-        .filter((networkId) => {
-          const { name } = networks.find(({ id }) => id === networkId) || {}
+        .filter((chainId) => {
+          const { name } =
+            networks.find(({ chainId: nChainId }) => chainId === nChainId.toString()) || {}
 
           if (!name) return false
 
@@ -58,10 +58,10 @@ const Networks = ({
   return (
     <View style={spacings.mbLg}>
       {!!account &&
-        filteredAndSortedPortfolio.map((networkId) => (
+        filteredAndSortedPortfolio.map((chainId) => (
           <NetworkComponent
-            key={networkId}
-            networkId={networkId}
+            key={chainId}
+            chainId={chainId}
             openBlockExplorer={openBlockExplorer}
             openSettingsBottomSheet={openSettingsBottomSheet}
             onPress={onPress}

@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
@@ -36,7 +37,6 @@ import styles from './styles'
 interface Props extends InputProps {
   setAddress: (text: string) => void
   address: string
-  uDAddress: string
   ensAddress: string
   addressValidationMsg: string
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
@@ -56,10 +56,85 @@ const ADDRESS_BOOK_VISIBLE_VALIDATION = {
   message: ''
 }
 
+const SelectedMenuOption: React.FC<{
+  selectRef: React.RefObject<any>
+  validation: AddressValidation
+  isMenuOpen: boolean
+  ensAddress: string
+  isRecipientDomainResolving: boolean
+  address: string
+  setAddress: (text: string) => void
+  disabled?: boolean
+  toggleMenu: () => void
+  isAddressInAddressBook: boolean
+  filteredContacts: Contact[]
+}> = ({
+  selectRef,
+  filteredContacts,
+  validation,
+  isMenuOpen,
+  ensAddress,
+  isRecipientDomainResolving,
+  address,
+  setAddress,
+  disabled,
+  toggleMenu,
+  isAddressInAddressBook
+}) => {
+  const { theme } = useTheme()
+  const menuClosedAutomatically = useRef(false)
+
+  useEffect(() => {
+    if (isMenuOpen && !filteredContacts.length) {
+      toggleMenu()
+      menuClosedAutomatically.current = true
+    } else if (
+      menuClosedAutomatically.current &&
+      !isMenuOpen &&
+      filteredContacts.length &&
+      // Reopen the menu only if the address is invalid
+      // Otherwise we will reopen it while the user is done with this field
+      // and wants to proceed
+      validation.isError
+    ) {
+      toggleMenu()
+      menuClosedAutomatically.current = false
+    }
+  }, [filteredContacts.length, isMenuOpen, toggleMenu, validation.isError])
+
+  return (
+    <AddressInput
+      inputBorderWrapperRef={selectRef}
+      validation={isMenuOpen ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
+      containerStyle={styles.inputContainer}
+      ensAddress={ensAddress}
+      isRecipientDomainResolving={isRecipientDomainResolving}
+      label="Add Recipient"
+      value={address}
+      onChangeText={setAddress}
+      disabled={disabled}
+      onFocus={toggleMenu}
+      childrenBeforeButtons={
+        <AccountsFilledIcon
+          color={theme[isAddressInAddressBook ? 'primary' : 'secondaryText']}
+          opacity={isAddressInAddressBook ? 1 : 0.25}
+          style={spacings.mrTy}
+          width={24}
+          height={24}
+        />
+      }
+      button={isMenuOpen ? <UpArrowIcon /> : <DownArrowIcon />}
+      buttonProps={{
+        onPress: toggleMenu
+      }}
+      buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
+    />
+  )
+}
+
 const Recipient: React.FC<Props> = ({
   setAddress,
   address,
-  uDAddress,
   ensAddress,
   addressValidationMsg,
   isRecipientAddressUnknownAgreed,
@@ -75,14 +150,13 @@ const Recipient: React.FC<Props> = ({
   menuPosition
 }) => {
   const { account } = useSelectedAccountControllerState()
-  const actualAddress = ensAddress || uDAddress || address
+  const actualAddress = ensAddress || address
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { contacts } = useAddressBookControllerState()
   const { domains } = useDomainsControllerState()
-  const menuClosedAutomatically = useRef(false)
   const [bindManageBtnAnim, manageBtnAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -122,7 +196,7 @@ const Recipient: React.FC<Props> = ({
     ({ value: newAddress }: Pick<SelectValue, 'value'>) => {
       if (typeof newAddress !== 'string') return
 
-      const correspondingDomain = domains[newAddress]?.ens || domains[newAddress]?.ud
+      const correspondingDomain = domains[newAddress]?.ens
 
       setAddress(correspondingDomain || newAddress)
     },
@@ -223,62 +297,30 @@ const Recipient: React.FC<Props> = ({
 
   const renderSelectedOption = useCallback(
     ({ toggleMenu, isMenuOpen, selectRef }: RenderSelectedOptionParams) => {
-      if (isMenuOpen && !filteredContacts.length) {
-        toggleMenu()
-        menuClosedAutomatically.current = true
-      } else if (
-        menuClosedAutomatically.current &&
-        !isMenuOpen &&
-        filteredContacts.length &&
-        // Reopen the menu only if the address is invalid
-        // Otherwise we will reopen it while the user is done with this field
-        // and wants to proceed
-        validation.isError
-      ) {
-        toggleMenu()
-        menuClosedAutomatically.current = false
-      }
-
       return (
-        <AddressInput
-          inputBorderWrapperRef={selectRef}
+        <SelectedMenuOption
+          toggleMenu={toggleMenu}
+          selectRef={selectRef}
+          filteredContacts={filteredContacts}
+          isMenuOpen={isMenuOpen}
           validation={isMenuOpen ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
-          containerStyle={styles.inputContainer}
-          udAddress={uDAddress}
           ensAddress={ensAddress}
           isRecipientDomainResolving={isRecipientDomainResolving}
-          label="Add Recipient"
-          value={address}
-          onChangeText={setAddress}
+          address={address}
+          setAddress={setAddress}
           disabled={disabled}
-          onFocus={toggleMenu}
-          childrenBeforeButtons={
-            <AccountsFilledIcon
-              color={theme[isAddressInAddressBook ? 'primary' : 'secondaryText']}
-              opacity={isAddressInAddressBook ? 1 : 0.25}
-              style={spacings.mrTy}
-              width={24}
-              height={24}
-            />
-          }
-          button={isMenuOpen ? <UpArrowIcon /> : <DownArrowIcon />}
-          buttonProps={{
-            onPress: toggleMenu
-          }}
-          buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
+          isAddressInAddressBook={isAddressInAddressBook}
         />
       )
     },
     [
-      filteredContacts.length,
+      filteredContacts,
       validation,
-      uDAddress,
       ensAddress,
       isRecipientDomainResolving,
       address,
       setAddress,
       disabled,
-      theme,
       isAddressInAddressBook
     ]
   )
@@ -326,7 +368,7 @@ const Recipient: React.FC<Props> = ({
       </View>
       <AddContactBottomSheet
         sheetRef={sheetRef}
-        address={ensAddress || uDAddress || address}
+        address={ensAddress || address}
         closeBottomSheet={closeBottomSheet}
       />
     </>

@@ -36,6 +36,7 @@ interface Props {
   shouldBeClosableOnDrag?: boolean
   customZIndex?: number
   isScrollEnabled?: boolean
+  withBackdropBlur?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
@@ -61,6 +62,7 @@ const BottomSheet: React.FC<Props> = ({
   autoWidth = false,
   autoOpen = false,
   shouldBeClosableOnDrag = true,
+  withBackdropBlur,
   customZIndex,
   isScrollEnabled = true
 }) => {
@@ -134,6 +136,7 @@ const BottomSheet: React.FC<Props> = ({
             closeBottomSheet()
             !!onBackdropPress && onBackdropPress()
           }}
+          withBlur={withBackdropBlur}
         />
       )}
       <Modalize
