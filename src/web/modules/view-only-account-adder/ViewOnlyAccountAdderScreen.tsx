@@ -1,5 +1,5 @@
 import { getAddress } from 'ethers'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -12,11 +12,11 @@ import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { getAddressFromAddressState } from '@common/utils/domains'
@@ -52,12 +52,12 @@ const DEFAULT_ADDRESS_FIELD_VALUE = {
 }
 
 const ViewOnlyScreen = () => {
-  const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { theme } = useTheme()
+  const { goToNextRoute } = useOnboardingNavigation()
   const [bindAnim, animStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -122,10 +122,11 @@ const ViewOnlyScreen = () => {
     try {
       const accountsToAdd = await Promise.all(accountsToAddPromises)
       setIsLoading(true)
-      return dispatch({
+      dispatch({
         type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
         params: { accounts: accountsToAdd }
       })
+      goToNextRoute()
     } catch (e: any) {
       setIsLoading(false)
       addToast(
@@ -139,33 +140,7 @@ const ViewOnlyScreen = () => {
 
       throw e
     }
-  }, [accounts, accountsState.accounts, addToast, dispatch, t])
-
-  useEffect(() => {
-    // Prevents navigating when user is in the middle of adding accounts,
-    // user adds account that is not valid and clicks "+ add one more address".
-    // This use effect gets triggered, because the `accounts` change.
-    if (!isValid) return
-    if (duplicateAccountsIndexes.length > 0) return
-
-    const newAccountsAddresses = accounts.map((account) =>
-      getAddressFromAddressState(account).toLowerCase()
-    )
-    const newAccountsAdded = accountsState.accounts.filter((account) =>
-      newAccountsAddresses.includes(account.addr.toLowerCase())
-    )
-
-    // Navigate when the new accounts are imported, indicating the final step for the view-only account adding flow completes.
-    if (newAccountsAdded.length) navigate(WEB_ROUTES.accountPersonalize)
-  }, [
-    accounts,
-    dispatch,
-    duplicateAccountsIndexes.length,
-    errors,
-    isValid,
-    accountsState.accounts,
-    navigate
-  ])
+  }, [accounts, accountsState.accounts, goToNextRoute, addToast, dispatch, t])
 
   return (
     <TabLayoutContainer

@@ -9,6 +9,7 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ONBOARDING_WEB_ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
@@ -51,6 +52,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const { dispatch } = useBackgroundService()
   const { isSetupComplete } = useWalletStateController()
   const { isInitialized } = useAccountPickerControllerState()
+  const { accounts } = useAccountsControllerState()
   const isOnboardingRoute = useMemo(
     () => ONBOARDING_WEB_ROUTES.includes((path || '').substring(1)),
     [path]
@@ -77,15 +79,11 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       new RouteNode(
         WEB_ROUTES.keyStoreSetup,
         [
-          new RouteNode(
-            WEB_ROUTES.accountPersonalize,
-            [
-              new RouteNode(WEB_ROUTES.onboardingCompleted, [new RouteNode('/')], isSetupComplete),
-              new RouteNode('/'),
-              new RouteNode(WEB_ROUTES.accountPicker, [], !isInitialized)
-            ],
-            !isInitialized
-          )
+          new RouteNode(WEB_ROUTES.accountPersonalize, [
+            new RouteNode(WEB_ROUTES.onboardingCompleted, [new RouteNode('/')], isSetupComplete),
+            new RouteNode('/'),
+            new RouteNode(WEB_ROUTES.accountPicker, [], !isInitialized)
+          ])
         ],
         hasPasswordSecret
       )
@@ -118,7 +116,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
       false
     )
-  }, [hasPasswordSecret, authStatus, isSetupComplete, isInitialized])
+  }, [hasPasswordSecret, authStatus, isSetupComplete, isInitialized, accounts])
 
   const loadHistory = () => {
     try {
