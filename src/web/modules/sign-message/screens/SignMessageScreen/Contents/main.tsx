@@ -50,7 +50,8 @@ const Main = ({
       networks.find((n) => {
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
-          ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
+          ? n.chainId.toString() ===
+              signMessageState.messageToSign?.content.domain.chainId.toString()
           : n.chainId === signMessageState.messageToSign?.chainId
       }),
     [networks, signMessageState.messageToSign]
