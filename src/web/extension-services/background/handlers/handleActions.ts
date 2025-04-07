@@ -48,6 +48,68 @@ export const handleActions = async (
     extensionUpdateCtrl: ExtensionUpdateController
   }
 ) => {
+  async function handleAccountPickerAddAccounts() {
+    const readyToAddKeys: ReadyToAddKeys = {
+      internal: [],
+      external: []
+    }
+
+    if (mainCtrl.accountPicker.type === 'internal') {
+      readyToAddKeys.internal = mainCtrl.accountPicker.retrieveInternalKeysOfSelectedAccounts()
+    } else {
+      // External keys flow
+      const keyType = mainCtrl.accountPicker.type as ExternalKey['type']
+
+      const deviceIds: { [key in ExternalKey['type']]: string } = {
+        ledger: ledgerCtrl.deviceId,
+        trezor: trezorCtrl.deviceId,
+        lattice: latticeCtrl.deviceId
+      }
+
+      const deviceModels: { [key in ExternalKey['type']]: string } = {
+        ledger: ledgerCtrl.deviceModel,
+        trezor: trezorCtrl.deviceModel,
+        lattice: latticeCtrl.deviceModel
+      }
+
+      const readyToAddExternalKeys =
+        mainCtrl.accountPicker.selectedAccountsFromCurrentSession.flatMap(
+          ({ account, accountKeys }) =>
+            accountKeys.map(({ addr, index }, i) => ({
+              addr,
+              type: keyType,
+              label: `${HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountPicker.type as Key['type']]} ${
+                getExistingKeyLabel(
+                  mainCtrl.keystore.keys,
+                  addr,
+                  mainCtrl.accountPicker.type as Key['type']
+                ) ||
+                getDefaultKeyLabel(
+                  mainCtrl.keystore.keys.filter((key) => account.associatedKeys.includes(key.addr)),
+                  i
+                )
+              }`,
+              dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
+              meta: {
+                deviceId: deviceIds[keyType],
+                deviceModel: deviceModels[keyType],
+                // always defined in the case of external keys
+                hdPathTemplate: mainCtrl.accountPicker.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
+                index,
+                createdAt: new Date().getTime()
+              }
+            }))
+        )
+
+      readyToAddKeys.external = readyToAddExternalKeys
+    }
+
+    return await mainCtrl.accountPicker.addAccounts(
+      mainCtrl.accountPicker.selectedAccountsFromCurrentSession,
+      readyToAddKeys
+    )
+  }
+
   // @ts-ignore
   const { type, params } = action
   switch (type) {
@@ -160,70 +222,18 @@ export const handleActions = async (
       }
       break
     }
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_ACCOUNTS_SELECTION': {
+      mainCtrl.accountPicker.resetAccountsSelection()
+      break
+    }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE':
       return await mainCtrl.accountPicker.setPage(params)
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE': {
       return await mainCtrl.accountPicker.setHDPathTemplate(params)
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_ADD_ACCOUNTS': {
-      const readyToAddKeys: ReadyToAddKeys = {
-        internal: [],
-        external: []
-      }
-
-      if (mainCtrl.accountPicker.type === 'internal') {
-        readyToAddKeys.internal = mainCtrl.accountPicker.retrieveInternalKeysOfSelectedAccounts()
-      } else {
-        // External keys flow
-        const keyType = mainCtrl.accountPicker.type as ExternalKey['type']
-
-        const deviceIds: { [key in ExternalKey['type']]: string } = {
-          ledger: ledgerCtrl.deviceId,
-          trezor: trezorCtrl.deviceId,
-          lattice: latticeCtrl.deviceId
-        }
-
-        const deviceModels: { [key in ExternalKey['type']]: string } = {
-          ledger: ledgerCtrl.deviceModel,
-          trezor: trezorCtrl.deviceModel,
-          lattice: latticeCtrl.deviceModel
-        }
-
-        const readyToAddExternalKeys = mainCtrl.accountPicker.selectedAccounts.flatMap(
-          ({ account, accountKeys }) =>
-            accountKeys.map(({ addr, index }, i) => ({
-              addr,
-              type: keyType,
-              label: `${HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountPicker.type as Key['type']]} ${
-                getExistingKeyLabel(
-                  mainCtrl.keystore.keys,
-                  addr,
-                  mainCtrl.accountPicker.type as Key['type']
-                ) ||
-                getDefaultKeyLabel(
-                  mainCtrl.keystore.keys.filter((key) => account.associatedKeys.includes(key.addr)),
-                  i
-                )
-              }`,
-              dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
-              meta: {
-                deviceId: deviceIds[keyType],
-                deviceModel: deviceModels[keyType],
-                // always defined in the case of external keys
-                hdPathTemplate: mainCtrl.accountPicker.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                index,
-                createdAt: new Date().getTime()
-              }
-            }))
-        )
-
-        readyToAddKeys.external = readyToAddExternalKeys
-      }
-
-      return await mainCtrl.accountPicker.addAccounts(
-        mainCtrl.accountPicker.selectedAccounts,
-        readyToAddKeys
-      )
+      await handleAccountPickerAddAccounts()
+      break
     }
     case 'IMPORT_SMART_ACCOUNT_JSON': {
       // Add accounts first, because some of the next steps have validation
@@ -244,8 +254,9 @@ export const handleActions = async (
       await mainCtrl.accounts.addAccounts(params.accounts)
       break
     }
-    case 'ACCOUNT_PICKER_CONTROLLER_SELECT_NEXT_ACCOUNT': {
+    case 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT': {
       await mainCtrl.accountPicker.selectNextAccount()
+      await handleAccountPickerAddAccounts()
       break
     }
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {

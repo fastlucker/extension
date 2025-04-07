@@ -83,7 +83,7 @@ const SeedPhraseImportScreen = () => {
   useEffect(() => {
     if (!getValues('seed')) return
     if (!prevIsInitialized && isInitialized && subType === 'seed') {
-      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_SELECT_NEXT_ACCOUNT' })
+      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT' })
       goToNextRoute()
     }
   }, [goToNextRoute, dispatch, getValues, isInitialized, prevIsInitialized, subType])

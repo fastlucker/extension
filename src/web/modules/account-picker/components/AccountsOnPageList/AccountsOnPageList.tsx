@@ -176,8 +176,7 @@ const AccountsOnPageList = ({
             }
             withBottomSpacing={hasBottomSpacing}
             unused={isUnused}
-            isSelected={isSelected || acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
-            isDisabled={acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
+            isSelected={isSelected}
             importStatus={acc.importStatus}
             onSelect={handleSelectAccount}
             onDeselect={handleDeselectAccount}

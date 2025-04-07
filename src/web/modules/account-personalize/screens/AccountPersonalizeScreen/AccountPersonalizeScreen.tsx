@@ -43,12 +43,6 @@ const AccountPersonalizeScreen = () => {
 
   const { fields } = useFieldArray({ control, name: 'accounts' })
 
-  useEffect(() => {
-    if (accountPickerState.selectNextAccountStatus === 'INITIAL') {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_ADD_ACCOUNTS' })
-    }
-  }, [dispatch, accountPickerState.selectNextAccountStatus])
-
   const handleSave = useCallback(
     (data?: { accounts: Account[] }) => {
       const newAccounts = data?.accounts || getValues('accounts')
@@ -64,6 +58,8 @@ const AccountPersonalizeScreen = () => {
     await handleSubmit(handleSave)()
     goToNextRoute()
   }, [goToNextRoute, handleSave, handleSubmit])
+
+  console.log(accountPickerState.addedAccountsFromCurrentSession)
 
   return (
     <TabLayoutContainer
