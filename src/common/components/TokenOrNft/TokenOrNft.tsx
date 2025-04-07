@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'reac
 
 import { CollectionResult, TokenResult } from '@ambire-common/libs/portfolio'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import { useTranslation } from '@common/config/localization'
@@ -53,7 +54,8 @@ const TokenOrNft: FC<Props> = ({
 
   useEffect(() => {
     if (!network) return
-    if (!provider) setProvider(new JsonRpcProvider(network.selectedRpcUrl || network.rpcUrls[0]))
+    const rpcUrl = network.selectedRpcUrl || network.rpcUrls[0]
+    if (!provider) setProvider(getRpcProvider([rpcUrl], network.chainId))
     return () => {
       if (provider && provider.destroy) provider.destroy()
     }
