@@ -29,8 +29,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   let recorder
 
   beforeEach(async () => {
-    const testName = `swapAndBridgeBA - ${this.currentTest.title}`
-    ;({ browser, page, recorder } = await bootstrapWithStorage(testName, baParams))
+    ;({ browser, page, recorder } = await bootstrapWithStorage('swapAndBridgeBA', baParams))
   })
 
   afterEach(async () => {
@@ -40,7 +39,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
 
   afterAll(async () => {})
 
-  it.only('should Swap ERC20 tokens USDC to WALLET on Base network with a Basic Account', async () => {
+  it('should Swap ERC20 tokens USDC to WALLET on Base network with a Basic Account', async () => {
     const text = await prepareSwapAndBridge(page, 0.009, 'USDC', '8453', 'WALLET')
     await signActionPage(
       await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
@@ -54,8 +53,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   let recorder
 
   beforeEach(async () => {
-    const testName = `swapAndBridgeSA - ${this.currentTest.title}`
-    ;({ browser, page, recorder } = await bootstrapWithStorage(testName, saParams))
+    ;({ browser, page, recorder } = await bootstrapWithStorage('swapAndBridgeSA', saParams))
   })
 
   afterEach(async () => {
