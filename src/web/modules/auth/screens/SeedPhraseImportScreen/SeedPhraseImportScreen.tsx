@@ -112,6 +112,7 @@ const SeedPhraseImportScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel
+          type="onboarding"
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}
