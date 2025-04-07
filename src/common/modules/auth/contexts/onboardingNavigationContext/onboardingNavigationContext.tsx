@@ -7,27 +7,13 @@ import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ONBOARDING_WEB_ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
-const onboardingRoutes = [
-  WEB_ROUTES.getStarted,
-  WEB_ROUTES.createSeedPhrasePrepare,
-  WEB_ROUTES.createSeedPhraseWrite,
-  WEB_ROUTES.importExistingAccount,
-  WEB_ROUTES.importPrivateKey,
-  WEB_ROUTES.importSeedPhrase,
-  WEB_ROUTES.importSmartAccountJson,
-  WEB_ROUTES.viewOnlyAccountAdder,
-  WEB_ROUTES.keyStoreSetup,
-  WEB_ROUTES.accountPersonalize,
-  WEB_ROUTES.accountPicker,
-  WEB_ROUTES.onboardingCompleted
-] as const
-
-type OnboardingRoute = typeof onboardingRoutes[number]
+type OnboardingRoute = typeof ONBOARDING_WEB_ROUTES[number]
 
 const OnboardingNavigationContext = createContext<{
   isOnboardingRoute: boolean
@@ -62,12 +48,29 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const prevPath: string | undefined = usePrevious(path)
   const { navigate } = useNavigation()
   const { authStatus } = useAuth()
+  const { dispatch } = useBackgroundService()
   const { isSetupComplete } = useWalletStateController()
   const { isInitialized } = useAccountPickerControllerState()
   const isOnboardingRoute = useMemo(
-    () => onboardingRoutes.includes((path || '').substring(1)),
+    () => ONBOARDING_WEB_ROUTES.includes((path || '').substring(1)),
     [path]
   )
+
+  useEffect(() => {
+    if (!isInitialized) return
+    const handler = setTimeout(() => {
+      const currentRoute = path?.substring(1) || ''
+      const shouldResetAccountAdder = !ONBOARDING_WEB_ROUTES.some((r) => currentRoute.includes(r))
+
+      if (shouldResetAccountAdder) {
+        dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_IF_NEEDED' })
+      }
+    }, 250)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [path, dispatch, isInitialized])
 
   const onboardingRoutesTree = useMemo(() => {
     const common = [
@@ -182,7 +185,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     const currentRoute = path?.substring(1)
     const prevRoute = prevPath?.substring(1)
     if (!currentRoute) return
-    if (!onboardingRoutes.includes(currentRoute)) return
+    if (!ONBOARDING_WEB_ROUTES.includes(currentRoute)) return
     const node = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
 
     if (!node) {
@@ -203,7 +206,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       if (!currentRoute) return
 
       let nextRoute: RouteNode | null = null
-      if (routeName && onboardingRoutes.includes(routeName)) {
+      if (routeName && ONBOARDING_WEB_ROUTES.includes(routeName)) {
         nextRoute = deepSearchRouteNode(onboardingRoutesTree, routeName)
       } else {
         const currentNode = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
@@ -254,7 +257,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     const handleBackButton = () => {
       const changedRoute = window.location.hash.replace('#/', '')
       if (!history.length) return
-      if (!onboardingRoutes.includes(changedRoute)) return
+      if (!ONBOARDING_WEB_ROUTES.includes(changedRoute)) return
 
       const node = deepSearchRouteNode(onboardingRoutesTree, changedRoute)
       if (!node?.disabled) return

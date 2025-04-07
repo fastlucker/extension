@@ -195,6 +195,9 @@ export const handleActions = async (
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE': {
       return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.chainIds)
     }
+    case 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE': {
+      return await mainCtrl.accounts.resetAccountsNewlyAddedState()
+    }
     case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
       return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
     }

@@ -140,6 +140,9 @@ type AccountsControllerUpdateAccountState = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE'
   params: { addr: string; chainIds: bigint[] }
 }
+type AccountsControllerResetAccountsNewlyAddedStateAction = {
+  type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE'
+}
 
 type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
@@ -621,6 +624,7 @@ export type Action =
   | MainControllerAccountPickerResetAccountsSelectionAction
   | AccountsControllerUpdateAccountPreferences
   | AccountsControllerUpdateAccountState
+  | AccountsControllerResetAccountsNewlyAddedStateAction
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork

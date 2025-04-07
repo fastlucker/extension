@@ -72,4 +72,19 @@ const WEB_ROUTES = {
 
 const ROUTES = { ...MOBILE_ROUTES, ...WEB_ROUTES }
 
-export { ROUTES, MOBILE_ROUTES, WEB_ROUTES }
+const ONBOARDING_WEB_ROUTES = [
+  WEB_ROUTES.getStarted,
+  WEB_ROUTES.createSeedPhrasePrepare,
+  WEB_ROUTES.createSeedPhraseWrite,
+  WEB_ROUTES.importExistingAccount,
+  WEB_ROUTES.importPrivateKey,
+  WEB_ROUTES.importSeedPhrase,
+  WEB_ROUTES.importSmartAccountJson,
+  WEB_ROUTES.viewOnlyAccountAdder,
+  WEB_ROUTES.keyStoreSetup,
+  WEB_ROUTES.accountPersonalize,
+  WEB_ROUTES.accountPicker,
+  WEB_ROUTES.onboardingCompleted
+] as const
+
+export { ROUTES, MOBILE_ROUTES, WEB_ROUTES, ONBOARDING_WEB_ROUTES }
