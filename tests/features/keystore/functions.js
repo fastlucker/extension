@@ -126,7 +126,9 @@ async function selectSetting(page, text, assert_text = null) {
 }
 
 async function typeNetworkField(page, field, text) {
-  const [inputElement] = await page.$x(`//div[text()="${field}"]/following-sibling::div//input`)
+  const xpath = `//div[text()="${field}"]/following-sibling::div//input`
+  await page.waitForXPath(xpath, { visible: true, timeout: 3000 })
+  const [inputElement] = await page.$x(xpath)
   await inputElement.type(text)
 }
 async function selectManualNetworkButton(page, button_text, delay = 500) {
