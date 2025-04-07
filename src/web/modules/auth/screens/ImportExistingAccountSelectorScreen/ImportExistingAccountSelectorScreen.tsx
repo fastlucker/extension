@@ -79,6 +79,7 @@ const ImportExistingAccountSelectorScreen = () => {
     >
       <TabLayoutWrapperMainContent wrapperRef={wrapperRef} contentContainerStyle={spacings.mbLg}>
         <Panel
+          type="onboarding"
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}

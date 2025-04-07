@@ -99,6 +99,7 @@ const CreateSeedPhraseWriteScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel
+          type="onboarding"
           spacingsSize="small"
           step={1}
           totalSteps={2}

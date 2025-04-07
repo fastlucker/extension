@@ -5,13 +5,21 @@ import common from '@common/styles/utils/common'
 
 interface Style {
   container: ViewStyle
-  progress: ViewStyle
+  onboardingContainer: ViewStyle
   innerContainer: ViewStyle
+  progress: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
+      ...common.borderRadiusPrimary,
+      borderWidth: 1,
+      borderColor: theme.secondaryBorder,
+      backgroundColor: theme.primaryBackground
+    },
+    // Overridden when type === 'onboarding'
+    onboardingContainer: {
       ...common.borderRadiusSecondary,
       backgroundColor: theme.primaryBackground,
       ...common.shadowTertiary,
@@ -20,15 +28,15 @@ const getStyles = (theme: ThemeProps) =>
       // TODO: fix it
       minHeight: 468
     },
-    progress: {
-      flex: 1,
-      height: 4
-    },
     innerContainer: {
       alignSelf: 'center',
       overflow: 'hidden',
       // TODO: fix it
       minHeight: 486
+    },
+    progress: {
+      flex: 1,
+      height: 4
     }
   })
 

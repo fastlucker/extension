@@ -81,7 +81,7 @@ const GetStartedScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel isAnimated spacingsSize="small" cardWidth={CARD_WIDTH}>
+        <Panel isAnimated spacingsSize="small" type="onboarding">
           <View style={[flexbox.justifySpaceBetween]}>
             <View
               style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}

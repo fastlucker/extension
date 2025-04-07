@@ -79,6 +79,7 @@ const PrivateKeyImportScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel
+          type="onboarding"
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}

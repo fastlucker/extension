@@ -73,7 +73,7 @@ const AccountPersonalizeScreen = () => {
       header={<Header withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel spacingsSize="small" style={spacings.ptXl}>
+        <Panel type="onboarding" spacingsSize="small" style={spacings.ptXl}>
           <View style={[flexbox.alignCenter, spacings.mb2Xl]}>
             <View style={styles.checkIconOuterWrapper}>
               <View style={styles.checkIconInnerWrapper}>

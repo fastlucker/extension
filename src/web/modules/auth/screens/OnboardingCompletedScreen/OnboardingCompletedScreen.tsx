@@ -54,11 +54,9 @@ const OnboardingCompletedScreen = () => {
       >
         <TabLayoutWrapperMainContent>
           <Panel
+            type="onboarding"
             spacingsSize="small"
             style={{
-              width: CARD_WIDTH,
-              alignSelf: 'center',
-              ...common.shadowTertiary,
               minHeight: 416
             }}
           >

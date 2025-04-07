@@ -13,11 +13,12 @@ import text from '@common/styles/utils/text'
 import getStyles from './styles'
 
 interface Props extends ViewProps {
+  type?: 'default' | 'onboarding'
+  title?: string | ReactNode
+  isAnimated?: boolean
+  spacingsSize?: 'small' | 'large'
   withBackButton?: boolean
   onBackButtonPress?: () => void
-  title?: string | ReactNode
-  spacingsSize?: 'small' | 'large'
-  isAnimated?: boolean
   step?: number
   totalSteps?: number
   panelWidth?: number
@@ -34,13 +35,14 @@ export const getPanelPaddings = (
 }
 
 const Panel: React.FC<Props> = ({
-  withBackButton,
-  onBackButtonPress = () => {},
+  type = 'default',
   title,
   children,
   style,
-  spacingsSize = 'large',
   isAnimated,
+  spacingsSize = 'large',
+  withBackButton,
+  onBackButtonPress = () => {},
   step = 0,
   totalSteps = 2,
   panelWidth = 400,
@@ -51,14 +53,14 @@ const Panel: React.FC<Props> = ({
   const animation = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
-    if (isAnimated) {
+    if (type === 'onboarding' && isAnimated) {
       Animated.timing(animation, {
         toValue: 1,
         duration: 480,
         useNativeDriver: false
       }).start()
     }
-  }, [animation, isAnimated])
+  }, [animation, isAnimated, type])
 
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],
@@ -89,48 +91,75 @@ const Panel: React.FC<Props> = ({
     </View>
   )
 
-  return (
-    <Animated.View
-      style={[styles.container, { width: isAnimated ? panelWidthInterpolate : panelWidth }]}
-    >
-      {step > 0 && renderProgress()}
+  if (type === 'onboarding') {
+    return (
       <Animated.View
         style={[
-          styles.innerContainer,
-          getPanelPaddings(maxWidthSize, spacingsSize),
-          style,
+          styles.onboardingContainer,
           {
-            width: isAnimated ? panelWidthInterpolate : panelWidth,
-            opacity: isAnimated ? opacityInterpolate : 1,
-            minWidth: panelWidth
+            width: isAnimated ? panelWidthInterpolate : panelWidth
           }
         ]}
-        {...rest}
       >
-        {(!!title || !!withBackButton) && (
-          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
-            {!!withBackButton && (
-              <Pressable onPress={onBackButtonPress} style={[spacings.pvTy]}>
-                <LeftArrowIcon />
-              </Pressable>
-            )}
-            {!!title && (
-              <Text
-                fontSize={maxWidthSize('xl') ? 20 : 18}
-                weight="semiBold"
-                appearance="primaryText"
-                numberOfLines={1}
-                style={[text.center, flexbox.flex1]}
-              >
-                {title}
-              </Text>
-            )}
-            <View style={{ width: 20 }} />
-          </View>
-        )}
-        {children}
+        {step > 0 && renderProgress()}
+        <Animated.View
+          style={[
+            styles.innerContainer,
+            getPanelPaddings(maxWidthSize, spacingsSize),
+            style,
+            {
+              width: isAnimated ? panelWidthInterpolate : panelWidth,
+              opacity: isAnimated ? opacityInterpolate : 1,
+              minWidth: panelWidth
+            }
+          ]}
+          {...rest}
+        >
+          {(!!title || !!withBackButton) && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
+              {!!withBackButton && (
+                <Pressable onPress={onBackButtonPress} style={[spacings.pvTy]}>
+                  <LeftArrowIcon />
+                </Pressable>
+              )}
+              {!!title && (
+                <Text
+                  fontSize={maxWidthSize('xl') ? 20 : 18}
+                  weight="semiBold"
+                  appearance="primaryText"
+                  numberOfLines={1}
+                  style={[text.center, flexbox.flex1]}
+                >
+                  {title}
+                </Text>
+              )}
+              <View style={{ width: 20 }} />
+            </View>
+          )}
+          {children}
+        </Animated.View>
       </Animated.View>
-    </Animated.View>
+    )
+  }
+
+  // default version
+  const Container = isAnimated ? Animated.View : View
+
+  return (
+    <Container style={[styles.container, getPanelPaddings(maxWidthSize, 'large'), style]} {...rest}>
+      {!!title && (
+        <Text
+          fontSize={maxWidthSize('xl') ? 20 : 18}
+          weight="medium"
+          appearance="primaryText"
+          style={maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd}
+          numberOfLines={1}
+        >
+          {title}
+        </Text>
+      )}
+      {children}
+    </Container>
   )
 }
 
