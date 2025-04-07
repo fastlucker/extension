@@ -16,6 +16,8 @@ import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { getUiType } from '@web/utils/uiType'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import { hasPersistedState } from '@ambire-common/controllers/transfer/transfer'
+import { APP_VERSION } from '@common/config/env'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
@@ -87,10 +89,7 @@ const SortHat = () => {
 
       if (actionType === 'switchAccount') return navigate(WEB_ROUTES.switchAccount)
     } else if (!isActionWindow) {
-      const transferState = await storage.get('transferState-v1', {})
-      const hasPersistedState = !!Object.keys(transferState).length
-
-      if (hasPersistedState) {
+      if (await hasPersistedState(storage, APP_VERSION)) {
         navigate(ROUTES.transfer, {
           state: { backTo: WEB_ROUTES.dashboard }
         })

@@ -14,6 +14,7 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import { APP_VERSION } from '@common/config/env'
 
 type ContextReturn = {
   state: TransferController
@@ -87,7 +88,8 @@ const TransferControllerStateProvider = ({
       account,
       networks,
       portfolio,
-      !isTopUp // Hydrate and persist in case of Transfer, if it's PopUp don't
+      !isTopUp, // Hydrate and persist in case of Transfer, if it's PopUp don't
+      APP_VERSION
     )
     forceUpdate()
   }, [forceUpdate, account, networks, transferCtrl, portfolio, isTopUp])
