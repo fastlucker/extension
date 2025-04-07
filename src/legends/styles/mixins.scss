@@ -24,13 +24,11 @@
   padding: 1rem;
   transition: background 0.3s ease;
   background-blend-mode: overlay;
-  background: linear-gradient(100.29deg, #00BB92 7.82%, #1B709B 49.79%, #350586 92.28%);
+  background: linear-gradient(100.29deg, $green-500 7.82%, $teal 49.79%, $dark-purple 92.28%);
 
-
- 
   &:not(:disabled) {
     &:hover {
-      background: linear-gradient(100.29deg, #00BB92 7.82%, #1B709B 49.79%, #350586 92.28%), linear-gradient(0deg, rgba(244, 244, 247, 0.1), rgba(244, 244, 247, 0.1));
+      background: linear-gradient(100.29deg, $green-500 7.82%, $teal 49.79%, $dark-purple 92.28%), linear-gradient(0deg, rgba(244, 244, 247, 0.102), rgba(244, 244, 247, 0.1));
     }
     &:active {
       transform: translateY(0.125rem);
