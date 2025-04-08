@@ -8,6 +8,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
+import blurredLights from './blurred-lights-wide.png'
 import styles from './CharacterSelect.module.scss'
 import CharacterLoadingModal from './components/CharacterLoadingModal'
 import CharacterSlider from './components/CharacterSlider'
@@ -58,8 +59,11 @@ const CharacterSelect = () => {
   return (
     <>
       <NonV2Modal isOpen={!!nonV2Account} />
-
       <div className={styles.wrapper}>
+        <div
+          className={styles.backgroundEffect}
+          style={{ backgroundImage: `url(${blurredLights})` }}
+        />
         <h1 className={styles.title}>Choose a Character</h1>
         <p className={styles.description}>
           Select your character, who will start at level 0. By completing quests and accumulating
