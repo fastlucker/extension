@@ -44,7 +44,7 @@ const buttons: ButtonType[] = [
   { title: 'Trezor', route: WEB_ROUTES.importPrivateKey, icon: TrezorIcon }, // TODO: add route
   { title: 'Ledger', route: WEB_ROUTES.importPrivateKey, icon: LedgerIcon }, // TODO: add route
   { title: 'Grid Plus', route: WEB_ROUTES.importPrivateKey, icon: LatticeWithBorderIcon }, // TODO: add route
-  { title: 'JSON', route: WEB_ROUTES.importPrivateKey, icon: ImportJsonIcon } // TODO: add route
+  { title: 'JSON', route: WEB_ROUTES.importSmartAccountJson, icon: ImportJsonIcon }
 ]
 
 const ImportExistingAccountSelectorScreen = () => {
