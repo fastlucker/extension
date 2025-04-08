@@ -56,7 +56,8 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
         isSwapAndBridge: true
       }
     })
-  }, [dispatch])
+    closeEstimationModal()
+  }, [closeEstimationModal, dispatch])
 
   return (
     <BottomSheet
