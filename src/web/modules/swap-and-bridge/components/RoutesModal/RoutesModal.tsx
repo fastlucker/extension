@@ -1,14 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { SwapAndBridgeRoute } from '@ambire-common/interfaces/swapAndBridge'
-import BackButton from '@common/components/BackButton'
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import BottomSheet from '@common/components/BottomSheet'
-import Button from '@common/components/Button'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
@@ -17,10 +15,13 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 import { SWAP_AND_BRIDGE_FORM_WIDTH } from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen/styles'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
 const FLAT_LIST_ITEM_HEIGHT = 138.5
+
+const { isPopup } = getUiType()
 
 const RoutesModal = ({
   sheetRef,
@@ -34,21 +35,26 @@ const RoutesModal = ({
   const { quote, shouldEnableRoutesSelection } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const scrollRef: any = useRef(null)
-
-  const [selectedRoute, setSelectedRoute] = useState<SwapAndBridgeRoute | null>(
-    quote?.selectedRoute || null
-  )
-  const prevQuoteSelectedRoute: SwapAndBridgeRoute | undefined = usePrevious(quote?.selectedRoute)
+  const selectedRoute = quote?.selectedRoute
   const { height } = useWindowSize()
 
-  useEffect(() => {
-    if (
-      prevQuoteSelectedRoute?.routeId !== quote?.selectedRoute?.routeId &&
-      quote?.selectedRoute?.routeId !== selectedRoute?.routeId
-    ) {
-      setSelectedRoute(quote?.selectedRoute || null)
-    }
-  }, [prevQuoteSelectedRoute?.routeId, quote?.selectedRoute, selectedRoute?.routeId])
+  const handleSelectRoute = useCallback(
+    (route: SwapAndBridgeRoute) => {
+      if (!route) return
+
+      if (route.routeId === selectedRoute?.routeId) {
+        closeBottomSheet()
+        return
+      }
+
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE',
+        params: { route }
+      })
+      closeBottomSheet()
+    },
+    [closeBottomSheet, dispatch, selectedRoute]
+  )
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
@@ -63,7 +69,7 @@ const RoutesModal = ({
             index + 1 === quote?.routes?.length && spacings.mb0,
             item.routeId === selectedRoute?.routeId && styles.selectableItemSelected
           ]}
-          onPress={() => setSelectedRoute(item)}
+          onPress={() => handleSelectRoute(item)}
         >
           <RouteStepsPreview
             steps={steps}
@@ -73,23 +79,14 @@ const RoutesModal = ({
         </Pressable>
       )
     },
-    [quote?.routes?.length, selectedRoute?.routeId, styles]
+    [
+      handleSelectRoute,
+      quote?.routes?.length,
+      selectedRoute?.routeId,
+      styles.selectableItemContainer,
+      styles.selectableItemSelected
+    ]
   )
-
-  const handleConfirmRouteSelection = useCallback(() => {
-    if (!selectedRoute) return
-
-    if (selectedRoute.routeId === quote?.selectedRoute?.routeId) {
-      closeBottomSheet()
-      return
-    }
-
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE',
-      params: { route: selectedRoute }
-    })
-    closeBottomSheet()
-  }, [closeBottomSheet, dispatch, quote?.selectedRoute?.routeId, selectedRoute])
 
   const selectedRouteIndex = useMemo(() => {
     if (!quote?.routes || !quote.routes.length) return 0
@@ -108,10 +105,10 @@ const RoutesModal = ({
       id="select-routes-modal"
       sheetRef={sheetRef}
       closeBottomSheet={closeBottomSheet}
-      backgroundColor="primaryBackground"
+      backgroundColor="secondaryBackground"
       style={{
         overflow: 'hidden',
-        width: SWAP_AND_BRIDGE_FORM_WIDTH,
+        width: !isPopup ? SWAP_AND_BRIDGE_FORM_WIDTH : '100%',
         minHeight: height * 0.7
       }}
       scrollViewProps={{
@@ -119,7 +116,9 @@ const RoutesModal = ({
         scrollEnabled: false
       }}
       onOpen={() => {
-        setSelectedRoute(quote.selectedRoute)
+        if (!selectedRouteIndex) return
+
+        // @TODO: Fix this
         setTimeout(() => {
           scrollRef?.current?.scrollTo({
             x: 0,
@@ -129,12 +128,26 @@ const RoutesModal = ({
       }}
       containerInnerWrapperStyles={flexbox.flex1}
     >
-      <Text fontSize={20} weight="semiBold" numberOfLines={1} style={spacings.mbLg}>
-        {t('Select route')}
-      </Text>
+      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbXl]}>
+        <Pressable
+          onPress={() => closeBottomSheet()}
+          style={{
+            width: 28,
+            height: 28,
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
+          <LeftArrowIcon width={16} height={16} />
+        </Pressable>
+        <Text fontSize={20} weight="semiBold" numberOfLines={1} style={spacings.mlTy}>
+          {t('Select route')}
+        </Text>
+      </View>
       <ScrollableWrapper
         type={WRAPPER_TYPES.FLAT_LIST}
         data={quote.routes}
+        wrapperRef={scrollRef}
         keyExtractor={(r: SwapAndBridgeRoute) => r.routeId.toString()}
         renderItem={renderItem}
         initialNumToRender={6}
@@ -142,16 +155,6 @@ const RoutesModal = ({
         maxToRenderPerBatch={6}
         removeClippedSubviews
       />
-      <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.ptMd]}>
-        <BackButton onPress={closeBottomSheet as any} />
-        <Button
-          text={t('Confirm')}
-          size="large"
-          onPress={handleConfirmRouteSelection}
-          disabled={!selectedRoute}
-          hasBottomSpacing={false}
-        />
-      </View>
     </BottomSheet>
   )
 }

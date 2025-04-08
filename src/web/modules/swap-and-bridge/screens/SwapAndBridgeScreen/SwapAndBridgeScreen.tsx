@@ -8,6 +8,7 @@ import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridg
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import FlipIcon from '@common/assets/svg/FlipIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import WarningIcon from '@common/assets/svg/WarningIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -35,9 +36,6 @@ import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import ActiveRouteCard from '@web/modules/swap-and-bridge/components/ActiveRouteCard'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
 import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
-import RoutesRefreshButton from '@web/modules/swap-and-bridge/components/RoutesRefreshButton'
-import RouteStepsPlaceholder from '@web/modules/swap-and-bridge/components/RouteStepsPlaceholder'
-import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
@@ -92,7 +90,6 @@ const SwapAndBridgeScreen = () => {
     fromAmount,
     fromAmountInFiat,
     fromAmountFieldMode,
-    toSelectedToken,
     maxFromAmount,
     quote,
     formStatus,
@@ -444,95 +441,41 @@ const SwapAndBridgeScreen = () => {
                   spacings.mbTy,
                   flexbox.directionRow,
                   flexbox.alignCenter,
+                  flexbox.justifySpaceBetween,
                   flexbox.flex1
                 ]}
               >
-                <View
-                  style={[
-                    flexbox.directionRow,
-                    flexbox.alignCenter,
-                    flexbox.flex1,
-                    { minHeight: 23.5 } // prevents UI jump
-                  ]}
-                >
-                  <Text
-                    appearance="secondaryText"
-                    fontSize={14}
-                    weight="medium"
-                    style={spacings.mrTy}
-                  >
-                    {t('Preview route')}
-                  </Text>
-                  <View style={styles.routesRefreshButtonWrapper}>
-                    <RoutesRefreshButton width={28} height={28} />
-                  </View>
-                </View>
-                {!!shouldEnableRoutesSelection && (
-                  <Pressable
-                    style={styles.selectAnotherRouteButton}
-                    onPress={openRoutesModal as any}
-                  >
-                    <Text fontSize={12} weight="medium" appearance="primary" style={spacings.mrTy}>
-                      {t('Select another route')}
+                {formStatus === SwapAndBridgeFormStatus.NoRoutesFound ? (
+                  <View>
+                    <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+                    <Text fontSize={14} weight="medium" appearance="warningText">
+                      {t('No routes found.')}
                     </Text>
-                    <RightArrowIcon color={theme.primary} />
-                  </Pressable>
+                  </View>
+                ) : (
+                  <View />
                 )}
+
+                <Pressable
+                  style={{
+                    ...styles.selectAnotherRouteButton,
+                    opacity: shouldEnableRoutesSelection ? 1 : 0.5
+                  }}
+                  onPress={openRoutesModal as any}
+                  disabled={!shouldEnableRoutesSelection}
+                >
+                  <Text fontSize={12} weight="medium" appearance="primary" style={spacings.mrTy}>
+                    {t('Select route')}
+                  </Text>
+                  <RightArrowIcon color={theme.primary} />
+                </Pressable>
               </View>
             )}
 
-            {formStatus === SwapAndBridgeFormStatus.FetchingRoutes && (
-              <View style={[styles.secondaryContainer, spacings.mb]}>
-                <RouteStepsPlaceholder
-                  fromSelectedToken={fromSelectedToken!}
-                  toSelectedToken={toSelectedToken!}
-                  withBadge="loading"
-                />
-              </View>
-            )}
-            {formStatus === SwapAndBridgeFormStatus.NoRoutesFound && (
-              <View style={[styles.secondaryContainer, spacings.mb]}>
-                <RouteStepsPlaceholder
-                  fromSelectedToken={fromSelectedToken!}
-                  toSelectedToken={toSelectedToken!}
-                  withBadge="no-route-found"
-                />
-              </View>
-            )}
             {(formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
               formStatus === SwapAndBridgeFormStatus.ReadyToEstimate ||
               formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) && (
               <>
-                <View style={spacings.mb}>
-                  <View
-                    style={[
-                      styles.secondaryContainer,
-                      !!quote?.selectedRoute?.errorMessage && {
-                        borderWidth: 1,
-                        borderColor: theme.errorDecorative
-                      }
-                    ]}
-                  >
-                    <RouteStepsPreview
-                      steps={quote!.selectedRouteSteps}
-                      totalGasFeesInUsd={quote?.selectedRoute?.totalGasFeesInUsd}
-                      estimationInSeconds={quote?.selectedRoute?.serviceTime}
-                    />
-                  </View>
-                  {!!quote?.selectedRoute?.errorMessage && (
-                    <View style={spacings.ptTy}>
-                      <Text
-                        fontSize={12}
-                        weight="medium"
-                        style={spacings.mrTy}
-                        appearance="errorText"
-                      >
-                        {quote!.selectedRoute.errorMessage}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-
                 {/* TODO<oneClickSwap>: styling */}
                 {formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
                   (!signAccountOpController ||

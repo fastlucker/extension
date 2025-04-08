@@ -13,12 +13,11 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     selectableItemContainer: {
       borderWidth: 1,
-      borderColor: theme.secondaryBackground,
-      backgroundColor: theme.secondaryBackground,
+      borderColor: theme.primaryBackground,
+      backgroundColor: theme.primaryBackground,
       ...common.borderRadiusPrimary,
-      ...spacings.phSm,
-      ...spacings.pt,
-      ...spacings.pbSm,
+      ...spacings.pv,
+      ...spacings.ph,
       ...spacings.mbSm
     },
     selectableItemSelected: {
