@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 
 import { preloadImages } from '@common/utils/images'
 import CheckIcon from '@legends/common/assets/svg/CheckIcon'
-import CoinIcon from '@legends/common/assets/svg/CoinIcon'
+import ZapIcon from '@legends/common/assets/svg/ZapIcon'
 import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
@@ -20,11 +20,10 @@ import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
-import chainImage from './assets/chain-treasure-chest.png'
 import chestImageOpened from './assets/chest-opened.png'
 import chestImage from './assets/chest.png'
+import smokeAndLights from './assets/smoke-and-lights-background.png'
 import starImage from './assets/star.png'
-import streakImage from './assets/streak-modal.png'
 import CongratsModal from './components/CongratsModal'
 import styles from './TreasureChestComponentModal.module.scss'
 
@@ -40,7 +39,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
-  
+
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
 
@@ -50,7 +49,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   // Load the modal in the dom but don't show it immediately
   // This is done to preload all images
   useEffect(() => {
-    preloadImages([chestImage, chainImage, chestImageOpened, starImage])
+    preloadImages([chestImage, chestImageOpened, starImage])
   }, [])
 
   const unlockChainAnimation = useCallback(() => {
@@ -227,10 +226,18 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     <div>
       <div className={styles.backdrop}>
         <div className={styles.wrapper}>
+          <div
+            className={styles.backgroundEffect}
+            style={{
+              backgroundImage: `url(${smokeAndLights})`
+            }}
+          />
+
           {!!treasureLegend.meta.streak && (
-            <div className={styles.streak} style={{ backgroundImage: `url(${streakImage})` }}>
+            <div className={styles.streak}>
               <p className={styles.streakNumber}>{treasureLegend.meta.streak}</p>
               <p className={styles.streakLabel}>
+                <ZapIcon />
                 {treasureLegend.meta.streak === 1 ? 'Day' : 'Days'} Streak
               </p>
             </div>
@@ -271,7 +278,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
                       <CheckIcon width={20} height={20} />
                     ) : (
                       <>
-                        +{point} <CoinIcon width={20} height={20} />
+                        +{point}
+                        <span className={styles.xpText}>XP</span>
                       </>
                     )}
                   </div>
@@ -281,7 +289,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             })}
           </div>
           <div className={styles.chestWrapper}>
-            <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />
             <img src={chestImage} alt="spinner" className={styles.chest} />
           </div>
           <button
