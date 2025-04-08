@@ -199,7 +199,7 @@ const ToTokenSelect: React.FC<Props> = ({
       disabled={toTokenAmountSelectDisabled || (toTokenValueOrError && !toTokenOptions.length)}
       testID="to-token-select"
       searchPlaceholder={t('Token name or address...')}
-      menuLeftHorizontalOffset={285}
+      // menuLeftHorizontalOffset={285}
       emptyListPlaceholderText={
         isAttemptingToAddToTokenByAddress ? t('Pulling token details...') : notFoundPlaceholderText
       }

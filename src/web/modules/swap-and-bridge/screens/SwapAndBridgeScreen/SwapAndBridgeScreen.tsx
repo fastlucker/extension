@@ -281,7 +281,7 @@ const SwapAndBridgeScreen = () => {
                     searchPlaceholder={t('Token name or address...')}
                     emptyListPlaceholderText={t('No tokens found.')}
                     containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
-                    menuLeftHorizontalOffset={285}
+                    // menuLeftHorizontalOffset={285}
                     selectStyle={{
                       backgroundColor: '#54597A14',
                       borderWidth: 0
