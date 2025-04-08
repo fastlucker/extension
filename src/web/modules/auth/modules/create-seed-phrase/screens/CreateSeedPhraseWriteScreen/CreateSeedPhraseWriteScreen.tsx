@@ -99,8 +99,8 @@ const CreateSeedPhraseWriteScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel
+          type="onboarding"
           spacingsSize="small"
-          style={[spacings.ph0, spacings.pv0]}
           step={1}
           totalSteps={2}
           title="Backup Recovery Phrase"
@@ -110,7 +110,7 @@ const CreateSeedPhraseWriteScreen = () => {
           }}
         >
           {!!seedArray.length && (
-            <View style={[spacings.phLg, spacings.pvLg, spacings.pt]}>
+            <View>
               <Text
                 weight="medium"
                 appearance="secondaryText"

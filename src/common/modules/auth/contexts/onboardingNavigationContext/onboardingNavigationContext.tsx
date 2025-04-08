@@ -14,7 +14,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
-type OnboardingRoute = typeof ONBOARDING_WEB_ROUTES[number]
+export type OnboardingRoute = typeof ONBOARDING_WEB_ROUTES[number]
 
 const OnboardingNavigationContext = createContext<{
   isOnboardingRoute: boolean

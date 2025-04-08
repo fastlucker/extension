@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import BrushIcon from '@common/assets/svg/BrushIcon'
 import Button from '@common/components/Button'
 import InputPassword from '@common/components/InputPassword'
 import Panel from '@common/components/Panel'
@@ -14,7 +15,7 @@ import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -38,6 +39,7 @@ const SeedPhraseImportScreen = () => {
     watch,
     control,
     handleSubmit,
+    setValue,
     getValues,
     formState: { isValid }
   } = useForm({
@@ -110,75 +112,86 @@ const SeedPhraseImportScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel
+          type="onboarding"
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}
-          style={{
-            width: CARD_WIDTH,
-            alignSelf: 'center',
-            ...common.shadowTertiary
-          }}
           title={t('Import Recovery Phrase')}
+          step={1}
+          totalSteps={2}
         >
-          <View style={spacings.mbMd}>
-            <Controller
-              control={control}
-              rules={{
-                required: true,
-                validate: validateSeedPhraseWord
-              }}
-              name="seed"
-              render={({ field: { onChange, onBlur, value } }) => {
-                return (
-                  <TextArea
-                    testID="enter-seed-phrase-field"
-                    value={value}
-                    editable
-                    multiline
-                    numberOfLines={4}
-                    autoFocus
-                    containerStyle={spacings.mb0}
-                    placeholder={t('Write or paste your Recovery Phrase')}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    isValid={seedPhraseStatus === 'valid'}
-                    error={seedPhraseStatus === 'invalid' && t('Invalid Recovery Phrase.')}
-                    placeholderTextColor={theme.secondaryText}
-                    onSubmitEditing={handleFormSubmit}
-                  />
-                )
-              }}
-            />
-          </View>
-          {enablePassphrase && (
-            <View style={styles.passphraseContainer}>
+          <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
+            <View style={spacings.mbMd}>
+              <Button
+                type="ghost"
+                size="small"
+                onPress={() => {
+                  setValue('seed', '')
+                  setSeedPhraseStatus('incomplete')
+                }}
+                style={[spacings.mbTy, spacings.ph0, flexbox.alignSelfEnd]}
+              >
+                <BrushIcon />
+              </Button>
               <Controller
                 control={control}
-                rules={{ required: true }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <InputPassword
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    placeholder="Seed Passphrase"
-                    inputWrapperStyle={{ height: 40 }}
-                    inputStyle={{ height: 40 }}
-                    containerStyle={{ flex: 0.5 }}
-                  />
-                )}
-                name="passphrase"
+                rules={{
+                  required: true,
+                  validate: validateSeedPhraseWord
+                }}
+                name="seed"
+                render={({ field: { onChange, onBlur, value } }) => {
+                  return (
+                    <TextArea
+                      testID="enter-seed-phrase-field"
+                      value={value}
+                      editable
+                      multiline
+                      numberOfLines={4}
+                      autoFocus
+                      containerStyle={spacings.mb0}
+                      placeholder={t('Write or paste your Recovery Phrase')}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      isValid={seedPhraseStatus === 'valid'}
+                      error={seedPhraseStatus === 'invalid' && t('Invalid Recovery Phrase.')}
+                      placeholderTextColor={theme.secondaryText}
+                      onSubmitEditing={handleFormSubmit}
+                    />
+                  )
+                }}
               />
             </View>
-          )}
+            {enablePassphrase && (
+              <View style={styles.passphraseContainer}>
+                <Controller
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <InputPassword
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      placeholder="Seed Passphrase"
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 40 }}
+                      containerStyle={{ flex: 0.5 }}
+                    />
+                  )}
+                  name="passphrase"
+                />
+              </View>
+            )}
 
-          <Button
-            testID="import-button"
-            size="large"
-            text={t('Confirm')}
-            hasBottomSpacing={false}
-            onPress={handleFormSubmit}
-            disabled={!isValid}
-          />
+            <Button
+              testID="import-button"
+              size="large"
+              text={t('Confirm')}
+              hasBottomSpacing={false}
+              onPress={handleFormSubmit}
+              disabled={!isValid}
+            />
+          </View>
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

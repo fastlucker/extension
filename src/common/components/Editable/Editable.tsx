@@ -43,6 +43,8 @@ const Editable: FC<Props> = ({
   const [isEditing, setIsEditing] = useState(false)
   const [textWidth, setTextWidth] = useState(0)
   const actualValue = typeof customValue === 'string' ? customValue : value
+  // TODO: check it
+  const iconSize = fontSize - 2
 
   const handleSave = useCallback(() => {
     setIsEditing(false)
@@ -71,6 +73,7 @@ const Editable: FC<Props> = ({
       style={[
         flexbox.directionRow,
         flexbox.alignCenter,
+        flexbox.center,
         {
           height
         }
@@ -130,21 +133,21 @@ const Editable: FC<Props> = ({
           <>
             {!isEditing && (
               <EditPenIcon
-                color={hovered ? theme.primaryText : theme.secondaryText}
-                width={fontSize}
-                height={fontSize}
+                color={hovered ? theme.primaryText : theme.primary}
+                width={iconSize}
+                height={iconSize}
               />
             )}
             {isEditing && (actualValue === initialValue || !actualValue) && (
               <CloseIcon
-                width={fontSize}
-                height={fontSize}
+                width={iconSize}
+                height={iconSize}
                 color={hovered ? theme.primaryText : theme.secondaryText}
               />
             )}
             {isEditing && actualValue !== initialValue && !!actualValue && (
               <View style={{ opacity: hovered ? 0.9 : 1 }}>
-                <CheckIcon width={fontSize} height={fontSize} />
+                <CheckIcon width={iconSize} height={iconSize} />
               </View>
             )}
           </>
