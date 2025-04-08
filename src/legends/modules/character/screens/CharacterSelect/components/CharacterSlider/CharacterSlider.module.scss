@@ -63,7 +63,28 @@ $smallerSlideSize: 12rem;
           width: $centerSlideSize;
           height: $centerSlideSize;
           max-width: unset;
+          
         }
+        
+          &::before {
+            content: '';
+            position: absolute;
+            bottom: -7rem;
+            left: 52%;
+            transform: translateX(-50%);
+            width: 15.125rem;
+            height: 3.3125rem;
+            border-radius: 50%;
+            background-color: $mainBg;
+            z-index: 1;
+            
+            border: 0.25rem solid transparent;
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+            background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
+            linear-gradient(8.85deg, #5D83FF 9.6%, #6735FF 90.76%);;        
+                              
+          }
       }
 
       .image {
