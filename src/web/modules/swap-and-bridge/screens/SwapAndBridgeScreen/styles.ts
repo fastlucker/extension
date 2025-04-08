@@ -17,7 +17,7 @@ interface Style {
   followUpTxnText: TextStyle
 }
 
-export const SWAP_AND_BRIDGE_FORM_WIDTH = 654
+export const SWAP_AND_BRIDGE_FORM_WIDTH = 600
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
