@@ -18,11 +18,10 @@
 
 .wrapper {
   position: relative;
-  width: 49.8125em;
-  height: 48.9375em;
+  width: 47em;
+  height: 47em;
 
   background-size: cover;
-
   background-color: $neutral-700;
   border-radius: $tertiaryBorderRadius;
   border: 0.25rem solid transparent;
@@ -33,12 +32,12 @@
 
   .backgroundEffect {
     position: absolute;
-    right: 1em;
-    top: 5em;
+    right: -11em;
+    top: 2em;
     z-index: 0;
     background-repeat: no-repeat;
     background-size: contain;
-    width: 47.375em;
+    width: 64.375em;
     height: 42.8125em;
   }
   .content {
@@ -82,10 +81,10 @@
     .spinner {
       position: absolute;
       transition: transform 10s ease-out;
-      top: 14em;
-      left: 12.6875em;
-      width: 24.125em;
-      height: 24.125em;
+      top: 10em;
+      left: 10.6875em;
+      width: 25em;
+      height: 25em;
       object-fit: contain;
       animation: tease 5s infinite;
       animation-delay: 2s;
@@ -93,9 +92,10 @@
 
     .chain {
       position: absolute;
-      left: 9.125em;
+      left: 6.7em;
       bottom: 15.75em;
-      width: 31.2em;
+      width: 32.9em;
+      
       height: 9.75em;
       z-index: 4;
 
@@ -106,8 +106,8 @@
 
     .pointer {
       position: absolute;
-      top: 12.6875em;
-      left: 23.7em;
+      top: 8.5em;
+      left: 22em;
       width: 2.5rem;
       height: 2.5rem;
       object-fit: contain;
@@ -122,6 +122,7 @@
       width: 18.25em;
       height: 3.25em;
       font-size: 1.25em; 
+      font-weight: 500;
     }
   }
 }
