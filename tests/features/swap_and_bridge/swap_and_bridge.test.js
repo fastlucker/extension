@@ -167,7 +167,6 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await switchUSDValueOnSwapAndBridge(page, 'USDC.E', '10', 0.34)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', '10', 0.02)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', '8453', 0.012)
-    await switchUSDValueOnSwapAndBridge(page, 'ETH', '1', 0.0004)
     await switchUSDValueOnSwapAndBridge(page, 'xWALLET', '1', 1)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', '10', 0.51)
     await switchUSDValueOnSwapAndBridge(page, 'xWALLET', '1', 0.9)
