@@ -43,7 +43,7 @@ const Referral: FC<Props> = ({ meta }) => {
                 has ever done! 🚀{' '}
               </div>
               <button type="button" onClick={copyToClipboard}>
-                <CopyIcon className={styles.copyIcon} />
+                <CopyIcon className={styles.copyIcon} color="currentColor" />
               </button>
             </div>
             <br />
