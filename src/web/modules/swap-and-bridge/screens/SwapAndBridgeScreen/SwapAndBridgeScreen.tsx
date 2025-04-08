@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import FlipIcon from '@common/assets/svg/FlipIcon'
@@ -15,7 +14,6 @@ import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import NumberInput from '@common/components/NumberInput'
 import Select from '@common/components/Select'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useNavigation from '@common/hooks/useNavigation'
@@ -32,8 +30,8 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import ActiveRouteCard from '@web/modules/swap-and-bridge/components/ActiveRouteCard'
+import SwapAndBridgeEstimation from '@web/modules/swap-and-bridge/components/Estimation'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
 import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
@@ -82,7 +80,9 @@ const SwapAndBridgeScreen = () => {
     pendingRoutes,
     routesModalRef,
     openRoutesModal,
-    closeRoutesModal
+    closeRoutesModal,
+    estimationModalRef,
+    closeEstimationModal
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -106,48 +106,14 @@ const SwapAndBridgeScreen = () => {
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
-  const isViewOnly = useMemo(
-    () => signAccountOpController?.accountKeyStoreKeys.length === 0,
-    [signAccountOpController?.accountKeyStoreKeys]
-  )
-  const hasEstimation = useMemo(
-    () =>
-      signAccountOpController?.isInitialized &&
-      !!signAccountOpController?.gasPrices &&
-      !signAccountOpController.estimation.error,
-    [
-      signAccountOpController?.estimation?.error,
-      signAccountOpController?.gasPrices,
-      signAccountOpController?.isInitialized
-    ]
-  )
 
   useEffect(() => {
     if (formStatus === SwapAndBridgeFormStatus.ReadyToEstimate && !signAccountOpController) {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_SIGN_ACCOUNT_OP'
       })
-    } else if (
-      formStatus !== SwapAndBridgeFormStatus.ReadyToEstimate &&
-      formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit &&
-      !!signAccountOpController
-    ) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
-      })
     }
   }, [formStatus, dispatch, signAccountOpController])
-
-  useEffect(() => {
-    if (signAccountOpController?.status?.type === SigningStatus.Done) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
-        params: {
-          isSwapAndBridge: true
-        }
-      })
-    }
-  }, [formStatus, dispatch, signAccountOpController?.status?.type])
 
   useEffect(() => {
     if (!signAccountOpController) return
@@ -197,6 +163,11 @@ const SwapAndBridgeScreen = () => {
   const handleFollowUpTransactionConfirmedCheckboxPress = useCallback(() => {
     setFollowUpTransactionConfirmed((p) => !p)
   }, [setFollowUpTransactionConfirmed])
+
+  const isEstimatingRoute =
+    formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
+    (!signAccountOpController ||
+      signAccountOpController.estimation.status === EstimationStatus.Loading)
 
   const handleHighPriceImpactCheckboxPress = useCallback(() => {
     setHighPriceImpactConfirmed((p) => !p)
@@ -483,74 +454,39 @@ const SwapAndBridgeScreen = () => {
 
             {(formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
               formStatus === SwapAndBridgeFormStatus.ReadyToEstimate ||
-              formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) && (
-              <>
-                {/* TODO<oneClickSwap>: styling */}
-                {formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
-                  (!signAccountOpController ||
-                    signAccountOpController.estimation.status === EstimationStatus.Loading) && (
-                    <View style={[styles.secondaryContainer, spacings.mb]}>
-                      <Spinner />
-                    </View>
-                  )}
-
-                {(formStatus === SwapAndBridgeFormStatus.ReadyToEstimate ||
-                  formStatus === SwapAndBridgeFormStatus.ReadyToSubmit) &&
-                  signAccountOpController && (
-                    <View style={[styles.secondaryContainer, spacings.mb]}>
-                      <Estimation
-                        updateType="Swap&Bridge"
-                        signAccountOpState={signAccountOpController}
-                        disabled={
-                          signAccountOpController.status?.type !== SigningStatus.ReadyToSign
+              formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) &&
+              shouldConfirmFollowUpTransactions && (
+                <View style={spacings.mb}>
+                  <Checkbox
+                    value={followUpTransactionConfirmed}
+                    style={{ ...spacings.mb0, ...flexbox.alignCenter }}
+                    onValueChange={handleFollowUpTransactionConfirmedCheckboxPress}
+                  >
+                    <Text fontSize={12}>
+                      <Text
+                        fontSize={12}
+                        weight="medium"
+                        onPress={handleFollowUpTransactionConfirmedCheckboxPress}
+                        testID="confirm-follow-up-txns-checkbox"
+                        color={
+                          followUpTransactionConfirmed ? theme.primaryText : theme.warningDecorative
                         }
-                        hasEstimation={!!hasEstimation}
-                        // TODO<oneClickSwap>
-                        slowRequest={false}
-                        // TODO<oneClickSwap>
-                        isViewOnly={isViewOnly}
-                        isSponsored={false}
-                        sponsor={undefined}
-                      />
-                    </View>
-                  )}
-
-                {!!shouldConfirmFollowUpTransactions && (
-                  <View style={spacings.mb}>
-                    <Checkbox
-                      value={followUpTransactionConfirmed}
-                      style={{ ...spacings.mb0, ...flexbox.alignCenter }}
-                      onValueChange={handleFollowUpTransactionConfirmedCheckboxPress}
-                    >
-                      <Text fontSize={12}>
-                        <Text
-                          fontSize={12}
-                          weight="medium"
-                          onPress={handleFollowUpTransactionConfirmedCheckboxPress}
-                          testID="confirm-follow-up-txns-checkbox"
-                          color={
-                            followUpTransactionConfirmed
-                              ? theme.primaryText
-                              : theme.warningDecorative
+                        style={[
+                          styles.followUpTxnText,
+                          !followUpTransactionConfirmed && {
+                            backgroundColor: theme.warningBackground
                           }
-                          style={[
-                            styles.followUpTxnText,
-                            !followUpTransactionConfirmed && {
-                              backgroundColor: theme.warningBackground
-                            }
-                          ]}
-                        >
-                          {t('I understand that I need to do a follow-up transaction.')}
-                        </Text>{' '}
-                        <Text fontSize={12} underline weight="medium" onPress={handleOpenReadMore}>
-                          {t('Read more.')}
-                        </Text>
+                        ]}
+                      >
+                        {t('I understand that I need to do a follow-up transaction.')}
+                      </Text>{' '}
+                      <Text fontSize={12} underline weight="medium" onPress={handleOpenReadMore}>
+                        {t('Read more.')}
                       </Text>
-                    </Checkbox>
-                  </View>
-                )}
-              </>
-            )}
+                    </Text>
+                  </Checkbox>
+                </View>
+              )}
 
             {!!highPriceImpactInPercentage && (
               <View style={spacings.mbTy} testID="high-price-impact-sab">
@@ -591,23 +527,26 @@ const SwapAndBridgeScreen = () => {
             <Button
               hasBottomSpacing={false}
               text={t('Start a Batch')}
+              disabled // @TODO
               type="secondary"
               style={{ minWidth: 160 }}
             />
             <Button
               text={
-                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' || isEstimatingRoute
                   ? t('Loading...') // prev Building Transaction
                   : highPriceImpactInPercentage
                   ? t('Proceed anyway')
                   : t('Proceed') // prev Proceed
               }
               disabled={
-                formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
+                (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit &&
+                  formStatus !== SwapAndBridgeFormStatus.ReadyToEstimate) ||
                 shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
                 (!!highPriceImpactInPercentage && !highPriceImpactConfirmed) ||
                 mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
-                updateQuoteStatus === 'LOADING'
+                updateQuoteStatus === 'LOADING' ||
+                isEstimatingRoute
               }
               style={{ minWidth: 160, ...spacings.mlLg }}
               hasBottomSpacing={false}
@@ -618,6 +557,10 @@ const SwapAndBridgeScreen = () => {
         </View>
       </TabLayoutWrapperMainContent>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
+      <SwapAndBridgeEstimation
+        closeEstimationModal={closeEstimationModal}
+        estimationModalRef={estimationModalRef}
+      />
     </TabLayoutContainer>
   )
 }
