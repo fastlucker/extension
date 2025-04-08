@@ -3,7 +3,7 @@
 .wrapper {
   display: flex;
   gap: 1.875rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
 
   .column {
     display: flex;
@@ -27,18 +27,18 @@
             border-color: $success;
           }
           .stepTitle {
-            color: $primaryText;
+            color: $mainText;
           }
         }
 
         &.active {
           .stepNumber {
             background-color: $tertiaryBackground;
-            color: $primaryText;
+            color: $mainText;
             border-color: $success;
           }
           .stepTitle {
-            color: $primaryText;
+            color: $mainText;
           }
         }
 
@@ -49,20 +49,39 @@
           justify-content: center;
           font-size: 1.5rem;
           line-height: 2rem;
-          width: 3rem;
-          height: 3rem;
-          color: $primaryText;
-          background: $secondaryBackground;
-          border: 1px solid $secondaryBorder;
+          width: 3.4375rem;
+          height: 3.4375rem;
+          background: $hover-dark;
+          color: $mainText;
           border-radius: 50%;
+          position: relative;
+
+          &::after {
+            content: '';
+            position: absolute;
+            width: .0625rem;
+            height: 100%;
+            background: $hover-dark;
+            bottom: -1.75rem;
+            z-index: -1;
+          }
         }
+
+         &:last-child {
+          .stepNumber {
+            &::after {
+              display: none;
+            }
+          }
+        }
+
 
         .stepTitle {
           display: flex;
           align-items: center;
           font-size: 1.125rem;
           font-weight: 400;
-          color: $secondaryText;
+          color: $mainText;
         }
       }
     }
@@ -128,7 +147,6 @@
 @include breakpoint-down-from(medium-desktop) {
   .wrapper {
     gap: 1.40625rem;
-    margin-bottom: 0.9375rem;
 
     .column {
       .stepper {

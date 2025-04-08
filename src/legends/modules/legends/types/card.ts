@@ -60,6 +60,16 @@ export interface CardXp {
   chains: Networks[] | null
 }
 
+export enum CardGroup {
+  Show = 'show',
+  SwapAndBridge = 'swap-and-bridge',
+  Supporter = 'supporter',
+  GasTank = 'gas-tank',
+  Transactions = 'transactions',
+  Seasonal = 'seasonal',
+  MiniGame = 'mini-game'
+}
+
 export interface CardFromResponse {
   id: string
   title: string
@@ -71,6 +81,7 @@ export interface CardFromResponse {
   }
   image: string
   timesCollectedToday: number
+  group: CardGroup
   meta?: {
     invitationKey?: string
     timesUsed?: number
