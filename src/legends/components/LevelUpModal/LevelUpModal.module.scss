@@ -43,6 +43,7 @@
   // Don't touch this, it works too well
   font-size: min(1.8vh, 1.2vw);
   transition: 0.1s opacity ease-in-out;
+  backdrop-filter: blur(0.5rem);
 
   &:not(.visible) {
     opacity: 0;
@@ -158,18 +159,19 @@
       background-size: cover;
 
       .badgeLevels {
-      z-index: 3;
-      position: relative;
-      width: 5em;
-      height: 5em;
-      left: 50%;
-      top: 3.5em;
-      transform: translateX(-50%);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
+        z-index: 3;
+        position: relative;
+        width: 5em;
+        height: 5em;
+        left: 50%;
+        top: 3.5em;
+        transform: translateX(-50%);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-weight: 800;
+        
       .badgeLevelsInner {
         position: relative;
 
@@ -187,7 +189,9 @@
   .button {
     @include primary-button;
     height: 4rem;
-    width: 18em;
+    width: 24.75rem;
+    
     font-size: 1.25rem;
+    font-weight: 500;
   }
 }

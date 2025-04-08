@@ -1,14 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import Card from '@legends/modules/legends/components/Card'
-import Topbar from '@legends/modules/legends/components/Topbar'
-import { CardFromResponse, Filter } from '@legends/modules/legends/types'
 
 import styles from './Legends.module.scss'
-import { MOCK_FILTERS } from './mockData'
 
 enum CardGroup {
   'show' = 'Show',
@@ -21,20 +18,14 @@ enum CardGroup {
 }
 
 const Legends = () => {
-  const [selectedFilter, setSelectedFilter] = useState<Filter['value']>(MOCK_FILTERS[0].value)
-  const { legends, isLoading, completedCount } = useLegendsContext()
-
-  const selectFilter = (filter: Filter) => {
-    setSelectedFilter(filter.value)
-  }
+  const { legends, isLoading } = useLegendsContext()
 
   const groupedLegends = legends.reduce((groups, card) => {
     const group = card.group || 'Ungrouped'
-    if (!groups[group]) {
-      groups[group] = []
+    return {
+      ...groups,
+      [group]: [...(groups[group] || []), card]
     }
-    groups[group].push(card)
-    return groups
   }, {} as Record<string, typeof legends>)
 
   return (

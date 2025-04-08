@@ -4,8 +4,9 @@
   background: rgba($interactiveElement, 0.6);
 
   border-radius: 0.5rem;
-  padding-top: 1.5rem;
+  padding-top: 1.0625rem;
   padding-left: 1.5rem;
+  padding-right: 1.3125rem;
   height: 100%;
   max-height: 100%;
 }
@@ -35,18 +36,21 @@
 
 .invitationItem {
   display: flex;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  line-height: 1.25rem;
 }
 
 .accepted {
-  color: #54D1B6;
+  color: $green-300;
 }
 
 .expired {
-  color: #E65A90;
+  color: $red-300;
 }
 
 .pending {
-  color: #FAD174;
+  color: $yellow-300;
 }
 
 .invitationStatus {
@@ -61,6 +65,7 @@
 }
 
 .heading {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: $secondaryText;
+  margin-bottom: 1.5625rem;
 }

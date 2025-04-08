@@ -3,7 +3,7 @@
 .wrapper {
   display: flex;
   gap: 1.875rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
 
   .column {
     display: flex;
@@ -147,7 +147,6 @@
 @include breakpoint-down-from(medium-desktop) {
   .wrapper {
     gap: 1.40625rem;
-    margin-bottom: 0.9375rem;
 
     .column {
       .stepper {
