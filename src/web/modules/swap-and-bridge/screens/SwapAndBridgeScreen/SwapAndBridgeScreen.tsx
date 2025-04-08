@@ -94,7 +94,6 @@ const SwapAndBridgeScreen = () => {
     fromAmountFieldMode,
     toSelectedToken,
     maxFromAmount,
-    maxFromAmountInFiat,
     quote,
     formStatus,
     validateFromAmount,
@@ -145,7 +144,10 @@ const SwapAndBridgeScreen = () => {
   useEffect(() => {
     if (signAccountOpController?.status?.type === SigningStatus.Done) {
       dispatch({
-        type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
+        type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
+        params: {
+          isSwapAndBridge: true
+        }
       })
     }
   }, [formStatus, dispatch, signAccountOpController?.status?.type])
@@ -554,7 +556,6 @@ const SwapAndBridgeScreen = () => {
                         // TODO<oneClickSwap>
                         slowRequest={false}
                         // TODO<oneClickSwap>
-                        slowPaymasterRequest={false}
                         isViewOnly={isViewOnly}
                         isSponsored={false}
                         sponsor={undefined}
