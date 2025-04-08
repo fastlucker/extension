@@ -37,13 +37,13 @@
   .backgroundEffect {
     position: absolute;
     opacity: 0.5;
-    left: 0rem;
-    top: 6rem;
+    left: -4rem;
+    top: 5rem;
     z-index: 0;
     background-repeat: no-repeat;
     background-size: cover;
-    width: 30.375rem;
-    height: 28.8125rem;
+    width: 45.375rem;
+    height: 35.8125rem;
   }
   .streak {
     position: absolute;
@@ -60,9 +60,8 @@
     .streakNumber {
       text-align: center;
       position: absolute;
-      left: 30%;
+      
       top: 20%;
-      width: 2.75rem;
       z-index: 11;
       font-size: 2rem;
       line-height: 1rem;
@@ -70,6 +69,10 @@
       color: $yellowText;
       text-shadow: 0.0925rem 0.225rem $purple-600;
       display: flex;
+
+      // top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
 
     }
 
@@ -106,15 +109,6 @@
 
     .closeButton {
       align-self: baseline;
-      svg {
-        rect {
-          stroke: $secondaryText;
-        }
-        
-        path {
-          fill: $secondaryText;
-        }
-      }
     }
   }
 
