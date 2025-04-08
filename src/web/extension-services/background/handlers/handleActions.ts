@@ -396,10 +396,10 @@ export const handleActions = async (
       await mainCtrl.swapAndBridge.destroySignAccountOp()
       break
     }
-    case 'SWAP_AND_BRIDGE_CONTROLLER_BROADCAST': {
-      if (!mainCtrl.swapAndBridge.signAccountOpController) return
-      return mainCtrl.handleBroadcast(mainCtrl.swapAndBridge.signAccountOpController)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE': {
+      return mainCtrl.swapAndBridge.onEstimationFailure()
     }
+    // SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 

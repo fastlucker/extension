@@ -525,8 +525,8 @@ type SwapAndBridgeControllerInitSignAccountOp = {
 type SwapAndBridgeControllerDestorySignAccountOp = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
 }
-type SwapAndBridgeControllerBroadcast = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_BROADCAST'
+type SwapAndBridgeControllerOnEstimationFailure = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
 }
 
 type ActionsControllerRemoveFromActionsQueue = {
@@ -745,4 +745,4 @@ export type Action =
   | SwapAndBridgeControllerInitSignAccountOp
   | SignAccountOpUpdateAction
   | SwapAndBridgeControllerDestorySignAccountOp
-  | SwapAndBridgeControllerBroadcast
+  | SwapAndBridgeControllerOnEstimationFailure

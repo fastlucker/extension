@@ -149,6 +149,15 @@ const SwapAndBridgeScreen = () => {
     }
   }, [formStatus, dispatch, signAccountOpController?.status?.type])
 
+  useEffect(() => {
+    if (!signAccountOpController) return
+    if (signAccountOpController.estimation.status === EstimationStatus.Error) {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
+      })
+    }
+  })
+
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
   }, [navigate])
