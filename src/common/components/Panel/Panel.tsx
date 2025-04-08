@@ -119,7 +119,16 @@ const Panel: React.FC<Props> = ({
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
               {!!withBackButton && (
                 <Pressable onPress={onBackButtonPress} style={[spacings.pvTy]}>
-                  <LeftArrowIcon />
+                  {({ hovered }: any) => (
+                    <View
+                      style={[
+                        styles.backBtnWrapper,
+                        hovered && { backgroundColor: theme.secondaryBackground }
+                      ]}
+                    >
+                      <LeftArrowIcon />
+                    </View>
+                  )}
                 </Pressable>
               )}
               {!!title && (

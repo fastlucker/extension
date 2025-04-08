@@ -2,12 +2,14 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
   onboardingContainer: ViewStyle
   innerContainer: ViewStyle
   progress: ViewStyle
+  backBtnWrapper: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -37,6 +39,13 @@ const getStyles = (theme: ThemeProps) =>
     progress: {
       flex: 1,
       height: 4
+    },
+    backBtnWrapper: {
+      ...flexbox.alignCenter,
+      ...flexbox.center,
+      ...common.borderRadiusPrimary,
+      width: 28,
+      height: 28
     }
   })
 
