@@ -12,28 +12,25 @@ const DiagonalRightArrowIcon: React.FC<SvgProps> = ({
   <Svg width={width} height={height} {...rest} viewBox="0 0 13.787 13.781">
     <G transform="translate(-180.281 1.031)">
       <Path
-        id="Path_10010"
-        data-name="Path 10010"
         d="M-16486.969-20972.039h12v12"
         transform="translate(16668 20972.039)"
         fill="none"
         stroke={color}
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth={1.5}
+        strokeWidth="1.5"
       />
       <Line
-        id="Line_549"
-        data-name="Line 549"
         y1={11.25}
         x2={11.25}
         transform="translate(181.758 0.029)"
         fill="none"
         stroke={color}
         strokeLinecap="round"
-        strokeWidth={1.5}
+        strokeWidth="1.5"
       />
     </G>
   </Svg>
 )
-export default DiagonalRightArrowIcon
+
+export default React.memo(DiagonalRightArrowIcon)
