@@ -4,6 +4,7 @@ import spacings from '@common/styles/spacings'
 import { useModalize } from 'react-native-modalize'
 import BottomSheet from '@common/components/BottomSheet'
 import { getUiType } from '@web/utils/uiType'
+import useTheme from '@common/hooks/useTheme'
 import { RenderSelectedOptionParams } from '../types'
 
 const { isPopup } = getUiType()
@@ -13,6 +14,7 @@ type Props = Pick<RenderSelectedOptionParams, 'isMenuOpen' | 'toggleMenu'> & {
 }
 
 const BottomSheetContainer: FC<Props> = ({ isMenuOpen, toggleMenu, children }) => {
+  const { theme } = useTheme()
   const { ref: sheetRef, open: openSheet, close: closeSheet } = useModalize()
 
   useEffect(() => {
@@ -25,14 +27,14 @@ const BottomSheetContainer: FC<Props> = ({ isMenuOpen, toggleMenu, children }) =
 
   return (
     <BottomSheet
-      id="tokens-list"
+      id="select-bottom-sheet"
       sheetRef={sheetRef}
       closeBottomSheet={toggleMenu}
       containerInnerWrapperStyles={{
         flex: 1
       }}
       style={{
-        backgroundColor: 'white',
+        backgroundColor: theme.primaryBackground,
         width: isPopup ? '100%' : 450,
         overflow: 'hidden',
         ...spacings.pv0,

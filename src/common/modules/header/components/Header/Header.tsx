@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useMemo, useState } from 'react'
-import { ColorValue, Image, View, ViewStyle } from 'react-native'
+import { Image, View, ViewStyle } from 'react-native'
 
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Text from '@common/components/Text'
@@ -13,8 +13,8 @@ import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { getUiType } from '@web/utils/uiType'
-
 import AmbireLogoHorizontalWithOG from '@common/components/AmbireLogoHorizontalWithOG'
+
 import getStyles from './styles'
 
 interface Props {

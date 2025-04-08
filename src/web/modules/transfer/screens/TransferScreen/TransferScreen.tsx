@@ -42,9 +42,9 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
-
 import Header from '@common/modules/header/components/Header'
 import { getUiType } from '@web/utils/uiType'
+
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
