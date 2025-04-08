@@ -363,6 +363,9 @@ type MainControllerSignAccountOpUpdateStatus = {
 }
 type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
+  params?: {
+    isSwapAndBridge?: boolean
+  }
 }
 
 type MainControllerOnPopupOpenAction = {
