@@ -54,6 +54,9 @@ const useSwapAndBridgeForm = () => {
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
   const [highPriceImpactConfirmed, setHighPriceImpactConfirmed] = useState<boolean>(false)
+  /**
+   * @deprecated - the settings menu is not used anymore
+   */
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -391,6 +394,9 @@ const useSwapAndBridgeForm = () => {
     })
   }, [dispatch])
 
+  /**
+   * @deprecated - the settings menu is not used anymore
+   */
   const handleToggleSettingsMenu = useCallback(() => {
     setSettingsModalVisible((p) => !p)
   }, [])
