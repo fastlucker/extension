@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
-  Action as ActionFromActionsQueue
+  Action as ActionFromActionsQueue,
+  ActionExecutionType
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -504,9 +504,11 @@ type SwapAndBridgeControllerSelectRouteAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE'
   params: { route: SwapAndBridgeRoute }
 }
-type SwapAndBridgeControllerSubmitFormAction = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
-  params: { shouldBroadcast: boolean }
+type SwapAndBridgeControllerResetForm = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM'
+}
+type SwapAndBridgeControllerBuildUserRequest = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
@@ -713,7 +715,8 @@ export type Action =
   | SwapAndBridgeControllerAddToTokenByAddress
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
-  | SwapAndBridgeControllerSubmitFormAction
+  | SwapAndBridgeControllerResetForm
+  | SwapAndBridgeControllerBuildUserRequest
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerUpdateQuoteAction
   | SwapAndBridgeControllerRemoveActiveRouteAction

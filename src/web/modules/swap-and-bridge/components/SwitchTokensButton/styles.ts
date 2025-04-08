@@ -14,7 +14,8 @@ const getStyles = (theme: ThemeProps) =>
     switchTokensButtonWrapper: {
       position: 'absolute',
       bottom: 8,
-      width: '100%',
+      left: '50%',
+      transform: [{ translateX: -16 }],
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter,
       ...flexbox.alignSelfCenter,

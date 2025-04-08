@@ -64,6 +64,11 @@ const useSwapAndBridgeForm = () => {
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
+  const {
+    ref: estimationModalRef,
+    open: openEstimationModal,
+    close: closeEstimationModal
+  } = useModalize()
   const [searchParams, setSearchParams] = useSearchParams()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => nanoid(), []) // purposely, so it is unique per hook lifetime
@@ -392,13 +397,22 @@ const useSwapAndBridgeForm = () => {
   const handleSubmitForm = useCallback(() => {
     // TODO<oneClickSwap>: build the transaction if there's anything in the queue
     // or if the user has clicked on the "start a batch" button
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM',
-      params: {
-        shouldBroadcast: true
-      }
-    })
-  }, [dispatch])
+    const hasSomethingInQueue = false // TODO
+
+    if (hasSomethingInQueue) {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+      })
+    } else {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM'
+      })
+    }
+
+    if (!hasSomethingInQueue) {
+      openEstimationModal()
+    }
+  }, [dispatch, openEstimationModal])
 
   /**
    * @deprecated - the settings menu is not used anymore
@@ -447,7 +461,9 @@ const useSwapAndBridgeForm = () => {
     pendingRoutes,
     routesModalRef,
     openRoutesModal,
-    closeRoutesModal
+    closeRoutesModal,
+    estimationModalRef,
+    closeEstimationModal
   }
 }
 

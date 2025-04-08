@@ -41,6 +41,7 @@ import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-o
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
+import { getIsSignLoading } from '../../utils/helpers'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
@@ -84,11 +85,7 @@ const SignAccountOpScreen = () => {
     }
   }, [isChooseSignerShown, prevIsChooseSignerShown, signAccountOpState?.errors.length])
 
-  const isSignLoading =
-    signAccountOpState?.status?.type === SigningStatus.InProgress ||
-    signAccountOpState?.status?.type === SigningStatus.UpdatesPaused ||
-    signAccountOpState?.status?.type === SigningStatus.WaitingForPaymaster ||
-    signAccountOpState?.status?.type === SigningStatus.Done
+  const isSignLoading = getIsSignLoading(signAccountOpState?.status)
 
   useEffect(() => {
     if (signAccountOpState?.estimation.estimationRetryError) {

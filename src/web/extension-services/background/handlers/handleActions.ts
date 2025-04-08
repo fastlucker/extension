@@ -374,10 +374,12 @@ export const handleActions = async (
       return await mainCtrl.swapAndBridge.addToTokenByAddress(params.address)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return mainCtrl.swapAndBridge.selectRoute(params.route)
-    case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
-      if (params.shouldBroadcast)
-        return await mainCtrl.swapAndBridge.signAccountOpController?.sign()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
       return await mainCtrl.buildSwapAndBridgeUserRequest()
+    }
+    case 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE': {
+      return mainCtrl.swapAndBridge.onEstimationFailure()
+    }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
@@ -396,10 +398,8 @@ export const handleActions = async (
       await mainCtrl.swapAndBridge.destroySignAccountOp()
       break
     }
-    case 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE': {
-      return mainCtrl.swapAndBridge.onEstimationFailure()
-    }
-    // SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE
+    case 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM':
+      return mainCtrl.swapAndBridge.resetForm()
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
