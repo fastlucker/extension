@@ -141,8 +141,9 @@ export async function switchUSDValueOnSwapAndBridge(
 
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, send_network)
-  // Enter the amount
-  await typeText(page, SELECTORS.fromAmountInputSab, send_amount.toString())
+
+  // await typeText(page, SELECTORS.fromAmountInputSab, send_amount.toString()) // it has given error with value 0.0004, so changed to page.type
+  await page.type(SELECTORS.fromAmountInputSab, send_amount.toString())
 
   // Get current values in the USD text contenet
   const [usdOldAmount, ccy] = await getUSDTextContent(page)
