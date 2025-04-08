@@ -29,6 +29,13 @@ import { Props } from './types'
 
 const FEE_SECTION_LIST_MENU_HEADER_HEIGHT = 34
 
+export const SPEED_TEST_IDS = {
+  slow: 'option-slow',
+  medium: 'option-medium',
+  fast: 'option-fast',
+  ape: 'option-ape'
+}
+
 const FeeSpeedLabel = ({
   speed,
   feeTokenPriceUnavailableWarning,
@@ -50,6 +57,7 @@ const FeeSpeedLabel = ({
         flexbox.alignCenter,
         flexbox.justifySpaceBetween
       ]}
+      testID={SPEED_TEST_IDS[speed.type]}
     >
       <Text weight="medium" fontSize={12} style={spacings.mrMi}>
         {t(speed.type.charAt(0).toUpperCase() + speed.type.slice(1))}
