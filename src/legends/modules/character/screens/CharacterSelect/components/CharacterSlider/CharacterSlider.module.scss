@@ -1,6 +1,6 @@
 @import '@legends/styles/base';
 
-$centerSlideSize: 26.25rem;
+$centerSlideSize: 28.25rem;
 $adjacentSlideSize: 17.5rem;
 $smallerSlideSize: 12rem;
 
@@ -66,25 +66,75 @@ $smallerSlideSize: 12rem;
           
         }
         
-          &::before {
-            content: '';
-            position: absolute;
-            bottom: -7rem;
-            left: 52%;
-            transform: translateX(-50%);
-            width: 15.125rem;
-            height: 3.3125rem;
-            border-radius: 50%;
-            background-color: $mainBg;
-            z-index: 1;
-            
-            border: 0.25rem solid transparent;
-            background-clip: padding-box, border-box;
-            background-origin: padding-box, border-box;
-            background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
-            linear-gradient(8.85deg, #5D83FF 9.6%, #6735FF 90.76%);;        
-                              
-          }
+        &::before {
+          content: '';
+          position: absolute;
+          bottom: -7rem;
+          left: 52%;
+          transform: translateX(-50%);
+          width: 15.125rem;
+          height: 3.3125rem;
+          border-radius: 50%;
+          background-color: $mainBg;
+          z-index: 1;
+          
+          border: 0.25rem solid transparent;
+          background-clip: padding-box, border-box;
+          background-origin: padding-box, border-box;
+          background-image: linear-gradient($mainBg, $mainBg), 
+          linear-gradient(8.85deg, #5D83FF 9.6%, #6735FF 90.76%);;        
+                            
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -7.5rem;
+          left: 52%;
+          transform: translateX(-50%);
+          width: 18rem;
+          height: 4rem;
+          border-radius: 50%;
+          background-color: transparent;
+          z-index: 0;
+          
+          background: linear-gradient(8.85deg, #5D83FF 9.6%, #6735FF 90.76%);
+          -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+
+          background-origin: border-box;
+          background-clip: border-box;
+          padding: 2px;
+      
+        }
+
+        .extraBorder {
+          content: '';
+          position: absolute;
+          bottom: -8.2rem;
+          left: 52%;
+          transform: translateX(-50%);
+          width: 22rem;
+          height: 5rem;
+          border-radius: 50%;
+          background-color: transparent;
+          z-index: 0;
+          
+          background: linear-gradient(8.85deg, #5D83FF 9.6%, #6735FF 90.76%);
+          -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+
+          background-origin: border-box;
+          background-clip: border-box;
+          padding: 2px;
+
+        }
       }
 
       .image {

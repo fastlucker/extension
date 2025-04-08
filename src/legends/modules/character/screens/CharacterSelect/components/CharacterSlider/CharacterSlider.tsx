@@ -90,6 +90,7 @@ const CharacterSlider = ({
           {characters.map((character, index) => (
             <SwiperSlide className={`${styles.slide} ${getClass(index)}`} key={character.reactKey}>
               <img src={character.image} alt={character.name} className={styles.image} />
+              <span className={styles.extraBorder} />
             </SwiperSlide>
           ))}
         </Swiper>
