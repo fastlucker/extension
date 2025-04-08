@@ -36,8 +36,9 @@ import wait from '@ambire-common/utils/wait'
 import { isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
+  LI_FI_API_KEY,
   RELAYER_URL,
-  SOCKET_API_KEY,
+  USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
 import { browser } from '@web/constants/browserapi'
@@ -278,7 +279,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    socketApiKey: SOCKET_API_KEY,
+    swapApiKey: USE_SWAP_KEY ? LI_FI_API_KEY : undefined,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
