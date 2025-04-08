@@ -13,7 +13,6 @@ import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import NumberInput from '@common/components/NumberInput'
-import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -21,11 +20,13 @@ import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -52,6 +53,7 @@ const SwapAndBridgeScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { maxWidthSize } = useWindowSize()
   const {
     sessionId,
     fromAmountValue,
@@ -167,6 +169,8 @@ const SwapAndBridgeScreen = () => {
   // TODO: Confirmation modal (warn) if the diff in dollar amount between the
   // FROM and TO tokens is too high (therefore, user will lose money).
 
+  const paddingHorizontalStyle = useMemo(() => getTabLayoutPadding(maxWidthSize), [maxWidthSize])
+
   const dollarIcon = useCallback(() => {
     if (fromAmountFieldMode === 'token') return null
 
@@ -204,14 +208,17 @@ const SwapAndBridgeScreen = () => {
           mode="title"
           customTitle={t('Swap & Bridge')}
           withAmbireLogo
+          forceBack // TODO: this shouldn't be needed
         />
       }
+      withHorizontalPadding={false}
       footer={!isPopup ? <BackButton onPress={handleBackButtonPress} /> : null}
     >
       <TabLayoutWrapperMainContent
         contentContainerStyle={{
           ...spacings.pt0,
           ...spacings.pb0,
+          ...paddingHorizontalStyle,
           flexGrow: 1
         }}
         wrapperRef={scrollViewRef}
@@ -235,36 +242,35 @@ const SwapAndBridgeScreen = () => {
             </View>
           )}
 
-          <Panel forceContainerSmallSpacings>
-            <View>
-              <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbTy}>
+          <View
+            style={[
+              spacings.ph,
+              spacings.pb,
+              spacings.ptMd,
+              spacings.mbXl,
+              {
+                borderRadius: 12,
+                backgroundColor: theme.primaryBackground,
+                shadowColor: theme.primaryBorder,
+                shadowOffset: { width: 0, height: 12 },
+                shadowOpacity: 0.3,
+                shadowRadius: 24,
+                elevation: 10 // for Android
+              }
+            ]}
+          >
+            <View style={spacings.mbXl}>
+              <Text appearance="secondaryText" fontSize={16} weight="medium" style={spacings.mbTy}>
                 {t('Send')}
               </Text>
               <View
                 style={[
                   styles.secondaryContainer,
+                  spacings.prLg,
                   !!validateFromAmount.message && styles.secondaryContainerWarning
                 ]}
               >
-                <View style={flexbox.directionRow}>
-                  <View style={flexbox.flex1}>
-                    <NumberInput
-                      value={fromAmountValue}
-                      onChangeText={onFromAmountChange}
-                      placeholder="0"
-                      borderless
-                      inputWrapperStyle={{ backgroundColor: 'transparent' }}
-                      nativeInputStyle={{ fontFamily: FONT_FAMILIES.MEDIUM, fontSize: 20 }}
-                      disabled={fromTokenAmountSelectDisabled}
-                      containerStyle={spacings.mb0}
-                      leftIcon={dollarIcon}
-                      leftIconStyle={spacings.pl0}
-                      inputStyle={spacings.pl0}
-                      error={validateFromAmount.message || ''}
-                      errorType="warning"
-                      testID="from-amount-input-sab"
-                    />
-                  </View>
+                <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
                   <Select
                     setValue={handleChangeFromToken}
                     options={fromTokenOptions}
@@ -279,9 +285,44 @@ const SwapAndBridgeScreen = () => {
                       borderWidth: 0
                     }}
                   />
+                  <NumberInput
+                    value={fromAmountValue}
+                    onChangeText={onFromAmountChange}
+                    placeholder="0"
+                    borderless
+                    inputWrapperStyle={{ backgroundColor: 'transparent' }}
+                    nativeInputStyle={{
+                      fontFamily: FONT_FAMILIES.MEDIUM,
+                      fontSize: 20,
+                      textAlign: 'right'
+                    }}
+                    disabled={fromTokenAmountSelectDisabled}
+                    containerStyle={[spacings.mb0, flexbox.flex1]}
+                    leftIcon={dollarIcon}
+                    leftIconStyle={spacings.pl0}
+                    inputStyle={spacings.pr0}
+                    error={validateFromAmount.message || ''}
+                    errorType="warning"
+                    testID="from-amount-input-sab"
+                  />
                 </View>
-                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.ptSm]}>
-                  <View style={flexbox.flex1}>
+                <View
+                  style={[
+                    flexbox.directionRow,
+                    flexbox.alignCenter,
+                    flexbox.justifySpaceBetween,
+                    spacings.ptSm
+                  ]}
+                >
+                  {!fromTokenAmountSelectDisabled && (
+                    <MaxAmount
+                      isLoading={!portfolio?.isReadyToVisualize}
+                      maxAmount={Number(maxFromAmount)}
+                      selectedTokenSymbol={fromSelectedToken?.symbol || ''}
+                      onMaxButtonPress={handleSetMaxFromAmount}
+                    />
+                  )}
+                  <View>
                     {fromSelectedToken?.priceIn.length !== 0 ? (
                       <Pressable
                         onPress={handleSwitchFromAmountFieldMode}
@@ -320,48 +361,47 @@ const SwapAndBridgeScreen = () => {
                       <View />
                     )}
                   </View>
-                  {!fromTokenAmountSelectDisabled && (
-                    <MaxAmount
-                      isLoading={!portfolio?.isReadyToVisualize}
-                      maxAmount={Number(maxFromAmount)}
-                      maxAmountInFiat={Number(maxFromAmountInFiat)}
-                      selectedTokenSymbol={fromSelectedToken?.symbol || ''}
-                      onMaxButtonPress={handleSetMaxFromAmount}
-                    />
-                  )}
                 </View>
               </View>
             </View>
-          </Panel>
-          <SwitchTokensButton
-            onPress={handleSwitchFromAndToTokens}
-            disabled={!isSwitchFromAndToTokensEnabled}
-          />
-          <Panel forceContainerSmallSpacings>
-            <View style={spacings.mb}>
-              <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbTy}>
-                {t('Receive')}
-              </Text>
+            <View style={spacings.mbTy}>
+              <View
+                style={[
+                  flexbox.directionRow,
+                  flexbox.alignCenter,
+                  flexbox.justifySpaceBetween,
+                  spacings.mbTy
+                ]}
+              >
+                <SwitchTokensButton
+                  onPress={handleSwitchFromAndToTokens}
+                  disabled={!isSwitchFromAndToTokensEnabled}
+                />
+                <Text appearance="secondaryText" fontSize={16} weight="medium">
+                  {t('Receive')}
+                </Text>
+                <Select
+                  setValue={handleSetToNetworkValue}
+                  containerStyle={{ ...spacings.mb0, width: 142 }}
+                  options={toNetworksOptions}
+                  size="sm"
+                  value={getToNetworkSelectValue}
+                  selectStyle={{
+                    backgroundColor: '#54597A14',
+                    borderWidth: 0
+                  }}
+                />
+              </View>
               <View style={[styles.secondaryContainer, spacings.ph0]}>
-                <View style={styles.networkSelectorContainer}>
-                  <Text appearance="secondaryText" fontSize={14} style={spacings.mrTy}>
-                    {t('Network')}
-                  </Text>
-                  <Select
-                    setValue={handleSetToNetworkValue}
-                    containerStyle={{ ...spacings.mb0, width: 215 }}
-                    options={toNetworksOptions}
-                    size="sm"
-                    value={getToNetworkSelectValue}
-                    selectStyle={{
-                      backgroundColor: '#54597A14',
-                      borderWidth: 0,
-                      ...spacings.pr,
-                      ...spacings.plTy
-                    }}
-                  />
-                </View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm]}>
+                  <ToTokenSelect
+                    toTokenOptions={toTokenOptions}
+                    toTokenValue={toTokenValue}
+                    handleChangeToToken={handleChangeToToken}
+                    toTokenAmountSelectDisabled={toTokenAmountSelectDisabled}
+                    addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
+                    handleAddToTokenByAddress={handleAddToTokenByAddress}
+                  />
                   <View style={[flexbox.flex1]}>
                     <Text
                       fontSize={20}
@@ -372,7 +412,7 @@ const SwapAndBridgeScreen = () => {
                           ? 'primaryText'
                           : 'secondaryText'
                       }
-                      style={spacings.mr}
+                      style={{ ...spacings.mr, textAlign: 'right' }}
                     >
                       {formattedToAmount}
                       {!!formattedToAmount &&
@@ -385,14 +425,6 @@ const SwapAndBridgeScreen = () => {
                         )}
                     </Text>
                   </View>
-                  <ToTokenSelect
-                    toTokenOptions={toTokenOptions}
-                    toTokenValue={toTokenValue}
-                    handleChangeToToken={handleChangeToToken}
-                    toTokenAmountSelectDisabled={toTokenAmountSelectDisabled}
-                    addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
-                    handleAddToTokenByAddress={handleAddToTokenByAddress}
-                  />
                 </View>
               </View>
             </View>
@@ -567,65 +599,69 @@ const SwapAndBridgeScreen = () => {
               </>
             )}
 
-            <View
-              style={[spacings.pt, { borderTopWidth: 1, borderTopColor: theme.secondaryBorder }]}
-            >
-              {!!highPriceImpactInPercentage && (
-                <View style={spacings.mbTy} testID="high-price-impact-sab">
-                  <Alert type="error" withIcon={false}>
-                    <Checkbox
-                      value={highPriceImpactConfirmed}
-                      style={{ ...spacings.mb0 }}
-                      onValueChange={handleHighPriceImpactCheckboxPress}
-                      uncheckedBorderColor={theme.errorDecorative}
-                      checkedColor={theme.errorDecorative}
+            {!!highPriceImpactInPercentage && (
+              <View style={spacings.mbTy} testID="high-price-impact-sab">
+                <Alert type="error" withIcon={false}>
+                  <Checkbox
+                    value={highPriceImpactConfirmed}
+                    style={{ ...spacings.mb0 }}
+                    onValueChange={handleHighPriceImpactCheckboxPress}
+                    uncheckedBorderColor={theme.errorDecorative}
+                    checkedColor={theme.errorDecorative}
+                  >
+                    <Text
+                      fontSize={16}
+                      appearance="errorText"
+                      weight="medium"
+                      onPress={handleHighPriceImpactCheckboxPress}
                     >
+                      {t('Warning: ')}
                       <Text
                         fontSize={16}
                         appearance="errorText"
-                        weight="medium"
                         onPress={handleHighPriceImpactCheckboxPress}
                       >
-                        {t('Warning: ')}
-                        <Text
-                          fontSize={16}
-                          appearance="errorText"
-                          onPress={handleHighPriceImpactCheckboxPress}
-                        >
-                          {t(
-                            'The price impact is too high (-{{highPriceImpactInPercentage}}%). If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
-                            {
-                              highPriceImpactInPercentage: highPriceImpactInPercentage.toFixed(1)
-                            }
-                          )}
-                        </Text>
+                        {t(
+                          'The price impact is too high (-{{highPriceImpactInPercentage}}%). If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
+                          {
+                            highPriceImpactInPercentage: highPriceImpactInPercentage.toFixed(1)
+                          }
+                        )}
                       </Text>
-                    </Checkbox>
-                  </Alert>
-                </View>
-              )}
-
-              <Button
-                text={
-                  mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-                    ? t('Signing...') // prev Building Transaction
-                    : highPriceImpactInPercentage
-                    ? t('Continue anyway')
-                    : t('Sign') // prev Proceed
-                }
-                disabled={
-                  formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
-                  shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
-                  (!!highPriceImpactInPercentage && !highPriceImpactConfirmed) ||
-                  mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
-                  updateQuoteStatus === 'LOADING'
-                }
-                hasBottomSpacing={false}
-                type={highPriceImpactInPercentage ? 'error' : 'primary'}
-                onPress={handleSubmitForm}
-              />
-            </View>
-          </Panel>
+                    </Text>
+                  </Checkbox>
+                </Alert>
+              </View>
+            )}
+          </View>
+          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
+            <Button
+              hasBottomSpacing={false}
+              text={t('Start a Batch')}
+              type="secondary"
+              style={{ minWidth: 160 }}
+            />
+            <Button
+              text={
+                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
+                  ? t('Loading...') // prev Building Transaction
+                  : highPriceImpactInPercentage
+                  ? t('Proceed anyway')
+                  : t('Proceed') // prev Proceed
+              }
+              disabled={
+                formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
+                shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
+                (!!highPriceImpactInPercentage && !highPriceImpactConfirmed) ||
+                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
+                updateQuoteStatus === 'LOADING'
+              }
+              style={{ minWidth: 160, ...spacings.mlLg }}
+              hasBottomSpacing={false}
+              type={highPriceImpactInPercentage ? 'error' : 'primary'}
+              onPress={handleSubmitForm}
+            />
+          </View>
         </View>
       </TabLayoutWrapperMainContent>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />

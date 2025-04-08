@@ -29,13 +29,16 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       maxWidth: SWAP_AND_BRIDGE_FORM_WIDTH,
       flex: 1,
-      alignSelf: 'center'
+      alignSelf: 'center',
+      overflow: 'visible'
     },
     secondaryContainer: {
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
-      ...spacings.phSm,
-      ...spacings.pvSm
+      ...spacings.ptMd,
+      ...spacings.prMd,
+      ...spacings.pbSm,
+      ...spacings.pl
     },
     secondaryContainerWarning: {
       borderWidth: 1,

@@ -260,7 +260,13 @@ const useSwapAndBridgeForm = () => {
           disabled: !isNetworkSupported,
           label: (
             <>
-              <Text weight="medium" dataSet={{ tooltipId }} style={flexbox.flex1} numberOfLines={1}>
+              <Text
+                fontSize={14}
+                weight="medium"
+                dataSet={{ tooltipId }}
+                style={flexbox.flex1}
+                numberOfLines={1}
+              >
                 {n.name}
               </Text>
               {!isNetworkSupported && (
@@ -273,7 +279,7 @@ const useSwapAndBridgeForm = () => {
               key={n.chainId.toString()}
               id={n.chainId.toString()}
               style={{ backgroundColor: theme.primaryBackground }}
-              size={28}
+              size={18}
             />
           )
         }

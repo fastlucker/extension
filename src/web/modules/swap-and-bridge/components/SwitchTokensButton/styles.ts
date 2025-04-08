@@ -12,7 +12,9 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     switchTokensButtonWrapper: {
-      height: 6,
+      position: 'absolute',
+      bottom: 8,
+      width: '100%',
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter,
       ...flexbox.alignSelfCenter,
