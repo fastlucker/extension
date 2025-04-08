@@ -45,6 +45,8 @@
     display: flex;
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
 
     .confetti {
       position: absolute;
@@ -55,22 +57,19 @@
     }
 
     .title {
-      position: absolute;
       font-size: 2.5rem;
       font-weight: 500;
       line-height: 1;
+      margin: 0 auto;
       color: $mainText;
-      top: 1.5em;
-      left: 50%;
-      transform: translateX(-50%);
     }
 
     .closeButton {
       font-size: inherit;
-      position: absolute;
+      align-self: end;
+      margin-right: 0.813em;
+      margin-top: 0.813em;
       display: block;
-      top: 1em;
-      right: 1em;
       width: 2em;
       height: 2em;
 
