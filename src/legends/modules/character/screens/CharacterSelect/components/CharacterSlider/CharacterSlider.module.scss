@@ -63,9 +63,8 @@ $smallerSlideSize: 12rem;
           width: $centerSlideSize;
           height: $centerSlideSize;
           max-width: unset;
-          
         }
-        
+
         &::before {
           content: '';
           position: absolute;
@@ -77,13 +76,12 @@ $smallerSlideSize: 12rem;
           border-radius: 50%;
           background-color: $mainBg;
           z-index: 1;
-          
+
           border: 0.25rem solid transparent;
           background-clip: padding-box, border-box;
           background-origin: padding-box, border-box;
-          background-image: linear-gradient($mainBg, $mainBg), 
-          linear-gradient(8.85deg, #5D83FF 9.6%, #6735FF 90.76%);;        
-                            
+          background-image: linear-gradient($mainBg, $mainBg),
+            linear-gradient(8.85deg, #5d83ff 9.6%, #6735ff 90.76%);
         }
 
         &::after {
@@ -97,18 +95,15 @@ $smallerSlideSize: 12rem;
           border-radius: 50%;
           background-color: transparent;
           z-index: 0;
-          
-          background: linear-gradient(8.85deg, #5D83FF 9.6%, #6735FF 90.76%);
-          -webkit-mask:
-            linear-gradient(#fff 0 0) content-box,
-            linear-gradient(#fff 0 0);
+
+          background: linear-gradient(8.85deg, #5d83ff 9.6%, #6735ff 90.76%);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
           -webkit-mask-composite: xor;
           mask-composite: exclude;
 
           background-origin: border-box;
           background-clip: border-box;
           padding: 2px;
-      
         }
 
         .extraBorder {
@@ -122,18 +117,15 @@ $smallerSlideSize: 12rem;
           border-radius: 50%;
           background-color: transparent;
           z-index: 0;
-          
-          background: linear-gradient(8.85deg, #5D83FF 9.6%, #6735FF 90.76%);
-          -webkit-mask:
-            linear-gradient(#fff 0 0) content-box,
-            linear-gradient(#fff 0 0);
+
+          background: linear-gradient(8.85deg, #5d83ff 9.6%, #6735ff 90.76%);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
           -webkit-mask-composite: xor;
           mask-composite: exclude;
 
           background-origin: border-box;
           background-clip: border-box;
           padding: 2px;
-
         }
       }
 
@@ -159,7 +151,6 @@ $smallerSlideSize: 12rem;
     font-weight: 700;
     line-height: 2.25rem;
     color: $primaryText;
-    text-transform: uppercase;
     font-family: $secondaryFont;
   }
 

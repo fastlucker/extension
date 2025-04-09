@@ -64,12 +64,9 @@ const CharacterSelect = () => {
           className={styles.backgroundEffect}
           style={{ backgroundImage: `url(${blurredLights})` }}
         />
-        <h1 className={styles.title}>Choose a Character</h1>
+        <h1 className={styles.title}>Mint Your NFT</h1>
         <p className={styles.description}>
-          Select your character, who will start at level 0. By completing quests and accumulating
-          XP, you&apos;ll level up and climb the leaderboard.
-          <br />
-          <br />✨ Choosing a character will mint an NFT on the Base chain.
+          Pick your profile avatar and mint a soulbound NFT for free
         </p>
         <CharacterSlider initialCharacterId={characterId} onCharacterChange={onCharacterChange} />
         {isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
@@ -88,7 +85,7 @@ const CharacterSelect = () => {
             disabled={isButtonDisabled}
             className={styles.saveButton}
           >
-            {isMinting ? 'Please wait...' : 'Select'}
+            {isMinting ? 'Please wait...' : 'Mint NFT'}
           </button>
         )}
         {isCheckingMintStatus && <Spinner />}
