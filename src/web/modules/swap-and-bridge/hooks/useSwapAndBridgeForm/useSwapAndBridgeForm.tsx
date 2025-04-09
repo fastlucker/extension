@@ -5,6 +5,7 @@ import { useModalize } from 'react-native-modalize'
 import { useSearchParams } from 'react-router-dom'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import { AccountOpAction } from '@ambire-common/interfaces/actions'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import {
@@ -20,6 +21,7 @@ import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -71,8 +73,19 @@ const useSwapAndBridgeForm = () => {
     close: closeEstimationModal
   } = useModalize()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { actionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => nanoid(), []) // purposely, so it is unique per hook lifetime
+
+  const mainAccountOpActions = useMemo(() => {
+    if (!account) return []
+    return (actionsQueue.filter((a) => a.type === 'accountOp') as AccountOpAction[]).filter(
+      (action) => action.accountOp.accountAddr === account.addr
+    )
+  }, [account, actionsQueue])
+  const isOneClickModeAllowed = useMemo(() => {
+    return mainAccountOpActions.length === 0
+  }, [mainAccountOpActions])
 
   const handleSetFromAmount = (val: string) => {
     setFromAmountValue(val)
@@ -404,25 +417,25 @@ const useSwapAndBridgeForm = () => {
     }
   }, [quote, formStatus, fromAmount, fromAmountInFiat, fromSelectedToken, updateQuoteStatus])
 
-  const handleSubmitForm = useCallback(() => {
-    // TODO<oneClickSwap>: build the transaction if there's anything in the queue
-    // or if the user has clicked on the "start a batch" button
-    const hasSomethingInQueue = false // TODO
+  const handleSubmitForm = useCallback(
+    (isOneClickMode: boolean) => {
+      if (!quote || !quote.selectedRoute) return
 
-    if (hasSomethingInQueue) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
-      })
-    } else {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM'
-      })
-    }
-
-    if (!hasSomethingInQueue) {
-      openEstimationModal()
-    }
-  }, [dispatch, openEstimationModal])
+      // open the estimation modal on one click method;
+      // build/add a swap user request on batch
+      if (isOneClickMode) {
+        openEstimationModal()
+      } else {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
+          params: {
+            activeRouteId: quote.selectedRoute.routeId
+          }
+        })
+      }
+    },
+    [dispatch, openEstimationModal, quote]
+  )
 
   /**
    * @deprecated - the settings menu is not used anymore
@@ -475,7 +488,8 @@ const useSwapAndBridgeForm = () => {
     estimationModalRef,
     closeEstimationModal,
     isAutoSelectRouteDisabled,
-    setIsAutoSelectRouteDisabled
+    setIsAutoSelectRouteDisabled,
+    isOneClickModeAllowed
   }
 }
 

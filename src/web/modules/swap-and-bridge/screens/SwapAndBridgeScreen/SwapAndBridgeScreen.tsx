@@ -84,7 +84,8 @@ const SwapAndBridgeScreen = () => {
     estimationModalRef,
     closeEstimationModal,
     isAutoSelectRouteDisabled,
-    setIsAutoSelectRouteDisabled
+    setIsAutoSelectRouteDisabled,
+    isOneClickModeAllowed
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -170,6 +171,27 @@ const SwapAndBridgeScreen = () => {
     formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
     (!signAccountOpController ||
       signAccountOpController.estimation.status === EstimationStatus.Loading)
+
+  const isNotReadyToProceed = useMemo(() => {
+    return (
+      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit &&
+        formStatus !== SwapAndBridgeFormStatus.ReadyToEstimate) ||
+      shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
+      (!!highPriceImpactInPercentage && !highPriceImpactConfirmed) ||
+      mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
+      updateQuoteStatus === 'LOADING' ||
+      isEstimatingRoute
+    )
+  }, [
+    followUpTransactionConfirmed,
+    isEstimatingRoute,
+    formStatus,
+    highPriceImpactInPercentage,
+    highPriceImpactConfirmed,
+    mainCtrlStatuses.buildSwapAndBridgeUserRequest,
+    shouldConfirmFollowUpTransactions,
+    updateQuoteStatus
+  ])
 
   const handleHighPriceImpactCheckboxPress = useCallback(() => {
     setHighPriceImpactConfirmed((p) => !p)
@@ -529,9 +551,10 @@ const SwapAndBridgeScreen = () => {
             <Button
               hasBottomSpacing={false}
               text={t('Start a Batch')}
-              disabled // @TODO
+              disabled={isNotReadyToProceed}
               type="secondary"
               style={{ minWidth: 160 }}
+              onPress={() => handleSubmitForm(false)}
             />
             <Button
               text={
@@ -541,19 +564,11 @@ const SwapAndBridgeScreen = () => {
                   ? t('Proceed anyway')
                   : t('Proceed') // prev Proceed
               }
-              disabled={
-                (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit &&
-                  formStatus !== SwapAndBridgeFormStatus.ReadyToEstimate) ||
-                shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
-                (!!highPriceImpactInPercentage && !highPriceImpactConfirmed) ||
-                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
-                updateQuoteStatus === 'LOADING' ||
-                isEstimatingRoute
-              }
+              disabled={isNotReadyToProceed || !isOneClickModeAllowed}
               style={{ minWidth: 160, ...spacings.mlLg }}
               hasBottomSpacing={false}
               type={highPriceImpactInPercentage ? 'error' : 'primary'}
-              onPress={handleSubmitForm}
+              onPress={() => handleSubmitForm(true)}
             />
           </View>
         </View>
