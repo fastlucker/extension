@@ -202,7 +202,8 @@
 
   .button {
     @include primary-button;
-    font-size: 1rem;
+    font-size: 1.25rem;
+    font-weight: 500;
     align-self: center;
     max-width: 18.75rem;
     z-index: 10;
