@@ -16,7 +16,7 @@ import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
-import AccountDropdown from '../AccountDropdown'
+import AccountInfo from '../AccountInfo'
 import Link from './components/Link'
 import Socials from './components/Socials'
 import styles from './Sidebar.module.scss'
@@ -74,7 +74,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           <FontAwesomeIcon icon={faChevronLeft} />
         </button>
         <img className={styles.logo} src="/images/logo.png" alt="Ambire Legends" />
-        <AccountDropdown />
+        <AccountInfo />
         <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />
 
         <div className={styles.links}>

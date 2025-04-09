@@ -22,6 +22,7 @@
   flex-direction: column;
   justify-content: space-between;
   height: 100vh;
+  overflow: hidden;
   transition: left 0.3s, opacity 0.2s;
 
   &:not(.open) {
@@ -43,7 +44,7 @@
   .top {
     position: static;
     .bannerText {
-      font-size: .75rem;
+      font-size: 0.75rem;
       margin-bottom: 0.75rem;
       color: $primaryBackground;
     }
@@ -99,7 +100,6 @@
     }
   }
 
-
   .leaderSection {
     padding-top: 1rem;
     padding-bottom: 3.75rem;
@@ -109,7 +109,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.35rem;
-    
+
       .inviteTitle {
         font-size: 1rem;
         font-weight: 500;
@@ -127,9 +127,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: .5rem;
+      padding: 0.5rem;
       background: $primaryBackground;
-      padding: .25rem .625rem;
+      padding: 0.25rem 0.625rem;
       gap: 10px;
       border-radius: 0.5rem;
       border-radius: $primaryBorderRadius;
@@ -137,9 +137,7 @@
       font-size: 1rem;
       font-weight: 500;
     }
-
   }
-  
 
   @include breakpoint-from(large-tablet) {
     position: static;
@@ -184,6 +182,4 @@
       padding-top: 0.5rem;
     }
   }
-
- 
 }
