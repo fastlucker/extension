@@ -31,7 +31,6 @@
       background: linear-gradient(100.29deg, $green-500 7.82%, $teal 49.79%, $dark-purple 92.28%), linear-gradient(0deg, rgba(244, 244, 247, 0.102), rgba(244, 244, 247, 0.1));
     }
     &:active {
-      transform: translateY(0.125rem);
       box-shadow: none;
     }
   }

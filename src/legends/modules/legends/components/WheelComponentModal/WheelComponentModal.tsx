@@ -20,8 +20,8 @@ import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 
 import { humanizeError } from '../../utils/errors/humanizeError'
 import chainImage from './assets/chain.png'
-import mainImage from './assets/main.png'
 import pointerImage from './assets/pointer.png'
+import smokeAndLights from './assets/smoke-and-lights-background.png'
 import spinnerImage from './assets/spinner.png'
 import styles from './WheelComponentModal.module.scss'
 import WHEEL_PRIZE_DATA from './wheelData'
@@ -37,7 +37,7 @@ const POST_UNLOCK_STATES = ['unlocked', 'spinning', 'spun', 'error']
 
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClose }) => {
   const switchNetwork = useSwitchNetwork()
-  const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
+  const [prizeNumber, setPrizeNumber] = useState<null | number>(30)
   const [wheelState, setWheelState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
   >('locked')
@@ -203,12 +203,13 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
   return createPortal(
     <div className={styles.backdrop}>
-      <div
-        className={styles.wrapper}
-        style={{
-          backgroundImage: `url(${mainImage})`
-        }}
-      >
+      <div className={styles.wrapper}>
+        <div
+          className={styles.backgroundEffect}
+          style={{
+            backgroundImage: `url(${smokeAndLights})`
+          }}
+        />
         <div className={styles.content}>
           {wheelState === 'spun' ? (
             <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
