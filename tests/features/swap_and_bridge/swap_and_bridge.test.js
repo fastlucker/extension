@@ -64,12 +64,12 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   afterAll(async () => {})
 
   it('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async () => {
-    let text = await prepareSwapAndBridge(page, 0.03, 'WALLET', '8453', 'USDC')
+    let text = await prepareSwapAndBridge(page, 0.003, 'WALLET', '8453', 'USDC')
     let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
     await batchActionPage(actionPage)
-    text = await prepareSwapAndBridge(page, 0.02, 'USDC', '8453', 'ETH')
+    text = await prepareSwapAndBridge(page, 0.002, 'USDC', '8453', 'ETH')
     actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
