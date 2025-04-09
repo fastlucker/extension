@@ -4,10 +4,12 @@ import { Port } from '@web/extension-services/messengers'
 
 export const handleCleanUpOnPortDisconnect = async ({
   port,
-  mainCtrl
+  mainCtrl,
+  getAllPorts
 }: {
   port: Port
   mainCtrl: MainController
+  getAllPorts: () => Port[]
 }) => {
   if (!port.sender || !port.sender?.url) return
 
@@ -41,7 +43,22 @@ export const handleCleanUpOnPortDisconnect = async ({
     const shouldResetAccountAdder = ONBOARDING_WEB_ROUTES.some((r) => url.pathname.includes(r))
 
     if (shouldResetAccountAdder) {
-      await mainCtrl.accountPicker.reset()
+      setTimeout(async () => {
+        // If a port with the same URL appears within 500ms, it's likely a page reload.
+        // In that case, skip resetting the accountPicker.
+        const ports = getAllPorts()
+
+        if (
+          !ports.some((p) => {
+            if (!p.sender || !p.sender?.url) return false
+            const portUrl = new URL(p.sender.url)
+
+            return portUrl.pathname === url.pathname
+          })
+        ) {
+          await mainCtrl.accountPicker.reset()
+        }
+      }, 500)
     }
   }
 }

@@ -965,7 +965,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
         initDefiPositionsContinuousUpdate()
-        handleCleanUpOnPortDisconnect({ port, mainCtrl })
+
+        handleCleanUpOnPortDisconnect({ port, mainCtrl, getAllPorts: () => pm.ports })
 
         // The selectedAccount portfolio is reset onLoad of the popup
         // (from the background) while the portfolio update is triggered

@@ -52,6 +52,17 @@ const routesConfig: RouteConfig = {
       web: i18n.t('Welcome to Ambire Wallet')
     })
   },
+  [ROUTES.ledgerConnect]: {
+    route: ROUTES.ledgerConnect,
+    title: Platform.select({
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
+    }),
+    name: Platform.select({
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
+    })
+  },
   [ROUTES.authEmailAccount]: {
     route: ROUTES.authEmailAccount,
     title: Platform.select({
@@ -102,15 +113,6 @@ const routesConfig: RouteConfig = {
     }),
     name: Platform.select({
       default: i18n.t('Select Hardware Wallet')
-    })
-  },
-  [ROUTES.hardwareWalletLedger]: {
-    route: ROUTES.hardwareWalletLedger,
-    title: Platform.select({
-      default: i18n.t('Login with Hardware Wallet')
-    }),
-    name: Platform.select({
-      default: i18n.t('Login with Hardware Wallet')
     })
   },
   [ROUTES.accountPicker]: {

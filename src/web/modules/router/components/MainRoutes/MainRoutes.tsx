@@ -31,6 +31,7 @@ import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportSc
 import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
 import HardwareWalletReconnectScreen from '@web/modules/hardware-wallet/screens/HardwareWalletReconnectScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
+import LedgerConnectScreen from '@web/modules/hardware-wallet/screens/LedgerConnectScreen/LedgerConnectScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import NetworksScreen from '@web/modules/networks/screens'
@@ -107,6 +108,7 @@ const MainRoutes = () => {
               path={WEB_ROUTES.importExistingAccount}
               element={<ImportExistingAccountSelectorScreen />}
             />
+            <Route path={WEB_ROUTES.ledgerConnect} element={<LedgerConnectScreen />} />
 
             <Route path={WEB_ROUTES.importPrivateKey} element={<PrivateKeyImportScreen />} />
             <Route path={WEB_ROUTES.importSeedPhrase} element={<SeedPhraseImportScreen />} />

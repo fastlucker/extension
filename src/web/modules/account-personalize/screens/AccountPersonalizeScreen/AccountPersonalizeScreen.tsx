@@ -120,7 +120,6 @@ const AccountPersonalizeScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="md"
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
     >
@@ -183,11 +182,14 @@ const AccountPersonalizeScreen = () => {
                 hasBottomSpacing={false}
                 text={t('Get Started')}
               />
-              {accountPickerState.subType === 'seed' && (
+              {['seed', 'hw'].includes(accountPickerState.subType as any) && (
                 <View style={spacings.ptLg}>
                   <Button
                     type="ghost"
-                    text={t('Add more accounts from this Recovery Phrase')}
+                    text={t('Add more accounts from this {{source}}', {
+                      source:
+                        accountPickerState.subType === 'hw' ? 'Hardware Wallet' : 'Recovery Phrase'
+                    })}
                     onPress={() => goToNextRoute(WEB_ROUTES.accountPicker)}
                     textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}
                     style={{ ...spacings.ph0, height: 22 }}

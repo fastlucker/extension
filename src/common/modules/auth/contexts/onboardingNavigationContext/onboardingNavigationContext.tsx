@@ -101,11 +101,10 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
         new RouteNode(
           WEB_ROUTES.importExistingAccount,
           [
+            ...common,
             new RouteNode(WEB_ROUTES.importPrivateKey, common),
             new RouteNode(WEB_ROUTES.importSeedPhrase, common),
-            new RouteNode('ledger', common),
-            new RouteNode('trezor', common),
-            new RouteNode('grid', common),
+            new RouteNode(WEB_ROUTES.ledgerConnect, common),
             new RouteNode(WEB_ROUTES.importSmartAccountJson, common)
           ],
           false,
