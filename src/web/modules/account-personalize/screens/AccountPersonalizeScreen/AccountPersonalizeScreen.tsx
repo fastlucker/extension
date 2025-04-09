@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { ScrollView, View } from 'react-native'
 
@@ -42,6 +42,7 @@ const AccountPersonalizeScreen = () => {
   })
 
   const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>([])
+  const personalizeReady = useRef(false)
 
   useEffect(() => {
     if (accountPickerState.isInitialized) {
@@ -74,12 +75,13 @@ const AccountPersonalizeScreen = () => {
 
   const handleGetStarted = useCallback(async () => {
     await handleSubmit(handleSave)()
-    if (accounts.some((a) => a.newlyAdded)) {
-      dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
-    }
-  }, [accounts, dispatch, handleSave, handleSubmit])
+    dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
+    personalizeReady.current = true
+  }, [dispatch, handleSave, handleSubmit])
 
   useEffect(() => {
+    if (!personalizeReady.current) return
+
     if (accounts.length && accounts.every((a) => !a.newlyAdded)) {
       goToNextRoute()
     }
