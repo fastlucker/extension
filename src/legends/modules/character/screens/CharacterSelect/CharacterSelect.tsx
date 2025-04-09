@@ -8,6 +8,7 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
+import blurredLights from './blurred-lights-wide.png'
 import styles from './CharacterSelect.module.scss'
 import CharacterLoadingModal from './components/CharacterLoadingModal'
 import CharacterSlider from './components/CharacterSlider'
@@ -58,14 +59,14 @@ const CharacterSelect = () => {
   return (
     <>
       <NonV2Modal isOpen={!!nonV2Account} />
-
       <div className={styles.wrapper}>
-        <h1 className={styles.title}>Choose a Character</h1>
+        <div
+          className={styles.backgroundEffect}
+          style={{ backgroundImage: `url(${blurredLights})` }}
+        />
+        <h1 className={styles.title}>Mint Your NFT</h1>
         <p className={styles.description}>
-          Select your character, who will start at level 0. By completing quests and accumulating
-          XP, you&apos;ll level up and climb the leaderboard.
-          <br />
-          <br />✨ Choosing a character will mint an NFT on the Base chain.
+          Pick your profile avatar and mint a soulbound NFT for free
         </p>
         <CharacterSlider initialCharacterId={characterId} onCharacterChange={onCharacterChange} />
         {isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
@@ -84,7 +85,7 @@ const CharacterSelect = () => {
             disabled={isButtonDisabled}
             className={styles.saveButton}
           >
-            {isMinting ? 'Please wait...' : 'Select'}
+            {isMinting ? 'Please wait...' : 'Mint NFT'}
           </button>
         )}
         {isCheckingMintStatus && <Spinner />}
