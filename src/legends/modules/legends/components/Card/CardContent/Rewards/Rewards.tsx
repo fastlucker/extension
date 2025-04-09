@@ -36,7 +36,7 @@ const Rewards: FC<Props> = ({ xp, size = 'lg', reverse }) => {
           )}
           <div className={styles.itemText}>
             {from}
-            {to !== from ? `-${to}` : ''} XP
+            {to !== from ? ` - ${to}` : ''} XP
           </div>
         </div>
       ))}
