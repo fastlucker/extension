@@ -13,7 +13,7 @@ $smallerSlideSize: 12rem;
     @include container;
     position: relative;
     display: flex;
-    height: $centerSlideSize;
+    height: 31rem;
 
     :global(.swiper-wrapper) {
       align-items: center;
@@ -68,7 +68,7 @@ $smallerSlideSize: 12rem;
         &::before {
           content: '';
           position: absolute;
-          bottom: -7rem;
+          bottom: -8rem;
           left: 52%;
           transform: translateX(-50%);
           width: 15.125rem;
@@ -87,7 +87,7 @@ $smallerSlideSize: 12rem;
         &::after {
           content: '';
           position: absolute;
-          bottom: -7.5rem;
+          bottom: -8.5rem;
           left: 52%;
           transform: translateX(-50%);
           width: 18rem;
@@ -109,7 +109,7 @@ $smallerSlideSize: 12rem;
         .extraBorder {
           content: '';
           position: absolute;
-          bottom: -8.2rem;
+          bottom: -9.2rem;
           left: 52%;
           transform: translateX(-50%);
           width: 22rem;
